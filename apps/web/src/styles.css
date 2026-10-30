@@ -761,6 +761,9 @@ ol {
   white-space: nowrap;
   border-radius: var(--radius);
 }
+/* Done: verified or handed over. */
+.status-verified,
+.status-handed_to_post,
 .status-ready,
 .status-clean,
 .status-delivered,
@@ -789,6 +792,12 @@ ol {
   background: var(--warning-tint);
   color: var(--warning);
 }
+/* Under way: no action needed yet. */
+.status-submitting,
+.status-dispatched,
+.status-postal_dispatched,
+.status-materializing,
+.status-frozen,
 .status-prepared,
 .status-approved,
 .status-accepted,
@@ -800,6 +809,10 @@ ol {
   background: var(--blue-tint);
   color: var(--blue-ink);
 }
+/* Needs attention. Draft, cancelled, revoked and purged stay neutral. */
+.status-cancellation_requested,
+.status-blocked,
+.status-suppressed,
 .status-submission_unknown,
 .status-reconciliation_required,
 .status-quarantined,
@@ -3281,8 +3294,16 @@ ol {
     text-align: left;
   }
   .workspace .responsive-table tbody :is(td, th):first-child,
-  .workspace .responsive-table tbody .member-actions-cell {
+  .workspace .responsive-table tbody .member-actions-cell,
+  .workspace
+    .responsive-table
+    tbody
+    :is(td, th):last-child:has(button, .button) {
     grid-column: 1 / -1;
+  }
+  /* Cells may break long identifiers; a button label never breaks mid-word. */
+  .workspace .responsive-table tbody :is(button, .button) {
+    overflow-wrap: normal;
   }
   .workspace .mobile-cell-label {
     display: block;
