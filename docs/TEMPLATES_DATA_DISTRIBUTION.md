@@ -159,8 +159,8 @@ without reopening generation, approving sends or retrying unknown provider outco
 Existing PDFs/provenance remain.
 
 [Annotation remediation](MCP_ANNOTATION_REMEDIATION.md) records all four booleans for
-67 tools. Success may persist production connection activity, so full-contract
-`readOnlyHint:false`/`idempotentHint:false` also apply to observed business reads.
+67 tools. Business reads declare `readOnlyHint:true`/`idempotentHint:true`; the
+connection's last-used time refreshed after any success is connection metadata.
 `npm run audit:mcp` checks actual local `tools/list` coverage. On 20 October,
 55 `tests/integration/template-workflow.test.ts` cases including excluded-record
 freezing, 16 `tests/unit/mcp-annotation-audit.test.ts` cases, full typecheck/lint and

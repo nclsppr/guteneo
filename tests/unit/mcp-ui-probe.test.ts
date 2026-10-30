@@ -252,10 +252,10 @@ describe("temporary MCP Apps diagnostic", () => {
         });
         expect(tool.annotations).toEqual({
           title: tool.title,
-          readOnlyHint: false,
+          readOnlyHint: true,
           destructiveHint: false,
           openWorldHint: false,
-          idempotentHint: false,
+          idempotentHint: true,
         });
       }
       expect(tools.find((t) => t.name === names[0])?._meta?.ui).toEqual({

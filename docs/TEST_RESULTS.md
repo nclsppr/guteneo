@@ -1,5 +1,25 @@
 # Executed verification
 
+## Read-only MCP annotations and per-table D1 checks — 30 October 2026 candidate 1.1.22
+
+Candidate 1.1.21's hosted CI failed on four jobs. Three D1 integrity checks
+(`migrate-remote --verify`, `fax-pilot-extension`, `postal-window-migration`)
+returned `SQLITE_NOMEM` from a database-wide `PRAGMA quick_check` once all 70
+migrations were installed; they passed locally on macOS. The checks now run
+`quick_check` per table through `scripts/d1-integrity.mjs`, which still verifies
+every row's NOT NULL and CHECK constraints and each table's indexes. The
+Engineering test now expects the fourth Mermaid figure. Locally, the two tests
+pass and `migrate-remote --verify` reports `quickCheck: "ok"` with zero
+foreign-key violations; hosted CI must confirm the memory fix.
+
+The 36 MCP tools that only read now declare `readOnlyHint:true` and
+`idempotentHint:true`, as OpenAI's review guidance requires. The connection's
+last-used time refreshed after any successful call is connection metadata and is
+disclosed as such. `npm run audit:mcp` reports no issue; the ten MCP contract
+suites pass **132/132**; typecheck, lint, documentation, standards and integration
+fingerprint checks pass for plugin **1.1.22**. These are local observations; no
+release, portal rescan or submission was performed.
+
 ## Consumed provider deadlines — 30 October 2026 candidate 1.1.21
 
 Production remains **1.1.20**, source

@@ -100,9 +100,9 @@ alongside explicit grant, renewal and current-role restrictions.
 `read_document_pages` gives the same business read before preparation, including
 postal address inspection before transfer. It needs no sending mandate and creates
 neither approval progress nor a token. Current rights, ready PDF and scan proof
-are rechecked before images return. Like other successful production MCP calls,
-it may record connection activity, so full-contract `readOnlyHint:false` and
-`idempotentHint:false` remain without extra business authority.
+are rechecked before images return. It declares `readOnlyHint:true` and
+`idempotentHint:true`: the connection's last-used time, refreshed after any
+successful MCP call, is connection metadata rather than an effect of the tool.
 
 Default `review_dispatch` returns complete-page MCP images and bounded supporting
 text in groups of at most three. Original limits are **10 MiB and 100 pages**.

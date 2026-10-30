@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "guteneo",
-  "version": "1.1.21",
+  "version": "1.1.22",
   "description": "Prepare PDFs, dispatches and account-protected PDF distribution when enabled for your Guteneo account.",
   "author": {
     "name": "NICOLAS PATRICK HENRI FRANK PIEPER"
@@ -97,7 +97,7 @@
         }
       },
       "publication": {
-        "release_notes": "Package 1.1.20 adds daily automatic maintenance of explicitly registered live fax tariff references from authenticated current Telnyx catalog discovery and ECB sources, with immutable revisions, bounded fetching and unchanged route authority. It also adds revocable continuous preparation access for the dedicated, permanently unsendable reviewer account, using an explicitly labelled archived reference without weekly tariff or thirty-day authority renewal. Reviewer quotes retain their own short expiry, EUR2 ceiling and seven-page limit. Tenant isolation and all approval, sending and provider gates remain in force. Source/package validation does not establish production activation, reviewer-test completion or marketplace approval.",
+        "release_notes": "Package 1.1.22 declares the 36 Guteneo tools that only read, including documents, dispatch status, postal setup, templates, datasets, generations and PDF reports, as read-only and idempotent. The connection last-used time that Guteneo refreshes after any successful call is connection metadata and is disclosed as such. The postal guidance now explains that Guteneo keeps postal pricing qualified automatically while the selected postal configuration is unchanged; an expired qualification is still refused, never bypassed. Tenant isolation, approval, sending and provider gates are unchanged.",
         "translations": {
           "fr-FR": {
             "subtitle": "PDF, devis et suivi des envois",

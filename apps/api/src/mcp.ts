@@ -667,13 +667,15 @@ type ExplicitToolAnnotations = ToolAnnotations &
     boolean
   >;
 const CONNECTION_ACTIVITY_NOTICE =
-  " In production, a successful call may also update this connection’s last-used time in Guteneo, including a deduplicated business replay.";
-// Successful calls can persist activity for an authorized production connection.
-// Even a business replay can advance it, so the complete tool is not idempotent.
-const observedReadAnnotations = {
-  readOnlyHint: false,
+  " After a successful call, Guteneo updates this connection’s last-used time; this connection metadata changes no business data.";
+// The adapter below refreshes the connection's last-used time after any
+// successful call. That access metadata belongs to the connection, not to the
+// tool, so a tool that only reads stays read-only and idempotent. Write tools
+// remain non-idempotent: even a deduplicated business replay refreshes it.
+const readOnlyAnnotations = {
+  readOnlyHint: true,
   destructiveHint: false,
-  idempotentHint: false,
+  idempotentHint: true,
   openWorldHint: false,
 } satisfies ExplicitToolAnnotations;
 const writeAnnotations = {
@@ -1088,7 +1090,7 @@ export function createGuteneoMcpServer(
             "A temporary, connection-bound MCP Apps diagnostic. Checks only rendering and the standard host bridge. Reads no file or business content and creates no upload, grant, preparation, charge or send. API presence and a requested picker do not establish original-file access or transfer. Unavailable outside its server-owned activation window.",
           inputSchema: z.object({}).strict(),
           outputSchema: output(mcpUiProbeResult),
-          annotations: observedReadAnnotations,
+          annotations: readOnlyAnnotations,
           _meta: {
             ...oauthMetadata("documents:read"),
             ui: {
@@ -1121,7 +1123,7 @@ export function createGuteneoMcpServer(
           "Opens Guteneo’s private original-PDF picker in a host that supports MCP Apps. The person selects a new local original up to 10 MiB and confirms Import within the interface; opening it imports nothing and grants no access to earlier conversation attachments. The App transfers exact original bytes through a dedicated bounded protocol and returns the registered document ID and state. Host rendering and actual transfer capability remain independently required; scanning and readiness are separate. Creates no dispatch approval, paid check, expert mandate or sending authority.",
         inputSchema: z.object({}).strict(),
         outputSchema: output(mcpAppUploadOpenerData),
-        annotations: observedReadAnnotations,
+        annotations: readOnlyAnnotations,
         _meta: {
           ...oauthMetadata("documents:write"),
           ui: {
@@ -1258,7 +1260,7 @@ export function createGuteneoMcpServer(
             })
             .strict(),
         ),
-        annotations: observedReadAnnotations,
+        annotations: readOnlyAnnotations,
         _meta: oauthMetadata("dispatches:read"),
       },
       (query) =>
@@ -1278,7 +1280,7 @@ export function createGuteneoMcpServer(
           "Returns the current status, quote, policy and auditable events of the same workspace share, including reconciliation after a lost command response. Events distinguish server, browser and provider provenance. Display does not prove complete reading; a started download does not prove the file was saved. Screenshot detection and tracking of personal-copy reading are unavailable. This read creates no new distribution or transmission.",
         inputSchema: z.object({ distributionId: id }).strict(),
         outputSchema: output(secureDistributionSchema),
-        annotations: observedReadAnnotations,
+        annotations: readOnlyAnnotations,
         _meta: oauthMetadata("dispatches:read"),
       },
       ({ distributionId }) =>
@@ -1350,7 +1352,7 @@ export function createGuteneoMcpServer(
             "Returns the connected organisation’s postal setup and sender.id. available describes the service, configured describes the account, canManage describes setup authority and reason identifies any blocker. setup_required indicates an absent sender; pricing_expired indicates that the same registered sender requires explicit pricing revalidation. This read changes no configuration, renews no prices and requires no expert mandate. Suspensions remain blocking; final browser approval is independent of setup.",
           inputSchema: z.object({}).strict(),
           outputSchema: output(postalSetupSchema),
-          annotations: observedReadAnnotations,
+          annotations: readOnlyAnnotations,
           _meta: oauthMetadata("documents:read"),
         },
         () =>
@@ -1427,7 +1429,7 @@ export function createGuteneoMcpServer(
           .strict(),
         outputSchema: output(z.unknown()),
         // Only the configured private Pingen account is consulted.
-        annotations: observedReadAnnotations,
+        annotations: readOnlyAnnotations,
         _meta: oauthMetadata("documents:read"),
       },
       ({ country, addressPosition }) =>
@@ -1467,7 +1469,7 @@ export function createGuteneoMcpServer(
           "Returns the same postal preflight, expected and extracted address text, documentId and transfer state. textVisibility remains not_verified because matching text alone does not prove visible placement. cropUrl and reviewUrl support human browser review. canTransfer describes the browser path rather than expert authority. prepared denotes a provider draft without postal sending. An unknown transfer remains unresolved and ineligible for another transfer attempt.",
         inputSchema: z.object({ preflightId: id }).strict(),
         outputSchema: output(z.unknown()),
-        annotations: observedReadAnnotations,
+        annotations: readOnlyAnnotations,
         _meta: oauthMetadata("documents:read"),
       },
       ({ preflightId }) =>
@@ -1606,7 +1608,7 @@ export function createGuteneoMcpServer(
           inputSchema: schema,
           outputSchema: output(z.unknown()),
           annotations: read
-            ? observedReadAnnotations
+            ? readOnlyAnnotations
             : {
                 ...writeAnnotations,
                 idempotentHint: false,
@@ -2054,7 +2056,7 @@ export function createGuteneoMcpServer(
         "Returns Guteneo PDF management, fax, email and postal-delivery capabilities, actual limits, connection state and activation blockers for the current account. The response identifies simulation or production explicitly. Electronic signatures, inbox reading and SMS are outside the service. Provider metadata describes technical provenance rather than additional account authority or a delivery guarantee.",
       inputSchema: z.object({}).strict(),
       outputSchema: output(z.unknown()),
-      annotations: observedReadAnnotations,
+      annotations: readOnlyAnnotations,
       _meta: oauthMetadata(),
     },
     () => run(null, () => services.capabilities(identity)),
@@ -2067,7 +2069,7 @@ export function createGuteneoMcpServer(
         "Returns this connection’s expert mandate status, expiry, channels, ceilings and remaining daily budget. Activates, renews and changes no mandate. canUseExpert establishes no scanner, credit or provider availability. accountUrl identifies the browser account area for administrator intervention when required.",
       inputSchema: z.object({}).strict(),
       outputSchema: output(z.unknown()),
-      annotations: observedReadAnnotations,
+      annotations: readOnlyAnnotations,
       _meta: oauthMetadata(),
     },
     () =>
@@ -2146,7 +2148,7 @@ export function createGuteneoMcpServer(
           .object({ uploadId: z.string().regex(/^upl_[a-f0-9-]{36}$/) })
           .strict(),
         outputSchema: output(z.unknown()),
-        annotations: { ...observedReadAnnotations, destructiveHint: true },
+        annotations: { ...writeAnnotations, destructiveHint: true },
         _meta: oauthMetadata("documents:write"),
       },
       ({ uploadId }) =>
@@ -2225,7 +2227,7 @@ export function createGuteneoMcpServer(
         .object({ documentId: id, dispatchId: id.optional() })
         .strict(),
       outputSchema: output(documentSchema),
-      annotations: observedReadAnnotations,
+      annotations: readOnlyAnnotations,
       _meta: oauthMetadata("documents:read"),
     },
     ({ documentId, dispatchId }) =>
@@ -2284,11 +2286,7 @@ export function createGuteneoMcpServer(
           })
           .strict(),
         outputSchema: output(pdfValidationReportSchema),
-        annotations: {
-          ...writeAnnotations,
-          idempotentHint: false,
-          destructiveHint: false,
-        },
+        annotations: readOnlyAnnotations,
         _meta: oauthMetadata("documents:write"),
       },
       ({ documentId, profile, idempotencyKey }) =>
@@ -2311,7 +2309,7 @@ export function createGuteneoMcpServer(
         outputSchema: output(
           z.object({ items: z.array(pdfValidationReportSchema) }).strict(),
         ),
-        annotations: observedReadAnnotations,
+        annotations: readOnlyAnnotations,
         _meta: oauthMetadata("documents:read"),
       },
       ({ documentId }) =>
@@ -2340,7 +2338,7 @@ export function createGuteneoMcpServer(
           })
           .strict(),
       ),
-      annotations: observedReadAnnotations,
+      annotations: readOnlyAnnotations,
       _meta: oauthMetadata("documents:read"),
     },
     ({ cursor, limit }) =>
@@ -2562,7 +2560,7 @@ export function createGuteneoMcpServer(
         })
         .strict(),
       outputSchema: output(z.unknown()),
-      annotations: observedReadAnnotations,
+      annotations: readOnlyAnnotations,
       _meta: oauthMetadata("documents:read"),
     },
     ({ documentId, page, dispatchId }) =>
@@ -2772,7 +2770,7 @@ export function createGuteneoMcpServer(
         "Performs read-only business validation of an already prepared dispatch: state, absence of attempts, quote validity, document protection and recipient blocking. Consumes or renews no quote, creates no approval, reserves no credit or quota, queues nothing and contacts no provider. Expired quotes remain expired. Results are partial because transactional acceptance and delivery are not executed; success creates no sending permission.",
       inputSchema: z.object({ dispatchId: id }).strict(),
       outputSchema: output(dispatchValidationResultSchema),
-      annotations: observedReadAnnotations,
+      annotations: readOnlyAnnotations,
       _meta: oauthMetadata("dispatches:read"),
     },
     ({ dispatchId }) =>
@@ -2788,7 +2786,7 @@ export function createGuteneoMcpServer(
         "Returns a dispatch’s known state, cost and recovery information. Accepted denotes provider acceptance rather than delivery. An uncertain provider outcome remains unresolved and ineligible for automatic retransmission.",
       inputSchema: z.object({ dispatchId: id }).strict(),
       outputSchema: output(dispatchSchema),
-      annotations: observedReadAnnotations,
+      annotations: readOnlyAnnotations,
       _meta: oauthMetadata("dispatches:read"),
     },
     ({ dispatchId }) =>
@@ -2830,7 +2828,7 @@ export function createGuteneoMcpServer(
           })
           .strict(),
       ),
-      annotations: observedReadAnnotations,
+      annotations: readOnlyAnnotations,
       _meta: oauthMetadata("dispatches:read"),
     },
     ({ cursor, limit, group }) =>
