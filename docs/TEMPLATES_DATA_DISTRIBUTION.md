@@ -23,7 +23,11 @@ without changing record identifiers. A browser-only owner-authorized
 pages of 50 with the result-record cursor;
 `?recordId=…` supplies one record for explicit correction. The current membership,
 tenant and creator gates are rechecked; shared-template or review access grants
-no access to private source inputs. This adds no MCP tool or native permission.
+no access to private source inputs. The optional current template name also
+requires current template read permission; revoking sharing hides that metadata
+while the creator retains their own generation and record labels. A local D1/R2
+regression covers sharing, revocation and a later private rename. This adds no MCP
+tool or native permission.
 
 [Local acceptance](STUDIO_SPACE_REPRISE.md) records the actual V1/V2 and missing-
 data checks separately from browser fixtures and deployed/provider qualification.
