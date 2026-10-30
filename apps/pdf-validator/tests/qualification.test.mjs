@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import ts from "typescript";
+import { stripTypeScriptTypes } from "node:module";
+import { parse } from "jsonc-parser";
 import {
   ENGINE,
   loadReferenceCorpus,
@@ -12,12 +13,7 @@ import {
 
 function compile(path, replace = (value) => value) {
   const source = readFileSync(new URL(path, import.meta.url), "utf8");
-  const compiled = ts.transpileModule(source, {
-    compilerOptions: {
-      target: ts.ScriptTarget.ES2022,
-      module: ts.ModuleKind.ESNext,
-    },
-  }).outputText;
+  const compiled = stripTypeScriptTypes(source, { mode: "strip" });
   return import(
     `data:text/javascript;base64,${Buffer.from(replace(compiled)).toString("base64")}`
   );
@@ -606,14 +602,16 @@ test("private qualification observes the actual source/version metadata instead 
 });
 
 test("probe config uses the explicit production account, authenticated remote bindings and no public routes", () => {
-  const { config, error } = ts.parseConfigFileTextToJson(
-    "qualification/wrangler.jsonc",
+  const errors = [];
+  const config = parse(
     readFileSync(
       new URL("../qualification/wrangler.jsonc", import.meta.url),
       "utf8",
     ),
+    errors,
+    { allowTrailingComma: true },
   );
-  assert.equal(error, undefined);
+  assert.deepEqual(errors, []);
   assert.equal(config.account_id, "39ac9fada6cba44d9ecf09d467609e69");
   assert.equal(config.workers_dev, false);
   assert.equal(config.preview_urls, false);

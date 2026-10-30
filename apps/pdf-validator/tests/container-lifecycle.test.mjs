@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
-import ts from "typescript";
+import { stripTypeScriptTypes } from "node:module";
 
 // Exercise the actual subclass while replacing only Cloudflare's host runtime.
 // The readiness promise is deliberately held while the idle callback fires.
@@ -9,14 +9,8 @@ const source = readFileSync(
   new URL("../src/index.ts", import.meta.url),
   "utf8",
 );
-const compiled = ts
-  .transpileModule(source, {
-    compilerOptions: {
-      target: ts.ScriptTarget.ES2022,
-      module: ts.ModuleKind.ESNext,
-    },
-  })
-  .outputText.replace(
+const compiled = stripTypeScriptTypes(source, { mode: "strip" })
+  .replace(
     'import { Container } from "@cloudflare/containers";',
     `
 class Container {
@@ -35,7 +29,7 @@ class Container {
 `,
   )
   .replace(
-    'import { handleRequest } from "./handler";',
+    /import \{ handleRequest,[^}]*\} from "\.\/handler";/,
     "const handleRequest = async () => new Response();",
   )
   .replace('export { ValidatorQualification } from "./qualification";', "");
