@@ -1,10 +1,14 @@
 # Operational freshness alerts
 
-This candidate detects deadlines that current production mechanisms actually
+This mechanism detects deadlines that selected production operations actually
 consume. It changes no customer price, source evidence, provider configuration,
-human authority, mandate, quote or dispatch. Migration 0068 installs empty
-operational tables; source code and local fixtures establish no production
-activation or notification receipt.
+human authority, mandate, quote or dispatch. API release 1.1.22 and additive
+migrations 0068–0070 were deployed on 31 October. The legacy native extension was
+saved and triggered/resolved email receipt was observed; those episodes did not
+prove durable incident recovery. The stabilization below is a separate local
+candidate, not an applied monitor change or a new delivery qualification.
+Production source access and each provider's genuine renewal remain distinct
+from runtime/schema deployment and native email receipt.
 
 ## Selection, dates and meaning
 
@@ -13,15 +17,20 @@ tenant, selected provider/account/route, verified sender and enabled mechanism.
 Disabled channels, revoked policies, historical generations, informational dates
 and continuous-review archived references do not become candidates. Failed reads
 or unexplained guard loss cannot prove that a previously used binding is inactive.
+An explicitly forbidden fax route is not a consumed price-expiry gate, although
+its preparation refusal remains enforced. The candidate's narrowly proven
+historical postal-window chain avoids confusing a later generation timestamp
+with an older, unchanged price start. The exact lineage and unknown-result
+boundaries are owned by [provider freshness](PROVIDER_FRESHNESS.md#historical-postal-window-generations).
 
-| Consumed field                                        | Actual consumer                                            | Detection and renewal boundary                                                                                                                                                                                                                 |
-| ----------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `trusted_delivery_costs.expires_at`                   | `resolveDeliveryPrice` and `valid_live_delivery_quotes`    | Current qualified policy only; exact sender, provider, account, route and options. Pingen uses the latest generation's policy IDs and current sender declaration/profile, grouped rather than alerting separately for each printing option.    |
-| `trusted_fax_usage_tariffs.expires_at`                | `resolveFaxUsageTariff` and quote validation               | Current exact live route only. Exclude `review_prepare_only`, including its archived source dates. Genuine source refresh can replace a technical pricing revision; it cannot extend the pilot authority.                                      |
-| `fax_tariff_refresh_sources.authorization_expires_at` | Scheduled source selection and the new tariff's expiry cap | Current active, consumed registration only. This is an operator authority, never a renewable observation. When the effective tariff deadline is this cap, identify the authority cause rather than duplicate it as a technical source failure. |
-| Effective automatic Resend qualification | `ensureEmailSender` automatic pricing | After a genuine successful refresh use `resend_policy_refresh_state.qualified_until`; before that retain the strict `RESEND_TARIFF_QUALIFIED_UNTIL` contract. An installed automatic policy retains its own immutable consumed deadline when its producer is disabled. An exact manual replacement suppresses the unused automatic setting. |
-| `resend_send_limit_policies.expires_at_ms` | Atomic Resend provider admission | Monitor only while the acceptance mechanism is selected. Final-send suspension can stop this consumer while email preparation still consumes its price policy. Neither counters nor reserved/unknown holds are reset. |
-| Current tariff/FX evidence                            | Parent pricing revision                                    | `tariffDate` and `fx_date` alone have no independent age limit in these gates. Never invent `date + N days`; use the deadline actually consumed by the mechanism.                                                                              |
+| Consumed field                                        | Actual consumer                                            | Detection and renewal boundary                                                                                                                                                                                                                                                                                                              |
+| ----------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `trusted_delivery_costs.expires_at`                   | `resolveDeliveryPrice` and `valid_live_delivery_quotes`    | Current qualified policy only; exact sender, provider, account, route and options. Pingen uses the latest generation's policy IDs and current sender declaration/profile, grouped rather than alerting separately for each printing option.                                                                                                 |
+| `trusted_fax_usage_tariffs.expires_at`                | `resolveFaxUsageTariff` and quote validation               | Current exact live route only. Exclude `review_prepare_only`, including its archived source dates. Genuine source refresh can replace a technical pricing revision; it cannot extend the pilot authority.                                                                                                                                   |
+| `fax_tariff_refresh_sources.authorization_expires_at` | Scheduled source selection and the new tariff's expiry cap | Current active, consumed registration only. This is an operator authority, never a renewable observation. When the effective tariff deadline is this cap, identify the authority cause rather than duplicate it as a technical source failure.                                                                                              |
+| Effective automatic Resend qualification              | `ensureEmailSender` automatic pricing                      | After a genuine successful refresh use `resend_policy_refresh_state.qualified_until`; before that retain the strict `RESEND_TARIFF_QUALIFIED_UNTIL` contract. An installed automatic policy retains its own immutable consumed deadline when its producer is disabled. An exact manual replacement suppresses the unused automatic setting. |
+| `resend_send_limit_policies.expires_at_ms`            | Atomic Resend provider admission                           | Monitor only while the acceptance mechanism is selected. Final-send suspension can stop this consumer while email preparation still consumes its price policy. Neither counters nor reserved/unknown holds are reset.                                                                                                                       |
+| Current tariff/FX evidence                            | Parent pricing revision                                    | `tariffDate` and `fx_date` alone have no independent age limit in these gates. Never invent `date + N days`; use the deadline actually consumed by the mechanism.                                                                                                                                                                           |
 
 Normal short quote TTLs, preflight/approval/session/token expiry and voluntarily
 bounded expert delegation are outside this initial detector. None is prolonged
@@ -124,25 +133,64 @@ safe maintenance or the outbox. Unknown control results never become healthy
 zero counts. Logs contain no tenant/binding/revision key, recipient, content,
 URL, credential or free-form exception.
 
-The monitor query must preserve all previous failure conditions and add only
-`FRESHNESS_AT_RISK` and `FRESHNESS_CHECK_FAILED` to its existing parenthesized OR
-group. Keep the account/script restrictions, automatic one-minute evaluation
-window, average `>=1`, existing email destination and hourly repeat. Do not add a
-timestamp predicate in the platform's automatic-window mode. The separate
-missing-heartbeat monitor is unchanged.
+### Native recovery requires fresh evidence
 
-Application incidents are idempotent. Native notification deduplication is an
-aggregate active-alarm episode with the configured hourly reminders; it is not
-an exactly-once email per deadline. A sustained unresolved condition emits a
-coarse signal on each normal collector pass. Once no risk or failed check remains,
-the next successful window has no matching signal and the condition clears.
-Existing log collection, sampling, provider delivery and scheduler availability
-still limit notification coverage. No alert test sends a real notification.
+The 31 October stabilization is a local candidate. The already configured
+one-minute automatic query can count zero log events while durable incidents
+remain unresolved. A triggered/resolved notification pair therefore does not
+establish a business recovery. Do not close D1 incidents, raise the threshold,
+change reminder frequency or disable the monitor to hide an ingestion gap.
+
+The proposed existing-monitor change has two fields: the SQL query and its
+explicit **Manual** time-range mode. Execution every sixty seconds, the sixty-second
+average window, `>=1` threshold, hourly reminders, destination and separate
+missing-heartbeat monitor remain unchanged. The query keeps the account and
+Worker filters outside every branch, then reads the inclusive event-time range
+`[evaluation time - five minutes, evaluation time]`. Future observations cannot
+supply coverage or trigger an early failure:
+
+- All ten historical failure codes and four counters keep an additional inclusive
+  one-minute predicate. They do not inherit the longer freshness window.
+- `FRESHNESS_AT_RISK` and `FRESHNESS_CHECK_FAILED` remain failures for five minutes.
+- Qualified freshness coverage requires `event=freshness`, `route=maintenance`,
+  `stage=freshness`, and either a closed failure code or explicit `code=OK` with
+  `freshnessAtRisk`, `freshnessExpired` and `freshnessChecksFailed` all numerically
+  zero. Ordinary HTTP success and completed Cron records never supply coverage.
+- A freshness event with an unknown code, invalid envelope or incomplete/nonzero
+  healthy metrics is not healthy. It holds the alarm even beside an older OK.
+- No rows, or no qualified freshness observation, returns an alarm value of one.
+  Missing telemetry can never manufacture a healthy zero.
+
+A current qualified OK clears the alarm only after all freshness failures in the
+five-minute lookback age out and no original one-minute failure remains. Recovery
+waits for the last failure to leave the inclusive five-minute window and for the
+next successful native evaluation. The nominal sixty-second cadence can add one
+evaluation interval, and ingestion or scheduler delays can add more. This is
+intentional damping, not an extension of a business deadline. Coverage loss
+also holds an alarm and can overlap the unchanged heartbeat warning. Ingestion
+latency, the native evaluator and notification delivery remain external limits.
+This query does not provide an independent check of the D1 state or guarantee
+exactly-once email delivery. A newly invisible failure cannot be detected before
+its signal arrives or the preceding healthy coverage ages out. The bounded
+five-minute scan includes ordinary Worker records to evaluate coverage; qualify
+actual native query cost and latency rather than claiming unchanged scan volume.
+
+[Cloudflare's monitor contract](https://developers.cloudflare.com/notifications/monitors/#custom-sql)
+requires Manual mode for a fixed relative SQL timestamp range; Automatic mode
+supplies its own execution-interval range. The
+[SQL functions reference](https://developers.cloudflare.com/analytics/sql-api/sql-reference/functions/)
+supports `SUM` and `if` on Logs Explorer; `countIf` is not supported there. The
+canonical reviewed query is exported as `nativeFreshnessMonitorQuery` by the
+local plan script. There is no subquery, join, `CASE`, `countIf`, new dataset,
+resource, credential, notification destination or business-operation change.
+
+Application incidents remain idempotent and untouched by the plan. Native
+notification deduplication still follows the aggregate alarm episode and its
+hourly reminders. Tests use synthetic event timelines and send no notification.
 
 ## Reviewable native plan, no apply
 
-There was no existing native-alerting script. `scripts/native-alerting-plan.mjs`
-is a local plan builder, not a guessed Cloudflare API client. An authenticated
+`scripts/native-alerting-plan.mjs` is a local plan builder, not a guessed Cloudflare API client. An authenticated
 operator first rereads the existing native monitor, then saves its complete
 normalized configuration outside Git in a private directory/file. The input
 normalization contract is explicit and does not claim to be a native API schema:
@@ -156,6 +204,7 @@ normalization contract is explicit and does not claim to be a native API schema:
   "configuration": {
     "enabled": true,
     "query": "exact current native query",
+    "timeRangeMode": "automatic",
     "evaluation": {
       "intervalSeconds": 60,
       "windowSeconds": 60,
@@ -173,14 +222,29 @@ normalization contract is explicit and does not claim to be a native API schema:
 }
 ```
 
+Two known legacy dashboard query strings omit the literal account filter because
+their authenticated monitor-edit route already supplies it. The plan accepts
+only those exact byte-pinned strings in Automatic mode, and only when
+`configuration.datasetScope` contains exactly `accountId` for the reviewed
+account, `dataset: "logs.workersLogs"` and
+`evidence: "authenticated_monitor_edit_route"`. The operator must establish that
+scope from the current authenticated route; the tool never infers it from an
+arbitrary query. Unknown variants and invented Manual-mode dashboard forms stay
+refused. The raw query text has its own `previousQueryTextSha256`, distinct from
+the retained canonical-value `previousQuerySha256`. Scope is bound into the full
+snapshot, unchanged-settings and proposed-configuration digests. These are local
+normalization fields, not a claimed Cloudflare API representation.
+
 Retain all other observed settings as additional configuration properties. The
 tool binds the full normalized snapshot and unchanged settings by SHA-256, checks
 the existing account/monitor identity, requires a readback no older than fifteen
-minutes, and accepts only the known original or already-extended query. Any other
-query drift, threshold or channel change requires review rather than a blind
-patch. The plan contains a query-only patch and private destination digest, never
-the address. The output is created once with mode 0600, outside Git. Stdout is
-limited to plan status, change flag and digest.
+minutes, and accepts only the known original or deployed legacy extension in
+Automatic mode, or the exact stabilized query in Manual mode. Missing or mismatched mode,
+query drift, threshold or channel changes require review rather than a blind
+patch. `timeRangeMode` is an explicit operator-normalized field, not a claimed
+Cloudflare API field name. The version-two plan contains only the query/mode
+patch and private destination digest, never the address. The output is created
+once with mode 0600, outside Git. Stdout is limited to plan status, change flag and digest.
 
 ```sh
 node scripts/native-alerting-plan.mjs /private/path/snapshot.json /private/path/plan.json
@@ -188,5 +252,15 @@ node scripts/native-alerting-plan.mjs /private/path/snapshot.json /private/path/
 
 There is no apply command and no network operation. A later authorized change
 must reread the actual native monitor, compare the full snapshot, apply only the
-reviewed query change and reread unchanged settings. This plan alone establishes
-neither that live mutation nor notification delivery.
+reviewed SQL and Manual mode, validate them in the native editor, then reread
+the saved query, mode and all preserved settings. If native SQL validation fails,
+stop without changing the monitor or substituting a weaker query. Run the preview
+for syntax/data checks; it is not proof of future ingestion or email receipt.
+This plan alone establishes neither live mutation nor notification delivery.
+
+Local regression execution evaluates the exact exported expression against an
+in-memory SQLite log table, translating only the dataset name, JSON accessor and
+relative-time syntax. It covers every old code/counter at both sides of sixty
+seconds, five-minute boundaries, long ingestion gaps, malformed observations,
+explicit healthy recovery and foreign account/Worker data. This is separate from
+qualification of Cloudflare's actual parser/backend and saved configuration.

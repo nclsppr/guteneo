@@ -8,12 +8,12 @@ genuine automatic fax refresh and restricted-reviewer preparation were observed.
 Those observations do not qualify other providers, real delivery or marketplace
 publication.
 
-The cross-provider collector, J-1 incidents, Pingen maintenance, Resend
-maintenance and scanner warning changes described here are a **local candidate**.
-Migrations **0068–0070 have not been applied to production**. The extended native
-Cloudflare alert condition has not been configured or delivery-tested. Existing
-native monitors and their dated evidence remain separate. No new Resend read key
-has been provisioned, and authenticated automatic Resend renewal is unqualified.
+API **1.1.22** and migrations **0068–0070** were deployed on 31 October 2026.
+The legacy native extension produced triggered/resolved notifications, which did
+not establish recovery of the underlying incidents. The 1.1.23 compatibility and
+alert-stabilization changes below remain a **local candidate**. Authenticated
+Resend renewal is still unqualified: the existing inspection returns
+`READ_NOT_PERMITTED`, and no inspection key is provisioned by this mechanism.
 
 ## Follow the consumer
 
@@ -22,19 +22,47 @@ The collector follows the actual provider, account, tenant, sender, route and
 options before choosing an effective deadline. Selection does not require an old
 quote or message: an explicitly configured first use also needs protection.
 
-| Mechanism                                  | Consumed deadline                                                                                                                | Maintenance and boundary                                                                                                                                                                                                                               |
-| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Registered sendable fax                    | Current `trusted_fax_usage_tariffs.expires_at`, capped by the registration's independent `authorization_expires_at`              | Genuine daily current-catalog discovery, official fax fee, selected CSV, ECB and provider-ownership reads create a new immutable revision with at most 168-hour validity. The route authority is never extended.                                       |
-| Pingen preparation                         | Latest exact `postal_setup_policy_generations.expires_at` and its qualified `trusted_delivery_costs` rows                        | Within seven days of expiry, reinspect the same account's country, EUR billing currency and address window; install a new **90-day** generation only if the complete binding still matches. The prepared-letter calculator supplies each actual price. |
-| Automatic Resend tariff                    | `resend_policy_refresh_state.qualified_until` after successful maintenance; otherwise the legacy `RESEND_TARIFF_QUALIFIED_UNTIL` | Daily genuine domain, public-price and ECB reads qualify a **30-day** pricing snapshot; selected sending limits also require real usage capacity. Automatic setup/renewal uses it without rewriting old price rows. A replacing manual policy makes the unused automatic setting irrelevant.             |
-| Resend account limits                      | `resend_send_limit_policies.expires_at_ms`, with `qualified_at_ms <= now`                                                        | The same complete reads may renew technical evidence while preserving the exact account ID, daily/monthly caps and submission interval. Global reservations and unknown outcomes remain intact.                                                        |
-| Other current manual delivery/fax policies | The deadline actually enforced by their quote resolver                                                                           | Monitor as operator-maintained; never convert them into automatic sources or change their dates.                                                                                                                                                       |
+| Mechanism                                  | Consumed deadline                                                                                                                | Maintenance and boundary                                                                                                                                                                                                                                                                     |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Registered sendable fax                    | Current `trusted_fax_usage_tariffs.expires_at`, capped by the registration's independent `authorization_expires_at`              | Genuine daily current-catalog discovery, official fax fee, selected CSV, ECB and provider-ownership reads create a new immutable revision with at most 168-hour validity. The route authority is never extended.                                                                             |
+| Pingen preparation                         | Latest exact `postal_setup_policy_generations.expires_at` and its qualified `trusted_delivery_costs` rows                        | Within seven days of expiry, reinspect the same account's country, EUR billing currency and address window; install a new **90-day** generation only if the complete binding still matches. The prepared-letter calculator supplies each actual price.                                       |
+| Automatic Resend tariff                    | `resend_policy_refresh_state.qualified_until` after successful maintenance; otherwise the legacy `RESEND_TARIFF_QUALIFIED_UNTIL` | Daily genuine domain, public-price and ECB reads qualify a **30-day** pricing snapshot; selected sending limits also require real usage capacity. Automatic setup/renewal uses it without rewriting old price rows. A replacing manual policy makes the unused automatic setting irrelevant. |
+| Resend account limits                      | `resend_send_limit_policies.expires_at_ms`, with `qualified_at_ms <= now`                                                        | The same complete reads may renew technical evidence while preserving the exact account ID, daily/monthly caps and submission interval. Global reservations and unknown outcomes remain intact.                                                                                              |
+| Other current manual delivery/fax policies | The deadline actually enforced by their quote resolver                                                                           | Monitor as operator-maintained; never convert them into automatic sources or change their dates.                                                                                                                                                                                             |
 
 The Pingen consumer is **preparation**, selected by its production draft-transfer
 configuration and current enabled sender/setup. Cutting final live sending alone
 does not remove the price gate from a preparation path that remains open. Missing
 or malformed configuration is unknown; it is not evidence of intentional
 suspension. An omitted live-send allowlist retains the runtime's existing default.
+
+An exact provider-verified fax route with immutable `route_allowed=0` does not
+consume its price deadline: the preparation resolver already refuses that route.
+The candidate records it inactive only after the current tenant, sender and
+runtime binding are proven. This changes no route, fallback or sending gate;
+missing credentials or unexplained guard loss remain unknown.
+
+### Historical postal window generations
+
+Canonical postal generations retain the exact equality between policy
+`valid_from` and generation `created_at`. Migration 0036 intentionally copied
+eight existing policies to the opposite address window without changing any
+price date, then recorded a later sixteen-policy generation. The candidate
+recognizes only that narrow historical chain: the immediate eight-policy
+predecessor, same tenant/sender/profile/expiry, deterministic
+`postal.pricing.windows_extended` audit with no consent claim or date extension,
+and the exact eight original IDs plus eight `cost_window_` clones. Every clone
+field must equal its original except its ID and opposite-window options. Policy
+start dates must still equal the predecessor's canonical creation time, with
+canonical ordered audit/generation timestamps and the unchanged expiry.
+
+The ordinary price consumer checks each policy's real validity window; it does
+not require a later window-expansion timestamp to be the price's observation
+time. This compatibility performs no date bump, grant or history mutation. A
+forged/missing predecessor, audit, clone, profile or source remains unknown.
+Only this historical path adds one bounded three-statement D1 read batch;
+canonical generations add no lineage query. Source refresh and its exact-snapshot
+commit fence retain all existing guards and approved-quote deferrals.
 
 Historical generations, revoked policies, explicitly disabled mechanisms,
 informational tariff/FX dates and archived continuous-review references create no

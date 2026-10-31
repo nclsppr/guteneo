@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "guteneo",
-  "version": "1.1.22",
+  "version": "1.1.23",
   "description": "Prepare PDFs, dispatches and account-protected PDF distribution when enabled for your Guteneo account.",
   "author": {
     "name": "NICOLAS PATRICK HENRI FRANK PIEPER"
@@ -97,7 +97,7 @@
         }
       },
       "publication": {
-        "release_notes": "Package 1.1.22 adds background maintenance of pricing references consumed by configured preparation and delivery mechanisms, with expiry warnings and unchanged authority, approval, sending and spending limits. Postal guidance distinguishes automatic technical maintenance from read-only setup lookups. Continuous reviewer preparation remains permanently unsendable and uses an explicitly labelled archived reference; each quote retains its short expiry, EUR2 ceiling and seven-page limit. Tenant isolation, immutable commitments and unknown-outcome protections remain in force. Source/package validation does not establish production activation, reviewer-test completion or marketplace approval.",
+        "release_notes": "Package 1.1.23 corrects compatibility with existing postal policies and the selection of fax routes whose pricing is consumed by preparation. It also prepares a native freshness alert plan that requires current healthy evidence before recovery. Background maintenance, authority, approval, sending and spending limits remain unchanged. Continuous reviewer preparation remains permanently unsendable and uses an explicitly labelled archived reference; each quote retains its short expiry, EUR2 ceiling and seven-page limit. Tenant isolation, immutable commitments and unknown-outcome protections remain in force. Source/package validation does not establish production activation, reviewer-test completion or marketplace approval.",
         "translations": {
           "fr-FR": {
             "subtitle": "PDF, devis et suivi des envois",

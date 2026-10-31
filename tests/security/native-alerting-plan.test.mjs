@@ -4,9 +4,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
+import { DatabaseSync } from "node:sqlite";
+import { createHash } from "node:crypto";
 import {
   nativeFailureMonitorQuery,
   nativeFreshnessMonitorQuery,
+  legacyNativeFreshnessMonitorQuery,
+  nativeUiFailureMonitorQuery,
+  nativeUiLegacyFreshnessMonitorQuery,
   nativeAlertingPlanDigest,
   planNativeFreshnessAlerting,
 } from "../../scripts/native-alerting-plan.mjs";
@@ -20,6 +25,7 @@ const snapshot = () => ({
   configuration: {
     enabled: true,
     query: nativeFailureMonitorQuery,
+    timeRangeMode: "automatic",
     evaluation: {
       intervalSeconds: 60,
       windowSeconds: 60,
@@ -36,17 +42,18 @@ const snapshot = () => ({
     unchangedNativeSetting: { nested: "retained synthetic setting" },
   },
 });
-test("extends only the existing monitor query and preserves every original predicate", () => {
+test("stabilizes only the query and its explicit time-range mode, preserving original controls", () => {
   const original = snapshot();
   const before = structuredClone(original);
   const plan = planNativeFreshnessAlerting(original, at);
   assert.equal(plan.changed, true);
   assert.deepEqual(original, before);
-  assert.deepEqual(Object.keys(plan.patch), ["query"]);
+  assert.deepEqual(Object.keys(plan.patch), ["query", "timeRangeMode"]);
+  assert.equal(plan.patch.timeRangeMode, "manual");
   for (const line of nativeFailureMonitorQuery
     .split("\n")
     .filter((value) => value.includes("attributes[")))
-    assert.ok(plan.patch.query.includes(line));
+    assert.ok(plan.patch.query.includes(line.trim().replace(/^OR /, "")));
   assert.ok(
     plan.patch.query.includes("attributes['code'] = 'FRESHNESS_AT_RISK'"),
   );
@@ -55,7 +62,13 @@ test("extends only the existing monitor query and preserves every original predi
   );
   assert.equal(plan.patch.query.match(/accountTag/g)?.length, 1);
   assert.equal(plan.patch.query.match(/scriptName/g)?.length, 1);
-  assert.equal(plan.patch.query.includes("timestamp"), false);
+  assert.ok(
+    plan.patch.query.includes("timestamp >= NOW() - INTERVAL '1' MINUTE"),
+  );
+  assert.ok(
+    plan.patch.query.includes("timestamp >= NOW() - INTERVAL '5' MINUTE"),
+  );
+  assert.equal(plan.signal.missingQualifiedFreshness, "alarm");
   assert.equal(plan.preserved.repeatSeconds, 3600);
   assert.equal(plan.preserved.destinationsChanged, false);
   assert.equal(plan.preserved.heartbeatMonitorChanged, false);
@@ -68,12 +81,138 @@ test("extends only the existing monitor query and preserves every original predi
     false,
   );
 });
-test("is idempotent when the two closed codes already exist", () => {
+test("migrates the actually deployed automatic extension and is idempotent only in manual mode", () => {
+  const legacy = snapshot();
+  legacy.configuration.query = legacyNativeFreshnessMonitorQuery;
+  assert.equal(planNativeFreshnessAlerting(legacy, at).changed, true);
   const input = snapshot();
   input.configuration.query = nativeFreshnessMonitorQuery;
+  input.configuration.timeRangeMode = "manual";
   const plan = planNativeFreshnessAlerting(input, at);
   assert.equal(plan.changed, false);
   assert.equal(plan.patch.query, nativeFreshnessMonitorQuery);
+});
+const observedNativeForms = [
+  [
+    nativeUiFailureMonitorQuery,
+    "b3bfdebf7321b69081f80736e2e5713d9379126706bed2abed794139b8ff810e",
+  ],
+  [
+    nativeUiLegacyFreshnessMonitorQuery,
+    "2f9825d925007ccc9c4d57a33c269a71f199ab602f9d975b04bd7c564e19deb1",
+  ],
+];
+function nativeUiSnapshot(query) {
+  const input = snapshot();
+  input.configuration.query = query;
+  input.configuration.datasetScope = {
+    accountId: input.accountId,
+    dataset: "logs.workersLogs",
+    evidence: "authenticated_monitor_edit_route",
+  };
+  return input;
+}
+test("accepts exactly both observed UI queries only with current authenticated account/dataset evidence", () => {
+  for (const [query, observedSha256] of observedNativeForms) {
+    assert.equal(
+      createHash("sha256").update(query).digest("hex"),
+      observedSha256,
+    );
+    const input = nativeUiSnapshot(query);
+    const before = structuredClone(input);
+    const plan = planNativeFreshnessAlerting(input, at);
+    assert.deepEqual(input, before);
+    assert.equal(plan.previousQueryTextSha256, observedSha256);
+    assert.equal(plan.patch.query, nativeFreshnessMonitorQuery);
+    assert.equal(plan.patch.timeRangeMode, "manual");
+    assert.equal(plan.changed, true);
+    assert.ok(plan.patch.query.includes(`accountTag = '${input.accountId}'`));
+    const canonicalPlan = planNativeFreshnessAlerting(snapshot(), at);
+    assert.notEqual(
+      plan.previousQuerySha256,
+      canonicalPlan.previousQuerySha256,
+    );
+    assert.notEqual(plan.snapshotSha256, canonicalPlan.snapshotSha256);
+    assert.notEqual(
+      plan.unchangedConfigurationSha256,
+      canonicalPlan.unchangedConfigurationSha256,
+    );
+  }
+});
+test("refuses implicit native scope without exact fresh evidence, matching monitor and automatic mode", () => {
+  for (const [query] of observedNativeForms) {
+    for (const alter of [
+      (input) => {
+        delete input.configuration.datasetScope;
+      },
+      (input) => {
+        input.configuration.datasetScope.accountId = "foreign";
+      },
+      (input) => {
+        input.configuration.datasetScope.dataset = "events.httpRequests";
+      },
+      (input) => {
+        input.configuration.datasetScope.evidence = "assumed_from_query";
+      },
+      (input) => {
+        input.configuration.datasetScope.otherAccountId = "foreign";
+      },
+      (input) => {
+        input.accountId = "foreign";
+      },
+      (input) => {
+        input.monitorId = "foreign";
+      },
+      (input) => {
+        input.configuration.timeRangeMode = "manual";
+      },
+      (input) => {
+        input.observedAt = "2026-10-30T09:44:59.999Z";
+      },
+    ]) {
+      const input = nativeUiSnapshot(query);
+      alter(input);
+      assert.throws(
+        () => planNativeFreshnessAlerting(input, at),
+        /NATIVE_ALERT_/,
+      );
+    }
+  }
+});
+test("does not normalize unknown native UI SQL, whitespace, identifiers, predicates or manual readback", () => {
+  for (const [query] of observedNativeForms) {
+    for (const changed of [
+      query + "\n",
+      query.replace("\nFROM", " FROM"),
+      query.replace('"attributes"', "attributes"),
+      query.replace("guteneo-app", "another-worker"),
+      query.replace("workersLogs", "otherLogs"),
+      query + " OR 1 = 1",
+      query.replace(`("attributes"['unknown'] > 0) OR `, ""),
+      query.replace(
+        `("attributes"['failed'] > 0)`,
+        `("attributes"['failed'] > 1)`,
+      ),
+      query.replace(
+        `("attributes"['failed'] > 0) OR ("attributes"['unknown'] > 0)`,
+        `("attributes"['unknown'] > 0) OR ("attributes"['failed'] > 0)`,
+      ),
+    ]) {
+      const input = nativeUiSnapshot(changed);
+      assert.throws(
+        () => planNativeFreshnessAlerting(input, at),
+        /NATIVE_ALERT_QUERY_OR_TIME_RANGE_UNEXPECTED/,
+      );
+    }
+  }
+  const unknownManual = nativeUiSnapshot(
+    nativeFreshnessMonitorQuery.replaceAll("attributes[", '"attributes"['),
+  );
+  unknownManual.configuration.timeRangeMode = "manual";
+  assert.throws(
+    () => planNativeFreshnessAlerting(unknownManual, at),
+    /NATIVE_ALERT_QUERY_OR_TIME_RANGE_UNEXPECTED/,
+  );
 });
 test("allows query formatting without changing values inside quoted literals", () => {
   const input = snapshot();
@@ -85,7 +224,7 @@ test("allows query formatting without changing values inside quoted literals", (
   );
   assert.throws(
     () => planNativeFreshnessAlerting(input, at),
-    /NATIVE_ALERT_QUERY_UNEXPECTED/,
+    /NATIVE_ALERT_QUERY_OR_TIME_RANGE_UNEXPECTED/,
   );
 });
 test("refuses unexpected filters, missing old conditions or an altered threshold", () => {
@@ -102,9 +241,15 @@ test("refuses unexpected filters, missing old conditions or an altered threshold
         "",
       );
     },
-    (input) => {
-      input.configuration.evaluation.threshold = 2;
-    },
+    ...[
+      ["intervalSeconds", 300],
+      ["windowSeconds", 300],
+      ["aggregation", "sum"],
+      ["operator", ">"],
+      ["threshold", 2],
+    ].map(([field, value]) => (input) => {
+      input.configuration.evaluation[field] = value;
+    }),
     (input) => {
       input.configuration.enabled = false;
     },
@@ -113,6 +258,22 @@ test("refuses unexpected filters, missing old conditions or an altered threshold
     },
     (input) => {
       input.monitorId = "other-monitor";
+    },
+    (input) => {
+      delete input.configuration.timeRangeMode;
+    },
+    (input) => {
+      input.configuration.timeRangeMode = "manual";
+    },
+    (input) => {
+      input.configuration.query = nativeFreshnessMonitorQuery;
+    },
+    (input) => {
+      input.configuration.query = nativeFreshnessMonitorQuery.replace(
+        "INTERVAL '1' MINUTE",
+        "INTERVAL '5' MINUTE",
+      );
+      input.configuration.timeRangeMode = "manual";
     },
   ]) {
     const input = snapshot();
@@ -181,7 +342,7 @@ test("CLI keeps material outside Git, refuses apply and never prints recipients"
     const plan = JSON.parse(await readFile(output, "utf8"));
     assert.equal(
       plan.qualification,
-      "local_plan_requires_current_native_readback_and_authorized_apply",
+      "local_plan_requires_native_sql_validation_current_readback_and_authorized_apply",
     );
     const denied = spawnSync(
       process.execPath,
@@ -197,4 +358,197 @@ test("CLI keeps material outside Git, refuses apply and never prints recipients"
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
+});
+
+// Execute the exact planned expression against SQLite fixtures, translating only
+// the dataset, JSON accessor and relative-time syntax. This is semantic evidence,
+// not qualification of Cloudflare's SQL validator, ingestion or notifications.
+const nowMs = Date.parse(at);
+const freshnessRecord = (ageSeconds = 0, attributes = {}) => ({
+  timestamp: nowMs - ageSeconds * 1000,
+  accountTag: snapshot().accountId,
+  scriptName: "guteneo-app",
+  attributes: {
+    event: "freshness",
+    route: "maintenance",
+    stage: "freshness",
+    code: "OK",
+    freshnessAtRisk: 0,
+    freshnessExpired: 0,
+    freshnessChecksFailed: 0,
+    ...attributes,
+  },
+});
+function queryValue(rows, sql = nativeFreshnessMonitorQuery) {
+  const db = new DatabaseSync(":memory:");
+  try {
+    db.exec(
+      "CREATE TABLE worker_logs(timestamp INTEGER, accountTag TEXT, scriptName TEXT, attributes TEXT)",
+    );
+    const insert = db.prepare("INSERT INTO worker_logs VALUES (?,?,?,?)");
+    for (const row of rows)
+      insert.run(
+        row.timestamp,
+        row.accountTag,
+        row.scriptName,
+        JSON.stringify(row.attributes),
+      );
+    const executable = sql
+      .replace("FROM logs.workersLogs", "FROM worker_logs")
+      .replace(
+        /attributes\['([A-Za-z]+)'\]/g,
+        (_, key) => `json_extract(attributes, '$.${key}')`,
+      )
+      .replace(/NOW\(\) - INTERVAL '([15])' MINUTE/g, (_, minutes) =>
+        String(nowMs - Number(minutes) * 60_000),
+      )
+      .replaceAll("NOW()", String(nowMs));
+    assert.equal(/NOW\(|INTERVAL|attributes\[/.test(executable), false);
+    return db.prepare(executable).get().value;
+  } finally {
+    db.close();
+  }
+}
+
+test("all historic codes and counters retain their exact inclusive one-minute event window", () => {
+  const codes = [
+    ...nativeFailureMonitorQuery.matchAll(/attributes\['code'\] = '([^']+)'/g),
+  ].map((match) => match[1]);
+  const counters = [
+    ...nativeFailureMonitorQuery.matchAll(/attributes\['([^']+)'\] > 0/g),
+  ].map((match) => match[1]);
+  assert.equal(codes.length, 10);
+  assert.equal(counters.length, 4);
+  for (const attributes of [
+    ...codes.map((code) => ({ code })),
+    ...counters.map((counter) => ({ [counter]: 1 })),
+  ]) {
+    for (const age of [59.999, 60, 60.001, 90, 300, 300.001]) {
+      const record = freshnessRecord(age, {
+        event: "http",
+        route: "dispatch",
+        stage: undefined,
+        code: "OK",
+        ...attributes,
+      });
+      const rows = [freshnessRecord(), record];
+      const previous = queryValue(
+        rows,
+        `${nativeFailureMonitorQuery}\n  AND timestamp >= NOW() - INTERVAL '1' MINUTE`,
+      );
+      assert.equal(previous, age <= 60 ? 1 : 0);
+      assert.equal(
+        queryValue(rows),
+        previous,
+        JSON.stringify({ attributes, age }),
+      );
+    }
+  }
+});
+
+test("persistent freshness risk survives missing log windows without false recovery", () => {
+  for (const minutes of [1, 2, 3, 4, 5, 6, 20]) {
+    const staleWarning = freshnessRecord(minutes * 60, {
+      code: "FRESHNESS_CHECK_FAILED",
+      freshnessExpired: 14,
+      freshnessChecksFailed: 1,
+    });
+    const cron = freshnessRecord(0, {
+      event: "cron",
+      stage: "complete",
+      code: "OK",
+    });
+    assert.ok(queryValue([staleWarning, cron]) >= 1, `gap ${minutes} min`);
+  }
+});
+
+test("explicit healthy coverage permits recovery only after freshness failures age out", () => {
+  for (const code of ["FRESHNESS_AT_RISK", "FRESHNESS_CHECK_FAILED"]) {
+    for (const age of [60, 240, 300])
+      assert.ok(
+        queryValue([freshnessRecord(age, { code }), freshnessRecord()]) >= 1,
+      );
+    assert.equal(
+      queryValue([freshnessRecord(300.001, { code }), freshnessRecord()]),
+      0,
+    );
+  }
+  assert.equal(queryValue([freshnessRecord(300)]), 0);
+  assert.equal(queryValue([freshnessRecord(300.001)]), 1);
+  assert.equal(queryValue([]), 1);
+});
+
+test("successful ordinary logs and incomplete or unknown freshness data never establish healthy coverage", () => {
+  const invalid = [
+    { event: "http", stage: undefined },
+    { event: "cron", stage: "complete" },
+    { code: "UNKNOWN_FRESHNESS" },
+    { stage: undefined },
+    { route: undefined },
+    { freshnessExpired: undefined },
+    { freshnessChecksFailed: undefined },
+    { freshnessAtRisk: undefined },
+    { freshnessExpired: "0" },
+    { freshnessExpired: -1 },
+    { freshnessExpired: 1 },
+  ];
+  for (const attributes of invalid) {
+    const record = freshnessRecord(0, attributes);
+    assert.ok(queryValue([record]) >= 1, JSON.stringify(attributes));
+    if (record.attributes.event === "freshness")
+      assert.ok(
+        queryValue([freshnessRecord(240), record]) >= 1,
+        `old OK must not mask invalid ${JSON.stringify(attributes)}`,
+      );
+  }
+});
+
+test("global account and worker filters enclose every failure and coverage branch", () => {
+  for (const attributes of [
+    { code: "FRESHNESS_AT_RISK" },
+    { code: "CRON_FAILED" },
+    { event: "freshness", code: "UNKNOWN" },
+  ])
+    for (const scope of [{ accountTag: "foreign" }, { scriptName: "foreign" }])
+      assert.equal(
+        queryValue([
+          freshnessRecord(),
+          { ...freshnessRecord(0, attributes), ...scope },
+        ]),
+        0,
+      );
+  for (const scope of [{ accountTag: "foreign" }, { scriptName: "foreign" }])
+    assert.equal(
+      queryValue([{ ...freshnessRecord(), ...scope }]),
+      1,
+      "foreign healthy data cannot clear missing local coverage",
+    );
+});
+
+test("manual bounds exclude future failures and never accept future healthy coverage", () => {
+  for (const attributes of [
+    { event: "http", code: "HTTP_SERVER_ERROR" },
+    { event: "http", failed: 1 },
+    { code: "FRESHNESS_AT_RISK" },
+    { code: "FRESHNESS_CHECK_FAILED" },
+  ])
+    for (const futureSeconds of [0.001, 60, 300])
+      assert.equal(
+        queryValue([
+          freshnessRecord(),
+          freshnessRecord(-futureSeconds, attributes),
+        ]),
+        0,
+      );
+  for (const futureSeconds of [0.001, 60, 300])
+    assert.equal(
+      queryValue([freshnessRecord(-futureSeconds)]),
+      1,
+      "future healthy data is not current coverage",
+    );
+  assert.equal(
+    queryValue([freshnessRecord()]),
+    0,
+    "the exact evaluation timestamp is inclusive",
+  );
 });
