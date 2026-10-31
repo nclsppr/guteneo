@@ -53,6 +53,13 @@ version fields; dependency compatibility, audit, installation and the strict glo
 verifier pass with CHECK constraints enabled. Hosted diagnostics read only public
 constants/schema instructions, confirmed CHECK enforcement and made zero row writes.
 
+A later full Linux run passed the global D1 verifier and exposed one historical
+pricing fixture that used JavaScript month overflow at 31 October. The billing
+trigger correctly refused its unintended 1 December end date. That test now uses
+one reference instant and a period anchored at the first UTC day of this month
+and the next. All six pricing tests pass; billing guards and business assertions
+remain unchanged. A fresh complete CI run must qualify the final source.
+
 The Engineering build passes, including its content and publication checks.
 Keyboard steps, textual alternatives, SVG downloads and reduced-motion reading
 pass **6/6** across desktop Chromium, mobile Chromium and WebKit. Actual local
