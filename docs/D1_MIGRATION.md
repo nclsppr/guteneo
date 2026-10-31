@@ -2,32 +2,49 @@
 
 ## Global integrity verification — 30 October 2026 candidate
 
-The first provider-maintenance CI run failed while compiling a database-wide `PRAGMA quick_check`
-for the complete seventy-migration schema. The Linux workerd engine returned
-`SQLITE_NOMEM` because its SQLite VDBE instruction budget was 25,000; this was
-not evidence of damaged data or a measured shortage of physical memory.
+The first provider-maintenance CI run failed while compiling a database-wide
+`PRAGMA quick_check` for the complete seventy-migration schema. Linux workerd
+returned `SQLITE_NOMEM` at its SQLite VDBE instruction budget, rather than proving
+physical memory exhaustion or damaged data. Cloudflare documents the same defect
+in its [upstream fix](https://github.com/cloudflare/workerd/pull/7790). The corrected
+engine is published, but a matching Miniflare tuple is not yet published and a
+read-only hosted diagnostic still reaches the old budget.
 
-Cloudflare's [upstream fix](https://github.com/cloudflare/workerd/pull/7790)
-raises that budget to 250,000 and adds a regression for a global integrity check
-on a large schema. The first corrected published engine is `1.20261029.1`.
-Until a matching published Miniflare tuple includes it, the root development
-Miniflare has a narrow override from `workerd@1.20261006.1` to that engine. This
-is a temporary development-runtime exception requiring full qualification, not
-an upstream compatibility guarantee. The CLI's nested Wrangler runtime and the existing
-Undici security override remain unchanged. Remove the exception when a matching
-official tuple is available; requalify the complete graph and Linux CI.
+The candidate therefore retains the published dependency tuple and compacts only
+new, unapplied migrations 0068–0070. Closed enum expressions use ordinary boolean
+comparisons; nullable predicates retain CHECK's existing NULL behavior. For
+selected fields without a default, one `CHECK(predicate IS TRUE)` enforces both
+the previous non-null obligation and its value predicate. Types, affinities,
+foreign keys, immutable-history triggers and permitted stored values remain
+unchanged. Dates and fields with defaults retain explicit `NOT NULL`, preserving
+both NULL-date refusal and `INSERT OR REPLACE` default substitution.
+
+The consolidated fields report a different `PRAGMA table_info.notnull` flag and
+invalid writes can report CHECK rather than NOT NULL. These are deliberate schema
+metadata/diagnostic differences, not permission to store NULL. Normal production
+requires CHECK constraints enabled; no repository process disables them. Paired
+native SQLite and actual D1 tests cover valid/invalid values, NULL, BLOB/numeric
+affinities, partial resolution state, INSERT/IGNORE/REPLACE and transaction
+rollback. The measured global program drops from 21,619 to 21,454 instructions;
+this is a dated compiler observation, not a permanent capacity guarantee.
+
+Read-only hosted diagnostics confirmed CHECK constraints enabled and accepted a
+constant-only program measured locally at 21,473 instructions; a 24,023-instruction
+program exceeded the hosted budget. The current hosted schema's EXPLAIN contains
+20,695 instructions versus 20,678 locally. These observations constrain the
+preflight assessment but do not qualify the unapplied schema. The verifier now
+explicitly refuses an unreadable/nonzero `ignore_check_constraints` setting before
+claiming global integrity; the production release runner must retain that guard.
 
 The verifier retains its **database-wide** `quick_check`, global
-`foreign_key_check`, complete schema comparison and true/false/NULL trigger
-proof. A loop over partial table checks is not equivalent: SQLite documents
-that partial checks do not detect unused pages or pages shared between tables.
-See the [SQLite integrity-check contract](https://www.sqlite.org/pragma.html#pragma_integrity_check).
-No source migration or integrity assertion was weakened to make the CI pass.
-
-Local/CI runtime qualification does not establish which engine serves hosted D1.
-Actual production integrity, schema readback and provider behavior still require
-their separate authorized release checks. This candidate applies no remote
-migration, creates no infrastructure and sends no communication.
+`foreign_key_check`, complete schema comparison and true/false/NULL trigger proof.
+A loop over partial table checks is not equivalent: SQLite documents that partial
+checks do not detect unused pages or pages shared between tables. See the
+[SQLite integrity-check contract](https://www.sqlite.org/pragma.html#pragma_integrity_check).
+Every future schema/runtime change must requalify the complete program. Local
+and CI success still do not replace actual hosted schema and integrity readback
+after an authorized release. This preparation applies no remote migration,
+creates no infrastructure and sends no communication.
 
 ## Initial remote migration — 16 September 2026
 

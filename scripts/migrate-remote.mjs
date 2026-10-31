@@ -140,6 +140,11 @@ export async function verifyTransport(includeSchema = false) {
       }
       outcomes.push(results);
       await database.prepare("DROP TABLE guard_probe").run();
+      const checkMode = await database
+        .prepare("PRAGMA ignore_check_constraints")
+        .first();
+      if (checkMode?.ignore_check_constraints !== 0)
+        throw new Error("D1 CHECK constraints must be enabled for integrity proof");
       const integrity = await database.prepare("PRAGMA quick_check").first();
       const foreignKeys = await database
         .prepare("PRAGMA foreign_key_check")

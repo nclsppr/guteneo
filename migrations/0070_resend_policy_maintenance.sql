@@ -24,13 +24,13 @@ CREATE TABLE resend_policy_refresh_evidence (
  route_id TEXT NOT NULL,
  observed_at TEXT NOT NULL,
  qualified_until TEXT NOT NULL,
- domain_sha256 TEXT NOT NULL CHECK(length(domain_sha256)=64),
- usage_sha256 TEXT CHECK(usage_sha256 IS NULL OR length(usage_sha256)=64),
- pricing_sha256 TEXT NOT NULL CHECK(length(pricing_sha256)=64),
- fx_sha256 TEXT NOT NULL CHECK(length(fx_sha256)=64),
- rate_json TEXT NOT NULL CHECK(json_valid(rate_json)),
- limits_json TEXT NOT NULL CHECK(json_valid(limits_json)),
- previous_policy_json TEXT NOT NULL CHECK(json_valid(previous_policy_json))
+ domain_sha256 TEXT CHECK((length(domain_sha256)=64) IS TRUE),
+ usage_sha256 TEXT CHECK(length(usage_sha256)=64),
+ pricing_sha256 TEXT CHECK((length(pricing_sha256)=64) IS TRUE),
+ fx_sha256 TEXT CHECK((length(fx_sha256)=64) IS TRUE),
+ rate_json TEXT CHECK((json_valid(rate_json)) IS TRUE),
+ limits_json TEXT CHECK((json_valid(limits_json)) IS TRUE),
+ previous_policy_json TEXT CHECK((json_valid(previous_policy_json)) IS TRUE)
 );
 CREATE TRIGGER immutable_resend_policy_refresh_evidence BEFORE UPDATE ON resend_policy_refresh_evidence
 BEGIN

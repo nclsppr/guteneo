@@ -131,8 +131,7 @@
       "@puppeteer/browsers": "3.2.2"
     },
     "miniflare": {
-      "undici": "7.30.1",
-      "workerd@1.20261006.1": "1.20261029.1"
+      "undici": "7.30.1"
     }
   }
 }

@@ -34,16 +34,24 @@ passes **14/14**. The final 70-migration empty local D1 installation passes with
 maintenance authority. Typecheck, lint, synchronized integration/archive checks
 and generated-document checks pass. These are deterministic local observations.
 
-The first hosted PR run completed 20/24 jobs successfully. The remaining jobs
+The first hosted PR run completed 20/24 jobs successfully. Remaining jobs
 identified an outdated three-diagram assertion and Linux workerd's SQLite VDBE
-budget during the global integrity check (including two historical D1 tests and
-their dependent final gate). The four-diagram assertion now passes 3/3 browsers.
-A narrowly scoped official workerd engine update preserves the global verifier
-and every migration constraint: clean installation, zero-advisory audit, full
-70-migration equivalence/integrity and both affected D1 suites (5/5 tests) pass
-locally. The new exact-head Linux run must qualify this temporary runtime
-exception; see [D1 migration proof](D1_MIGRATION.md). Neither a partial table check
-nor a test skip is used.
+budget during global integrity verification (including two historical D1 tests
+and their dependent final gate). The four-diagram assertion now passes 3/3 browsers.
+The candidate preserves the official dependency tuple and compacts equivalent
+constraints only in unapplied migrations 0068–0070. Independent native SQLite and
+D1 comparisons preserve admitted/stored values, NULL/default behavior,
+INSERT/IGNORE/REPLACE and rollback. The complete global integrity check and FK
+coverage remain required; see [D1 migration proof](D1_MIGRATION.md). Exact-head
+Linux verification remains the final code-validation gate.
+
+Final original-runtime validation passes **128/128** across nine provider/schema
+files, including eight permanent constraint regressions. Independent actual D1
+comparison covers **720** paired cases, with transaction rollback and zero FK
+violations. The canonical main lockfile is retained except for the two application
+version fields; dependency compatibility, audit, installation and the strict global
+verifier pass with CHECK constraints enabled. Hosted diagnostics read only public
+constants/schema instructions, confirmed CHECK enforcement and made zero row writes.
 
 The Engineering build passes, including its content and publication checks.
 Keyboard steps, textual alternatives, SVG downloads and reduced-motion reading

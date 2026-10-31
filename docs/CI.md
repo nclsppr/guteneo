@@ -151,15 +151,14 @@ silently stop applying when Wrangler changes its dependency. The PDF validator
 also preserves its reviewed Sharp override. Reinstall and audit each independent
 package after changing either toolchain.
 
-The provider-maintenance candidate also scopes one temporary workerd override to the
-root development Miniflare's exact `1.20261006.1` engine, replacing it with
-`1.20261029.1`. Cloudflare's published fix raises SQLite's VDBE budget so the
-complete database-wide integrity program can compile; the global check and all
-migration constraints remain intact. This targeted compatibility exception is
-separate from the unrestricted Undici security floor above, and does not update
-Wrangler's nested runtime or the hosted D1 engine. Qualify installation, D1/HTTP
-behavior and exact-head Linux CI, then remove the exception when the matching
-official Miniflare tuple incorporates the fix. See [D1 migration proof](D1_MIGRATION.md).
+The provider-maintenance candidate preserves the published Miniflare/workerd
+and Wrangler tuples plus the unrestricted Undici security floor. The full
+seventy-migration schema initially exceeded the old Linux/hosted SQLite VDBE
+budget while compiling global integrity verification. Equivalent expressions in
+only the new, unapplied CHECK constraints keep the complete program within that
+budget; dates, defaults, foreign keys and stored-value validation remain enforced.
+Full Linux CI and later hosted readback must qualify this result. See
+[D1 migration proof](D1_MIGRATION.md).
 
 Hosted sign-in browser fixtures intercept the fixed Auth0 entry request and
 explicitly abort that navigation. This preserves the current document for
