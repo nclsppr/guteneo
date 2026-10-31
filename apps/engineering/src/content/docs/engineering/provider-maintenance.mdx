@@ -67,6 +67,23 @@ The native operational alert uses the existing authorized destination and is
 independent of the email-delivery provider being inspected. Native alert
 aggregation and its reminder cadence remain distinct from the incident's
 idempotent database key. This is not an exactly-once email-delivery guarantee.
+
+A locally prepared stabilization keeps historical failures within one minute
+and reads freshness observations over five minutes in Manual SQL mode. A current
+explicit healthy freshness record is required for recovery: missing logs,
+ordinary HTTP success and completed Cron records cannot supply it. No qualified
+freshness coverage holds an alarm, as do malformed freshness observations. This
+avoids interpreting an ingestion gap as a resolved durable incident. Recovery
+waits until the last freshness failure leaves the five-minute window, then the
+next successful evaluation; ingestion and scheduling can add delay. The existing
+sixty-second execution/average, threshold, hourly reminders, destination and
+separate missing-heartbeat monitor remain unchanged. The plan changes only the
+query and its time-range mode, with no business or provider authority.
+
+This stabilization requires separate authorization, native SQL validation, saved
+configuration readback and actual observation. Local synthetic timelines do not
+establish its production activation or notification receipt.
+
 The [alerting contract](https://github.com/nclsppr/guteneo/blob/main/docs/FRESHNESS_ALERTING.md)
 owns deployment, monitor-plan review, deduplication and verification boundaries.
 

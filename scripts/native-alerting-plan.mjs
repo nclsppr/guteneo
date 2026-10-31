@@ -38,10 +38,40 @@ ${[
 const addition = ["FRESHNESS_AT_RISK", "FRESHNESS_CHECK_FAILED"]
   .map((code) => `    OR attributes['code'] = '${code}'`)
   .join("\n");
-export const nativeFreshnessMonitorQuery = nativeFailureMonitorQuery.replace(
-  /\n  \)$/,
-  `\n${addition}\n  )`,
-);
+export const legacyNativeFreshnessMonitorQuery =
+  nativeFailureMonitorQuery.replace(/\n  \)$/, `\n${addition}\n  )`);
+// SUM(if(...)) is supported by the Logs Explorer SQL backend; countIf is not.
+// A recent explicit healthy observation is required before missing warnings can
+// mean recovery. Ordinary HTTP/Cron records never supply freshness coverage.
+const freshnessEnvelope = `attributes['event'] = 'freshness'
+          AND attributes['route'] = 'maintenance'
+          AND attributes['stage'] = 'freshness'`;
+const closedFreshnessFailure = `(attributes['code'] = 'FRESHNESS_AT_RISK'
+            OR attributes['code'] = 'FRESHNESS_CHECK_FAILED')`;
+const qualifiedFreshness = `(${freshnessEnvelope}
+          AND (${closedFreshnessFailure}
+            OR (attributes['code'] = 'OK'
+              AND attributes['freshnessAtRisk'] = 0
+              AND attributes['freshnessExpired'] = 0
+              AND attributes['freshnessChecksFailed'] = 0)))`;
+const originalFailures = [
+  ...baselineCodes.map((code) => `attributes['code'] = '${code}'`),
+  ...baselineCounters.map((counter) => `attributes['${counter}'] > 0`),
+].join("\n            OR ");
+export const nativeFreshnessMonitorQuery = `SELECT if(COUNT(*) = 0, 1,
+  SUM(if(
+    (timestamp >= NOW() - INTERVAL '1' MINUTE
+      AND (${originalFailures}))
+    OR ${closedFreshnessFailure}
+    OR (attributes['event'] = 'freshness'
+      AND if(${qualifiedFreshness}, 0, 1) = 1),
+    1, 0))
+  + if(SUM(if(${qualifiedFreshness}, 1, 0)) = 0, 1, 0)
+) AS value
+FROM logs.workersLogs
+WHERE accountTag = '${account}'
+  AND scriptName = 'guteneo-app'
+  AND timestamp >= NOW() - INTERVAL '5' MINUTE`;
 const canonical = (value) =>
   value === null || typeof value !== "object"
     ? JSON.stringify(value)
@@ -119,27 +149,28 @@ export function planNativeFreshnessAlerting(
     "NATIVE_ALERT_CONFIGURATION_UNEXPECTED",
   );
   const query = configuration.query;
-  const alreadyExtended =
+  const alreadyStabilized =
     compactSql(query) === compactSql(nativeFreshnessMonitorQuery);
+  const knownAutomaticQuery =
+    compactSql(query) === compactSql(nativeFailureMonitorQuery) ||
+    compactSql(query) === compactSql(legacyNativeFreshnessMonitorQuery);
   demand(
-    alreadyExtended ||
-      compactSql(query) === compactSql(nativeFailureMonitorQuery),
-    "NATIVE_ALERT_QUERY_UNEXPECTED",
+    (alreadyStabilized && configuration.timeRangeMode === "manual") ||
+      (knownAutomaticQuery && configuration.timeRangeMode === "automatic"),
+    "NATIVE_ALERT_QUERY_OR_TIME_RANGE_UNEXPECTED",
   );
-  const finalParenthesis = query.lastIndexOf(")");
-  const proposedQuery = alreadyExtended
-    ? query
-    : `${query.slice(0, finalParenthesis)}\n${addition}\n${query.slice(finalParenthesis)}`;
+  const proposedQuery = alreadyStabilized ? query : nativeFreshnessMonitorQuery;
   const unchanged = { ...configuration };
   delete unchanged.query;
+  delete unchanged.timeRangeMode;
   const plan = {
-    version: 1,
-    kind: "existing_native_monitor_freshness_extension",
+    version: 2,
+    kind: "existing_native_monitor_freshness_stabilization",
     status: "plan_only",
     observedAt: snapshot.observedAt,
     preparedAt: now,
     target: { accountId: account, monitorId: failureMonitor },
-    changed: !alreadyExtended,
+    changed: !alreadyStabilized,
     snapshotSha256: sha(snapshot),
     previousQuerySha256: sha(query),
     unchangedConfigurationSha256: sha(unchanged),
@@ -147,8 +178,15 @@ export function planNativeFreshnessAlerting(
     proposedConfigurationSha256: sha({
       ...configuration,
       query: proposedQuery,
+      timeRangeMode: "manual",
     }),
-    patch: { query: proposedQuery },
+    patch: { query: proposedQuery, timeRangeMode: "manual" },
+    signal: {
+      originalFailureLookbackSeconds: 60,
+      freshnessLookbackSeconds: 300,
+      missingQualifiedFreshness: "alarm",
+      recovery: "qualified_healthy_observation_and_no_recent_failure",
+    },
     preserved: {
       enabled: true,
       evaluationIntervalSeconds: 60,
@@ -161,7 +199,7 @@ export function planNativeFreshnessAlerting(
       heartbeatMonitorChanged: false,
     },
     qualification:
-      "local_plan_requires_current_native_readback_and_authorized_apply",
+      "local_plan_requires_native_sql_validation_current_readback_and_authorized_apply",
   };
   return plan;
 }
