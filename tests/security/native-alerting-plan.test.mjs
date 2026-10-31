@@ -5,10 +5,13 @@ import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 import { DatabaseSync } from "node:sqlite";
+import { createHash } from "node:crypto";
 import {
   nativeFailureMonitorQuery,
   nativeFreshnessMonitorQuery,
   legacyNativeFreshnessMonitorQuery,
+  nativeUiFailureMonitorQuery,
+  nativeUiLegacyFreshnessMonitorQuery,
   nativeAlertingPlanDigest,
   planNativeFreshnessAlerting,
 } from "../../scripts/native-alerting-plan.mjs";
@@ -88,6 +91,128 @@ test("migrates the actually deployed automatic extension and is idempotent only 
   const plan = planNativeFreshnessAlerting(input, at);
   assert.equal(plan.changed, false);
   assert.equal(plan.patch.query, nativeFreshnessMonitorQuery);
+});
+const observedNativeForms = [
+  [
+    nativeUiFailureMonitorQuery,
+    "b3bfdebf7321b69081f80736e2e5713d9379126706bed2abed794139b8ff810e",
+  ],
+  [
+    nativeUiLegacyFreshnessMonitorQuery,
+    "2f9825d925007ccc9c4d57a33c269a71f199ab602f9d975b04bd7c564e19deb1",
+  ],
+];
+function nativeUiSnapshot(query) {
+  const input = snapshot();
+  input.configuration.query = query;
+  input.configuration.datasetScope = {
+    accountId: input.accountId,
+    dataset: "logs.workersLogs",
+    evidence: "authenticated_monitor_edit_route",
+  };
+  return input;
+}
+test("accepts exactly both observed UI queries only with current authenticated account/dataset evidence", () => {
+  for (const [query, observedSha256] of observedNativeForms) {
+    assert.equal(
+      createHash("sha256").update(query).digest("hex"),
+      observedSha256,
+    );
+    const input = nativeUiSnapshot(query);
+    const before = structuredClone(input);
+    const plan = planNativeFreshnessAlerting(input, at);
+    assert.deepEqual(input, before);
+    assert.equal(plan.previousQueryTextSha256, observedSha256);
+    assert.equal(plan.patch.query, nativeFreshnessMonitorQuery);
+    assert.equal(plan.patch.timeRangeMode, "manual");
+    assert.equal(plan.changed, true);
+    assert.ok(plan.patch.query.includes(`accountTag = '${input.accountId}'`));
+    const canonicalPlan = planNativeFreshnessAlerting(snapshot(), at);
+    assert.notEqual(
+      plan.previousQuerySha256,
+      canonicalPlan.previousQuerySha256,
+    );
+    assert.notEqual(plan.snapshotSha256, canonicalPlan.snapshotSha256);
+    assert.notEqual(
+      plan.unchangedConfigurationSha256,
+      canonicalPlan.unchangedConfigurationSha256,
+    );
+  }
+});
+test("refuses implicit native scope without exact fresh evidence, matching monitor and automatic mode", () => {
+  for (const [query] of observedNativeForms) {
+    for (const alter of [
+      (input) => {
+        delete input.configuration.datasetScope;
+      },
+      (input) => {
+        input.configuration.datasetScope.accountId = "foreign";
+      },
+      (input) => {
+        input.configuration.datasetScope.dataset = "events.httpRequests";
+      },
+      (input) => {
+        input.configuration.datasetScope.evidence = "assumed_from_query";
+      },
+      (input) => {
+        input.configuration.datasetScope.otherAccountId = "foreign";
+      },
+      (input) => {
+        input.accountId = "foreign";
+      },
+      (input) => {
+        input.monitorId = "foreign";
+      },
+      (input) => {
+        input.configuration.timeRangeMode = "manual";
+      },
+      (input) => {
+        input.observedAt = "2026-10-30T09:44:59.999Z";
+      },
+    ]) {
+      const input = nativeUiSnapshot(query);
+      alter(input);
+      assert.throws(
+        () => planNativeFreshnessAlerting(input, at),
+        /NATIVE_ALERT_/,
+      );
+    }
+  }
+});
+test("does not normalize unknown native UI SQL, whitespace, identifiers, predicates or manual readback", () => {
+  for (const [query] of observedNativeForms) {
+    for (const changed of [
+      query + "\n",
+      query.replace("\nFROM", " FROM"),
+      query.replace('"attributes"', "attributes"),
+      query.replace("guteneo-app", "another-worker"),
+      query.replace("workersLogs", "otherLogs"),
+      query + " OR 1 = 1",
+      query.replace(`("attributes"['unknown'] > 0) OR `, ""),
+      query.replace(
+        `("attributes"['failed'] > 0)`,
+        `("attributes"['failed'] > 1)`,
+      ),
+      query.replace(
+        `("attributes"['failed'] > 0) OR ("attributes"['unknown'] > 0)`,
+        `("attributes"['unknown'] > 0) OR ("attributes"['failed'] > 0)`,
+      ),
+    ]) {
+      const input = nativeUiSnapshot(changed);
+      assert.throws(
+        () => planNativeFreshnessAlerting(input, at),
+        /NATIVE_ALERT_QUERY_OR_TIME_RANGE_UNEXPECTED/,
+      );
+    }
+  }
+  const unknownManual = nativeUiSnapshot(
+    nativeFreshnessMonitorQuery.replaceAll("attributes[", '"attributes"['),
+  );
+  unknownManual.configuration.timeRangeMode = "manual";
+  assert.throws(
+    () => planNativeFreshnessAlerting(unknownManual, at),
+    /NATIVE_ALERT_QUERY_OR_TIME_RANGE_UNEXPECTED/,
+  );
 });
 test("allows query formatting without changing values inside quoted literals", () => {
   const input = snapshot();
@@ -276,7 +401,8 @@ function queryValue(rows, sql = nativeFreshnessMonitorQuery) {
       )
       .replace(/NOW\(\) - INTERVAL '([15])' MINUTE/g, (_, minutes) =>
         String(nowMs - Number(minutes) * 60_000),
-      );
+      )
+      .replaceAll("NOW()", String(nowMs));
     assert.equal(/NOW\(|INTERVAL|attributes\[/.test(executable), false);
     return db.prepare(executable).get().value;
   } finally {
@@ -397,4 +523,32 @@ test("global account and worker filters enclose every failure and coverage branc
       1,
       "foreign healthy data cannot clear missing local coverage",
     );
+});
+
+test("manual bounds exclude future failures and never accept future healthy coverage", () => {
+  for (const attributes of [
+    { event: "http", code: "HTTP_SERVER_ERROR" },
+    { event: "http", failed: 1 },
+    { code: "FRESHNESS_AT_RISK" },
+    { code: "FRESHNESS_CHECK_FAILED" },
+  ])
+    for (const futureSeconds of [0.001, 60, 300])
+      assert.equal(
+        queryValue([
+          freshnessRecord(),
+          freshnessRecord(-futureSeconds, attributes),
+        ]),
+        0,
+      );
+  for (const futureSeconds of [0.001, 60, 300])
+    assert.equal(
+      queryValue([freshnessRecord(-futureSeconds)]),
+      1,
+      "future healthy data is not current coverage",
+    );
+  assert.equal(
+    queryValue([freshnessRecord()]),
+    0,
+    "the exact evaluation timestamp is inclusive",
+  );
 });

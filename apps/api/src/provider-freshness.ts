@@ -403,11 +403,13 @@ async function faxManual(
     row.status !== "qualified" ||
     row.execution_scope !== "live" ||
     row.route_qualification !== "provider_verified" ||
-    row.route_allowed !== 1 ||
     String(row.valid_from) > now ||
     !hash.test(String(row.source_sha256))
   )
     return null;
+  // This immutable explicit prohibition rejects preparation before price expiry.
+  if (row.route_allowed === 0) return [value];
+  if (row.route_allowed !== 1) return null;
   return (await setCandidate(value, row, row.expires_at, "operator"))
     ? [value]
     : null;

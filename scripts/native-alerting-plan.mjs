@@ -40,6 +40,22 @@ const addition = ["FRESHNESS_AT_RISK", "FRESHNESS_CHECK_FAILED"]
   .join("\n");
 export const legacyNativeFreshnessMonitorQuery =
   nativeFailureMonitorQuery.replace(/\n  \)$/, `\n${addition}\n  )`);
+// Exact, historically reread native-editor forms. Their implicit account scope
+// is accepted only with the explicit authenticated-route evidence below. Do not
+// normalize arbitrary quoted SQL or infer scope from a missing account filter.
+const nativeUiPredicates = [
+  ...baselineCodes.map((code) => `("attributes"['code'] = '${code}')`),
+  ...baselineCounters.map((counter) => `("attributes"['${counter}'] > 0)`),
+];
+export const nativeUiFailureMonitorQuery = `SELECT COUNT(*) AS "value"
+FROM "logs"."workersLogs"
+WHERE (("scriptName" = 'guteneo-app') AND (${nativeUiPredicates.join(" OR ")}))`;
+export const nativeUiLegacyFreshnessMonitorQuery =
+  `${nativeUiFailureMonitorQuery.slice(0, -2)} OR ` +
+  ["FRESHNESS_AT_RISK", "FRESHNESS_CHECK_FAILED"]
+    .map((code) => `("attributes"['code'] = '${code}')`)
+    .join(" OR ") +
+  "))";
 // SUM(if(...)) is supported by the Logs Explorer SQL backend; countIf is not.
 // A recent explicit healthy observation is required before missing warnings can
 // mean recovery. Ordinary HTTP/Cron records never supply freshness coverage.
@@ -71,7 +87,8 @@ export const nativeFreshnessMonitorQuery = `SELECT if(COUNT(*) = 0, 1,
 FROM logs.workersLogs
 WHERE accountTag = '${account}'
   AND scriptName = 'guteneo-app'
-  AND timestamp >= NOW() - INTERVAL '5' MINUTE`;
+  AND timestamp >= NOW() - INTERVAL '5' MINUTE
+  AND timestamp <= NOW()`;
 const canonical = (value) =>
   value === null || typeof value !== "object"
     ? JSON.stringify(value)
@@ -149,11 +166,26 @@ export function planNativeFreshnessAlerting(
     "NATIVE_ALERT_CONFIGURATION_UNEXPECTED",
   );
   const query = configuration.query;
+  const knownNativeUiQuery =
+    query === nativeUiFailureMonitorQuery ||
+    query === nativeUiLegacyFreshnessMonitorQuery;
+  if (knownNativeUiQuery) {
+    const scope = configuration.datasetScope;
+    demand(
+      scope &&
+        Object.keys(scope).sort().join(",") === "accountId,dataset,evidence" &&
+        scope.accountId === account &&
+        scope.dataset === "logs.workersLogs" &&
+        scope.evidence === "authenticated_monitor_edit_route",
+      "NATIVE_ALERT_DATASET_SCOPE_UNVERIFIED",
+    );
+  }
   const alreadyStabilized =
     compactSql(query) === compactSql(nativeFreshnessMonitorQuery);
   const knownAutomaticQuery =
     compactSql(query) === compactSql(nativeFailureMonitorQuery) ||
-    compactSql(query) === compactSql(legacyNativeFreshnessMonitorQuery);
+    compactSql(query) === compactSql(legacyNativeFreshnessMonitorQuery) ||
+    knownNativeUiQuery;
   demand(
     (alreadyStabilized && configuration.timeRangeMode === "manual") ||
       (knownAutomaticQuery && configuration.timeRangeMode === "automatic"),
@@ -173,6 +205,7 @@ export function planNativeFreshnessAlerting(
     changed: !alreadyStabilized,
     snapshotSha256: sha(snapshot),
     previousQuerySha256: sha(query),
+    previousQueryTextSha256: createHash("sha256").update(query).digest("hex"),
     unchangedConfigurationSha256: sha(unchanged),
     destinationSha256: sha(notifications.destinations),
     proposedConfigurationSha256: sha({

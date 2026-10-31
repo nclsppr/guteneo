@@ -17,6 +17,11 @@ tenant, selected provider/account/route, verified sender and enabled mechanism.
 Disabled channels, revoked policies, historical generations, informational dates
 and continuous-review archived references do not become candidates. Failed reads
 or unexplained guard loss cannot prove that a previously used binding is inactive.
+An explicitly forbidden fax route is not a consumed price-expiry gate, although
+its preparation refusal remains enforced. The candidate's narrowly proven
+historical postal-window chain avoids confusing a later generation timestamp
+with an older, unchanged price start. The exact lineage and unknown-result
+boundaries are owned by [provider freshness](PROVIDER_FRESHNESS.md#historical-postal-window-generations).
 
 | Consumed field                                        | Actual consumer                                            | Detection and renewal boundary                                                                                                                                                                                                                                                                                                              |
 | ----------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -140,7 +145,9 @@ The proposed existing-monitor change has two fields: the SQL query and its
 explicit **Manual** time-range mode. Execution every sixty seconds, the sixty-second
 average window, `>=1` threshold, hourly reminders, destination and separate
 missing-heartbeat monitor remain unchanged. The query keeps the account and
-Worker filters outside every branch, then reads five minutes of event timestamps:
+Worker filters outside every branch, then reads the inclusive event-time range
+`[evaluation time - five minutes, evaluation time]`. Future observations cannot
+supply coverage or trigger an early failure:
 
 - All ten historical failure codes and four counters keep an additional inclusive
   one-minute predicate. They do not inherit the longer freshness window.
@@ -214,6 +221,19 @@ normalization contract is explicit and does not claim to be a native API schema:
   }
 }
 ```
+
+Two known legacy dashboard query strings omit the literal account filter because
+their authenticated monitor-edit route already supplies it. The plan accepts
+only those exact byte-pinned strings in Automatic mode, and only when
+`configuration.datasetScope` contains exactly `accountId` for the reviewed
+account, `dataset: "logs.workersLogs"` and
+`evidence: "authenticated_monitor_edit_route"`. The operator must establish that
+scope from the current authenticated route; the tool never infers it from an
+arbitrary query. Unknown variants and invented Manual-mode dashboard forms stay
+refused. The raw query text has its own `previousQueryTextSha256`, distinct from
+the retained canonical-value `previousQuerySha256`. Scope is bound into the full
+snapshot, unchanged-settings and proposed-configuration digests. These are local
+normalization fields, not a claimed Cloudflare API representation.
 
 Retain all other observed settings as additional configuration properties. The
 tool binds the full normalized snapshot and unchanged settings by SHA-256, checks
