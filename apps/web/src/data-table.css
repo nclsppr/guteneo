@@ -1,0 +1,384 @@
+.data-table {
+  container: data-table / inline-size;
+  min-width: 0;
+  width: 100%;
+  margin-block: 16px;
+  color: var(--ink);
+}
+.data-table__toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.data-table__search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 220px;
+  max-width: 360px;
+  min-width: 0;
+  min-height: 44px;
+  padding-inline: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--muted);
+}
+.data-table__search:focus-within {
+  outline: 2px solid var(--action);
+  outline-offset: 2px;
+}
+.data-table .data-table__search input {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  box-shadow: none;
+}
+.data-table__search input::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+.data-table__search > svg {
+  flex-shrink: 0;
+}
+.data-table :is(select, .button) {
+  min-height: 44px;
+  margin: 0;
+  font-size: 13px;
+}
+.data-table select {
+  width: auto;
+  max-width: 100%;
+  padding: 8px 30px 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background-color: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+.data-table__filter {
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+}
+.data-table__mobile-sort {
+  display: none;
+}
+.data-table__scroll {
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.data-table__scroll:focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 3px;
+}
+.data-table table.data-table__grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin: 0;
+}
+.data-table .data-table__grid :is(th, td) {
+  padding: 16px 18px;
+  text-align: left;
+  vertical-align: middle;
+}
+.data-table .data-table__grid thead th {
+  padding-block: 6px;
+  background: var(--surface-alt);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--line);
+}
+.data-table__sort {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.data-table__sort svg {
+  flex-shrink: 0;
+}
+.data-table__sort:hover,
+.data-table__grid [aria-sort="ascending"],
+.data-table__grid [aria-sort="descending"] {
+  color: var(--action);
+}
+.data-table__sort:focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+.data-table .data-table__grid tbody :is(th, td) {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+  line-height: 1.55;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink);
+}
+.data-table .data-table__grid tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+.data-table__grid tbody tr:hover {
+  background: var(--surface-alt);
+}
+.data-table__cell-label,
+.data-table__heading-label {
+  display: none;
+}
+.data-table__cell-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.data-table__cell-value > :first-child {
+  margin-top: 0;
+}
+.data-table .data-table__grid :is(th, td)[data-column="actions"] {
+  text-align: right;
+}
+.data-table__cell-value .row-link {
+  font-size: 14px;
+}
+.data-table__cell-value .reference {
+  font-size: 11px;
+  margin-top: 4px;
+}
+.data-table__cell-value :is(.date-cell, .channel-label) {
+  font-size: 13px;
+}
+.data-table__cell-value .status {
+  font-size: 12px;
+}
+.data-table__cell-value :is(.button-group, .button-row) {
+  flex-wrap: wrap;
+}
+.data-table__selection {
+  margin-bottom: 12px;
+}
+.data-table__empty {
+  padding: 32px 20px;
+  text-align: center;
+  color: var(--muted);
+}
+.data-table__empty p {
+  margin: 0 0 12px;
+}
+.data-table__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  padding: 14px 2px 0;
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.data-table__pagination {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.data-table__pagination label {
+  margin: 0;
+  font-size: inherit;
+}
+.data-table__pagination select {
+  min-width: 65px;
+}
+.data-table__pagination nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.data-table__pagination .button {
+  width: 44px;
+  padding: 0;
+}
+.data-table__pagination nav span {
+  white-space: nowrap;
+}
+@container data-table (max-width: 40rem) {
+  .data-table[data-layout="cards"] thead .data-table__sort {
+    display: none;
+  }
+  .data-table[data-layout="cards"] .data-table__heading-label {
+    display: inline;
+  }
+  .data-table[data-layout="cards"]
+    .data-table__grid
+    tbody
+    [data-card-span="full"] {
+    grid-column: 1 / -1;
+  }
+  .data-table__search {
+    max-width: none;
+    flex-basis: 100%;
+  }
+  .data-table__filter {
+    flex: 1 1 140px;
+  }
+  .data-table__filter select {
+    width: 100%;
+  }
+  .data-table__toolbar {
+    gap: 10px;
+  }
+  .data-table__mobile-sort {
+    display: flex;
+    align-items: center;
+    flex: 1 1 100%;
+    gap: 8px;
+  }
+  .data-table__mobile-sort label {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+  }
+  .data-table__mobile-sort select {
+    width: 100%;
+  }
+  .data-table__mobile-sort .button {
+    width: 44px;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .data-table[data-layout="cards"] .data-table__scroll {
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
+    background: transparent;
+  }
+  .data-table[data-layout="cards"]
+    :is(.data-table__grid, .data-table__grid tbody) {
+    display: block;
+    width: 100%;
+  }
+  .data-table[data-layout="cards"] .data-table__grid thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .data-table[data-layout="cards"] .data-table__grid tbody {
+    display: grid;
+    gap: 12px;
+  }
+  .data-table[data-layout="cards"] .data-table__grid tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 20px;
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .data-table[data-layout="cards"] .data-table__grid tbody :is(th, td) {
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    white-space: normal;
+    font-size: 14px;
+    text-align: left;
+  }
+  .data-table[data-layout="cards"]
+    .data-table__grid
+    tbody
+    :is(th, td):first-child {
+    grid-column: 1 / -1;
+  }
+  .data-table[data-layout="cards"] .data-table__cell-label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 400;
+  }
+  .data-table[data-layout="cards"] [data-column="actions"] {
+    grid-column: 1 / -1;
+  }
+  .data-table[data-layout="cards"]
+    [data-column="actions"]
+    .data-table__cell-label {
+    display: none;
+  }
+  .data-table[data-layout="cards"]
+    [data-column="actions"]
+    .data-table__cell-value {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .data-table .reference {
+    white-space: normal;
+    max-width: 100%;
+  }
+  .data-table .row-link {
+    max-width: none;
+  }
+  .data-table :is(input[type="search"], select) {
+    font-size: 16px;
+  }
+  .data-table__footer {
+    gap: 12px;
+    padding-inline: 0;
+  }
+  .data-table__pagination {
+    justify-content: space-between;
+    width: 100%;
+  }
+  .data-table__pagination nav {
+    margin-left: auto;
+  }
+}
+@container data-table (max-width: 23rem) {
+  .data-table__pagination > label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+@container data-table (max-width: 18rem) {
+  .data-table[data-layout="cards"] .data-table__grid tbody tr {
+    gap: 14px;
+    padding: 16px;
+  }
+  .data-table[data-layout="cards"] .data-table__grid tbody :is(th, td) {
+    grid-column: 1 / -1;
+  }
+}

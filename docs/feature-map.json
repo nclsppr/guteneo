@@ -887,9 +887,14 @@
         "WorkspaceIdentity shares profile/theme/account-switch/status/logout controls with My documents and canonical Belvedere; personal account switching sanitizes private return queries, Escape restores focus and navigation/identity replacement close menus",
         "Exact complete-label revisions unify workspace terminology in French, English, German and Luxembourgish while preserving legacy lookup keys, explicit contexts, names and interpolated content",
         "All four application import exceptions are removed: personal lazy entry, correspondence preference helper, shared entry-link style and locale-change event replace the former eager/cross-layer dependencies",
-        "Explicit route-code recovery refreshes only failed same-origin public JS/CSS assets before reloading, with no credentials/referrer/private query, at most eight requests, an eight-MiB per-response read bound and five-second timeout; no background retry or business endpoint is added"
+        "Explicit route-code recovery refreshes only failed same-origin public JS/CSS assets before reloading, with no credentials/referrer/private query, at most eight requests, an eight-MiB per-response read bound and five-second timeout; no background retry or business endpoint is added",
+        "Shared data-table.tsx/model/styles provide accent-insensitive multiword search, optional categorical filters, raw-value column sorting with accessible headers/mobile controls, page-size selection and bounded browser pagination over already authorized loaded rows; container-based 40-rem cards keep consistent padding while wider tables contain horizontal overflow, and static/reference/editable grids retain their specialized behavior",
+        "Table controls reset the browser page after search/filter/sort/page-size changes, clamp shrinking results, offer clear-filter recovery and persist no search or record state; explicit cursor loading stays visible, server-paged Belvédère search/pagination remains authoritative and local column sorting identifies its current-page scope; four human roles, personal isolation and business authority are unchanged",
+        "DEV + public-preview + loopback-only simulation controls select four fictional membership roles and a separate observer platform-access hint; unsaved-navigation veto, scenario identity remount and scoped IDs/cursors preserve account separation without Auth0, memberships or business authority",
+        "Reproducible seeded Small/Large/Huge/Extreme metadata profiles expose up to one billion logical documents, dispatches, templates, datasets and generations while generating at most fifty records per read; generated volumes and fictional personal documents are read-only, bounded PDF caches materialize only requested bytes and fixture failures never fall through to production",
+        "Shared table regions have distinct accessible names and source-range captions retain table naming; keyboard journeys traverse added search/sort controls, pagination tests inspect all loaded rows, and responsive assertions distinguish active cards from intentionally scrollable wider tables"
       ],
-      "status": "The 29 October 2026 Studio space, the application/workspace switchers and the four-application ownership check are a local source candidate requiring CI and publication evidence. The 29 October 2026 Classic retirement is a local source candidate requiring CI and publication evidence: every account sees V2, and the stored preference stays accepted without changing the web layout. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority. The shared outlined personal-context navigation refinement is a local source candidate requiring its own rendered and publication evidence. The 29 October compact V2 navigation and account-menu refinement is a local source candidate requiring CI and publication evidence.",
+      "status": "The 29 October 2026 Studio space, the application/workspace switchers and the four-application ownership check are a local source candidate requiring CI and publication evidence. The 29 October 2026 Classic retirement is a local source candidate requiring CI and publication evidence: every account sees V2, and the stored preference stays accepted without changing the web layout. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority. The shared outlined personal-context navigation refinement is a local source candidate requiring its own rendered and publication evidence. The 29 October compact V2 navigation and account-menu refinement is a local source candidate requiring CI and publication evidence. The 30 October shared operational-table refinement is locally qualified with synthetic model/browser checks and measured loading recorded in docs/FRONTEND_PERFORMANCE.md; hosted CI and publication remain separate.",
       "tests": [
         "tests/unit/account.test.ts",
         "tests/integration/mobile.test.ts",
@@ -912,7 +917,14 @@
         "tests/unit/app-routes.test.ts",
         "tests/e2e/personal-entry-race.spec.ts",
         "tests/unit/message-terminology.test.ts",
-        "tests/unit/route-code-recovery.test.ts"
+        "tests/unit/route-code-recovery.test.ts",
+        "tests/unit/data-table-model.test.ts",
+        "tests/preview-e2e/data-tables.spec.ts",
+        "tests/unit/preview-data.test.ts",
+        "tests/unit/local-preview-scenarios.test.ts",
+        "tests/unit/local-preview-personal.test.ts",
+        "tests/unit/local-preview-controls.test.ts",
+        "tests/local-preview-e2e/scenarios.spec.ts"
       ],
       "surfaces": "Authenticated web V2 only; native reads the stored preference without a setter; no new business API/MCP authority.",
       "id": "dashboard",
@@ -1047,9 +1059,11 @@
         "V2 workshop visual vocabulary with independent platform navigation, shared single system-default light/dark action, readable tables/globe and keyboard mobile drawer; theme changes preserve filters without business reads/writes or layout-preference changes",
         "Canonical /belvedere and its protected child reads reuse the existing canonical host-only browser session; signed-evidence/current-membership guards remain mandatory and the private legacy entry/dedicated host remain protected",
         "Session responses expose only canAccessBelvedere for shared application navigation, never a private slug or token; personal projection additionally checks the matching current workspace browser session/evidence",
-        "Canonical entry uses shared application/account controls, demand-loaded seven-view UI and interactive globe; observation filters never switch operational membership"
+        "Canonical entry uses shared application/account controls, demand-loaded seven-view UI and interactive globe; observation filters never switch operational membership",
+        "All operational and chart-detail tables reuse shared column sorting and responsive presentation; server-paged lists preserve existing server search/filter/pagination and label local sorting as current-page only, while complete chart/monthly/service arrays use client search and pagination without new reads or platform authority",
+        "The loopback fictional platform account opens a separate GET/HEAD-only Belvedere fixture with seeded bounded pages, arithmetic totals and preserved locale; the default fixture remains compatible and no real platform access, credentials, provider or backend mutation is created"
       ],
-      "status": "Dedicated-host release and authenticated overview verified on 25 October from 03daa4136de8999cc79018f33f2a22038917c621; later 06d92 V2 publication and seven-section native Safari navigation are dated proof. Public routing/refusals were observed on f946 at 26 October 01:47 UTC; an authenticated journey on that newer source is not claimed. Private read-only authority remains separate from workshop roles.",
+      "status": "Dedicated-host release and authenticated overview verified on 25 October from 03daa4136de8999cc79018f33f2a22038917c621; later 06d92 V2 publication and seven-section native Safari navigation are dated proof. Public routing/refusals were observed on f946 at 26 October 01:47 UTC; an authenticated journey on that newer source is not claimed. Private read-only authority remains separate from workshop roles. The 30 October shared-table migration passed local desktop Chromium and iPhone WebKit regressions; hosted CI, authenticated platform access and publication remain separate.",
       "tests": [
         "tests/unit/belvedere.test.ts",
         "tests/unit/belvedere-host.test.ts",
@@ -1058,7 +1072,8 @@
         "tests/unit/belvedere-finance.test.ts",
         "tests/belvedere-e2e/locale.spec.ts",
         "tests/unit/belvedere-locale.test.ts",
-        "tests/belvedere-e2e/canonical-session.spec.ts"
+        "tests/belvedere-e2e/canonical-session.spec.ts",
+        "tests/unit/local-belvedere.test.ts"
       ],
       "surfaces": "Private verified Watchkeeper browser only; no workshop/native/OAuth/MCP authority.",
       "id": "belvedere",
@@ -1625,6 +1640,24 @@
     },
     {
       "id": "J42",
+      "title": "Find and organize authorized table rows",
+      "actor": "Authenticated browser reader with the current page’s data authority; Belvédère retains separate platform access",
+      "steps": "Open an authorized operational list → search the loaded rows or use the existing server search → apply an available categorical filter → select a column and direction from its header or narrow-layout control → choose the browser page size and navigate results → explicitly load older cursor records when needed. Server-paged Belvédère lists retain their existing paginator and identify current-page sorting. Cards follow the available container width; surrounding page controls reflow.",
+      "branch": "Operate",
+      "doc": "WEB_APPLICATIONS.md",
+      "failure": "Unloaded records are not silently fetched or included in local search. Changing controls resets the browser page, shrinking results clamps it, and empty results retain a clear-filters action. Loading/denial/error and account/tenant guards remain the owning page’s responsibility; no state persistence, new read scope, approval, send, paid action, mandate or REST/MCP/native capability is added."
+    },
+    {
+      "id": "J43",
+      "title": "Local role and volume simulation",
+      "actor": "Local developer using explicitly fictional browser profiles",
+      "steps": "Open Local simulation → select a fictional role or separate platform profile → choose a volume and seed → apply after any unsaved-work veto → inspect Correspondence, Studio and My documents → use the fictional platform link for read-only Belvedere → page/search/sort bounded metadata or reroll the reproducible scenario.",
+      "branch": "DEV + public-preview + loopback only; interactive default and read-only virtual volumes are distinct; dedicated platform fixture has no real authority.",
+      "doc": "PUBLIC_PREVIEW.md",
+      "failure": "Invalid seeds/counts/cursors, stale actors/scenarios and unsupported generated writes fail locally; no backend fallback. Logical billion-row counts qualify interface behavior only, never actual database throughput, authentication, receipt, approval or delivery."
+    },
+    {
+      "id": "J44",
       "title": "Maintain consumed provider deadlines and warn at J-1",
       "actor": "Separately authorized platform operator for configuration; scheduled backend and scanner watchdog for bounded technical checks",
       "steps": "Identify the mechanism that actually consumes a deadline, including selected first use and postal preparation with final sending cut → exclude obsolete or explicitly suspended bindings and keep unexplained losses unknown → privately qualify genuine source access → after separate authorization roll out compatible runtime and additive schema → perform due exact-source reads, preserve independent authority/caps/history and defer quote-bound replacements → record a new immutable technical revision only after complete proof → reconcile exact UTC J-1 incidents with durable cursors → emit a risk or failed-control signal separate from Cron completion → use the separately configured existing native monitor or scanner watchdog channel and inspect the real result.",
@@ -2034,6 +2067,22 @@
       "No authority from workspace role",
       "No authority from workspace role",
       "No; distinct authorized platform operator registers an exact source/route once; bounded scheduler refreshes do not grant consent, route authority or sending rights"
+    ],
+    [
+      "Search, filter, sort and page authorized browser table rows",
+      "Only rows already visible under current page authority",
+      "Only rows already visible under current page authority and independent reporting options",
+      "Only rows already visible under current page authority",
+      "Only rows already visible under current page authority",
+      "No new REST/MCP/native tool or authority; browser controls never fetch inaccessible rows or grant approval, sending, paid operations or a mandate"
+    ],
+    [
+      "Use loopback fictional role/volume controls",
+      "No production authority; local fixture only",
+      "No production authority; local fixture only",
+      "No production authority; local fixture only",
+      "No production authority; local fixture only",
+      "No REST/MCP/native authority or real platform capability; DEV + preview + loopback only"
     ],
     [
       "Configure provider freshness and native operational alerts",

@@ -6,7 +6,7 @@ import type {
 } from "../../packages/contracts/src/template-workflow";
 import { documentAnalysis } from "../../packages/contracts/src/document-analysis";
 
-async function generationFixture(page: Page) {
+async function generationFixture(page: Page, count = 1) {
   await page.goto("/#/app");
   await page
     .getByRole("button", { name: "Entrer dans l’espace de travail" })
@@ -27,8 +27,8 @@ async function generationFixture(page: Page) {
     mappingVersion: null,
     mode: "generate_only",
     state: "completed",
-    total: 1,
-    generated: 1,
+    total: count,
+    generated: count,
     failed: 0,
     pending: 0,
     cancelled: 0,
@@ -70,7 +70,15 @@ async function generationFixture(page: Page) {
     const gate = nextReadGate;
     nextReadGate = undefined;
     await gate;
-    return route.fulfill({ json: { items: [result], nextCursor: null } });
+    return route.fulfill({
+      json: {
+        items: Array.from({ length: count }, (_, index) => ({
+          ...result,
+          recordId: index === 0 ? result.recordId : `record-${index + 2}`,
+        })),
+        nextCursor: null,
+      },
+    });
   });
   return {
     get reads() {
@@ -137,7 +145,14 @@ for (const outcome of ["ready", "retryable", "blocked"] as const) {
       ).toBeVisible();
     } else {
       await expect(selection(page)).toBeDisabled();
-      await expect(page.locator(".studio-table")).toContainText(
+      await expect(
+        page.locator(".data-table").filter({
+          has: page.getByRole("table", {
+            name: "Résultats de cette génération",
+            exact: true,
+          }),
+        }),
+      ).toContainText(
         outcome === "blocked"
           ? "PDF bloqué par le contrôle de sécurité"
           : "La vérification prend plus de temps que prévu",
@@ -203,15 +218,23 @@ test("verification followup stops after two minutes and an explicit refresh gran
   await expect.poll(() => fixture.reads).toBe(pausedReads + 1);
   // Hold the response until loading is rendered, so the next assertion cannot
   // match the table's previous idle state before the refresh has committed.
-  await expect(page.locator(".studio-table")).toHaveAttribute(
-    "aria-busy",
-    "true",
-  );
+  await expect(
+    page.locator(".data-table").filter({
+      has: page.getByRole("table", {
+        name: "Résultats de cette génération",
+        exact: true,
+      }),
+    }),
+  ).toHaveAttribute("aria-busy", "true");
   releaseManualRead();
-  await expect(page.locator(".studio-table")).toHaveAttribute(
-    "aria-busy",
-    "false",
-  );
+  await expect(
+    page.locator(".data-table").filter({
+      has: page.getByRole("table", {
+        name: "Résultats de cette génération",
+        exact: true,
+      }),
+    }),
+  ).toHaveAttribute("aria-busy", "false");
   // Let this committed render paint and flush its followup effect before
   // advancing the mocked clock past the newly armed interval.
   await page.evaluate(
@@ -257,5 +280,89 @@ test("hidden pages pause verification reads and navigation cancels the followup"
   await expect(selection(page)).toHaveCount(0);
   await page.clock.fastForward(60_000);
   expect(fixture.reads).toBe(2);
+  expect(fixture.writes).toEqual([]);
+});
+
+test("generation selection follows visible pages and filters while preserving selected record IDs without writes", async ({
+  page,
+}) => {
+  const fixture = await generationFixture(page, 25);
+  await fixture.open();
+  fixture.setResult({
+    documentStatus: "ready",
+    documentAnalysis: documentAnalysis("ready"),
+  });
+  await refresh(page).click();
+  const table = page.getByRole("table", {
+    name: "Résultats de cette génération",
+    exact: true,
+  });
+  const rows = table.locator("tbody tr");
+  await expect(selection(page)).toBeEnabled();
+  await expect(rows).toHaveCount(10);
+  const reads = fixture.reads;
+  const bulkSelect = page.getByRole("button", {
+    name: "Sélectionner les PDF vérifiés affichés",
+    exact: true,
+  });
+  const pagination = page.getByRole("navigation", {
+    name: "Pagination de Résultats de cette génération",
+    exact: true,
+  });
+  await bulkSelect.click();
+  await expect(
+    page.getByRole("button", {
+      name: "Préparer une distribution (10)",
+      exact: true,
+    }),
+  ).toBeEnabled();
+  await pagination
+    .getByRole("button", { name: "Page suivante", exact: true })
+    .click();
+  await expect(rows).toHaveCount(10);
+  const secondPageSelection = table.getByRole("checkbox").first();
+  await expect(secondPageSelection).not.toBeChecked();
+  await bulkSelect.click();
+  await expect(
+    page.getByRole("button", {
+      name: "Préparer une distribution (20)",
+      exact: true,
+    }),
+  ).toBeEnabled();
+  const search = page.getByRole("searchbox", {
+    name: "Rechercher dans Résultats de cette génération",
+    exact: true,
+  });
+  await search.fill("record-26");
+  await expect(rows).toHaveCount(1);
+  await expect(
+    table.getByRole("checkbox", {
+      name: "Sélectionner record-26",
+      exact: true,
+    }),
+  ).not.toBeChecked();
+  await bulkSelect.click();
+  await expect(
+    page.getByRole("button", {
+      name: "Préparer une distribution (21)",
+      exact: true,
+    }),
+  ).toBeEnabled();
+  await search.clear();
+  await expect(selection(page)).toBeChecked();
+  await pagination
+    .getByRole("button", { name: "Page suivante", exact: true })
+    .click();
+  await expect(table.getByRole("checkbox").first()).toBeChecked();
+  await pagination
+    .getByRole("button", { name: "Page suivante", exact: true })
+    .click();
+  await expect(
+    table.getByRole("checkbox", {
+      name: "Sélectionner record-26",
+      exact: true,
+    }),
+  ).toBeChecked();
+  expect(fixture.reads).toBe(reads);
   expect(fixture.writes).toEqual([]);
 });

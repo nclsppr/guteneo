@@ -1,3 +1,4 @@
+import { isAdvancedLocalPreview } from "./local-preview";
 import { msg } from "./messages";
 import type { Session } from "./api";
 import { isPublicPreview, permissionsFor } from "./api";
@@ -16,7 +17,7 @@ export default function DocumentStudio({
 }) {
   const [path, query] = route.split("?");
   const permissions = permissionsFor(session);
-  if (isPublicPreview)
+  if (isPublicPreview && !isAdvancedLocalPreview)
     return (
       <p className="notice info">
         {msg(

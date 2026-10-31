@@ -20,6 +20,8 @@ import pdfChecks from "./locales/messages-pdf-checks.json";
 import dashboardV2 from "./locales/messages-dashboard-v2.json";
 import usageActivity from "./locales/messages-usage-activity.json";
 import publicSite from "./locales/messages-public-site.json";
+import tables from "./locales/messages-tables.json";
+import localPreview from "./locales/messages-local-preview.json";
 import delivery from "../../../packages/contracts/src/delivery-messages.json" with { type: "json" };
 
 function sourceMessages(
@@ -41,6 +43,8 @@ function sourceMessages(
 
 const sources: Record<string, readonly string[]>[] = [
   sourceMessages(catalogs.fr, [catalogs.en, catalogs.de, catalogs.lb]),
+  tables,
+  ...(import.meta.env.DEV ? [localPreview] : []),
   studioEditor,
   studioDemos,
   studioDatasets,

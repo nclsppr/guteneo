@@ -1,28 +1,19 @@
 # Executed verification
 
-## Read-only MCP annotations and per-table D1 checks — 30 October 2026 candidate 1.1.22
-
-Candidate 1.1.21's hosted CI failed on four jobs. Three D1 integrity checks
-(`migrate-remote --verify`, `fax-pilot-extension`, `postal-window-migration`)
-returned `SQLITE_NOMEM` from a database-wide `PRAGMA quick_check` once all 70
-migrations were installed; they passed locally on macOS. The checks now run
-`quick_check` per table through `scripts/d1-integrity.mjs`, which still verifies
-every row's NOT NULL and CHECK constraints and each table's indexes. The
-Engineering test now expects the fourth Mermaid figure. Locally, the two tests
-pass and `migrate-remote --verify` reports `quickCheck: "ok"` with zero
-foreign-key violations; hosted CI must confirm the memory fix.
+## Read-only MCP annotations — 31 October 2026 candidate 1.1.23
 
 The 36 MCP tools that only read now declare `readOnlyHint:true` and
-`idempotentHint:true`, as OpenAI's review guidance requires. The connection's
-last-used time refreshed after any successful call is connection metadata and is
-disclosed as such. `npm run audit:mcp` reports no issue; the ten MCP contract
-suites pass **132/132**. A full local run (CI exclusions) then found four more
-assertions of the former annotations; after updating them, those suites pass and
-the run had no other failure (**3,348/3,352** before the update); typecheck, lint, documentation, standards and integration
-fingerprint checks pass for plugin **1.1.22**. These are local observations; no
+`idempotentHint:true`, as OpenAI's review guidance requires; justifications cannot
+correct a wrong value. The connection's last-used time refreshed after any
+successful call is recorded by the shared adapter for every tool, so it is
+connection metadata rather than an effect of the tool, and the description notice
+says so. `get_document_upload` keeps its write and destructive annotations.
+`npm run audit:mcp` reports no issue, and every MCP contract and transport test
+that asserts annotations was updated and passes locally. Plugin **1.1.23** records
+the new MCP fingerprint and includes 1.1.22. These are local observations; no
 release, portal rescan or submission was performed.
 
-## Consumed provider deadlines — 30 October 2026 candidate 1.1.21
+## Consumed provider deadlines — 30 October 2026 candidate 1.1.22
 
 Production remains **1.1.20**, source
 `13d5553f8e9b93cf0f8d6e296943c65c0155ec66`. Its compatible runtime preceded
@@ -55,6 +46,32 @@ passes **14/14**. The final 70-migration empty local D1 installation passes with
 `quick_check=ok`, zero foreign-key violations and no installed incident or
 maintenance authority. Typecheck, lint, synchronized integration/archive checks
 and generated-document checks pass. These are deterministic local observations.
+
+The first hosted PR run completed 20/24 jobs successfully. Remaining jobs
+identified an outdated three-diagram assertion and Linux workerd's SQLite VDBE
+budget during global integrity verification (including two historical D1 tests
+and their dependent final gate). The four-diagram assertion now passes 3/3 browsers.
+The candidate preserves the official dependency tuple and compacts equivalent
+constraints only in unapplied migrations 0068–0070. Independent native SQLite and
+D1 comparisons preserve admitted/stored values, NULL/default behavior,
+INSERT/IGNORE/REPLACE and rollback. The complete global integrity check and FK
+coverage remain required; see [D1 migration proof](D1_MIGRATION.md). Exact-head
+Linux verification remains the final code-validation gate.
+
+Final original-runtime validation passes **128/128** across nine provider/schema
+files, including eight permanent constraint regressions. Independent actual D1
+comparison covers **720** paired cases, with transaction rollback and zero FK
+violations. The canonical main lockfile is retained except for the two application
+version fields; dependency compatibility, audit, installation and the strict global
+verifier pass with CHECK constraints enabled. Hosted diagnostics read only public
+constants/schema instructions, confirmed CHECK enforcement and made zero row writes.
+
+A later full Linux run passed the global D1 verifier and exposed one historical
+pricing fixture that used JavaScript month overflow at 31 October. The billing
+trigger correctly refused its unintended 1 December end date. That test now uses
+one reference instant and a period anchored at the first UTC day of this month
+and the next. All six pricing tests pass; billing guards and business assertions
+remain unchanged. A fresh complete CI run must qualify the final source.
 
 The Engineering build passes, including its content and publication checks.
 Keyboard steps, textual alternatives, SVG downloads and reduced-motion reading

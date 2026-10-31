@@ -3,7 +3,6 @@ import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
 import { unstable_splitSqlQuery } from "wrangler";
-import { quickCheckTables } from "./d1-integrity.mjs";
 
 // D1's remote query parser currently confuses CASE END with trigger END.
 // These exact guard-only CASE expressions have no result or ELSE branch:
@@ -141,11 +140,16 @@ export async function verifyTransport(includeSchema = false) {
       }
       outcomes.push(results);
       await database.prepare("DROP TABLE guard_probe").run();
-      const integrity = await quickCheckTables(database);
+      const checkMode = await database
+        .prepare("PRAGMA ignore_check_constraints")
+        .first();
+      if (checkMode?.ignore_check_constraints !== 0)
+        throw new Error("D1 CHECK constraints must be enabled for integrity proof");
+      const integrity = await database.prepare("PRAGMA quick_check").first();
       const foreignKeys = await database
         .prepare("PRAGMA foreign_key_check")
         .all();
-      if (integrity !== "ok" || foreignKeys.results.length)
+      if (integrity?.quick_check !== "ok" || foreignKeys.results.length)
         throw new Error("Migration integrity proof failed");
     }
     if (

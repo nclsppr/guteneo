@@ -4,7 +4,11 @@ CREATE TABLE postal_policy_refresh_state (
  organization_id TEXT PRIMARY KEY REFERENCES organizations(id),
  last_attempt_at TEXT,
  last_success_at TEXT,
- last_error_code TEXT CHECK(last_error_code IS NULL OR last_error_code IN ('PROFILE_UNAVAILABLE','PROFILE_CHANGED','BINDING_CHANGED','QUOTE_ACTIVE','COMMIT_CHANGED','DATABASE_UNAVAILABLE')),
+ last_error_code TEXT CHECK(
+  last_error_code='PROFILE_UNAVAILABLE' OR last_error_code='PROFILE_CHANGED'
+  OR last_error_code='BINDING_CHANGED' OR last_error_code='QUOTE_ACTIVE'
+  OR last_error_code='COMMIT_CHANGED' OR last_error_code='DATABASE_UNAVAILABLE'
+ ),
  next_due_at TEXT NOT NULL,
  lease_token TEXT,
  lease_until TEXT,

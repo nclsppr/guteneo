@@ -409,7 +409,7 @@ test("observer consults studio routes while all preparation controls stay unavai
   await page.goto(`/#/app/studio/dataset/${ids.dataset}`);
   await expect(
     page.getByRole("region", {
-      name: "Aperçu original — Données",
+      name: "Tableau : Aperçu original — Données",
       exact: true,
     }),
   ).toContainText("DEMO-001");
@@ -430,7 +430,7 @@ test("observer consults studio routes while all preparation controls stay unavai
   await page.goto(`/#/app/studio/generation/${ids.job}`);
   await expect(
     page.getByRole("region", {
-      name: "Résultats de cette génération",
+      name: "Tableau : Résultats de cette génération",
       exact: true,
     }),
   ).toContainText(ids.record);
@@ -456,7 +456,10 @@ test("observer consults studio routes while all preparation controls stay unavai
     page.getByRole("heading", { name: "Distribution préparée", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("region", { name: "Distribution préparée", exact: true }),
+    page.getByRole("region", {
+      name: "Tableau : Distribution préparée",
+      exact: true,
+    }),
   ).toContainText(ids.record);
   await expect(
     page.getByRole("button", {

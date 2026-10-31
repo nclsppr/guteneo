@@ -151,6 +151,15 @@ silently stop applying when Wrangler changes its dependency. The PDF validator
 also preserves its reviewed Sharp override. Reinstall and audit each independent
 package after changing either toolchain.
 
+The provider-maintenance candidate preserves the published Miniflare/workerd
+and Wrangler tuples plus the unrestricted Undici security floor. The full
+seventy-migration schema initially exceeded the old Linux/hosted SQLite VDBE
+budget while compiling global integrity verification. Equivalent expressions in
+only the new, unapplied CHECK constraints keep the complete program within that
+budget; dates, defaults, foreign keys and stored-value validation remain enforced.
+Full Linux CI and later hosted readback must qualify this result. See
+[D1 migration proof](D1_MIGRATION.md).
+
 Hosted sign-in browser fixtures intercept the fixed Auth0 entry request and
 explicitly abort that navigation. This preserves the current document for
 pending/repeat-click/recovery assertions without contacting Auth0. A fulfilled

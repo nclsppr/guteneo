@@ -1,5 +1,53 @@
 # Remote D1 migration proof
 
+## Global integrity verification — 30 October 2026 candidate
+
+The first provider-maintenance CI run failed while compiling a database-wide
+`PRAGMA quick_check` for the complete seventy-migration schema. Linux workerd
+returned `SQLITE_NOMEM` at its SQLite VDBE instruction budget, rather than proving
+physical memory exhaustion or damaged data. Cloudflare documents the same defect
+in its [upstream fix](https://github.com/cloudflare/workerd/pull/7790). The corrected
+engine is published, but a matching Miniflare tuple is not yet published and a
+read-only hosted diagnostic still reaches the old budget.
+
+The candidate therefore retains the published dependency tuple and compacts only
+new, unapplied migrations 0068–0070. Closed enum expressions use ordinary boolean
+comparisons; nullable predicates retain CHECK's existing NULL behavior. For
+selected fields without a default, one `CHECK(predicate IS TRUE)` enforces both
+the previous non-null obligation and its value predicate. Types, affinities,
+foreign keys, immutable-history triggers and permitted stored values remain
+unchanged. Dates and fields with defaults retain explicit `NOT NULL`, preserving
+both NULL-date refusal and `INSERT OR REPLACE` default substitution.
+
+The consolidated fields report a different `PRAGMA table_info.notnull` flag and
+invalid writes can report CHECK rather than NOT NULL. These are deliberate schema
+metadata/diagnostic differences, not permission to store NULL. Normal production
+requires CHECK constraints enabled; no repository process disables them. Paired
+native SQLite and actual D1 tests cover valid/invalid values, NULL, BLOB/numeric
+affinities, partial resolution state, INSERT/IGNORE/REPLACE and transaction
+rollback. The measured global program drops from 21,619 to 21,454 instructions;
+this is a dated compiler observation, not a permanent capacity guarantee.
+
+Read-only hosted diagnostics confirmed CHECK constraints enabled and accepted a
+constant-only program measured locally at 21,473 instructions; a 24,023-instruction
+program exceeded the hosted budget. The current hosted schema's EXPLAIN contains
+20,695 instructions versus 20,678 locally. These observations constrain the
+preflight assessment but do not qualify the unapplied schema. The verifier now
+explicitly refuses an unreadable/nonzero `ignore_check_constraints` setting before
+claiming global integrity; the production release runner must retain that guard.
+
+The verifier retains its **database-wide** `quick_check`, global
+`foreign_key_check`, complete schema comparison and true/false/NULL trigger proof.
+A loop over partial table checks is not equivalent: SQLite documents that partial
+checks do not detect unused pages or pages shared between tables. See the
+[SQLite integrity-check contract](https://www.sqlite.org/pragma.html#pragma_integrity_check).
+Every future schema/runtime change must requalify the complete program. Local
+and CI success still do not replace actual hosted schema and integrity readback
+after an authorized release. This preparation applies no remote migration,
+creates no infrastructure and sends no communication.
+
+## Initial remote migration — 16 September 2026
+
 Verified 2026-09-16 at 20:52–20:56 UTC on `guteneo-production`. The initial 11 migrations through `0011_account.sql` were applied in that window; subsequent migrations 0012 and 0013 are recorded below. The database was empty of application data before migration; no fixture users, organizations, documents or dispatches were seeded remotely.
 
 ## Failure and exact workaround
@@ -44,7 +92,7 @@ These are recovery references, not a request to restore. Restoration after onboa
 
 ## Reproduce the transport proof
 
-Run `node scripts/migrate-remote.mjs --verify` for the local equivalence and integrity check. The integrity check runs `PRAGMA quick_check` once per table through `scripts/d1-integrity.mjs`: with the full schema, a single database-wide check exceeds the local D1 runtime's memory on CI. Per table it still verifies every row's NOT NULL and CHECK constraints and each table's indexes; the migration tests use the same helper. `--verify --schema` additionally prints the local normalized schema. Run `node scripts/migrate-remote.mjs` to list migration hashes/counts; `--json` emits the schema-only API batch plan. The helper does not read credentials or apply remote writes itself.
+Run `node scripts/migrate-remote.mjs --verify` for the local equivalence and integrity check. `--verify --schema` additionally prints the local normalized schema. Run `node scripts/migrate-remote.mjs` to list migration hashes/counts; `--json` emits the schema-only API batch plan. The helper does not read credentials or apply remote writes itself.
 
 For a future authorized remote migration, first read the current migration ledger, retain a Time Travel bookmark, and select only unapplied entries from the reviewed plan. Submit each entry's entire `batch` to `POST /accounts/{account_id}/d1/database/{database_id}/query` through an authenticated Cloudflare connector/API client. Do not split a migration into separate requests. Confirm the ledger, schema, foreign keys and integrity afterward. Never replay the initial plan against an already migrated database.
 

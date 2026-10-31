@@ -1,10 +1,11 @@
 import { msg, msgIn } from "./messages";
+import { t } from "./locale";
 import {
   studioRoutes,
   generationSelectionRoute,
   readGenerationSelection,
 } from "./app-routes";
-import { scrollTable } from "./table-keyboard";
+import { DataTable } from "./data-table";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import type {
   GenerationContextPage,
@@ -1207,130 +1208,157 @@ export function DistributionDetail({
             {msg("Manifest hash: ")}
             <code>{resource.data.manifestHash}</code>
           </p>
-          <div
-            className="distribution-table"
-            role="region"
-            onKeyDown={scrollTable}
-            tabIndex={0}
-            aria-label={msg("Distribution prepared")}
-          >
-            <table>
-              <thead>
-                <tr>
-                  <th>{msg("Record")}</th>
-                  <th>{msg("Document")}</th>
-                  <th>{msg("Channel / destination")}</th>
-                  <th>{msg("Next steps")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {resource.data.entries.map((entry) => (
-                  <tr key={entry.entryId}>
-                    <th scope="row">{entry.recordId}</th>
-                    <td>
-                      <a href={"#/app/documents?document=" + entry.documentId}>
-                        {msg("PDF · template v")}
-                        {entry.templateVersion}
+          <DataTable
+            label={msg("Distribution prepared")}
+            items={resource.data.entries}
+            getRowKey={(entry) => entry.entryId}
+            filters={[
+              {
+                id: "channel",
+                label: msg("Channel / destination"),
+                value: (entry) => entry.channel,
+                options: [
+                  ...new Set(
+                    resource.data.entries.map((entry) => entry.channel),
+                  ),
+                ].map((channel) => ({
+                  value: channel,
+                  label: t.channels[channel] ?? channel,
+                })),
+              },
+            ]}
+            columns={[
+              {
+                id: "record",
+                label: msg("Record"),
+                value: (entry) => entry.recordId,
+              },
+              {
+                id: "document",
+                label: msg("Document"),
+                value: (entry) => entry.documentId + " " + entry.documentHash,
+                render: (entry) => (
+                  <>
+                    <a href={"#/app/documents?document=" + entry.documentId}>
+                      {msg("PDF · template v")}
+                      {entry.templateVersion}
+                    </a>
+                    <p className="distribution-meta">
+                      {entry.documentHash.slice(0, 16)}…
+                    </p>
+                  </>
+                ),
+              },
+              {
+                id: "destination",
+                label: msg("Channel / destination"),
+                value: (entry) =>
+                  [
+                    t.channels[entry.channel] ?? entry.channel,
+                    ...Object.values(entry.recipient ?? {}),
+                  ].join(" "),
+                render: (entry) => (
+                  <>
+                    {t.channels[entry.channel] ?? entry.channel}
+                    <p>{Object.values(entry.recipient ?? {}).join(" · ")}</p>
+                  </>
+                ),
+              },
+              {
+                id: "actions",
+                label: msg("Next steps"),
+                value: (entry) =>
+                  entry.errorCode ?? entry.postalReviewStatus ?? "",
+                sortable: false,
+                render: (entry) => (
+                  <>
+                    {entry.dispatchId ? (
+                      <a
+                        className="button small"
+                        href={"#/app/dispatch/" + entry.dispatchId}
+                      >
+                        {canApprove
+                          ? msg("Review quote and approve ")
+                          : msg("Open ")}
                       </a>
-                      <p className="distribution-meta">
-                        {entry.documentHash.slice(0, 16)}…
-                      </p>
-                    </td>
-                    <td>
-                      {entry.channel}
-                      <p>{Object.values(entry.recipient ?? {}).join(" · ")}</p>
-                    </td>
-                    <td>
-                      {entry.dispatchId ? (
+                    ) : entry.postalDispatchId ? (
+                      <a
+                        className="button small"
+                        href={"#/app/dispatch/" + entry.postalDispatchId}
+                      >
+                        {msg("Review the final postal quote ")}
+                      </a>
+                    ) : entry.postalReviewId ? (
+                      <>
+                        <p>
+                          {msg("Postal check: ")}
+                          {entry.postalReviewStatus}
+                        </p>
                         <a
                           className="button small"
-                          href={"#/app/dispatch/" + entry.dispatchId}
+                          href={"#/app/postal/" + entry.postalReviewId}
                         >
-                          {canApprove
-                            ? msg("Review quote and approve ")
+                          {canPrepare
+                            ? msg("Review the letter and continue ")
                             : msg("Open ")}
                         </a>
-                      ) : entry.postalDispatchId ? (
-                        <a
-                          className="button small"
-                          href={"#/app/dispatch/" + entry.postalDispatchId}
-                        >
-                          {msg("Review the final postal quote ")}
-                        </a>
-                      ) : entry.postalReviewId ? (
-                        <>
-                          <p>
-                            {msg("Postal check: ")}
-                            {entry.postalReviewStatus}
-                          </p>
-                          <a
-                            className="button small"
-                            href={"#/app/postal/" + entry.postalReviewId}
-                          >
-                            {canPrepare
-                              ? msg("Review the letter and continue ")
-                              : msg("Open ")}
-                          </a>
-                        </>
-                      ) : (
-                        <>
-                          <p>
-                            {entry.errorCode ? (
-                              <>
-                                {msg("Preparation blocked:")}{" "}
-                                <code>{entry.errorCode}</code>
-                              </>
-                            ) : (
-                              msg("Association pending preparation.")
-                            )}
-                          </p>
-                          {canPrepare && entry.channel === "postal" && (
+                      </>
+                    ) : (
+                      <>
+                        <p>
+                          {entry.errorCode ? (
                             <>
-                              <p className="field-hint">
-                                {msg(
-                                  "Check the address, reserved areas and final pages in the postal workflow. ",
-                                )}
-                              </p>
-                              <button
-                                className="button small"
-                                disabled={action.pending}
-                                onClick={() =>
-                                  void action.run(async () => {
-                                    const isCurrentVisit = currentVisit();
-                                    keys.current[entry.entryId] ??=
-                                      crypto.randomUUID();
-                                    const next = await api<DistributionView>(
-                                      `/distribution-plans/${id}/entries/${encodeURIComponent(entry.entryId)}/postal-preflight`,
-                                      {
-                                        method: "POST",
-                                        key: keys.current[entry.entryId],
-                                        body: {},
-                                      },
-                                    );
-                                    if (!isCurrentVisit()) return;
-                                    resource.setData(next);
-                                    const updated = next.entries.find(
-                                      (e) => e.entryId === entry.entryId,
-                                    );
-                                    if (updated?.postalReviewId)
-                                      go(
-                                        "/app/postal/" + updated.postalReviewId,
-                                      );
-                                  })
-                                }
-                              >
-                                {msg("Check this letter ")}
-                              </button>
+                              {msg("Preparation blocked:")}{" "}
+                              <code>{entry.errorCode}</code>
                             </>
+                          ) : (
+                            msg("Association pending preparation.")
                           )}
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                        </p>
+                        {canPrepare && entry.channel === "postal" && (
+                          <>
+                            <p className="field-hint">
+                              {msg(
+                                "Check the address, reserved areas and final pages in the postal workflow. ",
+                              )}
+                            </p>
+                            <button
+                              className="button small"
+                              disabled={action.pending}
+                              onClick={() =>
+                                void action.run(async () => {
+                                  const isCurrentVisit = currentVisit();
+                                  keys.current[entry.entryId] ??=
+                                    crypto.randomUUID();
+                                  const next = await api<DistributionView>(
+                                    `/distribution-plans/${id}/entries/${encodeURIComponent(entry.entryId)}/postal-preflight`,
+                                    {
+                                      method: "POST",
+                                      key: keys.current[entry.entryId],
+                                      body: {},
+                                    },
+                                  );
+                                  if (!isCurrentVisit()) return;
+                                  resource.setData(next);
+                                  const updated = next.entries.find(
+                                    (e) => e.entryId === entry.entryId,
+                                  );
+                                  if (updated?.postalReviewId)
+                                    go("/app/postal/" + updated.postalReviewId);
+                                })
+                              }
+                            >
+                              {msg("Check this letter ")}
+                            </button>
+                          </>
+                        )}
+                      </>
+                    )}
+                  </>
+                ),
+              },
+            ]}
+          />
           <a
             className="button"
             href={"#" + studioRoutes.generation(resource.data.jobId)}

@@ -1,3 +1,4 @@
+import { DataTable, tableTimestamp } from "./data-table";
 import { msg, msgIn } from "./messages";
 import { formatLocale } from "./locale";
 import { useRef, useState } from "react";
@@ -328,90 +329,79 @@ function BillingWorkspace({
               <p>{msg("No invoices recorded for this workspace.")}</p>
             ) : (
               <>
-                <div className="table-scroll">
-                  <table className="responsive-table" role="table">
-                    <thead role="rowgroup">
-                      <tr role="row">
-                        <th role="columnheader" scope="col">
-                          {msg("Invoice")}
-                        </th>
-                        <th role="columnheader" scope="col">
-                          {msg("Status")}
-                        </th>
-                        <th role="columnheader" scope="col">
-                          {msg("Total")}
-                        </th>
-                        <th role="columnheader" scope="col">
-                          {msgIn("payment", "Paid")}
-                        </th>
-                        <th role="columnheader" scope="col">
-                          {msg("Amount due")}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody role="rowgroup">
-                      {invoices.data.items.map((item) => (
-                        <tr role="row" key={item.id}>
-                          <th role="rowheader" scope="row">
-                            <span
-                              className="mobile-cell-label"
-                              aria-hidden="true"
-                            >
-                              {msg("Invoice")}
-                            </span>
-                            {item.number ?? item.id}
-                            <span className="reference">
-                              {stamp(item.created)}
-                            </span>
-                            <span className="reference">
-                              {msg("Updated on ")}
-                              {date(item.synced_at)}
-                            </span>
-                          </th>
-                          <td role="cell">
-                            <span
-                              className="mobile-cell-label"
-                              aria-hidden="true"
-                            >
-                              {msg("Status")}
-                            </span>
-                            {state(item.status)}
-                          </td>
-                          <td role="cell">
-                            <span
-                              className="mobile-cell-label"
-                              aria-hidden="true"
-                            >
-                              {msg("Total")}
-                            </span>
-                            {billedMoney(item.total_minor, item.currency)}
-                          </td>
-                          <td role="cell">
-                            <span
-                              className="mobile-cell-label"
-                              aria-hidden="true"
-                            >
-                              {msgIn("payment", "Paid")}
-                            </span>
-                            {billedMoney(item.amount_paid_minor, item.currency)}
-                          </td>
-                          <td role="cell">
-                            <span
-                              className="mobile-cell-label"
-                              aria-hidden="true"
-                            >
-                              {msg("Amount due")}
-                            </span>
-                            {billedMoney(
-                              item.amount_remaining_minor,
-                              item.currency,
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <DataTable
+                  label={msg("Invoices")}
+                  items={invoices.data.items}
+                  getRowKey={(item) => item.id}
+                  columns={[
+                    {
+                      id: "invoice",
+                      label: msg("Invoice"),
+                      value: (item) => item.number ?? item.id,
+                      searchValue: (item) =>
+                        `${item.number ?? ""} ${item.id} ${stamp(item.created)} ${date(item.synced_at)}`,
+                      render: (item) => (
+                        <>
+                          {item.number ?? item.id}
+                          <span className="reference">
+                            {stamp(item.created)}
+                          </span>
+                          <span className="reference">
+                            {msg("Updated on ")}
+                            {date(item.synced_at)}
+                          </span>
+                        </>
+                      ),
+                    },
+                    {
+                      id: "status",
+                      label: msg("Status"),
+                      value: (item) => state(item.status),
+                    },
+                    {
+                      id: "total",
+                      label: msg("Total"),
+                      value: (item) => item.total_minor,
+                      searchValue: (item) =>
+                        billedMoney(item.total_minor, item.currency),
+                      render: (item) =>
+                        billedMoney(item.total_minor, item.currency),
+                    },
+                    {
+                      id: "paid",
+                      label: msgIn("payment", "Paid"),
+                      value: (item) => item.amount_paid_minor,
+                      searchValue: (item) =>
+                        billedMoney(item.amount_paid_minor, item.currency),
+                      render: (item) =>
+                        billedMoney(item.amount_paid_minor, item.currency),
+                    },
+                    {
+                      id: "due",
+                      label: msg("Amount due"),
+                      value: (item) => item.amount_remaining_minor,
+                      searchValue: (item) =>
+                        billedMoney(item.amount_remaining_minor, item.currency),
+                      render: (item) =>
+                        billedMoney(item.amount_remaining_minor, item.currency),
+                    },
+                  ]}
+                  filters={[
+                    {
+                      id: "status",
+                      label: msg("Status"),
+                      value: (item) => item.status,
+                      options: [
+                        ...new Set(
+                          invoices.data.items.map((item) => item.status),
+                        ),
+                      ].map((status) => ({
+                        value: status,
+                        label: state(status),
+                      })),
+                    },
+                  ]}
+                />
                 <LoadMore
                   path="/billing/invoices"
                   data={invoices.data}
@@ -437,66 +427,59 @@ function BillingWorkspace({
               <p>{msg("No payments recorded for this workspace.")}</p>
             ) : (
               <>
-                <div className="table-scroll">
-                  <table className="responsive-table" role="table">
-                    <thead role="rowgroup">
-                      <tr role="row">
-                        <th role="columnheader" scope="col">
-                          {msg("Reference")}
-                        </th>
-                        <th role="columnheader" scope="col">
-                          {msg("Status")}
-                        </th>
-                        <th role="columnheader" scope="col">
-                          {msg("Amount received")}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody role="rowgroup">
-                      {payments.data.items.map((item) => (
-                        <tr role="row" key={item.id}>
-                          <th role="rowheader" scope="row">
-                            <span
-                              className="mobile-cell-label"
-                              aria-hidden="true"
-                            >
-                              {msg("Reference")}
-                            </span>
-                            <span className="mono">{item.id}</span>
-                            <span className="reference">
-                              {stamp(item.created)}
-                            </span>
-                            <span className="reference">
-                              {msgIn("payment", "Updated on ")}
-                              {date(item.synced_at)}
-                            </span>
-                          </th>
-                          <td role="cell">
-                            <span
-                              className="mobile-cell-label"
-                              aria-hidden="true"
-                            >
-                              {msg("Status")}
-                            </span>
-                            {state(item.status)}
-                          </td>
-                          <td role="cell">
-                            <span
-                              className="mobile-cell-label"
-                              aria-hidden="true"
-                            >
-                              {msg("Amount received")}
-                            </span>
-                            {billedMoney(
-                              item.amount_received_minor,
-                              item.currency,
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <DataTable
+                  label={msg("Payments")}
+                  items={payments.data.items}
+                  getRowKey={(item) => item.id}
+                  columns={[
+                    {
+                      id: "reference",
+                      label: msg("Reference"),
+                      value: (item) => item.id,
+                      render: (item) => (
+                        <>
+                          <span className="mono">{item.id}</span>
+                          <span className="reference">
+                            {stamp(item.created)}
+                          </span>
+                          <span className="reference">
+                            {msgIn("payment", "Updated on ")}
+                            {date(item.synced_at)}
+                          </span>
+                        </>
+                      ),
+                    },
+                    {
+                      id: "status",
+                      label: msg("Status"),
+                      value: (item) => state(item.status),
+                    },
+                    {
+                      id: "received",
+                      label: msg("Amount received"),
+                      value: (item) => item.amount_received_minor,
+                      searchValue: (item) =>
+                        billedMoney(item.amount_received_minor, item.currency),
+                      render: (item) =>
+                        billedMoney(item.amount_received_minor, item.currency),
+                    },
+                  ]}
+                  filters={[
+                    {
+                      id: "status",
+                      label: msg("Status"),
+                      value: (item) => item.status,
+                      options: [
+                        ...new Set(
+                          payments.data.items.map((item) => item.status),
+                        ),
+                      ].map((status) => ({
+                        value: status,
+                        label: state(status),
+                      })),
+                    },
+                  ]}
+                />
                 <LoadMore
                   path="/billing/payments"
                   data={payments.data}
@@ -522,61 +505,55 @@ function BillingWorkspace({
             {!data.subscriptions.length ? (
               <p>{msg("No subscriptions recorded for this workspace.")}</p>
             ) : (
-              <div className="table-scroll">
-                <table className="responsive-table" role="table">
-                  <thead role="rowgroup">
-                    <tr role="row">
-                      <th role="columnheader" scope="col">
-                        {msg("Reference")}
-                      </th>
-                      <th role="columnheader" scope="col">
-                        {msg("Status")}
-                      </th>
-                      <th role="columnheader" scope="col">
-                        {msg("Last updated")}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody role="rowgroup">
-                    {data.subscriptions.map((item) => (
-                      <tr role="row" key={item.id}>
-                        <th role="rowheader" scope="row" className="mono">
-                          <span
-                            className="mobile-cell-label"
-                            aria-hidden="true"
-                          >
-                            {msg("Reference")}
+              <DataTable
+                label={msg("Subscriptions")}
+                items={data.subscriptions}
+                getRowKey={(item) => item.id}
+                columns={[
+                  {
+                    id: "reference",
+                    label: msg("Reference"),
+                    value: (item) => item.id,
+                    className: "mono",
+                  },
+                  {
+                    id: "status",
+                    label: msg("Status"),
+                    value: (item) => state(item.status),
+                    render: (item) => (
+                      <>
+                        {state(item.status)}
+                        {Boolean(item.cancel_at_period_end) && (
+                          <span className="reference">
+                            {msg("Cancellation at period end")}
                           </span>
-                          {item.id}
-                        </th>
-                        <td role="cell">
-                          <span
-                            className="mobile-cell-label"
-                            aria-hidden="true"
-                          >
-                            {msg("Status")}
-                          </span>
-                          {state(item.status)}
-                          {Boolean(item.cancel_at_period_end) && (
-                            <span className="reference">
-                              {msg("Cancellation at period end")}
-                            </span>
-                          )}
-                        </td>
-                        <td role="cell">
-                          <span
-                            className="mobile-cell-label"
-                            aria-hidden="true"
-                          >
-                            {msg("Last updated")}
-                          </span>
-                          {date(item.synced_at)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        )}
+                      </>
+                    ),
+                  },
+                  {
+                    id: "updated",
+                    label: msg("Last updated"),
+                    value: (item) => tableTimestamp(item.synced_at),
+                    searchValue: (item) => date(item.synced_at),
+                    render: (item) => date(item.synced_at),
+                    className: "date-cell",
+                  },
+                ]}
+                filters={[
+                  {
+                    id: "status",
+                    label: msg("Status"),
+                    value: (item) => item.status,
+                    options: [
+                      ...new Set(data.subscriptions.map((item) => item.status)),
+                    ].map((status) => ({
+                      value: status,
+                      label: state(status),
+                    })),
+                  },
+                ]}
+              />
             )}
           </section>
 

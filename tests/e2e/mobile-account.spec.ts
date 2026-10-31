@@ -191,7 +191,11 @@ async function fits(page: Page) {
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),
   ).toBeLessThanOrEqual((page.viewportSize()?.width ?? 0) + 1);
-  for (const table of await page.locator("main .table-scroll").all())
+  for (const table of await page
+    .locator(
+      'main .table-scroll, main .data-table[data-layout="cards"] .data-table__scroll',
+    )
+    .all())
     expect(
       await table.evaluate((e) => e.scrollWidth - e.clientWidth),
     ).toBeLessThanOrEqual(1);
@@ -225,8 +229,9 @@ test("mobile private account links errors to fields and keeps every session and 
   ).toBeVisible();
   await fits(page);
   await page.goto("/#/app/admin");
-  const team = page.getByRole("region", {
+  const team = page.getByRole("table", {
     name: "Membres de l’espace de travail",
+    exact: true,
   });
   const role = team.getByRole("combobox");
   await expect(role).toBeVisible();
@@ -251,7 +256,7 @@ test("mobile billing preserves dates, references and all amounts while top-up re
   const unmatched = await fixture(page);
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto("/#/app/billing");
-  const invoices = page.getByRole("region", { name: "Factures", exact: true });
+  const invoices = page.getByRole("table", { name: "Factures", exact: true });
   await expect(invoices.getByRole("rowheader")).toContainText(
     "FACTURE-EXEMPLE-2026-09",
   );
@@ -262,10 +267,14 @@ test("mobile billing preserves dates, references and all amounts while top-up re
     page.getByRole("button", { name: "Ajouter du crédit" }),
   ).toBeDisabled();
   for (const cell of await page
-    .locator(".responsive-table tbody td, .responsive-table tbody th")
+    .locator(
+      ".responsive-table tbody td, .responsive-table tbody th, .data-table__grid tbody td, .data-table__grid tbody th",
+    )
     .all()) {
     await expect(cell).toBeVisible();
-    await expect(cell.locator(".mobile-cell-label")).toBeVisible();
+    await expect(
+      cell.locator(".mobile-cell-label, .data-table__cell-label"),
+    ).toBeVisible();
   }
   await fits(page);
   await mkdir("reports/screenshots/mobile", { recursive: true });
