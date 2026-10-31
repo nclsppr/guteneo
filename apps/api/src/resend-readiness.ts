@@ -10,7 +10,8 @@ export async function inspectResendReadiness(
   fetcher: Fetcher = fetch,
 ) {
   const identity = resendIdentity(env);
-  if (!identity || !env.RESEND_API_KEY)
+  const apiKey = env.RESEND_READINESS_API_KEY || env.RESEND_API_KEY;
+  if (!identity || !apiKey)
     return {
       ok: false,
       code: "RESEND_INSPECTION_NOT_CONFIGURED",
@@ -22,7 +23,7 @@ export async function inspectResendReadiness(
       `https://api.resend.com/domains/${encodeURIComponent(env.RESEND_DOMAIN_ID!)}`,
       {
         method: "GET",
-        headers: { Authorization: `Bearer ${env.RESEND_API_KEY}` },
+        headers: { Authorization: `Bearer ${apiKey}` },
       },
     );
     if (response.status === 403)

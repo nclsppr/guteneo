@@ -495,7 +495,7 @@ describe("private operational observations", () => {
     expect(JSON.stringify(records)).not.toContain(sentinel);
   });
 
-  it("records a complete cron heartbeat and aggregate counts without extra database queries", async () => {
+  it("keeps a failed freshness check separate from the completed cron heartbeat and outbox", async () => {
     const db = {
       batch: async () => [],
       prepare: () => ({
@@ -503,6 +503,7 @@ describe("private operational observations", () => {
           return this;
         },
         all: async () => ({ results: [] }),
+        first: async () => { throw new Error(sentinel); },
         run: async () => ({ success: true }),
       }),
     } as unknown as D1Database;
@@ -514,8 +515,15 @@ describe("private operational observations", () => {
       "reconcileExpiredLeases",
     ).mockResolvedValue({ uncertain: 1 });
     await worker.scheduled({} as ScheduledController, environment({ DB: db }));
-    expect(records).toHaveLength(1);
-    expect(records[0]).toMatchObject({
+    expect(records).toHaveLength(2);
+    const freshness = records.find((record) => record.event === "freshness");
+    expect(freshness).toMatchObject({
+      stage: "freshness",
+      route: "maintenance",
+      code: "FRESHNESS_CHECK_FAILED",
+    });
+    expect(Number(freshness?.freshnessChecksFailed)).toBeGreaterThan(0);
+    expect(records.find((record) => record.event === "cron")).toMatchObject({
       event: "cron",
       stage: "complete",
       code: "SUBMISSION_UNKNOWN",
@@ -526,5 +534,6 @@ describe("private operational observations", () => {
       purged: 2,
       orphans: 1,
     });
+    expect(JSON.stringify(records)).not.toContain(sentinel);
   });
 });

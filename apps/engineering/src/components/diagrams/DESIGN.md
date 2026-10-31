@@ -1,6 +1,6 @@
 # Explanatory mechanisms
 
-These three Anatomy **Figures** use invented workshop objects to explain real
+These four Anatomy **Figures** use invented workshop objects to explain real
 software contracts. The objects are metaphors, not a drawing of deployed hardware.
 The position of one synthetic document follows the same authored step model as
 the caption and readout. No movement represents a real send or live telemetry.
@@ -62,6 +62,31 @@ four press fasteners, three ventilation slots, drawer handle.
 Generated outputs and postal-address-page derivatives have separate identities
 and provenance. Original uploads stay byte-for-byte intact. Derivation does not
 replace scanning, review, immutable approval or dispatch authority.
+
+## 4. The freshness governor
+
+A calibration bench follows one technical reference through an active-input
+selector, inspection press, revision ledger, deadline instrument and safety stop.
+The blue reference coupon is not a document, approval or communication. The
+instrument explains a deadline; it does not display live production telemetry.
+Inactive inputs stay in a separate holder. A successful inspection creates a
+new immutable revision; an approaching deadline signals J-1, while an expired
+required reference closes its own operation. Human authority remains separate.
+
+Parts planned before geometry: one deck, four feet, perimeter groove, four deck
+fasteners, three rail mounts, two rails, two end stops, ruler strip, source-holder
+bed, two source guides, three reference plates, selector chassis, selector lid,
+selector shaft, knurled selector knob, two selector stops, selector label plate,
+inspection bed, two press uprights, inspection crosshead, two bearing blocks,
+inspection plunger, inspection shoe, ledger chassis, ledger lid, three revision
+drawers, three drawer handles, deadline plinth, timer housing, timer bezel, timer
+face, timer crown, timer scale, warning pedestal, warning stem, bell body, bell
+cap, safety-stop bed, two stop uprights, stop crosshead, stop shoe and moving
+reference coupon. Engraved scales and seams terminate on their host surfaces.
+
+The explanatory steps and downloadable logical SVG must describe the same
+implemented selection and renewal rules. No movement renews an authorization,
+alters an approved quote, reserves credit or invokes a provider.
 
 ## Source and maintenance
 

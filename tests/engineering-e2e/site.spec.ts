@@ -118,13 +118,14 @@ test("technical figures have keyboard steps, textual alternatives and downloadab
   request,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  for (const [route, asset] of [
-    ["/architecture/system/", "system-architecture"],
-    ["/architecture/dispatch-lifecycle/", "dispatch-lifecycle"],
-    ["/workflows/documents/", "document-pipeline"],
+  for (const [route, asset, id] of [
+    ["/architecture/system/", "system-architecture", "system"],
+    ["/architecture/dispatch-lifecycle/", "dispatch-lifecycle", "dispatch"],
+    ["/workflows/documents/", "document-pipeline", "documents"],
+    ["/engineering/provider-maintenance/", "provider-freshness", "freshness"],
   ]) {
     await page.goto(route);
-    const figure = page.locator("guteneo-anatomy");
+    const figure = page.locator(`guteneo-anatomy[data-figure="${id}"]`);
     await expect(figure).toBeVisible();
     const steps = figure.locator("[data-step]");
     await steps.first().focus();
@@ -152,7 +153,7 @@ test("Mermaid diagrams and administration are discoverable; engineering referenc
   await page.goto("/");
   await page.locator('main a[href="/architecture/diagrams/"]').first().click();
   await expect(page.locator("h1")).toContainText("Mermaid");
-  await expect(page.locator(".mermaid-figure")).toHaveCount(3);
+  await expect(page.locator(".mermaid-figure")).toHaveCount(4);
   for (const chart of await page.locator(".mermaid-figure img").all()) {
     await chart.scrollIntoViewIfNeeded();
     await expect.poll(() => chart.evaluate((element) => (element as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);

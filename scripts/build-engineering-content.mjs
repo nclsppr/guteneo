@@ -40,6 +40,7 @@ const guide = {
   "reviewer-oauth": "/integrations/mcp/",
   "continuous-review": "/engineering/provider-maintenance/",
   "fax-tariff-maintenance": "/engineering/provider-maintenance/",
+  "provider-freshness": "/engineering/provider-maintenance/",
   native: "/getting-started/repository-map/",
   public: "/engineering/contributing/",
   dashboard: "/engineering/contributing/",

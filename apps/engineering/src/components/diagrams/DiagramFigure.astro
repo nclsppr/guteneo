@@ -8,7 +8,7 @@ const { model, svg } = Astro.props;
     <div class="anatomy-plate">
       <div class="anatomy-corners"><span>FIG. {model.figure}</span><strong>{model.title}</strong></div>
       <div class="anatomy-stage" set:html={svg} />
-      <div class="anatomy-corners anatomy-bottom"><span class="anatomy-hint">Follow the envelope · choose a step</span><span data-readout>{model.steps[0].label}</span></div>
+      <div class="anatomy-corners anatomy-bottom"><span class="anatomy-hint">{model.hint ?? 'Follow the envelope · choose a step'}</span><span data-readout>{model.steps[0].label}</span></div>
     </div>
     <div class="anatomy-controls" role="group" aria-label={`${model.title}: explanatory steps`}>
       {model.steps.map((step, i) => <button type="button" data-step={i} aria-pressed={i === 0}><span aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>{step.label}</button>)}

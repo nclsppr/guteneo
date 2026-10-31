@@ -1,6 +1,50 @@
 # Architecture
 
-## Durable review access and tariff maintenance — 30 October 2026 candidate
+## Consumed provider deadlines — 30 October 2026 candidate
+
+The existing minute scheduler runs bounded provider maintenance before unrelated
+outbox work. Migration 0068 adds tenant-bound freshness bindings, incidents and
+durable inventory cursors; 0069 adds Pingen refresh leases/results; 0070 adds
+Resend qualification state and immutable source evidence. These migrations remain
+unapplied in production. [Provider freshness](PROVIDER_FRESHNESS.md) owns the
+consumer/deadline map and current qualification limits.
+
+The collector uses actual selected production bindings, not arbitrary source-age
+heuristics or past traffic. It distinguishes explicit inactivity from lost
+credentials, missing bindings and failed reads. Pingen follows active preparation,
+including when final sending is disabled, and groups only the latest complete
+generation. Resend separately exposes automatic-tariff and account-limit status;
+a manual replacement policy suppresses the unused automatic setting.
+
+Pingen's real organisation GET must reproduce the same account/country/EUR/window
+profile before an atomic new 90-day generation. Source method evidence retains
+its dates and each prepared-letter price remains a real calculator result. Resend
+requires genuine domain, public-price and ECB reads for the pricing snapshot;
+selected account limits also require genuine Usage API capacity. The atomic
+30-day qualification never creates an absent or revoked limit policy. Optional
+inspection credentials never replace the sending
+credential. Exact predecessor comparisons, leases and quote deferral preserve
+immutable prices/quotes and approvals. Resend caps, account-wide reservations,
+holds and unknown outcomes are never reset. Confirmed contradictions block their
+actual consumer: domain/binding affect both, capacity affects acceptance, and
+price affects automatic pricing. An exact qualified manual override retains its
+own price/expiry. An unavailable read gives no extension.
+
+The reconciler uses exact UTC deadlines and an 86,400-second warning threshold.
+It fences stale/conflicting evaluations and resolves only inspected bindings.
+Separate closed freshness signals report at-risk state and failed controls;
+Cron completion is an independent heartbeat. The native monitor extension is a
+reviewable local plan, not configured or delivery-qualified. Scanner's separate
+watchdog candidate warns at 42 hours of loaded signatures, preserving 48-hour
+qualification and the 72-hour runtime gate. No observation renews business consent,
+expert delegation, sessions, quote TTL or operator authority.
+
+Runtime-first compatibility preserves strict legacy Resend qualification before
+0070; an unrelated database failure never fabricates evidence. Missing maintenance
+schema is reported without stopping unrelated outbox work. No public REST/MCP
+maintenance route or new product permission is added.
+
+## Durable review access and tariff maintenance — 30 October 2026
 
 Additive migration 0066 stores a revocable continuous reviewer-access overlay; it
 does not rewrite archived tariff/authority rows or their historical fingerprints.
@@ -26,7 +70,10 @@ its predecessor's dates. This grants no channel, consent, mandate or provider
 execution; failure preserves old history and expired pricing fails closed.
 [Automatic tariff maintenance](FAX_TARIFF_MAINTENANCE.md) owns source meaning,
 registration and operational gates. Neither migration installs an access or
-registration row; local fixtures do not establish production activation.
+registration row by itself. Production 1.1.20 now includes 0066–0067 and their
+separately authorized exact access/route installation; restricted-reviewer
+preparation and the first genuine automatic fax refresh were observed. This
+does not qualify unrelated routes, other providers or actual delivery.
 
 ## Strict registration tooling — 30 October 2026 candidate
 

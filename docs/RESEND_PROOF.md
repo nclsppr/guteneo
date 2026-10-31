@@ -1,5 +1,25 @@
 # Resend and protected-document evidence
 
+## Maintenance candidate, 30 October 2026
+
+The implementation uses genuine domain/public-price/ECB reads for consumed
+pricing and additional Usage evidence for renewal of actual acceptance limits.
+Unknown Usage data does not qualify limits or hide known price/domain facts.
+Missing, future or revoked limits are never activated. Manual overrides keep
+their own prices, FX and expiry; valid issued policies are not rewritten daily.
+It preserves account caps, reservations, unknown outcomes and immutable
+historical price evidence. It does not provision credentials or send messages.
+An optional inspection key remains a separately authorized configuration change.
+
+The existing deployed read-only `ProviderInspection.inspectResend` was called
+once during this preparation. It returned **RESEND_DOMAIN_CHECK_FAILED**, with
+zero emails sent; that safe result does not distinguish missing read permission
+from another domain-read failure. It proves no successful automatic renewal.
+The public pricing page was separately fetched with HTTP 200 and the parser
+recognized USD 0.90 per 1,000 additional Pro emails. Public pricing alone does not
+qualify the account, domain, capacity or any delivery. No Resend key was created
+or modified. The dated operator observations below remain historical.
+
 ## Operator requalification on 24 October 2026
 
 Around 17:39 UTC, the operator inspected Resend account `nclsppr` in Safari:

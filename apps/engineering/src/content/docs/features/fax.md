@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Current capability and authority required.
 
-Implemented fax contracts; continuous reviewer access and automatic commercial-reference maintenance are source candidates requiring additive migrations, explicit registration and independent hosted qualification. Live sender, tariff, approval, credits and provider gates apply.
+Implemented fax contracts. Release 1.1.20 and migrations 0066–0067 are deployed for the exact restricted reviewer and registered Luxembourg pilot; reviewer preparation and a genuine automatic refresh were observed. Other routes, hosted assistant journeys and actual delivery retain separate qualification. Live sender, tariff, approval, credits and provider gates apply.
 
 **Surfaces:** Web, REST, MCP and native preparation/tracking; browser or existing delegated approval.
 

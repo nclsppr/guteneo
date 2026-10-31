@@ -27,7 +27,7 @@ writeFileSync(config, JSON.stringify({
 writeFileSync(puppeteer, JSON.stringify({ executablePath: browser, args: ['--no-sandbox'] }));
 try {
   const requested = process.argv.slice(2);
-  const assets = ['system-architecture', 'dispatch-lifecycle', 'document-pipeline', 'data-model', 'service-release'];
+  const assets = ['system-architecture', 'dispatch-lifecycle', 'document-pipeline', 'data-model', 'service-release', 'provider-freshness'];
   if (requested.some((asset) => !assets.includes(asset))) throw new Error('Unknown Mermaid asset requested.');
   for (const asset of requested.length ? requested : assets) {
     const result = spawnSync(join(app, 'node_modules/.bin/mmdc'), [

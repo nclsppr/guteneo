@@ -61,9 +61,10 @@ afterAll(async () => mf?.dispose());
 async function fixture(
   mode: "production" | "simulation" = "simulation",
   db = DB,
+  at = new Date(),
 ) {
   const suffix = crypto.randomUUID();
-  const now = new Date().toISOString();
+  const now = at.toISOString();
   const actor: AuthContext = {
     organizationId: `org_${suffix}`,
     userId: `user_${suffix}`,
@@ -98,7 +99,7 @@ async function fixture(
       actor.userId,
       actor.organizationId,
       now,
-      new Date(Date.now() + 3600000).toISOString(),
+      new Date(at.getTime() + 3600000).toISOString(),
     )
     .run();
   const env: PdfValidationPricingEnv = {
@@ -236,9 +237,12 @@ describe("explicit PDF check pricing and recurring-plan retirement", () => {
     ).rejects.toMatchObject({ code: "AUTHENTICATION_REQUIRED" });
   });
   it("preserves an already posted subscription debit while permanently blocking new ones", async () => {
-    const f = await fixture("production", LEGACY);
-    const end = new Date(f.now);
-    end.setUTCMonth(end.getUTCMonth() + 1);
+    const reference = new Date();
+    const year = reference.getUTCFullYear();
+    const month = reference.getUTCMonth();
+    const start = new Date(Date.UTC(year, month, 1));
+    const end = new Date(Date.UTC(year, month + 1, 1));
+    const f = await fixture("production", LEGACY, start);
     const statement = LEGACY.prepare(
       "INSERT INTO horizon_plan_actions(id,organization_id,request_key,action,source,evidence,user_id,session_hash,terms_version,amount_minor,currency,payment_source,interval,auto_renew,current_period_start,current_period_end,anchor_day,created_at) VALUES(?,?,?,'subscribe','browser','production',?,?,'horizon-2026-10-02-v1',3000,'EUR','account_credits','month',1,?,?,?,?)",
     );

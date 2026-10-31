@@ -1,6 +1,35 @@
 # Guteneo product contract
 
-## Maintained fax preparation — 30 October 2026 candidate
+## Consumed provider deadlines — 30 October 2026 candidate
+
+Customers should not have to revalidate a technical reference that the selected
+mechanism can genuinely maintain. The local candidate extends existing fax
+maintenance to the exact Pingen preparation profile and Resend tariff/account
+qualification, with J-1 warnings for effective deadlines that remain unresolved.
+Informational dates, obsolete policies and explicitly inactive mechanisms are not
+renewed or alerted. Failed reads remain unknown, including before a first use.
+See [provider freshness](PROVIDER_FRESHNESS.md).
+
+Pingen rechecks its selected profile before creating a new 90-day eligibility
+generation; each prepared letter still receives its actual calculator quote.
+Preparation may remain selected when final sending is disabled. Resend rechecks
+the configured domain, public USD 900-micro reference and ECB for pricing, plus
+actual Usage API capacity while account limits are selected, before granting
+new 30-day technical evidence; inspection and
+sending keys remain separate. Caps, holds and unknown outcomes are preserved.
+Known contradictions close their affected consumer immediately: domain/binding
+changes affect both, capacity changes affect acceptance, and automatic-price
+changes affect automatic pricing rather than an exact qualified manual override.
+Neither mechanism extends
+consent, a mandate, a quote or operator authority.
+
+J-1 risk and failed freshness checks have their own operational signal, separate
+from the normal Cron heartbeat and from business-email delivery. Scanner warning
+starts at 42 hours of actual loaded-signature age; its 72-hour runtime refusal
+stays unchanged. Migrations 0068–0070, the new renewals and extended native alert
+condition remain local candidates, unapplied and unconfigured in production.
+
+## Maintained fax preparation — 30 October 2026 production 1.1.20
 
 The dedicated restricted reviewer can keep preparing its exact non-sendable test
 fax throughout a multi-week review after one explicit continuous-access setup.
@@ -14,9 +43,11 @@ references through genuine scheduled source and provider-ownership reads, with
 new immutable price revisions. Customers do not perform a recurring manual
 reference-revalidation task. Source failure still closes expired pricing, and
 route authorization, channel, credit and human/delegated approval remain separate.
-See [automatic tariff maintenance](FAX_TARIFF_MAINTENANCE.md). Both mechanisms
-remain source candidates until their schema, release and explicit registrations
-are separately qualified in production.
+See [automatic tariff maintenance](FAX_TARIFF_MAINTENANCE.md). Release 1.1.20 and
+migrations 0066–0067 are deployed; the exact restricted reviewer preparation and
+first genuine registered Luxembourg fax refresh were observed. This establishes
+neither new provider delivery nor marketplace publication. Other routes retain
+their own qualification and authorization requirements.
 
 ## Strict registration tooling — 30 October 2026 candidate
 

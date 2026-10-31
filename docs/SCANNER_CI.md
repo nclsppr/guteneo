@@ -81,8 +81,14 @@ at renewal; never automatically expand authority.
 `.github/workflows/scanner-watchdog.yml` runs every six hours at minute 43 or manually.
 It fails for disabled refresh, latest completed failed/skipped run, no successful
 artifact-backed qualification within thirty hours, or absent/expired/soon-expiring
-token. It also requires fresh private health/signatures under 48 hours, qualified
-build identity, exact 100%-traffic Worker/image and private container scope.
+token. Shared qualification still requires signatures under 48 hours. The
+watchdog's existing private-health read additionally raises the distinct
+`SCANNER_SIGNATURES_EXPIRING` warning at **42 hours**, after checking the exact
+runtime identity. With the normal six-hour cadence, this gives **24–30 hours** of
+lead before the unchanged 72-hour runtime refusal. It changes no build, runtime
+gate, schedule or network request. GitHub delay can reduce that lead, so it is not
+an exact-time notification guarantee. Qualified build identity, exact
+100%-traffic Worker/image and private container scope remain mandatory.
 It reads the hash-checked bounded GitHub archive without extracting files.
 Version/deployment/image/signatures must match that exact run; later deployments
 cannot borrow old success. Final rereads after warmup also require closed subdomain/

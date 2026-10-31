@@ -1,9 +1,42 @@
 # Execution plan and handoff
 
-## Continuous review and automatic fax references — 30 October 2026 candidate
+## Cross-provider freshness — 30 October 2026 local candidate
+
+The user requested automatic maintenance for actually consumed references and a
+J-1 warning when an effective deadline remains unresolved. The candidate adds
+0068 operational freshness state, 0069 Pingen profile-generation maintenance and
+0070 Resend qualification/evidence. These schemas remain unapplied in production;
+the extended native monitor is not configured or delivery-tested. The
+[cross-provider contract](PROVIDER_FRESHNESS.md) owns selection, real source reads,
+preserved commitments and role boundaries.
+
+Before publication, validate the exact source and generated documentation. Keep
+Pingen preparation selected when it still consumes pricing despite final-send
+suspension. Qualify Resend's shared read-only domain/Usage API/price/ECB source
+inspection; the existing domain read failed, and a Sending key does not prove
+Full-access Usage API permission. Any optional inspection-key installation is a
+separately authorized provider change, never automatic key creation or widening.
+
+After separate production authorization, deploy compatible runtime before empty
+additive schemas 0068–0070, then verify actual selected bindings, genuine scheduled
+renewal, exact caps/holds/history and failure behavior. Runtime before 0070 retains
+the strict legacy Resend deadline; missing maintenance schema reports a failed
+check without stopping unrelated safe work. Do not fake dates, reactivate disabled
+sources, change manual policies or retry an unknown communication outcome.
+
+Reread the existing native failure monitor and prepare its query-only plan before
+any authorized configuration change. Preserve destinations, original conditions,
+missing-heartbeat monitoring and hourly repeats; confirm the final readback and
+independently qualify notification receipt. J-1 risk/control failures remain
+separate from normal Cron completion. Qualify the scanner watchdog's 42-hour
+loaded-signature warning without changing its 72-hour runtime refusal. No local
+test or publication establishes actual provider/notification delivery, extends
+consent, or authorizes these new production operations.
+
+## Continuous review and automatic fax references — 30 October 2026 production 1.1.20
 
 The user requested removal of recurring reviewer revalidation and manual tariff
-maintenance. The source candidate adds explicit revocable continuous access for
+maintenance. The implementation adds explicit revocable continuous access for
 the exact restricted reviewer (migration 0066) and separately registered automatic
 commercial-reference maintenance for sendable fax routes (migration 0067).
 Archived reviewer evidence remains dated and unsendable; live refreshes must
@@ -13,13 +46,11 @@ remain intact. Current contracts: [review preparation](REVIEW_FAX_PREPARATION.md
 [private reviewer installation](REVIEW_FAX_OPERATOR.md) and
 [automatic tariff maintenance](FAX_TARIFF_MAINTENANCE.md).
 
-Qualify the fixed current-catalog endpoint with the actual server API key before
-activation; the old versioned CSV and an anonymous 401 do not prove that access.
-Complete exact-source checks, the compatible runtime-first rollout and drained
-prior work before the additive schema, then explicit private
-plans/registrations and hosted verification before reporting activation. No
-production migration, operator installation, Auth0 change, real communication,
-merge or deployment is established by these edits. The
+The authorized release is deployed as 1.1.20; migrations 0066–0067 and the exact
+private continuous-review access/live route registration were applied. Actual
+server-key current-catalog access, the first genuine automatic Luxembourg fax
+refresh and restricted-reviewer web preparation were observed. This does not
+qualify other routes, real delivery or marketplace publication. The
 [OpenAI follow-up](OPENAI_RESUBMISSION_TODO.md) owns the new draft's portal state;
 account credentials, OAuth consent, scan and saved-version cases remain separate.
 

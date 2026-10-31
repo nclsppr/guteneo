@@ -17,6 +17,67 @@ qualified catalog/quote and private dated evidence own actual amounts and
 activation. [Channel adapters](/workflows/delivery-channels/) describes transport;
 [CI and release evidence](/engineering/ci-and-release/) describes source checks.
 
+## Renew the references an active operation uses
+
+The maintenance contract starts with the consumer. A date matters when the
+selected mechanism actually checks it: an active tariff, a current postal policy
+generation, an account sending-limit policy or an independently bounded route
+authority. An informational date, a deselected preparation mechanism or a revoked generation
+does not become a new expiry gate merely because monitoring can read it.
+
+<ProviderFreshness />
+
+Automatic maintenance rereads the relevant source before its technical evidence
+expires. It validates the exact account, sender, currency, route and options,
+then commits an immutable replacement under current guards. It preserves earlier
+evidence and commitments; a successful HTTP request does not justify changing a
+source's publication date or extending an unrelated authorization.
+
+The source-specific paths remain distinct:
+
+| Mechanism | Information actually consumed | Safe maintenance |
+| --- | --- | --- |
+| Live fax | Registered current Telnyx catalog, actual CSV/page bytes, ECB reference and exact provider ownership | Inspect genuine sources, preserve the existing route and page/cost limits, defer around outstanding commitments and retain the independent pilot deadline. |
+| Postal mail | Current sender declaration, provider account/currency/country/window and the latest calculator-policy generation | Check daily during the final seven days of the ninety-day qualification. Preparation can remain selected when final sending is disabled. Each letter still receives its own actual provider price and five-minute quote. |
+| Resend email | Selected automatic pricing qualification and the account sending-limit policy used at acceptance | Check daily and renew the technical qualification for thirty days only from sufficient real account/domain/usage and commercial evidence, with unchanged local limits and counters. A credential denied access to the required inspection cannot produce renewed evidence. |
+| Human route authority | Its actual independent end date | Warn before it ends. A technical source refresh cannot extend it. |
+
+Historical `tariffDate` or `fxDate` fields do not acquire an invented lifetime.
+When a real parent policy has an expiry, the monitor follows that consumed
+deadline. The permanently unsendable review account's explicitly archived
+reference remains separate from live technical pricing.
+
+## Warn during the final twenty-four hours
+
+An active binding without a valid replacement opens a durable incident when its
+real deadline is at most twenty-four hours away. A current valid replacement or
+proven deactivation resolves that binding. Missing data, an old evaluation or a
+binding omitted from a bounded scan does not silently resolve it.
+
+<MermaidDiagram diagram="freshness" />
+
+The maintenance signal uses its own `freshness` event and stage. It does not
+replace the application's completed-Cron heartbeat or create an outbox entry.
+`FRESHNESS_AT_RISK` identifies an approaching or reached deadline;
+`FRESHNESS_CHECK_FAILED` identifies a check whose current result is unavailable.
+Counts are aggregated: no document, recipient, account identity, token or signed
+URL is written to the operational event.
+
+The native operational alert uses the existing authorized destination and is
+independent of the email-delivery provider being inspected. Native alert
+aggregation and its reminder cadence remain distinct from the incident's
+idempotent database key. This is not an exactly-once email-delivery guarantee.
+The [alerting contract](https://github.com/nclsppr/guteneo/blob/main/docs/FRESHNESS_ALERTING.md)
+owns deployment, monitor-plan review, deduplication and verification boundaries.
+
+At actual expiry, invalid required data still closes the affected operation.
+Maintenance does not renew short-lived quotes, ordinary login sessions, human
+approvals or expert mandates. It enables no channel and submits no communication.
+Production activation and notification delivery require separate dated evidence;
+the source diagram alone establishes neither.
+
+## Keep publication and hosted verification separate
+
 <ServiceRelease />
 
 ## Hosted-login browser icon
@@ -162,13 +223,23 @@ The selected basis is a **public commercial reference**, not a negotiated
 supplier price or proof of a freshly observed profile-to-CSV UI association.
 Original source and association dates retain their meaning. Maintenance records
 only coarse refreshed, failed and deferred results, with no content, recipients,
-credentials or account identifiers. The source candidate requires additive schema,
-explicit private registrations and hosted verification before activation can be
-claimed. Local tests and a portal tool scan do not establish those outcomes.
-The discovery endpoint was observed in Telnyx's official portal client on
-30 October 2026; an anonymous GET returned 401. Its standard server-key access
-and actual current response remain unqualified until hosted verification. The
-endpoint has no established public stable contract: a permission or schema
+credentials or account identifiers.
+
+The 30 October production release **1.1.20**, source
+`13d5553f8e9b93cf0f8d6e296943c65c0155ec66`, fully deployed the compatible
+reader before migrations 0066/0067. Explicit private registrations activated
+continuous reviewer preparation and the existing bounded Luxembourg fax route.
+The server-held credential qualified the actual Telnyx catalog GET at 14:06 UTC;
+the scheduled refresh succeeded at 14:27 UTC with the genuine 29 October ECB
+reference. A separate browser check prepared the restricted synthetic reviewer
+PDF without approval, reservation or sending. These observations do not qualify
+real fax delivery, an indefinite OAuth session or every plugin host.
+
+The Pingen/Resend renewal, deadline incident registry and extended native alert
+condition described above remain a follow-up source candidate. Migrations
+0068–0070, production source access and notification coverage require their own
+release and dated verification. The Telnyx catalog endpoint has no established
+public stable contract: a permission or schema
 change closes refresh and requires integration maintenance.
 Before registering a route, the operator can qualify the fixed catalog GET
 through the existing authenticated same-account service binding. This bounded

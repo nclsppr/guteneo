@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**26 domains · 405 features · 43 journeys · 76 documented REST operations · 83 MCP tools**
+**27 domains · 415 features · 44 journeys · 76 documented REST operations · 83 MCP tools**
 Updated 2026-10-30.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -45,6 +45,7 @@ mindmap
       Codex Cloud development (8)
       Continuous reviewer preparation (6)
       Automatic fax tariff maintenance (8)
+      Consumed provider freshness and J-1 alerts (10)
 ```
 
 ### Access
@@ -90,6 +91,7 @@ mindmap
 - [Codex Cloud development](#cloud-development) — 8 features; local-candidate.
 - [Continuous reviewer preparation](#continuous-review) — 6 features; operator-gated.
 - [Automatic fax tariff maintenance](#fax-tariff-maintenance) — 8 features; operator-gated.
+- [Consumed provider freshness and J-1 alerts](#provider-freshness) — 10 features; operator-gated.
 
 ## Availability and evidence
 
@@ -156,6 +158,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Register automatic fax commercial-reference maintenance | No authority from workspace role | No authority from workspace role | No authority from workspace role | No authority from workspace role | No; distinct authorized platform operator registers an exact source/route once; bounded scheduler refreshes do not grant consent, route authority or sending rights |
 | Search, filter, sort and page authorized browser table rows | Only rows already visible under current page authority | Only rows already visible under current page authority and independent reporting options | Only rows already visible under current page authority | Only rows already visible under current page authority | No new REST/MCP/native tool or authority; browser controls never fetch inaccessible rows or grant approval, sending, paid operations or a mandate |
 | Use loopback fictional role/volume controls | No production authority; local fixture only | No production authority; local fixture only | No production authority; local fixture only | No production authority; local fixture only | No REST/MCP/native authority or real platform capability; DEV + preview + loopback only |
+| Configure provider freshness and native operational alerts | No authority from workspace role; distinct explicit platform authorization | No authority from workspace role | No authority from workspace role | No authority from workspace role | No business REST/MCP authority; a separately authorized repository/operator workflow may inspect sources and prepare reviewed changes, without granting approval, provider credentials, consent, mandates, purchases or sending rights |
 
 Supervisor approval/reporting options are independent and off by default. Resource ownership/context checks still apply. See [workspace roles](WORKSPACE_ROLES.md), [expert approval](EXPERT_APPROVAL.md) and [studio access](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -470,7 +473,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="fax"></a>
 ### Fax
 
-**Availability model:** capability-gated. Implemented fax contracts; continuous reviewer access and automatic commercial-reference maintenance are source candidates requiring additive migrations, explicit registration and independent hosted qualification. Live sender, tariff, approval, credits and provider gates apply.
+**Availability model:** capability-gated. Implemented fax contracts. Release 1.1.20 and migrations 0066–0067 are deployed for the exact restricted reviewer and registered Luxembourg pilot; reviewer preparation and a genuine automatic refresh were observed. Other routes, hosted assistant journeys and actual delivery retain separate qualification. Live sender, tariff, approval, credits and provider gates apply.
 
 **Surfaces:** Web, REST, MCP and native preparation/tracking; browser or existing delegated approval.
 
@@ -1100,7 +1103,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="continuous-review"></a>
 ### Continuous reviewer preparation
 
-**Availability model:** operator-gated. Source candidate with isolated tests; migration, explicit access installation and actual saved-submission host cases remain separate qualification.
+**Availability model:** operator-gated. Production 1.1.20 includes migration 0066 and the explicitly installed exact restricted-reviewer access; web preparation was observed. Saved-submission host cases and marketplace publication remain separate qualification, with no sending authority.
 
 **Surfaces:** Authorized private operator setup; existing web, REST, MCP and native preparation/tracking retain their current account and document guards.
 
@@ -1120,11 +1123,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="fax-tariff-maintenance"></a>
 ### Automatic fax tariff maintenance
 
-**Availability model:** operator-gated. Source candidate for the bounded local +3524 pilot only; schema, actual server-key catalog discovery, explicit route registration and successful scheduled maintenance require independent qualification. No historical CSV fallback is allowed.
+**Availability model:** operator-gated. Production 1.1.20 includes migration 0067 and the explicitly registered bounded local +3524 pilot. Actual server-key catalog discovery and its first genuine automatic refresh were observed; other routes and actual delivery remain unqualified. No historical CSV fallback is allowed.
 
 **Surfaces:** Authorized private operator CLI/service-binding qualification and registration, and existing scheduled backend maintenance; no public browser, REST or MCP registration authority.
 
-- Current candidate covers only the existing local Luxembourg fixed +3524 operator-test route with canonical empty options and EUR2; refresh preserves its exact existing page limit up to ten pages and never extends its independent 3 November 2026 pilot deadline; continuous reviewer preparation remains capped at seven pages
+- Supported scope is the existing local Luxembourg fixed +3524 operator-test route with canonical empty options and EUR2; refresh preserves its exact existing page limit up to ten pages and never extends its independent 3 November 2026 pilot deadline; continuous reviewer preparation remains capped at seven pages
 - Explicit registration binds an exact tenant, sender, provider account/application/profile, destination prefix and options to an authorized global-conversational public commercial catalog
 - Daily authenticated current-catalog discovery plus bounded official fax-page, selected allowlisted CSV and dated ECB reads and current provider ownership inspection create new immutable revisions with at most 168-hour validity
 - Public commercial references do not claim negotiated supplier prices or a freshly observed provider UI association; original source and association dates retain their meaning
@@ -1136,6 +1139,30 @@ Supervisor approval/reporting options are independent and off by default. Resour
 **Contract:** [FAX_TARIFF_MAINTENANCE.md](FAX_TARIFF_MAINTENANCE.md) · **Implementation:** [apps/api/src/fax-tariff-refresh.ts](../apps/api/src/fax-tariff-refresh.ts)
 
 **Tests:** [tests/integration/fax-tariff-refresh.test.ts](../tests/integration/fax-tariff-refresh.test.ts), [tests/unit/fax-tariff-sources.test.ts](../tests/unit/fax-tariff-sources.test.ts)
+
+
+
+<a id="provider-freshness"></a>
+### Consumed provider freshness and J-1 alerts
+
+**Availability model:** operator-gated. Local candidate only: migrations 0068–0070 are not applied and the extended native monitor is not configured or receipt-qualified. Prior production 1.1.20 fax/reviewer proof does not establish Pingen/Resend renewal, scanner warning deployment, alert receipt or real delivery.
+
+**Surfaces:** Existing private scheduled maintenance, provider-inspection RPC/operator CLI, GitHub scanner watchdog and separately authorized native-monitor configuration; no public browser, REST or MCP maintenance surface.
+
+- Current production consumer, tenant, provider, account, route, verified sender and options select the real enforced deadline, including configured first use; historical/informational dates, archived reviewer references and explicitly inactive mechanisms are excluded
+- Six durable bounded collector inventories distinguish verified inactivity from missing configuration or failed reads; current manual policies receive operator warnings without fabricated automatic renewal
+- Pingen profile maintenance follows selected production preparation even when final sending is cut, uses genuine organisation-read evidence, preserves method dates and actual prepared-letter calculator pricing, and installs a new exact 90-day generation only under current matching guards
+- Resend daily exact-domain, Full-access Usage API, public USD900-micro price and actual ECB reads atomically qualify 30 days; optional inspection key stays separate from the sending key, tariff and account-limit statuses are independent, and a manual replacement suppresses the unused automatic setting
+- Leases, exact predecessor comparisons and final quote/binding rechecks preserve immutable historical rows and approved commitments; active prepared or queued/submitting/unknown fax and postal work defers replacement, while Resend caps, holds, reservations and unknown outcomes never reset
+- Confirmed Resend contradictions block their real consumer: domain/binding affect both, capacity affects acceptance and price affects automatic pricing; exact qualified manual overrides retain their own price/expiry. Required-source failure grants no extension, and no maintenance renews consent, expert delegation, quote TTL, session or independent route authority
+- J-1 starts exactly 86400 seconds before the consumed UTC deadline; tenant/binding/revision/deadline incidents are idempotent and stale or unknown evaluations cannot resolve current risk
+- Separate FRESHNESS_AT_RISK and FRESHNESS_CHECK_FAILED observations preserve normal Cron heartbeat meaning; a query-only native-monitor plan preserves existing destinations and controls without activating notifications or relying on Resend delivery
+- Scanner watchdog warns at 42 hours of actually loaded signatures with existing daily refresh and six-hour checks, preserving shared 48-hour qualification and 72-hour runtime refusal; GitHub and native notification receipt remain independent
+- Runtime-first rollout keeps strict legacy Resend qualification before 0070 and records maintenance schema failures without stopping unrelated safe work; no new public REST/MCP tool, product permission, secret provisioning or provider send is added
+
+**Contract:** [PROVIDER_FRESHNESS.md](PROVIDER_FRESHNESS.md) · **Implementation:** [apps/api/src/provider-freshness.ts](../apps/api/src/provider-freshness.ts)
+
+**Tests:** [tests/integration/freshness-alerts.test.ts](../tests/integration/freshness-alerts.test.ts), [tests/integration/provider-freshness.test.ts](../tests/integration/provider-freshness.test.ts), [tests/integration/postal-policy-refresh.test.ts](../tests/integration/postal-policy-refresh.test.ts), [tests/integration/resend-policy-refresh.test.ts](../tests/integration/resend-policy-refresh.test.ts), [tests/security/native-alerting-plan.test.mjs](../tests/security/native-alerting-plan.test.mjs), [apps/scanner/tests/maintenance-status.test.mjs](../apps/scanner/tests/maintenance-status.test.mjs)
 
 
 
@@ -1570,6 +1597,16 @@ Open Local simulation → select a fictional role or separate platform profile �
 **Failure/recovery:** Invalid seeds/counts/cursors, stale actors/scenarios and unsupported generated writes fail locally; no backend fallback. Logical billion-row counts qualify interface behavior only, never actual database throughput, authentication, receipt, approval or delivery.
 
 [Detailed contract](PUBLIC_PREVIEW.md).
+
+### J44 · Maintain consumed provider deadlines and warn at J-1
+
+**Actor:** Separately authorized platform operator for configuration; scheduled backend and scanner watchdog for bounded technical checks. **Branch:** Operations.
+
+Identify the mechanism that actually consumes a deadline, including selected first use and postal preparation with final sending cut → exclude obsolete or explicitly suspended bindings and keep unexplained losses unknown → privately qualify genuine source access → after separate authorization roll out compatible runtime and additive schema → perform due exact-source reads, preserve independent authority/caps/history and defer quote-bound replacements → record a new immutable technical revision only after complete proof → reconcile exact UTC J-1 incidents with durable cursors → emit a risk or failed-control signal separate from Cron completion → use the separately configured existing native monitor or scanner watchdog channel and inspect the real result.
+
+**Failure/recovery:** No date bump after an unrelated GET, automatic key widening, manual-policy conversion, consent extension, cap reset, hold removal or unknown communication retry. Confirmed Resend contradictions block their affected consumer; automatic-price drift does not replace an exact qualified manual override, and failed reads preserve their true uncertainty. Do not clear unvisited bindings, stale evidence or a failed check with a healthy Cron heartbeat. Migrations 0068–0070, new renewals and native-condition delivery remain locally prepared, not production-qualified.
+
+[Detailed contract](PROVIDER_FRESHNESS.md).
 
 ## Required maintenance
 

@@ -61,6 +61,10 @@ export default defineConfig({
       },
       markdown: {
         componentMap: {
+          ProviderFreshness: {
+            revision: "guteneo-provider-freshness-diagram-v1",
+            render: () => diagramMarkdown("freshness"),
+          },
           ServiceRelease: {
             revision: "guteneo-service-release-diagram-v1",
             render: () => serviceReleaseMarkdown(),

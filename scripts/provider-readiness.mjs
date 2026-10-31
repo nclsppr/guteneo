@@ -11,12 +11,13 @@ if (
     "telnyx-fax-tariffs",
     "ses",
     "resend",
+    "resend-policy-sources",
     "pingen",
     "pingen-upload-origin",
   ].includes(provider)
 ) {
   console.error(
-    "Usage: node scripts/provider-readiness.mjs [telnyx|telnyx-fax-tariffs|ses|resend|pingen|pingen-upload-origin]",
+    "Usage: node scripts/provider-readiness.mjs [telnyx|telnyx-fax-tariffs|ses|resend|resend-policy-sources|pingen|pingen-upload-origin]",
   );
   process.exit(1);
 }
@@ -30,6 +31,8 @@ try {
   const result =
     provider === "telnyx-fax-tariffs"
       ? await proxy.env.PROVIDERS.inspectTelnyxFaxTariffCatalog()
+      : provider === "resend-policy-sources"
+        ? await proxy.env.PROVIDERS.inspectResendPolicySources()
       : provider === "pingen-upload-origin"
         ? await proxy.env.PROVIDERS.inspectPingenUploadOrigin()
         : provider === "pingen"

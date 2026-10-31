@@ -352,3 +352,11 @@ Open an authorized operational list → search the loaded rows or use the existi
 Open Local simulation → select a fictional role or separate platform profile → choose a volume and seed → apply after any unsaved-work veto → inspect Correspondence, Studio and My documents → use the fictional platform link for read-only Belvedere → page/search/sort bounded metadata or reroll the reproducible scenario.
 
 **Failure and recovery:** Invalid seeds/counts/cursors, stale actors/scenarios and unsupported generated writes fail locally; no backend fallback. Logical billion-row counts qualify interface behavior only, never actual database throughput, authentication, receipt, approval or delivery.
+
+## J44: Maintain consumed provider deadlines and warn at J-1
+
+**Actor:** Separately authorized platform operator for configuration; scheduled backend and scanner watchdog for bounded technical checks · **Branch:** Operations
+
+Identify the mechanism that actually consumes a deadline, including selected first use and postal preparation with final sending cut → exclude obsolete or explicitly suspended bindings and keep unexplained losses unknown → privately qualify genuine source access → after separate authorization roll out compatible runtime and additive schema → perform due exact-source reads, preserve independent authority/caps/history and defer quote-bound replacements → record a new immutable technical revision only after complete proof → reconcile exact UTC J-1 incidents with durable cursors → emit a risk or failed-control signal separate from Cron completion → use the separately configured existing native monitor or scanner watchdog channel and inspect the real result.
+
+**Failure and recovery:** No date bump after an unrelated GET, automatic key widening, manual-policy conversion, consent extension, cap reset, hold removal or unknown communication retry. Confirmed Resend contradictions block their affected consumer; automatic-price drift does not replace an exact qualified manual override, and failed reads preserve their true uncertainty. Do not clear unvisited bindings, stale evidence or a failed check with a healthy Cron heartbeat. Migrations 0068–0070, new renewals and native-condition delivery remain locally prepared, not production-qualified.

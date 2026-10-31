@@ -4,7 +4,12 @@ export interface ObservationEnv {
 }
 export type Component = "app" | "documents" | "scanner";
 export type Event =
-  "http" | "queue" | "cron" | "outbox_deferred" | "mcp_tool_error";
+  | "http"
+  | "queue"
+  | "cron"
+  | "outbox_deferred"
+  | "mcp_tool_error"
+  | "freshness";
 const routes = [
   "health",
   "capabilities",
@@ -70,6 +75,8 @@ const codes = [
   "IDENTITY_NOT_CONFIGURED",
   "OUTBOX_DEFERRED",
   "CALLBACK_PENDING",
+  "FRESHNESS_AT_RISK",
+  "FRESHNESS_CHECK_FAILED",
 ] as const;
 export type LogCode = (typeof codes)[number];
 // These are closed labels, never a URL, request field or exception message.
@@ -111,6 +118,7 @@ const stages = [
   "leases",
   "documents",
   "tariffs",
+  "freshness",
   "postal",
   "http_limits",
   "complete",
@@ -132,6 +140,17 @@ const metrics = [
   "tariffsRefreshed",
   "tariffRefreshFailed",
   "tariffRefreshDeferred",
+  "postalPoliciesRefreshed",
+  "postalPolicyRefreshFailed",
+  "postalPolicyRefreshDeferred",
+  "resendPoliciesRefreshed",
+  "resendPolicyRefreshFailed",
+  "resendPolicyRefreshDeferred",
+  "freshnessAtRisk",
+  "freshnessExpired",
+  "freshnessOpened",
+  "freshnessResolved",
+  "freshnessChecksFailed",
 ] as const;
 export type Metrics = Partial<Record<(typeof metrics)[number], number>>;
 const uuid =
@@ -329,6 +348,7 @@ export function startObservation(
           "cron",
           "outbox_deferred",
           "mcp_tool_error",
+          "freshness",
         ].includes(event)
           ? event
           : "http",
