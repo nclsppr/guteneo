@@ -110,10 +110,13 @@ Business behavior stays identical: no added/relaxed scope, role, mandate, approv
 debit or provider call. Hints may change host confirmations; descriptions disclose
 consequences beforehand.
 
-All readOnlyHint/idempotentHint remain false: successful validated production tools
-may update currently authorized connection activity, visible in connection state.
-Branches without writes do not erase that possible effect. Business idempotency
-keys still deduplicate operations without making the whole tool free of extra effects.
+Since 30 October, the 36 tools that only read declare `readOnlyHint:true` and
+`idempotentHint:true`. OpenAI's review guidance requires read-only tools to say so,
+and a justification cannot correct a wrong value. Successful calls still refresh the
+connection's last-used time, but the MCP adapter records that connection metadata
+for every tool; it is not an effect of the tool. Write tools keep
+`idempotentHint:false`: business idempotency keys deduplicate operations, and a
+replay still refreshes that time.
 Bounded private-provider reads differ from arbitrary-public-domain imports/external
 recipient sends; matrix documents each case.
 

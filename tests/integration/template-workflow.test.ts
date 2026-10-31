@@ -2933,10 +2933,11 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
         discovery.tools.find((t) => t.name === "analyze_dataset")?.inputSchema
           .properties,
       ).toHaveProperty("proposeSchema");
+      // Reads only refresh the connection's last-used time, connection metadata.
       expect(
         discovery.tools.find((t) => t.name === "get_generation_job")
           ?.annotations?.readOnlyHint,
-      ).toBe(false); // Current MCP reads record successful connection use.
+      ).toBe(true);
       // These operations overwrite drafts, disable use, revoke access, cancel
       // pending work or close retries for a partially failed generation job.
       // Preserving versions and generated PDFs does not remove those effects.

@@ -25,10 +25,11 @@ The candidate changes two destructive annotations:
   prevents retrying failed records in the original generation job, including
   records excluded from that plan.
 
-We have clarified the related descriptions and the persistent connection-activity
-update that explains why business retrieval tools advertise `readOnlyHint: false`
-and `idempotentHint: false`. The candidate does not relax authorization or
-approval requirements.
+We have clarified the related descriptions. Business retrieval tools now advertise
+`readOnlyHint: true` and `idempotentHint: true`: the connection's last-used time,
+refreshed after any successful call, is connection metadata rather than an effect
+of these tools. The candidate does not relax authorization or approval
+requirements.
 
 These findings concern our current source; they do not establish which exact
 tool or scan caused the v0.3.2 rejection. Before resubmission, the corrected

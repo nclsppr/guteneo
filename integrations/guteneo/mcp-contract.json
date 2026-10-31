@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "pluginVersion": "1.1.22",
-  "mcpSourceSha256": "4101683c7e154a0931f787b85a4ecae574aa05707a77371997917ad4b5ce5b40",
-  "packageSha256": "915060c6e87908f0fec421560d3bdc8891767469792f502885bf5f6825750b17",
+  "pluginVersion": "1.1.23",
+  "mcpSourceSha256": "53cabfeba483dd5aab53c9164aa2cac325f1c70cf6ed283cbf40f2b1d06696d7",
+  "packageSha256": "ecc0f63cd2442d591770a1c97092b5e7654e3a969de3e0621e6bb652c58e66ec",
   "sources": {
     "apps/api/src/auth.ts": "98b513683d77bb3d183d1fc638f2bf6893104932d4be3fae30914994ded605f5",
     "apps/api/src/connection-observations.ts": "40278b9fab339e05949a04c2d2718348236e9362e944f95a4d2a3466c186fa24",
@@ -14,7 +14,7 @@
     "apps/api/src/expert-status.ts": "eb3a32798ac614e7a91839ca18ff752700408146323945da9089f81db74d3f7f",
     "apps/api/src/mcp-document-upload.ts": "02522866f3802c9aebb9894110936d3e45950b664a5192e02409191a6e022373",
     "apps/api/src/mcp-ui-probe.ts": "ec64e9c872b38bbe10a9729a6edb7629330432f0adf54c5fd9eec1210fcaa3fa",
-    "apps/api/src/mcp.ts": "4f3af1077db2499ec3bbdcc4b49d13caf98b28e3762354e54a49f752723eecfe",
+    "apps/api/src/mcp.ts": "b1359c2001e030a1a3e31b22c4c7b585e1ddb9af17b6937ed45dbe9dafe5db12",
     "apps/api/src/postal-address-page.ts": "a8eeaf6dac0f81433f3a39ccd9a3e9bcf6f9202c8502631e85e7bd7b851dc25d",
     "apps/api/src/postal-authority.ts": "69dc7155a56311b7927416b90acf3577417b30f0ca410e3f815530c1b29b7e98",
     "apps/api/src/template-workflow.ts": "c742ed65d429aba2d481d24fb496dbd354264ffd1d7265c74df784cb70255ca7",

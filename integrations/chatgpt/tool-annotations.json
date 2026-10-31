@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewedOn": "2026-10-26",
+  "reviewedOn": "2026-10-30",
   "sourceScope": "local_candidate",
   "policySources": [
     {
@@ -277,16 +277,16 @@
     {
       "name": "check_mcp_ui_probe_bridge",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Returns only a fixed diagnostic acknowledgement after rechecking the exact temporary activation, current OAuth membership/scope and connection revision. Normal authentication/rate accounting remains, and validated success attempts to persist this production connection's visible last-successful-use timestamp.",
+        "readOnlyHint": "Returns only a fixed diagnostic acknowledgement after rechecking the exact temporary activation, current OAuth membership/scope and connection revision. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Creates, overwrites, transfers and deletes no document, upload grant, quota reservation, dispatch, approval, charge, outbox or provider operation. It does not change diagnostic activation.",
         "openWorldHint": "The empty-input call is confined to the exact server-selected authenticated connection and bounded diagnostic window. It accepts no file, arbitrary address, URL or destination and initiates no document/provider request; normal fixed authentication dependencies remain.",
-        "idempotentHint": "The acknowledgement is fixed, but another successful production call may advance the persisted connection-activity timestamp and consumes ordinary HTTP rate accounting; the complete operation is not guaranteed to have no additional effect."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -546,16 +546,16 @@
     {
       "name": "dry_run_dispatch",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads an existing prepared dispatch to check state, attempts, quote validity, document protection and recipient suppression. It does not consume or renew the quote, reserve credit or enqueue delivery. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads an existing prepared dispatch to check state, attempts, quote validity, document protection and recipient suppression. It does not consume or renew the quote, reserve credit or enqueue delivery. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not alter dispatch state, quote, approval, credit, quota or recipient suppression, and a successful diagnostic is never an authorization to send.",
         "openWorldHint": "Limited to saved dispatch, document and account evidence in the authenticated organization. It does not call a delivery provider or contact a recipient.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -658,16 +658,16 @@
     {
       "name": "get_capabilities",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads configured capabilities, account gates, current expert delegation, postal setup and PDF verification availability without enabling them. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads configured capabilities, account gates, current expert delegation, postal setup and PDF verification availability without enabling them. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not modify documents, dispatches, mandates or enabled services. Connection activity records the latest successful use without removing business data or authority.",
         "openWorldHint": "Limited to Guteneo configuration and the authenticated organization and connection; it does not browse arbitrary external resources or contact recipients.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -691,16 +691,16 @@
     {
       "name": "get_dataset",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads the status and metadata of one private dataset without reparsing it. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads the status and metadata of one private dataset without reparsing it. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
         "openWorldHint": "Limited to a caller-owned dataset in the authenticated organization within Guteneo; it does not browse arbitrary external resources or contact recipients.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -720,16 +720,16 @@
     {
       "name": "get_dataset_ai_policy",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads the organization's AI transfer policy, configuration state, daily limit, and usage. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads the organization's AI transfer policy, configuration state, daily limit, and usage. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
         "openWorldHint": "Reads only the authenticated organization's saved policy and usage records. It makes no AI request, browses no arbitrary source and contacts no recipient.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -749,16 +749,16 @@
     {
       "name": "get_dispatch_status",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads the saved dispatch, pricing, attempts and approval evidence; it does not reconcile with the provider or change delivery state. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads the saved dispatch, pricing, attempts and approval evidence; it does not reconcile with the provider or change delivery state. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not change dispatch state, cost, content, attempts or approval.",
         "openWorldHint": "Limited to dispatch data already stored in the authenticated organization inside Guteneo; no recipient or delivery provider is contacted.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -778,16 +778,16 @@
     {
       "name": "get_distribution_plan",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads the immutable distribution manifest and its current preparations, postal reviews, and errors. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads the immutable distribution manifest and its current preparations, postal reviews, and errors. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
         "openWorldHint": "Limited to a caller-owned distribution in the authenticated organization within Guteneo; it does not browse arbitrary external resources or contact recipients.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -807,16 +807,16 @@
     {
       "name": "get_document",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads an authorized document and projects its existing analysis state; it does not start or restart scanning. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads an authorized document and projects its existing analysis state; it does not start or restart scanning. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not alter the original PDF or its validation state; any recovery projection is computed from existing evidence.",
         "openWorldHint": "Limited to a Guteneo document authorized for the current organization and member, including the separately checked dispatch-approver access path.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -869,16 +869,16 @@
     {
       "name": "get_expert_status",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads the current connection mandate, expiration, channels, ceilings and remaining budget; it does not create or renew a mandate. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads the current connection mandate, expiration, channels, ceilings and remaining budget; it does not create or renew a mandate. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not enable, extend or revoke a mandate and does not approve or send a dispatch.",
         "openWorldHint": "Limited to the authenticated organization and OAuth connection and their stored mandate and usage records.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -898,16 +898,16 @@
     {
       "name": "get_generation_job",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads generation progress, states, counts, and errors without restarting processing. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads generation progress, states, counts, and errors without restarting processing. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
         "openWorldHint": "Limited to a caller-owned generation job in the authenticated organization within Guteneo; it does not browse arbitrary external resources or contact recipients.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -927,16 +927,16 @@
     {
       "name": "get_generation_provenance",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads the saved source coordinates, template and mapping versions, and input and engine hashes for a record. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads the saved source coordinates, template and mapping versions, and input and engine hashes for a record. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
         "openWorldHint": "Limited to a record in the caller's private generation job within Guteneo; it does not browse arbitrary external resources or contact recipients.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -956,16 +956,16 @@
     {
       "name": "get_generation_results",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads a page of generation record results, PDF identifiers, hashes, status, and private content URLs. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads a page of generation record results, PDF identifiers, hashes, status, and private content URLs. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
         "openWorldHint": "Reads only the caller's generation records and private Guteneo PDF references. Returning an authenticated content URL does not fetch that URL or contact an arbitrary destination.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -985,16 +985,16 @@
     {
       "name": "get_mapping",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads a private mapping version and its saved validation. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads a private mapping version and its saved validation. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
         "openWorldHint": "Limited to a caller-owned mapping in the authenticated organization within Guteneo; it does not browse arbitrary external resources or contact recipients.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1039,16 +1039,16 @@
     {
       "name": "get_pdf_validation",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Retrieves up to 50 existing reports for the organization’s PDF. It starts no validation and changes no balance, subscription or payment method. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Retrieves up to 50 existing reports for the organization’s PDF. It starts no validation and changes no balance, subscription or payment method. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Returns existing diagnostic reports without altering or deleting reports, PDF bytes, subscriptions or dispatches.",
         "openWorldHint": "Reads reports from the authenticated organization’s private Guteneo storage only, without accessing arbitrary external resources.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1068,16 +1068,16 @@
     {
       "name": "get_postal_preflight",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads the stored postal review, checks and transfer state without retrying a provider transfer. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads the stored postal review, checks and transfer state without retrying a provider transfer. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not upload a PDF, change its address verification, approve a transfer or send mail.",
         "openWorldHint": "Limited to the authorized private Guteneo review and saved transfer evidence.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1097,16 +1097,16 @@
     {
       "name": "get_postal_requirements",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads the qualified postal profile and exact layout requirements, including supported address positions and country rules. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads the qualified postal profile and exact layout requirements, including supported address positions and country rules. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not modify provider account settings, layout rules or any PDF.",
         "openWorldHint": "Queries only the configured private Pingen account profile; no PDF is uploaded and no arbitrary URL or recipient is contacted.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1126,16 +1126,16 @@
     {
       "name": "get_postal_setup",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads the existing account sender, configuration gates and the caller's configuration rights without renewing expired pricing or enabling a channel. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads the existing account sender, configuration gates and the caller's configuration rights without renewing expired pricing or enabling a channel. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not change the sender, account setup, pricing policies, suspensions or transfer approval.",
         "openWorldHint": "Limited to the authenticated organization's Guteneo postal setup and fixed configured provider context.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1155,16 +1155,16 @@
     {
       "name": "get_secure_distribution",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads one authorized workshop distribution, quote and provenance-labelled audit events. A validated successful production result may also advance the connection last-successful-use timestamp.",
+        "readOnlyHint": "Reads one authorized workshop distribution, quote and provenance-labelled audit events. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not mutate access, recipient binding, approvals or funded retention.",
         "openWorldHint": "Limited to one authorized private workshop distribution; excludes personal vault access and invitation capabilities.",
-        "idempotentHint": "Repeated reads can persist newer connection activity. A validated successful production result may also advance the connection last-successful-use timestamp."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1184,16 +1184,16 @@
     {
       "name": "get_template",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads an accessible template draft or an existing published version. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads an accessible template draft or an existing published version. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
         "openWorldHint": "Limited to a permission-checked template in the authenticated organization within Guteneo; it does not browse arbitrary external resources or contact recipients.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1213,16 +1213,16 @@
     {
       "name": "get_template_authoring_guide",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads the current JSON authoring contract, rules, and a synthetic example. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads the current JSON authoring contract, rules, and a synthetic example. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
         "openWorldHint": "Limited to the built-in authoring guide available to the authenticated member within Guteneo; it does not browse arbitrary external resources or contact recipients.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1242,16 +1242,16 @@
     {
       "name": "get_template_example",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads one complete built-in synthetic template definition. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads one complete built-in synthetic template definition. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
         "openWorldHint": "Limited to a selected identifier in Guteneo's fixed example catalog within Guteneo; it does not browse arbitrary external resources or contact recipients.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1271,16 +1271,16 @@
     {
       "name": "get_template_schema",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads the business input schema of an accessible template or published version. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads the business input schema of an accessible template or published version. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
         "openWorldHint": "Limited to a permission-checked template in the authenticated organization within Guteneo; it does not browse arbitrary external resources or contact recipients.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1300,16 +1300,16 @@
     {
       "name": "get_template_sharing",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads eligible organization members and the template's current grants. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads eligible organization members and the template's current grants. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
         "openWorldHint": "Limited to the authenticated organization and a template the caller may administer within Guteneo; it does not browse arbitrary external resources or contact recipients.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1474,16 +1474,16 @@
     {
       "name": "list_datasets",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads the caller's private dataset statuses, quarantine state, and expiry. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads the caller's private dataset statuses, quarantine state, and expiry. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
         "openWorldHint": "Limited to datasets owned by the authenticated member in the organization within Guteneo; it does not browse arbitrary external resources or contact recipients.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1503,16 +1503,16 @@
     {
       "name": "list_dispatches",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads a bounded and optionally state-filtered page of organization dispatches and their saved prices, with response enrichment in memory. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads a bounded and optionally state-filtered page of organization dispatches and their saved prices, with response enrichment in memory. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not change dispatch content, delivery state, approvals or costs.",
         "openWorldHint": "Limited to the authenticated organization's private Guteneo dispatch database.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1532,16 +1532,16 @@
     {
       "name": "list_documents",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads a bounded page of authorized document metadata and saved analysis states without starting document analysis. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads a bounded page of authorized document metadata and saved analysis states without starting document analysis. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not alter or remove PDF bytes, document metadata, analysis results or dispatches.",
         "openWorldHint": "Limited to the authenticated member's authorized private Guteneo document library.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1565,16 +1565,16 @@
     {
       "name": "list_generation_jobs",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads the caller's private generation jobs and progress. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads the caller's private generation jobs and progress. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
         "openWorldHint": "Limited to caller-owned generation jobs in the authenticated organization within Guteneo; it does not browse arbitrary external resources or contact recipients.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1594,16 +1594,16 @@
     {
       "name": "list_mappings",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads the latest versions of the caller's private declarative mappings. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads the latest versions of the caller's private declarative mappings. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
         "openWorldHint": "Limited to caller-owned mappings in the authenticated organization within Guteneo; it does not browse arbitrary external resources or contact recipients.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1623,16 +1623,16 @@
     {
       "name": "list_secure_distributions",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads bounded workshop metadata, policies and status. A validated successful production result may also advance the connection last-successful-use timestamp.",
+        "readOnlyHint": "Reads bounded workshop metadata, policies and status. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not change access, source documents, approvals or funded retention.",
         "openWorldHint": "Limited to the authenticated workshop; excludes personal account documents and recipient-claim details.",
-        "idempotentHint": "Repeated reads can persist newer connection activity. A validated successful production result may also advance the connection last-successful-use timestamp."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1652,16 +1652,16 @@
     {
       "name": "list_template_examples",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads the built-in synthetic template catalog. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads the built-in synthetic template catalog. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
         "openWorldHint": "Limited to Guteneo's fixed synthetic example catalog within Guteneo; it does not browse arbitrary external resources or contact recipients.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1681,16 +1681,16 @@
     {
       "name": "list_templates",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads accessible templates and their effective permissions. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads accessible templates and their effective permissions. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
         "openWorldHint": "Limited to templates in the authenticated organization that the caller can access within Guteneo; it does not browse arbitrary external resources or contact recipients.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1710,16 +1710,16 @@
     {
       "name": "open_mcp_document_upload",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Opening presents an App without a file operation, while it reads the current account language and retains ordinary connection activity. A validated success can also persist current connection activity.",
+        "readOnlyHint": "Opening presents an App without a file operation and reads the current account language. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Presents the pinned private-picker resource and reads the current account language without selecting, reading or uploading any file or changing a document.",
         "openWorldHint": "Uses the current authenticated private Guteneo account, its fixed internal storage/scanner pipeline and the standard host App bridge; it accepts no arbitrary URL, browser network permission or external recipient.",
-        "idempotentHint": "Repeated successful presentation can advance the persisted connection-activity timestamp."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1735,16 +1735,16 @@
     {
       "name": "open_mcp_ui_probe",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Presents a default-off diagnostic resource after rechecking the exact temporary activation, current OAuth membership/scope and connection revision. Normal authentication/rate accounting remains, and validated success attempts to persist this production connection's visible last-successful-use timestamp.",
+        "readOnlyHint": "Presents a default-off diagnostic resource after rechecking the exact temporary activation, current OAuth membership/scope and connection revision. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Opens a no-content diagnostic without reading file metadata/bytes, granting upload capability or creating, replacing, approving, charging, queueing or sending business work. Picker API presence or a chooser request creates no content or business authority.",
         "openWorldHint": "The diagnostic is restricted to one server-selected authenticated connection and bounded window. Its self-contained UI has no external dependencies or direct browser network requests and accepts no arbitrary URL or destination; normal fixed authentication and asset-binding reads remain.",
-        "idempotentHint": "Repeated opening returns the same diagnostic contract, but a validated successful production call may advance the persisted connection-activity timestamp and consumes ordinary HTTP rate accounting; the complete operation is not guaranteed to have no additional effect."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -1958,16 +1958,16 @@
     {
       "name": "profile_dataset",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads a bounded page of the retained dataset profile and anomalies without calling AI. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads a bounded page of the retained dataset profile and anomalies without calling AI. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not delete, replace, cancel, or revoke business data; only the connection activity timestamp is updated.",
         "openWorldHint": "Limited to the stored profile of a caller-owned dataset within Guteneo; it does not browse arbitrary external resources or contact recipients.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -2045,16 +2045,16 @@
     {
       "name": "read_document_pages",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads the verified immutable PDF and renders a bounded group of page images. It does not persist expert review progress or create an approval token. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads the verified immutable PDF and renders a bounded group of page images. It does not persist expert review progress or create an approval token. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not replace the original PDF, revoke existing review tokens, prepare a dispatch or send a communication.",
         "openWorldHint": "Uses private Guteneo storage and its bound rendering service for an authorized document; no caller-selected network destination is accessed.",
-        "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {
@@ -2438,16 +2438,16 @@
     {
       "name": "validate_pdf",
       "annotations": {
-        "readOnlyHint": false,
+        "readOnlyHint": true,
         "destructiveHint": false,
         "openWorldHint": false,
-        "idempotentHint": false
+        "idempotentHint": true
       },
       "justification": {
-        "readOnlyHint": "Reads an already purchased exact-key PDF validation report. New checks require an explicitly approved browser-administrator purchase and are rejected for assistants; this tool cannot debit credits, renew access or assert consent. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Reads an already purchased exact-key PDF validation report. New checks require an explicitly approved browser-administrator purchase and are rejected for assistants; this tool cannot debit credits, renew access or assert consent. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Returns an existing diagnostic report for the exact PDF, profile and approved request key. It cannot start a new check, modify or delete the PDF, change its security status, send a communication or debit credits.",
         "openWorldHint": "Reads the authenticated organization’s existing hash-bound report in Guteneo. This assistant operation does not call the private validator, accept an arbitrary destination or publish the document.",
-        "idempotentHint": "The same request key, original PDF and profile reuse the saved report. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect."
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
         {

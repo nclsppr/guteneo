@@ -69,9 +69,9 @@ describe("non-consuming MCP dispatch validation", () => {
       )!;
       expect(tool.annotations).toEqual({
         title: tool.title,
-        readOnlyHint: false,
+        readOnlyHint: true,
         destructiveHint: false,
-        idempotentHint: false,
+        idempotentHint: true,
         openWorldHint: false,
       });
       expect(tool.inputSchema.additionalProperties).toBe(false);

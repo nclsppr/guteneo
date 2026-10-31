@@ -265,10 +265,11 @@ describe("private original MCP App surface", () => {
         expect(tool._meta).toMatchObject({
           ui: { visibility: [tool.name === names[0] ? "model" : "app"] },
         });
+        // Opening the picker only reads; the App-only transfer steps write.
         expect(tool.annotations).toMatchObject({
-          readOnlyHint: false,
+          readOnlyHint: tool.name === names[0],
           destructiveHint: tool.name !== names[0],
-          idempotentHint: false,
+          idempotentHint: tool.name === names[0],
           openWorldHint: false,
         });
       }

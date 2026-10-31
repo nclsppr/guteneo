@@ -202,8 +202,8 @@ describe("secure distribution through the shared MCP transport", () => {
         const tool = tools.find((tool) => tool.name === name)!;
         expect(tool).toBeDefined();
         expect(tool.annotations).toMatchObject({
-          readOnlyHint: false,
-          idempotentHint: false,
+          readOnlyHint: /^(get|list)_/.test(name),
+          idempotentHint: /^(get|list)_/.test(name),
           destructiveHint:
             name.startsWith("confirm") || name.startsWith("revoke"),
           openWorldHint: name.startsWith("confirm"),

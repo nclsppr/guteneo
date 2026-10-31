@@ -926,21 +926,21 @@ describe("distributable LLM integrations", () => {
         });
         const { tools } = await client.listTools();
         // Read-only, destructive, idempotent, open-world: these labels drive
-        // host confirmations and must describe effects, including indirect sends
-        // and persisted connection observations on successful business reads.
+        // host confirmations and must describe effects, including indirect sends.
+        // The connection's last-used time is connection metadata, not a tool effect.
         const expected: Record<string, [boolean, boolean, boolean, boolean]> = {
-          get_capabilities: [false, false, false, false],
-          get_expert_status: [false, false, false, false],
-          get_document: [false, false, false, false],
-          list_documents: [false, false, false, false],
-          read_document_pages: [false, false, false, false],
-          get_dispatch_status: [false, false, false, false],
-          dry_run_dispatch: [false, false, false, false],
-          list_dispatches: [false, false, false, false],
-          get_postal_requirements: [false, false, false, false],
-          get_postal_setup: [false, false, false, false],
+          get_capabilities: [true, false, true, false],
+          get_expert_status: [true, false, true, false],
+          get_document: [true, false, true, false],
+          list_documents: [true, false, true, false],
+          read_document_pages: [true, false, true, false],
+          get_dispatch_status: [true, false, true, false],
+          dry_run_dispatch: [true, false, true, false],
+          list_dispatches: [true, false, true, false],
+          get_postal_requirements: [true, false, true, false],
+          get_postal_setup: [true, false, true, false],
           configure_postal_sender: [false, false, false, false],
-          get_postal_preflight: [false, false, false, false],
+          get_postal_preflight: [true, false, true, false],
           // Quote renewal cancels the superseded prepared dispatch.
           prepare_fax: [false, true, false, false],
           prepare_dispatch: [false, false, false, false],

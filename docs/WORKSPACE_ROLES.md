@@ -148,9 +148,9 @@ freezes the batch and prevents failed-record retries, including records outside
 selection. Finish desired retries first; later regeneration needs a new batch.
 Plan access and approval authority remain separate.
 
-Observed business reads retain `readOnlyHint:false`/`idempotentHint:false` because
-production success may record visible connection activity, without role/scope or
-approval changes. Local evidence on 20 October: nine focused suites, 260 tests,
+Business reads declare `readOnlyHint:true`/`idempotentHint:true`. The connection's
+last-used time refreshed after any success is connection metadata, without
+role/scope or approval changes. Local evidence on 20 October: nine focused suites, 260 tests,
 three connection-observation tests, full typecheck/lint, and 67-tool/268-boolean/
 216-reference annotation audit passed. Exact-commit CI, deployed server, portal
 catalog and OpenAI approval remain separate.

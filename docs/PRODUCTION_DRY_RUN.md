@@ -32,8 +32,8 @@ except where it grants private-PDF review access. Observers gain no preparation/
 approval/confirmation. Assistants assert no human consent or mandate.
 
 Read-only describes **business operations**: domain uses reads, while HTTP/auth/MCP
-may record rate counters/connection observations. Hints remain
-`readOnlyHint:false`, `idempotentHint:false`, `destructiveHint:false`,
+may record rate counters/connection observations. Hints are
+`readOnlyHint:true`, `idempotentHint:true`, `destructiveHint:false`,
 `openWorldHint:false`, without business-write/send authority. Ordinary resources
 are consumed; zero infrastructure cost is not promised. Authentication may fetch
 Auth0 public keys, so no business-provider contact is not zero network activity.

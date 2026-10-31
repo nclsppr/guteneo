@@ -255,11 +255,11 @@ describe("postal tools over MCP transport", () => {
   });
 
   it.each([
-    ["get_postal_setup", "documents:read", {}],
-    ["configure_postal_sender", "dispatches:prepare", senderInput],
+    ["get_postal_setup", "documents:read", {}, true],
+    ["configure_postal_sender", "dispatches:prepare", senderInput, false],
   ] as const)(
     "exposes %s honestly but challenges its missing %s scope before calling the service",
-    async (name, scope, args) => {
+    async (name, scope, args, readOnly) => {
       await connected(
         MCP_SCOPES.filter((value) => value !== scope),
         async (client, _create, setup) => {
@@ -270,9 +270,9 @@ describe("postal tools over MCP transport", () => {
             { type: "oauth2", scopes: [scope] },
           ]);
           expect(listed?.annotations).toMatchObject({
-            readOnlyHint: false,
+            readOnlyHint: readOnly,
             destructiveHint: false,
-            idempotentHint: false,
+            idempotentHint: readOnly,
             openWorldHint: false,
           });
           const response = await client.callTool({ name, arguments: args });

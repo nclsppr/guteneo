@@ -755,7 +755,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Every advertised tool has four annotation booleans and per-tool evidence, audited through actual tools/list
 - Every registered tool exposes its existing display title through annotations.title, including conditional tools; directory-compatible JSON dataset metadata preserves current business gates, while actual portal scan, each-tool host qualification, submission and public listing require separate evidence
 - Declarative tool descriptions state the operation, inputs/results, side effects, risks and factual prerequisites without assistant behavior instructions, cross-tool orchestration or external behavioral rules; package skills and MCP prompts retain workflow guidance, with unchanged runtime guards, scopes and annotation booleans
-- readOnlyHint/idempotentHint remain false where successful production calls persist visible connection activity; the side effect is disclosed centrally
+- Business reads declare readOnlyHint/idempotentHint true; the connection last-used time refreshed after any successful call is disclosed centrally as connection metadata
 - Assistant restrictions cover files, text, templates, datasets, records, existing PDFs/reports; person-redacted recovery adds no automatic classification or new server guard
 - Single source version synchronises application, serverInfo and release/package manifests; builds reject version/connection drift
 - MCP bodies limited to 2 MiB and 120,000 elements; existing 100,000-cell business limit remains

@@ -1,5 +1,18 @@
 # Executed verification
 
+## Read-only MCP annotations — 31 October 2026 candidate 1.1.23
+
+The 36 MCP tools that only read now declare `readOnlyHint:true` and
+`idempotentHint:true`, as OpenAI's review guidance requires; justifications cannot
+correct a wrong value. The connection's last-used time refreshed after any
+successful call is recorded by the shared adapter for every tool, so it is
+connection metadata rather than an effect of the tool, and the description notice
+says so. `get_document_upload` keeps its write and destructive annotations.
+`npm run audit:mcp` reports no issue, and every MCP contract and transport test
+that asserts annotations was updated and passes locally. Plugin **1.1.23** records
+the new MCP fingerprint and includes 1.1.22. These are local observations; no
+release, portal rescan or submission was performed.
+
 ## Consumed provider deadlines — 30 October 2026 candidate 1.1.22
 
 Production remains **1.1.20**, source
