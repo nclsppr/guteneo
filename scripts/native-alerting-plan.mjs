@@ -50,7 +50,9 @@ export const nativeUiLegacyFreshnessMonitorQuery =
 // The application derives the paired class/failure markers after projection.
 // Class 1 preserves original failures; classes 2/3 cover healthy/failed freshness.
 // Legacy logs have neither marker and cannot establish healthy coverage.
-export const nativeFreshnessMonitorQuery = `SELECT if(COUNT(*) = 0, 1,
+// Workers Logs numeric JSON aggregates return Float64; the empty branch must
+// use the same native type or validation rejects the conditional expression.
+export const nativeFreshnessMonitorQuery = `SELECT if(COUNT(*) = 0, 1.0,
   SUM(attributes['alertFailure'])) AS value
 FROM logs.workersLogs
 WHERE accountTag = '${account}'

@@ -160,6 +160,9 @@ failures, qualified healthy freshness and failed/unknown freshness. Its shallow
 SQL aggregates the failure marker directly under Automatic mode, whose proposed
 300-second execution interval supplies the five-minute range. No SQL timestamp
 or invented Manual selector bypasses the inspected native editor's restrictions.
+The missing-row literal is `1.0`, matching the native numeric SUM type. A probe
+on an existing numeric counter validated that type shape after integer `1` was
+rejected; it did not qualify undeployed marker fields or save the final monitor.
 All original and freshness failures conservatively remain in that five-minute
 range; missing coverage alarms and ordinary HTTP/Cron success cannot establish
 freshness health. The nominal detection wait can grow to one five-minute cycle,

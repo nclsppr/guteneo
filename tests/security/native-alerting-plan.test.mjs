@@ -62,6 +62,7 @@ test("uses the native automatic five-minute interval while preserving other cont
   });
   assert.ok(plan.patch.query.includes("attributes['alertClass'] >= 1"));
   assert.ok(plan.patch.query.includes("SUM(attributes['alertFailure'])"));
+  assert.match(plan.patch.query, /^SELECT if\(COUNT\(\*\) = 0, 1\.0,/);
   assert.equal(plan.patch.query.match(/accountTag/g)?.length, 1);
   assert.equal(plan.patch.query.match(/scriptName/g)?.length, 1);
   assert.doesNotMatch(plan.patch.query, /timestamp|INTERVAL/);

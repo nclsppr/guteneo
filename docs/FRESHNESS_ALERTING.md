@@ -170,12 +170,16 @@ Cloudflare supplies the corresponding preceding five-minute range externally;
 the SQL contains no timestamp expression or range-mode workaround.
 
 The query keeps account/Worker filters and selects `alertClass >= 1`. Its only
-conditional is `if(COUNT(*) = 0, 1, SUM(attributes['alertFailure']))`: JSON is an
+conditional is `if(COUNT(*) = 0, 1.0, SUM(attributes['alertFailure']))`: JSON is an
 immediate aggregate argument or comparison, not nested inside a conditional.
 Exact SQL is exported as `nativeFreshnessMonitorQuery` by the plan script. Prior
 conditional-JSON, excessive-depth and timestamp attempts saved no replacement;
-validation, saved readback and notification behavior of the fallback remain
-unqualified.
+a probe using an existing numeric counter was accepted after changing the
+missing-row branch from integer `1` to floating-point `1.0`. The native type
+checker requires a Float64 branch compatible with numeric JSON `SUM`; the
+integer branch had produced a type error. This qualifies that aggregate/type
+shape against existing observations, not the new marker fields, their deployment,
+the final saved monitor or notification behavior. Those remain unqualified.
 
 This is an explicit operational tradeoff. All original ten-code/four-counter
 failures and freshness failures now remain in the same five-minute range,

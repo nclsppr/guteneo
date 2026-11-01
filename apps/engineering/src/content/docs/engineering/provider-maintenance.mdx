@@ -89,7 +89,7 @@ freshness requires the exact application/maintenance/freshness envelope, OK code
 explicit zero risk/expiry/check-failure counters and no original failure.
 
 The shallow SQL selects `alertClass >= 1`, aggregates the failure field directly
-and uses only `if(COUNT(*) = 0, 1, SUM(...))`. An empty selection alarms, and
+and uses only `if(COUNT(*) = 0, 1.0, SUM(...))`. An empty selection alarms, and
 malformed freshness cannot become healthy. The fallback keeps Automatic range
 mode and changes native execution from every minute to every 300 seconds, making
 Cloudflare supply a five-minute range without SQL timestamps.
@@ -104,8 +104,11 @@ and other application safety gates are unaffected.
 
 Native editor attempts on 1 November rejected conditional JSON aggregates,
 expressions deeper than ten and explicit timestamps under its request-bound
-range; the inspected editor exposed no Manual selector. None saved a replacement.
-The fallback remains a local candidate requiring actual native validation and
+range; the inspected editor exposed no Manual selector. None saved a replacement. A subsequent existing-counter probe was accepted with
+floating-point `1.0`, whose type matches the native numeric JSON SUM; integer
+`1` had caused incompatible conditional branches. This validates the aggregate
+type shape only. The new marker fields remain undeployed and the final monitor
+unsaved. The fallback still requires exact-marker native validation and
 saved readback. Deploy and verify marker runtime first, retain the old query
 during five minutes of coverage, then apply only the reviewed SQL and interval.
 Legacy logs cannot prove marker coverage. Recovery requires failure-free current
