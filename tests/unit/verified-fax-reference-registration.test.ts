@@ -379,6 +379,51 @@ describe("bounded existing FR/DE reference registration", () => {
     ).rejects.toThrow(/PLAN_INVALID/);
     expect((await count("verified_fax_reference_sets"))!.n).toBe(0);
   });
+  it("accepts a current catalog observed after the final provider reads started", async () => {
+    const p = await prepare();
+    let current = NOW;
+    providers.inspectTelnyxFaxTariffCatalog.mockImplementationOnce(async () => {
+      await Promise.resolve();
+      current = "2026-11-01T10:00:02.000Z";
+      return { ...structuredClone(catalog), observedAt: current };
+    });
+    expect(
+      await applyRegistrationPlan(
+        db,
+        providers,
+        p.plan,
+        registrationPlanDigest(p.plan),
+        { now: () => current, sources: p.sources },
+      ),
+    ).toEqual({ status: "applied", registrationOnly: true });
+    expect((await count("verified_fax_reference_sets"))!.n).toBe(1);
+    expect((await count("verified_fax_reference_tariffs"))!.n).toBe(14);
+    expect((await count("verified_fax_reference_evidence"))!.n).toBe(0);
+    for (const table of ["attempts", "approvals", "outbox", "reservations"])
+      expect((await count(table))!.n).toBe(0);
+  });
+  it("still refuses a catalog timestamp beyond the clock after the final reads", async () => {
+    const p = await prepare();
+    let current = NOW;
+    providers.inspectTelnyxFaxTariffCatalog.mockImplementationOnce(async () => {
+      current = "2026-11-01T10:00:02.000Z";
+      return {
+        ...structuredClone(catalog),
+        observedAt: "2026-11-01T10:00:03.000Z",
+      };
+    });
+    await expect(
+      applyRegistrationPlan(
+        db,
+        providers,
+        p.plan,
+        registrationPlanDigest(p.plan),
+        { now: () => current, sources: p.sources },
+      ),
+    ).rejects.toThrow(/CATALOG_INVALID/);
+    expect((await count("verified_fax_reference_sets"))!.n).toBe(0);
+    expect((await count("verified_fax_reference_tariffs"))!.n).toBe(0);
+  });
   it("allows the known unknown inactive spend amount but refuses an active or unspecified malformed limit", async () => {
     inspection.status = "partial";
     inspection.errors = [

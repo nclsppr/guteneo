@@ -416,8 +416,15 @@ export async function applyRegistrationPlan(
     readSnapshot(db, c),
     savedRegistration(db, c),
   ]);
+  const commitAt = clock();
+  if (
+    !timestamp(commitAt) ||
+    commitAt < plan.observedAt ||
+    commitAt >= plan.expiresAt
+  )
+    fail("PLAN_INVALID");
   validateOwnership(inspection, plan.snapshot);
-  validateCatalog(catalog, now);
+  validateCatalog(catalog, commitAt);
   if (
     catalog.rateDeckUrl !== plan.qualification.catalog.rateDeckUrl ||
     catalog.sha256 !== plan.qualification.catalog.sha256
@@ -433,13 +440,6 @@ export async function applyRegistrationPlan(
     return { status: "already_applied", registrationOnly: true };
   }
   if (canonical(current) !== canonical(plan.snapshot)) fail("STATE_CHANGED");
-  const commitAt = clock();
-  if (
-    !timestamp(commitAt) ||
-    commitAt < plan.observedAt ||
-    commitAt >= plan.expiresAt
-  )
-    fail("PLAN_INVALID");
   validateSnapshot(current, c, commitAt);
   const guards = [
     rowGuard("organizations", current.organization, "$.organization", "o"),
