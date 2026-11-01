@@ -11,6 +11,7 @@ import type { DashboardAppearance } from "../../../packages/contracts/src/dashbo
 import type { ExpertApprovalAccount } from "../../../packages/contracts/src/expert-approval";
 import type { FaxPricing } from "../../../packages/contracts/src/fax-pricing";
 import type { DocumentAnalysis } from "../../../packages/contracts/src/document-analysis";
+import type { DeliveryRecipient } from "../../../packages/contracts/src/content";
 import {
   workspacePermissions,
   type WorkspacePermissions,
@@ -65,7 +66,7 @@ export type Dispatch = {
   recipient_feedback?: "unsubscribed" | "reported" | null;
   id: string;
   channel: Channel;
-  recipient_json: string | Record<string, string>;
+  recipient_json: string | DeliveryRecipient;
   document_id?: string;
   options_json?: string | Record<string, unknown>;
   sender_address?: string;
@@ -278,19 +279,61 @@ export async function api<T>(
   }
   return data as T;
 }
-export function recipientOf(dispatch: Dispatch): Record<string, string> {
-  if (typeof dispatch.recipient_json !== "string")
-    return dispatch.recipient_json ?? {};
+export type RecipientView = {
+  [field: string]: string | string[] | undefined;
+  email?: string;
+  phone?: string;
+  name?: string;
+  line1?: string;
+  postalCode?: string;
+  city?: string;
+  country?: string;
+  addressLines?: string[];
+};
+export function recipientOf(dispatch: Dispatch): RecipientView {
   try {
-    return JSON.parse(dispatch.recipient_json) as Record<string, string>;
+    const value: unknown =
+      typeof dispatch.recipient_json === "string"
+        ? JSON.parse(dispatch.recipient_json)
+        : dispatch.recipient_json;
+    if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+    return Object.fromEntries(
+      Object.entries(value).filter(
+        ([key, item]) =>
+          typeof item === "string" ||
+          (key === "addressLines" &&
+            Array.isArray(item) &&
+            item.every((line) => typeof line === "string")),
+      ),
+    ) as RecipientView;
   } catch {
     return {};
   }
 }
+export function recipientDisplayLines(recipient: unknown): string[] {
+  if (!recipient || typeof recipient !== "object" || Array.isArray(recipient))
+    return [];
+  const value = recipient as Record<string, unknown>;
+  if (
+    Array.isArray(value.addressLines) &&
+    value.addressLines.every((line) => typeof line === "string")
+  )
+    return value.addressLines;
+  return Object.values(value).filter(
+    (line): line is string => typeof line === "string" && !!line,
+  );
+}
 export function recipientLabel(dispatch: Dispatch): string {
   const r = recipientOf(dispatch);
   return (
-    r.email ?? r.phone ?? [r.name, r.city, r.country].filter(Boolean).join(", ")
+    r.email ??
+    r.phone ??
+    (r.addressLines
+      ? [r.addressLines[0], r.country]
+      : [r.name, r.city, r.country]
+    )
+      .filter(Boolean)
+      .join(", ")
   );
 }
 export function date(value?: string): string {

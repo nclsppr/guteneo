@@ -2,6 +2,8 @@ import { z } from "zod";
 import type { TemplateEnvelope } from "./templates";
 import type { DatasetFormat, DatasetProfile, MappingPlan } from "./datasets";
 import type { DocumentAnalysis } from "./document-analysis";
+import type { DeliveryRecipient } from "./content";
+import { postalAddressBlockRecipientSchema } from "./postal-recipient";
 
 export const WORKFLOW_LIMITS = {
   recordsPerJob: 500,
@@ -193,7 +195,21 @@ export const distributionEntrySchema = z
         Boolean,
       ).length === 1,
     "Choose an explicit recipient OR fields in the frozen data.",
-  );
+  )
+  .superRefine((value, context) => {
+    if (!value.recipient || !Object.hasOwn(value.recipient, "addressLines"))
+      return;
+    if (
+      (value.channel !== undefined && value.channel !== "postal") ||
+      !postalAddressBlockRecipientSchema.safeParse(value.recipient).success
+    )
+      context.addIssue({
+        code: "custom",
+        path: ["recipient"],
+        message:
+          "A complete postal address block requires the postal channel, a supported country and two to six complete printed lines without legacy fields.",
+      });
+  });
 export const distributionInputSchema = z
   .object({
     jobId: z.string().min(1).max(200),
@@ -212,7 +228,7 @@ export type DistributionEntryView = Omit<
   | "optionsByChannel"
 > & {
   channel: "fax" | "email" | "postal";
-  recipient: Record<string, unknown>;
+  recipient: DeliveryRecipient;
   documentId: string;
   documentHash: string;
   templateId: string;

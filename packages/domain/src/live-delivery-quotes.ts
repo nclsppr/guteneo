@@ -1,4 +1,9 @@
 import { canonicalJson, DomainError, sha256, type Dispatch } from "./index";
+import {
+  postalRecipientSchema,
+  type PostalRecipient,
+} from "../../contracts/src/postal-recipient";
+import type { DeliveryRecipient } from "../../contracts/src/content";
 
 export const NANO_EUR_PER_CENT = 10_000_000;
 export type LiveDeliveryIdentity = {
@@ -88,7 +93,7 @@ export type PostalQuoteRequest = {
   senderId: string;
   documentId: string;
   documentSha256: string;
-  recipient: Record<string, string>;
+  recipient: PostalRecipient;
   options: Record<string, unknown>;
   identity: LiveDeliveryIdentity;
 };
@@ -367,7 +372,7 @@ export async function resolveDeliveryPrice(
     organizationId: string;
     senderId: string;
     channel: "email" | "postal";
-    recipient: Record<string, string>;
+    recipient: DeliveryRecipient;
     options: Record<string, unknown>;
     document?: { id: string; sha256: string; size: number };
     identity?: LiveDeliveryIdentity;
@@ -453,6 +458,7 @@ export async function resolveDeliveryPrice(
       throw unqualified();
     const quote = await request.postalQuote({
       ...request,
+      recipient: postalRecipientSchema.parse(request.recipient),
       documentId: request.document.id,
       documentSha256: request.document.sha256,
       identity: request.identity,

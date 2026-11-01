@@ -1,0 +1,1519 @@
+{
+  "source": {
+    "url": "https://help.pingen.com/en/templates-and-postal-requirements/supported-country-names",
+    "observedAt": "2026-11-01T10:32:25.661992+00:00",
+    "sha256": "a54c847eba46bd8e68a076ddad97bf19cb98ae0fc719eb3425ece5382ef055d4",
+    "snapshotSha256": "8b001521cd1fa030f1797ddcff154be87486199b93376648ca57ee7aaa8bdcd1",
+    "meaning": "Provider-published accepted country codes and spellings; not delivery availability, address existence or pricing."
+  },
+  "countries": {
+    "AD": {
+      "printName": "ANDORRA",
+      "nameLanguage": "en",
+      "aliases": ["Andorra"]
+    },
+    "AE": {
+      "printName": "UNITED ARAB EMIRATES",
+      "nameLanguage": "en",
+      "aliases": ["Vereinigte Arabische Emirate", "United Arab Emirates", "UAE"]
+    },
+    "AF": {
+      "printName": "AFGHANISTAN",
+      "nameLanguage": "en",
+      "aliases": ["Afghanistan"]
+    },
+    "AG": {
+      "printName": "ANTIGUA AND BARBUDA",
+      "nameLanguage": "en",
+      "aliases": ["Antigua und Barbuda", "Antigua and Barbuda"]
+    },
+    "AI": {
+      "printName": "ANGUILLA",
+      "nameLanguage": "en",
+      "aliases": ["Anguilla"]
+    },
+    "AL": {
+      "printName": "ALBANIA",
+      "nameLanguage": "en",
+      "aliases": ["Albanien", "Albania"]
+    },
+    "AM": {
+      "printName": "ARMENIA",
+      "nameLanguage": "en",
+      "aliases": ["Armenien", "Armenia"]
+    },
+    "AO": {
+      "printName": "ANGOLA",
+      "nameLanguage": "en",
+      "aliases": ["Angola"]
+    },
+    "AQ": {
+      "printName": "ANTARCTICA",
+      "nameLanguage": "en",
+      "aliases": ["Antarktis", "Antarctica"]
+    },
+    "AR": {
+      "printName": "ARGENTINA",
+      "nameLanguage": "en",
+      "aliases": ["Argentinien", "Argentina"]
+    },
+    "AS": {
+      "printName": "AMERICAN SAMOA",
+      "nameLanguage": "en",
+      "aliases": [
+        "Amerikanisch-Samoa",
+        "American-Samoa",
+        "Amerikanisch Samoa",
+        "American Samoa"
+      ]
+    },
+    "AT": {
+      "printName": "AUSTRIA",
+      "nameLanguage": "en",
+      "aliases": ["Österreich", "Austria", "Oesterreich"]
+    },
+    "AU": {
+      "printName": "AUSTRALIA",
+      "nameLanguage": "en",
+      "aliases": ["Australien", "Australia"]
+    },
+    "AW": {
+      "printName": "ARUBA",
+      "nameLanguage": "en",
+      "aliases": ["Aruba"]
+    },
+    "AX": {
+      "printName": "ÅLAND ISLANDS",
+      "nameLanguage": "en",
+      "aliases": [
+        "Åland",
+        "Aland",
+        "Åland Islands",
+        "Åland Inseln",
+        "Aland Islands",
+        "Aland Inseln"
+      ]
+    },
+    "AZ": {
+      "printName": "AZERBAIJAN",
+      "nameLanguage": "en",
+      "aliases": ["Aserbaidschan", "Azerbaijan"]
+    },
+    "BA": {
+      "printName": "BOSNIA AND HERZEGOVINA",
+      "nameLanguage": "en",
+      "aliases": ["Bosnien und Herzegowina", "Bosnia and Herzegovina"]
+    },
+    "BB": {
+      "printName": "BARBADOS",
+      "nameLanguage": "en",
+      "aliases": ["Barbados"]
+    },
+    "BD": {
+      "printName": "BANGLADESH",
+      "nameLanguage": "en",
+      "aliases": ["Bangladesch", "Bangladesh"]
+    },
+    "BE": {
+      "printName": "BELGIUM",
+      "nameLanguage": "en",
+      "aliases": ["Belgium", "Belgien", "Belgique", "België"]
+    },
+    "BF": {
+      "printName": "BURKINA FASO",
+      "nameLanguage": "en",
+      "aliases": ["Burkina Faso"]
+    },
+    "BG": {
+      "printName": "BULGARIA",
+      "nameLanguage": "en",
+      "aliases": ["Bulgarien", "Bulgaria"]
+    },
+    "BH": {
+      "printName": "BAHRAIN",
+      "nameLanguage": "en",
+      "aliases": ["Bahrein", "Bahrain"]
+    },
+    "BI": {
+      "printName": "BURUNDI",
+      "nameLanguage": "en",
+      "aliases": ["Burundi"]
+    },
+    "BJ": {
+      "printName": "BENIN",
+      "nameLanguage": "en",
+      "aliases": ["Benin"]
+    },
+    "BL": {
+      "printName": "SAINT BARTHÉLEMY",
+      "nameLanguage": "en",
+      "aliases": [
+        "Sankt Barthelemy",
+        "Saint Barthelemy",
+        "Saint Barthélemy",
+        "St. Barthelemy"
+      ]
+    },
+    "BM": {
+      "printName": "BERMUDA",
+      "nameLanguage": "en",
+      "aliases": ["Bermuda"]
+    },
+    "BN": {
+      "printName": "BRUNEI",
+      "nameLanguage": "en",
+      "aliases": ["Brunei", "Brunei Darussalam"]
+    },
+    "BO": {
+      "printName": "BOLIVIA",
+      "nameLanguage": "en",
+      "aliases": ["Bolivien", "Bolivia"]
+    },
+    "BQ": {
+      "printName": "BONAIRE, SINT EUSTATIUS AND SABA",
+      "nameLanguage": "en",
+      "aliases": [
+        "Bonaire, Sint Eustatius und Saba",
+        "Bonaire, Sint Eustatius and Saba",
+        "Bonaire, St. Eustatius und Saba",
+        "Bonaire, St. Eustatius and Saba"
+      ]
+    },
+    "BR": {
+      "printName": "BRAZIL",
+      "nameLanguage": "en",
+      "aliases": ["Brasilien", "Brazil"]
+    },
+    "BS": {
+      "printName": "BAHAMAS",
+      "nameLanguage": "en",
+      "aliases": ["Bahamas"]
+    },
+    "BT": {
+      "printName": "BHUTAN",
+      "nameLanguage": "en",
+      "aliases": ["Bhutan"]
+    },
+    "BV": {
+      "printName": "BOUVET ISLAND",
+      "nameLanguage": "en",
+      "aliases": ["Bouvetinsel", "Bouvet Island"]
+    },
+    "BW": {
+      "printName": "BOTSWANA",
+      "nameLanguage": "en",
+      "aliases": ["Botswana"]
+    },
+    "BY": {
+      "printName": "BELARUS",
+      "nameLanguage": "en",
+      "aliases": ["Weissrussland", "Belarus", "Weißrussland"]
+    },
+    "BZ": {
+      "printName": "BELIZE",
+      "nameLanguage": "en",
+      "aliases": ["Belize"]
+    },
+    "CA": {
+      "printName": "CANADA",
+      "nameLanguage": "en",
+      "aliases": ["Kanada", "Canada"]
+    },
+    "CC": {
+      "printName": "COCOS (KEELING) ISLANDS",
+      "nameLanguage": "en",
+      "aliases": [
+        "Kokosinseln",
+        "Cocos Islands",
+        "Kokosinseln (Keelinginseln)",
+        "Cocos (Keeling) Islands"
+      ]
+    },
+    "CD": {
+      "printName": "DEMOCRATIC REPUBLIC OF THE CONGO",
+      "nameLanguage": "en",
+      "aliases": [
+        "Kongo, Demokratische Republik",
+        "Congo, Democratic Republic",
+        "Democratic Republic of the Congo",
+        "Demokratische Republik Kongo"
+      ]
+    },
+    "CF": {
+      "printName": "CENTRAL AFRICAN REPUBLIC",
+      "nameLanguage": "en",
+      "aliases": ["Zentralafrikanische Republik", "Central African Republic"]
+    },
+    "CG": {
+      "printName": "CONGO, REPUBLIC",
+      "nameLanguage": "en",
+      "aliases": [
+        "Kongo, Republik",
+        "Congo, Republic",
+        "Republic Congo",
+        "Republik Kongo"
+      ]
+    },
+    "CH": {
+      "printName": "SWITZERLAND",
+      "nameLanguage": "en",
+      "aliases": ["Schweiz", "Switzerland", "Suisse", "Svizzera"]
+    },
+    "CI": {
+      "printName": "IVORY COAST",
+      "nameLanguage": "en",
+      "aliases": ["Elfenbeinküste", "Ivory Coast", "Cote d'Ivoire"]
+    },
+    "CK": {
+      "printName": "COOK ISLANDS",
+      "nameLanguage": "en",
+      "aliases": ["Cookinseln", "Cook Islands"]
+    },
+    "CL": {
+      "printName": "CHILE",
+      "nameLanguage": "en",
+      "aliases": ["Chile"]
+    },
+    "CM": {
+      "printName": "CAMEROON",
+      "nameLanguage": "en",
+      "aliases": ["Kamerun", "Cameroon"]
+    },
+    "CN": {
+      "printName": "CHINA",
+      "nameLanguage": "en",
+      "aliases": [
+        "China",
+        "China, People's Republic",
+        "People's Republic of China",
+        "China, Peoples Republic",
+        "Peoples Republic of China",
+        "Volksrepublik China",
+        "China, Volksrepublik"
+      ]
+    },
+    "CO": {
+      "printName": "COLOMBIA",
+      "nameLanguage": "en",
+      "aliases": ["Kolumbien", "Colombia"]
+    },
+    "CR": {
+      "printName": "COSTA RICA",
+      "nameLanguage": "en",
+      "aliases": ["Costa Rica"]
+    },
+    "CU": {
+      "printName": "CUBA",
+      "nameLanguage": "en",
+      "aliases": ["Kuba", "Cuba"]
+    },
+    "CV": {
+      "printName": "CAPE VERDE",
+      "nameLanguage": "en",
+      "aliases": ["Kap Verde", "Cape Verde"]
+    },
+    "CW": {
+      "printName": "CURAÇAO",
+      "nameLanguage": "en",
+      "aliases": ["Curaçao", "Curacao"]
+    },
+    "CX": {
+      "printName": "CHRISTMAS ISLAND",
+      "nameLanguage": "en",
+      "aliases": ["Weihnachtsinsel", "Christmas Island"]
+    },
+    "CY": {
+      "printName": "CYPRUS",
+      "nameLanguage": "en",
+      "aliases": ["Zypern", "Cyprus"]
+    },
+    "CZ": {
+      "printName": "CZECH REPUBLIC",
+      "nameLanguage": "en",
+      "aliases": ["Tschechien", "Czech Republic", "Tschechische Republik"]
+    },
+    "DE": {
+      "printName": "GERMANY",
+      "nameLanguage": "en",
+      "aliases": ["Deutschland", "Germany"]
+    },
+    "DJ": {
+      "printName": "DJIBOUTI",
+      "nameLanguage": "en",
+      "aliases": [
+        "Dschibuti",
+        "Djibouti",
+        "Dschibuti, Republik",
+        "Republik Dschibuti",
+        "Djibouti, Republic",
+        "Republic Djibouti"
+      ]
+    },
+    "DK": {
+      "printName": "DENMARK",
+      "nameLanguage": "en",
+      "aliases": ["Dänemark", "Denmark"]
+    },
+    "DM": {
+      "printName": "DOMINICA",
+      "nameLanguage": "en",
+      "aliases": ["Dominica"]
+    },
+    "DO": {
+      "printName": "DOMINICAN REPUBLIC",
+      "nameLanguage": "en",
+      "aliases": ["Dominikanische Republik", "Dominican Republic"]
+    },
+    "DZ": {
+      "printName": "ALGERIA",
+      "nameLanguage": "en",
+      "aliases": ["Algerien", "Algeria"]
+    },
+    "EC": {
+      "printName": "ECUADOR",
+      "nameLanguage": "en",
+      "aliases": ["Ecuador"]
+    },
+    "EE": {
+      "printName": "ESTONIA",
+      "nameLanguage": "en",
+      "aliases": ["Estland", "Estonia"]
+    },
+    "EG": {
+      "printName": "EGYPT",
+      "nameLanguage": "en",
+      "aliases": ["Ägypten", "Egypt"]
+    },
+    "EH": {
+      "printName": "WESTERN SAHARA",
+      "nameLanguage": "en",
+      "aliases": ["Westsahara", "Western Sahara"]
+    },
+    "ER": {
+      "printName": "ERITREA",
+      "nameLanguage": "en",
+      "aliases": ["Eritrea"]
+    },
+    "ES": {
+      "printName": "SPAIN",
+      "nameLanguage": "en",
+      "aliases": ["Spanien", "Spain"]
+    },
+    "ET": {
+      "printName": "ETHIOPIA",
+      "nameLanguage": "en",
+      "aliases": ["Äthiopien", "Ethiopia"]
+    },
+    "FI": {
+      "printName": "FINLAND",
+      "nameLanguage": "en",
+      "aliases": ["Finnland", "Finland"]
+    },
+    "FJ": {
+      "printName": "FIDSCHI",
+      "nameLanguage": "de",
+      "aliases": ["Fidschi", "Fidji"]
+    },
+    "FK": {
+      "printName": "FALKLAND ISLANDS",
+      "nameLanguage": "en",
+      "aliases": [
+        "Falklandinseln",
+        "Falkland Islands",
+        "Falkland Islands (Malvinas)"
+      ]
+    },
+    "FM": {
+      "printName": "MICRONESIA",
+      "nameLanguage": "en",
+      "aliases": [
+        "Mikronesien",
+        "Micronesia",
+        "Micronesia, Federated States of",
+        "Federated States of Micronesia"
+      ]
+    },
+    "FO": {
+      "printName": "FAROE ISLANDS",
+      "nameLanguage": "en",
+      "aliases": ["Färöer", "Faroe Islands", "Färöer Inseln"]
+    },
+    "FR": {
+      "printName": "FRANCE",
+      "nameLanguage": "en",
+      "aliases": ["France"]
+    },
+    "GA": {
+      "printName": "GABON",
+      "nameLanguage": "en",
+      "aliases": ["Gabun", "Gabon"]
+    },
+    "GB": {
+      "printName": "UNITED KINGDOM",
+      "nameLanguage": "en",
+      "aliases": ["Great Britain", "United Kingdom"]
+    },
+    "GD": {
+      "printName": "GRENADA",
+      "nameLanguage": "en",
+      "aliases": ["Grenada"]
+    },
+    "GE": {
+      "printName": "GEORGIA",
+      "nameLanguage": "en",
+      "aliases": ["Georgien", "Georgia"]
+    },
+    "GF": {
+      "printName": "FRENCH GUIANA",
+      "nameLanguage": "en",
+      "aliases": [
+        "Französisch Guayana",
+        "French Guiana",
+        "Französisch-Guayana",
+        "French-Guiana"
+      ]
+    },
+    "GG": {
+      "printName": "GUERNSEY",
+      "nameLanguage": "en",
+      "aliases": ["Guernsey"]
+    },
+    "GH": {
+      "printName": "GHANA",
+      "nameLanguage": "en",
+      "aliases": ["Ghana"]
+    },
+    "GI": {
+      "printName": "GIBRALTAR",
+      "nameLanguage": "en",
+      "aliases": ["Gibraltar"]
+    },
+    "GL": {
+      "printName": "GREENLAND",
+      "nameLanguage": "en",
+      "aliases": ["Grönland", "Greenland"]
+    },
+    "GM": {
+      "printName": "GAMBIA",
+      "nameLanguage": "en",
+      "aliases": ["Gambia"]
+    },
+    "GN": {
+      "printName": "GUINEA",
+      "nameLanguage": "en",
+      "aliases": [
+        "Guinea",
+        "Guinea, Republic",
+        "Republic Guinea",
+        "Guinea, Republik",
+        "Republik Guinea"
+      ]
+    },
+    "GP": {
+      "printName": "GUADELOUPE",
+      "nameLanguage": "en",
+      "aliases": ["Guadeloupe"]
+    },
+    "GQ": {
+      "printName": "EQUATORIAL GUINEA",
+      "nameLanguage": "en",
+      "aliases": ["Äquatorialguinea", "Equatorial Guinea"]
+    },
+    "GR": {
+      "printName": "GREECE",
+      "nameLanguage": "en",
+      "aliases": ["Griechenland", "Greece"]
+    },
+    "GS": {
+      "printName": "SOUTH GEORGIA AND SANDWICH",
+      "nameLanguage": "en",
+      "aliases": [
+        "Südgeorgien und Sandwich",
+        "South Georgia and Sandwich",
+        "South Georgia and the South Sandwich Islands",
+        "Südgeorgien und die Südlichen Sandwichinseln"
+      ]
+    },
+    "GT": {
+      "printName": "GUATEMALA",
+      "nameLanguage": "en",
+      "aliases": ["Guatemala"]
+    },
+    "GU": {
+      "printName": "GUAM",
+      "nameLanguage": "en",
+      "aliases": ["Guam"]
+    },
+    "GW": {
+      "printName": "GUINEA-BISSAU",
+      "nameLanguage": "en",
+      "aliases": ["Guinea-Bissau", "Guinea Bissau"]
+    },
+    "GY": {
+      "printName": "GUYANA",
+      "nameLanguage": "en",
+      "aliases": ["Guyana"]
+    },
+    "HK": {
+      "printName": "HONG KONG",
+      "nameLanguage": "en",
+      "aliases": ["Hongkong", "Hong Kong"]
+    },
+    "HM": {
+      "printName": "HEARD AND MCDONALD ISLANDS",
+      "nameLanguage": "en",
+      "aliases": [
+        "Heard und McDonaldinseln",
+        "Heard Island And Mcdonald Islands",
+        "Heard Island And Mc Donald Islands",
+        "Heard und Mc Donaldinseln",
+        "Heard And Mc Donald Islands",
+        "Heard and McDonald Islands"
+      ]
+    },
+    "HN": {
+      "printName": "HONDURAS",
+      "nameLanguage": "en",
+      "aliases": ["Honduras"]
+    },
+    "HR": {
+      "printName": "CROATIA",
+      "nameLanguage": "en",
+      "aliases": ["Kroatien", "Croatia"]
+    },
+    "HT": {
+      "printName": "HAITI",
+      "nameLanguage": "en",
+      "aliases": ["Haiti"]
+    },
+    "HU": {
+      "printName": "HUNGARY",
+      "nameLanguage": "en",
+      "aliases": ["Ungarn", "Hungary"]
+    },
+    "ID": {
+      "printName": "INDONESIA",
+      "nameLanguage": "en",
+      "aliases": ["Indonesien", "Indonesia"]
+    },
+    "IE": {
+      "printName": "IRELAND",
+      "nameLanguage": "en",
+      "aliases": ["Irland", "Ireland"]
+    },
+    "IL": {
+      "printName": "ISRAEL",
+      "nameLanguage": "en",
+      "aliases": ["Israel"]
+    },
+    "IM": {
+      "printName": "ISLE OF MAN",
+      "nameLanguage": "en",
+      "aliases": ["Isle of Man", "Insel Man"]
+    },
+    "IN": {
+      "printName": "INDIA",
+      "nameLanguage": "en",
+      "aliases": ["Indien", "India"]
+    },
+    "IO": {
+      "printName": "BRITISH INDIAN OCEAN TERRITORY",
+      "nameLanguage": "en",
+      "aliases": [
+        "Britisches Territorium im Indischen Ozean",
+        "British Indian Ocean Territory"
+      ]
+    },
+    "IQ": {
+      "printName": "IRAQ",
+      "nameLanguage": "en",
+      "aliases": ["Irak", "Iraq"]
+    },
+    "IR": {
+      "printName": "IRAN",
+      "nameLanguage": "en",
+      "aliases": [
+        "Iran",
+        "Iran, Islamic Republic of",
+        "Islamic Republic of Iran",
+        "Iran, Islamische Republik",
+        "Islamische Republik Iran"
+      ]
+    },
+    "IS": {
+      "printName": "ICELAND",
+      "nameLanguage": "en",
+      "aliases": ["Island", "Iceland"]
+    },
+    "IT": {
+      "printName": "ITALY",
+      "nameLanguage": "en",
+      "aliases": ["Italien", "Italy"]
+    },
+    "JE": {
+      "printName": "JERSEY",
+      "nameLanguage": "en",
+      "aliases": ["Jersey"]
+    },
+    "JM": {
+      "printName": "JAMAICA",
+      "nameLanguage": "en",
+      "aliases": ["Jamaika", "Jamaica"]
+    },
+    "JO": {
+      "printName": "JORDAN",
+      "nameLanguage": "en",
+      "aliases": ["Jordanien", "Jordan"]
+    },
+    "JP": {
+      "printName": "JAPAN",
+      "nameLanguage": "en",
+      "aliases": ["Japan"]
+    },
+    "KE": {
+      "printName": "KENYA",
+      "nameLanguage": "en",
+      "aliases": ["Kenia", "Kenya"]
+    },
+    "KG": {
+      "printName": "KYRGYZSTAN",
+      "nameLanguage": "en",
+      "aliases": ["Kirgisistan", "Kyrgyzstan"]
+    },
+    "KH": {
+      "printName": "CAMBODIA",
+      "nameLanguage": "en",
+      "aliases": ["Kambodscha", "Cambodia"]
+    },
+    "KI": {
+      "printName": "KIRIBATI",
+      "nameLanguage": "en",
+      "aliases": ["Kiribati"]
+    },
+    "KM": {
+      "printName": "COMOROS",
+      "nameLanguage": "en",
+      "aliases": ["Komoren", "Comoros"]
+    },
+    "KN": {
+      "printName": "SAINT KITTS AND NEVIS",
+      "nameLanguage": "en",
+      "aliases": [
+        "Sankt Kitts und Nevis",
+        "Saint Kitts and Nevis",
+        "St. Kitts and Nevis",
+        "St. Kitts und Nevis"
+      ]
+    },
+    "KP": {
+      "printName": "NORTH KOREA",
+      "nameLanguage": "en",
+      "aliases": [
+        "Korea, Demokratische Volksrepublik",
+        "Korea, Democratic People's Republic of",
+        "Demokratische Volksrepublik Korea",
+        "Democratic People's Republic of Korea",
+        "Nordkorea",
+        "North Korea",
+        "Democratic People's Republic of Korea (DPRK)"
+      ]
+    },
+    "KR": {
+      "printName": "SOUTH KOREA",
+      "nameLanguage": "en",
+      "aliases": [
+        "Korea, Republik",
+        "Korea, Republic of",
+        "South Korea",
+        "Republic of Korea",
+        "Republic Korea",
+        "Südkorea",
+        "Republic of Korea (ROK)"
+      ]
+    },
+    "KW": {
+      "printName": "KUWAIT",
+      "nameLanguage": "en",
+      "aliases": ["Kuwait"]
+    },
+    "KY": {
+      "printName": "CAYMAN ISLANDS",
+      "nameLanguage": "en",
+      "aliases": ["Kaimaninseln", "Cayman Islands", "Cayman Inseln"]
+    },
+    "KZ": {
+      "printName": "KAZAKHSTAN",
+      "nameLanguage": "en",
+      "aliases": ["Kasachstan", "Kazakhstan"]
+    },
+    "LA": {
+      "printName": "LAOS",
+      "nameLanguage": "en",
+      "aliases": [
+        "Laos",
+        "Laos, Demokratische Volksrepublik",
+        "Demokratische Volksrepublik Laos",
+        "Laos, People's Democratic Republic",
+        "People's Democratic Republic Laos"
+      ]
+    },
+    "LB": {
+      "printName": "LEBANON",
+      "nameLanguage": "en",
+      "aliases": ["Libanon", "Lebanon"]
+    },
+    "LC": {
+      "printName": "ST. LUCIA",
+      "nameLanguage": "en",
+      "aliases": ["Sankt Lucia", "Saint Lucia", "St. Lucia"]
+    },
+    "LI": {
+      "printName": "LIECHTENSTEIN",
+      "nameLanguage": "en",
+      "aliases": ["Liechtenstein"]
+    },
+    "LK": {
+      "printName": "SRI LANKA",
+      "nameLanguage": "en",
+      "aliases": ["Sri Lanka"]
+    },
+    "LR": {
+      "printName": "LIBERIA",
+      "nameLanguage": "en",
+      "aliases": ["Liberia"]
+    },
+    "LS": {
+      "printName": "LESOTHO",
+      "nameLanguage": "en",
+      "aliases": ["Lesotho"]
+    },
+    "LT": {
+      "printName": "LITHUANIA",
+      "nameLanguage": "en",
+      "aliases": ["Litauen", "Lithuania"]
+    },
+    "LU": {
+      "printName": "LUXEMBOURG",
+      "nameLanguage": "en",
+      "aliases": ["Luxemburg", "Luxembourg"]
+    },
+    "LV": {
+      "printName": "LATVIA",
+      "nameLanguage": "en",
+      "aliases": ["Lettland", "Latvia"]
+    },
+    "LY": {
+      "printName": "LIBYA",
+      "nameLanguage": "en",
+      "aliases": ["Libyen", "Libya"]
+    },
+    "MA": {
+      "printName": "MOROCCO",
+      "nameLanguage": "en",
+      "aliases": ["Marokko", "Morocco"]
+    },
+    "MC": {
+      "printName": "MONACO",
+      "nameLanguage": "en",
+      "aliases": ["Monaco"]
+    },
+    "MD": {
+      "printName": "MOLDOVA",
+      "nameLanguage": "en",
+      "aliases": [
+        "Moldawien",
+        "Moldova",
+        "Moldawien, Republik",
+        "Republik Moldawien",
+        "Moldova, Republic of",
+        "Republic of Moldova",
+        "Moldau"
+      ]
+    },
+    "ME": {
+      "printName": "MONTENEGRO",
+      "nameLanguage": "en",
+      "aliases": ["Montenegro"]
+    },
+    "MF": {
+      "printName": "ST. MARTIN",
+      "nameLanguage": "en",
+      "aliases": [
+        "Saint Martin (französisch)",
+        "Saint Martin (French part)",
+        "Saint Martin",
+        "Saint-Martin",
+        "St. Martin",
+        "St. Martin (French part)"
+      ]
+    },
+    "MG": {
+      "printName": "MADAGASCAR",
+      "nameLanguage": "en",
+      "aliases": ["Madagaskar", "Madagascar"]
+    },
+    "MH": {
+      "printName": "MARSHALL ISLANDS",
+      "nameLanguage": "en",
+      "aliases": ["Marshallinseln", "Marshall Islands"]
+    },
+    "MK": {
+      "printName": "MACEDONIA",
+      "nameLanguage": "en",
+      "aliases": ["Mazedonien", "Macedonia"]
+    },
+    "ML": {
+      "printName": "MALI",
+      "nameLanguage": "en",
+      "aliases": ["Mali"]
+    },
+    "MM": {
+      "printName": "MYANMAR",
+      "nameLanguage": "en",
+      "aliases": ["Myanmar"]
+    },
+    "MN": {
+      "printName": "MONGOLIA",
+      "nameLanguage": "en",
+      "aliases": ["Mongolei", "Mongolia"]
+    },
+    "MO": {
+      "printName": "MACAO",
+      "nameLanguage": "en",
+      "aliases": ["Macau", "Macao"]
+    },
+    "MP": {
+      "printName": "NORTHERN MARIANA ISLANDS",
+      "nameLanguage": "en",
+      "aliases": [
+        "Nödliche Marianen",
+        "Mariana Islands",
+        "Northern Mariana Islands",
+        "Marianen Inseln",
+        "Nödliche Marianen Inseln"
+      ]
+    },
+    "MQ": {
+      "printName": "MARTINIQUE",
+      "nameLanguage": "en",
+      "aliases": ["Martinique"]
+    },
+    "MR": {
+      "printName": "MAURITANIA",
+      "nameLanguage": "en",
+      "aliases": ["Mauretanien", "Mauritania"]
+    },
+    "MS": {
+      "printName": "MONTSERRAT",
+      "nameLanguage": "en",
+      "aliases": ["Montserrat"]
+    },
+    "MT": {
+      "printName": "MALTA",
+      "nameLanguage": "en",
+      "aliases": ["Malta"]
+    },
+    "MU": {
+      "printName": "MAURITIUS",
+      "nameLanguage": "en",
+      "aliases": ["Mauritius"]
+    },
+    "MV": {
+      "printName": "MALDIVES",
+      "nameLanguage": "en",
+      "aliases": ["Malediven", "Maldives"]
+    },
+    "MW": {
+      "printName": "MALAWI",
+      "nameLanguage": "en",
+      "aliases": ["Malawi"]
+    },
+    "MX": {
+      "printName": "MEXICO",
+      "nameLanguage": "en",
+      "aliases": ["Mexiko", "Mexico"]
+    },
+    "MY": {
+      "printName": "MALAYSIA",
+      "nameLanguage": "en",
+      "aliases": ["Malaysia"]
+    },
+    "MZ": {
+      "printName": "MOZAMBIQUE",
+      "nameLanguage": "en",
+      "aliases": ["Mosambik", "Mozambique"]
+    },
+    "NA": {
+      "printName": "NAMIBIA",
+      "nameLanguage": "en",
+      "aliases": ["Namibia"]
+    },
+    "NC": {
+      "printName": "NEW CALEDONIA",
+      "nameLanguage": "en",
+      "aliases": ["Neukaledonien", "New Caledonia"]
+    },
+    "NE": {
+      "printName": "NIGER",
+      "nameLanguage": "en",
+      "aliases": ["Niger"]
+    },
+    "NF": {
+      "printName": "NORFOLK ISLAND",
+      "nameLanguage": "en",
+      "aliases": ["Norfolk Insel", "Norfolk Island", "Norfolkinsel"]
+    },
+    "NG": {
+      "printName": "NIGERIA",
+      "nameLanguage": "en",
+      "aliases": ["Nigeria"]
+    },
+    "NI": {
+      "printName": "NICARAGUA",
+      "nameLanguage": "en",
+      "aliases": ["Nicaragua"]
+    },
+    "NL": {
+      "printName": "NETHERLANDS",
+      "nameLanguage": "en",
+      "aliases": ["Niederlande", "Netherlands", "Nederland"]
+    },
+    "NO": {
+      "printName": "NORWAY",
+      "nameLanguage": "en",
+      "aliases": ["Norwegen", "Norway"]
+    },
+    "NP": {
+      "printName": "NEPAL",
+      "nameLanguage": "en",
+      "aliases": ["Nepal"]
+    },
+    "NR": {
+      "printName": "NAURU",
+      "nameLanguage": "en",
+      "aliases": ["Nauru"]
+    },
+    "NU": {
+      "printName": "NIUE",
+      "nameLanguage": "en",
+      "aliases": ["Niue"]
+    },
+    "NZ": {
+      "printName": "NEW ZEALAND",
+      "nameLanguage": "en",
+      "aliases": ["Neuseeland", "New Zealand"]
+    },
+    "OM": {
+      "printName": "OMAN",
+      "nameLanguage": "en",
+      "aliases": ["Oman"]
+    },
+    "PA": {
+      "printName": "PANAMA",
+      "nameLanguage": "en",
+      "aliases": ["Panama"]
+    },
+    "PE": {
+      "printName": "PERU",
+      "nameLanguage": "en",
+      "aliases": ["Peru"]
+    },
+    "PF": {
+      "printName": "FRENCH POLYNESIA",
+      "nameLanguage": "en",
+      "aliases": [
+        "Französisch Polynesien",
+        "French Polynesia",
+        "Französisch-Polynesien",
+        "French-Polynesia"
+      ]
+    },
+    "PG": {
+      "printName": "PAPUA NEW GUINEA",
+      "nameLanguage": "en",
+      "aliases": [
+        "Papua Neuguinea",
+        "Papua New Guinea",
+        "Papua-Neuguinea",
+        "Papua-New-Guinea"
+      ]
+    },
+    "PH": {
+      "printName": "PHILIPPINES",
+      "nameLanguage": "en",
+      "aliases": ["Philippinen", "Philippines"]
+    },
+    "PK": {
+      "printName": "PAKISTAN",
+      "nameLanguage": "en",
+      "aliases": ["Pakistan"]
+    },
+    "PL": {
+      "printName": "POLAND",
+      "nameLanguage": "en",
+      "aliases": ["Polen", "Poland"]
+    },
+    "PM": {
+      "printName": "SAINT PIERRE AND MIQUELON",
+      "nameLanguage": "en",
+      "aliases": [
+        "Saint Pierre und Miquelon",
+        "Saint Pierre and Miquelon",
+        "St. Pierre und Miquelon",
+        "St. Pierre and Miquelon"
+      ]
+    },
+    "PN": {
+      "printName": "PITCAIRN ISLAND",
+      "nameLanguage": "en",
+      "aliases": ["Pitcairn Inseln", "Pitcairn Island", "Pitcairn"]
+    },
+    "PR": {
+      "printName": "PUERTO RICO",
+      "nameLanguage": "en",
+      "aliases": ["Puerto Rico"]
+    },
+    "PS": {
+      "printName": "STATE OF PALESTINE",
+      "nameLanguage": "en",
+      "aliases": [
+        "Palestina",
+        "Palestine, State of",
+        "State of Palestine",
+        "Westjordanland"
+      ]
+    },
+    "PT": {
+      "printName": "PORTUGAL",
+      "nameLanguage": "en",
+      "aliases": ["Portugal"]
+    },
+    "PW": {
+      "printName": "PALAU",
+      "nameLanguage": "en",
+      "aliases": ["Palau", "Palau Insel", "Palau Island"]
+    },
+    "PY": {
+      "printName": "PARAGUAY",
+      "nameLanguage": "en",
+      "aliases": ["Paraguay"]
+    },
+    "QA": {
+      "printName": "QATAR",
+      "nameLanguage": "en",
+      "aliases": ["Katar", "Qatar"]
+    },
+    "RE": {
+      "printName": "RÉUNION",
+      "nameLanguage": "en",
+      "aliases": ["Réunion", "Reunion"]
+    },
+    "RO": {
+      "printName": "ROMANIA",
+      "nameLanguage": "en",
+      "aliases": ["Rumänien", "Romania"]
+    },
+    "RS": {
+      "printName": "SERBIA",
+      "nameLanguage": "en",
+      "aliases": ["Serbien", "Serbia"]
+    },
+    "RU": {
+      "printName": "RUSSIA",
+      "nameLanguage": "en",
+      "aliases": [
+        "Russland",
+        "Russia",
+        "Russische Föderation",
+        "Russian Federation"
+      ]
+    },
+    "RW": {
+      "printName": "RWANDA",
+      "nameLanguage": "en",
+      "aliases": ["Ruanda", "Rwanda"]
+    },
+    "SA": {
+      "printName": "SAUDI ARABIA",
+      "nameLanguage": "en",
+      "aliases": ["Saudi-Arabien", "Saudi Arabia"]
+    },
+    "SB": {
+      "printName": "SOLOMON ISLANDS",
+      "nameLanguage": "en",
+      "aliases": ["Salomonen", "Solomon Islands", "Solomon Inseln"]
+    },
+    "SC": {
+      "printName": "SEYCHELLES",
+      "nameLanguage": "en",
+      "aliases": ["Seychellen", "Seychelles"]
+    },
+    "SD": {
+      "printName": "SUDAN",
+      "nameLanguage": "en",
+      "aliases": ["Sudan"]
+    },
+    "SE": {
+      "printName": "SWEDEN",
+      "nameLanguage": "en",
+      "aliases": ["Schweden", "Sweden"]
+    },
+    "SG": {
+      "printName": "SINGAPORE",
+      "nameLanguage": "en",
+      "aliases": ["Singapur", "Singapore"]
+    },
+    "SH": {
+      "printName": "ST. HELENA",
+      "nameLanguage": "en",
+      "aliases": [
+        "Sankt Helena, Ascension und Tristan da Cunha",
+        "Saint Helena, Ascension and Tristan da Cunha",
+        "Sankt Helena",
+        "Saint Helena",
+        "St. Helena",
+        "St. Helena, Ascension und Tristan da Cunha",
+        "St. Helena, Ascension and Tristan da Cunha"
+      ]
+    },
+    "SI": {
+      "printName": "SLOVENIA",
+      "nameLanguage": "en",
+      "aliases": ["Slowenien", "Slovenia"]
+    },
+    "SJ": {
+      "printName": "SVALBARD AND JAN MAYEN",
+      "nameLanguage": "en",
+      "aliases": [
+        "Spitzbergen",
+        "Svalbard and Jan Mayen",
+        "Svalbard und Jan Mayen"
+      ]
+    },
+    "SK": {
+      "printName": "SLOVAKIA",
+      "nameLanguage": "en",
+      "aliases": ["Slowakei", "Slovakia"]
+    },
+    "SL": {
+      "printName": "SIERRA LEONE",
+      "nameLanguage": "en",
+      "aliases": ["Sierra Leone"]
+    },
+    "SM": {
+      "printName": "SAN MARINO",
+      "nameLanguage": "en",
+      "aliases": ["San Marino"]
+    },
+    "SN": {
+      "printName": "SENEGAL",
+      "nameLanguage": "en",
+      "aliases": ["Senegal"]
+    },
+    "SO": {
+      "printName": "SOMALIA",
+      "nameLanguage": "en",
+      "aliases": ["Somalia"]
+    },
+    "SR": {
+      "printName": "SURINAME",
+      "nameLanguage": "en",
+      "aliases": ["Suriname"]
+    },
+    "SS": {
+      "printName": "SOUTH SUDAN",
+      "nameLanguage": "en",
+      "aliases": ["Südsudan", "South Sudan", "Süd Sudan"]
+    },
+    "ST": {
+      "printName": "SÃO TOMÉ AND PRÍNCIPE",
+      "nameLanguage": "en",
+      "aliases": [
+        "Sao Tome und Principe",
+        "Sao Tome and Principe",
+        "São Tomé und Príncipe",
+        "São Tomé and Príncipe"
+      ]
+    },
+    "SV": {
+      "printName": "EL SALVADOR",
+      "nameLanguage": "en",
+      "aliases": ["El Salvador"]
+    },
+    "SX": {
+      "printName": "SINT MAARTEN",
+      "nameLanguage": "en",
+      "aliases": [
+        "Sint Martin (holländisch)",
+        "Sint Maarten (Dutch part)",
+        "Sint Maarten",
+        "Sint-Maarten",
+        "St. Maarten",
+        "St. Maarten (Dutch part)"
+      ]
+    },
+    "SY": {
+      "printName": "SYRIA",
+      "nameLanguage": "en",
+      "aliases": [
+        "Syrien",
+        "Syria",
+        "Syrien, Arabische Republik",
+        "Syria, Arabic Republic"
+      ]
+    },
+    "SZ": {
+      "printName": "ESWATINI",
+      "nameLanguage": "en",
+      "aliases": ["Eswatini"]
+    },
+    "TC": {
+      "printName": "TURKS AND CAICOS",
+      "nameLanguage": "en",
+      "aliases": [
+        "Turks- und Caicosinseln",
+        "Turks and Caicos Islands",
+        "Turks and Caicos",
+        "Turks und Caicosinseln"
+      ]
+    },
+    "TD": {
+      "printName": "CHAD",
+      "nameLanguage": "en",
+      "aliases": ["Tschad", "Chad"]
+    },
+    "TF": {
+      "printName": "FRENCH SOUTHERN TERRITORIES",
+      "nameLanguage": "en",
+      "aliases": [
+        "Französische Süd- und Antarktisgebiete",
+        "French Southern Territories",
+        "Französische Süd und Antarktisgebiete"
+      ]
+    },
+    "TG": {
+      "printName": "TOGO",
+      "nameLanguage": "en",
+      "aliases": ["Togo"]
+    },
+    "TH": {
+      "printName": "THAILAND",
+      "nameLanguage": "en",
+      "aliases": ["Thailand"]
+    },
+    "TJ": {
+      "printName": "TAJIKISTAN",
+      "nameLanguage": "en",
+      "aliases": ["Tadschikistan", "Tajikistan"]
+    },
+    "TK": {
+      "printName": "TOKELAU",
+      "nameLanguage": "en",
+      "aliases": ["Tokelau", "Tokelau Islands"]
+    },
+    "TL": {
+      "printName": "TIMOR-LESTE",
+      "nameLanguage": "en",
+      "aliases": ["Timor-Leste"]
+    },
+    "TM": {
+      "printName": "TURKMENISTAN",
+      "nameLanguage": "en",
+      "aliases": ["Turkmenistan"]
+    },
+    "TN": {
+      "printName": "TUNISIA",
+      "nameLanguage": "en",
+      "aliases": ["Tunesien", "Tunisia"]
+    },
+    "TO": {
+      "printName": "TONGA",
+      "nameLanguage": "en",
+      "aliases": ["Tonga"]
+    },
+    "TR": {
+      "printName": "TURKEY",
+      "nameLanguage": "en",
+      "aliases": ["Türkei", "Turkey"]
+    },
+    "TT": {
+      "printName": "TRINIDAD AND TOBAGO",
+      "nameLanguage": "en",
+      "aliases": ["Trinidad und Tobago", "Trinidad and Tobago"]
+    },
+    "TV": {
+      "printName": "TUVALU",
+      "nameLanguage": "en",
+      "aliases": ["Tuvalu"]
+    },
+    "TW": {
+      "printName": "TAIWAN",
+      "nameLanguage": "en",
+      "aliases": [
+        "Taiwan",
+        "China, Taiwan",
+        "Taiwan, Province of China",
+        "Province of China Taiwan"
+      ]
+    },
+    "TZ": {
+      "printName": "TANZANIA",
+      "nameLanguage": "en",
+      "aliases": [
+        "Tansania",
+        "Tanzania",
+        "United Republic of Tanzania",
+        "Tanzania, United Republic of",
+        "Tansania, Vereinigte Republik",
+        "Vereinigte Republik Tansania"
+      ]
+    },
+    "UA": {
+      "printName": "UKRAINE",
+      "nameLanguage": "en",
+      "aliases": ["Ukraine"]
+    },
+    "UG": {
+      "printName": "UGANDA",
+      "nameLanguage": "en",
+      "aliases": ["Uganda"]
+    },
+    "UM": {
+      "printName": "UNITED STATES MINOR OUTLYING ISLANDS",
+      "nameLanguage": "en",
+      "aliases": [
+        "Kleinere Amerikanische Überseeinseln",
+        "United States Minor Outlying Islands"
+      ]
+    },
+    "US": {
+      "printName": "UNITED STATES",
+      "nameLanguage": "en",
+      "aliases": [
+        "Vereinigte Staaten von Amerika",
+        "United States of America",
+        "USA",
+        "United States",
+        "Vereinigte Staaten"
+      ]
+    },
+    "UY": {
+      "printName": "URUGUAY",
+      "nameLanguage": "en",
+      "aliases": ["Uruguay"]
+    },
+    "UZ": {
+      "printName": "USBEKISTAN",
+      "nameLanguage": "de",
+      "aliases": ["Usbekistan"]
+    },
+    "VA": {
+      "printName": "VATICAN",
+      "nameLanguage": "en",
+      "aliases": [
+        "Vatikanstadt",
+        "Vatican City State",
+        "Vatikan",
+        "Vatican",
+        "Holy See (Vatican City State)",
+        "Holy See"
+      ]
+    },
+    "VC": {
+      "printName": "SAINT VINCENT AND GRENADINES",
+      "nameLanguage": "en",
+      "aliases": [
+        "Sankt Vincent und die Grenadinen",
+        "Saint Vincent and Grenadines",
+        "St. Vincent und die Grenadinen",
+        "St. Vincent and Grenadines"
+      ]
+    },
+    "VE": {
+      "printName": "VENEZUELA",
+      "nameLanguage": "en",
+      "aliases": ["Venezuela"]
+    },
+    "VG": {
+      "printName": "BRITISH VIRGIN ISLANDS",
+      "nameLanguage": "en",
+      "aliases": [
+        "Virgin Islands, British",
+        "Britische Jungferninseln",
+        "British Virgin Islands",
+        "Jungferninseln, Britisch",
+        "Jungferninseln (Britisch)",
+        "Virgin Islands (British)",
+        "Virgin Islands (Britisch)"
+      ]
+    },
+    "VI": {
+      "printName": "US VIRGIN ISLANDS",
+      "nameLanguage": "en",
+      "aliases": [
+        "Jungferninseln (US)",
+        "Virgin Islands (US)",
+        "Virgin Islands, US",
+        "US Jungferninseln",
+        "US Virgin Islands",
+        "Jungferninseln, US",
+        "Amerikanische Jungferninseln"
+      ]
+    },
+    "VN": {
+      "printName": "VIETNAM",
+      "nameLanguage": "en",
+      "aliases": ["Vietnam", "Viet Nam"]
+    },
+    "VU": {
+      "printName": "VANUATU",
+      "nameLanguage": "en",
+      "aliases": ["Vanuatu"]
+    },
+    "WF": {
+      "printName": "WALLIS AND FUTUNA",
+      "nameLanguage": "en",
+      "aliases": [
+        "Wallis und Futuna",
+        "Wallis and Futuna",
+        "Wallis and Futuna Islands",
+        "Wallis und Futuna Inseln"
+      ]
+    },
+    "WS": {
+      "printName": "SAMOA",
+      "nameLanguage": "en",
+      "aliases": ["Samoa", "Western Samoa", "Westsamoa"]
+    },
+    "XZ": {
+      "printName": "KOSOVO",
+      "nameLanguage": "en",
+      "aliases": ["Kosovo"]
+    },
+    "YE": {
+      "printName": "YEMEN",
+      "nameLanguage": "en",
+      "aliases": ["Jemen", "Yemen"]
+    },
+    "YT": {
+      "printName": "MAYOTTE",
+      "nameLanguage": "en",
+      "aliases": ["Mayotte"]
+    },
+    "ZA": {
+      "printName": "SOUTH AFRICA",
+      "nameLanguage": "en",
+      "aliases": ["Südafrika", "South Africa", "Sudafrica"]
+    },
+    "ZM": {
+      "printName": "ZAMBIA",
+      "nameLanguage": "en",
+      "aliases": ["Sambia", "Zambia"]
+    },
+    "ZW": {
+      "printName": "ZIMBABWE",
+      "nameLanguage": "en",
+      "aliases": ["Simbabwe", "Zimbabwe"]
+    }
+  }
+}

@@ -1,8 +1,8 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**27 domains · 422 features · 44 journeys · 76 documented REST operations · 83 MCP tools**
-Updated 2026-10-30.
+**27 domains · 425 features · 44 journeys · 77 documented REST operations · 83 MCP tools**
+Updated 2026-11-01.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
 
@@ -20,10 +20,10 @@ mindmap
       Documents and protection (20)
       Template studio (14)
       Data and mappings (11)
-      PDF generation and distribution (14)
+      PDF generation and distribution (15)
     Deliver
       Fax (9)
-      Postal mail (8)
+      Postal mail (10)
       Email and protected links (14)
       Sensitive distribution and personal documents (31)
       Dispatch dry run (7)
@@ -58,12 +58,12 @@ mindmap
 - [Documents and protection](#documents) — 20 features; capability-gated.
 - [Template studio](#templates) — 14 features; capability-gated.
 - [Data and mappings](#datasets) — 11 features; capability-gated.
-- [PDF generation and distribution](#generation) — 14 features; capability-gated.
+- [PDF generation and distribution](#generation) — 15 features; capability-gated.
 
 ### Deliver
 
 - [Fax](#fax) — 9 features; capability-gated.
-- [Postal mail](#postal) — 8 features; capability-gated.
+- [Postal mail](#postal) — 10 features; capability-gated.
 - [Email and protected links](#email) — 14 features; capability-gated.
 - [Sensitive distribution and personal documents](#secure-distribution) — 31 features; capability-gated.
 - [Dispatch dry run](#dry-run) — 7 features; read-only.
@@ -433,6 +433,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Common recipient or frozen columns with an explicit channel per record
 - Resume remaining entries without duplication
 - Entry-linked postal preflight with separate review and sending
+- Worldwide postal complete-block mappings preserve text arrays or multiline CSV address cells and common recipient arrays; all other mappings reject object/array coercion, data paths remain paths, and frozen records/manifests retain their hashes
 - Known assistant-excluded content is never generated, previewed, shared or distributed; request a person-redacted version and never treat scanning as proof of absence
 - Browser results show bounded name/subject/reference labels without changing record identifiers; the browser-only owner-authorized record-context read supplies labels or one explicit correction input, with current tenant/creator guards and no MCP/native authority. Its optional current template name requires current template read permission and becomes null after sharing revocation
 - Import/replacement retain the selected template/version and compatible field mapping/record exclusions; correcting data or a template creates a new generation/version while prior PDFs and prepared manifests retain their exact hashes
@@ -502,22 +503,24 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="postal"></a>
 ### Postal mail
 
-**Availability model:** capability-gated. Implemented; qualified profile, distinct transfer authority, quote and final approval are mandatory.
+**Availability model:** capability-gated. Worldwide input is an unpublished 1.1.27 candidate; production remains 1.1.26 at this handoff. Local country/cache/calculator/SQL/mapping tests establish no real worldwide send. Fresh eligibility, qualified profile, distinct transfer authority, actual quote and final approval remain mandatory; fax routes are unchanged.
 
 **Surfaces:** Web, REST and MCP with separate postal transfer authority.
 
-- Sender, address, country and qualified provider requirements
+- All 250 Pingen-recognized country codes, including XZ, with an unchanged legacy FR/LU/DE recipient form and strict complete printed address blocks including name and any required country line
+- Fresh fixed official unavailable/delayed reference, bounded single-flight observation with at most 300-second cache and no expired fallback; recognized countries, current eligibility, account profile and actual price are independent
 - Left/right address window and explicitly requested address page
 - Paper, colour, simplex/duplex and delivery-service options
 - PDF preflight, address rendering and review
 - Distinct authority for PDF transfer to obtain a quote
-- Exact quote, expiry and final review
+- Actual analyzed-draft EUR calculator quote, unchanged four pricing options and legacy hash material; no fixed country price, invented postcode or implicit address completion
+- Version selected by frozen recipient shape, with schema-first 0072 preserving old objects while binding new block/page versions to the exact tenant, consent, PDF, recipient, profile, quote and approval
 - Confirmation, calendar cutoffs and provider tracking
 - Status projection and reconciliation of unknown outcomes
 
-**Contract:** [MCP_POSTAL_JOURNEY.md](MCP_POSTAL_JOURNEY.md) · **Implementation:** [apps/api/src/postal.ts](../apps/api/src/postal.ts)
+**Contract:** [POSTAL_WORLDWIDE.md](POSTAL_WORLDWIDE.md) · **Implementation:** [apps/api/src/postal.ts](../apps/api/src/postal.ts)
 
-**Tests:** [tests/e2e/postal-final-send.spec.ts](../tests/e2e/postal-final-send.spec.ts)
+**Tests:** [tests/unit/pingen-destination-availability.test.ts](../tests/unit/pingen-destination-availability.test.ts), [tests/unit/postal-worldwide-contracts.test.ts](../tests/unit/postal-worldwide-contracts.test.ts), [tests/unit/postal.test.ts](../tests/unit/postal.test.ts), [tests/unit/providers.test.ts](../tests/unit/providers.test.ts), [tests/integration/live-delivery-quotes.test.ts](../tests/integration/live-delivery-quotes.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/e2e/postal-final-send.spec.ts](../tests/e2e/postal-final-send.spec.ts)
 
 **Documented REST operations**
 
@@ -527,6 +530,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - `GET /api/postal/preflights/{id}/address.png`
 - `POST /api/postal/preflights/{id}/quote`
 - `GET /api/postal/requirements`
+- `GET /api/postal/destinations`
 - `POST /api/postal/address-pages`
 
 **MCP tools**
@@ -1150,7 +1154,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="provider-freshness"></a>
 ### Consumed provider freshness and J-1 alerts
 
-**Availability model:** operator-gated. API 1.1.22 and migrations 0068–0070 were deployed on 31 October; legacy triggered/resolved email receipt did not establish business recovery. PR131 merged the 1.1.23 narrow Pingen lineage and forbidden-fax compatibility fixes as afedd099081099fa83bf6bd9edaf6dcabacbea03, published on 1 November with expected active-postal/inactive-fax bindings observed and no pending/unknown business sends. The 1.1.24 server markers and final saved Automatic/300-second native monitor were deployed and verified on 1 November; prior native JSON/depth validation attempts saved no replacement. An existing-counter probe validated the shallow aggregate type with missing-row literal 1.0; later runtime publication and final saved configuration were separately verified, while genuine provider renewals and delivery retain distinct qualification. The 1.1.25 registered fourteen-route FR/DE renewal remains a local candidate, not a production registration or renewal result. The private Resend domain inspection returns READ_NOT_PERMITTED; existing-key handoff tooling creates no key or permission.
+**Availability model:** operator-gated. API 1.1.22 and migrations 0068–0070 were deployed on 31 October; legacy triggered/resolved email receipt did not establish business recovery. PR131 merged the 1.1.23 narrow Pingen lineage and forbidden-fax compatibility fixes as afedd099081099fa83bf6bd9edaf6dcabacbea03, published on 1 November with expected active-postal/inactive-fax bindings observed and no pending/unknown business sends. The 1.1.24 server markers and final saved Automatic/300-second native monitor were deployed and verified on 1 November; prior native JSON/depth validation attempts saved no replacement. An existing-counter probe validated the shallow aggregate type with missing-row literal 1.0; later runtime publication and final saved configuration were separately verified, while genuine provider renewals and delivery retain distinct qualification. Production 1.1.26 contains the alert/reference corrections and the separately authorized Full-access Resend source inspection now passes; genuine scheduled renewal and incident recovery still await the 11:37 UTC Cron evidence at this handoff. Runtime/schema, private inspection, renewal, notification receipt and real delivery remain separate evidence. Unpublished 1.1.27 adds independent short-lived worldwide postal destination checks without changing those maintenance rights.
 
 **Surfaces:** Existing private scheduled maintenance, provider-inspection RPC/operator CLI, GitHub scanner watchdog and separately authorized native-monitor configuration; no public browser, REST or MCP maintenance surface.
 
@@ -1209,9 +1213,9 @@ Import/reuse the exact ready PDF → collect E.164 recipient/sender/ceiling → 
 
 **Actor:** Preparer → current approver. **Branch:** Deliver.
 
-Read postal setup/requirements → collect missing sender/recipient/options → optionally create an address page from the original → read the final PDF → preflight → separately authorise transfer → obtain the exact provider quote → final approval/send → track.
+Read postal setup and current destination restrictions independently from recognized country codes → collect sender/options and the entire printed recipient block, preserving legacy fields where applicable → read country/profile requirements → optionally request a separate address page preserving supplied lines and accepted country aliases → read the final PDF → preflight → separately authorise transfer → obtain the actual analyzed-draft EUR quote → final current-eligibility check and approval/send → track.
 
-**Failure/recovery:** Respect address window/profile and scan gates. A failed/unknown transfer cannot be reset with another key. A prepared provider draft is not a sent letter; ordinary post has no invented proof of receipt.
+**Failure/recovery:** A recognized country or calculator result does not override a current closure or unreadable official source. Preserve printed lines; unsupported glyphs/overflow/route rules require correction through a new immutable document, never silent truncation or address completion. Keep legacy quotes unchanged, apply 0072 before the new runtime, and retain profile/scan/consent/approval gates. A failed/unknown transfer cannot be reset with another key. A prepared provider draft is not a sent letter; ordinary post has no invented proof of receipt. The 1.1.27 worldwide candidate has no production or real-send qualification.
 
 [Detailed contract](POSTAL_STREAMLINED.md).
 
@@ -1611,7 +1615,7 @@ Open Local simulation → select a fictional role or separate platform profile �
 
 Identify the mechanism that actually consumes a deadline, including selected first use and postal preparation with final sending cut → exclude obsolete or explicitly suspended bindings and keep unexplained losses unknown → privately qualify genuine source access → after separate authorization roll out compatible runtime and additive schema → qualify canonical generations or the exact audited historical postal-window lineage without retimestamping prices → privately review and register only the existing fourteen-route FR/DE group and four exclusions when selected → perform one current-catalog CSV read per daily group attempt, preserve independent authority/caps/history and defer the entire group around active commitments → record a new immutable technical revision only after complete proof → reconcile exact UTC J-1 incidents with durable cursors → emit a risk or failed-control signal separate from Cron completion → derive closed paired alert markers on the server, deploy and verify five minutes of current marker-bearing coverage → prepare and separately authorize the existing native monitor shallow query/300-second Automatic-mode plan, preserving historical one-minute failures and five-minute freshness coverage that cannot clear on missing data → validate the saved native configuration and inspect the real result independently from the scanner watchdog channel.
 
-**Failure/recovery:** No date bump after an unrelated GET, automatic key widening, manual-policy conversion, consent extension, cap reset, hold removal or unknown communication retry. Confirmed Resend contradictions block their affected consumer; automatic-price drift does not replace an exact qualified manual override, and failed reads preserve their true uncertainty. Do not clear unvisited bindings, stale evidence, failed checks or missing freshness telemetry with an HTTP success or healthy Cron heartbeat; native recovery requires explicit healthy freshness coverage after the five-minute failure window, with original error conditions conservatively retained for five minutes and nominal native detection up to one five-minute cycle plus external delay; the separate minute heartbeat and application security/send gates are unchanged. API 1.1.22, migrations 0068–0070 and legacy native email receipt were observed on 31 October; PR131 compatibility is deployed on 1 November, and 1.1.24 plus the final saved native monitor were independently verified; the 1.1.25 FR/DE group remains a local candidate, and rejected native probes remain distinct from that final success; genuine provider renewals and real delivery retain separate qualification. An unknown historical postal lineage remains unknown; an explicitly forbidden fax route stays forbidden and supplies no consumed price-expiry warning.
+**Failure/recovery:** No date bump after an unrelated GET, automatic key widening, manual-policy conversion, consent extension, cap reset, hold removal or unknown communication retry. Confirmed Resend contradictions block their affected consumer; automatic-price drift does not replace an exact qualified manual override, and failed reads preserve their true uncertainty. Do not clear unvisited bindings, stale evidence, failed checks or missing freshness telemetry with an HTTP success or healthy Cron heartbeat; native recovery requires explicit healthy freshness coverage after the five-minute failure window, with original error conditions conservatively retained for five minutes and nominal native detection up to one five-minute cycle plus external delay; the separate minute heartbeat and application security/send gates are unchanged. API 1.1.22, migrations 0068–0070 and legacy native email receipt were observed on 31 October; PR131 compatibility is deployed on 1 November, and 1.1.24 plus the final saved native monitor were independently verified; 1.1.26 is deployed and separately authorized Full-access Resend source inspection passed, while genuine renewal/recovery still awaits the 11:37 UTC Cron evidence at this handoff. Rejected native probes remain distinct from later success; actual provider renewals, notifications and real delivery retain separate qualification. An unknown historical postal lineage remains unknown; an explicitly forbidden fax route stays forbidden and supplies no consumed price-expiry warning.
 
 [Detailed contract](PROVIDER_FRESHNESS.md).
 

@@ -35,7 +35,12 @@ import {
   type EmailRateEvidence,
   type PublicEmailRateEvidence,
 } from "../../packages/domain/src/live-delivery-quotes";
-import { PINGEN_PREFLIGHT_VERSION } from "../../packages/contracts/src/pingen-preflight";
+import {
+  PINGEN_PREFLIGHT_VERSION,
+  PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION,
+} from "../../packages/contracts/src/pingen-preflight";
+import type { PostalRecipient } from "../../packages/contracts/src/postal-recipient";
+import { postalAddressLines } from "../../packages/contracts/src/postal-address-page";
 let mf: Miniflare,
   db: D1Database,
   domain: DomainService,
@@ -417,6 +422,7 @@ async function setupFixture() {
   }
   domain = new DomainService(db, {
     mode: "production",
+    assertPostalDestination: async () => {},
     now: () => clock,
     liveDeliveryIdentity: identity,
     postalQuote: async (request) => ({
@@ -449,15 +455,17 @@ const email = (): PrepareInput => ({
 });
 async function postal(
   version: string = PINGEN_PREFLIGHT_VERSION,
+  recipientOverride?: PostalRecipient,
 ): Promise<PrepareInput> {
-  const recipient = {
+  const recipient: PostalRecipient = recipientOverride ?? {
     name: "Fixture Person",
     line1: "1 Test Street",
     postalCode: "1000",
     city: "Luxembourg",
     country: "LU",
   };
-  const expectedAddress = "Fixture Person\n1 Test Street\n1000 Luxembourg";
+  const expectedAddress = postalAddressLines(recipient, "LU").join("\n");
+  const printedOptions = { ...print };
   const draft = crypto.randomUUID(),
     letter = crypto.randomUUID();
   await db
@@ -474,7 +482,7 @@ async function postal(
       letter,
       canonicalJson(recipient),
       expectedAddress,
-      canonicalJson(print),
+      canonicalJson(printedOptions),
       "d".repeat(64),
       draft,
       stamp(),
@@ -485,7 +493,12 @@ async function postal(
   // Keep the actual migration guards enabled; the service suite tests rendering.
   const preflightId = crypto.randomUUID();
   const fingerprint = await sha256(
-    canonicalJson({ recipient, print, documentSha256: "a".repeat(64), draft }),
+    canonicalJson({
+      recipient,
+      print: printedOptions,
+      documentSha256: "a".repeat(64),
+      draft,
+    }),
   );
   const record = {
     id: preflightId,
@@ -496,7 +509,7 @@ async function postal(
     sender_id: id("sender_postal"),
     sender_address: "Fixture sender",
     recipient_json: canonicalJson(recipient),
-    options_json: canonicalJson(print),
+    options_json: canonicalJson(printedOptions),
     profile_json: canonicalJson({
       accountId: identity.postal.accountId,
       environment: "sandbox",
@@ -590,7 +603,7 @@ async function postal(
     documentId: id("doc"),
     ceilingMinor: 400,
     options: {
-      ...print,
+      ...printedOptions,
       providerDraftId: draft,
       preparedLetterId: letter,
       expectedAddress,
@@ -1336,6 +1349,302 @@ describe("live delivery quotes and cumulative EUR credit — isolated D1 only", 
       ),
     ).rejects.toThrow();
   });
+  it("fails postal acceptance closed before reservation when current availability cannot be checked", async () => {
+    const input = await postal();
+    const row = await domain.prepareDispatch(
+      ctx,
+      input,
+      "availability-prepare",
+    );
+    await domain.approveDispatch(ctx, row.id, row.fingerprint);
+    const unchanged = await balance();
+    const unavailable = new DomainService(db, {
+      ...domain.config,
+      assertPostalDestination: undefined,
+    });
+    await expect(
+      unavailable.confirmDispatch(ctx, row.id, "availability-missing"),
+    ).rejects.toMatchObject({
+      code: "POSTAL_DESTINATION_AVAILABILITY_UNAVAILABLE",
+    });
+    const gate = vi.fn(async () => {
+      throw new Error("country closed");
+    });
+    const closed = new DomainService(db, {
+      ...domain.config,
+      assertPostalDestination: gate,
+    });
+    await expect(
+      closed.confirmDispatch(ctx, row.id, "availability-closed"),
+    ).rejects.toThrow("country closed");
+    expect(gate).toHaveBeenCalledWith("LU");
+    expect(await balance()).toEqual(unchanged);
+    const queued = await domain.confirmDispatch(
+      ctx,
+      row.id,
+      "availability-open",
+    );
+    expect(queued.status).toBe("queued");
+    await expect(
+      closed.confirmDispatch(ctx, row.id, "availability-open"),
+    ).resolves.toMatchObject({ id: row.id, status: "queued" });
+    expect(gate).toHaveBeenCalledTimes(1);
+  });
+
+  it("adds only the exact address-block SQL branch while retaining legacy quoted objects", async () => {
+    const legacy = await domain.prepareDispatch(
+      ctx,
+      await postal(),
+      "before-worldwide-legacy",
+    );
+    await domain.approveDispatch(ctx, legacy.id, legacy.fingerprint);
+    const snapshot = await db
+      .prepare(
+        "SELECT fingerprint,input_json FROM live_delivery_quotes WHERE dispatch_id=?",
+      )
+      .bind(legacy.id)
+      .first();
+    const recipient: PostalRecipient = {
+      country: "US",
+      addressLines: [
+        "Fixture Person",
+        "123 Test Street",
+        "New York NY 10001",
+        "UNITED STATES OF AMERICA",
+      ],
+    };
+    const worldwide = await domain.prepareDispatch(
+      ctx,
+      await postal(PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION, recipient),
+      "before-worldwide-block",
+    );
+    await domain.approveDispatch(ctx, worldwide.id, worldwide.fingerprint);
+    await sql(
+      readFileSync(
+        new URL(
+          "../../migrations/0026_postal_address_rules_v2.sql",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    await expect(
+      domain.confirmDispatch(ctx, worldwide.id, "blocked-before-migration"),
+    ).rejects.toMatchObject({ code: "POSTAL_PREFLIGHT_REQUIRED" });
+    await sql(
+      readFileSync(
+        new URL(
+          "../../migrations/0072_worldwide_postal_addresses.sql",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    expect(
+      await db
+        .prepare(
+          "SELECT fingerprint,input_json FROM live_delivery_quotes WHERE dispatch_id=?",
+        )
+        .bind(legacy.id)
+        .first(),
+    ).toEqual(snapshot);
+    await expect(
+      domain.confirmDispatch(ctx, legacy.id, "legacy-after-migration"),
+    ).resolves.toMatchObject({
+      status: "queued",
+      fingerprint: legacy.fingerprint,
+    });
+    await expect(
+      domain.confirmDispatch(ctx, worldwide.id, "block-after-migration"),
+    ).resolves.toMatchObject({
+      status: "queued",
+      fingerprint: worldwide.fingerprint,
+    });
+  });
+
+  it("binds a v2 generated address page to exactly its v3 printed recipient, profile and PDF", async () => {
+    const recipient: PostalRecipient = {
+      country: "US",
+      addressLines: [
+        "Fixture Person",
+        "123 Test Street",
+        "New York NY 10001",
+        "UNITED STATES OF AMERICA",
+      ],
+    };
+    const input = await postal(
+      PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION,
+      recipient,
+    );
+    const base = await db
+      .prepare(
+        "SELECT * FROM postal_preflights WHERE organization_id=? AND provider_draft_id=?",
+      )
+      .bind(ctx.organizationId, input.options!.providerDraftId)
+      .first<Record<string, string | number | null>>();
+    const generated = id("address_page_document");
+    await domain.registerDocument(ctx, {
+      id: generated,
+      name: "with-address.pdf",
+      sha256: "e".repeat(64),
+      size: 2000,
+      pages: 4,
+      status: "ready",
+      source: "render",
+      storageKey: `fixture/${generated}`,
+      scanVerified: true,
+    });
+    const page = id("worldwide_page");
+    await db
+      .prepare(
+        "INSERT INTO postal_address_pages(id,organization_id,user_id,idempotency_key,input_hash,source_document_id,source_sha256,source_pages,recipient_json,print_mode,profile_json,version,added_pages,planned_document_id,artifact_key,lease_token,lease_until,attempts,expires_at,budget_day,created_at) VALUES(?,?,?,?,?,?,?,2,?,'duplex',?,'postal-address-page-2026-11-01-address-block-v2',2,?,?,?, ?,1,?,?,?)",
+      )
+      .bind(
+        page,
+        ctx.organizationId,
+        ctx.userId,
+        page,
+        "f".repeat(64),
+        id("doc"),
+        "a".repeat(64),
+        canonicalJson(recipient),
+        base!.profile_json,
+        generated,
+        `fixture/${page}`,
+        "fixture-lease",
+        stamp(),
+        new Date(clock + 3600000).toISOString(),
+        stamp().slice(0, 10),
+        stamp(),
+      )
+      .run();
+    await db
+      .prepare(
+        "UPDATE postal_address_pages SET generated_document_id=?,generated_sha256=?,generated_size=2000 WHERE organization_id=? AND id=?",
+      )
+      .bind(generated, "e".repeat(64), ctx.organizationId, page)
+      .run();
+    const pageSnapshot = await db
+      .prepare("SELECT * FROM postal_address_pages WHERE id=?")
+      .bind(page)
+      .first();
+    const clone = (changes: Record<string, string> = {}) => {
+      const unique = crypto.randomUUID();
+      const row = {
+        ...base!,
+        id: unique,
+        document_id: generated,
+        document_sha256: "e".repeat(64),
+        idempotency_key: unique,
+        request_hash: "f".repeat(64),
+        input_hash: "f".repeat(64),
+        status: "processing",
+        report_json: null,
+        transfer_status: "not_started",
+        provider_draft_id: null,
+        transfer_started_at: null,
+        ...changes,
+      };
+      return db
+        .prepare(
+          `INSERT INTO postal_preflights(${Object.keys(row).join(",")}) VALUES(${Object.keys(
+            row,
+          )
+            .map(() => "?")
+            .join(",")})`,
+        )
+        .bind(...Object.values(row))
+        .run();
+    };
+    const oldPageGuard = readFileSync(
+      new URL(
+        "../../migrations/0033_postal_address_pages.sql",
+        import.meta.url,
+      ),
+      "utf8",
+    ).split("CREATE TRIGGER postal_address_page_preflight_guard")[1];
+    await sql(
+      `DROP TRIGGER postal_address_page_preflight_guard;\nCREATE TRIGGER postal_address_page_preflight_guard${oldPageGuard}`,
+    );
+    await expect(clone()).rejects.toThrow(
+      "postal_address_page_binding_invalid",
+    );
+    await sql(
+      readFileSync(
+        new URL(
+          "../../migrations/0072_worldwide_postal_addresses.sql",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    expect(
+      await db
+        .prepare("SELECT * FROM postal_address_pages WHERE id=?")
+        .bind(page)
+        .first(),
+    ).toEqual(pageSnapshot);
+    await expect(clone()).resolves.toMatchObject({ success: true });
+    await expect(
+      clone({ recipient_json: canonicalJson({ ...recipient, country: "CA" }) }),
+    ).rejects.toThrow("postal_address_page_binding_invalid");
+    await expect(
+      clone({
+        profile_json: canonicalJson({
+          ...JSON.parse(String(base!.profile_json)),
+          version: PINGEN_PREFLIGHT_VERSION,
+        }),
+      }),
+    ).rejects.toThrow("postal_address_page_binding_invalid");
+    await expect(clone({ document_sha256: "b".repeat(64) })).rejects.toThrow();
+  });
+
+  it.each(["legacy_version", "different_country", "different_lines"] as const)(
+    "rejects inconsistent address-block SQL evidence: %s",
+    async (change) => {
+      const recipient: PostalRecipient = {
+        country: "US",
+        addressLines: [
+          "Fixture Person",
+          "123 Test Street",
+          "New York NY 10001",
+          "UNITED STATES OF AMERICA",
+        ],
+      };
+      const input = await postal(
+        change === "legacy_version"
+          ? PINGEN_PREFLIGHT_VERSION
+          : PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION,
+        recipient,
+      );
+      if (change === "different_country")
+        input.recipient = { ...recipient, country: "CA" };
+      if (change === "different_lines")
+        input.recipient = {
+          ...recipient,
+          addressLines: [
+            "Different Person",
+            ...recipient.addressLines.slice(1),
+          ],
+        };
+      const preparation = domain.prepareDispatch(
+        ctx,
+        input,
+        `invalid-block-${change}`,
+      );
+      // The existing quote/draft equality guard rejects address drift even
+      // earlier than acceptance; only version mismatch reaches its new branch.
+      if (change !== "legacy_version") {
+        await expect(preparation).rejects.toThrow();
+        return;
+      }
+      const row = await preparation;
+      await domain.approveDispatch(ctx, row.id, row.fingerprint);
+      await expect(
+        domain.confirmDispatch(ctx, row.id, `invalid-block-accept-${change}`),
+      ).rejects.toMatchObject({ code: "POSTAL_PREFLIGHT_REQUIRED" });
+    },
+  );
   it("atomically refuses a v1 postal proof after the v2 rules migration", async () => {
     const row = await domain.prepareDispatch(
       ctx,

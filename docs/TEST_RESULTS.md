@@ -1,5 +1,27 @@
 # Executed verification
 
+## Worldwide postal candidate — 1 November 2026, 1.1.27
+
+This is local implementation evidence, not a deployed worldwide-send result.
+Production remains 1.1.26 at this handoff. The new Full-access Resend source
+inspection passed independently. Genuine scheduled renewal succeeded at
+11:37:26.950 UTC with domain, price, FX and Usage API evidence, failure count zero,
+no blocked reason and technical validity through 1 December at that time. The
+read-only production state query confirmed one immutable evidence row with Usage
+proof and zero database writes. Earlier dated release/test entries below are retained.
+
+Focused postal fixtures exercise all 250 country names, fresh complete
+restriction/delay parsing, bounded transport/cache failure, actual calculator
+requests for international codes, pre-PATCH refusal, immutable legacy quote
+material, new-version acceptance before/after 0072, generated-page/profile/PDF
+drift, tenant guards and frozen JSON-array/CSV address mappings. All 72 migrations
+apply in an empty native SQLite check with `quick_check=ok` and no foreign-key
+violations. The postal quote/migration and distribution fixtures use isolated
+D1/provider interception; they install no production schema and send no letter.
+Full final-source CI, publication, authenticated browser/host qualification and
+real international delivery require their own evidence. The
+[worldwide contract](POSTAL_WORLDWIDE.md) owns scope and compatibility.
+
 ## Consumed provider deadlines — 30 October 2026 candidate 1.1.22
 
 Production remains **1.1.20**, source

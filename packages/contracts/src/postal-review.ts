@@ -1,19 +1,12 @@
 import { z } from "zod";
 import type { PostalAddressPageProvenance } from "./postal-address-page";
+import { postalRecipientSchema } from "./postal-recipient";
 
 export const postalReviewInputSchema = z
   .object({
     documentId: z.string().min(1).max(200),
     senderId: z.string().min(1).max(200),
-    recipient: z
-      .object({
-        name: z.string().min(1).max(200),
-        line1: z.string().min(1).max(200),
-        postalCode: z.string().min(1).max(30),
-        city: z.string().min(1).max(200),
-        country: z.enum(["FR", "LU", "DE"]),
-      })
-      .strict(),
+    recipient: postalRecipientSchema,
     options: z
       .object({
         addressPosition: z.enum(["left", "right"]).optional(),

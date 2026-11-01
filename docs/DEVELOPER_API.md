@@ -14,6 +14,23 @@ own templates/datasets/mappings/generation/distribution; [postal review](POSTAL_
 owns preflight/transfer/quote; [expert approval](EXPERT_APPROVAL.md) owns delegated
 authority. Link to these instead of maintaining another copy of their full rules.
 
+## Worldwide postal preparation — 1 November 2026 candidate 1.1.27
+
+Before the new flow, read authenticated `/api/postal/destinations` for recognized
+codes and current restriction/delay metadata, then `/api/postal/requirements`
+with the selected country and `addressFormat=address_block` for complete lines.
+MCP uses the existing `get_postal_requirements`; there is no new tool, scope or
+approval permission. Supply strict `{country,addressLines}`, preserving the entire
+printed block. Explicit postal data mappings accept a text array or multiline
+CSV cell; other mappings reject arrays/objects instead of coercing them.
+
+The exact analyzed draft's EUR calculator response still supplies the price.
+Fresh availability is independent of that price, source failure closes new work,
+and legacy recipients/quotes retain their original hash material. Schema 0072
+must precede the runtime. This candidate is unpublished; production is 1.1.26 at
+this handoff. Read [the worldwide contract](POSTAL_WORLDWIDE.md) before using the
+new shape, and preserve the existing transfer consent/final approval boundaries.
+
 ## Provider freshness — 30 October 2026 candidate
 
 Automatic maintenance and J-1 alerting are backend/operator mechanisms, with no

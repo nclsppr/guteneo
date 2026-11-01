@@ -38,6 +38,8 @@ import { PINGEN_PREFLIGHT_VERSION } from "../../packages/contracts/src/pingen-pr
 import type { Fetcher } from "../../packages/providers";
 import { postalRateEvidence } from "../../packages/domain/src/live-delivery-quotes";
 import { resetFixtureMemberships } from "../helpers/reset-memberships";
+import { PINGEN_DESTINATION_RESTRICTIONS_URL } from "../../packages/providers/pingen-destination-availability";
+import { destinationRestrictionsResponse } from "../helpers/pingen-destinations";
 
 let mf: Miniflare;
 let db: D1Database;
@@ -157,7 +159,9 @@ beforeEach(async () => {
     .bind(ctx.userId, now)
     .run();
   await db
-    .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
+    .prepare(
+      "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+    )
     .bind(ctx.organizationId, ctx.userId, now)
     .run();
   for (const [channel, address] of [
@@ -348,6 +352,8 @@ async function queueFixture(
 function pingenFixtureFetch() {
   return vi.fn<Fetcher>(async (input, init) => {
     const url = String(input);
+    if (url === PINGEN_DESTINATION_RESTRICTIONS_URL)
+      return destinationRestrictionsResponse();
     const method = init?.method ?? "GET";
     if (url.endsWith("/auth/access-tokens"))
       return json({ access_token: "fixture-access", expires_in: 43200 });
@@ -990,13 +996,13 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
           createLiveProviderHook(env, "postal", { fetcher }),
         ),
       ).toMatchObject({ status: "accepted" });
-      expect(fetcher).toHaveBeenCalledTimes(8);
+      expect(fetcher).toHaveBeenCalledTimes(9);
       expect(
         fetcher.mock.calls.filter(([url]) =>
           String(url).endsWith("/file-upload"),
         ),
       ).toHaveLength(1);
-      const [, sent] = fetcher.mock.calls[7];
+      const [, sent] = fetcher.mock.calls[8];
       expect(sent?.method).toBe("PATCH");
       expect(new Headers(sent?.headers).get("Idempotency-Key")).toBe(row.id);
       expect(JSON.parse(String(sent?.body)).data.attributes).toEqual({
@@ -1012,7 +1018,7 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
           expectedAddress,
         }),
       ).rejects.toMatchObject({ code: "POSTAL_DRAFT_APPROVAL_MISMATCH" });
-      expect(fetcher).toHaveBeenCalledTimes(8);
+      expect(fetcher).toHaveBeenCalledTimes(9);
     },
   );
 
@@ -1134,6 +1140,61 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
         reservedMinor: 0,
         spentMinor: 0,
       });
+    },
+  );
+
+  it.each(["policy_revoked", "quote_expired"] as const)(
+    "retains the final postal fences after refreshing destination availability: %s",
+    async (change) => {
+      const prepared = await prepareFixtureDraft(pingenFixtureFetch());
+      const row = await queueFixture("postal", {
+        ...postalOptions,
+        providerDraftId: prepared.providerDraftId,
+        preparedLetterId: prepared.preparedLetterId,
+        expectedAddress,
+      });
+      let clock = Date.now(),
+        observations = 0;
+      const base = pingenFixtureFetch();
+      const fetcher = vi.fn<Fetcher>(async (input, init) => {
+        if (String(input) === PINGEN_DESTINATION_RESTRICTIONS_URL) {
+          observations++;
+          if (observations === 2) {
+            if (change === "policy_revoked")
+              await db
+                .prepare(
+                  "UPDATE trusted_delivery_costs SET status='revoked' WHERE id='policy_postal'",
+                )
+                .run();
+            else clock += 900_000;
+          }
+          return destinationRestrictionsResponse();
+        }
+        const response = await base(input, init);
+        // Expire the first five-minute observation during the actual calculator read.
+        if (String(input).endsWith("/price-calculator")) clock += 300_000;
+        return response;
+      });
+      expect(
+        await domain.processDispatch(
+          row.id,
+          createLiveProviderHook(env, "postal", { fetcher, now: () => clock }),
+        ),
+      ).toMatchObject({ status: "failed" });
+      expect(observations).toBe(2);
+      expect(
+        fetcher.mock.calls.some(([, init]) => init?.method === "PATCH"),
+      ).toBe(false);
+      expect((await domain.usage(ctx)).welcomeCredit).toMatchObject({
+        reservedMinor: 0,
+        spentMinor: 0,
+      });
+      const count = fetcher.mock.calls.length;
+      await domain.processDispatch(
+        row.id,
+        createLiveProviderHook(env, "postal", { fetcher, now: () => clock }),
+      );
+      expect(fetcher).toHaveBeenCalledTimes(count);
     },
   );
 

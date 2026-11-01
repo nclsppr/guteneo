@@ -1,10 +1,12 @@
 import type { HTTPRequest, Page } from "@cloudflare/puppeteer";
 import { PDFDocument, PDFName } from "pdf-lib";
 import {
-  POSTAL_ADDRESS_PAGE_VERSION,
   postalAddressPageRenderInputSchema,
   postalAddressLines,
+  postalAddressPageVersion,
 } from "../../../packages/contracts/src/postal-address-page";
+import { isPostalAddressBlockRecipient } from "../../../packages/contracts/src/postal-recipient";
+import { postalAddressRuleRoute } from "../../../packages/contracts/src/postal-destinations";
 import {
   checkPingenAddress,
   PINGEN_MAX_BYTES,
@@ -196,10 +198,17 @@ async function renderCover(
   lines: string[],
   layout: ReturnType<typeof pingenLayout>,
   fontBase64: string,
+  compact: boolean,
+  ruleRoute: ReturnType<typeof postalAddressRuleRoute>,
 ) {
   const box = layout.address;
+  // This is a separate fixed layout for complete five/six-line blocks. It is
+  // never selected by content width and never shrinks an address to make it fit.
+  const fontSizePt = compact ? 10 : 11,
+    lineHeightPt = compact ? 11.5 : 14,
+    insetY = compact ? 0.5 : 2;
   const width = box.width - 4,
-    height = box.height - 4;
+    height = box.height - insetY * 2;
   await page.setJavaScriptEnabled(false);
   await page.setBypassServiceWorker(true);
   await page.setRequestInterception(true);
@@ -210,16 +219,20 @@ async function renderCover(
   page.setDefaultTimeout(10_000);
   await page.setContent(
     `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src data:; base-uri 'none'; form-action 'none'"><style>
-    @font-face{font-family:GuteneoPostal;src:url(data:font/ttf;base64,${fontBase64}) format('truetype');font-style:normal;font-weight:400;font-display:block}
+    @font-face{font-family:GuteneoPostal;src:url(data:font/ttf;base64,${fontBase64}) format('truetype');font-style:normal;font-weight:400;font-display:block${compact ? ';font-feature-settings:"liga" 0,"clig" 0,"calt" 0' : ""}}
     @page{size:210mm 297mm;margin:0}*{box-sizing:border-box}html,body{margin:0;padding:0;width:210mm;height:297mm;background:white;color:black}
-    #address{position:absolute;left:${box.x + 2}mm;top:${box.y + 2}mm;width:${width}mm;height:${height}mm;font:400 11pt/14pt GuteneoPostal;letter-spacing:0;word-spacing:0;font-variant-ligatures:none}
-    .line{display:block;width:max-content;white-space:pre;height:14pt;line-height:14pt}
-  </style></head><body><div id="address">${lines.map((line) => `<div class="line">${escapeHtml(line)}</div>`).join("")}</div></body></html>`,
+    #address{position:absolute;left:${box.x + 2}mm;top:${box.y + insetY}mm;width:${width}mm;height:${height}mm;font:400 ${fontSizePt}pt/${lineHeightPt}pt GuteneoPostal;letter-spacing:0;word-spacing:0;font-variant-ligatures:none}
+    .line{display:block;width:max-content;white-space:pre;height:${lineHeightPt}pt;line-height:${lineHeightPt}pt}
+    ${compact ? ".line{font-kerning:none}.baseline{display:inline-block;width:0;height:0;padding:0;margin:0;border:0;vertical-align:baseline}" : ""}
+  </style></head><body><div id="address"${compact ? ` data-compact="true" data-rule-route="${ruleRoute}"` : ""}>${lines.map((line) => (compact ? `<div class="line"><span>${escapeHtml(line)}</span><i class="baseline"></i></div>` : `<div class="line">${escapeHtml(line)}</div>`)).join("")}</div></body></html>`,
     { waitUntil: "domcontentloaded", timeout: 10_000 },
   );
   const fits = await page.evaluate(async () => {
     await document.fonts.ready;
-    if (!document.fonts.check("11pt GuteneoPostal")) return false;
+    const element = document.getElementById("address")!;
+    const compact = element.dataset.compact === "true";
+    if (!document.fonts.check(`${compact ? 10 : 11}pt GuteneoPostal`))
+      return false;
     // The named face must actually be loaded, not a successful fallback check.
     const faces = Array.from(document.fonts.values());
     if (
@@ -228,17 +241,87 @@ async function renderCover(
       )
     )
       return false;
-    const address = document.getElementById("address")!.getBoundingClientRect();
-    return Array.from(document.querySelectorAll(".line")).every((line) => {
+    const address = element.getBoundingClientRect();
+    const lines = Array.from(document.querySelectorAll<HTMLElement>(".line"));
+    if (
+      !lines.every((line) => {
+        const rect = line.getBoundingClientRect();
+        return (
+          rect.width > 0 &&
+          rect.left >= address.left &&
+          rect.top >= address.top &&
+          rect.right <= address.right + 0.1 &&
+          rect.bottom <= address.bottom + 0.1
+        );
+      })
+    )
+      return false;
+    if (!compact) return true;
+    // Canvas metrics refer to the exact loaded face. Zero-size inline markers
+    // locate actual CSS baselines without drawing or adding PDF text. Checking
+    // each ink box catches combining marks/descenders that a line box can hide.
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    if (!context) return false;
+    context.font = "400 10pt GuteneoPostal";
+    context.fontKerning = "none";
+    const mm = 25.4 / 96;
+    const french = element.dataset.ruleRoute === "la_poste";
+    const dhlOrGerman =
+      element.dataset.ruleRoute === "dhl_international" ||
+      element.dataset.ruleRoute === "deutsche_post";
+    const capital = context.measureText("H");
+    const capHeight =
+      (capital.actualBoundingBoxAscent + capital.actualBoundingBoxDescent) * mm;
+    if (
+      !Number.isFinite(capHeight) ||
+      capHeight <= 0 ||
+      ((french || dhlOrGerman) &&
+        (capHeight < (french ? 1.8 : 2.3) || capHeight > (french ? 5 : 4.7)))
+    )
+      return false;
+    let previousBottom: number | undefined;
+    for (const line of lines) {
+      const baseline = line
+        .querySelector(".baseline")
+        ?.getBoundingClientRect().top;
+      const metrics = context.measureText(line.textContent ?? "");
       const rect = line.getBoundingClientRect();
-      return (
-        rect.width > 0 &&
-        rect.left >= address.left &&
-        rect.top >= address.top &&
-        rect.right <= address.right + 0.1 &&
-        rect.bottom <= address.bottom + 0.1
-      );
-    });
+      if (
+        baseline === undefined ||
+        !Number.isFinite(baseline) ||
+        !Number.isFinite(metrics.actualBoundingBoxAscent) ||
+        !Number.isFinite(metrics.actualBoundingBoxDescent) ||
+        !Number.isFinite(metrics.actualBoundingBoxLeft) ||
+        !Number.isFinite(metrics.actualBoundingBoxRight) ||
+        !Number.isFinite(metrics.width) ||
+        Math.abs(metrics.width - rect.width) > 0.2
+      )
+        return false;
+      const top = baseline - metrics.actualBoundingBoxAscent;
+      const bottom = baseline + metrics.actualBoundingBoxDescent;
+      const left = rect.left - metrics.actualBoundingBoxLeft;
+      const right = rect.left + metrics.actualBoundingBoxRight;
+      if (
+        top < address.top - 0.1 ||
+        bottom > address.bottom + 0.1 ||
+        left < address.left - 0.1 ||
+        right > address.right + 0.1
+      )
+        return false;
+      if (previousBottom !== undefined) {
+        const gap = (top - previousBottom) * mm;
+        // Other local printers have distinct typography rules. Retain mandatory
+        // visual/provider review instead of certifying them with DHL's values.
+        if (
+          gap < (french ? 1 : dhlOrGerman ? 0.5 : 0) ||
+          ((french || dhlOrGerman) && gap > 2.5)
+        )
+          return false;
+      }
+      previousBottom = bottom;
+    }
+    return true;
   });
   if (!fits) stop("ADDRESS_TOO_LONG");
   return new Uint8Array(
@@ -296,6 +379,9 @@ export async function handlePostalAddressPage(
     printMode: options.printMode,
     printSpectrum: options.printSpectrum,
     deliveryProduct: options.deliveryProduct,
+    ...(isPostalAddressBlockRecipient(input.recipient)
+      ? { addressFormat: "address_block" as const }
+      : {}),
   };
   let browser: AddressBrowser | undefined;
   const cancellation = new AbortController();
@@ -347,6 +433,8 @@ export async function handlePostalAddressPage(
           lines,
           structural.layout,
           deps.fontBase64,
+          isPostalAddressBlockRecipient(input.recipient) && lines.length > 4,
+          postalAddressRuleRoute(input.recipient.country, input.defaultCountry),
         );
         const cover = await PDFDocument.load(coverBytes, {
           updateMetadata: false,
@@ -387,8 +475,9 @@ export async function handlePostalAddressPage(
             "X-Guteneo-Document-Sha256": checked.sha256,
             "X-Guteneo-Document-Pages": String(checked.pages),
             "X-Guteneo-Added-Pages": String(addedPages),
-            "X-Guteneo-Postal-Address-Page-Version":
-              POSTAL_ADDRESS_PAGE_VERSION,
+            "X-Guteneo-Postal-Address-Page-Version": postalAddressPageVersion(
+              input.recipient,
+            ),
           },
         });
       })(),

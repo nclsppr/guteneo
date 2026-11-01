@@ -1,5 +1,29 @@
 # Execution plan and handoff
 
+## Worldwide postal scope — 1 November 2026 candidate 1.1.27
+
+Production **1.1.26** contains the published alert/reference corrections. A
+separately authorized Full-access Resend inspection credential is installed and
+the read-only source inspection passed. Genuine scheduled renewal succeeded at
+**11:37:26.950 UTC** on 1 November with domain, price, FX and Usage API evidence.
+Failure count is zero with no blocked reason; technical validity runs through
+1 December at that time. Incident recovery and business-email delivery remain
+separate observations.
+
+The worldwide postal candidate is **not deployed**. It accepts all 250 Pingen
+country codes with a complete printed address block, while fresh official
+restrictions, account/profile, actual EUR draft-calculator price and current
+approval remain independent gates. Legacy FR/LU/DE wire objects and quote hashes
+stay unchanged; fax routes are not widened. The
+[worldwide contract](POSTAL_WORLDWIDE.md) owns source freshness, address variants,
+mapping, failure behavior and proof limits.
+
+Before publishing 1.1.27, qualify the exact source and renderer, apply compatible
+**0072 before runtime**, then verify the deployed source, asset/API contracts and
+authenticated workflow separately. The migration changes two guards without
+rewriting existing financial or approval records. Local fixtures and country
+coverage establish no actual international send or recipient receipt.
+
 ## Registration validation — 1 November 2026 corrective candidate
 
 Production 1.1.25 and additive schema 0071 are verified independently: main CI
@@ -44,7 +68,8 @@ The runtime and final saved native configuration were verified on 1 November;
 that observation does not qualify every provider renewal or a new email receipt.
 No quote, consent,
 provider authority, immutable deadline, send gate or missing source proof is
-extended. Resend still needs an independently authorized inspection key.
+extended. Resend still needed a separately authorized inspection key at that
+dated observation; the 1.1.26 inspection status above supersedes that gap.
 See [the alert contract](FRESHNESS_ALERTING.md).
 
 ## Cross-provider freshness — 30 October 2026 local candidate

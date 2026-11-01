@@ -80,8 +80,11 @@ consumed-profile path above maintains an unchanged active setup. Existing explic
 renewal remains available for recovery, preserves the declaration and extends no
 approved quote. Then: exact PDF import → scan
 → postal check → review/transfer consent → `auto_send:false` draft → quote → send
-approval/confirmation. Supported destinations remain FR/LU/DE under account profile;
-physical returns are not promised.
+approval/confirmation. The legacy form supports FR/LU/DE. The unpublished 1.1.27
+[worldwide branch](POSTAL_WORLDWIDE.md) accepts complete printed blocks for all
+250 Pingen-recognized codes, independently checking fresh restrictions and the
+exact draft's actual price. Account default country governs profile/line layout,
+not a three-country destination allowlist. Physical returns are not promised.
 
 ## Price and provider proof
 

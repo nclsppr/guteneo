@@ -40,6 +40,8 @@ import {
 import { dispatchSummary } from "../../apps/api/src/mcp";
 import { PINGEN_PREFLIGHT_VERSION } from "../../packages/contracts/src/pingen-preflight";
 import type { Fetcher } from "../../packages/providers";
+import { PingenDestinationAvailabilityReader } from "../../packages/providers/pingen-destination-availability";
+import { destinationRestrictionsResponse } from "../helpers/pingen-destinations";
 
 let mf: Miniflare,
   db: D1Database,
@@ -250,10 +252,19 @@ async function setupFixture(
         "a".repeat(64),
       )
       .run();
+  // Preserve historical quote/migration fixtures while satisfying the current
+  // acceptance fence from a parsed synthetic source, with no network or writes.
+  const destinations = new PingenDestinationAvailabilityReader(
+    async () => destinationRestrictionsResponse(),
+    () => clock,
+  );
   domain = new DomainService(historical ? historicalRoleProjection(db) : db, {
     mode: "production",
     now: () => clock,
     liveDeliveryIdentity: identity,
+    assertPostalDestination: async (country) => {
+      await destinations.assertAvailable(country);
+    },
     prepareProtectedDocument: (principal, input, now) =>
       prepareProtectedDocument(env, principal, input, now),
     postalQuote: async (request) => ({

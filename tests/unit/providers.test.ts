@@ -2,6 +2,14 @@ import { readFileSync } from "node:fs";
 import { createHash, createSign } from "node:crypto";
 import { describe, expect, it, vi } from "vitest";
 import {
+  destinationRestrictionsResponse,
+  withDestinationRestrictions,
+} from "../helpers/pingen-destinations";
+import {
+  PINGEN_DESTINATION_RESTRICTIONS_URL,
+  PingenDestinationAvailabilityReader,
+} from "../../packages/providers/pingen-destination-availability";
+import {
   canonicalSnsMessage,
   exactMinor,
   normalizeSesEvent,
@@ -366,7 +374,10 @@ describe("real provider request contracts (no real calls)", () => {
       );
     const bytes = new TextEncoder().encode("%PDF-1.7\nEXACT");
     expect(
-      await new PingenPostalProvider(pingenConfig, fetcher).prepareDocument({
+      await new PingenPostalProvider(
+        pingenConfig,
+        withDestinationRestrictions(fetcher),
+      ).prepareDocument({
         bytes,
         filename: "letter.pdf",
         addressPosition: "left",
@@ -405,7 +416,10 @@ describe("real provider request contracts (no real calls)", () => {
         }),
       );
     await expect(
-      new PingenPostalProvider(pingenConfig, fetcher).prepareDocument({
+      new PingenPostalProvider(
+        pingenConfig,
+        withDestinationRestrictions(fetcher),
+      ).prepareDocument({
         bytes: new TextEncoder().encode("%PDF-1.7"),
         filename: "x.pdf",
         addressPosition: "left",
@@ -424,7 +438,10 @@ describe("real provider request contracts (no real calls)", () => {
       .mockResolvedValueOnce(
         json({ data: { attributes: { currency: "EUR", price: 2.01 } } }),
       );
-    const provider = new PingenPostalProvider(pingenConfig, fetcher);
+    const provider = new PingenPostalProvider(
+      pingenConfig,
+      withDestinationRestrictions(fetcher),
+    );
     expect(await provider.submit(postal)).toMatchObject({
       status: "rejected",
       errorCode: "postal_cost_requires_new_approval",
@@ -456,7 +473,10 @@ describe("real provider request contracts (no real calls)", () => {
       )
       .mockRejectedValueOnce(new Error("response lost"));
     expect(
-      await new PingenPostalProvider(pingenConfig, fetcher).submit(postal),
+      await new PingenPostalProvider(
+        pingenConfig,
+        withDestinationRestrictions(fetcher),
+      ).submit(postal),
     ).toMatchObject({ status: "submission_unknown", providerId: "letter-1" });
     expect(fetcher).toHaveBeenCalledTimes(4);
     expect(
@@ -469,7 +489,10 @@ describe("real provider request contracts (no real calls)", () => {
       .fn<Fetcher>()
       .mockRejectedValueOnce(new Error("identity service unavailable"));
     expect(
-      await new PingenPostalProvider(pingenConfig, fetcher).submit(postal),
+      await new PingenPostalProvider(
+        pingenConfig,
+        withDestinationRestrictions(fetcher),
+      ).submit(postal),
     ).toEqual({
       status: "rejected",
       errorCode: "postal_preflight_unavailable",
@@ -668,6 +691,94 @@ describe("cryptographically verified callbacks", () => {
 });
 
 describe("postal window integrity before pricing and physical submission", () => {
+  it.each(["US", "GB", "HK", "JP", "XZ"] as const)(
+    "prices %s with the actual EUR calculator instead of a country tariff constant",
+    async (country) => {
+      const calculator = vi
+        .fn<Fetcher>()
+        .mockResolvedValueOnce(
+          json({ access_token: "test-token", expires_in: 43200 }),
+        )
+        .mockResolvedValueOnce(
+          json({ data: { attributes: { currency: "EUR", price: "1.23" } } }),
+        );
+      const provider = new PingenPostalProvider(
+        pingenConfig,
+        withDestinationRestrictions(calculator),
+      );
+      await expect(
+        provider.estimate({ ...postal, country, paperTypes: ["normal"] }),
+      ).resolves.toMatchObject({ amount: { currency: "EUR", minor: 123 } });
+      expect(
+        JSON.parse(String(calculator.mock.calls[1][1]?.body)).data.attributes
+          .country,
+      ).toBe(country);
+    },
+  );
+
+  it.each(["closed", "unreadable"] as const)(
+    "rejects a %s destination reference before any send invocation",
+    async (condition) => {
+      const fetcher = vi.fn<Fetcher>(async (url) => {
+        expect(String(url)).toBe(PINGEN_DESTINATION_RESTRICTIONS_URL);
+        return condition === "closed"
+          ? destinationRestrictionsResponse(["Russia"])
+          : new Response("unavailable", { status: 503 });
+      });
+      const started = vi.fn();
+      const provider = new PingenPostalProvider(pingenConfig, fetcher);
+      expect(
+        await provider.submit({
+          ...postal,
+          country: "RU",
+          onSendInvocation: started,
+        }),
+      ).toMatchObject({
+        status: "rejected",
+        errorCode:
+          condition === "closed"
+            ? "postal_destination_unavailable"
+            : "postal_destination_availability_unavailable",
+      });
+      expect(started).not.toHaveBeenCalled();
+      expect(fetcher).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it("does not begin PATCH when the reference expires during asynchronous final checks", async () => {
+    let time = Date.UTC(2026, 10, 1);
+    const api = vi
+      .fn<Fetcher>()
+      .mockResolvedValueOnce(
+        json({ access_token: "test-token", expires_in: 43200 }),
+      )
+      .mockResolvedValueOnce(json(letter))
+      .mockResolvedValueOnce(
+        json({ data: { attributes: { currency: "EUR", price: "1.23" } } }),
+      );
+    const fetcher = withDestinationRestrictions(api);
+    const reader = new PingenDestinationAvailabilityReader(fetcher, () => time);
+    const provider = new PingenPostalProvider(pingenConfig, fetcher, {
+      destinations: reader,
+    });
+    const started = vi.fn();
+    expect(
+      await provider.submit({
+        ...postal,
+        beforeSend: async () => {
+          time += 300_000;
+        },
+        onSendInvocation: started,
+      }),
+    ).toMatchObject({
+      status: "rejected",
+      errorCode: "postal_destination_availability_unavailable",
+    });
+    expect(started).not.toHaveBeenCalled();
+    expect(api.mock.calls.some(([, init]) => init?.method === "PATCH")).toBe(
+      false,
+    );
+  });
   it.each(["left", "right"] as const)(
     "checks the %s window while preserving the existing quote evidence hash",
     async (addressPosition) => {
@@ -693,7 +804,7 @@ describe("postal window integrity before pricing and physical submission", () =>
         );
       const result = await new PingenPostalProvider(
         pingenConfig,
-        fetcher,
+        withDestinationRestrictions(fetcher),
       ).quotePrepared({ ...postal, addressPosition });
       const historicalEvidence = JSON.stringify({
         providerId: postal.preparedLetterId,
@@ -734,7 +845,10 @@ describe("postal window integrity before pricing and physical submission", () =>
               },
             }),
           );
-        const provider = new PingenPostalProvider(pingenConfig, fetcher);
+        const provider = new PingenPostalProvider(
+          pingenConfig,
+          withDestinationRestrictions(fetcher),
+        );
         if (action === "quote")
           await expect(provider.quotePrepared(postal)).rejects.toThrow(
             "postal_address_requires_new_approval",
@@ -757,7 +871,10 @@ describe("postal window integrity before pricing and physical submission", () =>
 
   it("rejects a missing expected window without contacting the provider", async () => {
     const fetcher = vi.fn<Fetcher>();
-    const provider = new PingenPostalProvider(pingenConfig, fetcher);
+    const provider = new PingenPostalProvider(
+      pingenConfig,
+      withDestinationRestrictions(fetcher),
+    );
     const missing = {
       ...postal,
       addressPosition: undefined,

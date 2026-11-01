@@ -7,9 +7,13 @@ disabled in that dated release. See [release proof](LIVE_RELEASE.md) and separat
 [renderer qualification](DOCUMENT_POSTAL_PREFLIGHT.md). The simplified browser
 journey and window choice are in [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md).
 
+The unpublished 1.1.27 candidate adds [all Pingen postal destinations](POSTAL_WORLDWIDE.md).
+Profile, fresh eligibility, transfer and send remain separate decisions; the new
+shape grants no authority and proves no real delivery.
+
 ## Exposed journey
 
-1. `GET /api/postal/requirements?country=FR|LU|DE` or `get_postal_requirements` reads the effective account profile through OAuth `organisation_read`. It provides the window, rectangles in millimeters, limits and `addressGuidance` before PDF creation: FR/LU/DE route rules, synthetic example, sources and automatic/manual/provider checks. The schema has one street line and cannot represent every Pingen 3–6-line address. `qualified:true` qualifies configuration reading only, not tariffs, funds, sending or geographic processing. Account IDs and secrets are withheld.
+1. Read authenticated `GET /api/postal/destinations` for 250 recognized codes and fresh unavailable/delayed countries. `GET /api/postal/requirements?country=US&addressFormat=address_block` or `get_postal_requirements` combines that fixed public reference with the effective account profile read through OAuth `organisation_read`. It provides window/rectangles, limits and route-specific `addressGuidance` before PDF creation. Complete printed blocks preserve name, region, postcode/complements and any required country line; legacy FR/LU/DE fields keep their existing limits. `qualified:true` qualifies configuration reading only, not tariffs, funds, sending or geographic processing. Unknown/closed availability gives no qualified flow. Account IDs and secrets are withheld.
 2. `POST /api/postal/preflights` with `Idempotency-Key`, or `preflight_postal_pdf`, accepts only `documentId`, `senderId`, `recipient`, print/delivery options, optional `options.addressPosition` and `ceilingMinor`. The server retrieves profile, window, fingerprint and scan proof. Responses include `/#/app/postal/:id`, all-page checks and expected/extracted addresses. No Pingen upload occurs.
 3. `GET /api/postal/preflights/:id` reads evidence. The window image is private browser route `GET /api/postal/preflights/:id/address.png`, never a public file or signed URL. Extracted text does not prove visibility: `address.textVisibility: "not_verified"`, `cropAccess: "authenticated_browser_session_only"` and `mcpEmbeddedVisualEvidenceAvailable: false` remain explicit. Visual review of the exact original and return information remains mandatory; MCP cannot claim to have seen an inaccessible image.
 4. Standard `POST /api/postal/preflights/:id/transfer` requires current browser session, Origin, CSRF and explicit `reviewed:true` plus `consentToTransfer:true`. Expert `transfer_postal_draft({preflightId,fingerprint})` needs a prior administrator-browser postal mandate explicitly covering transfer to Pingen. The server records delegated authority without claiming human review. Authorized upload preserves bytes and creates only a Pingen draft with `auto_send:false`.
@@ -17,8 +21,10 @@ journey and window choice are in [POSTAL_STREAMLINED.md](POSTAL_STREAMLINED.md).
 
 `canTransfer` describes the browser journey only. `transferPolicy.canTransferMeaning`
 explains this; `expertEligibilityEvaluated:false` means no mandate evaluation
-occurred. Version 2 and migration 0026 invalidate old evidence for external effects;
-see [version compatibility](PINGEN_PREFLIGHT.md#v2-compatibility-and-validation).
+occurred. Version 2 and migration 0026 invalidate historical v1 evidence for
+external effects. The worldwide candidate retains legacy v2, adds a shape-selected
+v3 block and requires schema-first 0072 without rewriting historical quotes;
+see [worldwide compatibility](POSTAL_WORLDWIDE.md#compatibility-and-rollout).
 
 MCP reads require `documents:read`; creation requires both **`documents:write`
 and `dispatches:prepare`**, advertised together in discovery and OAuth challenges.
@@ -32,8 +38,15 @@ A document belongs to the authenticated organization, is `ready`, has canonical
 `document.scan_verified` audit proof for its hash in that organization, and exactly
 matches reread/rehashed private R2 bytes. The reread Pingen account must match
 installed configuration, use EUR, expose country/window and agree with
-`PINGEN_DEFAULT_COUNTRY`. Profile/version freezes with options, normalized
-recipient, verified sender, document and ceiling.
+`PINGEN_DEFAULT_COUNTRY`. This account/layout setting is not a destination
+allowlist. Profile/version freezes with options, the unchanged normalized legacy
+recipient or complete ordered block, verified sender, document and ceiling.
+
+Fresh official destination eligibility is independent of the frozen price and
+is rechecked before preflight, transfer, quote, acceptance and send. Closed or
+unreadable source evidence never becomes a free/available destination.
+Availability failure before external mutation is not evidence that a letter was
+submitted. Accepted historical replays remain readable without a new country decision.
 
 Evidence insertion and analysis consumption share one SQL transaction using
 existing daily `content_limits.renders_per_day`. No quota increases. Double clicks

@@ -52,6 +52,7 @@ import {
   quotedMoney,
   isPublicPreview,
   recipientOf,
+  recipientDisplayLines,
   type Channel,
   type Dispatch,
   type DispatchDetail,
@@ -81,6 +82,12 @@ import {
 import type { PostalAddressPageResult } from "../../../packages/contracts/src/postal-address-page";
 import { PostalSetupPanel } from "./postal-setup-panel";
 import { PostalCutoffNotice } from "./postal-cutoff-notice";
+import {
+  PostalRecipientFields,
+  postalDraftUsesAddressBlock,
+  postalRecipientFromDraft,
+  usePostalDestinationCatalogue,
+} from "./postal-recipient-editor";
 import { PdfValidation } from "./pdf-validation";
 import {
   ChannelLabel,
@@ -874,16 +881,35 @@ export function PrepareDispatch({
   const [recipient, setRecipient] = useState<Record<string, string>>({
     country: "FR",
   });
+  const [postalBlockFormat, setPostalBlockFormat] = useState(false);
+  const usesAddressBlock = postalDraftUsesAddressBlock(
+    recipient,
+    postalBlockFormat,
+  );
+  const destinations = usePostalDestinationCatalogue(
+    channel === "postal" && !simulation,
+  );
+  const postalCatalogueUnavailable =
+    channel === "postal" &&
+    !simulation &&
+    (destinations.loading || !!destinations.error || !destinations.data);
+  const postalDestinationUnavailable =
+    channel === "postal" &&
+    !simulation &&
+    destinations.data?.unavailableCountries.some(
+      (country) => country === (recipient.country ?? "FR"),
+    );
   const [addressMode, setAddressMode] = useState<PostalAddressMode>("document");
   const [addressPosition, setAddressPosition] = useState<"left" | "right">();
   const requirements = useResource<{
     profile: {
       addressPosition: "left" | "right";
       addressPositions: ("left" | "right")[];
+      defaultCountry: string;
     };
   }>(
     channel === "postal" && !simulation
-      ? `/postal/requirements?country=${encodeURIComponent(recipient.country ?? "FR")}`
+      ? `/postal/requirements?country=${encodeURIComponent(recipient.country ?? "FR")}${usesAddressBlock ? "&addressFormat=address_block" : ""}`
       : null,
   );
   const positions = requirements.data?.profile.addressPositions ?? [];
@@ -959,14 +985,18 @@ export function PrepareDispatch({
           ? { phone: normalizeFaxNumber(recipient.phone ?? "") }
           : channel === "email"
             ? { email: recipient.email ?? "" }
-            : {
-                name: recipient.name ?? "",
-                line1: recipient.line1 ?? "",
-                postalCode: recipient.postalCode ?? "",
-                city: recipient.city ?? "",
-                country: recipient.country ?? "FR",
-              };
+            : postalRecipientFromDraft(recipient, usesAddressBlock);
       if (channel === "postal" && !simulation) {
+        if (destinations.loading || destinations.error || !destinations.data)
+          throw new Error(
+            msg(
+              "Postal destination availability could not be checked. Try again before preparing the letter.",
+            ),
+          );
+        if (postalDestinationUnavailable)
+          throw new Error(
+            msg("Postal delivery to this country is currently unavailable."),
+          );
         if (requirements.loading || requirements.error || !selectedPosition)
           throw new Error(
             msg(
@@ -1358,56 +1388,18 @@ export function PrepareDispatch({
             </>
           ) : (
             <>
-              <Field label={t.dispatch.postalName}>
-                <input
-                  value={recipient.name ?? ""}
-                  onChange={(e) => setAddress("name", e.target.value)}
-                  required
-                  maxLength={200}
-                  autoComplete="name"
-                />
-              </Field>
-              <Field label={t.dispatch.line1}>
-                <input
-                  value={recipient.line1 ?? ""}
-                  onChange={(e) => setAddress("line1", e.target.value)}
-                  required
-                  maxLength={200}
-                  autoComplete="address-line1"
-                />
-              </Field>
-              <div className="field-row">
-                <Field label={t.dispatch.postalCode}>
-                  <input
-                    value={recipient.postalCode ?? ""}
-                    onChange={(e) => setAddress("postalCode", e.target.value)}
-                    required
-                    maxLength={30}
-                    autoComplete="postal-code"
-                  />
-                </Field>
-                <Field label={t.dispatch.city}>
-                  <input
-                    value={recipient.city ?? ""}
-                    onChange={(e) => setAddress("city", e.target.value)}
-                    required
-                    maxLength={200}
-                    autoComplete="address-level2"
-                  />
-                </Field>
-              </div>
-              <Field label={t.dispatch.country}>
-                <select
-                  value={recipient.country}
-                  onChange={(e) => setAddress("country", e.target.value)}
-                >
-                  {Object.entries(t.dispatch.countries).map(([code, name]) => (
-                    <option value={code} key={code}>
-                      {name}
-                    </option>
-                  ))}
-                </select>
-              </Field>
+              <PostalRecipientFields
+                value={recipient}
+                onChange={setAddress}
+                block={usesAddressBlock}
+                onBlockChange={setPostalBlockFormat}
+                defaultCountry={requirements.data?.profile.defaultCountry}
+                catalogue={destinations.data}
+                catalogueLoading={!simulation && destinations.loading}
+                catalogueError={!simulation && !!destinations.error}
+                onCatalogueRetry={destinations.refresh}
+                simulated={simulation}
+              />
               {!simulation && (
                 <PostalCutoffNotice
                   country={recipient.country}
@@ -1510,6 +1502,8 @@ export function PrepareDispatch({
             className="button primary full"
             disabled={
               action.pending ||
+              postalCatalogueUnavailable ||
+              postalDestinationUnavailable ||
               (channel === "postal" &&
                 !simulation &&
                 (requirements.loading ||
@@ -2279,11 +2273,9 @@ export function DispatchDetailPage({
             </Definition>
             <Definition label={t.dispatch.recipientDetails}>
               <address>
-                {Object.values(target)
-                  .filter(Boolean)
-                  .map((value, index) => (
-                    <span key={index}>{value}</span>
-                  ))}
+                {recipientDisplayLines(target).map((value, index) => (
+                  <span key={index}>{value}</span>
+                ))}
               </address>
             </Definition>
             {d.subject && (

@@ -1,5 +1,16 @@
 # Resend for Guteneo
 
+## Inspection evidence — 1 November 2026
+
+Production 1.1.26 contains the alert/reference corrections. After separate user
+authorization, a Full-access inspection credential was installed and genuine
+read-only domain/Usage/source inspection passed. Sending still uses its separate
+credential; no new business-send or limit authority follows. Scheduled renewal
+and incident recovery remain unqualified pending the 11:37 UTC Cron evidence at
+this handoff. Private inspection, genuine maintenance, notification receipt and
+business-email delivery are separate proof. Earlier refused-read observations
+below retain their historical meaning.
+
 ## Automatic maintenance candidate, 30 October 2026
 
 Tariff preparation and acceptance limits have separate consumers. Preparation

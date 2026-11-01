@@ -1,6 +1,6 @@
 ---
 title: "PDF generation and distribution"
-description: "14 capabilities in the create branch of Guteneo."
+description: "15 capabilities in the create branch of Guteneo."
 sidebar:
   order: 6
 ---
@@ -28,6 +28,7 @@ Implemented; generation, preparation, approval and delivery remain separate.
 <li id="feature-41281e978398">Common recipient or frozen columns with an explicit channel per record</li>
 <li id="feature-8d3448a860b7">Resume remaining entries without duplication</li>
 <li id="feature-95d7b0497306">Entry-linked postal preflight with separate review and sending</li>
+<li id="feature-196236f86fc4">Worldwide postal complete-block mappings preserve text arrays or multiline CSV address cells and common recipient arrays; all other mappings reject object/array coercion, data paths remain paths, and frozen records/manifests retain their hashes</li>
 <li id="feature-b7f28cbf0e72">Known assistant-excluded content is never generated, previewed, shared or distributed; request a person-redacted version and never treat scanning as proof of absence</li>
 <li id="feature-dbd939c34dba">Browser results show bounded name/subject/reference labels without changing record identifiers; the browser-only owner-authorized record-context read supplies labels or one explicit correction input, with current tenant/creator guards and no MCP/native authority. Its optional current template name requires current template read permission and becomes null after sharing revocation</li>
 <li id="feature-5b165c326795">Import/replacement retain the selected template/version and compatible field mapping/record exclusions; correcting data or a template creates a new generation/version while prior PDFs and prepared manifests retain their exact hashes</li>

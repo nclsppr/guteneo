@@ -71,7 +71,7 @@ test("OpenAPI is valid, self-contained and never resolves a remote document", as
     for (const child of Object.values(value)) inspect(child);
   }
   inspect(spec);
-  assert.equal(operations.length, 76);
+  assert.equal(operations.length, 77);
   assert.equal(
     new Set(operations.map(({ operation }) => operation.operationId)).size,
     operations.length,
@@ -177,6 +177,7 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     "get /api/postal/preflights/{id}/address.png",
     "post /api/postal/preflights/{id}/quote",
     "get /api/postal/requirements",
+    "get /api/postal/destinations",
     "post /api/postal/address-pages",
     "get /api/templates",
     "get /api/templates/authoring-guide",

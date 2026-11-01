@@ -1,4 +1,17 @@
-import type { PingenPreflightOptions } from "./pingen-preflight";
+import {
+  PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION,
+  pingenPreflightVersion,
+  type PingenPreflightOptions,
+} from "./pingen-preflight";
+import {
+  PINGEN_LOCAL_PRINT_COUNTRIES,
+  PINGEN_POSTAL_DESTINATIONS_SOURCE,
+  postalCountryAliases,
+  postalCountryLineRequired,
+  postalCountryName,
+  postalCountryNameLanguage,
+  postalAddressRuleRoute,
+} from "./postal-destinations";
 
 const help = "https://help.pingen.com/en/templates-and-postal-requirements/";
 /** The French account profile only supports right-window envelopes. */
@@ -12,6 +25,13 @@ const countries = { FR: "FRANCE", LU: "LUXEMBOURG", DE: "GERMANY" } as const;
 
 /** Public instructions only: no account ID, document content or authority is returned. */
 export function postalAddressGuidance(options: PingenPreflightOptions) {
+  return pingenPreflightVersion(options) ===
+    PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION
+    ? postalAddressBlockGuidance(options)
+    : legacyPostalAddressGuidance(options);
+}
+
+function legacyPostalAddressGuidance(options: PingenPreflightOptions) {
   const { country, defaultCountry } = options;
   const domestic = country === defaultCountry;
   const frenchLocal = country === "FR" && defaultCountry === "FR";
@@ -23,7 +43,9 @@ export function postalAddressGuidance(options: PingenPreflightOptions) {
       : country === "LU"
         ? "bpost_luxembourg"
         : "deutsche_post";
-  const countryLine = domestic ? null : countries[country];
+  const countryLine = domestic
+    ? null
+    : countries[country as keyof typeof countries];
   const exampleRecipient = {
     name: "SYNTHETIC RECIPIENT",
     line1:
@@ -235,5 +257,166 @@ export function postalAddressGuidance(options: PingenPreflightOptions) {
         : []),
     ],
     sourcesVerifiedAt: "2026-09-17",
+  };
+}
+
+function postalAddressBlockGuidance(options: PingenPreflightOptions) {
+  const { country, defaultCountry } = options;
+  const knownLegacyCountry = ["FR", "LU", "DE"].includes(country);
+  const countryRequired = postalCountryLineRequired(country, defaultCountry);
+  const legacy = legacyPostalAddressGuidance(
+    knownLegacyCountry
+      ? options
+      : { ...options, country: "FR", defaultCountry: "LU" },
+  );
+  const localGuide: Partial<Record<string, string>> = {
+    CH: "address-requirements-swiss-post",
+    AT: "address-requirements-osterreichische-post",
+    NL: "address-requirements-postnl",
+    BE: "address-requirements-bpost",
+    GB: "address-requirements-royal-mail",
+    ES: "address-requirements-for-hispapost-correos-spain",
+  };
+  const localDestination = PINGEN_LOCAL_PRINT_COUNTRIES.some(
+    (value) => value === country,
+  );
+  const route = postalAddressRuleRoute(country, defaultCountry);
+  const typography =
+    knownLegacyCountry || !localDestination
+      ? legacy.typography
+      : {
+          recommendedFont: legacy.typography.recommendedFont,
+          guteneoRecommendedSizePt: legacy.typography.guteneoRecommendedSizePt,
+          color: legacy.typography.color,
+          alignment: legacy.typography.alignment,
+          uniformFontAndSpacing: true,
+          forbiddenStyles: legacy.typography.forbiddenStyles,
+          verification: "manual_visual_review_required",
+        };
+  const examples: Partial<Record<string, string[]>> = {
+    US: ["SYNTHETIC RECIPIENT", "123 EXAMPLE STREET", "EXAMPLE CITY CA 12345"],
+    GB: ["SYNTHETIC RECIPIENT", "12 EXAMPLE STREET", "EXAMPLE CITY", "AB1 2CD"],
+    JP: [
+      "SYNTHETIC RECIPIENT",
+      "1-2-3 EXAMPLE",
+      "EXAMPLE-SHI, EXAMPLE 123-4567",
+    ],
+    HK: ["SYNTHETIC RECIPIENT", "12 EXAMPLE STREET", "KOWLOON"],
+    AE: ["SYNTHETIC RECIPIENT", "PO BOX 12345", "DUBAI"],
+    XZ: ["SYNTHETIC RECIPIENT", "EXAMPLE STREET 12", "10000 EXAMPLE CITY"],
+  };
+  const printedLines = knownLegacyCountry
+    ? [...legacy.example.printedLines]
+    : [
+        ...(examples[country] ?? [
+          "SYNTHETIC RECIPIENT",
+          "COMPLETE LOCAL ADDRESS",
+          "COMPLETE LOCALITY LINE",
+        ]),
+        ...(countryRequired ? [postalCountryName(country)] : []),
+      ];
+  return {
+    destination: country,
+    route,
+    recipientSchema: {
+      fields: ["country", "addressLines"],
+      renderedLines: null,
+      minRenderedLines: countryRequired ? 3 : 2,
+      maxRenderedLines: 6,
+      additionalAddressLinesSupported: true,
+      maxCharactersPerPrintedLine:
+        country === "FR" && defaultCountry === "FR" ? 38 : 160,
+      lineOrder: ["recipient.addressLines (complete printed block, unchanged)"],
+      limitations: [
+        "Supply the complete printed address, including the recipient name and the country line when required. Do not also supply legacy address fields.",
+        "Guteneo preserves every supplied line. It does not translate, transliterate, reorder, truncate, complete or silently repair an address.",
+        "Six printed lines are Guteneo's current input limit. The destination's own postal requirements and the actual envelope window may impose tighter limits.",
+        "Country spellings do not prove current delivery availability. Current provider restrictions, document analysis and the exact calculator quote remain separate checks.",
+        "The address must already be printed in the original PDF. These fields compare it; they do not add or move it.",
+      ],
+    },
+    addressRules: {
+      format: "complete_destination_formatted_block",
+      postcodeValidation: knownLegacyCountry
+        ? "supported_legacy_country_syntax"
+        : "provider_and_human_review_required",
+      countryLine: {
+        required: countryRequired,
+        value: countryRequired ? postalCountryName(country) : null,
+        acceptedNames: postalCountryAliases(country),
+        canonicalNameLanguage: postalCountryNameLanguage(country),
+        domesticCountryLineForbidden: !countryRequired,
+      },
+      blankLinesAllowed: false,
+      additionalContentInsideAddressAreaAllowed: false,
+      latinAlphabetAndArabicDigits: {
+        scope:
+          country === "LU" || country === "DE"
+            ? "all_address_lines"
+            : route === "dhl_international"
+              ? "country_line_only"
+              : "provider_country_requirements",
+      },
+      ...(country === "FR" && defaultCountry === "FR"
+        ? { cityUppercaseRequired: true, maxCharactersPerLine: 38 }
+        : {}),
+    },
+    typography,
+    example: {
+      fictional: true,
+      deliverabilityVerified: false,
+      destinationFormattingVerified: false,
+      recipient: { country, addressLines: printedLines },
+      printedLines,
+    },
+    verification: {
+      ...legacy.verification,
+      automatic: [
+        "exact_private_pdf_hash_and_scan",
+        "all_pages_rendered",
+        "a4_dimensions_and_8mb_100page_limits",
+        "embedded_fonts_and_no_active_content",
+        "white_page_edges_and_reserved_zones",
+        "address_present_inside_window",
+        "approximate_text_bounds_and_overlap",
+        "extracted_address_matches_recipient",
+        "accepted_country_code_and_country_line",
+        ...(knownLegacyCountry ? ["supported_legacy_country_syntax"] : []),
+      ],
+      manual: [
+        ...legacy.verification.manual,
+        "complete_destination_specific_address_format_and_postcode",
+      ],
+    },
+    workflow: legacy.workflow,
+    sources: [
+      { title: "PDF standards", url: `${help}letter-standards` },
+      {
+        title: "Envelope window and reserved areas",
+        url: `${help}${defaultCountry === "FR" && country === "FR" ? "layout-requirements-french-organisations" : "layout-requirements"}`,
+      },
+      {
+        title: "Accepted recipient country names",
+        url: PINGEN_POSTAL_DESTINATIONS_SOURCE.url,
+      },
+      {
+        title: "Destination address examples and UPU guidance",
+        url: `${help}address-examples-for-all-countries`,
+      },
+      ...(knownLegacyCountry
+        ? legacy.sources.filter((source) =>
+            source.title.includes("address requirements"),
+          )
+        : [
+            {
+              title: "Destination postal address requirements",
+              url: `${help}${localGuide[country] ?? (localDestination ? "letter-standards" : "address-requirements-dhl-international")}`,
+            },
+          ]),
+    ],
+    sourcesVerifiedAt: PINGEN_POSTAL_DESTINATIONS_SOURCE.observedAt.slice(
+      0,
+      10,
+    ),
   };
 }

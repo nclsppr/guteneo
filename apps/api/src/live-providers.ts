@@ -37,8 +37,16 @@ import {
   type ProviderResult,
 } from "../../../packages/providers";
 import type { Env } from "./env";
-import { PINGEN_PREFLIGHT_VERSION } from "../../../packages/contracts/src/pingen-preflight";
+import { pingenPreflightVersion } from "../../../packages/contracts/src/pingen-preflight";
 import type { PostalAuthority } from "./postal-authority";
+import { postalAddressLines } from "../../../packages/contracts/src/postal-address-page";
+import {
+  isPostalAddressBlockRecipient,
+  postalRecipientSchema,
+} from "../../../packages/contracts/src/postal-recipient";
+import type { PostalCountry } from "../../../packages/contracts/src/postal-destinations";
+import { ProviderError } from "../../../packages/providers/types";
+import { pingenDestinationAvailability } from "../../../packages/providers/pingen-destination-availability";
 
 export type LiveProviderEnv = Env & {
   TELNYX_ALLOWED_PREFIXES?: string;
@@ -53,6 +61,8 @@ type Dependencies = {
   fetcher?: Fetcher;
   now?: () => number;
   beforeTransfer?: () => Promise<void>;
+  /** Server-owned synchronous freshness fence after the last credential await. */
+  assertTransferCurrent?: () => void;
   /** Server-created credential closure. Never populated from a tool/request body. */
   transferAuthority?: PostalAuthority;
 };
@@ -170,7 +180,11 @@ function sandbox(
     blocked("PRODUCTION_SANDBOX_FORBIDDEN");
   return value === "true";
 }
-function pingen(env: LiveProviderEnv, fetcher: Fetcher): PingenPostalProvider {
+function pingen(
+  env: LiveProviderEnv,
+  fetcher: Fetcher,
+  clock: () => number = Date.now,
+): PingenPostalProvider {
   return new PingenPostalProvider(
     {
       clientId: required(env.PINGEN_CLIENT_ID, "PINGEN_NOT_CONFIGURED"),
@@ -193,7 +207,45 @@ function pingen(env: LiveProviderEnv, fetcher: Fetcher): PingenPostalProvider {
         .filter(Boolean),
     },
     fetcher,
+    { destinations: pingenDestinationAvailability(fetcher, clock) },
   );
+}
+
+/** Current public operational availability, separate from account/price/consent. */
+export async function assertPostalDestinationAvailable(
+  country: string,
+  dependencies: Pick<Dependencies, "fetcher" | "now"> = {},
+) {
+  try {
+    return await pingenDestinationAvailability(
+      dependencies.fetcher ?? fetch,
+      dependencies.now ?? Date.now,
+    ).assertAvailable(country);
+  } catch (failure) {
+    if (
+      failure instanceof ProviderError &&
+      failure.code === "postal_destination_unavailable"
+    )
+      throw new DomainError(
+        "POSTAL_DESTINATION_UNAVAILABLE",
+        "Pingen currently does not deliver letters to this country.",
+        409,
+      );
+    if (
+      failure instanceof ProviderError &&
+      failure.code === "postal_country_not_supported"
+    )
+      throw new DomainError(
+        "POSTAL_COUNTRY_UNSUPPORTED",
+        "This destination country is not recognised by Pingen.",
+        400,
+      );
+    throw new DomainError(
+      "POSTAL_DESTINATION_AVAILABILITY_UNAVAILABLE",
+      "Current postal destination availability cannot be verified. No letter was sent.",
+      503,
+    );
+  }
 }
 
 async function exactDocument(
@@ -231,26 +283,14 @@ async function exactDocument(
   return { document, bytes };
 }
 function expectedPostalAddress(
-  recipient: Record<string, string>,
+  recipient: Record<string, unknown>,
   defaultCountry?: string,
 ): string {
   if (!defaultCountry || !/^[A-Z]{2}$/.test(defaultCountry))
     blocked("PINGEN_COUNTRY_NOT_CONFIGURED");
-  const lines = [
-    recipient.name,
-    recipient.line1,
-    `${recipient.postalCode} ${recipient.city}`,
-  ];
-  if (recipient.country !== defaultCountry)
-    lines.push(
-      (
-        { FR: "FRANCE", DE: "GERMANY", LU: "LUXEMBOURG" } as Record<
-          string,
-          string
-        >
-      )[recipient.country],
-    );
-  return lines.join("\n");
+  const parsed = postalRecipientSchema.safeParse(recipient);
+  if (!parsed.success) blocked("POSTAL_RECIPIENT_INVALID");
+  return postalAddressLines(parsed.data, defaultCountry).join("\n");
 }
 function postalOptions(options: Record<string, unknown>): PostalOptions {
   const result = postalOptionsSchema.safeParse({
@@ -268,7 +308,7 @@ async function requirePostalReview(
   draftId: string,
 ) {
   const proof = await env.DB.prepare(
-    "SELECT 1 FROM valid_postal_draft_reviews WHERE organization_id=? AND provider_draft_id=? AND json_extract(profile_json,'$.accountId')=? AND json_extract(profile_json,'$.defaultCountry')=? AND json_extract(profile_json,'$.environment')=? AND json_extract(profile_json,'$.version')=?",
+    "SELECT p.recipient_json,r.profile_json FROM valid_postal_draft_reviews r JOIN postal_preflights p ON p.organization_id=r.organization_id AND p.id=r.preflight_id WHERE r.organization_id=? AND r.provider_draft_id=? AND json_extract(r.profile_json,'$.accountId')=? AND json_extract(r.profile_json,'$.defaultCountry')=? AND json_extract(r.profile_json,'$.environment')=?",
   )
     .bind(
       organizationId,
@@ -276,10 +316,20 @@ async function requirePostalReview(
       env.PINGEN_ORGANIZATION_ID ?? "",
       env.PINGEN_DEFAULT_COUNTRY ?? "",
       env.PINGEN_SANDBOX === "true" ? "sandbox" : "production",
-      PINGEN_PREFLIGHT_VERSION,
     )
-    .first();
+    .first<{ recipient_json: string; profile_json: string }>();
   if (!proof) blocked("POSTAL_PREFLIGHT_REQUIRED");
+  const recipient = postalRecipientSchema.parse(
+    JSON.parse(proof.recipient_json),
+  );
+  const version = pingenPreflightVersion({
+    country: recipient.country,
+    ...(isPostalAddressBlockRecipient(recipient)
+      ? { addressFormat: "address_block" as const }
+      : {}),
+  });
+  if (JSON.parse(proof.profile_json).version !== version)
+    blocked("POSTAL_PREFLIGHT_REQUIRED");
 }
 async function checkActiveDispatch(
   env: LiveProviderEnv,
@@ -315,7 +365,7 @@ async function verifyFrozenContent(
   document: DocumentRecord | undefined,
   pricingDisclosure: Record<string, unknown> = {},
 ): Promise<{
-  recipient: Record<string, string>;
+  recipient: ReturnType<typeof validateRecipient>;
   options: Record<string, unknown>;
 }> {
   const recipient = validateRecipient(
@@ -466,6 +516,10 @@ export function createLiveProviderHook(
         if (options.kind === "marketing") blocked("MARKETING_NOT_ENABLED");
         let submit: () => Promise<ProviderResult>;
         if (channel === "fax") {
+          const recipient = validateRecipient(
+            "fax",
+            JSON.parse(row.recipient_json),
+          );
           if (row.sender_address !== env.TELNYX_FROM)
             blocked("FAX_SENDER_CONFIG_MISMATCH");
           const prefixes = required(
@@ -516,6 +570,10 @@ export function createLiveProviderHook(
             });
           };
         } else if (channel === "email") {
+          const recipient = validateRecipient(
+            "email",
+            JSON.parse(row.recipient_json),
+          );
           if (!row.subject || !row.html || !row.text)
             blocked("EMAIL_CONTENT_REQUIRED");
           if (
@@ -707,7 +765,7 @@ export function createLiveProviderHook(
           if (draft.claimed_dispatch_id && draft.claimed_dispatch_id !== row.id)
             blocked("POSTAL_DRAFT_ALREADY_USED");
           await requirePostalReview(env, row.organization_id, draft.id);
-          const connector = pingen(env, fetcher);
+          const connector = pingen(env, fetcher, clock);
           submit = async () => {
             const claim = await env.DB.prepare(
               "UPDATE provider_drafts SET claimed_dispatch_id=? WHERE organization_id=? AND id=? AND status='prepared' AND (claimed_dispatch_id IS NULL OR claimed_dispatch_id=?)",
@@ -724,6 +782,10 @@ export function createLiveProviderHook(
             return connector.submit({
               ...approvedOptions,
               beforeSend: async () => {
+                await assertPostalDestinationAvailable(recipient.country, {
+                  fetcher,
+                  now: clock,
+                });
                 await checkActiveDispatch(env, row, provider);
                 await requirePostalReview(env, row.organization_id, draft.id);
                 await validateLiveDeliveryQuote(
@@ -732,6 +794,8 @@ export function createLiveProviderHook(
                   liveDeliveryIdentity.postal,
                   new Date(clock()).toISOString(),
                 );
+              },
+              onSendInvocation: () => {
                 providerCallStarted = true;
               },
               expectedCost: {
@@ -741,7 +805,7 @@ export function createLiveProviderHook(
               expectedQuoteSha256: quote.evidence_sha256,
               preparedLetterId: draft.provider_id!,
               expectedAddress,
-              country: recipient.country as "FR" | "LU" | "DE",
+              country: recipient.country as PostalCountry,
               maxCost: { currency: row.currency, minor: row.ceiling_minor },
               idempotencyKey: row.id,
             });
@@ -790,6 +854,7 @@ export function createLiveDeliveryQuoteConfig(
 ): {
   liveDeliveryIdentity: LiveDeliveryIdentities;
   postalQuote: PostalQuoteResolver;
+  assertPostalDestination: (country: string) => Promise<void>;
 } {
   const liveDeliveryIdentity: LiveDeliveryIdentities = {
     ...(emailProvider(env) === "resend"
@@ -818,6 +883,9 @@ export function createLiveDeliveryQuoteConfig(
   };
   return {
     liveDeliveryIdentity,
+    assertPostalDestination: async (country) => {
+      await assertPostalDestinationAvailable(country, dependencies);
+    },
     postalQuote: async (request) => {
       postalPreparationGate(env);
       if (
@@ -856,11 +924,12 @@ export function createLiveDeliveryQuoteConfig(
       const priced = await pingen(
         env,
         dependencies.fetcher ?? fetch,
+        dependencies.now ?? Date.now,
       ).quotePrepared({
         ...options,
         preparedLetterId: draft.provider_id,
         expectedAddress,
-        country: request.recipient.country as "FR" | "LU" | "DE",
+        country: request.recipient.country as PostalCountry,
       });
       await requirePostalReview(env, request.organizationId, draft.id);
       return {
@@ -996,6 +1065,7 @@ export async function preparePostalDraft(
     // The profile/document check above may await a provider read. Recheck the
     // delegated credential and grant before any subsequent content transfer.
     if (expertAuthority) await assertConsent();
+    dependencies.assertTransferCurrent?.();
   };
   await beforeTransfer();
   const recipient = validateRecipient("postal", input.recipient);
@@ -1030,6 +1100,7 @@ export async function preparePostalDraft(
       ? async (url, init) => {
           // Includes OAuth and upload-location reads, not just PUT/letter creation.
           await assertConsent();
+          dependencies.assertTransferCurrent?.();
           return providerFetch(url, init);
         }
       : providerFetch,

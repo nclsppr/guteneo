@@ -23,20 +23,27 @@ Production 1.1.25 and additive migration 0071 support daily genuine renewal of
 the exact existing [fourteen-route FR/DE group](FAX_EEA_REFERENCE_MAINTENANCE.md),
 preserving four more-specific exclusions. Runtime, schema and public checks
 passed. Its first registration stopped before writes on a catalog timestamp
-comparison; candidate 1.1.26 corrects the post-read clock boundary. Registration,
+comparison; published 1.1.26 corrects the post-read clock boundary. Registration,
 genuine scheduled replacement and resulting incident recovery remain unqualified.
 Successful current-catalog reads also proved that the selected CSV URL can remain
 identical while the whole multi-catalog JSON hash varies. The same candidate
 revalidates the exact selected URL and retains the whole-body hash as provenance;
 source byte verification and genuine scheduled rereads remain required.
 
-Authenticated
-Resend renewal is still unqualified: the existing inspection returns
-`READ_NOT_PERMITTED` at `domain`. Installing an existing separately authorized
-inspection key uses `node scripts/secure-setup.mjs resend-readiness`; it writes
-only `RESEND_READINESS_API_KEY`, never the sending credential or send gates.
-Rerun `node scripts/provider-readiness.mjs resend-policy-sources` afterward. The
-form creates no key or permission and establishes no successful qualification.
+Production **1.1.26** contains the alert/reference corrections. A separately
+authorized Full-access Resend inspection credential is now installed and the
+read-only domain/Usage/source inspection passed; the earlier
+`READ_NOT_PERMITTED` is historical. The inspection credential remains separate
+from sending credentials and send gates. Genuine scheduled renewal and incident
+recovery still await evidence from the **11:37 UTC** Cron run at this handoff.
+Passing private source inspection alone proves neither the scheduler's eventual
+transaction nor a delivered notification/business email.
+
+Unpublished candidate **1.1.27** separately adds worldwide postal input and fresh
+official destination restrictions. Its at-most-300-second public observation is
+not the 90-day account/policy generation or a country price. No new long-lived
+eligibility permission or quote default is created; see
+[worldwide postal mail](POSTAL_WORLDWIDE.md).
 
 ## Follow the consumer
 

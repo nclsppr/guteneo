@@ -937,7 +937,7 @@ describe("distributable LLM integrations", () => {
           get_dispatch_status: [false, false, false, false],
           dry_run_dispatch: [false, false, false, false],
           list_dispatches: [false, false, false, false],
-          get_postal_requirements: [false, false, false, false],
+          get_postal_requirements: [false, false, false, true],
           get_postal_setup: [false, false, false, false],
           configure_postal_sender: [false, false, false, false],
           get_postal_preflight: [false, false, false, false],

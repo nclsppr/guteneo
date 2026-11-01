@@ -337,6 +337,13 @@ export function ErrorNotice({
 /** Fixed copy only: provider response bodies can contain private identities. */
 function postalErrorMessage(code?: string): string | undefined {
   const messages: Record<string, string> = {
+    POSTAL_COUNTRY_UNSUPPORTED: msg("Choose a supported postal destination."),
+    POSTAL_DESTINATION_UNAVAILABLE: msg(
+      "Postal delivery to this country is currently unavailable.",
+    ),
+    POSTAL_DESTINATION_AVAILABILITY_UNAVAILABLE: msg(
+      "Current postal destination availability cannot be verified. No letter was sent.",
+    ),
     POSTAL_DRAFT_NOT_READY: msg(
       "The letter is still being analysed. Try the quote again shortly.",
     ),

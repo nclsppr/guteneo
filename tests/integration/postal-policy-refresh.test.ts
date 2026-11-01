@@ -28,6 +28,8 @@ import { PINGEN_PREFLIGHT_VERSION } from "../../packages/contracts/src/pingen-pr
 import { hashSecret } from "../../apps/api/src/auth";
 import type { Env } from "../../apps/api/src/env";
 import type { Fetcher } from "../../packages/providers";
+import { PingenDestinationAvailabilityReader } from "../../packages/providers/pingen-destination-availability";
+import { destinationRestrictionsResponse } from "../helpers/pingen-destinations";
 const DAY = 86400000;
 let mf: Miniflare,
   db: D1Database,
@@ -201,10 +203,19 @@ beforeEach(async () => {
   calls = [];
   clock += 84 * DAY;
   vi.setSystemTime(clock);
+  // Keep destination permission separate from the maintenance account-read
+  // transport, using only a parsed synthetic reference and this fixture clock.
+  const destinations = new PingenDestinationAvailabilityReader(
+    async () => destinationRestrictionsResponse(),
+    () => clock,
+  );
   domain = new DomainService(db, {
     mode: "production",
     now: () => clock,
     liveDeliveryIdentity: identity,
+    assertPostalDestination: async (country) => {
+      await destinations.assertAvailable(country);
+    },
     postalQuote: async (request) => ({
       supplierMinor: 150,
       currency: "EUR",

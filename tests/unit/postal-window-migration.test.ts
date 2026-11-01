@@ -309,7 +309,13 @@ it("extends active non-French qualifications without changing history, expiry, r
       organizationId,
       senderId: `${organizationId}_sender`,
       channel: "postal",
-      recipient: { country: "LU" },
+      recipient: {
+        name: "Fixture Recipient",
+        line1: "1 Test Street",
+        postalCode: "L-1234",
+        city: "Luxembourg",
+        country: "LU",
+      },
       options: {
         ...postalPolicyOptions(addressPosition)[0],
         providerDraftId: "draft",

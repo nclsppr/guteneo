@@ -17,6 +17,35 @@ qualified catalog/quote and private dated evidence own actual amounts and
 activation. [Channel adapters](/workflows/delivery-channels/) describes transport;
 [CI and release evidence](/engineering/ci-and-release/) describes source checks.
 
+## Keep postal destinations separate from prices
+
+The worldwide postal contract recognizes Pingen's 250 published country codes,
+including `XZ` for Kosovo. An account's default country selects address rules;
+it does not limit destinations. Preserve existing FR/LU/DE recipient JSON and
+approved quote fingerprints. New destinations use the complete ordered
+`{country,addressLines}` block, including the name and required country line,
+without invented postcodes, reordered lines or silent address completion.
+
+Recognition alone establishes neither availability nor a price. Read the fixed
+official restriction and delay tables separately, with bounded parsing and a
+maximum five-minute cache. Unknown or expired evidence closes the affected new
+operation. Recheck before production acceptance, content transfer and the final
+send; an unavailable public read before a send invocation is a known refusal,
+not evidence that a letter may have been submitted. A response lost after the
+physical send still requires reconciliation, without automatic resubmission.
+Each analyzed draft receives its actual EUR calculator quote and immutable
+customer approval under the existing spending limits.
+
+Release migration 0072 before the new runtime. It changes two postal guards,
+preserving legacy records and the priority of sensitive-source refusals. Then
+publish the backward-compatible private documents Worker and qualify synthetic
+legacy and complete-address PDFs through its private binding before publishing
+the application. The public application release command does not publish that
+private Worker. Source CI, deployed module hashes, actual private Browser Run
+results and real postal delivery are distinct evidence. The
+[worldwide contract](https://github.com/nclsppr/guteneo/blob/main/docs/POSTAL_WORLDWIDE.md)
+owns parser bounds, version branches, current eligibility and proof limits.
+
 ## Renew the references an active operation uses
 
 The maintenance contract starts with the consumer. A date matters when the

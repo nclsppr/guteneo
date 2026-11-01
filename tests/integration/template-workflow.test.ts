@@ -50,6 +50,8 @@ import { createGuteneoMcpServer } from "../../apps/api/src/mcp";
 import { MCP_SCOPES } from "../../apps/api/src/auth";
 import { PostalService } from "../../apps/api/src/postal";
 import { PINGEN_PREFLIGHT_VERSION } from "../../packages/contracts/src/pingen-preflight";
+import { PINGEN_DESTINATION_RESTRICTIONS_URL } from "../../packages/providers/pingen-destination-availability";
+import { destinationRestrictionsResponse } from "../helpers/pingen-destinations";
 import { maintainDocuments } from "../../apps/api/src/maintenance";
 import { routeCode } from "../../packages/observability/src/index";
 import {
@@ -1750,7 +1752,9 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
       expectedRevision: template.revision,
       envelope: { ...template.envelope, name: "Private name after revocation" },
     });
-    await expect(service.getTemplate(member, template.id)).rejects.toMatchObject({
+    await expect(
+      service.getTemplate(member, template.id),
+    ).rejects.toMatchObject({
       code: "TEMPLATE_NOT_FOUND",
     });
     await expect(
@@ -2439,6 +2443,155 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
     expect(await count("approvals")).toBe(0);
     expect(await count("outbox")).toBe(0);
   });
+  it.each(["array", "csv_multiline"] as const)(
+    "freezes complete worldwide postal lines from an explicit %s mapping",
+    async (format) => {
+      const lines = [
+        "Fixture Person",
+        "123 Test Street",
+        "New York NY 10001",
+        "UNITED STATES OF AMERICA",
+      ];
+      const template = envelope();
+      template.inputSchema.properties!.country = { type: "string" };
+      template.inputSchema.properties!.emails = {
+        type: "array",
+        items: { type: "string" },
+      };
+      template.inputSchema.properties!.lines =
+        format === "array"
+          ? { type: "array", items: { type: "string" } }
+          : { type: "string" };
+      const created = await service.createTemplate(owner, {
+        envelope: template,
+      });
+      const publishedTemplate = await service.publishTemplate(
+        owner,
+        created.id,
+        { expectedRevision: created.revision },
+      );
+      const generation = await service.createGeneration(
+        owner,
+        {
+          templateId: publishedTemplate.id,
+          mode: "generate_only",
+          records: [
+            {
+              recordId: "worldwide",
+              data: {
+                name: "Fixture Person",
+                country: "US",
+                emails: ["fixture@example.invalid"],
+                lines: format === "array" ? lines : lines.join("\r\n"),
+              },
+            },
+          ],
+        },
+        `worldwide-${format}`,
+      );
+      await service.processPending(1);
+      const frozen = () =>
+        db
+          .prepare(
+            "SELECT input_json,input_hash FROM generation_records WHERE organization_id=? AND job_id=? AND record_id='worldwide'",
+          )
+          .bind(owner.organizationId, generation.id)
+          .first();
+      const snapshot = await frozen();
+      const plan = await service.prepareDistribution(
+        owner,
+        {
+          jobId: generation.id,
+          entries: [
+            {
+              entryId: "worldwide",
+              recordId: "worldwide",
+              channel: "postal",
+              recipientFields: { country: "country", addressLines: "lines" },
+            },
+          ],
+        },
+        `worldwide-mapping-${format}`,
+      );
+      expect(plan.entries[0].recipient).toEqual({
+        country: "US",
+        addressLines: lines,
+      });
+      expect(await frozen()).toEqual(snapshot);
+      const common = await service.prepareDistribution(
+        owner,
+        {
+          jobId: generation.id,
+          entries: [
+            {
+              entryId: "common",
+              recordId: "worldwide",
+              channel: "postal",
+              recipient: { country: "US", addressLines: lines },
+            },
+          ],
+        },
+        `worldwide-common-${format}`,
+      );
+      expect(common.entries[0].recipient).toEqual({
+        country: "US",
+        addressLines: lines,
+      });
+      await expect(
+        service.prepareDistribution(
+          owner,
+          {
+            jobId: generation.id,
+            entries: [
+              {
+                entryId: "bad",
+                recordId: "worldwide",
+                channel: "postal",
+                recipient: { country: "US", addressLines: lines.join("\n") },
+              },
+            ],
+          },
+          `worldwide-common-invalid-${format}`,
+        ),
+      ).rejects.toThrow();
+      await expect(
+        service.prepareDistribution(
+          owner,
+          {
+            jobId: generation.id,
+            entries: [
+              {
+                entryId: "array-as-email",
+                recordId: "worldwide",
+                channel: "email",
+                recipientFields: { email: "emails" },
+              },
+            ],
+          },
+          `worldwide-array-email-invalid-${format}`,
+        ),
+      ).rejects.toMatchObject({ code: "RECIPIENT_FIELD_INVALID" });
+      if (format === "array")
+        await expect(
+          service.prepareDistribution(
+            owner,
+            {
+              jobId: generation.id,
+              entries: [
+                {
+                  entryId: "array-as-country",
+                  recordId: "worldwide",
+                  channel: "postal",
+                  recipientFields: { country: "lines", addressLines: "lines" },
+                },
+              ],
+            },
+            "worldwide-array-country-invalid",
+          ),
+        ).rejects.toMatchObject({ code: "RECIPIENT_FIELD_INVALID" });
+      expect(await count("outbox")).toBe(0);
+    },
+  );
   it("creates all 500 records atomically through json_each and rejects 501 records and a fourth active job", async () => {
     const template = await published(),
       records = Array.from({ length: 500 }, (_, i) => ({
@@ -2629,6 +2782,8 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
     } as unknown as Env;
     const postal = new PostalService(postalEnv, domain, {
       fetcher: async (url) => {
+        if (String(url) === PINGEN_DESTINATION_RESTRICTIONS_URL)
+          return destinationRestrictionsResponse();
         providerCalls.push(String(url));
         if (String(url).endsWith("/auth/access-tokens"))
           return Response.json({
@@ -3257,10 +3412,11 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
       { jobId: generation.id, entries },
       "individual",
     );
-    expect(distribution.entries.map((e) => e.recipient.email)).toEqual([
-      "bob@example.invalid",
-      "alice@example.invalid",
-    ]);
+    expect(
+      distribution.entries.map((e) =>
+        "email" in e.recipient ? e.recipient.email : undefined,
+      ),
+    ).toEqual(["bob@example.invalid", "alice@example.invalid"]);
     expect(
       distribution.entries.every((e) => e.dispatchId && !e.errorCode),
     ).toBe(true);

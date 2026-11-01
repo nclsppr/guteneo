@@ -1,8 +1,23 @@
 import { z } from "zod";
 import { postalReviewInputSchema } from "./postal-review";
 import type { DocumentAnalysis } from "./document-analysis";
+import {
+  isPostalAddressBlockRecipient,
+  type PostalRecipient,
+} from "./postal-recipient";
 
 export const POSTAL_ADDRESS_PAGE_VERSION = "postal-address-page-2026-09-20-v1";
+export const POSTAL_ADDRESS_BLOCK_PAGE_VERSION =
+  "postal-address-page-2026-11-01-address-block-v2";
+export type PostalAddressPageVersion =
+  typeof POSTAL_ADDRESS_PAGE_VERSION | typeof POSTAL_ADDRESS_BLOCK_PAGE_VERSION;
+export function postalAddressPageVersion(
+  recipient: PostalRecipient,
+): PostalAddressPageVersion {
+  return isPostalAddressBlockRecipient(recipient)
+    ? POSTAL_ADDRESS_BLOCK_PAGE_VERSION
+    : POSTAL_ADDRESS_PAGE_VERSION;
+}
 export const postalAddressPageInputSchema = z
   .object({
     documentId: z.string().min(1).max(200),
@@ -28,6 +43,8 @@ export function postalAddressLines(
   recipient: PostalAddressPageInput["recipient"],
   defaultCountry: string,
 ): string[] {
+  if (isPostalAddressBlockRecipient(recipient))
+    return [...recipient.addressLines];
   const lines = [
     recipient.name,
     recipient.line1,
@@ -41,7 +58,7 @@ export function postalAddressLines(
 }
 export type PostalAddressPageProvenance = {
   id: string;
-  version: typeof POSTAL_ADDRESS_PAGE_VERSION;
+  version: PostalAddressPageVersion;
   sourceDocumentId: string;
   sourceSha256: string;
   generatedDocumentId: string;

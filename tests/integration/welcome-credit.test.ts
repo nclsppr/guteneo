@@ -14,6 +14,8 @@ import { BillingService, type BillingEnv } from "../../apps/api/src/billing";
 import type { Env } from "../../apps/api/src/env";
 import { handleWebhook } from "../../apps/api/src/webhooks";
 import { PINGEN_PREFLIGHT_VERSION } from "../../packages/contracts/src/pingen-preflight";
+import { PingenDestinationAvailabilityReader } from "../../packages/providers/pingen-destination-availability";
+import { destinationRestrictionsResponse } from "../helpers/pingen-destinations";
 
 let mf: Miniflare;
 let db: D1Database;
@@ -73,10 +75,19 @@ afterAll(async () => {
 beforeEach(async () => {
   now = Date.parse("2026-09-17T12:00:00.000Z");
   owner = await tenant();
+  // Finance fixtures use a parsed synthetic reference, never network access or
+  // a production eligibility bypass. Its clock follows the ledger rollover.
+  const destinations = new PingenDestinationAvailabilityReader(
+    async () => destinationRestrictionsResponse(),
+    () => now,
+  );
   domain = new DomainService(db, {
     mode: "production",
     now: () => now,
     liveDeliveryIdentity,
+    assertPostalDestination: async (country) => {
+      await destinations.assertAvailable(country);
+    },
     postalQuote: async (request) => ({
       currency: "EUR",
       supplierMinor: postalPrices.get(

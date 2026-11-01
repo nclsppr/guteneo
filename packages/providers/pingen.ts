@@ -20,6 +20,14 @@ import {
   requireOk,
   unknownResult,
 } from "./transport";
+import {
+  isPingenPostalCountry,
+  type PostalCountry,
+} from "../contracts/src/postal-destinations";
+import {
+  pingenDestinationAvailability,
+  type PingenDestinationAvailabilityReader,
+} from "./pingen-destination-availability";
 
 export type PingenConfig = {
   clientId: string;
@@ -37,11 +45,13 @@ export type PostalSubmission = PostalOptions & {
   preparedLetterId: string;
   expectedAddress: string;
   addressPosition: "left" | "right";
-  country: "FR" | "LU" | "DE";
+  country: PostalCountry;
   maxCost: Money;
   expectedCost?: Money;
   expectedQuoteSha256?: string;
   beforeSend?: () => Promise<void>;
+  /** Server-owned marker after all reads, immediately before the send call. */
+  onSendInvocation?: () => void;
   idempotencyKey: string;
 };
 export type PreparedPostalDocument = {
@@ -52,9 +62,13 @@ export class PingenPostalProvider {
   readonly capabilities: ProviderCapabilities;
   private token?: { value: string; expires: number };
   private readonly api: string;
+  private readonly destinations: PingenDestinationAvailabilityReader;
   constructor(
     private readonly config: PingenConfig,
     private readonly fetcher: Fetcher = fetch,
+    dependencies: {
+      destinations?: PingenDestinationAvailabilityReader;
+    } = {},
   ) {
     requireValue(config.clientId, "pingen_client_id");
     requireValue(config.clientSecret, "pingen_client_secret");
@@ -76,6 +90,8 @@ export class PingenPostalProvider {
     this.api = config.sandbox
       ? "https://api-staging.pingen.com"
       : "https://api.pingen.com";
+    this.destinations =
+      dependencies.destinations ?? pingenDestinationAvailability(fetcher);
     this.capabilities = {
       provider: "pingen",
       channel: "postal",
@@ -87,7 +103,7 @@ export class PingenPostalProvider {
   }
   validate(input: PostalSubmission): string[] {
     const errors: string[] = [];
-    if (!["FR", "LU", "DE"].includes(input.country))
+    if (!isPingenPostalCountry(input.country))
       errors.push("postal_country_not_supported");
     if (!["left", "right"].includes(input.addressPosition))
       errors.push("unsupported_postal_address_position");
@@ -177,7 +193,7 @@ export class PingenPostalProvider {
   }
   async estimate(
     input?: {
-      country: "FR" | "LU" | "DE";
+      country: PostalCountry;
       paperTypes: string[];
     } & PostalOptions,
   ): Promise<ProviderEstimate> {
@@ -189,12 +205,13 @@ export class PingenPostalProvider {
         verifiedAt: "2026-09-16",
       };
     if (
-      !["FR", "LU", "DE"].includes(input.country) ||
+      !isPingenPostalCountry(input.country) ||
       !input.paperTypes.length ||
       input.paperTypes.length > 320 ||
       input.paperTypes.some((p) => p !== "normal")
     )
       throw new ProviderError("unsupported_postal_paper");
+    await this.destinations.assertAvailable(input.country);
     const response = await request(
       this.fetcher,
       `${this.letters()}/price-calculator`,
@@ -245,6 +262,7 @@ export class PingenPostalProvider {
   ): Promise<{ amount: Money; evidenceSha256: string }> {
     if (!["left", "right"].includes(input.addressPosition))
       throw new ProviderError("unsupported_postal_address_position");
+    await this.destinations.assertAvailable(input.country);
     const data = asObject(
       (
         await this.get(
@@ -318,7 +336,16 @@ export class PingenPostalProvider {
           retryable: false,
         };
       headers = await this.headers(input.idempotencyKey);
+      const destination = await this.destinations.assertAvailable(
+        input.country,
+      );
       await input.beforeSend?.();
+      if (!this.destinations.isCurrent(destination))
+        throw new ProviderError(
+          "postal_destination_availability_unavailable",
+          true,
+        );
+      input.onSendInvocation?.();
     } catch (error) {
       // Token/read/quote operations cannot print a letter; preserve this distinction
       // from the physically meaningful PATCH below when reporting an outage.

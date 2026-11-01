@@ -5,13 +5,15 @@ import {
 import {
   PINGEN_MAX_BYTES,
   pingenLayout,
+  pingenPreflightVersion,
 } from "../../../packages/contracts/src/pingen-preflight";
 import {
-  POSTAL_ADDRESS_PAGE_VERSION,
+  postalAddressPageVersion,
   postalAddressPageInputSchema,
   type PostalAddressPageInput,
   type PostalAddressPageResult,
 } from "../../../packages/contracts/src/postal-address-page";
+import { isPostalAddressBlockRecipient } from "../../../packages/contracts/src/postal-recipient";
 import {
   canonicalJson,
   sha256,
@@ -69,8 +71,7 @@ const messages: Record<string, string> = {
 function fail(code: string, status = 409): never {
   throw new ContentError(
     code,
-    messages[code] ??
-      "This address-page preparation cannot be used.",
+    messages[code] ?? "This address-page preparation cannot be used.",
     status,
   );
 }
@@ -182,11 +183,20 @@ export class PostalAddressPageService {
       fail("POSTAL_ADDRESS_PAGE_RECURSIVE");
     const source = await postal.exactDocument(org, input.documentId);
     const profile = await postal.qualifiedProfile(input.addressPosition);
+    const format = isPostalAddressBlockRecipient(input.recipient)
+      ? { addressFormat: "address_block" as const }
+      : {};
+    profile.version = pingenPreflightVersion({
+      country: input.recipient.country,
+      ...format,
+    });
+    const pageVersion = postalAddressPageVersion(input.recipient);
     try {
       pingenLayout({
         defaultCountry: profile.defaultCountry,
         addressPosition: profile.addressPosition,
         country: input.recipient.country,
+        ...format,
         printMode: input.printMode,
         printSpectrum: "grayscale",
         deliveryProduct: "cheap",
@@ -200,7 +210,9 @@ export class PostalAddressPageService {
     if (
       row &&
       (row.profile_json !== canonicalJson(profile) ||
-        row.source_sha256 !== source.document.sha256)
+        row.source_sha256 !== source.document.sha256 ||
+        row.recipient_json !== canonicalJson(input.recipient) ||
+        row.version !== pageVersion)
     )
       fail("POSTAL_ADDRESS_PAGE_PROFILE_CHANGED");
     const leaseToken = crypto.randomUUID(),
@@ -228,7 +240,7 @@ export class PostalAddressPageService {
             canonicalJson(input.recipient),
             input.printMode,
             canonicalJson(profile),
-            POSTAL_ADDRESS_PAGE_VERSION,
+            pageVersion,
             addedPages,
             planned,
             `${org}/postal-address-pages/${id}.pdf`,
@@ -296,6 +308,12 @@ export class PostalAddressPageService {
       };
     }
     const activeRow = row;
+    const frozenRecipient = postalAddressPageInputSchema.shape.recipient.parse(
+      JSON.parse(activeRow.recipient_json),
+    );
+    const frozenPageVersion = postalAddressPageVersion(frozenRecipient);
+    if (activeRow.version !== frozenPageVersion)
+      fail("POSTAL_ADDRESS_PAGE_PROOF_INVALID");
     const activeAuthority: PostalAuthority = {
       context: authority.context,
       assertCurrent: async () => {
@@ -352,7 +370,7 @@ export class PostalAddressPageService {
                   "X-Guteneo-Scan-Sha256": source.document.sha256,
                   "X-Guteneo-Postal-Address-Page": encodeURIComponent(
                     JSON.stringify({
-                      recipient: input.recipient,
+                      recipient: frozenRecipient,
                       defaultCountry: profile.defaultCountry,
                       addressPosition: profile.addressPosition,
                       printMode: input.printMode,
@@ -397,7 +415,7 @@ export class PostalAddressPageService {
               response.headers.get("X-Guteneo-Added-Pages") !==
                 String(addedPages) ||
               response.headers.get("X-Guteneo-Postal-Address-Page-Version") !==
-                POSTAL_ADDRESS_PAGE_VERSION ||
+                frozenPageVersion ||
               hash === source.document.sha256
             )
               fail("POSTAL_ADDRESS_PAGE_PROOF_INVALID");

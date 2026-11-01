@@ -12,6 +12,13 @@ v2 and historical financial writes.
 options/user ceiling can restrict, never qualify pricing. Provider secrets stay
 in the API bridge.
 
+Candidate 1.1.27 also supplies the server-owned `assertPostalDestination` hook.
+It checks current official availability before production postal acceptance
+captures its quote-validation clock and starts the atomic reservation/outbox
+batch. Missing configuration fails closed; already accepted/idempotent historical
+replays are unchanged. Eligibility is current operational permission, not a new
+field/default in immutable quote JSON. See [worldwide postal mail](POSTAL_WORLDWIDE.md).
+
 Operator-only `trusted_delivery_costs` rows, immutable except revocation, qualify
 Guteneo organization, verified sender, channel, provider account, route, options,
 source/SHA-256, cost basis, EUR currency, validity and quote TTL (30–900 seconds).
@@ -90,6 +97,14 @@ A separately authorized draft preserves exact bytes with `auto_send:false`, with
 moving/adding addresses. `PINGEN_DEFAULT_COUNTRY` supplies qualified account profile;
 international addresses keep a final country line. Upload max: 8,000,000 bytes.
 [Pingen preflight](PINGEN_PREFLIGHT.md) owns geometry/limitations.
+
+The worldwide candidate accepts 250 recognized country codes, independently
+rechecking fresh restrictions/delays. Recognition and a calculator response alone
+do not establish service availability. New complete-block recipients preserve
+their arrays in hash material; legacy FR/LU/DE recipients remain unchanged. The
+four persisted print/delivery options remain exactly the qualified policy options,
+with no country-price constant or persisted `addressFormat` default. Each actual
+analyzed draft still obtains its own EUR calculator result and short quote.
 
 Quote preparation reads the exact provider draft, checks address/country,
 `meta.abilities.self.submit === "ok"` and analyzed `paper_types`, then calls

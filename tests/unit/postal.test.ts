@@ -31,7 +31,13 @@ import {
 import type { Env } from "../../apps/api/src/env";
 import type { PostalReviewInput } from "../../packages/contracts/src/postal-review";
 import type { Fetcher } from "../../packages/providers";
-import { PINGEN_PREFLIGHT_VERSION } from "../../packages/contracts/src/pingen-preflight";
+import {
+  PINGEN_PREFLIGHT_VERSION,
+  PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION,
+} from "../../packages/contracts/src/pingen-preflight";
+import { postalAddressLines } from "../../packages/contracts/src/postal-address-page";
+import { PINGEN_DESTINATION_RESTRICTIONS_URL } from "../../packages/providers/pingen-destination-availability";
+import { destinationRestrictionsResponse } from "../helpers/pingen-destinations";
 
 const openapi = JSON.parse(
   await readFile(
@@ -116,6 +122,8 @@ const report = () => ({
 });
 let renderer: ReturnType<typeof vi.fn>;
 const profileFetch: Fetcher = async (url, init) => {
+  if (String(url) === PINGEN_DESTINATION_RESTRICTIONS_URL)
+    return destinationRestrictionsResponse();
   const parsed = new URL(String(url));
   calls.push({
     url: parsed.origin + parsed.pathname,
@@ -221,11 +229,7 @@ async function legacyReview(
     version: "pingen-2026-09-17-v1",
   };
   const options = { ...input.options, addressPosition: "left" };
-  const expectedAddress = [
-    input.recipient.name,
-    input.recipient.line1,
-    `${input.recipient.postalCode} ${input.recipient.city}`,
-  ].join("\n");
+  const expectedAddress = postalAddressLines(input.recipient, "LU").join("\n");
   const requestHash = await sha256(
     canonicalJson({
       ...input,
@@ -477,6 +481,217 @@ afterAll(async () => {
 });
 
 describe("server-owned postal review and consent", () => {
+  it("observes restrictions separately from recognized destinations and blocks before render quota or transfer state", async () => {
+    const restricted: Fetcher = (url, init) =>
+      String(url) === PINGEN_DESTINATION_RESTRICTIONS_URL
+        ? Promise.resolve(
+            destinationRestrictionsResponse(["Russia"], ["Canada"]),
+          )
+        : profileFetch(url, init);
+    const destinations = await service(restricted).destinations(authority);
+    expect(destinations.countries).toHaveLength(250);
+    expect(destinations.unavailableCountries).toEqual(["RU"]);
+    expect(destinations.delayedCountries).toEqual(["CA"]);
+    expect(destinations.sourceSha256).toMatch(/^[a-f0-9]{64}$/);
+    await expect(
+      service(restricted).create(
+        authority,
+        {
+          ...input,
+          recipient: {
+            country: "RU",
+            addressLines: ["Fixture Recipient", "123 Test Street", "RUSSIA"],
+          },
+        },
+        "restricted-render",
+      ),
+    ).rejects.toMatchObject({ code: "POSTAL_DESTINATION_UNAVAILABLE" });
+    expect(await renders()).toBe(0);
+    expect(renderer).not.toHaveBeenCalled();
+    const ready = await service().create(
+      authority,
+      input,
+      "before-reference-outage",
+    );
+    const unreadable: Fetcher = (url, init) =>
+      String(url) === PINGEN_DESTINATION_RESTRICTIONS_URL
+        ? Promise.resolve(new Response("unavailable", { status: 503 }))
+        : profileFetch(url, init);
+    await expect(
+      service(unreadable).transfer(authority, ready.id, {
+        reviewed: true,
+        consentToTransfer: true,
+      }),
+    ).rejects.toMatchObject({
+      code: "POSTAL_DESTINATION_AVAILABILITY_UNAVAILABLE",
+    });
+    expect(
+      await env.DB.prepare(
+        "SELECT transfer_status FROM postal_preflights WHERE id=?",
+      )
+        .bind(ready.id)
+        .first(),
+    ).toEqual({ transfer_status: "not_started" });
+    expect(
+      await env.DB.prepare(
+        "SELECT count(*) AS count FROM postal_transfer_consents",
+      ).first(),
+    ).toEqual({ count: 0 });
+    expect(transfers()).toHaveLength(0);
+  });
+
+  it.each([
+    { boundary: "PUT", condition: "closed" },
+    { boundary: "PUT", condition: "unreadable" },
+    { boundary: "PUT", condition: "revoked" },
+    { boundary: "PUT", condition: "expires_after_authority" },
+    { boundary: "POST", condition: "closed" },
+    { boundary: "POST", condition: "unreadable" },
+    { boundary: "POST", condition: "revoked" },
+    { boundary: "POST", condition: "expires_after_authority" },
+  ])(
+    "rechecks an expired destination observation after the final profile fence before $boundary ($condition)",
+    async ({ boundary, condition }) => {
+      let clock = Date.now(),
+        expireAfterProfile = false,
+        expired = false,
+        expireAfterAuthority = false,
+        observations = 0;
+      const fetcher: Fetcher = async (url, init) => {
+        if (String(url) === PINGEN_DESTINATION_RESTRICTIONS_URL) {
+          observations++;
+          if (expired && condition === "revoked") {
+            await env.DB.prepare("DELETE FROM browser_sessions").run();
+            return destinationRestrictionsResponse();
+          }
+          if (expired && condition === "expires_after_authority") {
+            expireAfterAuthority = true;
+            return destinationRestrictionsResponse();
+          }
+          return !expired
+            ? destinationRestrictionsResponse()
+            : condition === "closed"
+              ? destinationRestrictionsResponse(["Luxembourg"])
+              : new Response("unavailable", { status: 503 });
+        }
+        const parsed = new URL(String(url));
+        const response = await profileFetch(url, init);
+        if (
+          (boundary === "PUT" && parsed.pathname === "/file-upload") ||
+          (boundary === "POST" &&
+            parsed.origin === "https://upload.pingen.example" &&
+            init?.method === "PUT")
+        )
+          expireAfterProfile = true;
+        if (
+          expireAfterProfile &&
+          parsed.pathname === "/organisations/pingen_org"
+        ) {
+          clock += 300_000;
+          expired = true;
+          expireAfterProfile = false;
+        }
+        return response;
+      };
+      const postal = new PostalService(env, domain, {
+        fetcher,
+        now: () => clock,
+      });
+      const currentAuthority: PostalAuthority = {
+        ...authority,
+        assertCurrent: async () => {
+          await authority.assertCurrent();
+          if (expireAfterAuthority) {
+            clock += 300_000;
+            expireAfterAuthority = false;
+          }
+        },
+      };
+      const ready = await postal.create(
+        currentAuthority,
+        input,
+        "expiring-destination",
+      );
+      const operation = postal.transfer(currentAuthority, ready.id, {
+        reviewed: true,
+        consentToTransfer: true,
+      });
+      if (condition === "revoked")
+        await expect(operation).rejects.toMatchObject({ status: 401 });
+      else
+        await expect(operation).resolves.toMatchObject({
+          transferStatus: "unknown",
+          canSend: false,
+        });
+      expect(observations).toBe(2);
+      expect(
+        await env.DB.prepare(
+          "SELECT transfer_status FROM postal_preflights WHERE id=?",
+        )
+          .bind(ready.id)
+          .first(),
+      ).toEqual({ transfer_status: "unknown" });
+      expect(transfers().map((call) => call.method)).toEqual(
+        boundary === "PUT" ? [] : ["PUT"],
+      );
+      expect(calls.some((call) => call.method === "PATCH")).toBe(false);
+      const callsBeforeReplay = calls.length;
+      const replay = postal.transfer(currentAuthority, ready.id, {
+        reviewed: true,
+        consentToTransfer: true,
+      });
+      if (condition === "revoked")
+        await expect(replay).rejects.toMatchObject({ status: 401 });
+      else
+        await expect(replay).resolves.toMatchObject({
+          transferStatus: "unknown",
+        });
+      expect(calls).toHaveLength(callsBeforeReplay);
+      expect(observations).toBe(2);
+    },
+  );
+
+  it("freezes worldwide printed lines and derives only the renderer's format while retaining four pricing options", async () => {
+    const recipient = {
+      country: "US" as const,
+      addressLines: [
+        "Fixture Person",
+        "123 Test Street",
+        "New York NY 10001",
+        "UNITED STATES OF AMERICA",
+      ],
+    };
+    renderer.mockImplementationOnce(async (request: Request) => {
+      expect(
+        JSON.parse(request.headers.get("X-Guteneo-Pingen-Options")!),
+      ).toMatchObject({ country: "US", addressFormat: "address_block" });
+      return Response.json({
+        ...report(),
+        version: PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION,
+        address: { ...report().address, lines: recipient.addressLines },
+      });
+    });
+    const review = await service().create(
+      authority,
+      { ...input, recipient },
+      "worldwide-print",
+    );
+    expect(review.recipient).toEqual(recipient);
+    expect(review.address.matches).toBe(true);
+    expect(review.options).not.toHaveProperty("addressFormat");
+    const frozen = await env.DB.prepare(
+      "SELECT profile_json,options_json FROM postal_preflights WHERE id=?",
+    )
+      .bind(review.id)
+      .first<{ profile_json: string; options_json: string }>();
+    expect(JSON.parse(frozen!.profile_json).version).toBe(
+      PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION,
+    );
+    expect(JSON.parse(frozen!.options_json)).toEqual({
+      ...input.options,
+      addressPosition: "left",
+    });
+  });
   it("reads a qualified destination template without PDF, storage writes or render credit", async () => {
     const requirements = await service().requirements(authority, "FR");
     expect(requirements).toMatchObject({

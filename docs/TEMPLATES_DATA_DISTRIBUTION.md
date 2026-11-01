@@ -357,8 +357,19 @@ Async work rechecks membership, OAuth and use-right revocation. Private means ow
 with the separately documented dispatch-review exception after preparation.
 
 Distribution freezes record → document/version/hash → channel/recipient.
-`recipientFields` resolves frozen record data, not reparsed files. Multiple
-recipients remain separate dispatches; multiple channels require
+`recipientFields` resolves frozen record data, not reparsed files. Postal
+recipients may use the unpublished 1.1.27
+[complete printed block](POSTAL_WORLDWIDE.md). A common recipient supplies a
+strict array; an explicit postal `recipientFields.addressLines` mapping accepts
+a text array or splits one multiline CSV cell into ordered lines. Country maps
+to its data path, never a literal interpreted from that path. Other mappings
+retain string/number values and reject arrays/objects with
+`RECIPIENT_FIELD_INVALID`; they never stringify arrays into an address or email.
+Mode changes filter inactive legacy/block fields before the request. Record
+data/hash and resolved manifest remain immutable, with the same postal checks,
+transfer consent and final approval boundaries.
+
+Multiple recipients remain separate dispatches; multiple channels require
 `explicitMultichannel:true`. Web destinations apply to all selected records or a
 named subset; with several selected PDFs a new destination starts with none, so
 every association is chosen, and the form lists the exact destination/channel/PDF

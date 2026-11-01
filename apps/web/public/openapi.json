@@ -602,7 +602,7 @@
         "operationId": "prepareDispatch",
         "tags": ["Dispatches"],
         "summary": "Prepare an immutable dispatch",
-        "description": "Sends nothing. Fax/postal require a ready documentId. Email requires recipient.email. Message-only email requires subject and nonempty text (supplied or derived from HTML). With an accessible ready documentId, omitted/blank subject and body independently use localized defaults naming the authenticated workspace; caller-supplied workspace names are not accepted. Document emails without custom HTML use the branded template. Custom HTML keeps safe inline email styles and may use exact anchor href=\"{{document_url}}\" only for protected_link; the server substitutes the private URL before review. Without documentId: no file. With ready documentId: attaches the original PDF by default. The same PDF with options.emailDeliveryMode=protected_link creates a password-protected link; options.protectedDays accepts 1, 7 or 30 (default 7). Before fingerprinting and review, the server resolves the recipient link in final content and adds password/expiry instructions, preserves the duration and quotes the EUR1 hosting surcharge per document where applicable. The server generates the password and reveals it only to the sender in their browser account; it must be shared separately with the recipient. Clients never supply protectedDocument, hostingId, link tokens or passwords. Multi-format recipient lists, Excel/other attachments and recipient accounts are planned, unavailable features. Fax uses recipient.phone; postal uses name, line1, postalCode, city and country with no nonempty line2. Requires a verified sender for the correct channel/mode (first available if senderId is absent). In production, every channel requires qualified private pricing and a valid quote: provider account, sender, options, source, tax, currency/FX and dates must match. Postal also requires an exact local provider draft and its price calculation; email includes billable data and qualified FX. Client-supplied provider amounts are rejected. A ceiling is not a tariff. Returns a raw Dispatch without approvalUrl: open https://guteneo.com/#/app/dispatch/{id} in the authenticated browser. A campaign must remain draft. For a new production letter, use /api/postal/preflights, open reviewUrl for consent, then /api/postal/preflights/{id}/quote; never fabricate preparedLetterId or review evidence. Fax v3 exposes a range excluding tax and a firm approved ceiling in faxPricing; confirmation reserves the ceiling and settlement awaits verified usage without requiring final cost before transmission.",
+        "description": "Sends nothing. Fax/postal require a ready documentId. Email requires recipient.email. Message-only email requires subject and nonempty text (supplied or derived from HTML). With an accessible ready documentId, omitted/blank subject and body independently use localized defaults naming the authenticated workspace; caller-supplied workspace names are not accepted. Document emails without custom HTML use the branded template. Custom HTML keeps safe inline email styles and may use exact anchor href=\"{{document_url}}\" only for protected_link; the server substitutes the private URL before review. Without documentId: no file. With ready documentId: attaches the original PDF by default. The same PDF with options.emailDeliveryMode=protected_link creates a password-protected link; options.protectedDays accepts 1, 7 or 30 (default 7). Before fingerprinting and review, the server resolves the recipient link in final content and adds password/expiry instructions, preserves the duration and quotes the EUR1 hosting surcharge per document where applicable. The server generates the password and reveals it only to the sender in their browser account; it must be shared separately with the recipient. Clients never supply protectedDocument, hostingId, link tokens or passwords. Multi-format recipient lists, Excel/other attachments and recipient accounts are planned, unavailable features. Fax uses recipient.phone; postal uses either the historical FR/LU/DE fields name, line1, postalCode, city and country, or the strict {country,addressLines} complete printed block for a Pingen accepted country. addressLines is an array of two to six exact lines, including the name and the accepted country line when required; never mix forms or invent address information. Current provider restrictions, scan, visual review and exact Pingen pricing remain mandatory. Requires a verified sender for the correct channel/mode (first available if senderId is absent). In production, every channel requires qualified private pricing and a valid quote: provider account, sender, options, source, tax, currency/FX and dates must match. Postal also requires an exact local provider draft and its price calculation; email includes billable data and qualified FX. Client-supplied provider amounts are rejected. A ceiling is not a tariff. Returns a raw Dispatch without approvalUrl: open https://guteneo.com/#/app/dispatch/{id} in the authenticated browser. A campaign must remain draft. For a new production letter, use /api/postal/preflights, open reviewUrl for consent, then /api/postal/preflights/{id}/quote; never fabricate preparedLetterId or review evidence. Fax v3 exposes a range excluding tax and a firm approved ceiling in faxPricing; confirmation reserves the ceiling and settlement awaits verified usage without requiring final cost before transmission.",
         "security": [
           {
             "GuteneoOAuth": ["dispatches:prepare"]
@@ -1100,7 +1100,7 @@
         "operationId": "validateRecipients",
         "tags": ["Campaigns"],
         "summary": "Validate CSV without creating dispatches",
-        "description": "Maximum 256 KiB UTF-8 and 500 rows. Requires a channel header; allowed columns: channel,email,phone,name,line1,postalCode,city,country. CSV formulas are forbidden. Row numbering starts at 2 (header is row 1). Duplicates remain in rows and are reported separately; errors or duplicates set valid=false. Syntax validation only, without deliverability checks or sending.",
+        "description": "Maximum 256 KiB UTF-8 and 500 rows. Requires a channel header; allowed columns: channel,email,phone,name,line1,postalCode,city,country,addressLines. For postal blocks, addressLines is a CSV cell containing a JSON array of the complete printed lines and country is a Pingen accepted code; no nonempty legacy address fields may be combined with it. This direct CSV contract differs from mapped dataset fields, where the server explicitly converts a multiline addressLines field. CSV formulas are forbidden. Row numbering starts at 2 (header is row 1). Duplicates remain in rows and are reported separately; errors or duplicates set valid=false. Syntax validation only, without deliverability checks or sending.",
         "security": [
           {
             "GuteneoOAuth": ["dispatches:prepare"]
@@ -1589,6 +1589,66 @@
         ]
       }
     },
+    "/api/postal/destinations": {
+      "get": {
+        "operationId": "getPostalDestinations",
+        "tags": ["Post"],
+        "summary": "Read accepted postal countries and current delivery restrictions",
+        "description": "Authenticated read of the complete Pingen accepted-country catalogue and a fresh public provider restriction observation. No account profile, PDF, draft, quote, consent or send is created. Unavailable countries are refused; delayed countries are distinct. The server fails closed when freshness or parsing cannot be verified. An accepted country and an available observation do not guarantee a price or delivery; the exact Pingen calculator and later provider checks remain mandatory.",
+        "security": [
+          {
+            "GuteneoOAuth": ["documents:read"]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "no-store: current provider restriction observation."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostalDestinations"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
     "/api/postal/requirements": {
       "get": {
         "operationId": "getPostalRequirements",
@@ -1653,10 +1713,9 @@
             "in": "query",
             "required": true,
             "schema": {
-              "type": "string",
-              "enum": ["FR", "LU", "DE"]
+              "$ref": "#/components/schemas/PostalCountry"
             },
-            "description": "Recipient country."
+            "description": "Accepted recipient country code. Current restrictions are separate from the accepted-country catalogue."
           },
           {
             "name": "addressPosition",
@@ -1667,6 +1726,16 @@
               "enum": ["left", "right"]
             },
             "description": "Optional desired layout position. Read profile.addressPositions for available positions."
+          },
+          {
+            "name": "addressFormat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["address_block"]
+            },
+            "description": "Select the complete printed address-block contract explicitly for FR/LU/DE. Other accepted countries use that contract automatically. Omit to retain the historical FR/LU/DE requirements. This is a layout selector, never a persisted pricing option."
           }
         ]
       }
@@ -1789,7 +1858,7 @@
         "operationId": "createPostalAddressPage",
         "tags": ["Post"],
         "summary": "Add an address page to the PDF",
-        "description": "Explicit action: retains the original PDF and creates a new PDF with an address page positioned by the current postal profile. Duplex adds a blank verso to preserve original page pairs. The client supplies the address; no address or recipient existence is inferred. Source must be ready and verified in this account. The final PDF is analyzed again: wait for document.status=ready, read every page, then use its identifier in /api/postal/preflights. Added pages count in the final quote; the client supplies no tariff. The same key and request recover generation; reuse with different data conflicts. No PDF is transferred to the print provider, and no consent or dispatch is created. Final maximum: 100 pages and 8 000 000 bytes. Consumes existing generation and storage quotas.",
+        "description": "Explicit action: retains the original PDF and creates a new PDF with an address page positioned by the current postal profile. Duplex adds a blank verso to preserve original page pairs. The client supplies the address; no address or recipient existence is inferred. Source must be ready and verified in this account. The final PDF is analyzed again: wait for document.status=ready, read every page, then use its identifier in /api/postal/preflights. Added pages count in the final quote; the client supplies no tariff. The same key and request recover generation; reuse with different data conflicts. No PDF is transferred to the print provider, and no consent or dispatch is created. Final maximum: 100 pages and 8 000 000 bytes. Consumes existing generation and storage quotas. Legacy FR/LU/DE recipients retain address-page v1 and preflight v2. Complete address blocks use address-page v2 and preflight v3; versions derive from the frozen recipient. A country catalogue is not a deliverability guarantee.",
         "security": [
           {
             "GuteneoOAuth": ["documents:write"]
@@ -6285,37 +6354,48 @@
         ]
       },
       "Recipient": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string",
-            "format": "email"
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "email": {
+                "type": "string",
+                "format": "email"
+              },
+              "phone": {
+                "type": "string",
+                "description": "Normalized international format; +33, +352 or +49 prefixes. Spaces, parentheses and hyphens are removed. Syntax validation is not deliverability evidence."
+              },
+              "name": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "line1": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "postalCode": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "city": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "country": {
+                "type": "string",
+                "enum": ["FR", "LU", "DE"]
+              }
+            },
+            "not": {
+              "required": ["addressLines"]
+            }
           },
-          "phone": {
-            "type": "string",
-            "description": "Normalized international format; +33, +352 or +49 prefixes. Spaces, parentheses and hyphens are removed. Syntax validation is not deliverability evidence."
-          },
-          "name": {
-            "type": "string",
-            "maxLength": 160
-          },
-          "line1": {
-            "type": "string",
-            "maxLength": 160
-          },
-          "postalCode": {
-            "type": "string",
-            "maxLength": 160
-          },
-          "city": {
-            "type": "string",
-            "maxLength": 160
-          },
-          "country": {
-            "type": "string",
-            "enum": ["FR", "LU", "DE"]
+          {
+            "$ref": "#/components/schemas/PostalAddressBlockRecipient"
           }
-        }
+        ],
+        "description": "Channel validation remains mandatory. A postal addressLines block is strict and contains an array, never a JSON-encoded string. Email and fax retain their existing recipient fields."
       },
       "PrepareDispatch": {
         "type": "object",
@@ -6867,7 +6947,7 @@
           "documents"
         ]
       },
-      "PostalRecipient": {
+      "LegacyPostalRecipient": {
         "type": "object",
         "additionalProperties": false,
         "required": ["name", "line1", "postalCode", "city", "country"],
@@ -6897,6 +6977,17 @@
             "enum": ["FR", "LU", "DE"]
           }
         }
+      },
+      "PostalRecipient": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/LegacyPostalRecipient"
+          },
+          {
+            "$ref": "#/components/schemas/PostalAddressBlockRecipient"
+          }
+        ],
+        "description": "Choose either the historical FR/LU/DE five-field shape or a complete printed address block for an accepted Pingen country. Mixed forms are rejected. No new defaults are added to legacy recipients."
       },
       "PostalPrintOptions": {
         "type": "object",
@@ -7227,15 +7318,18 @@
             "enum": ["pingen"]
           },
           "version": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "pingen-2026-09-17-v2",
+              "pingen-2026-11-01-address-block-v3"
+            ]
           },
           "qualified": {
             "type": "boolean",
             "enum": [true]
           },
           "country": {
-            "type": "string",
-            "enum": ["FR", "LU", "DE"]
+            "$ref": "#/components/schemas/PostalCountry"
           },
           "profile": {
             "type": "object",
@@ -7396,6 +7490,9 @@
           },
           "addressGuidance": {
             "$ref": "#/components/schemas/PostalAddressGuidance"
+          },
+          "destinations": {
+            "$ref": "#/components/schemas/PostalDestinations"
           }
         },
         "required": [
@@ -7408,7 +7505,40 @@
           "limits",
           "requirements",
           "canSend",
-          "addressGuidance"
+          "addressGuidance",
+          "destinations"
+        ],
+        "allOf": [
+          {
+            "oneOf": [
+              {
+                "properties": {
+                  "version": {
+                    "type": "string",
+                    "enum": ["pingen-2026-09-17-v2"]
+                  },
+                  "country": {
+                    "type": "string",
+                    "enum": ["FR", "LU", "DE"]
+                  },
+                  "addressGuidance": {
+                    "$ref": "#/components/schemas/LegacyPostalAddressGuidance"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "version": {
+                    "type": "string",
+                    "enum": ["pingen-2026-11-01-address-block-v3"]
+                  },
+                  "addressGuidance": {
+                    "$ref": "#/components/schemas/PostalAddressBlockGuidance"
+                  }
+                }
+              }
+            ]
+          }
         ]
       },
       "FaxPricingDisplay": {
@@ -7613,7 +7743,7 @@
           }
         }
       },
-      "PostalAddressGuidance": {
+      "LegacyPostalAddressGuidance": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -7963,7 +8093,7 @@
                 "enum": [false]
               },
               "recipient": {
-                "$ref": "#/components/schemas/PostalRecipient"
+                "$ref": "#/components/schemas/LegacyPostalRecipient"
               },
               "printedLines": {
                 "type": "array",
@@ -8182,7 +8312,10 @@
           },
           "version": {
             "type": "string",
-            "enum": ["postal-address-page-2026-09-20-v1"]
+            "enum": [
+              "postal-address-page-2026-09-20-v1",
+              "postal-address-page-2026-11-01-address-block-v2"
+            ]
           },
           "addressMode": {
             "type": "string",
@@ -8202,7 +8335,11 @@
                 "enum": ["left", "right"]
               },
               "version": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "pingen-2026-09-17-v2",
+                  "pingen-2026-11-01-address-block-v3"
+                ]
               }
             }
           }
@@ -8220,6 +8357,50 @@
           "printMode",
           "profile",
           "addedPages"
+        ],
+        "allOf": [
+          {
+            "oneOf": [
+              {
+                "properties": {
+                  "version": {
+                    "type": "string",
+                    "enum": ["postal-address-page-2026-09-20-v1"]
+                  },
+                  "recipient": {
+                    "$ref": "#/components/schemas/LegacyPostalRecipient"
+                  },
+                  "profile": {
+                    "properties": {
+                      "version": {
+                        "type": "string",
+                        "enum": ["pingen-2026-09-17-v2"]
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "version": {
+                    "type": "string",
+                    "enum": ["postal-address-page-2026-11-01-address-block-v2"]
+                  },
+                  "recipient": {
+                    "$ref": "#/components/schemas/PostalAddressBlockRecipient"
+                  },
+                  "profile": {
+                    "properties": {
+                      "version": {
+                        "type": "string",
+                        "enum": ["pingen-2026-11-01-address-block-v3"]
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
         ]
       },
       "PostalAddressPageResult": {
@@ -9827,7 +10008,7 @@
         },
         "required": ["jobId", "entries", "explicitMultichannel"],
         "additionalProperties": false,
-        "description": "Every entry selects recipient, recipientFields OR recipientFieldsByChannel exclusively. Channel is explicit OR resolved through channelField in frozen data (fax/email/postal only). recipientFields paths resolve against the record's frozen data. Multiple channels require explicitMultichannel:true; no implicit merge."
+        "description": "Every entry selects recipient, recipientFields OR recipientFieldsByChannel exclusively. Channel is explicit OR resolved through channelField in frozen data (fax/email/postal only). recipientFields paths resolve against the record's frozen data. Multiple channels require explicitMultichannel:true; no implicit merge. Postal literal recipients may use the strict {country,addressLines} block with an actual array. For mapped postal data, recipientFields.country and recipientFields.addressLines select frozen paths; the server converts an explicitly multiline addressLines value without reordering or silently removing lines. Mixed postal shapes are rejected."
       },
       "TemplateView": {
         "type": "object",
@@ -12178,6 +12359,793 @@
             "enum": ["received"]
           }
         }
+      },
+      "PostalAddressGuidance": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/LegacyPostalAddressGuidance"
+          },
+          {
+            "$ref": "#/components/schemas/PostalAddressBlockGuidance"
+          }
+        ]
+      },
+      "PostalCountry": {
+        "type": "string",
+        "enum": [
+          "AD",
+          "AE",
+          "AF",
+          "AG",
+          "AI",
+          "AL",
+          "AM",
+          "AO",
+          "AQ",
+          "AR",
+          "AS",
+          "AT",
+          "AU",
+          "AW",
+          "AX",
+          "AZ",
+          "BA",
+          "BB",
+          "BD",
+          "BE",
+          "BF",
+          "BG",
+          "BH",
+          "BI",
+          "BJ",
+          "BL",
+          "BM",
+          "BN",
+          "BO",
+          "BQ",
+          "BR",
+          "BS",
+          "BT",
+          "BV",
+          "BW",
+          "BY",
+          "BZ",
+          "CA",
+          "CC",
+          "CD",
+          "CF",
+          "CG",
+          "CH",
+          "CI",
+          "CK",
+          "CL",
+          "CM",
+          "CN",
+          "CO",
+          "CR",
+          "CU",
+          "CV",
+          "CW",
+          "CX",
+          "CY",
+          "CZ",
+          "DE",
+          "DJ",
+          "DK",
+          "DM",
+          "DO",
+          "DZ",
+          "EC",
+          "EE",
+          "EG",
+          "EH",
+          "ER",
+          "ES",
+          "ET",
+          "FI",
+          "FJ",
+          "FK",
+          "FM",
+          "FO",
+          "FR",
+          "GA",
+          "GB",
+          "GD",
+          "GE",
+          "GF",
+          "GG",
+          "GH",
+          "GI",
+          "GL",
+          "GM",
+          "GN",
+          "GP",
+          "GQ",
+          "GR",
+          "GS",
+          "GT",
+          "GU",
+          "GW",
+          "GY",
+          "HK",
+          "HM",
+          "HN",
+          "HR",
+          "HT",
+          "HU",
+          "ID",
+          "IE",
+          "IL",
+          "IM",
+          "IN",
+          "IO",
+          "IQ",
+          "IR",
+          "IS",
+          "IT",
+          "JE",
+          "JM",
+          "JO",
+          "JP",
+          "KE",
+          "KG",
+          "KH",
+          "KI",
+          "KM",
+          "KN",
+          "KP",
+          "KR",
+          "KW",
+          "KY",
+          "KZ",
+          "LA",
+          "LB",
+          "LC",
+          "LI",
+          "LK",
+          "LR",
+          "LS",
+          "LT",
+          "LU",
+          "LV",
+          "LY",
+          "MA",
+          "MC",
+          "MD",
+          "ME",
+          "MF",
+          "MG",
+          "MH",
+          "MK",
+          "ML",
+          "MM",
+          "MN",
+          "MO",
+          "MP",
+          "MQ",
+          "MR",
+          "MS",
+          "MT",
+          "MU",
+          "MV",
+          "MW",
+          "MX",
+          "MY",
+          "MZ",
+          "NA",
+          "NC",
+          "NE",
+          "NF",
+          "NG",
+          "NI",
+          "NL",
+          "NO",
+          "NP",
+          "NR",
+          "NU",
+          "NZ",
+          "OM",
+          "PA",
+          "PE",
+          "PF",
+          "PG",
+          "PH",
+          "PK",
+          "PL",
+          "PM",
+          "PN",
+          "PR",
+          "PS",
+          "PT",
+          "PW",
+          "PY",
+          "QA",
+          "RE",
+          "RO",
+          "RS",
+          "RU",
+          "RW",
+          "SA",
+          "SB",
+          "SC",
+          "SD",
+          "SE",
+          "SG",
+          "SH",
+          "SI",
+          "SJ",
+          "SK",
+          "SL",
+          "SM",
+          "SN",
+          "SO",
+          "SR",
+          "SS",
+          "ST",
+          "SV",
+          "SX",
+          "SY",
+          "SZ",
+          "TC",
+          "TD",
+          "TF",
+          "TG",
+          "TH",
+          "TJ",
+          "TK",
+          "TL",
+          "TM",
+          "TN",
+          "TO",
+          "TR",
+          "TT",
+          "TV",
+          "TW",
+          "TZ",
+          "UA",
+          "UG",
+          "UM",
+          "US",
+          "UY",
+          "UZ",
+          "VA",
+          "VC",
+          "VE",
+          "VG",
+          "VI",
+          "VN",
+          "VU",
+          "WF",
+          "WS",
+          "XZ",
+          "YE",
+          "YT",
+          "ZA",
+          "ZM",
+          "ZW"
+        ],
+        "description": "Pingen accepted recipient country codes, observed 1 November 2026. XZ is the provider code for Kosovo; XK is not accepted. This catalogue does not prove current delivery availability. Read PostalDestinations and its expiry before preparing a letter."
+      },
+      "PostalAddressBlockRecipient": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["country", "addressLines"],
+        "properties": {
+          "country": {
+            "$ref": "#/components/schemas/PostalCountry"
+          },
+          "addressLines": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 6,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "^(?!\\s)(?![\\s\\S]*[\\u0000-\\u001f\\u007f])[\\s\\S]*\\S$"
+            },
+            "description": "Complete printed block, including the recipient name and the accepted uppercase country line when required. Preserve each line exactly; no trimming, transliteration, reordering, truncation or invented information. Six lines is a Guteneo input limit, not a universal postal standard. Server validation rejects controls and surrounding whitespace; renderer and human review still check the destination format and actual window."
+          }
+        },
+        "description": "Strict alternative to the legacy five-field address. Do not combine addressLines with name, line1, postalCode, city or any extra field."
+      },
+      "PostalAddressBlockGuidance": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "destination": {
+            "$ref": "#/components/schemas/PostalCountry"
+          },
+          "route": {
+            "type": "string",
+            "enum": [
+              "la_poste",
+              "dhl_international",
+              "bpost_luxembourg",
+              "deutsche_post",
+              "provider_country_specific"
+            ]
+          },
+          "recipientSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "fields": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "string",
+                  "enum": ["country", "addressLines"]
+                },
+                "uniqueItems": true
+              },
+              "renderedLines": {
+                "type": "integer",
+                "nullable": true,
+                "enum": [null],
+                "description": "Variable complete printed block; use minRenderedLines and maxRenderedLines."
+              },
+              "additionalAddressLinesSupported": {
+                "type": "boolean",
+                "enum": [true]
+              },
+              "maxCharactersPerPrintedLine": {
+                "type": "integer",
+                "enum": [38, 160]
+              },
+              "lineOrder": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "limitations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "minRenderedLines": {
+                "type": "integer",
+                "enum": [2, 3]
+              },
+              "maxRenderedLines": {
+                "type": "integer",
+                "enum": [6]
+              }
+            },
+            "required": [
+              "fields",
+              "renderedLines",
+              "additionalAddressLinesSupported",
+              "maxCharactersPerPrintedLine",
+              "lineOrder",
+              "limitations",
+              "minRenderedLines",
+              "maxRenderedLines"
+            ]
+          },
+          "addressRules": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "format": {
+                "type": "string",
+                "enum": ["complete_destination_formatted_block"]
+              },
+              "postcodeValidation": {
+                "type": "string",
+                "enum": [
+                  "supported_legacy_country_syntax",
+                  "provider_and_human_review_required"
+                ]
+              },
+              "countryLine": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "value": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "acceptedNames": {
+                    "type": "array",
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "canonicalNameLanguage": {
+                    "type": "string",
+                    "enum": ["en", "de"]
+                  },
+                  "domesticCountryLineForbidden": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "required",
+                  "value",
+                  "acceptedNames",
+                  "canonicalNameLanguage",
+                  "domesticCountryLineForbidden"
+                ]
+              },
+              "blankLinesAllowed": {
+                "type": "boolean",
+                "enum": [false]
+              },
+              "additionalContentInsideAddressAreaAllowed": {
+                "type": "boolean",
+                "enum": [false]
+              },
+              "latinAlphabetAndArabicDigits": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "scope": {
+                    "type": "string",
+                    "enum": [
+                      "all_address_lines",
+                      "country_line_only",
+                      "provider_country_requirements"
+                    ]
+                  }
+                },
+                "required": ["scope"]
+              },
+              "cityUppercaseRequired": {
+                "type": "boolean",
+                "enum": [true]
+              },
+              "maxCharactersPerLine": {
+                "type": "integer",
+                "enum": [38]
+              }
+            },
+            "required": [
+              "format",
+              "postcodeValidation",
+              "countryLine",
+              "blankLinesAllowed",
+              "additionalContentInsideAddressAreaAllowed",
+              "latinAlphabetAndArabicDigits"
+            ]
+          },
+          "typography": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "recommendedFont": {
+                "type": "string"
+              },
+              "guteneoRecommendedSizePt": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "min": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "max": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": ["min", "max"]
+              },
+              "color": {
+                "type": "string",
+                "enum": ["black"]
+              },
+              "alignment": {
+                "type": "string",
+                "enum": ["left"]
+              },
+              "uniformFontAndSpacing": {
+                "type": "boolean",
+                "enum": [true]
+              },
+              "forbiddenStyles": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "boldAllowed": {
+                "type": "boolean",
+                "enum": [false]
+              },
+              "providerFontSizePt": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "min": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "max": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": ["min", "max"]
+              },
+              "providerCapitalHeightMm": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "min": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "max": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": ["min", "max"]
+              },
+              "characterGapMm": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "min": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "max": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": ["min", "max"]
+              },
+              "wordGapMm": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "min": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "max": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": ["min", "max"]
+              },
+              "lineGapMm": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "min": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "max": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": ["min", "max"]
+              },
+              "verification": {
+                "type": "string",
+                "enum": ["manual_visual_review_required"]
+              }
+            },
+            "required": [
+              "recommendedFont",
+              "guteneoRecommendedSizePt",
+              "color",
+              "alignment",
+              "uniformFontAndSpacing",
+              "forbiddenStyles",
+              "verification"
+            ]
+          },
+          "example": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "fictional": {
+                "type": "boolean",
+                "enum": [true]
+              },
+              "deliverabilityVerified": {
+                "type": "boolean",
+                "enum": [false]
+              },
+              "recipient": {
+                "$ref": "#/components/schemas/PostalAddressBlockRecipient"
+              },
+              "printedLines": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "destinationFormattingVerified": {
+                "type": "boolean",
+                "enum": [false]
+              }
+            },
+            "required": [
+              "fictional",
+              "deliverabilityVerified",
+              "recipient",
+              "printedLines",
+              "destinationFormattingVerified"
+            ]
+          },
+          "verification": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "automatic": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "manual": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "provider": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "provesAddressExists": {
+                "type": "boolean",
+                "enum": [false]
+              },
+              "provesDelivery": {
+                "type": "boolean",
+                "enum": [false]
+              },
+              "textVisibility": {
+                "type": "string",
+                "enum": ["not_verified"]
+              },
+              "addressCropAccess": {
+                "type": "string",
+                "enum": ["authenticated_browser_session_only"]
+              },
+              "mcpEmbeddedVisualEvidenceAvailable": {
+                "type": "boolean",
+                "enum": [false]
+              },
+              "visualReviewFallback": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "automatic",
+              "manual",
+              "provider",
+              "provesAddressExists",
+              "provesDelivery",
+              "textVisibility",
+              "addressCropAccess",
+              "mcpEmbeddedVisualEvidenceAvailable",
+              "visualReviewFallback"
+            ]
+          },
+          "workflow": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              },
+              "required": ["title", "url"]
+            }
+          },
+          "sourcesVerifiedAt": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": [
+          "destination",
+          "route",
+          "recipientSchema",
+          "addressRules",
+          "typography",
+          "example",
+          "verification",
+          "workflow",
+          "sources",
+          "sourcesVerifiedAt"
+        ],
+        "description": "Instructions for the address-block contract. Printed lines remain unchanged. National postcode and delivery format require provider and human review; the catalogue and examples do not prove address existence, current availability or delivery."
+      },
+      "PostalDestinations": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "countries": {
+            "type": "array",
+            "minItems": 250,
+            "maxItems": 250,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/components/schemas/PostalCountry"
+            },
+            "description": "Complete accepted-country catalogue; unavailableCountries must still be excluded."
+          },
+          "unavailableCountries": {
+            "type": "array",
+            "maxItems": 250,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/components/schemas/PostalCountry"
+            }
+          },
+          "delayedCountries": {
+            "type": "array",
+            "maxItems": 250,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/components/schemas/PostalCountry"
+            }
+          },
+          "observedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fresh provider observation expires after at most five minutes. A failed or stale read fails closed; the server checks availability again at preparation and provider boundaries."
+          },
+          "sourceUrl": {
+            "type": "string",
+            "format": "uri",
+            "enum": [
+              "https://help.pingen.com/en/templates-and-postal-requirements/countries-with-delayed-or-restricted-mail-delivery"
+            ]
+          },
+          "sourceSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "countries",
+          "unavailableCountries",
+          "delayedCountries",
+          "observedAt",
+          "expiresAt",
+          "sourceUrl",
+          "sourceSha256"
+        ]
       }
     },
     "responses": {

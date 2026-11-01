@@ -23,13 +23,28 @@ import {
 import { hashSecret } from "../../apps/api/src/auth";
 import {
   DomainService,
+  canonicalJson,
   sha256,
   type ActorContext,
 } from "../../packages/domain/src/index";
 import {
   POSTAL_ADDRESS_PAGE_VERSION,
+  POSTAL_ADDRESS_BLOCK_PAGE_VERSION,
+  postalAddressLines,
+  postalAddressPageVersion,
   type PostalAddressPageInput,
 } from "../../packages/contracts/src/postal-address-page";
+import {
+  PINGEN_PREFLIGHT_VERSION,
+  PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION,
+  pingenPreflightVersion,
+} from "../../packages/contracts/src/pingen-preflight";
+import {
+  addressPageProvenance,
+  type AddressPageRow,
+} from "../../apps/api/src/postal-address-page-binding";
+import { PINGEN_DESTINATION_RESTRICTIONS_URL } from "../../packages/providers/pingen-destination-availability";
+import { destinationRestrictionsResponse } from "../helpers/pingen-destinations";
 import type { Env } from "../../apps/api/src/env";
 import type { Fetcher } from "../../packages/providers";
 
@@ -73,6 +88,8 @@ const input: PostalAddressPageInput = {
   printMode: "simplex",
 };
 const profileFetch: Fetcher = async (url) => {
+  if (String(url) === PINGEN_DESTINATION_RESTRICTIONS_URL)
+    return destinationRestrictionsResponse();
   const path = new URL(String(url)).pathname;
   providerCalls.push(path);
   if (path === "/auth/access-tokens")
@@ -128,7 +145,49 @@ async function render(request: Request) {
       "X-Guteneo-Document-Sha256": await sha256(output),
       "X-Guteneo-Document-Pages": String(pdf.getPageCount()),
       "X-Guteneo-Added-Pages": String(added),
-      "X-Guteneo-Postal-Address-Page-Version": POSTAL_ADDRESS_PAGE_VERSION,
+      "X-Guteneo-Postal-Address-Page-Version": postalAddressPageVersion(
+        options.recipient,
+      ),
+    },
+  });
+}
+/** Transport fixture only; physical address layout is tested by the renderer suite. */
+async function renderPreflight(
+  request: Request,
+  recipient: PostalAddressPageInput["recipient"],
+) {
+  const bytes = new Uint8Array(await request.arrayBuffer());
+  const options = JSON.parse(request.headers.get("X-Guteneo-Pingen-Options")!);
+  const pages = (await PDFDocument.load(bytes)).getPageCount();
+  return Response.json({
+    version: pingenPreflightVersion(options),
+    status: "review_required",
+    sha256: await sha256(bytes),
+    pages,
+    canSend: false,
+    issues: [],
+    requiredReviews: ["printed_recipient_matches"],
+    rendering: {
+      dpi: 144,
+      complete: true,
+      pages: Array.from({ length: pages }, (_, index) => ({
+        page: index + 1,
+        width: 1191,
+        height: 1684,
+        rasterSha256: "a".repeat(64),
+      })),
+    },
+    address: {
+      lines: postalAddressLines(recipient, options.defaultCountry),
+      issues: [],
+      textVisibility: "not_verified",
+      crop: {
+        pngBase64:
+          "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+        width: 1,
+        height: 1,
+        boundsMm: { x: 20, y: 50, width: 90, height: 40 },
+      },
     },
   });
 }
@@ -318,12 +377,22 @@ describe("explicit postal address-page generation", () => {
     expect(result.canSend).toBe(false);
     expect(result.document).not.toHaveProperty("storage_key");
     expect(result.provenance).toMatchObject({
+      version: POSTAL_ADDRESS_PAGE_VERSION,
       sourceDocumentId: input.documentId,
       sourceSha256: sourceHash,
       generatedDocumentId: result.document.id,
       generatedSha256: result.document.sha256,
       addedPages: 1,
       recipient: input.recipient,
+      profile: { version: PINGEN_PREFLIGHT_VERSION },
+    });
+    expect(
+      await env.DB.prepare(
+        "SELECT input_hash,recipient_json FROM postal_address_pages WHERE idempotency_key='simplex'",
+      ).first(),
+    ).toEqual({
+      input_hash: await sha256(canonicalJson(input)),
+      recipient_json: canonicalJson(input.recipient),
     });
     expect(scanner).toHaveBeenCalledTimes(1);
     expect(
@@ -360,6 +429,227 @@ describe("explicit postal address-page generation", () => {
         "UPDATE postal_address_pages SET recipient_json='{}'",
       ).run(),
     ).rejects.toThrow("immutable_postal_address_page");
+  });
+  it.each([
+    {
+      label: "legacy fields",
+      recipient: input.recipient,
+      pageVersion: POSTAL_ADDRESS_PAGE_VERSION,
+      preflightVersion: PINGEN_PREFLIGHT_VERSION,
+    },
+    {
+      label: "six-line United States block",
+      recipient: {
+        country: "US" as const,
+        addressLines: [
+          "FICTIONAL RECIPIENT",
+          "EXAMPLE COMPANY",
+          "SUITE 200",
+          "123 EXAMPLE ROAD",
+          "ANYTOWN CA 90210",
+          "UNITED STATES OF AMERICA",
+        ],
+      },
+      pageVersion: POSTAL_ADDRESS_BLOCK_PAGE_VERSION,
+      preflightVersion: PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION,
+    },
+    {
+      label: "France block",
+      recipient: {
+        country: "FR" as const,
+        addressLines: [
+          "FICTIONAL RECIPIENT",
+          "12 RUE EXEMPLE",
+          "75001 PARIS",
+          "FRANCE",
+        ],
+      },
+      pageVersion: POSTAL_ADDRESS_BLOCK_PAGE_VERSION,
+      preflightVersion: PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION,
+    },
+    {
+      label: "Kosovo provider code XZ block",
+      recipient: {
+        country: "XZ" as const,
+        addressLines: [
+          "FICTIONAL RECIPIENT",
+          "12 EXAMPLE ROAD",
+          "10000 PRISTINA",
+          "KOSOVO",
+        ],
+      },
+      pageVersion: POSTAL_ADDRESS_BLOCK_PAGE_VERSION,
+      preflightVersion: PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION,
+    },
+  ])(
+    "binds $label generation to its own preflight version with four pricing options after migration 0072",
+    async ({ recipient, pageVersion, preflightVersion }) => {
+      const generation = { ...input, recipient, printMode: "duplex" as const };
+      const generated = await service().generate(
+        authority,
+        generation,
+        "versioned-cover",
+      );
+      expect(generated.provenance).toMatchObject({
+        version: pageVersion,
+        recipient,
+        profile: { version: preflightVersion },
+        addedPages: 2,
+      });
+      expect(generated.document.pages).toBe(4);
+      expect(
+        await service().generate(authority, generation, "versioned-cover"),
+      ).toEqual(generated);
+      let renderOptions: Record<string, unknown> | undefined;
+      renderer.mockImplementation(async (request: Request) => {
+        if (new URL(request.url).pathname === "/preflight/pingen") {
+          renderOptions = JSON.parse(
+            request.headers.get("X-Guteneo-Pingen-Options")!,
+          );
+          return renderPreflight(request, recipient);
+        }
+        return render(request);
+      });
+      const review = await new PostalService(env, domain, {
+        fetcher: profileFetch,
+      }).create(
+        authority,
+        {
+          documentId: generated.document.id,
+          senderId: "sender",
+          recipient,
+          options: {
+            printMode: "duplex",
+            deliveryProduct: "cheap",
+            printSpectrum: "grayscale",
+          },
+          ceilingMinor: 500,
+        },
+        "versioned-preflight",
+      );
+      expect(review).toMatchObject({
+        status: "review_required",
+        addressPage: generated.provenance,
+        recipient,
+        checks: { complete: true, issues: [] },
+        address: {
+          matches: true,
+          extractedLines: postalAddressLines(recipient, "LU"),
+        },
+        transferStatus: "not_started",
+        draftId: null,
+        canSend: false,
+      });
+      expect(renderOptions?.addressFormat).toBe(
+        pageVersion === POSTAL_ADDRESS_BLOCK_PAGE_VERSION
+          ? "address_block"
+          : undefined,
+      );
+      const row = (await env.DB.prepare(
+        "SELECT recipient_json,options_json,profile_json,report_json,document_sha256 FROM postal_preflights WHERE id=?",
+      )
+        .bind(review.id)
+        .first<{
+          recipient_json: string;
+          options_json: string;
+          profile_json: string;
+          report_json: string;
+          document_sha256: string;
+        }>())!;
+      expect(row.recipient_json).toBe(canonicalJson(recipient));
+      expect(row.options_json).toBe(
+        canonicalJson({
+          addressPosition: "left",
+          printMode: "duplex",
+          deliveryProduct: "cheap",
+          printSpectrum: "grayscale",
+        }),
+      );
+      expect(Object.keys(JSON.parse(row.options_json))).toHaveLength(4);
+      expect(JSON.parse(row.profile_json).version).toBe(preflightVersion);
+      expect(JSON.parse(row.report_json).version).toBe(preflightVersion);
+      expect(row.document_sha256).toBe(generated.document.sha256);
+      expect(await count("provider_drafts")).toBe(0);
+      expect(await count("dispatches")).toBe(0);
+      expect(renderCalls()).toHaveLength(1);
+
+      // Exercise the actual migrated SQL guard, bypassing JavaScript binding checks.
+      await expect(
+        env.DB.prepare(
+          `
+        INSERT INTO postal_preflights(id,organization_id,user_id,document_id,document_sha256,sender_id,sender_address,recipient_json,options_json,profile_json,expected_address,ceiling_minor,request_hash,input_hash,idempotency_key,status,budget_day,processing_until,expires_at,created_at,updated_at)
+        SELECT id||'_tampered',organization_id,user_id,document_id,document_sha256,sender_id,sender_address,?,options_json,profile_json,expected_address,ceiling_minor,request_hash,input_hash,idempotency_key||'_tampered','processing',budget_day,processing_until,expires_at,created_at,updated_at
+        FROM postal_preflights WHERE id=?
+      `,
+        )
+          .bind(
+            canonicalJson({
+              ...recipient,
+              country: recipient.country === "US" ? "GB" : "US",
+            }),
+            review.id,
+          )
+          .run(),
+      ).rejects.toThrow("postal_address_page_binding_invalid");
+
+      const page = (await env.DB.prepare(
+        "SELECT * FROM postal_address_pages WHERE id=?",
+      )
+        .bind(generated.provenance.id)
+        .first<AddressPageRow>())!;
+      expect(addressPageProvenance(page)).toEqual(generated.provenance);
+      expect(() =>
+        addressPageProvenance({
+          ...page,
+          version:
+            pageVersion === POSTAL_ADDRESS_PAGE_VERSION
+              ? POSTAL_ADDRESS_BLOCK_PAGE_VERSION
+              : POSTAL_ADDRESS_PAGE_VERSION,
+        }),
+      ).toThrow();
+      expect(() =>
+        addressPageProvenance({
+          ...page,
+          profile_json: canonicalJson({
+            ...JSON.parse(page.profile_json),
+            version:
+              preflightVersion === PINGEN_PREFLIGHT_VERSION
+                ? PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION
+                : PINGEN_PREFLIGHT_VERSION,
+          }),
+        }),
+      ).toThrow();
+    },
+  );
+  it("rejects a legacy renderer version for an address-block request before scanning", async () => {
+    renderer.mockImplementation(async (request: Request) => {
+      const response = await render(request);
+      response.headers.set(
+        "X-Guteneo-Postal-Address-Page-Version",
+        POSTAL_ADDRESS_PAGE_VERSION,
+      );
+      return response;
+    });
+    await expect(
+      service().generate(
+        authority,
+        {
+          ...input,
+          recipient: {
+            country: "US",
+            addressLines: [
+              "FICTIONAL RECIPIENT",
+              "12 EXAMPLE ROAD",
+              "ANYTOWN CA 90210",
+              "USA",
+            ],
+          },
+        },
+        "wrong-block-version",
+      ),
+    ).rejects.toMatchObject({ code: "POSTAL_ADDRESS_PAGE_PROOF_INVALID" });
+    expect(scanner).not.toHaveBeenCalled();
+    expect(await count("documents")).toBe(1);
   });
   it("adds the blank cover verso in duplex and replays without rendering/scanning/charging again", async () => {
     const first = await service().generate(
