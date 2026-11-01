@@ -1,5 +1,16 @@
 # Execution plan and handoff
 
+## Native postal availability fetch — 1 November 2026 corrective candidate 1.1.28
+
+The first 1.1.27 publication exposed a native Workers receiver error before the
+public country-source request. Its Node mocks had not exercised that runtime
+boundary. Production was restored to qualified 1.1.26 at 13:14 UTC; compatible
+schema 0072 and the independently qualified private documents Worker remain
+installed. Candidate 1.1.28 invokes the fetch callback without an instance
+receiver. Source, parser, limits, cache, price and approval rules stay exact.
+Require the real workerd regression, a private Cloudflare public-source probe,
+and the authenticated production requirements read before closing this release.
+
 ## Worldwide postal scope — 1 November 2026 candidate 1.1.27
 
 Production **1.1.26** contains the published alert/reference corrections. A

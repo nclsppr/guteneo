@@ -212,15 +212,13 @@ export class PingenDestinationAvailabilityReader {
     try {
       return await Promise.race([
         (async () => {
-          const response = await this.fetcher(
-            PINGEN_DESTINATION_RESTRICTIONS_URL,
-            {
-              method: "GET",
-              headers: { Accept: "text/html" },
-              redirect: "manual",
-              signal: controller.signal,
-            },
-          );
+          const fetcher = this.fetcher;
+          const response = await fetcher(PINGEN_DESTINATION_RESTRICTIONS_URL, {
+            method: "GET",
+            headers: { Accept: "text/html" },
+            redirect: "manual",
+            signal: controller.signal,
+          });
           if (
             response.status !== 200 ||
             (response.url &&

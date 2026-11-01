@@ -1,5 +1,17 @@
 # Executed verification
 
+## Postal native-fetch correction — 1 November 2026 candidate 1.1.28
+
+The real post-publication requirements read caught an Illegal invocation hidden
+by the closed availability error. A workerd reproduction showed that the default
+fetch callback failed before any outbound request while an explicitly wrapped
+callback succeeded. The application was restored to qualified 1.1.26; schema 0072
+and the private renderer remain compatible. The minimal local-variable callback
+fix passes three real workerd tests and 66 existing provider/availability tests.
+The tests use native fetch, simulated outbound responses and production flags;
+they do not establish public-source access from a deployed Cloudflare Worker.
+That access and final authenticated requirements metadata need separate proof.
+
 ## Worldwide postal candidate — 1 November 2026, 1.1.27
 
 This is local implementation evidence, not a deployed worldwide-send result.
