@@ -50,6 +50,31 @@ execution on both targets without skips, flaky results or model calls; a separat
 privacy guard checks every upload path before evidence is archived. Do not weaken
 these assertions to make a partial run green.
 
+The migration check compares the complete original and normalized transport
+schemas and trigger behavior in local D1. Its global integrity program can exceed
+the published workerd engine's VDBE allocation budget at around 22,000
+instructions. The verifier keeps CHECK enforcement enabled, checks every
+application table and all foreign keys through D1, then checks global integrity on
+the exact two persisted SQLite files through Python's standard-library SQLite.
+It identifies those files read-only with WAL support using a fresh private
+directory, nonce, role, schema and table inventory. After all identities pass,
+native SQLite evaluates CHECK constraints globally in `mode=rw` with
+`query_only=ON` and a deliberate UPDATE proved to be refused. Read-only SQLite
+`quick_check` can omit CHECK evaluation despite an enabled CHECK flag, so this
+constraint phase is separate from the final physical proof. Miniflare disposal
+does not empty the WAL: the only database mutation between phases is a bounded
+local checkpoint on an existing database. The final global check uses the same
+files read-only and immutable, with empty WAL/journals and stable file digests.
+D1 application-table checks exclude protected internal tables; native global
+checks also cover all physical internal pages and framework metadata. Missing
+Python/SQLite, ambiguous files, disabled CHECKs, incomplete checkpoints or a failed
+integrity check fail CI. Recorded engine version and phase results describe local
+fixture proof, not the physical integrity of production. The
+[migration protocol](https://github.com/nclsppr/guteneo/blob/main/docs/D1_MIGRATION.md#local-sourcetransport-integrity-protocol--1-november-2026-candidate)
+owns the exact phases and hosted readback boundary; this candidate still needs a
+complete exact-source CI result. Applied migrations are not rewritten for this
+resource limit.
+
 The [first optimized hosted full run on 30 October](https://github.com/nclsppr/guteneo/actions/runs/41034945110)
 passed all 24 jobs in 14 min 20 s, using 96 min 23 s of cumulative runner execution
 versus the preceding reviewed run's 103 min 55 s, a 7.25% reduction. The static

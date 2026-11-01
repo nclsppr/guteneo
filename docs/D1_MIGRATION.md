@@ -1,6 +1,82 @@
 # Remote D1 migration proof
 
-## Global integrity verification — 30 October 2026 candidate
+## Local source/transport integrity protocol — 1 November 2026 candidate
+
+`node scripts/migrate-remote.mjs --verify` qualifies the complete source and
+normalized transport migrations locally. It neither reads production credentials
+nor checks the physical integrity of the hosted database. The seventy-first
+migration exceeded the published local workerd SQLite VDBE allocation budget when
+compiling a database-wide `PRAGMA quick_check`, at a program size around 22,000
+instructions. This is a version-dependent resource failure, not evidence that the
+database is corrupt. Applied migrations and their constraints remain unchanged.
+
+The local proof retains both actual-D1 validation and a database-wide physical
+check through the following phases:
+
+1. Create a fresh, owner-only temporary persistence directory with mode `0700`.
+   Miniflare applies the original source and normalized transport batches to two
+   distinct persisted databases, including the migration ledger. Compare their
+   normalized schema and true/false/NULL/negative-value trigger outcomes. Bind each
+   database to the run's unpredictable nonce, its `original` or `transport` role,
+   its exact source schema digest and its complete application-table inventory.
+2. With D1 CHECK constraints enabled, attempt the global D1 `quick_check`. Only its
+   `SQLITE_NOMEM` resource refusal can be recorded as `resource_limit`; any other
+   error or non-`ok` result fails. Run `quick_check` on **every application table**
+   and the global `foreign_key_check` through the actual D1 engine. The D1
+   inventory excludes protected `sqlite_%` and `_cf_*` internal tables; the native
+   global checks below cover their physical pages too. Missing application tables,
+   disabled CHECK enforcement, invalid results or foreign-key violations fail the
+   proof. These table checks alone do not establish global physical integrity.
+3. Dispose Miniflare. Disposal does **not** guarantee that its WAL is empty. The
+   native Python helper first opens **all** existing database files read-only with
+   WAL support, including framework metadata, and identifies the exact two proof
+   databases from nonce, role, schema and table list rather than trusting
+   filenames. It rejects ambiguous or foreign databases, symlinks, invalid
+   ownership and unexpected persistence files before any checkpoint. Between the
+   identification and final proof, use only the already existing local files;
+   there is no export or database reconstruction.
+4. After **all** identities have passed read-only selection, open each existing
+   database in `mode=rw` with `query_only=ON`, require that a deliberate UPDATE is
+   refused, and require global `quick_check=ok` and no global foreign-key
+   violations with CHECK constraints enabled. This phase is required because
+   SQLite 3.53/3.54 can omit CHECK evaluation in `mode=ro` even when
+   `ignore_check_constraints=0`; the flag alone is insufficient proof. No DML or
+   DDL can succeed in the query-only phase. Its only subsequent permitted
+   database mutation is a bounded `PRAGMA wal_checkpoint(TRUNCATE)`, and only when
+   that database has a nonempty WAL. A busy or incomplete checkpoint may have
+   applied some local pages but emits no passing proof; byte stability is required
+   after successful checkpointing, not across the checkpoint itself. Close the
+   preparation connections before the final phase.
+5. Require empty WAL/journal files after the checkpoint, then open the same
+   identified database files with SQLite `mode=ro&immutable=1`. Recheck identity,
+   schema, table inventory and enabled CHECK enforcement; require global
+   `quick_check=ok` and an empty global `foreign_key_check`. Verify that physical
+   file identities and SHA-256 digests remain stable throughout this final
+   read-only phase. This is the final global physical check; the preceding
+   query-only phase establishes CHECK evaluation. Record the native SQLite
+   version, D1 results, `hostQueryOnlyConstraintsVerified: true` and
+   `checkpointedBeforeReadOnly: true` with the final native results.
+   An unreadable file, incomplete checkpoint, inventory drift or failed check
+   remains a failed proof.
+
+The native phase checks the exact persisted files used by D1, including database
+pages that partial table checks omit. It is not a reconstructed equivalent
+database. CHECK constraints remain enabled in both engines; no migration is
+rewritten to fit the compiler budget. The temporary files are removed after the
+proof. Python 3 with its standard-library SQLite module is a local/CI dependency;
+missing support fails rather than skipping integrity verification.
+
+This candidate protocol still requires its complete exact-source CI result.
+Successful local or CI output establishes only the source/transport fixture
+proof. Authorized remote application still requires independent ledger, schema,
+constraint and foreign-key readback; a local native result must never be reported
+as physical integrity verification of production. SQLite's
+[integrity-check contract](https://www.sqlite.org/pragma.html#pragma_integrity_check)
+explains why exhaustive table checks do not replace the global check, and its
+[WAL checkpoint contract](https://www.sqlite.org/pragma.html#pragma_wal_checkpoint)
+defines the bounded local checkpoint used between phases.
+
+## Earlier global integrity qualification — 30 October 2026
 
 The first provider-maintenance CI run failed while compiling a database-wide
 `PRAGMA quick_check` for the complete seventy-migration schema. Linux workerd
@@ -36,12 +112,12 @@ preflight assessment but do not qualify the unapplied schema. The verifier now
 explicitly refuses an unreadable/nonzero `ignore_check_constraints` setting before
 claiming global integrity; the production release runner must retain that guard.
 
-The verifier retains its **database-wide** `quick_check`, global
+That candidate retained its **database-wide** D1 `quick_check`, global
 `foreign_key_check`, complete schema comparison and true/false/NULL trigger proof.
 A loop over partial table checks is not equivalent: SQLite documents that partial
 checks do not detect unused pages or pages shared between tables. See the
 [SQLite integrity-check contract](https://www.sqlite.org/pragma.html#pragma_integrity_check).
-Every future schema/runtime change must requalify the complete program. Local
+Every future schema/runtime change must requalify the complete proof. Local
 and CI success still do not replace actual hosted schema and integrity readback
 after an authorized release. This preparation applies no remote migration,
 creates no infrastructure and sends no communication.

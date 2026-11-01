@@ -73,3 +73,6 @@ atlas, affected permissions and customer journeys in the same pull request, as
 required by [AGENTS.md](../AGENTS.md).
 
 The [strict MCP registration controller](MCP_REGISTRATION.md) owns the separately gated native Auth0 registration candidate and its qualification limits.
+
+The [FR/DE fax reference-group contract](FAX_EEA_REFERENCE_MAINTENANCE.md) owns
+the separate bounded fourteen-route renewal candidate and its preserved exclusions.

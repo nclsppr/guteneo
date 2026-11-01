@@ -152,13 +152,28 @@ also preserves its reviewed Sharp override. Reinstall and audit each independent
 package after changing either toolchain.
 
 The provider-maintenance candidate preserves the published Miniflare/workerd
-and Wrangler tuples plus the unrestricted Undici security floor. The full
-seventy-migration schema initially exceeded the old Linux/hosted SQLite VDBE
-budget while compiling global integrity verification. Equivalent expressions in
-only the new, unapplied CHECK constraints keep the complete program within that
-budget; dates, defaults, foreign keys and stored-value validation remain enforced.
-Full Linux CI and later hosted readback must qualify this result. See
-[D1 migration proof](D1_MIGRATION.md).
+and Wrangler tuples plus the unrestricted Undici security floor. Adding migration
+0071 reaches a local D1 VDBE allocation limit around a 22,000-instruction global
+integrity program; it does not justify changing applied migrations or disabling
+CHECK constraints. `node scripts/migrate-remote.mjs --verify` compares source and
+transport schemas and trigger semantics, runs exhaustive D1 application-table
+checks plus global foreign-key verification, then proves global integrity on
+those exact persisted SQLite files through native Python. The two-engine proof
+binds nonce, role, schema and table inventory in a fresh private directory. It
+identifies all WAL-aware files read-only, then verifies global CHECK constraints
+in `mode=rw` with `query_only=ON` and a proved refusal of UPDATE. SQLite read-only
+`quick_check` can omit CHECK evaluation despite its enabled flag, so the flag
+alone cannot qualify constraints. Only a local checkpoint on an existing file may
+mutate the database between phases. The final read-only immutable global physical
+check requires empty WAL/journals and stable bytes. D1 excludes protected internal
+tables; the native global checks cover all physical pages and framework metadata.
+SQLite version and each proof phase are recorded. CHECK enforcement stays on
+throughout; partial table checks alone cannot pass. Python 3 with standard-library
+SQLite is required and missing support
+fails closed. Complete Linux CI remains required, and this local fixture proof
+does not establish production physical integrity. The
+[D1 migration proof](D1_MIGRATION.md#local-sourcetransport-integrity-protocol--1-november-2026-candidate)
+owns the protocol and independent hosted readback boundary.
 
 Hosted sign-in browser fixtures intercept the fixed Auth0 entry request and
 explicitly abort that navigation. This preserves the current document for

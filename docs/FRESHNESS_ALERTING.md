@@ -8,9 +8,9 @@ saved and triggered/resolved email receipt was observed; those episodes did not
 prove durable incident recovery. PR #131 merged the 1.1.23 compatibility changes; source
 `afedd099081099fa83bf6bd9edaf6dcabacbea03` was published on 1 November. Read-only
 post-deployment checks observed the new active postal binding and four additional
-inactive forbidden-route bindings, with no pending or unknown business send. The 1.1.24 marker and SQL stabilization below is a
-separate local candidate, not an applied monitor change or a new delivery
-qualification. Native editor attempts on 1 November rejected JSON expressions
+inactive forbidden-route bindings, with no pending or unknown business send. Production 1.1.24 and the final saved Automatic/300-second native monitor
+configuration were subsequently deployed and verified on 1 November. This
+establishes neither every provider renewal nor a new notification receipt. Native editor attempts on 1 November rejected JSON expressions
 inside conditional aggregates and an expression nesting depth above ten; none
 of those attempts saved a replacement query.
 Production source access and each provider's genuine renewal remain distinct
@@ -141,7 +141,7 @@ URL, credential or free-form exception.
 
 ### Native recovery requires fresh evidence
 
-The 1 November 1.1.24 candidate derives two numeric fields on the server after
+The deployed 1.1.24 implementation derives two numeric fields on the server after
 closed-field observation projection. Callers cannot supply or override them.
 The shared `packages/observability/native-alert-signals.json` owns the ten
 historical failure codes and four counters used by both runtime and plan.
@@ -164,7 +164,7 @@ closed numeric states, never an identifier, raw response, credential or URL.
 
 The inspected native editor exposes no Manual time-range selector and rejects
 explicit SQL timestamp predicates because its request supplies `time_range`.
-The fallback candidate therefore retains **Automatic** mode and changes the
+The separately verified final configuration retains **Automatic** mode and changes the
 existing monitor's SQL plus execution interval from sixty to **300 seconds**.
 Cloudflare supplies the corresponding preceding five-minute range externally;
 the SQL contains no timestamp expression or range-mode workaround.
@@ -179,7 +179,9 @@ missing-row branch from integer `1` to floating-point `1.0`. The native type
 checker requires a Float64 branch compatible with numeric JSON `SUM`; the
 integer branch had produced a type error. This qualifies that aggregate/type
 shape against existing observations, not the new marker fields, their deployment,
-the final saved monitor or notification behavior. Those remain unqualified.
+the final saved monitor or notification behavior. The later runtime publication
+and final saved native readback were separately verified on 1 November; no new
+notification receipt is inferred.
 
 This is an explicit operational tradeoff. All original ten-code/four-counter
 failures and freshness failures now remain in the same five-minute range,

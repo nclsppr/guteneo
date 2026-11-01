@@ -126,6 +126,7 @@ import { expertPostalAuthority } from "./expert-approval";
 import { getExpertStatus } from "./expert-status";
 import { postalReviewInputSchema } from "../../../packages/contracts/src/postal-review";
 import { refreshFaxTariffs } from "./fax-tariff-refresh";
+import { refreshVerifiedFaxReferences } from "./verified-fax-reference-refresh";
 import { refreshPostalPolicies } from "./postal-policy-refresh";
 import { refreshResendPolicies } from "./resend-policy-refresh";
 import { collectProviderFreshness } from "./provider-freshness";
@@ -1607,7 +1608,34 @@ export default {
       // Price maintenance reads registered public references and provider state;
       // it creates no dispatch, approval, reservation or provider submission.
       stage = "tariffs";
-      Object.assign(counts, await refreshFaxTariffs(env));
+      // A single registered group may read the large rate deck in this tick.
+      // Other sources remain due and can run on the next minute's invocation.
+      let faxReferenceNetworkAttempted = false;
+      try {
+        const refreshed = await refreshVerifiedFaxReferences(env);
+        faxReferenceNetworkAttempted = refreshed.networkAttempted;
+        counts.tariffsRefreshed = refreshed.tariffsRefreshed;
+        counts.tariffRefreshFailed = refreshed.tariffRefreshFailed;
+        counts.tariffRefreshDeferred = refreshed.tariffRefreshDeferred;
+      } catch {
+        // An unexpected failure may follow a source request. Preserve the
+        // per-tick network bound and continue unrelated durable maintenance.
+        faxReferenceNetworkAttempted = true;
+        counts.tariffRefreshFailed = 1;
+      }
+      if (!faxReferenceNetworkAttempted) {
+        try {
+          const refreshed = await refreshFaxTariffs(env);
+          counts.tariffsRefreshed =
+            (counts.tariffsRefreshed ?? 0) + refreshed.tariffsRefreshed;
+          counts.tariffRefreshFailed =
+            (counts.tariffRefreshFailed ?? 0) + refreshed.tariffRefreshFailed;
+          counts.tariffRefreshDeferred =
+            (counts.tariffRefreshDeferred ?? 0) + refreshed.tariffRefreshDeferred;
+        } catch {
+          counts.tariffRefreshFailed = (counts.tariffRefreshFailed ?? 0) + 1;
+        }
+      }
       // These technical renewals preserve current bindings and commitments.
       // A maintenance failure must not stop unrelated durable work while its
       // own existing safety gates remain valid.

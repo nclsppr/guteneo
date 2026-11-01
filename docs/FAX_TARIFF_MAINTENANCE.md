@@ -19,7 +19,7 @@ cannot create or broaden that registration. Sender ownership, route permission,
 channel activation, available credit, immutable approval, actual sending and
 expert mandates remain independent gates.
 
-## Current supported scope
+## Luxembourg pilot scope
 
 This candidate supports only the existing local Luxembourg fixed `+3524`
 operator-test route with canonical options `{}`. Refresh preserves the existing
@@ -27,8 +27,10 @@ live tariff's exact page limit, up to ten pages, and its 200-cent ceiling; it
 cannot increase or decrease that limit. Its independently authorized pilot deadline remains
 3 November 2026; daily source refresh does not extend that deadline. Other
 prefixes, destinations, option combinations or normal provider-verified routes
-are not implemented by this maintenance path and must not be registered as if
-covered. Continuous archived reviewer preparation remains separate and retains
+are not implemented by this LU maintenance path and must not be registered as if
+covered. The separate 1.1.25 [FR/DE reference-group candidate](FAX_EEA_REFERENCE_MAINTENANCE.md)
+maintains fourteen existing provider-verified scopes under its own registration,
+parser and evidence contract; it does not widen this pilot. Continuous archived reviewer preparation remains separate and retains
 its seven-page maximum.
 
 The registration utility requires an absolute regular `0600` configuration and
