@@ -1,5 +1,5 @@
 import { z } from "zod";
-import data from "./data/pingen-postal-destinations.json";
+import data from "./data/pingen-postal-destinations.json" with { type: "json" };
 
 /** Provider-published spellings are not proof of current delivery availability. */
 export const PINGEN_POSTAL_DESTINATIONS_SOURCE = Object.freeze(data.source);
