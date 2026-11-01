@@ -22,10 +22,17 @@ import {
   date,
   isPublicPreview,
   permissionsFor,
+  recipientDisplayLines,
   type Session,
   type Channel,
   type Sender,
 } from "./api";
+import {
+  PostalRecipientFields,
+  postalDraftUsesAddressBlock,
+  postalRecipientFromDraft,
+  usePostalDestinationCatalogue,
+} from "./postal-recipient-editor";
 import { RolePermissionNotice } from "./role-guide";
 import {
   BEFORE_WORKSPACE_NAVIGATION,
@@ -121,6 +128,7 @@ export default function DistributionPage({
       <DistributionPreparation
         route={route}
         jobId={new URLSearchParams(search).get("generation") ?? ""}
+        simulation={session.simulation}
       />
     );
   }
@@ -237,9 +245,11 @@ function usePreparationSelection(
 function DistributionPreparation({
   route,
   jobId,
+  simulation,
 }: {
   route: string;
   jobId: string;
+  simulation: boolean;
 }) {
   const selection = readGenerationSelection(route);
   const source = useResource<GenerationJobView>(
@@ -293,6 +303,7 @@ function DistributionPreparation({
             <DateTimezone />
             <DistributionForm
               jobId={jobId}
+              simulation={simulation}
               recordIds={selection.recordIds}
               recordDocuments={Object.fromEntries(
                 selected.records.map((record) => [
@@ -326,6 +337,8 @@ type Destination = {
   printMode: "simplex" | "duplex";
   printSpectrum: "grayscale" | "color";
   deliveryProduct: "cheap" | "fast";
+  postalBlock: boolean;
+  commonPostalBlock: boolean;
 };
 const recipientFields: Record<Channel, [string, string][]> = {
   fax: [["phone", "International number"]],
@@ -335,11 +348,51 @@ const recipientFields: Record<Channel, [string, string][]> = {
     ["line1", "Address"],
     ["postalCode", "Postal code"],
     ["city", "City"],
-    ["country", "Country (FR, LU or DE)"],
+    ["country", "Country code"],
   ],
 };
-/** Dotted paths of the text and number values in one document's data. */
+const postalBlockFields: [string, string][] = [
+  ["country", "Country code"],
+  ["addressLines", "Complete printed address"],
+];
+function recipientFieldsFor(channel: Channel, block: boolean) {
+  return channel === "postal" && block
+    ? postalBlockFields
+    : recipientFields[channel];
+}
+function recipientFieldMapping(
+  channel: Channel,
+  values: Record<string, string>,
+  block: boolean,
+) {
+  return channel === "postal"
+    ? Object.fromEntries(
+        recipientFieldsFor(channel, block).map(([key]) => [
+          key,
+          values[key] ?? "",
+        ]),
+      )
+    : values;
+}
+function recipientMappingHint(
+  channel: Channel | "data",
+  field: string,
+  pathHint: string,
+  block: boolean,
+) {
+  if (channel !== "postal") return pathHint;
+  if (field === "addressLines")
+    return `${pathHint} ${msg("Select a field containing 2 to 6 printed address lines, stored as a text array or a multiline CSV cell.")}`;
+  if (field === "country" && block)
+    return `${pathHint} ${msg("Select a field containing the country code, for example US.")}`;
+  return pathHint;
+}
+/** Dotted paths of scalar values and complete text arrays in one record. */
 function dataPaths(value: unknown, prefix = ""): string[] {
+  if (Array.isArray(value))
+    return prefix && value.every((line) => typeof line === "string")
+      ? [prefix]
+      : [];
   if (value && typeof value === "object" && !Array.isArray(value))
     return Object.entries(value).flatMap(([key, child]) =>
       dataPaths(child, prefix ? `${prefix}.${key}` : key),
@@ -357,6 +410,8 @@ const fieldHints: Record<string, RegExp> = {
   postalCode: /postal|zip|code_?postal/i,
   city: /city|ville|localit/i,
   country: /country|pays/i,
+  addressLines:
+    /address_?lines|printed_?address|full_?address|adresse_?compl[eè]te/i,
 };
 function suggestedPath(field: string, paths: string[]) {
   return paths.find((path) => fieldHints[field]?.test(path));
@@ -390,25 +445,60 @@ function newDestination(): Destination {
     printMode: "simplex",
     printSpectrum: "grayscale",
     deliveryProduct: "cheap",
+    postalBlock: false,
+    commonPostalBlock: false,
   };
 }
 function DistributionForm({
   jobId,
+  simulation,
   recordIds,
   recordDocuments,
   recordLabels,
   onClose,
 }: {
   jobId: string;
+  simulation: boolean;
   recordIds: string[];
   recordDocuments: Record<string, string>;
   recordLabels: Record<string, string>;
   onClose: () => void;
 }) {
   const currentVisit = useCurrentVisit();
-  const [destinations, setDestinations] = useState<Destination[]>([
+  const [destinations, setDestinations] = useState<Destination[]>(() => [
     newDestination(),
   ]);
+  const usesPostal = destinations.some(
+    (destination) =>
+      destination.channel === "postal" ||
+      (destination.channel === "data" &&
+        destination.dataChannels.includes("postal")),
+  );
+  const postalDestinations = usePostalDestinationCatalogue(
+    usesPostal && !simulation,
+  );
+  const usesPostalMapping = destinations.some(
+    (destination) =>
+      (destination.channel === "postal" && destination.mode === "data") ||
+      (destination.channel === "data" &&
+        destination.dataChannels.includes("postal")),
+  );
+  const postalCatalogueUnavailable =
+    usesPostal &&
+    !simulation &&
+    (postalDestinations.loading ||
+      !!postalDestinations.error ||
+      !postalDestinations.data);
+  const unavailableCommonPostal =
+    !simulation &&
+    destinations.some(
+      (destination) =>
+        destination.channel === "postal" &&
+        destination.mode === "common" &&
+        postalDestinations.data?.unavailableCountries.some(
+          (country) => country === (destination.values.country ?? "FR"),
+        ),
+    );
   const [multi, setMulti] = useState(false),
     action = useAction(),
     senders = useResource<{ items: Sender[] }>("/senders");
@@ -497,6 +587,16 @@ function DistributionForm({
     event.preventDefault();
     const isCurrentVisit = currentVisit();
     await action.run(async () => {
+      if (postalCatalogueUnavailable)
+        throw new Error(
+          msg(
+            "Postal destination availability could not be checked. Try again before preparing the letter.",
+          ),
+        );
+      if (unavailableCommonPostal)
+        throw new Error(
+          msg("Mail to this destination is temporarily unavailable."),
+        );
       if (associationCount > 500)
         throw new Error(
           msg(
@@ -549,7 +649,11 @@ function DistributionForm({
                         recipientFieldsByChannel: Object.fromEntries(
                           destination.dataChannels.map((channel) => [
                             channel,
-                            destination.valuesByChannel[channel],
+                            recipientFieldMapping(
+                              channel,
+                              destination.valuesByChannel[channel],
+                              destination.postalBlock,
+                            ),
                           ]),
                         ),
                         senderIdsByChannel: Object.fromEntries(
@@ -567,8 +671,25 @@ function DistributionForm({
                     : {
                         channel: destination.channel,
                         ...(destination.mode === "common"
-                          ? { recipient: destination.values }
-                          : { recipientFields: destination.values }),
+                          ? {
+                              recipient:
+                                destination.channel === "postal"
+                                  ? postalRecipientFromDraft(
+                                      destination.values,
+                                      postalDraftUsesAddressBlock(
+                                        destination.values,
+                                        destination.commonPostalBlock,
+                                      ),
+                                    )
+                                  : destination.values,
+                            }
+                          : {
+                              recipientFields: recipientFieldMapping(
+                                destination.channel,
+                                destination.values,
+                                destination.postalBlock,
+                              ),
+                            }),
                         senderId: destination.senderId || undefined,
                       }),
                   ceilingMinor: destination.ceilingMinor,
@@ -634,6 +755,27 @@ function DistributionForm({
         )}
       </p>
       <ErrorNotice error={action.error ?? senders.error} />
+      {usesPostalMapping && !simulation && postalDestinations.loading && (
+        <p className="field-hint" role="status">
+          {msg("Checking postal destinations…")}
+        </p>
+      )}
+      {usesPostalMapping && !simulation && postalDestinations.error && (
+        <div role="alert" className="field-hint">
+          <p>
+            {msg(
+              "Postal destination availability could not be checked. Try again before preparing the letter.",
+            )}
+          </p>
+          <button
+            type="button"
+            className="text-button"
+            onClick={postalDestinations.refresh}
+          >
+            {msg("Try again")}
+          </button>
+        </div>
+      )}
       {destinations.map((destination, index) => (
         <fieldset
           className="distribution-destination"
@@ -809,12 +951,46 @@ function DistributionForm({
                       <legend>
                         {msg("{0} recipients", channelLabel(channel))}
                       </legend>
+                      {channel === "postal" && (
+                        <Field label={msg("Postal address format")}>
+                          <select
+                            value={
+                              destination.postalBlock
+                                ? "address_block"
+                                : "legacy_fields"
+                            }
+                            onChange={(event) =>
+                              update(destination.id, {
+                                postalBlock:
+                                  event.target.value === "address_block",
+                              })
+                            }
+                          >
+                            <option value="legacy_fields">
+                              {msg(
+                                "Separate fields (France, Luxembourg, Germany)",
+                              )}
+                            </option>
+                            <option value="address_block">
+                              {msg("Complete printed address")}
+                            </option>
+                          </select>
+                        </Field>
+                      )}
                       <div className="distribution-mapping-grid">
-                        {recipientFields[channel].map(([field, label]) => (
+                        {recipientFieldsFor(
+                          channel,
+                          destination.postalBlock,
+                        ).map(([field, label]) => (
                           <Field
                             key={field}
                             label={msg("Data field → ") + msg(label)}
-                            hint={pathHint}
+                            hint={recipientMappingHint(
+                              channel,
+                              field,
+                              pathHint,
+                              destination.postalBlock,
+                            )}
                           >
                             <input
                               required
@@ -872,42 +1048,104 @@ function DistributionForm({
               ))}
             </>
           )}
-          {destination.channel !== "data" && (
-            <div className="distribution-mapping-grid">
-              {recipientFields[destination.channel].map(([field, label]) => (
-                <Field
-                  key={field}
-                  label={
-                    (destination.mode === "data" ? msg("Data field → ") : "") +
-                    msg(label)
-                  }
-                  hint={destination.mode === "data" ? pathHint : undefined}
-                >
-                  <input
-                    required
-                    list={destination.mode === "data" ? pathListId : undefined}
-                    placeholder={
+          {destination.channel === "postal" && destination.mode === "data" && (
+            <Field label={msg("Postal address format")}>
+              <select
+                value={
+                  destination.postalBlock ? "address_block" : "legacy_fields"
+                }
+                onChange={(event) =>
+                  update(destination.id, {
+                    postalBlock: event.target.value === "address_block",
+                  })
+                }
+              >
+                <option value="legacy_fields">
+                  {msg("Separate fields (France, Luxembourg, Germany)")}
+                </option>
+                <option value="address_block">
+                  {msg("Complete printed address")}
+                </option>
+              </select>
+            </Field>
+          )}
+          {destination.channel === "postal" && destination.mode === "common" ? (
+            <PostalRecipientFields
+              value={destination.values}
+              onChange={(field, value) =>
+                update(destination.id, {
+                  values: { ...destination.values, [field]: value },
+                })
+              }
+              block={postalDraftUsesAddressBlock(
+                destination.values,
+                destination.commonPostalBlock,
+              )}
+              onBlockChange={(commonPostalBlock) =>
+                update(destination.id, { commonPostalBlock })
+              }
+              catalogue={postalDestinations.data}
+              catalogueLoading={!simulation && postalDestinations.loading}
+              catalogueError={!simulation && !!postalDestinations.error}
+              onCatalogueRetry={postalDestinations.refresh}
+              simulated={simulation}
+            />
+          ) : (
+            destination.channel !== "data" && (
+              <div className="distribution-mapping-grid">
+                {recipientFieldsFor(
+                  destination.channel,
+                  destination.postalBlock,
+                ).map(([field, label]) => (
+                  <Field
+                    key={field}
+                    label={
+                      (destination.mode === "data"
+                        ? msg("Data field → ")
+                        : "") + msg(label)
+                    }
+                    hint={
                       destination.mode === "data"
-                        ? suggestedPath(field, paths)
+                        ? recipientMappingHint(
+                            destination.channel,
+                            field,
+                            pathHint,
+                            destination.postalBlock,
+                          )
                         : undefined
                     }
-                    value={destination.values[field] ?? ""}
-                    onChange={(e) =>
-                      update(destination.id, {
-                        values: {
-                          ...destination.values,
-                          [field]: e.target.value,
-                        },
-                      })
-                    }
-                  />
-                </Field>
-              ))}
-            </div>
+                  >
+                    <input
+                      required
+                      list={
+                        destination.mode === "data" ? pathListId : undefined
+                      }
+                      placeholder={
+                        destination.mode === "data"
+                          ? suggestedPath(field, paths)
+                          : undefined
+                      }
+                      value={destination.values[field] ?? ""}
+                      onChange={(e) =>
+                        update(destination.id, {
+                          values: {
+                            ...destination.values,
+                            [field]: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </Field>
+                ))}
+              </div>
+            )
           )}
           {destination.channel !== "data" &&
             destination.mode === "data" &&
-            recipientFields[destination.channel].some(
+            recipientFieldsFor(
+              destination.channel,
+              destination.postalBlock,
+            ).some(
               ([field]) =>
                 !destination.values[field] && suggestedPath(field, paths),
             ) && (
@@ -917,14 +1155,15 @@ function DistributionForm({
                 onClick={() =>
                   update(destination.id, {
                     values: Object.fromEntries(
-                      recipientFields[destination.channel as Channel].map(
-                        ([field]) => [
-                          field,
-                          destination.values[field] ||
-                            suggestedPath(field, paths) ||
-                            "",
-                        ],
-                      ),
+                      recipientFieldsFor(
+                        destination.channel as Channel,
+                        destination.postalBlock,
+                      ).map(([field]) => [
+                        field,
+                        destination.values[field] ||
+                          suggestedPath(field, paths) ||
+                          "",
+                      ]),
                     ),
                   })
                 }
@@ -1120,7 +1359,14 @@ function DistributionForm({
         </div>
       </section>
       <div className="button-group">
-        <button className="button primary" disabled={action.pending}>
+        <button
+          className="button primary"
+          disabled={
+            action.pending ||
+            postalCatalogueUnavailable ||
+            unavailableCommonPostal
+          }
+        >
           {msg("Prepare pairs and quotes ")}
         </button>
         <button className="button" type="button" onClick={onClose}>
@@ -1255,12 +1501,12 @@ export function DistributionDetail({
                 value: (entry) =>
                   [
                     t.channels[entry.channel] ?? entry.channel,
-                    ...Object.values(entry.recipient ?? {}),
+                    ...recipientDisplayLines(entry.recipient),
                   ].join(" "),
                 render: (entry) => (
                   <>
                     {t.channels[entry.channel] ?? entry.channel}
-                    <p>{Object.values(entry.recipient ?? {}).join(" · ")}</p>
+                    <p>{recipientDisplayLines(entry.recipient).join(" · ")}</p>
                   </>
                 ),
               },

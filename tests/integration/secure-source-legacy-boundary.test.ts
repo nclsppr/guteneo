@@ -216,7 +216,7 @@ async function fixture() {
     await db
       .prepare(
         `INSERT INTO postal_preflights(id,organization_id,user_id,document_id,document_sha256,sender_id,sender_address,recipient_json,options_json,profile_json,expected_address,ceiling_minor,request_hash,input_hash,idempotency_key,status,budget_day,processing_until,expires_at,created_at,updated_at)
-      VALUES(?,?,?,?,?,?,'SYNTHETIC RETURN','{}','{}',?,'SYNTHETIC PRIVATE ADDRESS',100,?,?,?,'processing',?,?,?,?,?)`,
+      VALUES(?,?,?,?,?,?,'SYNTHETIC RETURN',?,'{}',?,'SYNTHETIC PRIVATE ADDRESS',100,?,?,?,'processing',?,?,?,?,?)`,
       )
       .bind(
         id,
@@ -225,6 +225,13 @@ async function fixture() {
         documentId,
         hash,
         senderId,
+        JSON.stringify({
+          name: "SYNTHETIC RECIPIENT",
+          line1: "12 RUE EXEMPLE",
+          postalCode: "L-1234",
+          city: "LUXEMBOURG",
+          country: "LU",
+        }),
         JSON.stringify({ version: PINGEN_PREFLIGHT_VERSION }),
         hash,
         hash,

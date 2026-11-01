@@ -1,5 +1,11 @@
 # Postal address page — 20 September 2026 candidate
 
+The original sections retain their dated evidence. The unpublished 1.1.27
+[worldwide candidate](POSTAL_WORLDWIDE.md) adds a complete two-to-six-line block
+under `postal-address-page-2026-11-01-address-block-v2`; legacy generated v1 pages,
+recipient JSON and preflight v2 hashes stay unchanged. Schema-first 0072 permits
+only the corresponding shape/version branch with the same provenance guards.
+
 The journey offers Use the document address or Add an address page. The latter
 creates a separate immutable document. The original is retained and its pages are
 copied without rasterization; their print checks still apply. The recipient text
@@ -14,9 +20,19 @@ Pingen profile.
 - The final PDF, including the blank verso, must fit 100 pages and 8,000,000 bytes. Its final quote supplies the price, without example pricing or local multiplication.
 - An overlong line or unrenderable character is rejected; information is never truncated to fit the window.
 
-Generation certifies neither address existence nor deliverability. The schema
-retains three lines excluding country: name, street, postal code and city. Do not
-remove a required address complement to satisfy that limit.
+Generation certifies neither address existence nor deliverability. The legacy
+schema retains three lines excluding country: name, street, postal code and city.
+The complete-block candidate preserves regions and complements in their supplied
+line order, including name and the required country line within six total lines.
+Do not remove required information to fit either shape.
+
+Imported original address spelling and generated block lines are preserved.
+Guidance suggests a canonical recognized country spelling before validation;
+the renderer accepts valid aliases without replacement, automatic translation
+or address completion. The fixed four-line layout remains 11 pt/14 pt with 2 mm vertical
+insets; a separate bounded five/six-line layout uses 10 pt/11.5 pt with 0.5 mm
+vertical insets. Width, glyph support and final raster checks remain mandatory.
+Overflow or unsupported glyphs fail rather than shrink, truncate or transliterate.
 
 ## Shared browser and assistant journey
 

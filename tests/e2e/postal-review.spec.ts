@@ -162,6 +162,16 @@ async function setup(
       };
     else if (request.method() === "GET" && path === "/documents/pdf-ui-fixture")
       body = readyDocument;
+    else if (path === "/postal/destinations")
+      body = {
+        countries: ["FR", "LU", "DE"],
+        unavailableCountries: [],
+        delayedCountries: [],
+        observedAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 300_000).toISOString(),
+        sourceUrl: "https://example.invalid/postal-fixture",
+        sourceSha256: "f".repeat(64),
+      };
     else if (path === "/postal/requirements")
       body = {
         profile: {

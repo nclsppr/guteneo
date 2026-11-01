@@ -1,9 +1,12 @@
 # Preparing a Pingen postal PDF
 
-Official documentation checked **17 September 2026**; local version
-`pingen-2026-09-17-v2`. This document separates provider rules, Guteneo beta
+Official geometry was checked **17 September 2026**; the worldwide country/address
+reference was checked **1 November 2026**. Legacy version
+`pingen-2026-09-17-v2` is unchanged; unpublished candidate 1.1.27 adds
+`pingen-2026-11-01-address-block-v3` by recipient shape. This document separates provider rules, Guteneo beta
 restrictions and missing evidence. Provider documentation remains authoritative
-for provider acceptance.
+for provider acceptance. [Worldwide postal mail](POSTAL_WORLDWIDE.md) owns the
+250-code reference, fresh restrictions, complete block and schema-first 0072 rollout.
 
 ## Format and account profile
 
@@ -51,13 +54,16 @@ Correction explicitly creates a new document, fingerprint and approval.
 | Destination | Checks and limits |
 | --- | --- |
 | LU | 3–6 lines excluding country; street then number; four-digit postal code, recommended `L-` prefix, then locality. No country line for domestic LU; country required internationally. 8–12 pt, preferably 10–12. [bpost LU](https://help.pingen.com/en/templates-and-postal-requirements/address-requirements-bpost-luxembourg). |
-| DE | Street then number; five-digit postal code then city; no `DE-`/`D-` prefix. Two-line large-recipient addresses exceed Guteneo's simplified profile. No country line for domestic DE. [Deutsche Post](https://help.pingen.com/en/templates-and-postal-requirements/address-requirements-deutsche-post). |
+| DE | Street then number; five-digit postal code then city; no `DE-`/`D-` prefix. Two-line large-recipient addresses exceed the legacy simplified form; complete blocks retain their actual lines. No country line for qualified domestic DE. [Deutsche Post](https://help.pingen.com/en/templates-and-postal-requirements/address-requirements-deutsche-post). |
 | Domestic FR | 3–6 lines, at most 38 characters per line; number then street; five-digit postal code then uppercase city. Remove punctuation from the street line onward; also check spacing and character height. [La Poste](https://help.pingen.com/en/templates-and-postal-requirements/address-requirements-la-poste). |
 | FR from LU | DHL international route; final line `FRANCE`. Domestic French rules alone do not qualify this route. [DHL](https://help.pingen.com/en/templates-and-postal-requirements/address-requirements-dhl-international). |
 
-The helper deliberately accepts only canonical final-country spellings `FRANCE`,
-`GERMANY`, `LUXEMBOURG`. Other provider-recognized spellings require tests before
-addition; conservative rejection does not imply provider invalidity.
+The legacy helper retains canonical final-country spellings `FRANCE`, `GERMANY`,
+`LUXEMBOURG`. The complete-block branch accepts dated provider-recognized country
+aliases without rewriting imported originals or generated address blocks.
+Guidance may suggest a canonical recognized spelling before validation; it does
+not replace accepted printed lines. Other destinations do
+not inherit FR/LU/DE postcode or line-layout assumptions.
 [Pingen country names](https://help.pingen.com/en/templates-and-postal-requirements/supported-country-names)
 currently omits LU from domestic exceptions; the more specific LU page requires
 no country for domestic mail.
@@ -103,19 +109,20 @@ service](DOCUMENT_POSTAL_PREFLIGHT.md) and [release proof](LIVE_RELEASE.md).
 
 ## MCP-readable instructions
 
-`get_postal_requirements({country})` exposes FR/LU/DE `addressGuidance`: actual route
+`get_postal_requirements({country,addressFormat:"address_block"})` exposes complete-block `addressGuidance` for all 250 recognized codes: actual route
 for the profile, line order, postal code/country, characters, typography, synthetic
 example and dated official sources. `layout` holds rectangles; `limits` holds
 ceilings. Read before generating a PDF, then check its exact final bytes. France
 from LU uses DHL; do not extend domestic La Poste rules to that route.
 
-**Current Guteneo limit:** `recipient` has only `name`, `line1`, `postalCode`, `city`,
-`country`. Expected address is exactly three lines (name, street/post-office box,
-postal code/city), plus canonical country internationally. There is no `line2`
-or separate building, floor, department or delivery-reference line. Provider
-3–6-line support does not mean Guteneo can represent those forms. Never delete a
-required complement to bypass this limit. Fields are not automatically printed;
-the PDF must already contain the address.
+**Legacy form:** `recipient` retains `name`, `line1`, `postalCode`, `city`,
+`country` for FR/LU/DE. It prints three lines plus canonical country when required
+and has no separate `line2`. Never delete a required complement to force that form.
+**Candidate complete block:** `{country,addressLines}` preserves the entire
+printed address, including name and any required country line, within two to six
+total lines. This is Guteneo's internal bound, not an exhaustive worldwide postal
+rule. Regions and optional postcodes retain their actual line order. Neither
+shape inserts text into an imported PDF; its address must already be printed.
 
 `verification.automatic`, `manual` and `provider` distinguish evidence. Guteneo
 checks bytes, scan, all pages, geometry, reserved regions, extraction/matching and

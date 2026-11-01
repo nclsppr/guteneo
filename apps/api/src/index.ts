@@ -6,6 +6,7 @@ import {
 import { handleBelvedereRoute } from "./belvedere";
 import { handleBelvedereHost } from "./belvedere-host";
 import { GUTENEO_VERSION } from "../../../packages/contracts/src/release";
+import { postalCountrySchema } from "../../../packages/contracts/src/postal-destinations";
 import { cleanupBelvedereTelemetry } from "./belvedere-telemetry";
 import { handleInvitationRoute } from "./invitations";
 import {
@@ -599,11 +600,12 @@ app.all("/mcp", (c) =>
           id,
           { reviewed: true, consentToTransfer: true },
         ),
-      requirements: async (identity, country, addressPosition) =>
+      requirements: async (identity, country, addressPosition, addressFormat) =>
         new PostalService(c.env, domain(c.env)).requirements(
           await postalMcpAuthority(identity, c.env, "documents:read"),
           country,
           addressPosition,
+          addressFormat,
         ),
       create: async (identity, input, key) =>
         new PostalService(c.env, domain(c.env)).create(
@@ -982,15 +984,23 @@ app.get("/api/secure-distributions/:id/events", async (c) => {
     ).events(c.get("actor"), c.req.param("id"), { cursor, limit }),
   );
 });
+app.get("/api/postal/destinations", async (c) =>
+  c.json(
+    await new PostalService(c.env, domain(c.env)).destinations(
+      await postalAuthority(c.req.raw, c.env, "documents:read"),
+    ),
+  ),
+);
 app.get("/api/postal/requirements", async (c) =>
   c.json(
     await new PostalService(c.env, domain(c.env)).requirements(
       await postalAuthority(c.req.raw, c.env, "documents:read"),
-      z.enum(["FR", "LU", "DE"]).parse(c.req.query("country")),
+      postalCountrySchema.parse(c.req.query("country")),
       z
         .enum(["left", "right"])
         .optional()
         .parse(c.req.query("addressPosition")),
+      z.literal("address_block").optional().parse(c.req.query("addressFormat")),
     ),
   ),
 );
@@ -1631,7 +1641,8 @@ export default {
           counts.tariffRefreshFailed =
             (counts.tariffRefreshFailed ?? 0) + refreshed.tariffRefreshFailed;
           counts.tariffRefreshDeferred =
-            (counts.tariffRefreshDeferred ?? 0) + refreshed.tariffRefreshDeferred;
+            (counts.tariffRefreshDeferred ?? 0) +
+            refreshed.tariffRefreshDeferred;
         } catch {
           counts.tariffRefreshFailed = (counts.tariffRefreshFailed ?? 0) + 1;
         }
@@ -1678,7 +1689,11 @@ export default {
           freshness.finish(undefined, metrics, "freshness");
         } catch {
           freshness.setCode("FRESHNESS_CHECK_FAILED");
-          freshness.finish(undefined, { freshnessChecksFailed: 1 }, "freshness");
+          freshness.finish(
+            undefined,
+            { freshnessChecksFailed: 1 },
+            "freshness",
+          );
         }
       }
       stage = "identity";

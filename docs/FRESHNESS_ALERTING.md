@@ -1,5 +1,11 @@
 # Operational freshness alerts
 
+At the 1 November handoff, production is 1.1.26 with the alert/reference
+corrections. Separately authorized Resend Full-access source inspection now
+passes; genuine scheduled renewal and incident recovery still await the 11:37 UTC
+Cron evidence. This does not establish a new notification or business-email
+receipt. The dated rollout observations below remain separate evidence.
+
 This mechanism detects deadlines that selected production operations actually
 consume. It changes no customer price, source evidence, provider configuration,
 human authority, mandate, quote or dispatch. API release 1.1.22 and additive

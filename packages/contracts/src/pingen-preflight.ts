@@ -9,14 +9,28 @@ import {
 import { z } from "zod";
 import { validatePdf } from "./pdf";
 import { LIMITS } from "./content";
+import {
+  isPingenPostalCountry,
+  isAnyPostalCountryLine,
+  isPostalCountryLine,
+  postalCountryLineRequired,
+  postalCountryName,
+  postalCountrySchema,
+} from "./postal-destinations";
 
 /** Dated, deliberately narrower Guteneo beta policy; not a provider acceptance proof. */
 export const PINGEN_PREFLIGHT_VERSION = "pingen-2026-09-17-v2";
+export const PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION =
+  "pingen-2026-11-01-address-block-v3";
+export type PingenPreflightVersion =
+  | typeof PINGEN_PREFLIGHT_VERSION
+  | typeof PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION;
 export const PINGEN_MAX_BYTES = 8_000_000;
 const configSchema = z
   .object({
     defaultCountry: z.string().regex(/^[A-Z]{2}$/),
-    country: z.enum(["FR", "LU", "DE"]),
+    country: postalCountrySchema,
+    addressFormat: z.literal("address_block").optional(),
     addressPosition: z.enum(["left", "right"]),
     printMode: z.enum(["simplex", "duplex"]),
     printSpectrum: z.enum(["grayscale", "color"]),
@@ -24,6 +38,15 @@ const configSchema = z
   })
   .strict();
 export type PingenPreflightOptions = z.infer<typeof configSchema>;
+export function pingenPreflightVersion(
+  options: Pick<PingenPreflightOptions, "country" | "addressFormat">,
+): PingenPreflightVersion {
+  return options?.addressFormat === "address_block" ||
+    (isPingenPostalCountry(options?.country) &&
+      !["FR", "LU", "DE"].includes(options.country))
+    ? PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION
+    : PINGEN_PREFLIGHT_VERSION;
+}
 export type PingenIssue = { code: string; page?: number };
 export type PingenRect = {
   x: number;
@@ -72,7 +95,7 @@ export function pingenLayout(options: PingenPreflightOptions): PingenLayout {
 }
 
 export type PingenPreflightResult = {
-  version: typeof PINGEN_PREFLIGHT_VERSION;
+  version: PingenPreflightVersion;
   status: "blocked" | "review_required";
   sha256: string | null;
   pages: number | null;
@@ -98,7 +121,7 @@ export async function preflightPingenPdf(
   options: PingenPreflightOptions,
 ): Promise<PingenPreflightResult> {
   const result: PingenPreflightResult = {
-    version: PINGEN_PREFLIGHT_VERSION,
+    version: pingenPreflightVersion(options),
     status: "blocked",
     sha256: null,
     pages: null,
@@ -265,9 +288,46 @@ export function checkPingenAddress(
     )
   )
     return [{ code: "POSTAL_ADDRESS_INVALID" }];
+  if (
+    pingenPreflightVersion(options) === PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION
+  ) {
+    if (lines.length > 6 || lines.some((line) => line !== line.trim()))
+      return [{ code: "POSTAL_ADDRESS_INVALID" }];
+    const required = postalCountryLineRequired(
+      options.country,
+      options.defaultCountry,
+    );
+    const hasCountry = isPostalCountryLine(lines.at(-1) ?? "", options.country);
+    const address = hasCountry ? lines.slice(0, -1) : lines;
+    const issues: PingenIssue[] = [];
+    if (required && !hasCountry)
+      issues.push({ code: "POSTAL_COUNTRY_LINE_REQUIRED" });
+    if (!hasCountry && isAnyPostalCountryLine(lines.at(-1) ?? ""))
+      issues.push({ code: "POSTAL_COUNTRY_LINE_MISMATCH" });
+    if (!required && hasCountry)
+      issues.push({ code: "POSTAL_DOMESTIC_COUNTRY_LINE" });
+    if (address.length < 2 || address.length > 6)
+      issues.push({ code: "POSTAL_ADDRESS_LINE_COUNT" });
+    // Retain the qualified legacy-country syntax checks without changing any
+    // supplied printed line. Other countries require their own provider review;
+    // no French/German postcode pattern is assumed for them.
+    if (["FR", "LU", "DE"].includes(options.country)) {
+      const legacyLines = [...address];
+      if (hasCountry) legacyLines.push(postalCountryName(options.country));
+      issues.push(
+        ...checkPingenAddress(legacyLines, {
+          ...options,
+          addressFormat: undefined,
+        }),
+      );
+    }
+    return issues.filter(
+      (issue, index) =>
+        issues.findIndex((other) => other.code === issue.code) === index,
+    );
+  }
   const errors: PingenIssue[] = [];
-  const names = { FR: "FRANCE", LU: "LUXEMBOURG", DE: "GERMANY" };
-  const lastIsCountry = lines.at(-1) === names[options.country];
+  const lastIsCountry = lines.at(-1) === postalCountryName(options.country);
   const domestic = options.defaultCountry === options.country;
   if (!domestic && !lastIsCountry)
     errors.push({ code: "POSTAL_COUNTRY_LINE_REQUIRED" });

@@ -9,8 +9,11 @@ import {
 } from "../../../packages/contracts/src/content";
 import {
   PINGEN_PREFLIGHT_VERSION,
+  PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION,
   PINGEN_MAX_BYTES,
   pingenLayout,
+  pingenPreflightVersion,
+  type PingenPreflightVersion,
 } from "../../../packages/contracts/src/pingen-preflight";
 import {
   postalReviewInputSchema,
@@ -25,7 +28,20 @@ import {
 } from "../../../packages/domain/src/index";
 import { inspectPingenReadiness } from "../../../packages/providers/pingen-readiness";
 import type { Fetcher as ProviderFetcher } from "../../../packages/providers";
-import { preparePostalDraft } from "./live-providers";
+import {
+  assertPostalDestinationAvailable,
+  preparePostalDraft,
+} from "./live-providers";
+import { pingenDestinationAvailability } from "../../../packages/providers/pingen-destination-availability";
+import {
+  PINGEN_POSTAL_COUNTRY_CODES,
+  postalCountrySchema,
+  type PostalCountry,
+} from "../../../packages/contracts/src/postal-destinations";
+import {
+  isPostalAddressBlockRecipient,
+  postalRecipientSchema,
+} from "../../../packages/contracts/src/postal-recipient";
 import { readLimited } from "./documents";
 import type { Env } from "./env";
 import type { PostalAuthority } from "./postal-authority";
@@ -46,7 +62,7 @@ export type PostalProfile = {
   environment: "production" | "sandbox";
   defaultCountry: string;
   addressPosition: "left" | "right";
-  version: typeof PINGEN_PREFLIGHT_VERSION;
+  version: PingenPreflightVersion;
 };
 type Row = {
   id: string;
@@ -80,7 +96,10 @@ const rect = z.object({
   height: z.number().positive().max(297),
 });
 const reportSchema = z.object({
-  version: z.literal(PINGEN_PREFLIGHT_VERSION),
+  version: z.enum([
+    PINGEN_PREFLIGHT_VERSION,
+    PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION,
+  ]),
   status: z.enum(["blocked", "review_required"]),
   sha256: z
     .string()
@@ -134,7 +153,11 @@ const reportSchema = z.object({
 type Report = z.infer<typeof reportSchema>;
 // Read historical evidence without promoting it to the current write contract.
 const storedReportSchema = reportSchema.extend({
-  version: z.enum(["pingen-2026-09-17-v1", PINGEN_PREFLIGHT_VERSION]),
+  version: z.enum([
+    "pingen-2026-09-17-v1",
+    PINGEN_PREFLIGHT_VERSION,
+    PINGEN_ADDRESS_BLOCK_PREFLIGHT_VERSION,
+  ]),
 });
 type StoredReport = z.infer<typeof storedReportSchema>;
 function error(code: string, status = 409): never {
@@ -173,11 +196,15 @@ function addressMatches(
   row: Row,
   report: Pick<Report, "address"> | null,
 ): boolean {
+  const recipient = postalRecipientSchema.parse(JSON.parse(row.recipient_json));
+  const comparison = isPostalAddressBlockRecipient(recipient)
+    ? (line: string) => line.normalize("NFC")
+    : normalized;
   return Boolean(
     report?.address &&
     report.address.issues.length === 0 &&
-    row.expected_address.split("\n").map(normalized).join("\n") ===
-      report.address.lines.map(normalized).join("\n"),
+    row.expected_address.split("\n").map(comparison).join("\n") ===
+      report.address.lines.map(comparison).join("\n"),
   );
 }
 function transferConfigured(env: Env) {
@@ -205,22 +232,29 @@ export class PostalService {
     private dependencies: {
       fetcher?: ProviderFetcher;
       deadlineMs?: number;
+      now?: () => number;
     } = {},
   ) {}
 
   async requirements(
     authority: PostalAuthority,
-    country: "FR" | "LU" | "DE",
+    country: PostalCountry,
     addressPosition?: "left" | "right",
+    addressFormat?: "address_block",
   ) {
-    z.enum(["FR", "LU", "DE"]).parse(country);
+    postalCountrySchema.parse(country);
     await authority.assertCurrent();
     const profile = await this.qualifiedProfile(addressPosition);
+    profile.version = pingenPreflightVersion({ country, addressFormat });
+    const destinations = await this.destinations(authority);
+    await assertPostalDestinationAvailable(country, this.dependencies);
+    const format = addressFormat ? { addressFormat } : {};
     let layout;
     try {
       layout = pingenLayout({
         defaultCountry: profile.defaultCountry,
         country,
+        ...format,
         addressPosition: profile.addressPosition,
         printMode: "simplex",
         printSpectrum: "grayscale",
@@ -232,9 +266,10 @@ export class PostalService {
     await authority.assertCurrent();
     return {
       provider: "pingen" as const,
-      version: PINGEN_PREFLIGHT_VERSION,
+      version: profile.version,
       qualified: true as const,
       country,
+      destinations,
       profile: {
         defaultCountry: profile.defaultCountry,
         addressPosition: profile.addressPosition,
@@ -244,6 +279,7 @@ export class PostalService {
       addressGuidance: postalAddressGuidance({
         defaultCountry: profile.defaultCountry,
         country,
+        ...format,
         addressPosition: profile.addressPosition,
         printMode: "simplex",
         printSpectrum: "grayscale",
@@ -259,13 +295,36 @@ export class PostalService {
       requirements: [
         "Coordinates are in millimeters from the top-left corner. Every page must be A4 with embedded fonts and no rotation, cropping, forms, annotations or active content.",
         "Keep a 5 mm white margin on all four edges of every page and the reserved corners. Only the recipient may occupy the address rectangle; the rest of the postage rectangle must remain white with no logo, line or grey pixel.",
-        "Use a black sans-serif address in 10–12 point type, left-aligned, with no blank lines and an inner margin. Add a final uppercase English country line for an international recipient; follow the selected domestic France profile's specific requirements.",
+        "Use a black sans-serif address in 10–12 point type, left-aligned, with no blank lines and an inner margin. Use the accepted uppercase country line returned by addressGuidance when required; follow the selected domestic France profile's specific requirements.",
         "Render and inspect every page at a minimum of 144 dpi; compare the expected recipient with the text and image actually visible. Text extraction and automatic checks alone do not prove this identity.",
         "The verified sender and return handling require separate review. Do not promise postal returns: returns are handled digitally.",
         "Never correct or recompose an imported original. For a new letter, generate a new PDF, then call preflight_postal_pdf with the uploaded bytes and its Guteneo identifier.",
         "Use normal paper and simplex/duplex, grayscale/color and cheap/fast options only when the draft calculator accepts them. A provider draft and exact quote do not constitute approval or send acceptance; those follow browser approval or a prior expert mandate. This profile authorizes no sending.",
       ],
       canSend: false as const,
+    };
+  }
+
+  async destinations(authority: PostalAuthority) {
+    await authority.assertCurrent();
+    let snapshot;
+    try {
+      snapshot = await pingenDestinationAvailability(
+        this.dependencies.fetcher,
+        this.dependencies.now,
+      ).read();
+    } catch {
+      error("POSTAL_DESTINATION_AVAILABILITY_UNAVAILABLE", 503);
+    }
+    await authority.assertCurrent();
+    return {
+      countries: PINGEN_POSTAL_COUNTRY_CODES,
+      unavailableCountries: snapshot.unavailable,
+      delayedCountries: snapshot.delayed,
+      observedAt: snapshot.observedAt,
+      expiresAt: snapshot.expiresAt,
+      sourceUrl: snapshot.source,
+      sourceSha256: snapshot.sourceSha256,
     };
   }
 
@@ -399,11 +458,12 @@ export class PostalService {
     });
     if (
       profile &&
-      canonicalJson(
-        await this.qualifiedProfile(
+      canonicalJson({
+        ...(await this.qualifiedProfile(
           JSON.parse(row.options_json).addressPosition,
-        ),
-      ) !== row.profile_json
+        )),
+        version: this.rowVersion(row),
+      }) !== row.profile_json
     )
       error("POSTAL_PROFILE_CHANGED");
     await authority.assertCurrent();
@@ -420,10 +480,22 @@ export class PostalService {
       : null;
   }
   private superseded(row: Row, report: StoredReport | null): boolean {
+    const version = this.rowVersion(row);
     return (
-      JSON.parse(row.profile_json).version !== PINGEN_PREFLIGHT_VERSION ||
-      (report !== null && report.version !== PINGEN_PREFLIGHT_VERSION)
+      JSON.parse(row.profile_json).version !== version ||
+      (report !== null && report.version !== version)
     );
+  }
+  private rowVersion(row: Row): PingenPreflightVersion {
+    const recipient = postalRecipientSchema.parse(
+      JSON.parse(row.recipient_json),
+    );
+    return pingenPreflightVersion({
+      country: recipient.country,
+      ...(isPostalAddressBlockRecipient(recipient)
+        ? { addressFormat: "address_block" as const }
+        : {}),
+    });
   }
 
   async get(authority: PostalAuthority, id: string): Promise<PostalReview> {
@@ -598,6 +670,17 @@ export class PostalService {
       input.senderId,
     );
     const profile = await this.qualifiedProfile(input.options.addressPosition);
+    const format = isPostalAddressBlockRecipient(input.recipient)
+      ? { addressFormat: "address_block" as const }
+      : {};
+    profile.version = pingenPreflightVersion({
+      country: input.recipient.country,
+      ...format,
+    });
+    await assertPostalDestinationAvailable(
+      input.recipient.country,
+      this.dependencies,
+    );
     await assertAddressPageBinding(this.env.DB, {
       organizationId: authority.context.organizationId,
       documentId: document.id,
@@ -612,6 +695,7 @@ export class PostalService {
     };
     const renderOptions = {
       ...options,
+      ...format,
       defaultCountry: profile.defaultCountry,
       country: input.recipient.country,
     };
@@ -705,6 +789,7 @@ export class PostalService {
           ),
         );
         if (
+          result.version !== profile.version ||
           result.sha256 !== document.sha256 ||
           result.pages !== document.pages
         )
@@ -811,6 +896,10 @@ export class PostalService {
     )
       error("POSTAL_PREFLIGHT_REQUIRED");
     await this.current(authority, row, true);
+    await assertPostalDestinationAvailable(
+      JSON.parse(row.recipient_json).country,
+      this.dependencies,
+    );
     const credentialFence = authority.sql();
     const permissionFence = membershipPermissionFence(
       authority.context,
@@ -850,6 +939,18 @@ export class PostalService {
       await authority.assertCurrent();
       return this.get(authority, id);
     }
+    let destination:
+      Awaited<ReturnType<typeof assertPostalDestinationAvailable>> | undefined;
+    const assertTransferCurrent = () => {
+      if (
+        !destination ||
+        !pingenDestinationAvailability(
+          this.dependencies.fetcher,
+          this.dependencies.now,
+        ).isCurrent(destination)
+      )
+        error("POSTAL_DESTINATION_AVAILABILITY_UNAVAILABLE", 503);
+    };
     try {
       const draft = await preparePostalDraft(
         this.env,
@@ -867,12 +968,19 @@ export class PostalService {
         {
           fetcher: this.dependencies.fetcher,
           transferAuthority: authority.expert ? authority : undefined,
+          assertTransferCurrent,
           beforeTransfer: async () => {
             await this.domain.authorizeApproval(authority.context);
             const active = await this.row(authority, id);
             if (active.transfer_status !== "preparing")
               error("POSTAL_PREFLIGHT_STALE");
             await this.current(authority, active, true);
+            destination = await assertPostalDestinationAvailable(
+              JSON.parse(active.recipient_json).country,
+              this.dependencies,
+            );
+            await authority.assertCurrent();
+            assertTransferCurrent();
           },
         },
       );
@@ -907,6 +1015,10 @@ export class PostalService {
     if (row.transfer_status !== "prepared" || !row.provider_draft_id)
       error("POSTAL_PREPARED_DRAFT_REQUIRED");
     await this.current(authority, row, true);
+    await assertPostalDestinationAvailable(
+      JSON.parse(row.recipient_json).country,
+      this.dependencies,
+    );
     const draft = await this.env.DB.prepare(
       "SELECT provider_id FROM provider_drafts WHERE organization_id=? AND id=? AND status='prepared'",
     )

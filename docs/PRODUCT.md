@@ -1,5 +1,30 @@
 # Guteneo product contract
 
+## Worldwide postal destinations — 1 November 2026 candidate 1.1.27
+
+Guteneo must allow postal preparation for every destination recognized by Pingen,
+using that provider's actual tariff for the exact analyzed letter. The candidate
+recognizes 250 codes and accepts ordered complete address blocks, including names,
+regional components, optional postcodes and the country line where required.
+Imported originals retain their bytes and printed spelling; generating an address
+page remains an explicit separate choice. The legacy FR/LU/DE form and approved
+quotes remain intact. This postal scope does not broaden fax routes.
+
+Recognition does not promise current availability. Fresh official restrictions,
+profile, PDF/scan, exact EUR calculator quote, consent, approval and provider gates
+still decide each request. Unknown availability closes preparation; delayed and
+unavailable destinations remain distinct. No address completion, fixed country
+price or universal postcode format is invented. See
+[worldwide postal mail](POSTAL_WORLDWIDE.md).
+
+This is an unpublished 1.1.27 candidate. Production is 1.1.26 with the alert/reference
+corrections. Its separately authorized Resend Full-access inspection passed.
+Genuine scheduled renewal succeeded at 11:37:26.950 UTC on 1 November, including
+domain, price, FX and Usage API evidence. Failure count is zero, no blocked reason
+remains, and technical validity runs through 1 December at that time.
+Neither those inspections nor the worldwide fixtures prove a real
+postal send, business-email delivery or all-country acceptance by Pingen.
+
 ## Maintained France/Germany fax references — 1 November 2026 candidate
 
 The published 1.1.25 runtime supports maintenance of only the fourteen exact FR/DE fixed-line routes
@@ -31,7 +56,8 @@ The runtime and final saved native configuration were verified on 1 November;
 that observation does not qualify every provider renewal or a new email receipt.
 No quote, consent,
 provider authority, immutable deadline, send gate or missing source proof is
-extended. Resend still needs an independently authorized inspection key.
+extended. Resend still needed a separately authorized inspection key at that
+dated observation; the 1.1.26 inspection status above supersedes that gap.
 See [the alert contract](FRESHNESS_ALERTING.md).
 
 ## Consumed provider deadlines — 30 October 2026 candidate

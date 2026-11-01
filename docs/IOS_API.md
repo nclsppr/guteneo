@@ -123,9 +123,13 @@ The current Swift `ComposeView` exposes message-only email; document-email defau
 and custom-template controls described here are mobile API capabilities, not
 implemented native composer controls.
 
-Recipient forms: fax `{ phone: "+…" }`; email `{ email }`; postal
-`{ name, line1, postalCode, city, country }`. Supported destination countries
-remain FR/LU/DE and the configured live route gates still apply.
+Recipient forms: fax `{ phone: "+…" }`; email `{ email }`; legacy postal
+`{ name, line1, postalCode, city, country }` for FR/LU/DE. Unpublished candidate
+1.1.27 adds the shared API `{country,addressLines}` contract for all 250
+Pingen-recognized codes, with fresh restrictions and actual draft pricing. This
+is not a claim that the native composer implements that new block editor; the
+production postal flow still requires the existing browser journey and all
+configured live route gates. See [worldwide postal mail](POSTAL_WORLDWIDE.md).
 
 Production postal preparation returns `POSTAL_BROWSER_REQUIRED`: the existing
 browser journey must first review the exact address area and separately consent

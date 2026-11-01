@@ -3,6 +3,14 @@
 21 September 2026 candidate. Tests, server publication, host-loaded catalogs and
 real sending remain distinct evidence.
 
+The unpublished 1.1.27 [worldwide candidate](POSTAL_WORLDWIDE.md) accepts every
+Pingen-recognized country code with a complete printed address block. Read
+`get_postal_requirements({country,addressFormat:"address_block"})` before forming
+that block. Its `destinations` separates recognition from fresh restrictions and
+delays; the tool reads a fixed official public source and declares
+`openWorldHint:true`. No new tool, scope, mandate or human-consent assertion is
+introduced. Legacy FR/LU/DE fields remain supported with their prior hash material.
+
 Send this PDF by post selects postal. Import once with shared `import_document`
 and retain the ID through analysis/information gathering. Continue through
 `preflight_postal_pdf`, never fax or generic preparation bypassing postal checks.
@@ -13,7 +21,11 @@ With `documents:read`, `get_capabilities` includes authenticated postal setup;
 without it, general capabilities indicate the missing scope without sender data.
 `get_postal_setup` rereads state, sender and configuration authority. Reuse an
 existing sender and ask only for missing full sender/recipient address, print/
-delivery options and EUR ceiling. Never guess or confuse sender/recipient.
+delivery options and EUR ceiling. For a complete block, collect every printed
+line including the name and required country line; retain region/postcode/
+complement placement without inventing missing values. Never guess or confuse
+sender/recipient. A recognized country with unavailable or unknown current service
+does not become sendable because a price calculator returns a number.
 
 `configure_postal_sender` accepts supplied name/address and requires current OAuth
 administrator plus `dispatches:prepare`, independently of expert delegation.

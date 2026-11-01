@@ -7,7 +7,7 @@ sidebar:
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->
 
-**27 domains · 422 capabilities · 44 journeys · 76 REST operations · 83 MCP tools.**
+**27 domains · 425 capabilities · 44 journeys · 77 REST operations · 83 MCP tools.**
 
 Follow a branch to find its behavior, access boundary and engineering guide. Use the site search to find a specific capability.
 
@@ -23,12 +23,12 @@ This is an implementation inventory, not a live availability dashboard. Current 
 - [Documents and protection](/features/documents/) — 20 capabilities
 - [Template studio](/features/templates/) — 14 capabilities
 - [Data and mappings](/features/datasets/) — 11 capabilities
-- [PDF generation and distribution](/features/generation/) — 14 capabilities
+- [PDF generation and distribution](/features/generation/) — 15 capabilities
 
 ## Deliver
 
 - [Fax](/features/fax/) — 9 capabilities
-- [Postal mail](/features/postal/) — 8 capabilities
+- [Postal mail](/features/postal/) — 10 capabilities
 - [Email and protected links](/features/email/) — 14 capabilities
 - [Sensitive distribution and personal documents](/features/secure-distribution/) — 31 capabilities
 - [Dispatch dry run](/features/dry-run/) — 7 capabilities

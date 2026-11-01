@@ -208,6 +208,31 @@ describe("Private postal address page boundary", () => {
     });
     expect(dependencies.launch).not.toHaveBeenCalled();
   });
+  it("keeps unsupported block-address glyphs explicit instead of transliterating or falling back", async () => {
+    const input = await source();
+    const dependencies = deps();
+    const recipient = {
+      country: "JP",
+      addressLines: ["FICTIONAL RECIPIENT", "東京都", "JAPAN"],
+    };
+    const snapshot = structuredClone(recipient);
+    expect(addressFontSupports(addressFont, recipient.addressLines)).toBe(
+      false,
+    );
+    const response = await handlePostalAddressPage(
+      request(input.bytes, input.hash, {
+        "X-Guteneo-Postal-Address-Page": encodeURIComponent(
+          JSON.stringify({ ...options, recipient }),
+        ),
+      }),
+      dependencies,
+    );
+    expect(await response.json()).toEqual({
+      error: { code: "POSTAL_ADDRESS_PAGE_GLYPH_UNSUPPORTED" },
+    });
+    expect(dependencies.launch).not.toHaveBeenCalled();
+    expect(recipient).toEqual(snapshot);
+  });
   it("does not disclose renderer exceptions or cache any result", async () => {
     const input = await source();
     const response = await handlePostalAddressPage(

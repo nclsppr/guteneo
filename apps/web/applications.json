@@ -157,6 +157,7 @@
         "document-delivery-choice.tsx",
         "secure-distribution-pages.tsx",
         "postal-review-page.tsx",
+        "postal-recipient-editor.tsx",
         "postal-review.css",
         "postal-address-page.tsx",
         "postal-address-page.css",

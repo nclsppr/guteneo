@@ -12,8 +12,11 @@ import {
 import { validatePdf } from "../../packages/contracts/src/pdf";
 import {
   postalAddressLines,
-  POSTAL_ADDRESS_PAGE_VERSION,
+  postalAddressPageVersion,
+  type PostalAddressPageRenderInput,
 } from "../../packages/contracts/src/postal-address-page";
+import { isPostalAddressBlockRecipient } from "../../packages/contracts/src/postal-recipient";
+import { postalCountryName } from "../../packages/contracts/src/postal-destinations";
 import type { PingenPreflightOptions } from "../../packages/contracts/src/pingen-preflight";
 
 const scripts = await loadPdfScripts();
@@ -47,7 +50,7 @@ const lu = {
   city: "LUXEMBOURG",
   country: "LU" as const,
 };
-const cases = [
+const cases: (PostalAddressPageRenderInput & { key: string })[] = [
   {
     key: "lu-simplex",
     recipient: lu,
@@ -88,7 +91,71 @@ const cases = [
     addressPosition: "right",
     printMode: "simplex",
   },
-] as const;
+  {
+    key: "us-five-lines",
+    recipient: {
+      country: "US",
+      addressLines: [
+        "FICTIONAL RECIPIENT",
+        "EXAMPLE COMPANY",
+        "123 TEST STREET",
+        "NEW YORK NY 10001",
+        postalCountryName("US"),
+      ],
+    },
+    defaultCountry: "LU",
+    addressPosition: "left",
+    printMode: "simplex",
+  },
+  {
+    key: "ca-six-lines",
+    recipient: {
+      country: "CA",
+      addressLines: [
+        "FICTIONAL RECIPIENT",
+        "EXAMPLE DEPARTMENT",
+        "EXAMPLE COMPANY",
+        "123 TEST STREET",
+        "OTTAWA ON K1A 0B1",
+        postalCountryName("CA"),
+      ],
+    },
+    defaultCountry: "LU",
+    addressPosition: "right",
+    printMode: "simplex",
+  },
+  {
+    key: "ae-without-postcode",
+    recipient: {
+      country: "AE",
+      addressLines: [
+        "FICTIONAL RECIPIENT",
+        "EXAMPLE STREET ABU DHABI",
+        postalCountryName("AE"),
+      ],
+    },
+    defaultCountry: "LU",
+    addressPosition: "left",
+    printMode: "simplex",
+  },
+  {
+    key: "fr-six-lines",
+    recipient: {
+      country: "FR",
+      addressLines: [
+        "DESTINATAIRE FICTIF",
+        "DEPARTEMENT EXEMPLE",
+        "ENTREPRISE EXEMPLE",
+        "BATIMENT EXEMPLE",
+        "12 RUE DU TEST",
+        "75001 PARIS",
+      ],
+    },
+    defaultCountry: "FR",
+    addressPosition: "right",
+    printMode: "duplex",
+  },
+];
 async function preflight(
   bytes: Uint8Array<ArrayBuffer>,
   options: PingenPreflightOptions,
@@ -202,7 +269,7 @@ describe("Postal address page with actual local Chromium and PDF.js", () => {
       expect(response.headers.get("X-Guteneo-Added-Pages")).toBe(String(extra));
       expect(
         response.headers.get("X-Guteneo-Postal-Address-Page-Version"),
-      ).toBe(POSTAL_ADDRESS_PAGE_VERSION);
+      ).toBe(postalAddressPageVersion(input.recipient));
       expect(original).toEqual(originalSnapshot);
       const options: PingenPreflightOptions = {
         defaultCountry: input.defaultCountry,
@@ -211,6 +278,9 @@ describe("Postal address page with actual local Chromium and PDF.js", () => {
         printMode: input.printMode,
         printSpectrum: "grayscale",
         deliveryProduct: "cheap",
+        ...(isPostalAddressBlockRecipient(input.recipient)
+          ? { addressFormat: "address_block" as const }
+          : {}),
       };
       const before = await preflight(original, options);
       const after = await preflight(final, options);
@@ -221,6 +291,14 @@ describe("Postal address page with actual local Chromium and PDF.js", () => {
         postalAddressLines(input.recipient, input.defaultCountry),
       );
       expect(after.address?.textVisibility).toBe("not_verified");
+      const compact =
+        isPostalAddressBlockRecipient(input.recipient) &&
+        input.recipient.addressLines.length > 4;
+      expect(after.address!.items.length).toBeGreaterThan(0);
+      for (const item of after.address!.items)
+        expect(Math.abs(item.fontSizePt - (compact ? 10 : 11))).toBeLessThan(
+          0.02,
+        );
       expect(
         after.rendering.pages.slice(extra).map((page) => page.rasterSha256),
       ).toEqual(before.rendering.pages.map((page) => page.rasterSha256));
@@ -250,5 +328,46 @@ describe("Postal address page with actual local Chromium and PDF.js", () => {
     expect(await response.json()).toEqual({
       error: { code: "POSTAL_ADDRESS_PAGE_ADDRESS_TOO_LONG" },
     });
+  });
+  it("rejects an overflowing complete block without wrapping, shrinking or dropping lines", async () => {
+    const { key: _key, ...input } = cases.find(
+      (entry) => entry.key === "ca-six-lines",
+    )!;
+    if (!isPostalAddressBlockRecipient(input.recipient))
+      throw new Error("ADDRESS_BLOCK_FIXTURE_REQUIRED");
+    const recipient = {
+      country: "CA",
+      addressLines: ["W".repeat(70), ...input.recipient.addressLines.slice(1)],
+    };
+    const snapshot = structuredClone(recipient);
+    const response = await compose({ ...input, recipient });
+    expect(response.status).toBe(422);
+    expect(await response.json()).toEqual({
+      error: { code: "POSTAL_ADDRESS_PAGE_ADDRESS_TOO_LONG" },
+    });
+    expect(recipient).toEqual(snapshot);
+  });
+  it("refuses compact ink spacing that would violate the DHL gap instead of changing text", async () => {
+    const { key: _key, ...input } = cases.find(
+      (entry) => entry.key === "ca-six-lines",
+    )!;
+    const recipient = {
+      country: "CA",
+      addressLines: [
+        "gypq",
+        "ÉÈÉÈ",
+        "EXAMPLE COMPANY",
+        "123 TEST STREET",
+        "OTTAWA ON K1A 0B1",
+        postalCountryName("CA"),
+      ],
+    };
+    const snapshot = structuredClone(recipient);
+    const response = await compose({ ...input, recipient });
+    expect(response.status).toBe(422);
+    expect(await response.json()).toEqual({
+      error: { code: "POSTAL_ADDRESS_PAGE_ADDRESS_TOO_LONG" },
+    });
+    expect(recipient).toEqual(snapshot);
   });
 });

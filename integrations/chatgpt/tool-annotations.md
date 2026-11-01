@@ -96,7 +96,7 @@ deployed server in the portal. `node scripts/build-mcp-annotation-docs.mjs
 | `get_mcp_document_upload` | `false` | `true` | `false` | `false` |
 | `get_pdf_validation` | `false` | `false` | `false` | `false` |
 | `get_postal_preflight` | `false` | `false` | `false` | `false` |
-| `get_postal_requirements` | `false` | `false` | `false` | `false` |
+| `get_postal_requirements` | `false` | `false` | `true` | `false` |
 | `get_postal_setup` | `false` | `false` | `false` | `false` |
 | `get_secure_distribution` | `false` | `false` | `false` | `false` |
 | `get_template` | `false` | `false` | `false` | `false` |
@@ -482,7 +482,7 @@ Evidence: [`"get_postal_preflight"`](../../apps/api/src/mcp.ts), [`async get(`](
 
 - **`readOnlyHint: false`** — Reads the qualified postal profile and exact layout requirements, including supported address positions and country rules. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.
 - **`destructiveHint: false`** — Does not modify provider account settings, layout rules or any PDF.
-- **`openWorldHint: false`** — Queries only the configured private Pingen account profile; no PDF is uploaded and no arbitrary URL or recipient is contacted.
+- **`openWorldHint: true`** — Reads the configured private Pingen account profile and the fixed official public Pingen delivery-restrictions article to verify current destination availability; no PDF is uploaded and no arbitrary URL or recipient is contacted.
 - **`idempotentHint: false`** — Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused.
 
 Evidence: [`"get_postal_requirements"`](../../apps/api/src/mcp.ts), [`async requirements(`](../../apps/api/src/postal.ts), [`recordSuccessfulConnectionTool`](../../apps/api/src/connection-observations.ts).

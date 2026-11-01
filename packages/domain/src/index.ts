@@ -422,6 +422,8 @@ export class DomainService {
       liveFaxIdentity?: LiveFaxIdentity;
       liveDeliveryIdentity?: LiveDeliveryIdentities;
       postalQuote?: PostalQuoteResolver;
+      /** Server-owned live destination check; grants no approval or price. */
+      assertPostalDestination?: (country: string) => Promise<void>;
       ensureEmailSender?: (
         ctx: ActorContext,
         options?: { pricing?: boolean; senderId?: string },
@@ -1058,7 +1060,7 @@ export class DomainService {
           .prepare(
             "SELECT 1 FROM suppressions WHERE organization_id=? AND email=?",
           )
-          .bind(ctx.organizationId, recipient.email)
+          .bind(ctx.organizationId, validateRecipient("email", recipient).email)
           .first()
       )
         throw new DomainError(
@@ -1187,7 +1189,7 @@ export class DomainService {
             this.db,
             ctx.organizationId,
             sender.id,
-            recipient.phone,
+            validateRecipient("fax", recipient).phone,
             canonicalJson(options),
             document!.pages,
             this.config.liveFaxIdentity,
@@ -1883,6 +1885,28 @@ export class DomainService {
         "Active expert delegation is required.",
         403,
       );
+    if (
+      row.mode === "production" &&
+      row.channel === "postal" &&
+      row.status === "prepared"
+    ) {
+      if (!this.config.assertPostalDestination)
+        throw new DomainError(
+          "POSTAL_DESTINATION_AVAILABILITY_UNAVAILABLE",
+          "Current postal destination availability cannot be verified.",
+          503,
+        );
+      const recipient = JSON.parse(row.recipient_json) as { country?: unknown };
+      if (typeof recipient.country !== "string")
+        throw new DomainError(
+          "POSTAL_COUNTRY_UNSUPPORTED",
+          "The postal destination country is invalid.",
+          409,
+        );
+      await this.config.assertPostalDestination(recipient.country);
+    }
+    // The current time follows any external destination read. Historical or
+    // accepted idempotent replays above need no new country decision.
     const now = this.time();
     if (row.status === "prepared") await this.validateDispatchQuote(row, now);
     if (row.status === "prepared") await this.validateProtection(row);

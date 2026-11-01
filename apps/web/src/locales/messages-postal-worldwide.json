@@ -1,0 +1,147 @@
+{
+  "Choisissez une destination postale proposée.": [
+    "Choose a supported postal destination.",
+    "Wählen Sie ein unterstütztes Briefziel.",
+    "Wielt eng ënnerstëtzt Bréifdestinatioun."
+  ],
+  "Cet exemple utilise des prix simulés et n’envoie aucune lettre.": [
+    "This example uses simulated prices and sends no letter.",
+    "Dieses Beispiel verwendet simulierte Preise und versendet keinen Brief.",
+    "Dëst Beispill benotzt simuléiert Präisser a schéckt kee Bréif."
+  ],
+  "La disponibilité du service et le prix exact de chaque lettre sont vérifiés avant approbation.": [
+    "Availability and the exact price are checked for each letter before approval.",
+    "Verfügbarkeit und genauer Preis werden vor der Freigabe für jeden Brief geprüft.",
+    "Disponibilitéit an exakte Präis gi fir all Bréif virun der Fräigab kontrolléiert."
+  ],
+  "Temporairement indisponible": [
+    "Temporarily unavailable",
+    "Vorübergehend nicht verfügbar",
+    "Temporär net disponibel"
+  ],
+  "Vérification des destinations postales…": [
+    "Checking postal destinations…",
+    "Briefziele werden geprüft…",
+    "Bréifdestinatioune gi kontrolléiert…"
+  ],
+  "La disponibilité des destinations postales n’a pas pu être vérifiée. Réessayez avant de préparer la lettre.": [
+    "Postal destination availability could not be checked. Try again before preparing the letter.",
+    "Die Verfügbarkeit der Briefziele konnte nicht geprüft werden. Versuchen Sie es erneut, bevor Sie den Brief vorbereiten.",
+    "D’Disponibilitéit vun de Bréifdestinatioune konnt net kontrolléiert ginn. Probéiert nach eng Kéier, ier Dir de Bréif virbereet."
+  ],
+  "L’envoi de courrier vers cette destination est temporairement indisponible.": [
+    "Mail to this destination is temporarily unavailable.",
+    "Der Briefversand an dieses Ziel ist vorübergehend nicht verfügbar.",
+    "De Bréifversand op dës Destinatioun ass temporär net disponibel."
+  ],
+  "Des retards de livraison sont actuellement signalés pour cette destination.": [
+    "Delivery delays are currently reported for this destination.",
+    "Für dieses Ziel werden derzeit Zustellverzögerungen gemeldet.",
+    "Fir dës Destinatioun gi momentan Zoustellverspéidunge gemellt."
+  ],
+  "Format de l’adresse": [
+    "Address format",
+    "Adressformat",
+    "Adressformat"
+  ],
+  "Format de l’adresse postale": [
+    "Postal address format",
+    "Postadressformat",
+    "Postadressformat"
+  ],
+  "Champs séparés (France, Luxembourg, Allemagne)": [
+    "Separate fields (France, Luxembourg, Germany)",
+    "Einzelne Felder (Frankreich, Luxemburg, Deutschland)",
+    "Eenzel Felder (Frankräich, Lëtzebuerg, Däitschland)"
+  ],
+  "Adresse complète à imprimer": [
+    "Complete printed address",
+    "Vollständige Druckadresse",
+    "Komplett gedréckten Adress"
+  ],
+  "Code du pays": [
+    "Country code",
+    "Ländercode",
+    "Landcode"
+  ],
+  "Saisissez 2 à 6 lignes dans leur ordre d’impression, avec le nom du destinataire. Conservez les régions, codes postaux et compléments d’adresse à leur place, sans ligne vide.": [
+    "Enter 2 to 6 lines in their printed order, including the recipient name. Keep regions, postcodes and extra address lines where they belong; do not leave blank lines.",
+    "Geben Sie 2 bis 6 Zeilen in ihrer Druckreihenfolge ein, einschließlich des Empfängernamens. Belassen Sie Regionen, Postleitzahlen und Adresszusätze an der vorgesehenen Stelle und lassen Sie keine Leerzeilen.",
+    "Gitt 2 bis 6 Zeilen an hirer Drockreefolleg an, mam Numm vum Empfänger. Loosst Regiounen, Postleitzuelen an zousätzlech Adresszeilen op hirer Plaz, ouni eidel Zeilen."
+  ],
+  "Pays à indiquer sur la dernière ligne : {0}.": [
+    "Last country line: {0}.",
+    "Land in der letzten Zeile: {0}.",
+    "Landsnumm an der leschter Zeil: {0}."
+  ],
+  "Cette adresse intérieure ne doit pas contenir de ligne de pays.": [
+    "This domestic address must not contain a country line.",
+    "Diese Inlandsadresse darf keine Länderzeile enthalten.",
+    "Dës Inlandsadress däerf keng Zeil mam Land enthalen."
+  ],
+  "Ajoutez la ligne du pays demandée dans les instructions d’adressage.": [
+    "Include the country line required by the address instructions.",
+    "Fügen Sie die gemäß den Adressvorgaben erforderliche Länderzeile hinzu.",
+    "Füügt déi Lännerzeil derbäi, déi an den Adressinstruktioune verlaangt gëtt."
+  ],
+  "Sélectionnez un champ contenant 2 à 6 lignes d’adresse à imprimer, sous forme de tableau de textes ou de cellule CSV multiligne.": [
+    "Select a field containing 2 to 6 printed address lines, stored as a text array or a multiline CSV cell.",
+    "Wählen Sie ein Feld mit 2 bis 6 Druckadresszeilen, gespeichert als Textarray oder mehrzeilige CSV-Zelle.",
+    "Wielt e Feld mat 2 bis 6 Adresszeile fir ze drécken, gespäichert als Textarray oder als CSV-Zell mat méi Zeilen."
+  ],
+  "Sélectionnez un champ contenant le code du pays, par exemple US.": [
+    "Select a field containing the country code, for example US.",
+    "Wählen Sie ein Feld mit dem Ländercode, zum Beispiel US.",
+    "Wielt e Feld mam Landcode, zum Beispill US."
+  ],
+  "Indiquez un pays pris en charge et deux à six lignes d’adresse complètes à imprimer, sans anciens champs d’adresse, lignes vides ni caractères de contrôle.": [
+    "Supply a supported country and two to six complete printed address lines without legacy address fields, blank lines or control characters.",
+    "Geben Sie ein unterstütztes Land und zwei bis sechs vollständige Druckadresszeilen an, ohne die bisherigen Adressfelder, Leerzeilen oder Steuerzeichen.",
+    "Gitt en ënnerstëtzt Land an zwou bis sechs komplett Adresszeile fir ze drécken un, ouni déi al Adressfelder, eidel Zeilen oder Kontrollzeechen."
+  ],
+  "Ne mélangez pas une adresse complète addressLines avec les anciennes colonnes d’adresse postale.": [
+    "Do not mix complete addressLines with legacy postal address columns.",
+    "Kombinieren Sie vollständige addressLines nicht mit den bisherigen Postadressspalten.",
+    "Mëscht komplett addressLines net mat den ale Postadresskolonnen."
+  ],
+  "La colonne CSV addressLines doit contenir un tableau JSON de lignes à imprimer.": [
+    "The addressLines CSV column must contain a JSON array of printed lines.",
+    "Die CSV-Spalte addressLines muss ein JSON-Array mit den zu druckenden Zeilen enthalten.",
+    "D’CSV-Kolonn addressLines muss en JSON-Array mat den Zeilen enthalen, déi gedréckt solle ginn."
+  ],
+  "Le courrier vers ce pays est actuellement indisponible.": [
+    "Postal delivery to this country is currently unavailable.",
+    "Der Briefversand in dieses Land ist derzeit nicht verfügbar.",
+    "De Bréifversand an dëst Land ass momentan net disponibel."
+  ],
+  "La disponibilité actuelle des destinations postales ne peut pas être vérifiée. Aucune lettre n’a été envoyée.": [
+    "Current postal destination availability cannot be verified. No letter was sent.",
+    "Die aktuelle Verfügbarkeit der Postziele kann nicht überprüft werden. Es wurde kein Brief versendet.",
+    "Déi aktuell Disponibilitéit vun de Postdestinatioune kann net kontrolléiert ginn. Et gouf kee Bréif geschéckt."
+  ],
+  "La disponibilité actuelle des destinations postales ne peut pas être vérifiée.": [
+    "Current postal destination availability cannot be verified.",
+    "Die aktuelle Verfügbarkeit der Postziele kann nicht überprüft werden.",
+    "Déi aktuell Disponibilitéit vun de Postdestinatioune kann net kontrolléiert ginn."
+  ],
+  "Choisissez un champ texte ou numérique pour cette valeur du destinataire. Seul le bloc complet de l’adresse postale accepte un tableau de textes.": [
+    "Choose a text or number field for this recipient value. Only complete postal address lines accept a text array.",
+    "Wählen Sie für diesen Empfängerwert ein Text- oder Zahlenfeld. Nur vollständige Postadresszeilen dürfen als Textarray vorliegen.",
+    "Wielt e Feld mat Text oder Zuele fir dësen Empfängerwäert. Nëmme komplett Postadresszeilen akzeptéieren en Textarray."
+  ],
+  "Ce pays ne figure pas dans les destinations postales proposées.": [
+    "This destination country is not recognised by Pingen.",
+    "Dieses Land gehört nicht zu den unterstützten Briefzielen.",
+    "Dëst Land gehéiert net zu den ënnerstëtzte Bréifdestinatiounen."
+  ],
+  "Le pays de destination postale est invalide.": [
+    "The postal destination country is invalid.",
+    "Das Zielland für den Brief ist ungültig.",
+    "D’Destinatiounsland vum Bréif ass ongülteg."
+  ],
+  "L’envoi de lettres vers ce pays est actuellement indisponible.": [
+    "Pingen currently does not deliver letters to this country.",
+    "Der Briefversand in dieses Land ist derzeit nicht verfügbar.",
+    "De Bréifversand an dëst Land ass momentan net disponibel."
+  ]
+}

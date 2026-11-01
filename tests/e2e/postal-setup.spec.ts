@@ -115,6 +115,16 @@ async function fixture(
         verifiedAccount: true,
       };
     else if (path === "/api/capabilities") body = {};
+    else if (path === "/api/postal/destinations")
+      body = {
+        countries: ["FR", "LU", "DE"],
+        unavailableCountries: [],
+        delayedCountries: [],
+        observedAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 300_000).toISOString(),
+        sourceUrl: "https://example.invalid/postal-fixture",
+        sourceSha256: "f".repeat(64),
+      };
     else if (path === "/api/postal/requirements")
       body = {
         profile: {

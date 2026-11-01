@@ -42,6 +42,11 @@ import {
   renderTransactionalEmail,
   transactionalEmailText,
 } from "../../../packages/contracts/src/email-template";
+import type { DeliveryRecipient } from "../../../packages/contracts/src/content";
+import {
+  isPostalAddressBlockRecipient,
+  postalAddressBlockRecipientSchema,
+} from "../../../packages/contracts/src/postal-recipient";
 
 // This isolated design model has no transport or storage. It is never the
 // authenticated API, the domain simulator, or evidence of provider delivery.
@@ -145,7 +150,10 @@ function previewCredit(state: Workspace): WelcomeCredit {
   };
 }
 
-function recipient(channel: Channel, input: Record<string, unknown>) {
+function recipient(
+  channel: Channel,
+  input: Record<string, unknown>,
+): DeliveryRecipient {
   const text = (key: string) => String(input[key] ?? "").trim();
   if (channel === "email") {
     const email = text("email").toLowerCase();
@@ -158,6 +166,15 @@ function recipient(channel: Channel, input: Record<string, unknown>) {
     const problem = faxNumberProblem(phone);
     if (problem) fail("INVALID_PHONE", problem);
     return { phone };
+  }
+  if (isPostalAddressBlockRecipient(input)) {
+    const parsed = postalAddressBlockRecipientSchema.safeParse(input);
+    if (!parsed.success)
+      return fail(
+        "INVALID_ADDRESS",
+        "Supply a supported country and two to six complete printed address lines without legacy address fields, blank lines or control characters.",
+      );
+    return parsed.data;
   }
   const result: Record<string, string> = {};
   for (const key of ["name", "line1", "postalCode", "city", "country"]) {
@@ -191,6 +208,7 @@ function validateCsv(csv: string) {
     "postalCode",
     "city",
     "country",
+    "addressLines",
   ];
   if (
     !parsed.meta.fields?.includes("channel") ||
@@ -206,7 +224,7 @@ function validateCsv(csv: string) {
   const rows: {
     line: number;
     channel: Channel;
-    recipient: Record<string, string>;
+    recipient: DeliveryRecipient;
   }[] = [];
   const duplicates: { line: number; duplicateOf: number }[] = [];
   const seen = new Map<string, number>();
@@ -223,7 +241,33 @@ function validateCsv(csv: string) {
       const channel = row.channel?.trim().toLowerCase() as Channel;
       if (!channels.includes(channel))
         fail("INVALID_CHANNEL", "Unknown delivery channel.");
-      const target = recipient(channel, row);
+      let recipientInput: Record<string, unknown> = row;
+      if (channel === "postal" && !row.addressLines?.trim()) {
+        const { addressLines: _addressLines, ...legacy } = row;
+        recipientInput = legacy;
+      }
+      if (channel === "postal" && row.addressLines?.trim()) {
+        if (
+          ["name", "line1", "postalCode", "city"].some((field) =>
+            row[field]?.trim(),
+          )
+        )
+          fail(
+            "INVALID_ADDRESS",
+            "Do not mix complete addressLines with legacy postal address columns.",
+          );
+        let addressLines: unknown;
+        try {
+          addressLines = JSON.parse(row.addressLines);
+        } catch {
+          fail(
+            "INVALID_ADDRESS",
+            "The addressLines CSV column must contain a JSON array of printed lines.",
+          );
+        }
+        recipientInput = { country: row.country, addressLines };
+      }
+      const target = recipient(channel, recipientInput);
       const key = JSON.stringify({ channel, target });
       const previous = seen.get(key);
       if (previous !== undefined)
@@ -341,7 +385,7 @@ async function createWorkspace(slug: string): Promise<Workspace> {
   const samples: {
     channel: Channel;
     status: string;
-    recipient: Record<string, string>;
+    recipient: DeliveryRecipient;
     subject?: string;
   }[] = [
     {

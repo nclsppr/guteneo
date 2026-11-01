@@ -265,6 +265,13 @@ or time-based substitute was activated.
 
 ## 1 November 2026 corrective rollout
 
+Later handoff: production is 1.1.26 with the alert/reference corrections. The
+separately authorized Full-access Resend source inspection is installed and
+passed; genuine scheduled renewal/incident recovery still awaits the 11:37 UTC
+Cron evidence. The earlier refusal and native-editor attempts below are dated
+observations, not the current inspection result. No inspection establishes
+notification receipt or business-email delivery.
+
 PR 131, source `afedd099081099fa83bf6bd9edaf6dcabacbea03`, passed all 24
 merged-main CI jobs and was published as 1.1.23. Private read-only post-deploy
 checks found one active postal freshness binding (previously absent), four more
@@ -273,7 +280,8 @@ pending/uncertain dispatch backlog. Live logs recorded `freshnessChecksFailed=0`
 `freshnessExpired=14` and a completed Cron on Worker version
 `2da375f1-dc22-4ab2-ae02-197da4ab36a7`. The fourteen expired permitted manual
 France/Germany references remain real operator incidents with their original
-deadlines. Resend domain inspection remains `READ_NOT_PERMITTED`.
+deadlines. At that earlier observation, Resend domain inspection returned
+`READ_NOT_PERMITTED`.
 
 Native validation rejected the prior nested SQL (parser depth and conditional
 JSON aggregate restrictions). No rejected draft was saved. The 1.1.24 candidate

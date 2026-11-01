@@ -1,5 +1,22 @@
 # API and MCP reference
 
+## Worldwide postal address contract — 1 November 2026 candidate 1.1.27
+
+The unpublished candidate adds authenticated `GET /api/postal/destinations` and
+the same `destinations` metadata in postal requirements. It separates 250
+recognized codes from freshly observed restrictions/delays. Requirements accept
+any recognized code and optional `addressFormat=address_block`; the account's
+default country is profile guidance, not an allowed-destination filter.
+
+New recipients are strict `{country,addressLines}` complete printed blocks. The
+two-to-six-line internal limit includes recipient name and any required country
+line; region/postcode/complement order remains supplied data. Legacy FR/LU/DE
+objects and hash material stay unchanged. Format/version derives from the frozen
+recipient, not a new client pricing option. Current restrictions, actual EUR
+calculator price and existing approval/send gates still apply. Migration 0072
+precedes the new runtime. [The detailed contract](POSTAL_WORLDWIDE.md) owns errors,
+compatibility and evidence limits; production remains 1.1.26 at this handoff.
+
 ## Browser application continuity — 29 October 2026 local candidate
 
 Browser session responses may contain the minimal `canAccessBelvedere` navigation
@@ -186,7 +203,7 @@ Preparation is strict at the top level:
 | --- | --- |
 | `fax` | International `{phone}`: remove spaces including nonbreaking, dots, parentheses/hyphens; remove `(0)` after country code. Allowed `+33`, `+352`, `+49`; remaining national 0 after code returns `INVALID_PHONE`. Ready `documentId` required; no real destination prefilled. |
 | `email` | Lowercase-normalized `{email}`; final sanitized HTML and text; one recipient per dispatch. Message-only email requires subject/body. An accessible ready PDF `documentId` enables independent localized defaults for omitted subject/body. |
-| `postal` | `{name,line1,postalCode,city,country}`, `FR|LU|DE`, ready PDF. One persisted street line; nonempty `line2` returns `ADDRESS_LINE_UNSUPPORTED`, never silent deletion. |
+| `postal` | Ready PDF and unchanged legacy `{name,line1,postalCode,city,country}` for `FR|LU|DE`; one street line, with nonempty `line2` refused. Candidate 1.1.27 also accepts strict `{country,addressLines}` for all 250 recognized codes, including the complete printed block. Fresh availability and route/PDF checks remain mandatory; see [worldwide postal mail](POSTAL_WORLDWIDE.md). |
 
 Sender must be verified for organization/channel/mode; omission selects an
 existing verified profile. `options.kind:"marketing"` returns `MARKETING_NOT_ENABLED`

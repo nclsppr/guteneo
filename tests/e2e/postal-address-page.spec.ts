@@ -78,6 +78,18 @@ async function setup(
       });
     if (path === "/capabilities")
       return route.fulfill({ json: { registration: { enabled: true } } });
+    if (path === "/postal/destinations")
+      return route.fulfill({
+        json: {
+          countries: ["FR", "LU", "DE"],
+          unavailableCountries: [],
+          delayedCountries: [],
+          observedAt: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 300_000).toISOString(),
+          sourceUrl: "https://example.invalid/postal-fixture",
+          sourceSha256: "f".repeat(64),
+        },
+      });
     if (path === "/postal/requirements")
       return route.fulfill({
         json: {

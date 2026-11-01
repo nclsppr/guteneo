@@ -1,9 +1,14 @@
 import { ContentError } from "../../../packages/contracts/src/content";
 import {
-  POSTAL_ADDRESS_PAGE_VERSION,
+  postalAddressPageVersion,
   type PostalAddressPageProvenance,
   type PostalAddressPageInput,
 } from "../../../packages/contracts/src/postal-address-page";
+import { pingenPreflightVersion } from "../../../packages/contracts/src/pingen-preflight";
+import {
+  isPostalAddressBlockRecipient,
+  postalRecipientSchema,
+} from "../../../packages/contracts/src/postal-recipient";
 import { canonicalJson } from "../../../packages/domain/src/index";
 
 export type AddressPageRow = {
@@ -32,29 +37,47 @@ export type AddressPageRow = {
   budget_day: string;
   created_at: string;
 };
+/** Select the contract from immutable address data, including legacy records. */
+function addressPageContract(row: AddressPageRow) {
+  try {
+    const recipient = postalRecipientSchema.parse(
+      JSON.parse(row.recipient_json),
+    );
+    const profile = JSON.parse(row.profile_json);
+    const version = postalAddressPageVersion(recipient);
+    const preflightVersion = pingenPreflightVersion({
+      country: recipient.country,
+      ...(isPostalAddressBlockRecipient(recipient)
+        ? { addressFormat: "address_block" as const }
+        : {}),
+    });
+    if (row.version !== version || profile?.version !== preflightVersion)
+      return null;
+    return { recipient, profile, version };
+  } catch {
+    return null;
+  }
+}
 export function addressPageProvenance(
   row: AddressPageRow,
 ): PostalAddressPageProvenance {
-  if (
-    !row.generated_document_id ||
-    !row.generated_sha256 ||
-    row.version !== POSTAL_ADDRESS_PAGE_VERSION
-  )
+  const contract = addressPageContract(row);
+  if (!row.generated_document_id || !row.generated_sha256 || !contract)
     throw new ContentError(
       "POSTAL_ADDRESS_PAGE_PROCESSING",
       "The address page is being prepared. Retry the same request in a few moments.",
       409,
     );
-  const profile = JSON.parse(row.profile_json);
+  const { recipient, profile, version } = contract;
   return {
     id: row.id,
-    version: POSTAL_ADDRESS_PAGE_VERSION,
+    version,
     sourceDocumentId: row.source_document_id,
     sourceSha256: row.source_sha256,
     generatedDocumentId: row.generated_document_id,
     generatedSha256: row.generated_sha256,
     addressMode: "generated_address_page",
-    recipient: JSON.parse(row.recipient_json),
+    recipient,
     printMode: row.print_mode,
     profile: {
       defaultCountry: profile.defaultCountry,
@@ -93,6 +116,7 @@ export async function assertAddressPageBinding(
     input.documentId,
   );
   if (!row) return;
+  const contract = addressPageContract(row);
   const document = await db
     .prepare("SELECT pages FROM documents WHERE organization_id=? AND id=?")
     .bind(input.organizationId, input.documentId)
@@ -101,7 +125,8 @@ export async function assertAddressPageBinding(
     document?.pages !== row.source_pages + row.added_pages ||
     row.generated_document_id !== input.documentId ||
     row.generated_sha256 !== input.sha256 ||
-    row.version !== POSTAL_ADDRESS_PAGE_VERSION ||
+    !contract ||
+    contract.version !== postalAddressPageVersion(input.recipient) ||
     row.recipient_json !== canonicalJson(input.recipient) ||
     row.print_mode !== input.printMode ||
     row.profile_json !== canonicalJson(input.profile)

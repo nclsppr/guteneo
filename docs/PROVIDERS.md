@@ -168,8 +168,12 @@ rereads country/extracted address, submit ability/paper/approved price; changes 
 new approval. **Never silently overlay an address in exact-PDF mode.** Explicit
 rendering can create a new corrected document.
 
-Initial FR/LU/DE restrictions: normal paper, simplex/duplex, gray/color, fast/cheap;
-no registered/QR/custom-envelope/delivery guarantee. Qualify print region, format,
+The initial recipient form was limited to FR/LU/DE. Unpublished candidate 1.1.27
+adds [250 recognized postal codes](POSTAL_WORLDWIDE.md) and complete printed
+blocks, with fresh official restrictions independent of the real EUR calculator.
+Normal paper, simplex/duplex, gray/color and fast/cheap remain the supported
+options when the exact account/draft accepts them; there is no registered/QR/
+custom-envelope/delivery guarantee. Qualify print region, format,
 margins/fonts/returns/product. Initial connector upload bound was 20 MB; the later
 [current postal preflight](PINGEN_PREFLIGHT.md) restricts it to 8,000,000 bytes.
 Exact account-provided `uploadOrigins` is required; no broad list/arbitrary URL or

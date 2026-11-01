@@ -1,5 +1,35 @@
 # Architecture
 
+## Worldwide postal address branch — 1 November 2026 candidate 1.1.27
+
+Shared contracts contain the dated 250-code Pingen country/alias reference and a
+strict recipient union: unchanged legacy FR/LU/DE fields, or the complete printed
+`{country,addressLines}` block. Array order and original PDF bytes remain immutable.
+The server derives new renderer/profile versions from the frozen shape; four
+persisted print/delivery options, legacy JSON, quotes and approval hashes do not
+gain defaults. No worldwide postcode regex or country-price cache is introduced.
+
+A separate bounded, single-flight public-reference reader observes both official
+restriction/delay tables, hashes their actual bytes and caches at most 300 seconds
+after parsing. Unknown or expired evidence has no permissive fallback. Postal
+quote and final provider checks use it; a central production acceptance hook runs
+before the clock/quote validation and atomic reservation/outbox batch. Historical
+accepted replays do not need a new destination decision. The provider invocation
+marker follows all preparatory reads, so an outage before PATCH is not reported
+as a potentially submitted letter.
+
+Schema-first migration 0072 recreates only the postal commitment and generated-page
+binding guards, preserving legacy branches and requiring exact new shape/version
+bindings. It rewrites no data and is compatible with production 1.1.26 before the
+new runtime. The candidate private renderer/application remain unpublished and
+have no worldwide real-send qualification. See [the contract](POSTAL_WORLDWIDE.md).
+
+Production 1.1.26 contains the alert/reference corrections. The authorized Resend Full-access inspection is installed and passed its
+read-only checks. Genuine scheduled renewal succeeded at 11:37:26.950 UTC on
+1 November with domain, price, FX and Usage API evidence, failure count zero,
+no blocked reason and technical validity through 1 December at that time. Source inspection, scheduling, alert recovery and message receipt
+remain distinct observations.
+
 ## Registered FR/DE fax-reference group — 1 November 2026 candidate
 
 Additive migration 0071 introduces immutable fourteen-anchor/four-exclusion sets,
@@ -35,7 +65,8 @@ The runtime and final saved native configuration were verified on 1 November;
 that observation does not qualify every provider renewal or a new email receipt.
 No quote, consent,
 provider authority, immutable deadline, send gate or missing source proof is
-extended. Resend still needs an independently authorized inspection key.
+extended. Resend still needed a separately authorized inspection key at that
+dated observation; the 1.1.26 inspection status above supersedes that gap.
 See [the alert contract](FRESHNESS_ALERTING.md).
 
 ## Consumed provider deadlines — 30 October 2026 candidate

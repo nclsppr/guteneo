@@ -36,6 +36,8 @@ import type {
   PostalReviewInput,
 } from "../../packages/contracts/src/postal-review";
 import { PINGEN_PREFLIGHT_VERSION } from "../../packages/contracts/src/pingen-preflight";
+import { PINGEN_DESTINATION_RESTRICTIONS_URL } from "../../packages/providers/pingen-destination-availability";
+import { destinationRestrictionsResponse } from "../helpers/pingen-destinations";
 
 const issuer = "https://expert-postal-fixture.auth0.example/";
 const keys = await generateKeyPair("RS256");
@@ -67,6 +69,7 @@ let calls: {
 let beforeUploadLocation: (() => Promise<void>) | undefined;
 
 const provider: Fetcher = async (url, init) => {
+  if (String(url) === PINGEN_DESTINATION_RESTRICTIONS_URL) return destinationRestrictionsResponse();
   const parsed = new URL(String(url));
   const method = init?.method ?? "GET";
   calls.push({ path: parsed.pathname, method, body: init?.body });

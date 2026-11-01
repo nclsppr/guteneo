@@ -9,3 +9,9 @@ Private R2 addresses are organization/hash scoped. Dedupe and metadata lookup re
 Identity: Auth0 hosted identity/OAuth, JWT validation with jose; no bespoke OAuth cryptography. MCP uses createMcpHandler and SDK v2. Browser session owns human approvals, MCP consumes existing approvals. Account and real-client proof remain pending.
 
 Postal: Pingen selected on official API and FR/LU/DE availability; authenticated PDF draft must be durably persisted and verified before paid send. Supplier price/currency and extracted address must match the approved operation. External credentials/contracts are prerequisites, never invented.
+
+1 November 2026 candidate addendum: [worldwide postal support](../POSTAL_WORLDWIDE.md)
+retains this original decision and the legacy form, while accepting all 250
+provider-recognized country codes through a complete printed block. Fresh official
+eligibility and actual analyzed-draft pricing remain separate gates; the candidate
+has no real worldwide-send qualification.

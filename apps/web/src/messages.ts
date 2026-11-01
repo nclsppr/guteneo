@@ -23,6 +23,7 @@ import publicSite from "./locales/messages-public-site.json";
 import tables from "./locales/messages-tables.json";
 import localPreview from "./locales/messages-local-preview.json";
 import delivery from "../../../packages/contracts/src/delivery-messages.json" with { type: "json" };
+import postalWorldwide from "./locales/messages-postal-worldwide.json";
 
 function sourceMessages(
   source: unknown,
@@ -65,6 +66,7 @@ const sources: Record<string, readonly string[]>[] = [
   editorial,
   information,
   delivery,
+  postalWorldwide,
 ];
 export const messages: Record<string, readonly string[]> = Object.assign(
   {},

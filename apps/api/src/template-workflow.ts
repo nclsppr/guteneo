@@ -2344,7 +2344,27 @@ export class TemplateWorkflowService {
                   `The recipient field ${path} is missing for ${entry.recordId}.`,
                   422,
                 );
-              return [field, value];
+              if (
+                !(channel === "postal" && field === "addressLines") &&
+                typeof value !== "string" &&
+                typeof value !== "number"
+              )
+                fail(
+                  "RECIPIENT_FIELD_INVALID",
+                  "Choose a text or number field for this recipient value. Only complete postal address lines accept a text array.",
+                  422,
+                );
+              // CSV has no array cell type. Only this explicitly selected
+              // postal mapping accepts a quoted multiline cell as address lines.
+              // Common recipients and all other mapping fields remain strict.
+              return [
+                field,
+                channel === "postal" &&
+                field === "addressLines" &&
+                typeof value === "string"
+                  ? value.split(/\r\n|\n|\r/)
+                  : value,
+              ];
             }),
           )
         : entry.recipient!;

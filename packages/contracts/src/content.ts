@@ -2,6 +2,14 @@ import sanitizeHtml from "sanitize-html";
 import Papa from "papaparse";
 import { z } from "zod";
 import { faxNumberProblem, normalizeFaxNumber } from "./fax-number";
+import {
+  isPostalAddressBlockRecipient,
+  postalAddressBlockRecipientSchema,
+  type LegacyPostalRecipient,
+  type PostalRecipient,
+} from "./postal-recipient";
+export type { PostalRecipient } from "./postal-recipient";
+export type DeliveryRecipient = Record<string, string> | PostalRecipient;
 
 export class ContentError extends Error {
   constructor(
@@ -284,9 +292,21 @@ export function printableHtml(html: string): string {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"><style>@page{size:A4;margin:22mm}body{font-family:Arial,sans-serif;color:#171b24;font-size:11pt;line-height:1.55;overflow-wrap:anywhere}h1{font-size:25pt}h2{font-size:18pt}table{border-collapse:collapse;max-width:100%}td,th{border:1px solid #aaa;padding:6px}img{max-width:100%}a{color:#1746c2}</style></head><body>${cleanHtml(html)}</body></html>`;
 }
 export function validateRecipient(
+  channel: "postal",
+  recipient: Record<string, unknown>,
+): PostalRecipient;
+export function validateRecipient(
+  channel: "email" | "fax",
+  recipient: Record<string, unknown>,
+): Record<string, string>;
+export function validateRecipient(
   channel: string,
   recipient: Record<string, unknown>,
-): Record<string, string> {
+): DeliveryRecipient;
+export function validateRecipient(
+  channel: string,
+  recipient: Record<string, unknown>,
+): DeliveryRecipient {
   if (channel === "email") {
     const email = z
       .email()
@@ -300,6 +320,15 @@ export function validateRecipient(
     return { phone };
   }
   if (channel === "postal") {
+    if (isPostalAddressBlockRecipient(recipient)) {
+      const parsed = postalAddressBlockRecipientSchema.safeParse(recipient);
+      if (!parsed.success)
+        throw new ContentError(
+          "INVALID_ADDRESS",
+          "Supply a supported country and two to six complete printed address lines without legacy address fields, blank lines or control characters.",
+        );
+      return parsed.data;
+    }
     if (recipient.line2 !== undefined && String(recipient.line2).trim())
       throw new ContentError(
         "ADDRESS_LINE_UNSUPPORTED",
@@ -316,7 +345,7 @@ export function validateRecipient(
       );
     if (Object.values(out).some((v) => v.length > 160))
       throw new ContentError("INVALID_ADDRESS", "The address is too long.");
-    return out;
+    return out as LegacyPostalRecipient;
   }
   throw new ContentError("INVALID_CHANNEL", "Unknown delivery channel.");
 }
@@ -337,6 +366,7 @@ export function validateCsv(csv: string) {
     "postalCode",
     "city",
     "country",
+    "addressLines",
   ];
   if (fields.some((f) => !allowed.includes(f)) || !fields.includes("channel"))
     throw new ContentError(
@@ -355,7 +385,7 @@ export function validateCsv(csv: string) {
   const rows: Array<{
     line: number;
     channel: string;
-    recipient: Record<string, string>;
+    recipient: DeliveryRecipient;
   }> = [];
   const duplicates: Array<{ line: number; duplicateOf: number }> = [];
   const seen = new Map<string, number>();
@@ -369,7 +399,39 @@ export function validateCsv(csv: string) {
       )
         throw new Error("CSV formulas are not allowed.");
       const channel = row.channel.trim().toLowerCase();
-      const recipient = validateRecipient(channel, row);
+      let recipientInput: Record<string, unknown> = row;
+      if (channel === "postal" && row.addressLines?.trim()) {
+        if (
+          ["name", "line1", "postalCode", "city"].some((field) =>
+            row[field]?.trim(),
+          )
+        )
+          throw new ContentError(
+            "INVALID_ADDRESS",
+            "Do not mix complete addressLines with legacy postal address columns.",
+          );
+        let addressLines: unknown;
+        try {
+          addressLines = JSON.parse(row.addressLines);
+        } catch {
+          throw new ContentError(
+            "INVALID_ADDRESS",
+            "The addressLines CSV column must contain a JSON array of printed lines.",
+          );
+        }
+        recipientInput = { country: row.country, addressLines };
+      } else if (
+        channel === "postal" &&
+        Object.hasOwn(row, "addressLines") &&
+        ["name", "line1", "postalCode", "city"].every((field) =>
+          row[field]?.trim(),
+        )
+      ) {
+        // A shared CSV header does not turn a complete legacy row into a block.
+        recipientInput = { ...row };
+        delete recipientInput.addressLines;
+      }
+      const recipient = validateRecipient(channel, recipientInput);
       const key = JSON.stringify({ channel, recipient });
       if (seen.has(key)) duplicates.push({ line, duplicateOf: seen.get(key)! });
       else seen.set(key, line);
