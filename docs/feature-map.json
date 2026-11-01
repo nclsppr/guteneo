@@ -422,6 +422,7 @@
       "tests": [
         "tests/unit/pingen-destination-availability.test.ts",
         "tests/unit/pingen-destination-runtime.test.ts",
+        "tests/unit/ses-runtime.test.ts",
         "tests/unit/postal-worldwide-contracts.test.ts",
         "tests/unit/postal.test.ts",
         "tests/unit/providers.test.ts",

@@ -10,7 +10,17 @@ and the private renderer remain compatible. The minimal local-variable callback
 fix passes three real workerd tests and 66 existing provider/availability tests.
 The tests use native fetch, simulated outbound responses and production flags;
 they do not establish public-source access from a deployed Cloudflare Worker.
-That access and final authenticated requirements metadata need separate proof.
+An ephemeral Cloudflare preview then exercised the corrected native reader against
+the fixed public source at 13:34:00.165 UTC: 250 recognized countries, 11 current
+closures and 239 available destinations, with one qualification GET, no bindings,
+no private provider request and no D1/R2 write or production deployment. Its source
+hash and five-minute expiry were recorded privately. This establishes Cloudflare
+egress and parsing; the authenticated post-publication read remains a separate gate.
+The same receiver defect was independently reproduced in the existing SES client:
+five of six native workerd cases failed before its identical alias correction.
+The six runtime cases and 53 existing provider tests then passed with fictional
+credentials, real local signing and deterministic outbound responses; no real
+email or provider request was made.
 
 ## Worldwide postal candidate — 1 November 2026, 1.1.27
 

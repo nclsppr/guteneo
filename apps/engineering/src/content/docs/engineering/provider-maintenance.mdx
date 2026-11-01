@@ -52,7 +52,10 @@ instance, even when Node fetch and injected arrow mocks accept that call. Run
 the reader in a real workerd isolate with native fetch and deterministic outbound
 responses under the production compatibility flags. Keep a separate deployed
 public-source check: a local response fixture does not establish Workers egress,
-HTTP eligibility or a current source observation.
+HTTP eligibility or a current source observation. The same callback boundary
+applies to the existing SES transport: use local signing and fake outbound
+responses for its workerd regression, preserving production activation, envelope
+and reconciliation rules.
 
 ## Renew the references an active operation uses
 
