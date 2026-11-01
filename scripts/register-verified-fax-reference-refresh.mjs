@@ -416,12 +416,19 @@ export async function applyRegistrationPlan(
     readSnapshot(db, c),
     savedRegistration(db, c),
   ]);
-  validateOwnership(inspection, plan.snapshot);
-  validateCatalog(catalog, now);
+  const commitAt = clock();
   if (
-    catalog.rateDeckUrl !== plan.qualification.catalog.rateDeckUrl ||
-    catalog.sha256 !== plan.qualification.catalog.sha256
+    !timestamp(commitAt) ||
+    commitAt < plan.observedAt ||
+    commitAt >= plan.expiresAt
   )
+    fail("PLAN_INVALID");
+  validateOwnership(inspection, plan.snapshot);
+  validateCatalog(catalog, commitAt);
+  // The hash records the whole multi-catalog response, whose bytes can vary
+  // while the consumed selection is unchanged. Reviewed archive digests stay
+  // bound above; registration installs no price and renewal requires new reads.
+  if (catalog.rateDeckUrl !== plan.qualification.catalog.rateDeckUrl)
     fail("CATALOG_CHANGED");
   const mappings = mappingsFor(c);
   if (saved.source) {
@@ -433,13 +440,6 @@ export async function applyRegistrationPlan(
     return { status: "already_applied", registrationOnly: true };
   }
   if (canonical(current) !== canonical(plan.snapshot)) fail("STATE_CHANGED");
-  const commitAt = clock();
-  if (
-    !timestamp(commitAt) ||
-    commitAt < plan.observedAt ||
-    commitAt >= plan.expiresAt
-  )
-    fail("PLAN_INVALID");
   validateSnapshot(current, c, commitAt);
   const guards = [
     rowGuard("organizations", current.organization, "$.organization", "o"),

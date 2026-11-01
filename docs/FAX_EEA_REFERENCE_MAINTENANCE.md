@@ -1,8 +1,8 @@
 # France/Germany fax reference maintenance
 
-## Scope and qualification — 1 November 2026 candidate
+## Scope and qualification — 1 November 2026
 
-The 1.1.25 candidate maintains one explicitly registered group of fourteen
+The 1.1.25 runtime supports maintenance of one explicitly registered group of fourteen
 existing France/Germany fixed-line fax bindings. It does not discover or grant
 new sendable routes. Each anchor must already be a qualified live
 `provider_verified` tariff with the same production tenant, verified Luxembourg
@@ -17,11 +17,31 @@ review-only archives remain permanently outside live renewal. The selected
 commercial basis is a public reference, not a guaranteed negotiated supplier
 price or an actual transmission/cost qualification.
 
-The implementation, additive migration 0071, private registration and scheduled
-execution require separate validation. No production registration, FR/DE renewal,
-price installation or delivery is established by this source document. The
-existing production 1.1.24 runtime and saved native alert configuration were
-verified independently; their publication does not qualify these new references.
+Production 1.1.25 was published from clean `9503e6b0a5466f6c924f608eef50e3266383a80e`
+at 100% traffic. Migration 0071 is applied: the 470 previous schema objects remain
+unchanged, its 17 additions match the reviewed schema, 133 application tables
+pass their checks and global foreign-key violations are zero. Main CI passed
+24/24, public source-bound E2E passed 28/28 and 346 served assets passed exact
+byte/hash/header verification. These checks do not establish production
+registration, scheduled FR/DE renewal or delivery.
+
+The first registration application stopped before writes with
+`VERIFIED_FAX_REGISTRATION_CATALOG_INVALID`: its comparison used the timestamp
+captured before the current provider reads. The 1.1.26 corrective candidate checks
+the freshly observed catalog against the clock after those reads and retains
+plan-expiry and final SQL-clock guards. No source date or permitted lifetime is
+advanced to work around that error.
+
+A subsequent attempt stopped before writes with `CATALOG_CHANGED`. Two successful
+read-only observations at 08:07 UTC then returned the exact same selected
+`global_conversational` CSV URL with different hashes of the entire multi-catalog
+JSON response. The candidate revalidates that exact selected URL after a fresh
+successful authenticated catalog read. The whole-response hash remains
+observation provenance; registration pins the exact selected catalog URL.
+Archived CSV/page/FX bytes remain bound to the
+reviewed digest, and registration still creates no price. The first scheduled
+renewal must independently obtain current source bytes before fourteen-or-zero
+replacement.
 
 ## Exact evidence and prefix rules
 
@@ -148,6 +168,11 @@ state, source-byte and current ownership revalidation. Registration itself
 installs no replacement price: the first scheduled attempt must obtain genuine
 sources before creating fourteen new revisions. A plan digest is not a human
 sending approval or a grant of new provider access.
+
+Catalog freshness is evaluated after the revalidation reads complete. A catalog
+observed during those reads may be later than the command start, but must not be
+later than that new clock observation or outside its fifteen-minute freshness
+window. An expired plan still fails before any registration write.
 
 Before registration, verify compatible deployed runtime and the additive empty
 schema. The exact migration/code ordering follows their compatibility review;

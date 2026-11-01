@@ -379,6 +379,51 @@ describe("bounded existing FR/DE reference registration", () => {
     ).rejects.toThrow(/PLAN_INVALID/);
     expect((await count("verified_fax_reference_sets"))!.n).toBe(0);
   });
+  it("accepts a current catalog observed after the final provider reads started", async () => {
+    const p = await prepare();
+    let current = NOW;
+    providers.inspectTelnyxFaxTariffCatalog.mockImplementationOnce(async () => {
+      await Promise.resolve();
+      current = "2026-11-01T10:00:02.000Z";
+      return { ...structuredClone(catalog), observedAt: current };
+    });
+    expect(
+      await applyRegistrationPlan(
+        db,
+        providers,
+        p.plan,
+        registrationPlanDigest(p.plan),
+        { now: () => current, sources: p.sources },
+      ),
+    ).toEqual({ status: "applied", registrationOnly: true });
+    expect((await count("verified_fax_reference_sets"))!.n).toBe(1);
+    expect((await count("verified_fax_reference_tariffs"))!.n).toBe(14);
+    expect((await count("verified_fax_reference_evidence"))!.n).toBe(0);
+    for (const table of ["attempts", "approvals", "outbox", "reservations"])
+      expect((await count(table))!.n).toBe(0);
+  });
+  it("still refuses a catalog timestamp beyond the clock after the final reads", async () => {
+    const p = await prepare();
+    let current = NOW;
+    providers.inspectTelnyxFaxTariffCatalog.mockImplementationOnce(async () => {
+      current = "2026-11-01T10:00:02.000Z";
+      return {
+        ...structuredClone(catalog),
+        observedAt: "2026-11-01T10:00:03.000Z",
+      };
+    });
+    await expect(
+      applyRegistrationPlan(
+        db,
+        providers,
+        p.plan,
+        registrationPlanDigest(p.plan),
+        { now: () => current, sources: p.sources },
+      ),
+    ).rejects.toThrow(/CATALOG_INVALID/);
+    expect((await count("verified_fax_reference_sets"))!.n).toBe(0);
+    expect((await count("verified_fax_reference_tariffs"))!.n).toBe(0);
+  });
   it("allows the known unknown inactive spend amount but refuses an active or unspecified malformed limit", async () => {
     inspection.status = "partial";
     inspection.errors = [
@@ -402,6 +447,51 @@ describe("bounded existing FR/DE reference registration", () => {
     catalog.rateDeckUrl = deckUrl.replace("synthetic", "changed");
     await expect(apply(p)).rejects.toThrow(/CATALOG_CHANGED/);
     expect((await count("verified_fax_reference_sets"))!.n).toBe(0);
+  });
+  it("keeps the exact selected URL when the whole catalog response hash changes", async () => {
+    const p = await prepare();
+    const before = (
+      await db
+        .prepare(
+          "SELECT * FROM trusted_fax_usage_tariffs WHERE organization_id=? ORDER BY id",
+        )
+        .bind(config.organizationId)
+        .all()
+    ).results;
+    catalog.sha256 = "d".repeat(64);
+    expect(await apply(p)).toEqual({
+      status: "applied",
+      registrationOnly: true,
+    });
+    expect(
+      await db
+        .prepare(
+          "SELECT * FROM verified_fax_reference_sets WHERE organization_id=? AND id=?",
+        )
+        .bind(config.organizationId, config.sourceId)
+        .first(),
+    ).toEqual(p.plan.source);
+    expect(
+      (
+        await db
+          .prepare(
+            "SELECT * FROM trusted_fax_usage_tariffs WHERE organization_id=? ORDER BY id",
+          )
+          .bind(config.organizationId)
+          .all()
+      ).results,
+    ).toEqual(before);
+    expect((await count("verified_fax_reference_tariffs"))!.n).toBe(14);
+    expect((await count("verified_fax_reference_evidence"))!.n).toBe(0);
+    for (const table of ["attempts", "approvals", "outbox", "reservations"])
+      expect((await count(table))!.n).toBe(0);
+  });
+  it("refuses a changed selected URL even if the catalog response hash is unchanged", async () => {
+    const p = await prepare();
+    catalog.rateDeckUrl = deckUrl.replace("synthetic", "changed");
+    await expect(apply(p)).rejects.toThrow(/CATALOG_CHANGED/);
+    expect((await count("verified_fax_reference_sets"))!.n).toBe(0);
+    expect((await count("verified_fax_reference_tariffs"))!.n).toBe(0);
   });
   it("refuses sender drift observed before the final batch", async () => {
     const p = await prepare();

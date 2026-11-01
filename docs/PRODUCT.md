@@ -2,7 +2,7 @@
 
 ## Maintained France/Germany fax references — 1 November 2026 candidate
 
-The 1.1.25 candidate maintains only the fourteen exact FR/DE fixed-line routes
+The published 1.1.25 runtime supports maintenance of only the fourteen exact FR/DE fixed-line routes
 already provider-verified for the registered tenant, sender and provider binding.
 Four more-specific exclusions remain forbidden. Daily genuine account/catalog,
 page-fee and FX inspection can produce at most seven-day technical revisions;
@@ -11,8 +11,10 @@ defers fourteen-or-zero replacement, preserving old prices and approvals.
 
 This is separate from the bounded Luxembourg pilot and from human approval of an
 individual fax. It activates no route, mandate, channel or communication and
-changes no financial hold. Deployment, registration and genuine renewal remain
-unqualified for this candidate. See [the contract](FAX_EEA_REFERENCE_MAINTENANCE.md).
+changes no financial hold. Runtime publication and schema are verified; technical
+registration and genuine renewal remain unqualified. Candidate 1.1.26 corrects
+the registration tool's observation-clock and selected-catalog comparisons without changing these
+product permissions. See [the contract](FAX_EEA_REFERENCE_MAINTENANCE.md).
 
 ## Native alert recovery — 1 November 2026 production 1.1.24
 

@@ -19,10 +19,16 @@ timestamp and integer/Float64 probes remain failed or narrowly scoped historical
 observations; the final saved configuration is a separate success. No new email
 receipt, Resend qualification or FR/DE renewal follows from that publication.
 
-The 1.1.25 [FR/DE reference-group candidate](FAX_EEA_REFERENCE_MAINTENANCE.md)
-adds daily genuine renewal of an exact existing fourteen-route group, preserving
-four more-specific exclusions. Its registration, migration, genuine scheduled
-replacement and resulting incident recovery remain unqualified.
+Production 1.1.25 and additive migration 0071 support daily genuine renewal of
+the exact existing [fourteen-route FR/DE group](FAX_EEA_REFERENCE_MAINTENANCE.md),
+preserving four more-specific exclusions. Runtime, schema and public checks
+passed. Its first registration stopped before writes on a catalog timestamp
+comparison; candidate 1.1.26 corrects the post-read clock boundary. Registration,
+genuine scheduled replacement and resulting incident recovery remain unqualified.
+Successful current-catalog reads also proved that the selected CSV URL can remain
+identical while the whole multi-catalog JSON hash varies. The same candidate
+revalidates the exact selected URL and retains the whole-body hash as provenance;
+source byte verification and genuine scheduled rereads remain required.
 
 Authenticated
 Resend renewal is still unqualified: the existing inspection returns
