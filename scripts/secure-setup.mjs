@@ -27,8 +27,15 @@ const profiles = {
     description:
       "Only the API key will be stored in the RESEND_API_KEY secret on Cloudflare. Use a Sending access key restricted to guteneo.com. This form neither selects the provider nor enables sending.",
     note: "Account identity, domain and webhook require separate qualification. No account ID is inferred from the key. Sending gates remain unchanged.",
+    fields: [["RESEND_API_KEY", "Resend API key for Guteneo sending", true]],
+  },
+  "resend-readiness": {
+    title: "Save the Resend inspection key",
+    description:
+      "Only the existing inspection key will be stored in RESEND_READINESS_API_KEY on Cloudflare. The sending key, provider selection and sending gates stay unchanged.",
+    note: "Use an independently authorised key for the same Resend account. Domain inspection and the Usage API must be permitted; Resend currently requires Full access for Usage. This form creates no key, grants no permissions and performs no qualification. Verify the private resend-policy-sources inspection after installation.",
     fields: [
-      ["RESEND_API_KEY", "Resend API key for Guteneo sending", true],
+      ["RESEND_READINESS_API_KEY", "Existing Resend inspection API key", true],
     ],
   },
   resend: {
@@ -38,17 +45,9 @@ const profiles = {
     note: "Domain verification and key permissions must be checked in Resend. The account ID is the Resend team qualified for pricing. The Auth0 key is separate and configured independently. The webhook secret can be added after notification setup.",
     fields: [
       ["RESEND_API_KEY", "Resend API key for Guteneo sending", true],
-      [
-        "RESEND_ACCOUNT_ID",
-        "Resend account or team ID",
-        true,
-      ],
+      ["RESEND_ACCOUNT_ID", "Resend account or team ID", true],
       ["RESEND_DOMAIN_ID", "Identifiant du domaine Resend", true],
-      [
-        "RESEND_VERIFIED_DOMAIN",
-        "Verified Resend domain: guteneo.com",
-        true,
-      ],
+      ["RESEND_VERIFIED_DOMAIN", "Verified Resend domain: guteneo.com", true],
       ["RESEND_WEBHOOK_SECRET", "Secret de signature du webhook Resend", false],
     ],
   },
@@ -88,12 +87,12 @@ const profiles = {
     fields: [
       ["TELNYX_API_KEY", "Telnyx API key", true],
       ["TELNYX_CONNECTION_ID", "Identifiant de l’application fax", false],
-      ["TELNYX_FROM", "Sender number in international format, for example +33…", false],
       [
-        "TELNYX_PUBLIC_KEY",
-        "Notification verification public key",
+        "TELNYX_FROM",
+        "Sender number in international format, for example +33…",
         false,
       ],
+      ["TELNYX_PUBLIC_KEY", "Notification verification public key", false],
     ],
   },
   stripe: {
@@ -113,17 +112,9 @@ const profiles = {
     fields: [
       ["AWS_ACCESS_KEY_ID", "AWS access key ID", true],
       ["AWS_SECRET_ACCESS_KEY", "AWS secret access key", true],
-      [
-        "AWS_REGION",
-        "EU SES region, for example eu-west-3",
-        true,
-      ],
+      ["AWS_REGION", "EU SES region, for example eu-west-3", true],
       ["SES_CONFIGURATION_SET", "Nom du jeu de configuration SES", true],
-      [
-        "SES_SNS_TOPIC_ARN",
-        "SNS topic ARN for SES notifications",
-        false,
-      ],
+      ["SES_SNS_TOPIC_ARN", "SNS topic ARN for SES notifications", false],
       [
         "AWS_SESSION_TOKEN",
         "Temporary AWS token, required for an ASIA key",
@@ -283,8 +274,15 @@ export async function startSecureSetup({
         )
       )
         return send(400, "Invalid signing secret.");
-      if (["resend", "resend-key", "auth0-resend"].includes(profile)) {
-        const key = values.RESEND_API_KEY ?? values.RESEND_AUTH0_API_KEY;
+      if (
+        ["resend", "resend-key", "resend-readiness", "auth0-resend"].includes(
+          profile,
+        )
+      ) {
+        const key =
+          values.RESEND_API_KEY ??
+          values.RESEND_READINESS_API_KEY ??
+          values.RESEND_AUTH0_API_KEY;
         if (!/^re_[A-Za-z0-9_-]{20,200}$/.test(key))
           return send(400, "Invalid Resend API key.");
         if (profile === "resend") {
@@ -381,10 +379,7 @@ export async function startSecureSetup({
       completed = true;
       send(
         200,
-        html(
-          settings.success ?? "Configuration saved in Cloudflare.",
-          true,
-        ),
+        html(settings.success ?? "Configuration saved in Cloudflare.", true),
         "text/html; charset=utf-8",
       );
       setTimeout(() => server.close(), 1000).unref();

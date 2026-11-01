@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import nativeAlertSignals from "../packages/observability/native-alert-signals.json" with { type: "json" };
 import {
   privateOperatorPath,
   readPrivateOperatorJson,
@@ -10,19 +11,8 @@ import {
 
 const account = "39ac9fada6cba44d9ecf09d467609e69";
 const failureMonitor = "3ca61e73d0764c24888b6a7cf64e6787";
-const baselineCodes = [
-  "HTTP_SERVER_ERROR",
-  "CONFIGURATION_INVALID",
-  "INTERNAL_ERROR",
-  "QUEUE_FAILED",
-  "QUEUE_DEAD_LETTER",
-  "DISPATCH_FAILED",
-  "SUBMISSION_UNKNOWN",
-  "CRON_FAILED",
-  "SECURE_PREPARATION_FAILED",
-  "OUTBOX_DEFERRED",
-];
-const baselineCounters = ["failed", "unknown", "uncertain", "deadLetters"];
+const baselineCodes = nativeAlertSignals.codes;
+const baselineCounters = nativeAlertSignals.counters;
 export const nativeFailureMonitorQuery = `SELECT COUNT(*) AS value
 FROM logs.workersLogs
 WHERE accountTag = '${account}'
@@ -56,39 +46,18 @@ export const nativeUiLegacyFreshnessMonitorQuery =
     .map((code) => `("attributes"['code'] = '${code}')`)
     .join(" OR ") +
   "))";
-// SUM(if(...)) is supported by the Logs Explorer SQL backend; countIf is not.
-// A recent explicit healthy observation is required before missing warnings can
-// mean recovery. Ordinary HTTP/Cron records never supply freshness coverage.
-const freshnessEnvelope = `attributes['event'] = 'freshness'
-          AND attributes['route'] = 'maintenance'
-          AND attributes['stage'] = 'freshness'`;
-const closedFreshnessFailure = `(attributes['code'] = 'FRESHNESS_AT_RISK'
-            OR attributes['code'] = 'FRESHNESS_CHECK_FAILED')`;
-const qualifiedFreshness = `(${freshnessEnvelope}
-          AND (${closedFreshnessFailure}
-            OR (attributes['code'] = 'OK'
-              AND attributes['freshnessAtRisk'] = 0
-              AND attributes['freshnessExpired'] = 0
-              AND attributes['freshnessChecksFailed'] = 0)))`;
-const originalFailures = [
-  ...baselineCodes.map((code) => `attributes['code'] = '${code}'`),
-  ...baselineCounters.map((counter) => `attributes['${counter}'] > 0`),
-].join("\n            OR ");
-export const nativeFreshnessMonitorQuery = `SELECT if(COUNT(*) = 0, 1,
-  SUM(if(
-    (timestamp >= NOW() - INTERVAL '1' MINUTE
-      AND (${originalFailures}))
-    OR ${closedFreshnessFailure}
-    OR (attributes['event'] = 'freshness'
-      AND if(${qualifiedFreshness}, 0, 1) = 1),
-    1, 0))
-  + if(SUM(if(${qualifiedFreshness}, 1, 0)) = 0, 1, 0)
-) AS value
+// Native Logs SQL permits JSON only as direct comparisons or aggregate inputs.
+// The application derives the paired class/failure markers after projection.
+// Class 1 preserves original failures; classes 2/3 cover healthy/failed freshness.
+// Legacy logs have neither marker and cannot establish healthy coverage.
+// Workers Logs numeric JSON aggregates return Float64; the empty branch must
+// use the same native type or validation rejects the conditional expression.
+export const nativeFreshnessMonitorQuery = `SELECT if(COUNT(*) = 0, 1.0,
+  SUM(attributes['alertFailure'])) AS value
 FROM logs.workersLogs
 WHERE accountTag = '${account}'
   AND scriptName = 'guteneo-app'
-  AND timestamp >= NOW() - INTERVAL '5' MINUTE
-  AND timestamp <= NOW()`;
+  AND attributes['alertClass'] >= 1`;
 const canonical = (value) =>
   value === null || typeof value !== "object"
     ? JSON.stringify(value)
@@ -148,7 +117,8 @@ export function planNativeFreshnessAlerting(
   );
   const { evaluation, notifications } = configuration;
   demand(
-    evaluation?.intervalSeconds === 60 &&
+    (evaluation?.intervalSeconds === 60 ||
+      evaluation?.intervalSeconds === 300) &&
       evaluation.windowSeconds === 60 &&
       evaluation.aggregation === "average" &&
       evaluation.operator === ">=" &&
@@ -187,16 +157,19 @@ export function planNativeFreshnessAlerting(
     compactSql(query) === compactSql(legacyNativeFreshnessMonitorQuery) ||
     knownNativeUiQuery;
   demand(
-    (alreadyStabilized && configuration.timeRangeMode === "manual") ||
-      (knownAutomaticQuery && configuration.timeRangeMode === "automatic"),
+    configuration.timeRangeMode === "automatic" &&
+      ((alreadyStabilized && evaluation.intervalSeconds === 300) ||
+        (knownAutomaticQuery && evaluation.intervalSeconds === 60)),
     "NATIVE_ALERT_QUERY_OR_TIME_RANGE_UNEXPECTED",
   );
   const proposedQuery = alreadyStabilized ? query : nativeFreshnessMonitorQuery;
   const unchanged = { ...configuration };
   delete unchanged.query;
-  delete unchanged.timeRangeMode;
+  unchanged.evaluation = { ...evaluation };
+  delete unchanged.evaluation.intervalSeconds;
+  const proposedEvaluation = { ...evaluation, intervalSeconds: 300 };
   const plan = {
-    version: 2,
+    version: 3,
     kind: "existing_native_monitor_freshness_stabilization",
     status: "plan_only",
     observedAt: snapshot.observedAt,
@@ -211,18 +184,24 @@ export function planNativeFreshnessAlerting(
     proposedConfigurationSha256: sha({
       ...configuration,
       query: proposedQuery,
-      timeRangeMode: "manual",
+      evaluation: proposedEvaluation,
+      timeRangeMode: "automatic",
     }),
-    patch: { query: proposedQuery, timeRangeMode: "manual" },
+    patch: {
+      query: proposedQuery,
+      evaluation: proposedEvaluation,
+      timeRangeMode: "automatic",
+    },
     signal: {
-      originalFailureLookbackSeconds: 60,
+      originalFailureLookbackSeconds: 300,
       freshnessLookbackSeconds: 300,
+      evaluationIntervalSeconds: 300,
+      timeRangeSource: "automatic_execution_interval",
       missingQualifiedFreshness: "alarm",
       recovery: "qualified_healthy_observation_and_no_recent_failure",
     },
     preserved: {
       enabled: true,
-      evaluationIntervalSeconds: 60,
       evaluationWindowSeconds: 60,
       aggregation: "average",
       operator: ">=",

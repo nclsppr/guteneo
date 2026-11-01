@@ -1,6 +1,6 @@
 # Provider freshness and consumed deadlines
 
-## Current evidence — 30 October 2026
+## Current evidence — 1 November 2026
 
 Production **1.1.20** includes the continuous restricted-reviewer access and the
 registered Luxembourg fax refresher from migrations **0066–0067**. The first
@@ -10,10 +10,20 @@ publication.
 
 API **1.1.22** and migrations **0068–0070** were deployed on 31 October 2026.
 The legacy native extension produced triggered/resolved notifications, which did
-not establish recovery of the underlying incidents. The 1.1.23 compatibility and
-alert-stabilization changes below remain a **local candidate**. Authenticated
+not establish recovery of the underlying incidents. PR #131 merged the 1.1.23 compatibility changes as
+`afedd099081099fa83bf6bd9edaf6dcabacbea03`, published on 1 November. Read-only
+checks observed the active postal binding and four additional inactive forbidden
+fax-route bindings, without pending or unknown business sends. The 1.1.24 server-marker/SQL stabilization is a separate
+**local candidate**. Native editor attempts rejected conditional JSON aggregates
+and expressions deeper than ten levels. The editor also rejected explicit
+timestamps under its request-bound range and exposed no Manual selector; no
+attempted replacement was saved. Authenticated
 Resend renewal is still unqualified: the existing inspection returns
-`READ_NOT_PERMITTED`, and no inspection key is provisioned by this mechanism.
+`READ_NOT_PERMITTED` at `domain`. Installing an existing separately authorized
+inspection key uses `node scripts/secure-setup.mjs resend-readiness`; it writes
+only `RESEND_READINESS_API_KEY`, never the sending credential or send gates.
+Rerun `node scripts/provider-readiness.mjs resend-policy-sources` afterward. The
+form creates no key or permission and establishes no successful qualification.
 
 ## Follow the consumer
 
@@ -144,13 +154,29 @@ The separate `freshness` observation emits `FRESHNESS_AT_RISK` for risk/expiry a
 stop unrelated safe outbox work. Only coarse counters and closed codes reach logs;
 no content, recipients, business IDs, tokens or private source bodies do.
 
-The intended notification path extends the existing native Cloudflare failure
-monitor, preserving its destination, original failure conditions, missing-Cron
-monitor and hourly repeats. It does not rely on a potentially blocked Resend
-send. The plan is local and read-only; native application/readback and actual
-notification receipt remain unqualified. Application incident deduplication does
-not promise exactly one provider notification per deadline. See
-[freshness alerting](FRESHNESS_ALERTING.md).
+The 1.1.24 candidate projects numeric `alertClass` and `alertFailure` markers
+from closed server observations. Classes distinguish ordinary records, original
+failures, qualified healthy freshness and failed/unknown freshness. Its shallow
+SQL aggregates the failure marker directly under Automatic mode, whose proposed
+300-second execution interval supplies the five-minute range. No SQL timestamp
+or invented Manual selector bypasses the inspected native editor's restrictions.
+The missing-row literal is `1.0`, matching the native numeric SUM type. A probe
+on an existing numeric counter validated that type shape after integer `1` was
+rejected; it did not qualify undeployed marker fields or save the final monitor.
+All original and freshness failures conservatively remain in that five-minute
+range; missing coverage alarms and ordinary HTTP/Cron success cannot establish
+freshness health. The nominal detection wait can grow to one five-minute cycle,
+plus external ingestion/scheduling delays. Threshold, sixty-second average,
+hourly reminders, destination and the separate minute heartbeat stay unchanged.
+Application security, consent, price and sending gates are unaffected.
+
+Deploy and verify marker-bearing observations for five minutes before applying
+the reviewed query and interval. The plan is local/read-only; native parser
+validation, saved readback, provider renewal and notification receipt remain
+separate and pending. The path does not rely on the Resend account being
+inspected. Incident idempotency does not promise exactly one provider email.
+See [freshness alerting](FRESHNESS_ALERTING.md) for the exact marker, scope,
+rollout, cadence and validation contract.
 
 Scanner maintenance stays on its existing daily refresh and six-hour watchdog.
 The candidate warns when the **actually loaded signatures reach 42 hours**;

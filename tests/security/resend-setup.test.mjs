@@ -71,6 +71,55 @@ test("Resend key-only handoff writes only the key, without fabricated account id
     await setup.close();
   }
 });
+test("Resend inspection handoff keeps sending credentials and authority outside the form", async () => {
+  let written;
+  let held;
+  const setup = await startSecureSetup({
+    profile: "resend-readiness",
+    writer: async (values) => {
+      written = { ...values };
+      held = values;
+    },
+  });
+  try {
+    const html = await (await fetch(setup.url)).text();
+    const csrf = html.match(/name="csrf" value="([^"]+)"/)[1];
+    assert.match(html, /name="RESEND_READINESS_API_KEY" type="password"/);
+    assert.doesNotMatch(
+      html,
+      /name="RESEND_API_KEY"|name="RESEND_ACCOUNT_ID"|name="RESEND_SENDS_ENABLED"/,
+    );
+    const submit = (fields) =>
+      fetch(setup.url, {
+        method: "POST",
+        headers: { origin: new URL(setup.url).origin },
+        body: new URLSearchParams({
+          csrf,
+          RESEND_READINESS_API_KEY: key,
+          ...fields,
+        }),
+      });
+    for (const fields of [
+      { RESEND_READINESS_API_KEY: "invalid" },
+      { RESEND_API_KEY: key },
+      { RESEND_DOMAIN_ID: appFixture.RESEND_DOMAIN_ID },
+      { RESEND_SENDS_ENABLED: "true" },
+      { LIVE_SENDS_ENABLED: "true" },
+      { EMAIL_PROVIDER: "resend" },
+    ]) {
+      assert.equal((await submit(fields)).status, 400);
+      assert.equal(written, undefined);
+    }
+    const result = await submit({});
+    assert.equal(result.status, 200);
+    assert.deepEqual(written, { RESEND_READINESS_API_KEY: key });
+    assert.deepEqual(held, { RESEND_READINESS_API_KEY: "" });
+    assert.doesNotMatch(await result.text(), /fictional_resend_key|<input/);
+    assert.equal((await submit({})).status, 410);
+  } finally {
+    await setup.close();
+  }
+});
 function providerFixture(current) {
   let saved = current;
   const calls = [];

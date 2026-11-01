@@ -57,3 +57,13 @@ verified and installed as `TELNYX_FROM`. At that time, the callback changed to
 were also installed and private account authentication succeeded. These are dated
 observations; [live release evidence](LIVE_RELEASE.md) and the [current canonical
 origin contract](MAIN_RELEASE.md) define their limits and subsequent release rules.
+
+## Resend maintenance inspection
+
+`node scripts/secure-setup.mjs resend-readiness` accepts only an existing,
+independently authorized `RESEND_READINESS_API_KEY` for the same Resend account.
+It uses the same masked, one-use local handoff, without changing the sending key,
+selecting a provider, creating credentials or expanding permissions. Domain and
+Usage API access must then be genuinely qualified through
+`node scripts/provider-readiness.mjs resend-policy-sources`. See
+[the inspection boundary](AUTH0_RESEND.md#independent-maintenance-inspection-key).

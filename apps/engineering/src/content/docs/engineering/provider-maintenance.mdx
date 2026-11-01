@@ -47,7 +47,7 @@ When a real parent policy has an expiry, the monitor follows that consumed
 deadline. The permanently unsendable review account's explicitly archived
 reference remains separate from live technical pricing.
 
-The 1.1.23 local candidate also recognizes the exact historical postal-window
+The 1.1.23 compatibility change, published on 1 November, recognizes the exact historical postal-window
 expansion from migration 0036. That migration preserved eight price windows and
 their eight opposite-window clones, then recorded a later generation. The
 compatibility requires its immediate predecessor, deterministic no-consent/no-date-extension
@@ -80,32 +80,59 @@ independent of the email-delivery provider being inspected. Native alert
 aggregation and its reminder cadence remain distinct from the incident's
 idempotent database key. This is not an exactly-once email-delivery guarantee.
 
-A locally prepared stabilization keeps historical failures within one minute
-and reads freshness observations over five minutes in Manual SQL mode. A current
-explicit healthy freshness record is required for recovery: missing logs,
-ordinary HTTP success and completed Cron records cannot supply it. No qualified
-freshness coverage holds an alarm, as do malformed freshness observations. This
-avoids interpreting an ingestion gap as a resolved durable incident. Recovery
-waits until the last freshness failure leaves the five-minute window, then the
-next successful evaluation; ingestion and scheduling can add delay. The existing
-sixty-second execution/average, threshold, hourly reminders, destination and
-separate missing-heartbeat monitor remain unchanged. The plan changes only the
-query and its time-range mode, with no business or provider authority.
+The 1.1.24 local candidate derives two numeric alert fields after the server's
+closed observation projection: `alertClass` distinguishes ordinary observations
+(0), original failures (1), qualified healthy freshness (2) and failed or unknown
+freshness (3); `alertFailure` is zero or one. Freshness takes precedence over
+ordinary failure classification. Callers cannot override the markers. Healthy
+freshness requires the exact application/maintenance/freshness envelope, OK code,
+explicit zero risk/expiry/check-failure counters and no original failure.
 
-This stabilization requires separate authorization, native SQL validation, saved
-configuration readback and actual observation. Local synthetic timelines do not
-establish its production activation or notification receipt.
+The shallow SQL selects `alertClass >= 1`, aggregates the failure field directly
+and uses only `if(COUNT(*) = 0, 1.0, SUM(...))`. An empty selection alarms, and
+malformed freshness cannot become healthy. The fallback keeps Automatic range
+mode and changes native execution from every minute to every 300 seconds, making
+Cloudflare supply a five-minute range without SQL timestamps.
 
-The event-time range is inclusive from evaluation minus five minutes through
-evaluation; future records supply neither health coverage nor early failures.
+All original failures and freshness failures now remain in that range, extending
+the original one-minute failure lookback conservatively. This reduces evaluation
+frequency: nominal detection waits for the next five-minute cycle, and provider
+ingestion/scheduling/delivery delay can add more. It is not a five-minute SLA.
+The sixty-second average, threshold, hourly reminders, destination and independent
+minute heartbeat remain unchanged. Authentication, approval, provider, sending
+and other application safety gates are unaffected.
+
+Native editor attempts on 1 November rejected conditional JSON aggregates,
+expressions deeper than ten and explicit timestamps under its request-bound
+range; the inspected editor exposed no Manual selector. None saved a replacement. A subsequent existing-counter probe was accepted with
+floating-point `1.0`, whose type matches the native numeric JSON SUM; integer
+`1` had caused incompatible conditional branches. This validates the aggregate
+type shape only. The new marker fields remain undeployed and the final monitor
+unsaved. The fallback still requires exact-marker native validation and
+saved readback. Deploy and verify marker runtime first, retain the old query
+during five minutes of coverage, then apply only the reviewed SQL and interval.
+Legacy logs cannot prove marker coverage. Recovery requires failure-free current
+freshness evidence and a successful scheduled evaluation; ordinary HTTP success
+or Cron completion cannot establish it. Local timelines prove neither native
+activation nor notification receipt.
+
+The Resend inspection currently refuses its domain read. A private setup profile
+accepts an existing independently authorized inspection credential without
+replacing the sending key or changing send gates; no key or permission is
+created. Recheck all required sources after installation. A successful domain
+read alone still cannot qualify the complete renewal.
+
+Automatic mode supplies the native evaluation range externally; the reviewed
+SQL contains no timestamp predicate or claimed mode override.
 Two exact legacy Automatic-mode dashboard queries can be recognized only with
 fresh proof of the authenticated account/dataset edit route, bound into the
 private plan. Unknown query or scope variants remain refused. The public guide
 does not disclose operator identities or private destinations.
 
-The five-minute lookback is five times the previous time span, with unchanged
-cadence and resource count. The query creates no application log events, but this
-does not establish unchanged cost. As of 31 October 2026, Cloudflare lists Workers
+The five-minute lookback is five times the old time span, with one native
+execution per five minutes and unchanged resource count. The classifier adds two numeric fields to existing events and creates no
+additional application events, but this does not establish unchanged ingestion
+or query cost. As of 31 October 2026, Cloudflare lists Workers
 Paid Logs at 20 million written events included per month, then $0.60 per extra
 million, shared at account level; its announced pricing changes on 1 December.
 See [Workers Logs pricing](https://developers.cloudflare.com/workers/observability/logs/workers-logs/).

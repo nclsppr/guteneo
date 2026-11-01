@@ -1,0 +1,15 @@
+{
+  "codes": [
+    "HTTP_SERVER_ERROR",
+    "CONFIGURATION_INVALID",
+    "INTERNAL_ERROR",
+    "QUEUE_FAILED",
+    "QUEUE_DEAD_LETTER",
+    "DISPATCH_FAILED",
+    "SUBMISSION_UNKNOWN",
+    "CRON_FAILED",
+    "SECURE_PREPARATION_FAILED",
+    "OUTBOX_DEFERRED"
+  ],
+  "counters": ["failed", "unknown", "uncertain", "deadLetters"]
+}

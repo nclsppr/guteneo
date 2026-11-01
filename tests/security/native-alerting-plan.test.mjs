@@ -6,6 +6,7 @@ import { spawnSync } from "node:child_process";
 import test from "node:test";
 import { DatabaseSync } from "node:sqlite";
 import { createHash } from "node:crypto";
+import nativeAlertSignals from "../../packages/observability/native-alert-signals.json" with { type: "json" };
 import {
   nativeFailureMonitorQuery,
   nativeFreshnessMonitorQuery,
@@ -42,32 +43,32 @@ const snapshot = () => ({
     unchangedNativeSetting: { nested: "retained synthetic setting" },
   },
 });
-test("stabilizes only the query and its explicit time-range mode, preserving original controls", () => {
+test("uses the native automatic five-minute interval while preserving other controls", () => {
   const original = snapshot();
   const before = structuredClone(original);
   const plan = planNativeFreshnessAlerting(original, at);
   assert.equal(plan.changed, true);
   assert.deepEqual(original, before);
-  assert.deepEqual(Object.keys(plan.patch), ["query", "timeRangeMode"]);
-  assert.equal(plan.patch.timeRangeMode, "manual");
-  for (const line of nativeFailureMonitorQuery
-    .split("\n")
-    .filter((value) => value.includes("attributes[")))
-    assert.ok(plan.patch.query.includes(line.trim().replace(/^OR /, "")));
-  assert.ok(
-    plan.patch.query.includes("attributes['code'] = 'FRESHNESS_AT_RISK'"),
-  );
-  assert.ok(
-    plan.patch.query.includes("attributes['code'] = 'FRESHNESS_CHECK_FAILED'"),
-  );
+  assert.deepEqual(Object.keys(plan.patch), [
+    "query",
+    "evaluation",
+    "timeRangeMode",
+  ]);
+  assert.equal(plan.version, 3);
+  assert.equal(plan.patch.timeRangeMode, "automatic");
+  assert.deepEqual(plan.patch.evaluation, {
+    ...original.configuration.evaluation,
+    intervalSeconds: 300,
+  });
+  assert.ok(plan.patch.query.includes("attributes['alertClass'] >= 1"));
+  assert.ok(plan.patch.query.includes("SUM(attributes['alertFailure'])"));
+  assert.match(plan.patch.query, /^SELECT if\(COUNT\(\*\) = 0, 1\.0,/);
   assert.equal(plan.patch.query.match(/accountTag/g)?.length, 1);
   assert.equal(plan.patch.query.match(/scriptName/g)?.length, 1);
-  assert.ok(
-    plan.patch.query.includes("timestamp >= NOW() - INTERVAL '1' MINUTE"),
-  );
-  assert.ok(
-    plan.patch.query.includes("timestamp >= NOW() - INTERVAL '5' MINUTE"),
-  );
+  assert.doesNotMatch(plan.patch.query, /timestamp|INTERVAL/);
+  assert.equal(plan.signal.originalFailureLookbackSeconds, 300);
+  assert.equal(plan.signal.freshnessLookbackSeconds, 300);
+  assert.equal(plan.preserved.evaluationIntervalSeconds, undefined);
   assert.equal(plan.signal.missingQualifiedFreshness, "alarm");
   assert.equal(plan.preserved.repeatSeconds, 3600);
   assert.equal(plan.preserved.destinationsChanged, false);
@@ -81,13 +82,13 @@ test("stabilizes only the query and its explicit time-range mode, preserving ori
     false,
   );
 });
-test("migrates the actually deployed automatic extension and is idempotent only in manual mode", () => {
+test("migrates the deployed extension and is idempotent only at the reviewed automatic interval", () => {
   const legacy = snapshot();
   legacy.configuration.query = legacyNativeFreshnessMonitorQuery;
   assert.equal(planNativeFreshnessAlerting(legacy, at).changed, true);
   const input = snapshot();
   input.configuration.query = nativeFreshnessMonitorQuery;
-  input.configuration.timeRangeMode = "manual";
+  input.configuration.evaluation.intervalSeconds = 300;
   const plan = planNativeFreshnessAlerting(input, at);
   assert.equal(plan.changed, false);
   assert.equal(plan.patch.query, nativeFreshnessMonitorQuery);
@@ -124,7 +125,7 @@ test("accepts exactly both observed UI queries only with current authenticated a
     assert.deepEqual(input, before);
     assert.equal(plan.previousQueryTextSha256, observedSha256);
     assert.equal(plan.patch.query, nativeFreshnessMonitorQuery);
-    assert.equal(plan.patch.timeRangeMode, "manual");
+    assert.equal(plan.patch.timeRangeMode, "automatic");
     assert.equal(plan.changed, true);
     assert.ok(plan.patch.query.includes(`accountTag = '${input.accountId}'`));
     const canonicalPlan = planNativeFreshnessAlerting(snapshot(), at);
@@ -364,11 +365,8 @@ test("CLI keeps material outside Git, refuses apply and never prints recipients"
 // the dataset, JSON accessor and relative-time syntax. This is semantic evidence,
 // not qualification of Cloudflare's SQL validator, ingestion or notifications.
 const nowMs = Date.parse(at);
-const freshnessRecord = (ageSeconds = 0, attributes = {}) => ({
-  timestamp: nowMs - ageSeconds * 1000,
-  accountTag: snapshot().accountId,
-  scriptName: "guteneo-app",
-  attributes: {
+const freshnessRecord = (ageSeconds = 0, attributes = {}) => {
+  const projected = {
     event: "freshness",
     route: "maintenance",
     stage: "freshness",
@@ -377,8 +375,40 @@ const freshnessRecord = (ageSeconds = 0, attributes = {}) => ({
     freshnessExpired: 0,
     freshnessChecksFailed: 0,
     ...attributes,
-  },
-});
+  };
+  const originalFailure =
+    nativeAlertSignals.codes.includes(projected.code) ||
+    nativeAlertSignals.counters.some((key) => projected[key] > 0);
+  const freshnessSignal =
+    projected.event === "freshness" ||
+    ["FRESHNESS_AT_RISK", "FRESHNESS_CHECK_FAILED"].includes(projected.code);
+  const healthy =
+    projected.event === "freshness" &&
+    projected.route === "maintenance" &&
+    projected.stage === "freshness" &&
+    projected.code === "OK" &&
+    projected.freshnessAtRisk === 0 &&
+    projected.freshnessExpired === 0 &&
+    projected.freshnessChecksFailed === 0 &&
+    !originalFailure;
+  if (!Object.hasOwn(attributes, "alertClass"))
+    projected.alertClass = freshnessSignal
+      ? healthy
+        ? 2
+        : 3
+      : originalFailure
+        ? 1
+        : 0;
+  if (!Object.hasOwn(attributes, "alertFailure"))
+    projected.alertFailure =
+      originalFailure || (freshnessSignal && !healthy) ? 1 : 0;
+  return {
+    timestamp: nowMs - ageSeconds * 1000,
+    accountTag: snapshot().accountId,
+    scriptName: "guteneo-app",
+    attributes: projected,
+  };
+};
 function queryValue(rows, sql = nativeFreshnessMonitorQuery) {
   const db = new DatabaseSync(":memory:");
   try {
@@ -393,7 +423,12 @@ function queryValue(rows, sql = nativeFreshnessMonitorQuery) {
         row.scriptName,
         JSON.stringify(row.attributes),
       );
-    const executable = sql
+    // Automatic native execution supplies this inclusive range outside SQL.
+    const rangedSql =
+      sql === nativeFreshnessMonitorQuery
+        ? `${sql}\n AND timestamp >= ${nowMs - 300_000} AND timestamp <= ${nowMs}`
+        : sql;
+    const executable = rangedSql
       .replace("FROM logs.workersLogs", "FROM worker_logs")
       .replace(
         /attributes\['([A-Za-z]+)'\]/g,
@@ -410,7 +445,7 @@ function queryValue(rows, sql = nativeFreshnessMonitorQuery) {
   }
 }
 
-test("all historic codes and counters retain their exact inclusive one-minute event window", () => {
+test("all historic codes and counters use the explicitly extended inclusive five-minute window", () => {
   const codes = [
     ...nativeFailureMonitorQuery.matchAll(/attributes\['code'\] = '([^']+)'/g),
   ].map((match) => match[1]);
@@ -434,9 +469,9 @@ test("all historic codes and counters retain their exact inclusive one-minute ev
       const rows = [freshnessRecord(), record];
       const previous = queryValue(
         rows,
-        `${nativeFailureMonitorQuery}\n  AND timestamp >= NOW() - INTERVAL '1' MINUTE`,
+        `${nativeFailureMonitorQuery}\n  AND timestamp >= NOW() - INTERVAL '5' MINUTE`,
       );
-      assert.equal(previous, age <= 60 ? 1 : 0);
+      assert.equal(previous, age <= 300 ? 1 : 0);
       assert.equal(
         queryValue(rows),
         previous,
@@ -525,7 +560,7 @@ test("global account and worker filters enclose every failure and coverage branc
     );
 });
 
-test("manual bounds exclude future failures and never accept future healthy coverage", () => {
+test("the automatic request range excludes future failures and healthy coverage", () => {
   for (const attributes of [
     { event: "http", code: "HTTP_SERVER_ERROR" },
     { event: "http", failed: 1 },
@@ -551,4 +586,98 @@ test("manual bounds exclude future failures and never accept future healthy cove
     0,
     "the exact evaluation timestamp is inclusive",
   );
+});
+
+test("uses direct JSON numeric aggregates and keeps legacy or absent classes alarming", () => {
+  assert.doesNotMatch(nativeFreshnessMonitorQuery, /SUM\(if\(/);
+  assert.match(
+    nativeFreshnessMonitorQuery,
+    /SUM\(attributes\['alertFailure'\]\)/,
+  );
+  for (const alertClass of [undefined, null, 0, -1]) {
+    const legacy = freshnessRecord(0, { alertClass, alertFailure: undefined });
+    assert.ok(queryValue([legacy]) >= 1);
+    assert.equal(
+      queryValue([
+        { ...legacy, timestamp: nowMs - 300_001 },
+        freshnessRecord(),
+      ]),
+      0,
+    );
+  }
+});
+
+test("contradictory freshness records with positive historic failure counters cannot claim healthy coverage", () => {
+  for (const counter of nativeAlertSignals.counters)
+    for (const age of [0, 60, 60.001, 300])
+      assert.ok(
+        queryValue([
+          freshnessRecord(age, { [counter]: 1 }),
+          freshnessRecord(),
+        ]) >= 1,
+      );
+});
+
+// Retain the exact rejected nested query as a semantic regression fixture.
+const rejectedNestedFreshnessQuery =
+  "SELECT if(COUNT(*) = 0, 1,\n  SUM(if(\n    (timestamp >= NOW() - INTERVAL '1' MINUTE\n      AND (attributes['code'] = 'HTTP_SERVER_ERROR'\n            OR attributes['code'] = 'CONFIGURATION_INVALID'\n            OR attributes['code'] = 'INTERNAL_ERROR'\n            OR attributes['code'] = 'QUEUE_FAILED'\n            OR attributes['code'] = 'QUEUE_DEAD_LETTER'\n            OR attributes['code'] = 'DISPATCH_FAILED'\n            OR attributes['code'] = 'SUBMISSION_UNKNOWN'\n            OR attributes['code'] = 'CRON_FAILED'\n            OR attributes['code'] = 'SECURE_PREPARATION_FAILED'\n            OR attributes['code'] = 'OUTBOX_DEFERRED'\n            OR attributes['failed'] > 0\n            OR attributes['unknown'] > 0\n            OR attributes['uncertain'] > 0\n            OR attributes['deadLetters'] > 0))\n    OR (attributes['code'] = 'FRESHNESS_AT_RISK'\n            OR attributes['code'] = 'FRESHNESS_CHECK_FAILED')\n    OR (attributes['event'] = 'freshness'\n      AND if((attributes['event'] = 'freshness'\n          AND attributes['route'] = 'maintenance'\n          AND attributes['stage'] = 'freshness'\n          AND ((attributes['code'] = 'FRESHNESS_AT_RISK'\n            OR attributes['code'] = 'FRESHNESS_CHECK_FAILED')\n            OR (attributes['code'] = 'OK'\n              AND attributes['freshnessAtRisk'] = 0\n              AND attributes['freshnessExpired'] = 0\n              AND attributes['freshnessChecksFailed'] = 0))), 0, 1) = 1),\n    1, 0))\n  + if(SUM(if((attributes['event'] = 'freshness'\n          AND attributes['route'] = 'maintenance'\n          AND attributes['stage'] = 'freshness'\n          AND ((attributes['code'] = 'FRESHNESS_AT_RISK'\n            OR attributes['code'] = 'FRESHNESS_CHECK_FAILED')\n            OR (attributes['code'] = 'OK'\n              AND attributes['freshnessAtRisk'] = 0\n              AND attributes['freshnessExpired'] = 0\n              AND attributes['freshnessChecksFailed'] = 0))), 1, 0)) = 0, 1, 0)\n) AS value\nFROM logs.workersLogs\nWHERE accountTag = '39ac9fada6cba44d9ecf09d467609e69'\n  AND scriptName = 'guteneo-app'\n  AND timestamp >= NOW() - INTERVAL '5' MINUTE\n  AND timestamp <= NOW()";
+
+test("derived health aggregates retain every alarm decision across 117 deterministic and jittered records", () => {
+  const signals = [
+    {},
+    { code: "FRESHNESS_AT_RISK", freshnessExpired: 14 },
+    { code: "FRESHNESS_CHECK_FAILED", freshnessChecksFailed: 1 },
+    { event: "http", code: "HTTP_SERVER_ERROR" },
+    { event: "cron", code: "CRON_FAILED" },
+    { event: "http", failed: 1 },
+    { code: "UNKNOWN_FRESHNESS" },
+    { freshnessExpired: null },
+    { freshnessChecksFailed: undefined },
+    { freshnessAtRisk: "0" },
+    { route: "unknown" },
+    { stage: undefined },
+    { event: "cron", stage: "complete" },
+  ];
+  const ages = [-0.001, 0, 59.999, 60, 60.001, 299.999, 300, 300.001, 1200];
+  let compared = 0;
+  const equivalent = (rows) => {
+    // The operational fallback deliberately extends historic failure retention
+    // from one to five minutes; all other decisions retain the strict model.
+    const before = queryValue(
+      rows,
+      rejectedNestedFreshnessQuery.replace(
+        "INTERVAL '1' MINUTE",
+        "INTERVAL '5' MINUTE",
+      ),
+    );
+    const after = queryValue(rows);
+    assert.equal(after >= 1, before >= 1, JSON.stringify(rows));
+    assert.ok(Number.isFinite(after) && after >= 0);
+  };
+  equivalent([]);
+  for (const attributes of signals)
+    for (const age of ages) {
+      const record = freshnessRecord(age, attributes);
+      equivalent([record]);
+      equivalent([freshnessRecord(), record]);
+      equivalent([freshnessRecord(240), record]);
+      compared++;
+    }
+  assert.equal(compared, 117);
+  // Reproducible mixed ingestion times, absent fields and foreign data, without
+  // depending on the machine clock or a provider's ingestion availability.
+  let seed = 131;
+  const random = () =>
+    (seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 2 ** 32;
+  for (let fixture = 0; fixture < 200; fixture++) {
+    const records = Array.from({ length: Math.floor(random() * 20) }, () => ({
+      ...freshnessRecord(
+        ages[Math.floor(random() * ages.length)] + (random() - 0.5) * 0.002,
+        signals[Math.floor(random() * signals.length)],
+      ),
+      ...(random() < 0.1 ? { accountTag: "foreign" } : {}),
+      ...(random() < 0.1 ? { scriptName: "foreign" } : {}),
+    }));
+    equivalent(records);
+  }
 });
