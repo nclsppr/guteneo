@@ -56,7 +56,9 @@ export function preferUbuntuArchives(sources, mirrors) {
     !entries.includes("https://archive.ubuntu.com/ubuntu/\tpriority:2") ||
     !entries.includes("https://security.ubuntu.com/ubuntu/\tpriority:3")
   ) {
-    throw new Error("Unexpected Ubuntu mirror configuration; no changes made.");
+    // Archive preference is optional. Retain unfamiliar runner defaults unchanged
+    // so the existing test suites can still run.
+    return mirrors;
   }
   return mirrors.replace(
     /^([ \t]*http:\/\/azure\.archive\.ubuntu\.com\/ubuntu\/\tpriority:)1(?=[ \t]*\r?$)/m,

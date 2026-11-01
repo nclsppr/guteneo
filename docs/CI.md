@@ -523,3 +523,14 @@ need dedicated accounts/recipients, separate authorization, bounded costs and
 observable signed outcomes; fax/postal production tests must never run implicitly
 on every deployment. See [operations](OPERATIONS.md) and the
 [engineering release guide](../apps/engineering/src/content/docs/engineering/ci-and-release.mdx).
+
+### Heterogeneous hosted mirror defaults — 1 November 2026
+
+The optional APT mirror preference encountered a different default list on AWS
+Ubuntu 24.04.5 image 20261018.96.1, while the same source passed on Azure image
+20261025.353.1. This failed before browser installation, not in product tests.
+The helper now returns an unrecognized list byte-for-byte unchanged and lets the
+runner use its existing APT defaults. Only the previously recognized three-entry
+Azure configuration receives the existing priority adjustment. No repository,
+URI, suite, signature, workflow or required browser test is replaced or skipped.
+Regression fixtures verify exact preservation and known-list idempotence.
