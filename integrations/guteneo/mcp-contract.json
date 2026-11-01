@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "pluginVersion": "1.1.27",
-  "mcpSourceSha256": "2ec3a8df7980d1b15ba498412c7bb8e4141ceb5d0ed0f2ecb26b47fd2b19fc44",
+  "mcpSourceSha256": "0d484a728a360d1270ca2663542f00ca3c80ed60ca9aafdaaa6c8771b876f0fa",
   "packageSha256": "bbbda6b4e477823828085b78e9170d582f369095d9d7eafd1b0846998cacbec5",
   "sources": {
     "apps/api/src/auth.ts": "98b513683d77bb3d183d1fc638f2bf6893104932d4be3fae30914994ded605f5",
@@ -30,7 +30,7 @@
     "packages/contracts/src/mcp-ui-probe-resource.json": "eafa886cc44f196aaff1c9be67fa010f6f8b82633c0d3189a9d8b2d71b08763a",
     "packages/contracts/src/pdf-validation.ts": "c40c6246c4352eec2b98001edca6a7b3a8dcc5de9bb5823c63add887273bbc30",
     "packages/contracts/src/postal-address-page.ts": "fcb36742546abf450ed19f5b0978974b505c623c19f828093e2bcb0ef012c896",
-    "packages/contracts/src/postal-destinations.ts": "0674e5c6a1613728e50fafa7bab1e2b960f9423f8fbe57a14a659d6c1e6485c6",
+    "packages/contracts/src/postal-destinations.ts": "72cf5b9450ca9cc221b616d80d0dc092e90520c0791f1e73705a2f4ffc66c025",
     "packages/contracts/src/postal-recipient.ts": "2566a62497484529df05d3fede826e5664c97c1c9f3ef21e46cc251fde8d5b97",
     "packages/contracts/src/postal-review.ts": "4e261acb48082536051ae0355c2f18cfb2c1f06afdd2c200b93989063aee5a5b",
     "packages/contracts/src/postal-setup.ts": "93076fb653e44b25e9cbc36eecc7514bf8b35ffa2ba3720965c7ef80962de2fc",
