@@ -43,25 +43,31 @@ const snapshot = () => ({
     unchangedNativeSetting: { nested: "retained synthetic setting" },
   },
 });
-test("stabilizes only the query and its explicit time-range mode, preserving original controls", () => {
+test("uses the native automatic five-minute interval while preserving other controls", () => {
   const original = snapshot();
   const before = structuredClone(original);
   const plan = planNativeFreshnessAlerting(original, at);
   assert.equal(plan.changed, true);
   assert.deepEqual(original, before);
-  assert.deepEqual(Object.keys(plan.patch), ["query", "timeRangeMode"]);
-  assert.equal(plan.patch.timeRangeMode, "manual");
-  assert.ok(plan.patch.query.includes("attributes['alertClass'] = 1"));
-  assert.ok(plan.patch.query.includes("attributes['alertClass'] >= 2"));
+  assert.deepEqual(Object.keys(plan.patch), [
+    "query",
+    "evaluation",
+    "timeRangeMode",
+  ]);
+  assert.equal(plan.version, 3);
+  assert.equal(plan.patch.timeRangeMode, "automatic");
+  assert.deepEqual(plan.patch.evaluation, {
+    ...original.configuration.evaluation,
+    intervalSeconds: 300,
+  });
+  assert.ok(plan.patch.query.includes("attributes['alertClass'] >= 1"));
   assert.ok(plan.patch.query.includes("SUM(attributes['alertFailure'])"));
   assert.equal(plan.patch.query.match(/accountTag/g)?.length, 1);
   assert.equal(plan.patch.query.match(/scriptName/g)?.length, 1);
-  assert.ok(
-    plan.patch.query.includes("timestamp >= NOW() - INTERVAL '1' MINUTE"),
-  );
-  assert.ok(
-    plan.patch.query.includes("timestamp >= NOW() - INTERVAL '5' MINUTE"),
-  );
+  assert.doesNotMatch(plan.patch.query, /timestamp|INTERVAL/);
+  assert.equal(plan.signal.originalFailureLookbackSeconds, 300);
+  assert.equal(plan.signal.freshnessLookbackSeconds, 300);
+  assert.equal(plan.preserved.evaluationIntervalSeconds, undefined);
   assert.equal(plan.signal.missingQualifiedFreshness, "alarm");
   assert.equal(plan.preserved.repeatSeconds, 3600);
   assert.equal(plan.preserved.destinationsChanged, false);
@@ -75,13 +81,13 @@ test("stabilizes only the query and its explicit time-range mode, preserving ori
     false,
   );
 });
-test("migrates the actually deployed automatic extension and is idempotent only in manual mode", () => {
+test("migrates the deployed extension and is idempotent only at the reviewed automatic interval", () => {
   const legacy = snapshot();
   legacy.configuration.query = legacyNativeFreshnessMonitorQuery;
   assert.equal(planNativeFreshnessAlerting(legacy, at).changed, true);
   const input = snapshot();
   input.configuration.query = nativeFreshnessMonitorQuery;
-  input.configuration.timeRangeMode = "manual";
+  input.configuration.evaluation.intervalSeconds = 300;
   const plan = planNativeFreshnessAlerting(input, at);
   assert.equal(plan.changed, false);
   assert.equal(plan.patch.query, nativeFreshnessMonitorQuery);
@@ -118,7 +124,7 @@ test("accepts exactly both observed UI queries only with current authenticated a
     assert.deepEqual(input, before);
     assert.equal(plan.previousQueryTextSha256, observedSha256);
     assert.equal(plan.patch.query, nativeFreshnessMonitorQuery);
-    assert.equal(plan.patch.timeRangeMode, "manual");
+    assert.equal(plan.patch.timeRangeMode, "automatic");
     assert.equal(plan.changed, true);
     assert.ok(plan.patch.query.includes(`accountTag = '${input.accountId}'`));
     const canonicalPlan = planNativeFreshnessAlerting(snapshot(), at);
@@ -416,7 +422,12 @@ function queryValue(rows, sql = nativeFreshnessMonitorQuery) {
         row.scriptName,
         JSON.stringify(row.attributes),
       );
-    const executable = sql
+    // Automatic native execution supplies this inclusive range outside SQL.
+    const rangedSql =
+      sql === nativeFreshnessMonitorQuery
+        ? `${sql}\n AND timestamp >= ${nowMs - 300_000} AND timestamp <= ${nowMs}`
+        : sql;
+    const executable = rangedSql
       .replace("FROM logs.workersLogs", "FROM worker_logs")
       .replace(
         /attributes\['([A-Za-z]+)'\]/g,
@@ -433,7 +444,7 @@ function queryValue(rows, sql = nativeFreshnessMonitorQuery) {
   }
 }
 
-test("all historic codes and counters retain their exact inclusive one-minute event window", () => {
+test("all historic codes and counters use the explicitly extended inclusive five-minute window", () => {
   const codes = [
     ...nativeFailureMonitorQuery.matchAll(/attributes\['code'\] = '([^']+)'/g),
   ].map((match) => match[1]);
@@ -457,9 +468,9 @@ test("all historic codes and counters retain their exact inclusive one-minute ev
       const rows = [freshnessRecord(), record];
       const previous = queryValue(
         rows,
-        `${nativeFailureMonitorQuery}\n  AND timestamp >= NOW() - INTERVAL '1' MINUTE`,
+        `${nativeFailureMonitorQuery}\n  AND timestamp >= NOW() - INTERVAL '5' MINUTE`,
       );
-      assert.equal(previous, age <= 60 ? 1 : 0);
+      assert.equal(previous, age <= 300 ? 1 : 0);
       assert.equal(
         queryValue(rows),
         previous,
@@ -548,7 +559,7 @@ test("global account and worker filters enclose every failure and coverage branc
     );
 });
 
-test("manual bounds exclude future failures and never accept future healthy coverage", () => {
+test("the automatic request range excludes future failures and healthy coverage", () => {
   for (const attributes of [
     { event: "http", code: "HTTP_SERVER_ERROR" },
     { event: "http", failed: 1 },
@@ -629,7 +640,15 @@ test("derived health aggregates retain every alarm decision across 117 determini
   const ages = [-0.001, 0, 59.999, 60, 60.001, 299.999, 300, 300.001, 1200];
   let compared = 0;
   const equivalent = (rows) => {
-    const before = queryValue(rows, rejectedNestedFreshnessQuery);
+    // The operational fallback deliberately extends historic failure retention
+    // from one to five minutes; all other decisions retain the strict model.
+    const before = queryValue(
+      rows,
+      rejectedNestedFreshnessQuery.replace(
+        "INTERVAL '1' MINUTE",
+        "INTERVAL '5' MINUTE",
+      ),
+    );
     const after = queryValue(rows);
     assert.equal(after >= 1, before >= 1, JSON.stringify(rows));
     assert.ok(Number.isFinite(after) && after >= 0);

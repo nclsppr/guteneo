@@ -262,3 +262,23 @@ The owner declined Gmail forwarding and selected preparation of the direct
 operator route. The current artifacts are under
 [integrations/operations](../integrations/operations/README.md); no email polling
 or time-based substitute was activated.
+
+## 1 November 2026 corrective rollout
+
+PR 131, source `afedd099081099fa83bf6bd9edaf6dcabacbea03`, passed all 24
+merged-main CI jobs and was published as 1.1.23. Private read-only post-deploy
+checks found one active postal freshness binding (previously absent), four more
+inactive fax bindings for explicitly denied routes, advancing cursors and no
+pending/uncertain dispatch backlog. Live logs recorded `freshnessChecksFailed=0`,
+`freshnessExpired=14` and a completed Cron on Worker version
+`2da375f1-dc22-4ab2-ae02-197da4ab36a7`. The fourteen expired permitted manual
+France/Germany references remain real operator incidents with their original
+deadlines. Resend domain inspection remains `READ_NOT_PERMITTED`.
+
+Native validation rejected the prior nested SQL (parser depth and conditional
+JSON aggregate restrictions). No rejected draft was saved. The 1.1.24 candidate
+uses server-derived `alertClass`/`alertFailure` and a shallow Automatic-mode query
+with a five-minute execution interval, retaining healthy-coverage refusal and all
+original failure signals. Runtime-first publication, five-minute marker coverage,
+actual native validation, saved-state readback and notification observation remain
+separate activation checks. See [the current plan](FRESHNESS_ALERTING.md).

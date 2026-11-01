@@ -47,7 +47,7 @@ When a real parent policy has an expiry, the monitor follows that consumed
 deadline. The permanently unsendable review account's explicitly archived
 reference remains separate from live technical pricing.
 
-The 1.1.23 compatibility change, merged but not yet production-qualified, recognizes the exact historical postal-window
+The 1.1.23 compatibility change, published on 1 November, recognizes the exact historical postal-window
 expansion from migration 0036. That migration preserved eight price windows and
 their eight opposite-window clones, then recorded a later generation. The
 compatibility requires its immediate predecessor, deterministic no-consent/no-date-extension
@@ -88,22 +88,30 @@ ordinary failure classification. Callers cannot override the markers. Healthy
 freshness requires the exact application/maintenance/freshness envelope, OK code,
 explicit zero risk/expiry/check-failure counters and no original failure.
 
-The shallow native SQL uses those JSON fields only as direct comparisons and a
-direct SUM argument, with a single `if(COUNT(*) = 0, 1, SUM(...))`. Original
-failures remain within one minute; freshness coverage and failures remain within
-five minutes. An empty selection alarms, and malformed freshness cannot become
-healthy. Recovery waits until the last failure leaves the window and a successful
-evaluation follows. HTTP success and Cron completion cannot supply that health.
-The existing execution/average, threshold, hourly reminders, destination and
-separate heartbeat remain unchanged.
+The shallow SQL selects `alertClass >= 1`, aggregates the failure field directly
+and uses only `if(COUNT(*) = 0, 1, SUM(...))`. An empty selection alarms, and
+malformed freshness cannot become healthy. The fallback keeps Automatic range
+mode and changes native execution from every minute to every 300 seconds, making
+Cloudflare supply a five-minute range without SQL timestamps.
 
-Native editor attempts on 1 November rejected conditional JSON aggregates and
-expressions deeper than ten levels. No attempted replacement query was saved.
-The new marker form remains a local candidate requiring actual native validation
-and saved readback. Deploy and verify the marker runtime first, retain the old
-query during a five-minute coverage period, then apply only the reviewed query
-and Manual time-range mode. Legacy logs have no markers and cannot prove new
-coverage. Local synthetic timelines establish neither activation nor receipt.
+All original failures and freshness failures now remain in that range, extending
+the original one-minute failure lookback conservatively. This reduces evaluation
+frequency: nominal detection waits for the next five-minute cycle, and provider
+ingestion/scheduling/delivery delay can add more. It is not a five-minute SLA.
+The sixty-second average, threshold, hourly reminders, destination and independent
+minute heartbeat remain unchanged. Authentication, approval, provider, sending
+and other application safety gates are unaffected.
+
+Native editor attempts on 1 November rejected conditional JSON aggregates,
+expressions deeper than ten and explicit timestamps under its request-bound
+range; the inspected editor exposed no Manual selector. None saved a replacement.
+The fallback remains a local candidate requiring actual native validation and
+saved readback. Deploy and verify marker runtime first, retain the old query
+during five minutes of coverage, then apply only the reviewed SQL and interval.
+Legacy logs cannot prove marker coverage. Recovery requires failure-free current
+freshness evidence and a successful scheduled evaluation; ordinary HTTP success
+or Cron completion cannot establish it. Local timelines prove neither native
+activation nor notification receipt.
 
 The Resend inspection currently refuses its domain read. A private setup profile
 accepts an existing independently authorized inspection credential without
@@ -111,15 +119,15 @@ replacing the sending key or changing send gates; no key or permission is
 created. Recheck all required sources after installation. A successful domain
 read alone still cannot qualify the complete renewal.
 
-The event-time range is inclusive from evaluation minus five minutes through
-evaluation; future records supply neither health coverage nor early failures.
+Automatic mode supplies the native evaluation range externally; the reviewed
+SQL contains no timestamp predicate or claimed mode override.
 Two exact legacy Automatic-mode dashboard queries can be recognized only with
 fresh proof of the authenticated account/dataset edit route, bound into the
 private plan. Unknown query or scope variants remain refused. The public guide
 does not disclose operator identities or private destinations.
 
-The five-minute lookback is five times the previous time span, with unchanged
-cadence and resource count. The classifier adds two numeric fields to existing events and creates no
+The five-minute lookback is five times the old time span, with one native
+execution per five minutes and unchanged resource count. The classifier adds two numeric fields to existing events and creates no
 additional application events, but this does not establish unchanged ingestion
 or query cost. As of 31 October 2026, Cloudflare lists Workers
 Paid Logs at 20 million written events included per month, then $0.60 per extra

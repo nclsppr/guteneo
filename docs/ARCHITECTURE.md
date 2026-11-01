@@ -1,5 +1,22 @@
 # Architecture
 
+## Native alert recovery — 1 November 2026 candidate
+
+Production 1.1.23 corrects forbidden-route and historical-postal inspection.
+The 1.1.24 candidate projects paired numeric alert markers after closed-field
+validation, because the native SQL parser rejects conditional JSON aggregates.
+The reviewed native fallback uses Automatic mode and a 300-second execution
+interval: its supplied five-minute window retains both original and freshness
+failures and requires classified healthy evidence for recovery. Original failure
+retention increases from one to five minutes; nominal detection waits for the next
+five-minute cycle, plus external scheduling/ingestion/delivery delays. The separate
+minute heartbeat, destination, threshold and hourly reminders remain unchanged.
+Deploy and verify marker coverage before changing the monitor. No quote, consent,
+provider authority, immutable deadline, send gate or missing source proof is
+extended. Resend still needs an independently authorized inspection key.
+See [the alert contract](FRESHNESS_ALERTING.md).
+
+
 ## Consumed provider deadlines — 30 October 2026 candidate
 
 The existing minute scheduler runs bounded provider maintenance before unrelated

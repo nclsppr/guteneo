@@ -55,12 +55,7 @@ export const nativeFreshnessMonitorQuery = `SELECT if(COUNT(*) = 0, 1,
 FROM logs.workersLogs
 WHERE accountTag = '${account}'
   AND scriptName = 'guteneo-app'
-  AND timestamp >= NOW() - INTERVAL '5' MINUTE
-  AND timestamp <= NOW()
-  AND (
-    (timestamp >= NOW() - INTERVAL '1' MINUTE AND attributes['alertClass'] = 1)
-    OR attributes['alertClass'] >= 2
-  )`;
+  AND attributes['alertClass'] >= 1`;
 const canonical = (value) =>
   value === null || typeof value !== "object"
     ? JSON.stringify(value)
@@ -120,7 +115,8 @@ export function planNativeFreshnessAlerting(
   );
   const { evaluation, notifications } = configuration;
   demand(
-    evaluation?.intervalSeconds === 60 &&
+    (evaluation?.intervalSeconds === 60 ||
+      evaluation?.intervalSeconds === 300) &&
       evaluation.windowSeconds === 60 &&
       evaluation.aggregation === "average" &&
       evaluation.operator === ">=" &&
@@ -159,16 +155,19 @@ export function planNativeFreshnessAlerting(
     compactSql(query) === compactSql(legacyNativeFreshnessMonitorQuery) ||
     knownNativeUiQuery;
   demand(
-    (alreadyStabilized && configuration.timeRangeMode === "manual") ||
-      (knownAutomaticQuery && configuration.timeRangeMode === "automatic"),
+    configuration.timeRangeMode === "automatic" &&
+      ((alreadyStabilized && evaluation.intervalSeconds === 300) ||
+        (knownAutomaticQuery && evaluation.intervalSeconds === 60)),
     "NATIVE_ALERT_QUERY_OR_TIME_RANGE_UNEXPECTED",
   );
   const proposedQuery = alreadyStabilized ? query : nativeFreshnessMonitorQuery;
   const unchanged = { ...configuration };
   delete unchanged.query;
-  delete unchanged.timeRangeMode;
+  unchanged.evaluation = { ...evaluation };
+  delete unchanged.evaluation.intervalSeconds;
+  const proposedEvaluation = { ...evaluation, intervalSeconds: 300 };
   const plan = {
-    version: 2,
+    version: 3,
     kind: "existing_native_monitor_freshness_stabilization",
     status: "plan_only",
     observedAt: snapshot.observedAt,
@@ -183,18 +182,24 @@ export function planNativeFreshnessAlerting(
     proposedConfigurationSha256: sha({
       ...configuration,
       query: proposedQuery,
-      timeRangeMode: "manual",
+      evaluation: proposedEvaluation,
+      timeRangeMode: "automatic",
     }),
-    patch: { query: proposedQuery, timeRangeMode: "manual" },
+    patch: {
+      query: proposedQuery,
+      evaluation: proposedEvaluation,
+      timeRangeMode: "automatic",
+    },
     signal: {
-      originalFailureLookbackSeconds: 60,
+      originalFailureLookbackSeconds: 300,
       freshnessLookbackSeconds: 300,
+      evaluationIntervalSeconds: 300,
+      timeRangeSource: "automatic_execution_interval",
       missingQualifiedFreshness: "alarm",
       recovery: "qualified_healthy_observation_and_no_recent_failure",
     },
     preserved: {
       enabled: true,
-      evaluationIntervalSeconds: 60,
       evaluationWindowSeconds: 60,
       aggregation: "average",
       operator: ">=",

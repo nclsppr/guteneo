@@ -10,10 +10,14 @@ publication.
 
 API **1.1.22** and migrations **0068–0070** were deployed on 31 October 2026.
 The legacy native extension produced triggered/resolved notifications, which did
-not establish recovery of the underlying incidents. PR #131 merged the 1.1.23 compatibility changes as `afedd`; production
-deployment is pending. The 1.1.24 server-marker/SQL stabilization is a separate
+not establish recovery of the underlying incidents. PR #131 merged the 1.1.23 compatibility changes as
+`afedd099081099fa83bf6bd9edaf6dcabacbea03`, published on 1 November. Read-only
+checks observed the active postal binding and four additional inactive forbidden
+fax-route bindings, without pending or unknown business sends. The 1.1.24 server-marker/SQL stabilization is a separate
 **local candidate**. Native editor attempts rejected conditional JSON aggregates
-and expressions deeper than ten levels; no attempted replacement was saved. Authenticated
+and expressions deeper than ten levels. The editor also rejected explicit
+timestamps under its request-bound range and exposed no Manual selector; no
+attempted replacement was saved. Authenticated
 Resend renewal is still unqualified: the existing inspection returns
 `READ_NOT_PERMITTED` at `domain`. Installing an existing separately authorized
 inspection key uses `node scripts/secure-setup.mjs resend-readiness`; it writes
@@ -153,16 +157,23 @@ no content, recipients, business IDs, tokens or private source bodies do.
 The 1.1.24 candidate projects numeric `alertClass` and `alertFailure` markers
 from closed server observations. Classes distinguish ordinary records, original
 failures, qualified healthy freshness and failed/unknown freshness. Its shallow
-Manual-mode SQL aggregates the failure marker directly, preserving original
-failures within one minute and requiring freshness coverage across five minutes.
-Missing coverage alarms; ordinary HTTP/Cron success cannot clear freshness risk.
+SQL aggregates the failure marker directly under Automatic mode, whose proposed
+300-second execution interval supplies the five-minute range. No SQL timestamp
+or invented Manual selector bypasses the inspected native editor's restrictions.
+All original and freshness failures conservatively remain in that five-minute
+range; missing coverage alarms and ordinary HTTP/Cron success cannot establish
+freshness health. The nominal detection wait can grow to one five-minute cycle,
+plus external ingestion/scheduling delays. Threshold, sixty-second average,
+hourly reminders, destination and the separate minute heartbeat stay unchanged.
+Application security, consent, price and sending gates are unaffected.
+
 Deploy and verify marker-bearing observations for five minutes before applying
-the query. The existing destination, threshold, cadence, hourly repeats and
-missing-Cron monitor stay unchanged. The path does not rely on the Resend account
-being inspected. The plan is local/read-only; native parser validation, saved
-readback, provider renewal and notification receipt remain separate and pending. Application incident deduplication does
-not promise exactly one provider notification per deadline. See
-[freshness alerting](FRESHNESS_ALERTING.md).
+the reviewed query and interval. The plan is local/read-only; native parser
+validation, saved readback, provider renewal and notification receipt remain
+separate and pending. The path does not rely on the Resend account being
+inspected. Incident idempotency does not promise exactly one provider email.
+See [freshness alerting](FRESHNESS_ALERTING.md) for the exact marker, scope,
+rollout, cadence and validation contract.
 
 Scanner maintenance stays on its existing daily refresh and six-hour watchdog.
 The candidate warns when the **actually loaded signatures reach 42 hours**;
