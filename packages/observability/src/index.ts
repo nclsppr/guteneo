@@ -1,3 +1,5 @@
+import nativeAlertSignals from "../native-alert-signals.json" with { type: "json" };
+
 /** Operational metadata only. Never pass a request, exception, body, URL or business ID here. */
 export interface ObservationEnv {
   WRANGLER_VERSION_METADATA?: { id: string };
@@ -388,6 +390,36 @@ export function startObservation(
       for (const key of metrics)
         if (Number.isSafeInteger(counts[key]) && counts[key]! >= 0)
           record[key] = counts[key]!;
+      // Native Logs SQL only admits JSON fields directly inside aggregates.
+      // Derive both markers after projection; callers cannot override them.
+      const originalFailure =
+        nativeAlertSignals.codes.includes(finalCode) ||
+        nativeAlertSignals.counters.some(
+          (key) => typeof record[key] === "number" && record[key] > 0,
+        );
+      const freshnessSignal =
+        record.event === "freshness" ||
+        finalCode === "FRESHNESS_AT_RISK" ||
+        finalCode === "FRESHNESS_CHECK_FAILED";
+      const freshnessHealthy =
+        component === "app" &&
+        record.event === "freshness" &&
+        record.route === "maintenance" &&
+        record.stage === "freshness" &&
+        finalCode === "OK" &&
+        record.freshnessAtRisk === 0 &&
+        record.freshnessExpired === 0 &&
+        record.freshnessChecksFailed === 0 &&
+        !originalFailure;
+      record.alertClass = freshnessSignal
+        ? freshnessHealthy
+          ? 2
+          : 3
+        : originalFailure
+          ? 1
+          : 0;
+      record.alertFailure =
+        originalFailure || (freshnessSignal && !freshnessHealthy) ? 1 : 0;
       // JSON objects remain searchable in Workers Logs. No exception serialization or free text.
       if (
         finalCode === "INTERNAL_ERROR" ||

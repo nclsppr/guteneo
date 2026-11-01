@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import nativeAlertSignals from "../packages/observability/native-alert-signals.json" with { type: "json" };
 import {
   privateOperatorPath,
   readPrivateOperatorJson,
@@ -10,19 +11,8 @@ import {
 
 const account = "39ac9fada6cba44d9ecf09d467609e69";
 const failureMonitor = "3ca61e73d0764c24888b6a7cf64e6787";
-const baselineCodes = [
-  "HTTP_SERVER_ERROR",
-  "CONFIGURATION_INVALID",
-  "INTERNAL_ERROR",
-  "QUEUE_FAILED",
-  "QUEUE_DEAD_LETTER",
-  "DISPATCH_FAILED",
-  "SUBMISSION_UNKNOWN",
-  "CRON_FAILED",
-  "SECURE_PREPARATION_FAILED",
-  "OUTBOX_DEFERRED",
-];
-const baselineCounters = ["failed", "unknown", "uncertain", "deadLetters"];
+const baselineCodes = nativeAlertSignals.codes;
+const baselineCounters = nativeAlertSignals.counters;
 export const nativeFailureMonitorQuery = `SELECT COUNT(*) AS value
 FROM logs.workersLogs
 WHERE accountTag = '${account}'
@@ -56,39 +46,21 @@ export const nativeUiLegacyFreshnessMonitorQuery =
     .map((code) => `("attributes"['code'] = '${code}')`)
     .join(" OR ") +
   "))";
-// SUM(if(...)) is supported by the Logs Explorer SQL backend; countIf is not.
-// A recent explicit healthy observation is required before missing warnings can
-// mean recovery. Ordinary HTTP/Cron records never supply freshness coverage.
-const freshnessEnvelope = `attributes['event'] = 'freshness'
-          AND attributes['route'] = 'maintenance'
-          AND attributes['stage'] = 'freshness'`;
-const closedFreshnessFailure = `(attributes['code'] = 'FRESHNESS_AT_RISK'
-            OR attributes['code'] = 'FRESHNESS_CHECK_FAILED')`;
-const qualifiedFreshness = `(${freshnessEnvelope}
-          AND (${closedFreshnessFailure}
-            OR (attributes['code'] = 'OK'
-              AND attributes['freshnessAtRisk'] = 0
-              AND attributes['freshnessExpired'] = 0
-              AND attributes['freshnessChecksFailed'] = 0)))`;
-const originalFailures = [
-  ...baselineCodes.map((code) => `attributes['code'] = '${code}'`),
-  ...baselineCounters.map((counter) => `attributes['${counter}'] > 0`),
-].join("\n            OR ");
+// Native Logs SQL permits JSON only as direct comparisons or aggregate inputs.
+// The application derives the paired class/failure markers after projection.
+// Class 1 preserves original failures; classes 2/3 cover healthy/failed freshness.
+// Legacy logs have neither marker and cannot establish healthy coverage.
 export const nativeFreshnessMonitorQuery = `SELECT if(COUNT(*) = 0, 1,
-  SUM(if(
-    (timestamp >= NOW() - INTERVAL '1' MINUTE
-      AND (${originalFailures}))
-    OR ${closedFreshnessFailure}
-    OR (attributes['event'] = 'freshness'
-      AND if(${qualifiedFreshness}, 0, 1) = 1),
-    1, 0))
-  + if(SUM(if(${qualifiedFreshness}, 1, 0)) = 0, 1, 0)
-) AS value
+  SUM(attributes['alertFailure'])) AS value
 FROM logs.workersLogs
 WHERE accountTag = '${account}'
   AND scriptName = 'guteneo-app'
   AND timestamp >= NOW() - INTERVAL '5' MINUTE
-  AND timestamp <= NOW()`;
+  AND timestamp <= NOW()
+  AND (
+    (timestamp >= NOW() - INTERVAL '1' MINUTE AND attributes['alertClass'] = 1)
+    OR attributes['alertClass'] >= 2
+  )`;
 const canonical = (value) =>
   value === null || typeof value !== "object"
     ? JSON.stringify(value)

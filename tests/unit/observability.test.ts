@@ -5,6 +5,7 @@ import {
   routeCode,
 } from "../../packages/observability/src/index";
 import type { Env } from "../../apps/api/src/env";
+import nativeAlertSignals from "../../packages/observability/native-alert-signals.json" with { type: "json" };
 import { DomainService } from "../../packages/domain/src/index";
 vi.mock("../../apps/api/src/mcp", () => ({ handleMcp: vi.fn() }));
 vi.mock("../../apps/api/src/maintenance", () => ({
@@ -57,6 +58,118 @@ function batch() {
 }
 
 describe("private operational observations", () => {
+  it("derives a healthy freshness bit only from the complete projected successful observation", () => {
+    const observation = startObservation(
+      environment(),
+      "app",
+      "freshness",
+      "maintenance",
+    );
+    observation.finish(
+      undefined,
+      {
+        freshnessAtRisk: 0,
+        freshnessExpired: 0,
+        freshnessChecksFailed: 0,
+        alertClass: 3,
+        alertFailure: 1,
+      } as never,
+      "freshness",
+    );
+    expect(records[0]).toMatchObject({
+      code: "OK",
+      alertClass: 2,
+      alertFailure: 0,
+      freshnessAtRisk: 0,
+      freshnessExpired: 0,
+      freshnessChecksFailed: 0,
+    });
+  });
+
+  it("cannot manufacture healthy coverage from incomplete, failed or unrelated observations", () => {
+    const healthy = {
+      freshnessAtRisk: 0,
+      freshnessExpired: 0,
+      freshnessChecksFailed: 0,
+      alertClass: 2,
+      alertFailure: 0,
+    };
+    const cases = [
+      { counts: { ...healthy, freshnessAtRisk: undefined } },
+      { counts: { ...healthy, freshnessExpired: undefined } },
+      { counts: { ...healthy, freshnessChecksFailed: undefined } },
+      { counts: { ...healthy, freshnessAtRisk: "0" } },
+      { counts: { ...healthy, freshnessExpired: -1 } },
+      { counts: { ...healthy, freshnessChecksFailed: NaN } },
+      { counts: { ...healthy, freshnessChecksFailed: 1 } },
+      { code: "FRESHNESS_AT_RISK" },
+      { code: "FRESHNESS_CHECK_FAILED" },
+      { code: "INTERNAL_ERROR" },
+      { component: "documents" },
+      { component: "invalid" },
+      { event: "cron", stage: "complete" },
+      { event: "http" },
+      { route: "unknown" },
+      { stage: undefined },
+      { status: 500 },
+    ];
+    for (const scenario of cases) {
+      const observation = startObservation(
+        environment(),
+        (scenario.component ?? "app") as never,
+        (scenario.event ?? "freshness") as never,
+        (scenario.route ?? "maintenance") as never,
+      );
+      if (scenario.code) observation.setCode(scenario.code as never);
+      observation.finish(
+        scenario.status,
+        (scenario.counts ?? healthy) as never,
+        (Object.hasOwn(scenario, "stage")
+          ? scenario.stage
+          : "freshness") as never,
+      );
+      expect(records.at(-1)?.alertClass).not.toBe(2);
+    }
+  });
+
+  it("preserves every original failure and prevents a freshness envelope from hiding its counters", () => {
+    const failures = [
+      ...nativeAlertSignals.codes.map((code) => ({ code })),
+      ...nativeAlertSignals.counters.map((counter) => ({ counter })),
+    ];
+    for (const failure of failures)
+      for (const event of ["http", "freshness"] as const) {
+        const observation = startObservation(
+          environment(),
+          "app",
+          event,
+          "maintenance",
+        );
+        if ("code" in failure) observation.setCode(failure.code as never);
+        observation.finish(
+          undefined,
+          {
+            freshnessAtRisk: 0,
+            freshnessExpired: 0,
+            freshnessChecksFailed: 0,
+            ...("counter" in failure ? { [failure.counter]: 1 } : {}),
+            alertClass: 2,
+            alertFailure: 0,
+          } as never,
+          "freshness",
+        );
+        expect(records.at(-1)).toMatchObject({
+          alertClass: event === "freshness" ? 3 : 1,
+          alertFailure: 1,
+        });
+      }
+    startObservation(environment(), "app", "http", "health").finish(200, {
+      alertClass: 3,
+      alertFailure: 1,
+    } as never);
+    expect(records.at(-1)).toMatchObject({ alertClass: 0, alertFailure: 0 });
+  });
+
   it("projects only fixed fields and safe numeric counters, including against excess runtime properties", () => {
     const observation = startObservation(
       { WRANGLER_VERSION_METADATA: { id: sentinel } },
@@ -503,7 +616,9 @@ describe("private operational observations", () => {
           return this;
         },
         all: async () => ({ results: [] }),
-        first: async () => { throw new Error(sentinel); },
+        first: async () => {
+          throw new Error(sentinel);
+        },
         run: async () => ({ success: true }),
       }),
     } as unknown as D1Database;

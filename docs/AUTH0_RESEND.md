@@ -190,3 +190,27 @@ Chromium form. The final complete security run then passed **154/154 tests**
 verification summary is **1,163 unit/integration tests, 154 security tests and
 four targeted E2E cases**; the earlier Vitest snapshot is not presented as
 rerun after the setup correction.
+
+## Independent maintenance inspection key
+
+The production inspection on 1 November 2026 returned `READ_NOT_PERMITTED` at
+`stage=domain`. A sending-only key cannot prove domain or account usage. The
+inspection source collector reads the exact domain, official Usage API, public
+pricing and ECB; it never sends email. Resend currently requires Full access for
+the [Usage API](https://resend.com/changelog/account-usage-api).
+
+For an existing independently authorized key belonging to this same account:
+
+```sh
+node scripts/secure-setup.mjs resend-readiness
+node scripts/provider-readiness.mjs resend-policy-sources
+```
+
+The one-use localhost form masks the key and writes only
+`RESEND_READINESS_API_KEY` through the existing private stdin path. It rejects
+sending-key, domain and activation fields, erases held values, and creates no key
+or permission. Never paste a credential in chat or commit it. Keep
+`RESEND_API_KEY`, provider selection, webhook and send gates unchanged. A successful
+inspection is required before claiming source access; real scheduled renewal,
+new immutable evidence and recipient delivery are separate checks. A refused read
+grants no qualification extension and does not reset account reservations/holds.

@@ -5,8 +5,12 @@ consume. It changes no customer price, source evidence, provider configuration,
 human authority, mandate, quote or dispatch. API release 1.1.22 and additive
 migrations 0068–0070 were deployed on 31 October. The legacy native extension was
 saved and triggered/resolved email receipt was observed; those episodes did not
-prove durable incident recovery. The stabilization below is a separate local
-candidate, not an applied monitor change or a new delivery qualification.
+prove durable incident recovery. PR #131 merged the 1.1.23 compatibility changes as `afedd`; its production
+deployment remains pending. The 1.1.24 marker and SQL stabilization below is a
+separate local candidate, not an applied monitor change or a new delivery
+qualification. Native editor attempts on 1 November rejected JSON expressions
+inside conditional aggregates and an expression nesting depth above ten; none
+of those attempts saved a replacement query.
 Production source access and each provider's genuine renewal remain distinct
 from runtime/schema deployment and native email receipt.
 
@@ -135,54 +139,70 @@ URL, credential or free-form exception.
 
 ### Native recovery requires fresh evidence
 
-The 31 October stabilization is a local candidate. The already configured
-one-minute automatic query can count zero log events while durable incidents
-remain unresolved. A triggered/resolved notification pair therefore does not
-establish a business recovery. Do not close D1 incidents, raise the threshold,
-change reminder frequency or disable the monitor to hide an ingestion gap.
+The 1 November 1.1.24 candidate derives two numeric fields on the server after
+closed-field observation projection. Callers cannot supply or override them.
+The shared `packages/observability/native-alert-signals.json` owns the ten
+historical failure codes and four counters used by both runtime and plan.
 
-The proposed existing-monitor change has two fields: the SQL query and its
-explicit **Manual** time-range mode. Execution every sixty seconds, the sixty-second
-average window, `>=1` threshold, hourly reminders, destination and separate
-missing-heartbeat monitor remain unchanged. The query keeps the account and
-Worker filters outside every branch, then reads the inclusive event-time range
-`[evaluation time - five minutes, evaluation time]`. Future observations cannot
-supply coverage or trigger an early failure:
+| `alertClass` | Meaning                                                            | `alertFailure` |
+| ------------ | ------------------------------------------------------------------ | -------------- |
+| `0`          | Ordinary observation without a historical failure                  | `0`            |
+| `1`          | Any original failure code or positive original failure counter     | `1`            |
+| `2`          | Qualified healthy application freshness observation                | `0`            |
+| `3`          | Freshness failure, malformed envelope or incomplete/nonzero health | `1`            |
 
-- All ten historical failure codes and four counters keep an additional inclusive
-  one-minute predicate. They do not inherit the longer freshness window.
-- `FRESHNESS_AT_RISK` and `FRESHNESS_CHECK_FAILED` remain failures for five minutes.
-- Qualified freshness coverage requires `event=freshness`, `route=maintenance`,
-  `stage=freshness`, and either a closed failure code or explicit `code=OK` with
-  `freshnessAtRisk`, `freshnessExpired` and `freshnessChecksFailed` all numerically
-  zero. Ordinary HTTP success and completed Cron records never supply coverage.
-- A freshness event with an unknown code, invalid envelope or incomplete/nonzero
-  healthy metrics is not healthy. It holds the alarm even beside an older OK.
-- No rows, or no qualified freshness observation, returns an alarm value of one.
-  Missing telemetry can never manufacture a healthy zero.
+Freshness classification takes precedence when a freshness observation also
+contains an original failure. Class 2 requires the application component,
+`event=freshness`, `route=maintenance`, `stage=freshness`, `code=OK` and all three
+`freshnessAtRisk`, `freshnessExpired`, `freshnessChecksFailed` counters explicitly
+zero. A positive original failure counter prevents health. HTTP success and
+completed Cron records cannot supply freshness coverage. Unrecognized or
+incomplete freshness observations stay class 3. The two fields carry only these
+closed numeric states, never an identifier, raw response, credential or URL.
 
-A current qualified OK clears the alarm only after all freshness failures in the
-five-minute lookback age out and no original one-minute failure remains. Recovery
-waits for the last failure to leave the inclusive five-minute window and for the
-next successful native evaluation. The nominal sixty-second cadence can add one
-evaluation interval, and ingestion or scheduler delays can add more. This is
-intentional damping, not an extension of a business deadline. Coverage loss
-also holds an alarm and can overlap the unchanged heartbeat warning. Ingestion
-latency, the native evaluator and notification delivery remain external limits.
-This query does not provide an independent check of the D1 state or guarantee
-exactly-once email delivery. A newly invisible failure cannot be detected before
-its signal arrives or the preceding healthy coverage ages out. The bounded
-five-minute scan includes ordinary Worker records to evaluate coverage; qualify
-actual native query cost and latency rather than claiming unchanged scan volume.
+The proposed existing-monitor change has two fields: SQL and explicit **Manual**
+time-range mode. Execution every sixty seconds, the sixty-second average,
+`>=1` threshold, hourly reminders, destination and separate missing-heartbeat
+monitor remain unchanged. The query keeps account/Worker filters outside every
+branch and uses the inclusive event-time range from evaluation minus five
+minutes through evaluation; future observations cannot supply coverage.
+
+Its WHERE clause selects class 1 only within the most recent minute and classes
+2/3 across five minutes. The only conditional is `if(COUNT(*) = 0, 1,
+SUM(attributes['alertFailure']))`: JSON is an immediate aggregate argument or
+an immediate comparison, not nested inside a conditional expression. This avoids
+the previously rejected conditional-JSON and deep-expression shapes. Exact SQL
+is exported as `nativeFreshnessMonitorQuery` by the plan script; its native
+validation, saved readback and notification behavior remain unqualified.
+
+An empty selection returns one, so missing telemetry cannot fabricate recovery.
+Class 3 holds an alarm for five minutes. Class 2 permits zero only after all
+freshness failures age out and no original one-minute failure remains. Recovery
+then waits for the next successful evaluation; scheduler and ingestion delay can
+add time. This damping never extends a business deadline. Coverage loss can
+also overlap the independent missing-heartbeat alarm.
+
+Deploy and verify the marker-producing runtime before changing the native query.
+Retain the legacy query while at least five minutes of current marker-bearing
+observations accumulate. Legacy records have no markers and supply no healthy
+coverage; the new query is not a decoder for old log formats. Verify historical
+failure classification and freshness coverage on the exact active deployment
+before applying the reviewed query. A newly invisible failure remains bounded by
+signal arrival and the preceding healthy coverage's five-minute lifetime; the
+query is not an independent D1 health check or an exactly-once email guarantee.
+
+Do not close D1 incidents, raise the threshold, change reminders or disable the
+monitor to hide an ingestion gap. The bounded scan and two added numeric fields
+require hosted ingestion/query-cost and latency qualification; local fixtures
+establish neither account headroom nor an unchanged bill.
 
 [Cloudflare's monitor contract](https://developers.cloudflare.com/notifications/monitors/#custom-sql)
-requires Manual mode for a fixed relative SQL timestamp range; Automatic mode
-supplies its own execution-interval range. The
+requires Manual mode for this fixed relative timestamp range. Automatic mode
+supplies the execution-interval range instead. The
 [SQL functions reference](https://developers.cloudflare.com/analytics/sql-api/sql-reference/functions/)
-supports `SUM` and `if` on Logs Explorer; `countIf` is not supported there. The
-canonical reviewed query is exported as `nativeFreshnessMonitorQuery` by the
-local plan script. There is no subquery, join, `CASE`, `countIf`, new dataset,
-resource, credential, notification destination or business-operation change.
+lists `SUM` and `if`; local SQLite execution does not qualify the actual native
+JSON parser. There is no subquery, join, `CASE`, `countIf`, new dataset, resource,
+credential, destination or business-operation change.
 
 Application incidents remain idempotent and untouched by the plan. Native
 notification deduplication still follows the aggregate alarm episode and its
@@ -259,8 +279,8 @@ for syntax/data checks; it is not proof of future ingestion or email receipt.
 This plan alone establishes neither live mutation nor notification delivery.
 
 Local regression execution evaluates the exact exported expression against an
-in-memory SQLite log table, translating only the dataset name, JSON accessor and
-relative-time syntax. It covers every old code/counter at both sides of sixty
+in-memory SQLite log table after applying the server marker classification,
+translating only the dataset name, JSON accessor and relative-time syntax. It covers every old code/counter at both sides of sixty
 seconds, five-minute boundaries, long ingestion gaps, malformed observations,
 explicit healthy recovery and foreign account/Worker data. This is separate from
 qualification of Cloudflare's actual parser/backend and saved configuration.
