@@ -28,6 +28,7 @@ import {
 } from "../../packages/domain/src/live-delivery-quotes";
 import { resendIdentity } from "../../apps/api/src/resend-environment";
 import { readResendPolicyFreshness } from "../../apps/api/src/resend-policy-refresh";
+import { resolveFaxUsageTariff } from "../../packages/domain/src/live-fax-usage";
 import type { Env } from "../../apps/api/src/env";
 import {
   createFaxUsageFixture,
@@ -348,6 +349,59 @@ describe("selected provider deadline collection", () => {
         .bind(fixture.tariff.id)
         .first("expires_at"),
     ).toBe(at(5 * DAY));
+  });
+  it("excludes an explicitly forbidden fax route date while preserving refusal and unknown runtime guards", async () => {
+    env.EMAIL_PROVIDER = "ses";
+    fixture = await createFaxUsageFixture(db, () => NOW, {
+      account_id: env.TELNYX_ACCOUNT_ID!,
+      connection_id: "123",
+      outbound_profile_id: "456",
+      destination_prefix: "+331",
+      destination_country_code: "FR",
+      origin_class: "eea",
+      destination_category: "fixed",
+      route_allowed: 0,
+      valid_from: at(-DAY),
+      expires_at: at(DAY),
+      created_at: at(-DAY),
+      fx_date: at(-DAY).slice(0, 10),
+    });
+    // Monitor after expiry, then resolve during its otherwise valid price window.
+    const result = await collect(fixture.ctx.organizationId, {
+      now: () => NOW + 2 * DAY,
+    });
+    expect(result.freshnessChecksFailed).toBe(0);
+    expect(result.evaluations).toHaveLength(1);
+    expect(result.evaluations[0]).toMatchObject({
+      family: "fax_tariff",
+      active: false,
+      candidates: [],
+    });
+    expect(
+      await reconcileFreshnessAlerts(db, result.evaluations, at(2 * DAY)),
+    ).toMatchObject({ freshnessAtRisk: 0, freshnessExpired: 0 });
+    await expect(
+      resolveFaxUsageTariff(
+        db,
+        fixture.ctx.organizationId,
+        fixture.tariff.sender_id,
+        "+33100000000",
+        "{}",
+        1,
+        {
+          accountId: env.TELNYX_ACCOUNT_ID!,
+          connectionId: "123",
+          outboundProfileId: "456",
+        },
+        at(),
+      ),
+    ).rejects.toMatchObject({ code: "LIVE_PRICING_REQUIRED" });
+    env.TELNYX_API_KEY = undefined;
+    const unknown = await collect(fixture.ctx.organizationId, {
+      now: () => NOW + 2 * DAY + 1,
+    });
+    expect(unknown.freshnessChecksFailed).toBeGreaterThan(0);
+    expect(unknown.evaluations).toEqual([]);
   });
   it("covers the actual legacy fax fallback and suppresses it once v3 has ever owned its scope", async () => {
     const org = fixture.ctx.organizationId,

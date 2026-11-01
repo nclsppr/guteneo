@@ -53,6 +53,132 @@ const active = `SELECT g.organization_id FROM postal_setup_policy_generations g
  WHERE g.generation=(SELECT MAX(latest.generation) FROM postal_setup_policy_generations latest WHERE latest.organization_id=g.organization_id)
  AND (SELECT COUNT(*) FROM trusted_delivery_costs p WHERE p.organization_id=g.organization_id AND p.id IN (SELECT value FROM json_each(g.policy_ids_json)) AND p.status='qualified')=json_array_length(g.policy_ids_json)`;
 
+function canonicalTimestamp(value: unknown): value is string {
+  return (
+    typeof value === "string" &&
+    Number.isFinite(Date.parse(value)) &&
+    new Date(value).toISOString() === value
+  );
+}
+
+/** Migration 0036 retained price dates while recording a later window expansion. */
+async function legacyWindowGeneration(
+  db: D1Database,
+  generation: Row,
+  policies: Row[],
+  profile: Profile,
+): Promise<boolean> {
+  const auditPrefix = "audit_windows_";
+  if (
+    !["LU", "DE"].includes(profile.defaultCountry) ||
+    !["left", "right"].includes(profile.addressPosition) ||
+    !canonicalTimestamp(generation.created_at) ||
+    !canonicalTimestamp(generation.expires_at) ||
+    typeof generation.generation !== "number" ||
+    !Number.isSafeInteger(generation.generation) ||
+    generation.generation < 2 ||
+    typeof generation.audit_id !== "string" ||
+    !generation.audit_id.startsWith(auditPrefix) ||
+    policies.length !== 16
+  )
+    return false;
+  const parentAuditId = generation.audit_id.slice(auditPrefix.length);
+  const [parents, audits, parentAudits] = await db.batch([
+    db
+      .prepare(
+        "SELECT * FROM postal_setup_policy_generations WHERE organization_id=? AND generation=?",
+      )
+      .bind(generation.organization_id, generation.generation - 1),
+    db
+      .prepare("SELECT * FROM audit_log WHERE organization_id=? AND id=?")
+      .bind(generation.organization_id, generation.audit_id),
+    db
+      .prepare(
+        "SELECT id,resource_id FROM audit_log WHERE organization_id=? AND id=?",
+      )
+      .bind(generation.organization_id, parentAuditId),
+  ]);
+  const parent = parents.results[0] as Row | undefined;
+  const audit = audits.results[0] as Row | undefined;
+  const parentAudit = parentAudits.results[0] as Row | undefined;
+  if (
+    !parent ||
+    !audit ||
+    !parentAudit ||
+    parent.audit_id !== parentAuditId ||
+    parent.sender_id !== generation.sender_id ||
+    parent.profile_json !== generation.profile_json ||
+    parent.expires_at !== generation.expires_at ||
+    parentAudit.resource_id !== generation.sender_id ||
+    audit.action !== "postal.pricing.windows_extended" ||
+    audit.resource_id !== generation.sender_id ||
+    audit.user_id !== null ||
+    !canonicalTimestamp(parent.created_at) ||
+    !canonicalTimestamp(parent.expires_at) ||
+    !canonicalTimestamp(audit.created_at) ||
+    audit.created_at < parent.created_at ||
+    audit.created_at > generation.created_at ||
+    parent.created_at > generation.created_at
+  )
+    return false;
+  let parentIds: unknown;
+  try {
+    parentIds = JSON.parse(String(parent.policy_ids_json));
+    if (
+      canonicalJson(JSON.parse(String(audit.details_json))) !==
+      canonicalJson({
+        basis: "existing_qualified_calculator_policy",
+        humanConsentClaimed: false,
+        priceDatesExtended: false,
+      })
+    )
+      return false;
+  } catch {
+    return false;
+  }
+  if (
+    !Array.isArray(parentIds) ||
+    parentIds.length !== 8 ||
+    !parentIds.every((id): id is string => typeof id === "string") ||
+    new Set(parentIds).size !== 8
+  )
+    return false;
+  const expectedIds = parentIds.flatMap((id) => [id, "cost_window_" + id]);
+  if (
+    canonicalJson(expectedIds.sort()) !==
+    canonicalJson(policies.map((policy) => policy.id).sort())
+  )
+    return false;
+  for (const id of parentIds) {
+    const original = policies.find((policy) => policy.id === id);
+    const clone = policies.find((policy) => policy.id === "cost_window_" + id);
+    if (
+      !original ||
+      !clone ||
+      original.valid_from !== parent.created_at ||
+      original.expires_at !== parent.expires_at
+    )
+      return false;
+    try {
+      const options = JSON.parse(String(original.options_json));
+      if (options.addressPosition !== profile.addressPosition) return false;
+      const expected = {
+        ...original,
+        id: "cost_window_" + id,
+        options_json: canonicalJson({
+          ...options,
+          addressPosition:
+            profile.addressPosition === "left" ? "right" : "left",
+        }),
+      };
+      if (canonicalJson(clone) !== canonicalJson(expected)) return false;
+    } catch {
+      return false;
+    }
+  }
+  return true;
+}
+
 async function snapshot(
   env: Env,
   organizationId: string,
@@ -90,14 +216,7 @@ async function snapshot(
   const rows = policies.results as Row[];
   if (!eligibility.results.length || !declaration || !sender || !generation)
     return null;
-  if (
-    ![generation.created_at, generation.expires_at].every(
-      (value) =>
-        typeof value === "string" &&
-        Number.isFinite(Date.parse(value)) &&
-        new Date(value).toISOString() === value,
-    )
-  )
+  if (![generation.created_at, generation.expires_at].every(canonicalTimestamp))
     return null;
   let profile: Profile, ids: string[];
   try {
@@ -126,6 +245,11 @@ async function snapshot(
   if (
     rows.length !== options.length ||
     !options.every((option) => rows.some((row) => row.options_json === option))
+  )
+    return null;
+  if (
+    !rows.every((row) => row.valid_from === generation.created_at) &&
+    !(await legacyWindowGeneration(db, generation, rows, profile))
   )
     return null;
   for (const row of rows) {
@@ -158,7 +282,6 @@ async function snapshot(
       row.rate_denominator !== 1 ||
       row.quote_ttl_seconds !== 300 ||
       row.expires_at !== generation.expires_at ||
-      row.valid_from !== generation.created_at ||
       !/^[a-f0-9]{64}$/.test(String(row.source_sha256))
     )
       return null;

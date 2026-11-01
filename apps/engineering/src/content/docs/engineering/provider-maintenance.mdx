@@ -35,17 +35,29 @@ source's publication date or extending an unrelated authorization.
 
 The source-specific paths remain distinct:
 
-| Mechanism | Information actually consumed | Safe maintenance |
-| --- | --- | --- |
-| Live fax | Registered current Telnyx catalog, actual CSV/page bytes, ECB reference and exact provider ownership | Inspect genuine sources, preserve the existing route and page/cost limits, defer around outstanding commitments and retain the independent pilot deadline. |
-| Postal mail | Current sender declaration, provider account/currency/country/window and the latest calculator-policy generation | Check daily during the final seven days of the ninety-day qualification. Preparation can remain selected when final sending is disabled. Each letter still receives its own actual provider price and five-minute quote. |
-| Resend email | Selected automatic pricing qualification and the account sending-limit policy used at acceptance | Check daily and renew the technical qualification for thirty days only from sufficient real account/domain/usage and commercial evidence, with unchanged local limits and counters. A credential denied access to the required inspection cannot produce renewed evidence. |
-| Human route authority | Its actual independent end date | Warn before it ends. A technical source refresh cannot extend it. |
+| Mechanism             | Information actually consumed                                                                                    | Safe maintenance                                                                                                                                                                                                                                                           |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Live fax              | Registered current Telnyx catalog, actual CSV/page bytes, ECB reference and exact provider ownership             | Inspect genuine sources, preserve the existing route and page/cost limits, defer around outstanding commitments and retain the independent pilot deadline.                                                                                                                 |
+| Postal mail           | Current sender declaration, provider account/currency/country/window and the latest calculator-policy generation | Check daily during the final seven days of the ninety-day qualification. Preparation can remain selected when final sending is disabled. Each letter still receives its own actual provider price and five-minute quote.                                                   |
+| Resend email          | Selected automatic pricing qualification and the account sending-limit policy used at acceptance                 | Check daily and renew the technical qualification for thirty days only from sufficient real account/domain/usage and commercial evidence, with unchanged local limits and counters. A credential denied access to the required inspection cannot produce renewed evidence. |
+| Human route authority | Its actual independent end date                                                                                  | Warn before it ends. A technical source refresh cannot extend it.                                                                                                                                                                                                          |
 
 Historical `tariffDate` or `fxDate` fields do not acquire an invented lifetime.
 When a real parent policy has an expiry, the monitor follows that consumed
 deadline. The permanently unsendable review account's explicitly archived
 reference remains separate from live technical pricing.
+
+The 1.1.23 local candidate also recognizes the exact historical postal-window
+expansion from migration 0036. That migration preserved eight price windows and
+their eight opposite-window clones, then recorded a later generation. The
+compatibility requires its immediate predecessor, deterministic no-consent/no-date-extension
+audit and unchanged profile, sender, source, validity and clone fields. Ordinary
+generations retain their exact creation-clock requirement. No price, expiry,
+quote or authority is rewritten, and an unknown historical chain stays unknown.
+Only this historical path adds a bounded three-statement D1 read batch; hosted
+latency and billed rows have not been measured. An explicitly forbidden fax route
+still fails preparation and no longer supplies an unused price-expiry warning
+after its current binding is proven.
 
 ## Warn during the final twenty-four hours
 
@@ -67,6 +79,42 @@ The native operational alert uses the existing authorized destination and is
 independent of the email-delivery provider being inspected. Native alert
 aggregation and its reminder cadence remain distinct from the incident's
 idempotent database key. This is not an exactly-once email-delivery guarantee.
+
+A locally prepared stabilization keeps historical failures within one minute
+and reads freshness observations over five minutes in Manual SQL mode. A current
+explicit healthy freshness record is required for recovery: missing logs,
+ordinary HTTP success and completed Cron records cannot supply it. No qualified
+freshness coverage holds an alarm, as do malformed freshness observations. This
+avoids interpreting an ingestion gap as a resolved durable incident. Recovery
+waits until the last freshness failure leaves the five-minute window, then the
+next successful evaluation; ingestion and scheduling can add delay. The existing
+sixty-second execution/average, threshold, hourly reminders, destination and
+separate missing-heartbeat monitor remain unchanged. The plan changes only the
+query and its time-range mode, with no business or provider authority.
+
+This stabilization requires separate authorization, native SQL validation, saved
+configuration readback and actual observation. Local synthetic timelines do not
+establish its production activation or notification receipt.
+
+The event-time range is inclusive from evaluation minus five minutes through
+evaluation; future records supply neither health coverage nor early failures.
+Two exact legacy Automatic-mode dashboard queries can be recognized only with
+fresh proof of the authenticated account/dataset edit route, bound into the
+private plan. Unknown query or scope variants remain refused. The public guide
+does not disclose operator identities or private destinations.
+
+The five-minute lookback is five times the previous time span, with unchanged
+cadence and resource count. The query creates no application log events, but this
+does not establish unchanged cost. As of 31 October 2026, Cloudflare lists Workers
+Paid Logs at 20 million written events included per month, then $0.60 per extra
+million, shared at account level; its announced pricing changes on 1 December.
+See [Workers Logs pricing](https://developers.cloudflare.com/workers/observability/logs/workers-logs/).
+Log Explorer query responses provide no execution statistics in the
+[Query API](https://developers.cloudflare.com/analytics/sql-api/query-api/).
+Record native validation, observed query/evaluation latency and available billing
+evidence separately; no hosted CPU, memory, scan cost or notification-latency
+measurement is claimed for this local candidate.
+
 The [alerting contract](https://github.com/nclsppr/guteneo/blob/main/docs/FRESHNESS_ALERTING.md)
 owns deployment, monitor-plan review, deduplication and verification boundaries.
 
