@@ -425,10 +425,10 @@ export async function applyRegistrationPlan(
     fail("PLAN_INVALID");
   validateOwnership(inspection, plan.snapshot);
   validateCatalog(catalog, commitAt);
-  if (
-    catalog.rateDeckUrl !== plan.qualification.catalog.rateDeckUrl ||
-    catalog.sha256 !== plan.qualification.catalog.sha256
-  )
+  // The hash records the whole multi-catalog response, whose bytes can vary
+  // while the consumed selection is unchanged. Reviewed archive digests stay
+  // bound above; registration installs no price and renewal requires new reads.
+  if (catalog.rateDeckUrl !== plan.qualification.catalog.rateDeckUrl)
     fail("CATALOG_CHANGED");
   const mappings = mappingsFor(c);
   if (saved.source) {

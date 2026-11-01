@@ -1,13 +1,16 @@
 # Execution plan and handoff
 
-## Registration observation clock — 1 November 2026 corrective candidate
+## Registration validation — 1 November 2026 corrective candidate
 
 Production 1.1.25 and additive schema 0071 are verified independently: main CI
 24/24, public source-bound E2E 28/28, 346 public assets and all 133 application
 tables pass. The first technical FR/DE registration failed before writes because
 its current-catalog observation was compared with the command-start clock.
-Candidate 1.1.26 validates that observation against a fresh post-read clock while
-preserving all plan, ownership, source and final SQL-clock guards. Registration,
+Candidate 1.1.26 validates that observation against a fresh post-read clock and
+revalidates the exact selected catalog URL. Actual successful reads proved that
+the whole multi-catalog response hash can vary while that URL stays unchanged;
+that hash remains observation provenance. The reviewed source bytes, plan,
+ownership and final SQL-clock guards remain mandatory. Registration,
 genuine scheduled renewal and native alert recovery still require actual proof.
 
 ## France/Germany reference renewal — 1 November 2026 candidate

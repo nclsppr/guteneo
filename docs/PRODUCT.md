@@ -13,7 +13,7 @@ This is separate from the bounded Luxembourg pilot and from human approval of an
 individual fax. It activates no route, mandate, channel or communication and
 changes no financial hold. Runtime publication and schema are verified; technical
 registration and genuine renewal remain unqualified. Candidate 1.1.26 corrects
-the registration tool's observation-clock comparison without changing these
+the registration tool's observation-clock and selected-catalog comparisons without changing these
 product permissions. See [the contract](FAX_EEA_REFERENCE_MAINTENANCE.md).
 
 ## Native alert recovery — 1 November 2026 production 1.1.24

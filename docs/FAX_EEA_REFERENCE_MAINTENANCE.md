@@ -32,6 +32,17 @@ the freshly observed catalog against the clock after those reads and retains
 plan-expiry and final SQL-clock guards. No source date or permitted lifetime is
 advanced to work around that error.
 
+A subsequent attempt stopped before writes with `CATALOG_CHANGED`. Two successful
+read-only observations at 08:07 UTC then returned the exact same selected
+`global_conversational` CSV URL with different hashes of the entire multi-catalog
+JSON response. The candidate revalidates that exact selected URL after a fresh
+successful authenticated catalog read. The whole-response hash remains
+observation provenance; registration pins the exact selected catalog URL.
+Archived CSV/page/FX bytes remain bound to the
+reviewed digest, and registration still creates no price. The first scheduled
+renewal must independently obtain current source bytes before fourteen-or-zero
+replacement.
+
 ## Exact evidence and prefix rules
 
 A scheduled attempt resolves the current Global Conversational catalog with the
