@@ -175,6 +175,14 @@ does not establish production physical integrity. The
 [D1 migration proof](D1_MIGRATION.md#local-sourcetransport-integrity-protocol--1-november-2026-candidate)
 owns the protocol and independent hosted readback boundary.
 
+Populated legacy migration fixtures use `tests/helpers/d1-integrity.ts` to retain
+exhaustive D1 checks at each assertion and native global integrity on the same
+persisted file after the last mutation and disposal. The strict helper separates
+the two-role `migration_pair` proof from the one-role `isolated_fixture` proof;
+callers validate the returned kind. No CHECK constraint is removed. An absent or
+empty WAL permits immutable identity selection; nonempty WAL always requires a
+WAL-aware read, and final file/digest checks remain strict.
+
 Hosted sign-in browser fixtures intercept the fixed Auth0 entry request and
 explicitly abort that navigation. This preserves the current document for
 pending/repeat-click/recovery assertions without contacting Auth0. A fulfilled

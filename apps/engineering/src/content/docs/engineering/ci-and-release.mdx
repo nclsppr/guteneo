@@ -75,6 +75,13 @@ owns the exact phases and hosted readback boundary; this candidate still needs a
 complete exact-source CI result. Applied migrations are not rewritten for this
 resource limit.
 
+Populated migration fixtures retain exhaustive D1 checks at each assertion and
+the native global proof on their exact persisted file after the final mutation
+and disposal. The helper requires two named roles for a migration pair or one
+`fixture` role for an isolated fixture, and callers validate its explicit output
+kind. Immutable identity selection is allowed only with an absent or empty WAL;
+nonempty WAL still requires WAL-aware reading. No CHECK constraint is removed.
+
 The [first optimized hosted full run on 30 October](https://github.com/nclsppr/guteneo/actions/runs/41034945110)
 passed all 24 jobs in 14 min 20 s, using 96 min 23 s of cumulative runner execution
 versus the preceding reviewed run's 103 min 55 s, a 7.25% reduction. The static

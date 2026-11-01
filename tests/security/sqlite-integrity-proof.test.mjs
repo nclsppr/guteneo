@@ -93,7 +93,7 @@ function fixture(options = {}) {
     String.raw`
 import hashlib,json,os,pathlib,sqlite3,sys
 value=json.load(sys.stdin);root=pathlib.Path(value['root']);expected=[];connections=[]
-for role in ['original','transport','metadata']:
+for role in value.get('roles',['original','transport'])+['metadata']:
  path=root/'d1'/('framework/metadata.sqlite' if role=='metadata' else 'data-'+role+'.sqlite')
  path.parent.mkdir(parents=True,exist_ok=True);db=sqlite3.connect(str(path));connections.append(db)
  if value.get('wal'):
@@ -118,6 +118,7 @@ for db in connections:db.close()
   );
   return {
     version: 1,
+    ...(options.kind ? { kind: options.kind } : {}),
     root,
     nonce,
     expected,
@@ -143,6 +144,7 @@ test("proves exact complete SQLite files, Unicode schema hashes and metadata wit
   assert.equal(result.stderr, "");
   const proof = JSON.parse(result.stdout);
   assert.equal(proof.version, 1);
+  assert.equal(proof.kind, "migration_pair");
   assert.equal(proof.status, "passed");
   assert.match(proof.sqliteVersion, /^\d+\.\d+\.\d+$/);
   assert.equal(proof.metadataFiles, 1);
@@ -178,11 +180,42 @@ test("identifies every committed WAL before checkpointing and proves the same da
   }
   for (const path of Object.keys(files(value.root)))
     if (path.endsWith("-wal")) assert.equal(statSync(path).size, 0);
+  // SQLite versions may remove these empty sidecars when the final writable
+  // connection closes. Recreate that state explicitly on every test platform.
+  for (const { path } of before) {
+    rmSync(path + "-wal", { force: true });
+    rmSync(path + "-shm", { force: true });
+  }
   const final = files(value.root);
-  assert.equal(invoke(value).status, 0);
-  for (const path of Object.keys(final))
-    if (!path.endsWith("-shm"))
-      assert.equal(files(value.root)[path], final[path]);
+  const repeated = invoke(value);
+  assert.equal(repeated.status, 0, repeated.stderr);
+  for (const { path } of before)
+    assert.equal(files(value.root)[path], final[path]);
+  for (const path of Object.keys(files(value.root)))
+    if (path.endsWith("-wal")) assert.equal(statSync(path).size, 0);
+});
+
+test("selection permits empty sidecar lifecycle while protecting every nonempty WAL and database fingerprint", () => {
+  python(
+    String.raw`
+import json,runpy,sys
+value=json.load(sys.stdin);guard=runpy.run_path(value['checker'])['selected_data']
+base=(1,2,384,4096,1,1,'isolated-base-hash')
+empty=(1,3,384,0,1,1,'isolated-empty-hash')
+pending=(1,3,384,100,1,1,'isolated-pending-hash')
+before={'one.sqlite':base}
+assert guard(before,['one.sqlite'])==guard({**before,'one.sqlite-wal':empty},['one.sqlite'])
+for changed in [
+ {'one.sqlite':(1,2,384,4096,1,1,'changed-base-hash')},
+ {**before,'one.sqlite-wal':pending},
+]:assert guard(before,['one.sqlite'])!=guard(changed,['one.sqlite'])
+with_pending={**before,'one.sqlite-wal':pending}
+for changed in [before,{**before,'one.sqlite-wal':empty},{**before,'one.sqlite-wal':(1,3,384,100,1,1,'changed-wal-hash')}]:
+ assert guard(with_pending,['one.sqlite'])!=guard(changed,['one.sqlite'])
+print('null')
+`,
+    { checker },
+  );
 });
 
 test("rejects ambiguous roles before any checkpoint", () => {
@@ -310,6 +343,36 @@ test("fails closed on missing roles, weak root permissions and malformed input",
   failure({ ...value, unexpected: true }, "INPUT_INVALID");
   failure('{"version":1,"version":1}', "INPUT_INVALID");
   failure({ ...value, version: true }, "INPUT_INVALID");
+  failure({ ...value, kind: "isolated_fixture" }, "INPUT_INVALID");
+  failure({ ...value, kind: "unknown" }, "INPUT_INVALID");
+});
+
+test("accepts one explicitly isolated fixture without weakening the default migration pair", () => {
+  const value = fixture({
+    kind: "isolated_fixture",
+    roles: ["fixture"],
+    wal: true,
+  });
+  failure({ ...value, kind: "migration_pair" }, "INPUT_INVALID");
+  const noKind = { ...value };
+  delete noKind.kind;
+  failure(noKind, "INPUT_INVALID");
+  const result = invoke(value);
+  assert.equal(result.status, 0, result.stderr);
+  const proof = JSON.parse(result.stdout);
+  assert.deepEqual(
+    proof.databases.map(({ role }) => role),
+    ["fixture"],
+  );
+  assert.equal(proof.kind, "isolated_fixture");
+  assert.equal(proof.hostQueryOnlyConstraintsVerified, true);
+  assert.equal(proof.metadataFiles, 1);
+  const pair = fixture({ kind: "migration_pair" });
+  const paired = invoke(pair);
+  assert.equal(paired.status, 0, paired.stderr);
+  const pairProof = JSON.parse(paired.stdout);
+  assert.equal(pairProof.kind, "migration_pair");
+  assert.equal(pairProof.databases.length, 2);
 });
 
 test("a busy checkpoint fails closed and emits no proof", async () => {

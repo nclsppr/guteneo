@@ -31,8 +31,13 @@ check through the following phases:
    native Python helper first opens **all** existing database files read-only with
    WAL support, including framework metadata, and identifies the exact two proof
    databases from nonce, role, schema and table list rather than trusting
-   filenames. It rejects ambiguous or foreign databases, symlinks, invalid
-   ownership and unexpected persistence files before any checkpoint. Between the
+   filenames. Selection uses WAL-aware `mode=ro` for every nonempty WAL;
+   only an absent or empty WAL permits an immutable read. This avoids SQLite
+   builds returning `CANTOPEN` when a previous checkpoint removed empty sidecars.
+   Database inodes/digests and every nonempty WAL remain protected; the final
+   immutable inventory comparison is unchanged. It rejects ambiguous or foreign
+   databases, symlinks, invalid ownership and unexpected persistence files before
+   any checkpoint. Between the
    identification and final proof, use only the already existing local files;
    there is no export or database reconstruction.
 4. After **all** identities have passed read-only selection, open each existing
@@ -65,6 +70,17 @@ database. CHECK constraints remain enabled in both engines; no migration is
 rewritten to fit the compiler budget. The temporary files are removed after the
 proof. Python 3 with its standard-library SQLite module is a local/CI dependency;
 missing support fails rather than skipping integrity verification.
+
+The helper defaults to `kind: "migration_pair"` when omitted and still requires
+exactly the `original` and `transport` roles; an explicit migration-pair request
+has the same requirement. `kind: "isolated_fixture"` instead requires exactly one
+`fixture` role, and every caller validates the explicit output kind. The populated
+fax-pilot, live-delivery-quote and postal-window tests use
+`tests/helpers/d1-integrity.ts`: every original integrity assertion still checks
+all application tables and foreign keys through D1, then the final hook disposes
+Miniflare and proves the exact persisted fixture file globally after the last
+test mutation. Neither mode removes a CHECK constraint, skips the native global
+proof or infers anything about production integrity.
 
 This candidate protocol still requires its complete exact-source CI result.
 Successful local or CI output establishes only the source/transport fixture

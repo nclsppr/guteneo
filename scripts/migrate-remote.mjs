@@ -289,6 +289,7 @@ export async function verifyTransport(includeSchema = false) {
     if (
       physical.version !== 1 ||
       physical.status !== "passed" ||
+      physical.kind !== "migration_pair" ||
       physical.checkpointedBeforeReadOnly !== true ||
       physical.hostQueryOnlyConstraintsVerified !== true ||
       physical.databases?.length !== 2 ||

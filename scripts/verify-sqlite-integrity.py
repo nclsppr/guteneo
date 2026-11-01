@@ -100,7 +100,14 @@ def read_input():
     except (ValueError, UnicodeError, RecursionError):
         raise ProofFailure("INPUT_INVALID") from None
     require(type(value) is dict, "INPUT_INVALID")
-    require(set(value) == {"version", "root", "nonce", "expected"}, "INPUT_INVALID")
+    required = {"version", "root", "nonce", "expected"}
+    require(set(value) in (required, required | {"kind"}), "INPUT_INVALID")
+    kind = value.get("kind", "migration_pair")
+    require(
+        type(kind) is str and kind in ("migration_pair", "isolated_fixture"),
+        "INPUT_INVALID",
+    )
+    roles = ("fixture",) if kind == "isolated_fixture" else ROLES
     require(type(value["version"]) is int and value["version"] == 1, "INPUT_INVALID")
     require(text(value["root"], 8192), "INPUT_INVALID")
     require(
@@ -109,7 +116,7 @@ def read_input():
         "INPUT_INVALID",
     )
     expected = value["expected"]
-    require(type(expected) is list and len(expected) == 2, "INPUT_INVALID")
+    require(type(expected) is list and len(expected) == len(roles), "INPUT_INVALID")
     by_role = {}
     for item in expected:
         require(type(item) is dict, "INPUT_INVALID")
@@ -118,7 +125,7 @@ def read_input():
             "INPUT_INVALID",
         )
         role = item["role"]
-        require(type(role) is str and role in ROLES and role not in by_role, "INPUT_INVALID")
+        require(type(role) is str and role in roles and role not in by_role, "INPUT_INVALID")
         require(
             type(item["schemaSha256"]) is str
             and re.fullmatch(r"[0-9a-f]{64}", item["schemaSha256"]),
@@ -141,8 +148,8 @@ def read_input():
         require(tables == sorted(tables) and len(set(tables)) == len(tables), "INPUT_INVALID")
         require(MARKER in tables, "INPUT_INVALID")
         by_role[role] = item
-    require(set(by_role) == set(ROLES), "INPUT_INVALID")
-    return value, by_role
+    require(set(by_role) == set(roles), "INPUT_INVALID")
+    return value, by_role, roles
 
 
 def validate_root(value):
@@ -291,36 +298,58 @@ def check_database(path, nonce, expected, immutable=True, prepare=False):
         raise ProofFailure("DATABASE_INVALID") from None
 
 
-def classified(root, database_files, nonce, expected, immutable, prepare=False):
+def classified(
+    root, database_files, nonce, expected, immutable, prepare=False,
+    selection_files=None,
+):
     roles = {}
     metadata = 0
     for name in database_files:
-        role = check_database(root / name, nonce, expected, immutable, prepare)
+        read_immutable = immutable
+        if selection_files is not None:
+            wal = selection_files.get(name + "-wal")
+            # No committed WAL pages exist in this verified snapshot. Some
+            # SQLite builds cannot open WAL-mode files read-only without their
+            # empty sidecars; immutable reads avoid creating those sidecars.
+            read_immutable = not (wal and wal[3])
+        role = check_database(root / name, nonce, expected, read_immutable, prepare)
         if role is None:
             metadata += 1
             continue
         require(role not in roles, "DATABASE_AMBIGUOUS")
         roles[role] = name
-    require(set(roles) == set(ROLES), "DATABASE_AMBIGUOUS")
+    require(set(roles) == set(expected), "DATABASE_AMBIGUOUS")
     return roles, metadata
 
 
+def selected_data(files, database_files):
+    shared_memory = {name + "-shm" for name in database_files}
+    wal_files = {name + "-wal" for name in database_files}
+    # SQLite's read-only selection may create/remove an empty WAL or maintain
+    # its disposable shared-memory index. Nonempty WAL pages and every database
+    # inode/hash remain protected. The final immutable-phase inventory is strict.
+    return {
+        name: info for name, info in files.items()
+        if name not in shared_memory and not (name in wal_files and info[3] == 0)
+    }
+
+
 def main():
-    value, expected = read_input()
+    value, expected, roles = read_input()
     root = validate_root(value["root"])
     initial = inventory(root, allow_wal=True)
     database_files = [name for name in initial if name.endswith(".sqlite")]
-    require(2 <= len(database_files) <= MAX_FILES, "DATABASE_AMBIGUOUS")
+    require(len(expected) <= len(database_files) <= MAX_FILES, "DATABASE_AMBIGUOUS")
     selected, metadata = classified(
         root, database_files, value["nonce"], expected, immutable=False,
+        selection_files=initial,
     )
     after_selection = inventory(root, allow_wal=True)
-    # WAL-aware readers may maintain SQLite's disposable shared-memory index;
-    # neither database bytes nor committed WAL pages may change during selection.
-    data = lambda files: {
-        name: info for name, info in files.items() if not name.endswith("-shm")
-    }
-    require(data(after_selection) == data(initial), "FILE_CHANGED")
+    require(
+        selected_data(after_selection, database_files)
+        == selected_data(initial, database_files),
+        "FILE_CHANGED",
+    )
     validate_root(value["root"])
     # SQLite can omit CHECK expressions on an actual read-only connection even
     # with ignore_check_constraints=0. All files have already been identified;
@@ -345,7 +374,7 @@ def main():
     )
     require(proven == selected and metadata_after == metadata, "FILE_CHANGED")
     databases = []
-    for role in ROLES:
+    for role in roles:
         name = proven[role]
         databases.append({
             "role": role,
@@ -358,6 +387,7 @@ def main():
     validate_root(value["root"])
     return {
         "version": 1,
+        "kind": value.get("kind", "migration_pair"),
         "status": "passed",
         "sqliteVersion": sqlite3.sqlite_version,
         "databases": databases,
