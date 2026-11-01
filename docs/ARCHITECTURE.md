@@ -1,9 +1,29 @@
 # Architecture
 
-## Native alert recovery — 1 November 2026 candidate
+## Registered FR/DE fax-reference group — 1 November 2026 candidate
+
+Additive migration 0071 introduces immutable fourteen-anchor/four-exclusion sets,
+lease/backoff state, tariff provenance and append-only renewal evidence. A private
+operator plan registers only existing live provider-verified bindings. The existing
+scheduler calls `refreshVerifiedFaxReferences`; a started FR/DE network group
+defers LU until a later invocation. This is an invocation budget, not a global
+isolate lock. Missing schema reports a control
+failure while unrelated safe outbox work continues. No LU registration or parser
+contract is broadened and no public product configuration surface is added.
+
+A bounded EEA parser checks the full current CSV once for all fourteen scopes,
+including every applicable sub-prefix. Current ownership, page-fee and rational
+FX evidence precede one exact-predecessor transaction. Lease/binding drift or any
+active quote/queued/submitting/unknown commitment prevents the group replacement.
+A successful transaction inserts fourteen new immutable revisions and preserves
+all exclusions and historical quote fingerprints. The
+[dedicated contract](FAX_EEA_REFERENCE_MAINTENANCE.md) owns tables, source meaning,
+actor permissions, failure behavior and local/hosted proof boundaries.
+
+## Native alert recovery — 1 November 2026 production 1.1.24
 
 Production 1.1.23 corrects forbidden-route and historical-postal inspection.
-The 1.1.24 candidate projects paired numeric alert markers after closed-field
+Production 1.1.24 projects paired numeric alert markers after closed-field
 validation, because the native SQL parser rejects conditional JSON aggregates.
 The reviewed native fallback uses Automatic mode and a 300-second execution
 interval: its supplied five-minute window retains both original and freshness
@@ -11,11 +31,12 @@ failures and requires classified healthy evidence for recovery. Original failure
 retention increases from one to five minutes; nominal detection waits for the next
 five-minute cycle, plus external scheduling/ingestion/delivery delays. The separate
 minute heartbeat, destination, threshold and hourly reminders remain unchanged.
-Deploy and verify marker coverage before changing the monitor. No quote, consent,
+The runtime and final saved native configuration were verified on 1 November;
+that observation does not qualify every provider renewal or a new email receipt.
+No quote, consent,
 provider authority, immutable deadline, send gate or missing source proof is
 extended. Resend still needs an independently authorized inspection key.
 See [the alert contract](FRESHNESS_ALERTING.md).
-
 
 ## Consumed provider deadlines — 30 October 2026 candidate
 

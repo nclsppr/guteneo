@@ -1,9 +1,25 @@
 # Execution plan and handoff
 
-## Native alert recovery — 1 November 2026 candidate
+## France/Germany reference renewal — 1 November 2026 candidate
+
+The authorized corrective work now targets durable maintenance of the existing
+fourteen provider-verified FR/DE routes, not a one-time date import. The 1.1.25
+candidate adds an explicitly registered immutable group with four preserved
+exclusions, a single current-catalog CSV read, daily scheduling and at most
+seven-day technical qualification. Exact evidence, predecessor/lease/binding
+checks and group-wide quote deferral fence fourteen-or-zero replacement. No
+route, authority, quote, consent, credit or send is created or extended.
+
+Validate compatible runtime and additive empty migration 0071 before registering
+or refreshing production. The exact code/schema order follows compatibility
+review; do not assume a quote-hash migration. Registration, actual scheduled
+renewal, native alert recovery and real delivery require separate evidence.
+See [the group contract](FAX_EEA_REFERENCE_MAINTENANCE.md).
+
+## Native alert recovery — 1 November 2026 production 1.1.24
 
 Production 1.1.23 corrects forbidden-route and historical-postal inspection.
-The 1.1.24 candidate projects paired numeric alert markers after closed-field
+Production 1.1.24 projects paired numeric alert markers after closed-field
 validation, because the native SQL parser rejects conditional JSON aggregates.
 The reviewed native fallback uses Automatic mode and a 300-second execution
 interval: its supplied five-minute window retains both original and freshness
@@ -11,11 +27,12 @@ failures and requires classified healthy evidence for recovery. Original failure
 retention increases from one to five minutes; nominal detection waits for the next
 five-minute cycle, plus external scheduling/ingestion/delivery delays. The separate
 minute heartbeat, destination, threshold and hourly reminders remain unchanged.
-Deploy and verify marker coverage before changing the monitor. No quote, consent,
+The runtime and final saved native configuration were verified on 1 November;
+that observation does not qualify every provider renewal or a new email receipt.
+No quote, consent,
 provider authority, immutable deadline, send gate or missing source proof is
 extended. Resend still needs an independently authorized inspection key.
 See [the alert contract](FRESHNESS_ALERTING.md).
-
 
 ## Cross-provider freshness — 30 October 2026 local candidate
 

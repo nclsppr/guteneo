@@ -13,11 +13,18 @@ The legacy native extension produced triggered/resolved notifications, which did
 not establish recovery of the underlying incidents. PR #131 merged the 1.1.23 compatibility changes as
 `afedd099081099fa83bf6bd9edaf6dcabacbea03`, published on 1 November. Read-only
 checks observed the active postal binding and four additional inactive forbidden
-fax-route bindings, without pending or unknown business sends. The 1.1.24 server-marker/SQL stabilization is a separate
-**local candidate**. Native editor attempts rejected conditional JSON aggregates
-and expressions deeper than ten levels. The editor also rejected explicit
-timestamps under its request-bound range and exposed no Manual selector; no
-attempted replacement was saved. Authenticated
+fax-route bindings, without pending or unknown business sends. Production 1.1.24 and the final Automatic/300-second native monitor configuration
+were deployed and verified on 1 November. Earlier conditional-JSON, parser-depth,
+timestamp and integer/Float64 probes remain failed or narrowly scoped historical
+observations; the final saved configuration is a separate success. No new email
+receipt, Resend qualification or FR/DE renewal follows from that publication.
+
+The 1.1.25 [FR/DE reference-group candidate](FAX_EEA_REFERENCE_MAINTENANCE.md)
+adds daily genuine renewal of an exact existing fourteen-route group, preserving
+four more-specific exclusions. Its registration, migration, genuine scheduled
+replacement and resulting incident recovery remain unqualified.
+
+Authenticated
 Resend renewal is still unqualified: the existing inspection returns
 `READ_NOT_PERMITTED` at `domain`. Installing an existing separately authorized
 inspection key uses `node scripts/secure-setup.mjs resend-readiness`; it writes
@@ -34,11 +41,18 @@ quote or message: an explicitly configured first use also needs protection.
 
 | Mechanism                                  | Consumed deadline                                                                                                                | Maintenance and boundary                                                                                                                                                                                                                                                                     |
 | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Registered sendable fax                    | Current `trusted_fax_usage_tariffs.expires_at`, capped by the registration's independent `authorization_expires_at`              | Genuine daily current-catalog discovery, official fax fee, selected CSV, ECB and provider-ownership reads create a new immutable revision with at most 168-hour validity. The route authority is never extended.                                                                             |
+| Registered Luxembourg pilot fax            | Current `trusted_fax_usage_tariffs.expires_at`, capped by the registration's independent `authorization_expires_at`              | Genuine daily current-catalog discovery, official fax fee, selected CSV, ECB and provider-ownership reads create a new immutable revision with at most 168-hour validity. The route authority is never extended.                                                                             |
 | Pingen preparation                         | Latest exact `postal_setup_policy_generations.expires_at` and its qualified `trusted_delivery_costs` rows                        | Within seven days of expiry, reinspect the same account's country, EUR billing currency and address window; install a new **90-day** generation only if the complete binding still matches. The prepared-letter calculator supplies each actual price.                                       |
 | Automatic Resend tariff                    | `resend_policy_refresh_state.qualified_until` after successful maintenance; otherwise the legacy `RESEND_TARIFF_QUALIFIED_UNTIL` | Daily genuine domain, public-price and ECB reads qualify a **30-day** pricing snapshot; selected sending limits also require real usage capacity. Automatic setup/renewal uses it without rewriting old price rows. A replacing manual policy makes the unused automatic setting irrelevant. |
 | Resend account limits                      | `resend_send_limit_policies.expires_at_ms`, with `qualified_at_ms <= now`                                                        | The same complete reads may renew technical evidence while preserving the exact account ID, daily/monthly caps and submission interval. Global reservations and unknown outcomes remain intact.                                                                                              |
 | Other current manual delivery/fax policies | The deadline actually enforced by their quote resolver                                                                           | Monitor as operator-maintained; never convert them into automatic sources or change their dates.                                                                                                                                                                                             |
+
+The separate registered FR/DE candidate consumes the current revisions of its
+fourteen existing provider-verified scopes, with at most seven-day validity.
+It preserves four more-specific exclusions and replaces the complete group only
+from new verified source evidence. Unregistered manual rows retain operator
+maintenance; no general automatic conversion is implied. See the
+[group contract](FAX_EEA_REFERENCE_MAINTENANCE.md).
 
 The Pingen consumer is **preparation**, selected by its production draft-transfer
 configuration and current enabled sender/setup. Cutting final live sending alone
@@ -154,7 +168,7 @@ The separate `freshness` observation emits `FRESHNESS_AT_RISK` for risk/expiry a
 stop unrelated safe outbox work. Only coarse counters and closed codes reach logs;
 no content, recipients, business IDs, tokens or private source bodies do.
 
-The 1.1.24 candidate projects numeric `alertClass` and `alertFailure` markers
+The deployed 1.1.24 implementation projects numeric `alertClass` and `alertFailure` markers
 from closed server observations. Classes distinguish ordinary records, original
 failures, qualified healthy freshness and failed/unknown freshness. Its shallow
 SQL aggregates the failure marker directly under Automatic mode, whose proposed
@@ -171,9 +185,9 @@ hourly reminders, destination and the separate minute heartbeat stay unchanged.
 Application security, consent, price and sending gates are unaffected.
 
 Deploy and verify marker-bearing observations for five minutes before applying
-the reviewed query and interval. The plan is local/read-only; native parser
-validation, saved readback, provider renewal and notification receipt remain
-separate and pending. The path does not rely on the Resend account being
+the reviewed query and interval. The plan tool remains local/read-only. Runtime publication and the final native
+saved readback were verified on 1 November; provider renewal and notification
+receipt retain their separate proof requirements. The path does not rely on the Resend account being
 inspected. Incident idempotency does not promise exactly one provider email.
 See [freshness alerting](FRESHNESS_ALERTING.md) for the exact marker, scope,
 rollout, cadence and validation contract.

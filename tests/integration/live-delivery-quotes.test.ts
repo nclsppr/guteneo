@@ -1,4 +1,8 @@
 import { readBelvedereFixture } from "../helpers/belvedere-reader";
+import {
+  createD1IntegrityFixture,
+  type D1IntegrityFixture,
+} from "../helpers/d1-integrity";
 import type {
   BelvedereWorkshopDetail,
   BelvedereFinance,
@@ -38,6 +42,7 @@ let mf: Miniflare,
   ctx: ActorContext,
   clock: number;
 let postalSupplierMinor: number;
+let integrity: D1IntegrityFixture | undefined;
 const identity = {
   email: { accountId: "123456789012", routeId: "eu-west-1" },
   postal: { accountId: "pingen-fixture", routeId: "pingen-fixture" },
@@ -119,8 +124,10 @@ async function sql(source: string) {
   if (statements.length) await db.batch(statements);
 }
 beforeAll(async () => {
+  integrity = await createD1IntegrityFixture();
   mf = new Miniflare(
     convertV4MiniflareOptions({
+      resourcePersistencePath: integrity.persistencePath,
       modules: true,
       script: 'export default {fetch(){return new Response("ok")}}',
       d1Databases: ["DB"],
@@ -313,7 +320,7 @@ beforeAll(async () => {
       ),
     ),
     foreignKeys: (await db.prepare("PRAGMA foreign_key_check").all()).results,
-    quickCheck: await db.prepare("PRAGMA quick_check").first(),
+    quickCheck: await integrity.check(db),
   };
   await sql(
     readFileSync(new URL("0060_pdf_validation_per_check.sql", dir), "utf8"),
@@ -326,7 +333,8 @@ beforeAll(async () => {
   );
 });
 afterAll(async () => {
-  await mf?.dispose();
+  if (integrity && mf && db) await integrity.dispose(mf, db);
+  else await mf?.dispose();
 });
 async function qualify(
   channel: "email" | "postal",

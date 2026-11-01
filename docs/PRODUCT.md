@@ -1,9 +1,23 @@
 # Guteneo product contract
 
-## Native alert recovery — 1 November 2026 candidate
+## Maintained France/Germany fax references — 1 November 2026 candidate
+
+The 1.1.25 candidate maintains only the fourteen exact FR/DE fixed-line routes
+already provider-verified for the registered tenant, sender and provider binding.
+Four more-specific exclusions remain forbidden. Daily genuine account/catalog,
+page-fee and FX inspection can produce at most seven-day technical revisions;
+new or ambiguous sub-prefixes fail the complete group. An active commitment
+defers fourteen-or-zero replacement, preserving old prices and approvals.
+
+This is separate from the bounded Luxembourg pilot and from human approval of an
+individual fax. It activates no route, mandate, channel or communication and
+changes no financial hold. Deployment, registration and genuine renewal remain
+unqualified for this candidate. See [the contract](FAX_EEA_REFERENCE_MAINTENANCE.md).
+
+## Native alert recovery — 1 November 2026 production 1.1.24
 
 Production 1.1.23 corrects forbidden-route and historical-postal inspection.
-The 1.1.24 candidate projects paired numeric alert markers after closed-field
+Production 1.1.24 projects paired numeric alert markers after closed-field
 validation, because the native SQL parser rejects conditional JSON aggregates.
 The reviewed native fallback uses Automatic mode and a 300-second execution
 interval: its supplied five-minute window retains both original and freshness
@@ -11,11 +25,12 @@ failures and requires classified healthy evidence for recovery. Original failure
 retention increases from one to five minutes; nominal detection waits for the next
 five-minute cycle, plus external scheduling/ingestion/delivery delays. The separate
 minute heartbeat, destination, threshold and hourly reminders remain unchanged.
-Deploy and verify marker coverage before changing the monitor. No quote, consent,
+The runtime and final saved native configuration were verified on 1 November;
+that observation does not qualify every provider renewal or a new email receipt.
+No quote, consent,
 provider authority, immutable deadline, send gate or missing source proof is
 extended. Resend still needs an independently authorized inspection key.
 See [the alert contract](FRESHNESS_ALERTING.md).
-
 
 ## Consumed provider deadlines — 30 October 2026 candidate
 

@@ -46,6 +46,111 @@ const sourceQueries: Record<Mechanism, string> = {
   delivery_manual:
     "SELECT organization_id,id AS target_id FROM trusted_delivery_costs WHERE NOT EXISTS(SELECT 1 FROM postal_setup_policy_generations g,json_each(g.policy_ids_json) p WHERE g.organization_id=trusted_delivery_costs.organization_id AND p.value=trusted_delivery_costs.id)",
 };
+// Mapped predecessors need one final observation only while their existing
+// operational binding is active. Unmapped manual history retains its contract.
+const mappedFaxManualQuery =
+  "SELECT t.organization_id,t.id AS target_id FROM trusted_fax_usage_tariffs t WHERE t.execution_scope='live' AND t.route_qualification='provider_verified' AND (t.status='qualified' OR NOT EXISTS(SELECT 1 FROM verified_fax_reference_tariffs m WHERE m.organization_id=t.organization_id AND m.tariff_id=t.id) OR EXISTS(SELECT 1 FROM verified_fax_reference_tariffs m JOIN provider_freshness_bindings b ON b.organization_id=m.organization_id AND b.family='fax_tariff' AND b.binding_sha256=m.binding_sha256 AND b.active=1 WHERE m.organization_id=t.organization_id AND m.tariff_id=t.id))";
+
+/** The additive registry may be absent during the runtime-first rollout. */
+async function mappedFaxReferencesAvailable(db: D1Database): Promise<boolean> {
+  const objects = await db
+    .prepare(
+      "SELECT name,type FROM sqlite_schema WHERE (name IN ('verified_fax_reference_sets','verified_fax_reference_tariffs') AND type='table') OR (name='valid_verified_fax_reference_sets' AND type='view')",
+    )
+    .all<{ name: string; type: string }>();
+  if (objects.results.length === 0) return false;
+  if (objects.results.length !== 3)
+    throw new Error("FRESHNESS_REFERENCE_SCHEMA_INCOMPLETE");
+  return true;
+}
+
+type ReferenceSetCache = Map<string, Promise<Row | null>>;
+const renewedFaxFields = new Set([
+  "id",
+  "status",
+  "page_nano_usd",
+  "minute_nano_usd",
+  "fx_numerator",
+  "fx_denominator",
+  "fx_date",
+  "fx_source",
+  "source_reference",
+  "source_sha256",
+  "valid_from",
+  "expires_at",
+  "created_at",
+]);
+
+async function faxReferenceMode(
+  db: D1Database,
+  target: Target,
+  current: Row,
+  bindingSha256: string,
+  cache: ReferenceSetCache,
+): Promise<"automatic" | "operator" | null> {
+  const mappings = await db
+    .prepare(
+      "SELECT set_id,binding_sha256 FROM verified_fax_reference_tariffs WHERE organization_id=? AND tariff_id=?",
+    )
+    .bind(target.organization_id, target.target_id)
+    .all<{ set_id: string; binding_sha256: string }>();
+  if (!mappings.results.length) return "operator";
+  if (
+    mappings.results.length !== 1 ||
+    mappings.results[0].binding_sha256 !== bindingSha256
+  )
+    return null;
+  const setId = mappings.results[0].set_id;
+  const cacheKey = canonicalJson([target.organization_id, setId]);
+  let pending = cache.get(cacheKey);
+  if (!pending) {
+    pending = db
+      .prepare(
+        "SELECT s.*,EXISTS(SELECT 1 FROM valid_verified_fax_reference_sets valid WHERE valid.organization_id=s.organization_id AND valid.id=s.id) AS valid_set FROM verified_fax_reference_sets s WHERE s.organization_id=? AND s.id=?",
+      )
+      .bind(target.organization_id, setId)
+      .first<Row>();
+    cache.set(cacheKey, pending);
+  }
+  const selected = await pending;
+  if (!selected) return null;
+  if (selected.status === "revoked") return "operator";
+  if (
+    selected.status !== "active" ||
+    selected.valid_set !== 1 ||
+    selected.organization_id !== target.organization_id ||
+    [
+      "sender_id",
+      "account_id",
+      "connection_id",
+      "outbound_profile_id",
+      "options_json",
+    ].some((key) => selected[key] !== current[key]) ||
+    typeof current.sender_address !== "string" ||
+    (await sha256(current.sender_address)) !== selected.sender_address_sha256
+  )
+    return null;
+  let anchors: unknown;
+  try {
+    anchors = JSON.parse(String(selected.bindings_json));
+  } catch {
+    return null;
+  }
+  if (!Array.isArray(anchors) || anchors.length !== 14) return null;
+  const matches = anchors.filter(
+    (anchor): anchor is Row =>
+      !!anchor &&
+      typeof anchor === "object" &&
+      !Array.isArray(anchor) &&
+      routeKeys.every((key) => anchor[key] === current[key]),
+  );
+  if (matches.length !== 1) return null;
+  return Object.entries(matches[0]).every(
+    ([key, value]) => renewedFaxFields.has(key) || current[key] === value,
+  )
+    ? "automatic"
+    : null;
+}
 
 /** A lost credential or malformed configuration is not a proven deselection. */
 function selection(env: Env, channel: "fax" | "email" | "postal"): Selection {
@@ -143,7 +248,11 @@ async function setCandidate(
   ];
   return true;
 }
-async function page(db: D1Database, mechanism: Mechanism) {
+async function page(
+  db: D1Database,
+  mechanism: Mechanism,
+  sourceQuery = sourceQueries[mechanism],
+) {
   const previous = await db
     .prepare(
       "SELECT after_organization_id,after_target_id FROM provider_freshness_cursors WHERE mechanism=?",
@@ -159,7 +268,7 @@ async function page(db: D1Database, mechanism: Mechanism) {
     throw new Error("FRESHNESS_CURSOR_INVALID");
   const query =
     "SELECT organization_id,target_id FROM (" +
-    sourceQueries[mechanism] +
+    sourceQuery +
     ") WHERE organization_id>? OR (organization_id=? AND target_id>?) ORDER BY organization_id,target_id LIMIT " +
     (PAGE_SIZE + 1);
   let rows = await db
@@ -377,6 +486,8 @@ async function faxManual(
   env: Env,
   target: Target,
   now: string,
+  mappedReferences: boolean,
+  referenceSets: ReferenceSetCache,
 ): Promise<FreshnessEvaluation[] | null> {
   const value = await blank(
     target.organization_id,
@@ -410,7 +521,17 @@ async function faxManual(
   // This immutable explicit prohibition rejects preparation before price expiry.
   if (row.route_allowed === 0) return [value];
   if (row.route_allowed !== 1) return null;
-  return (await setCandidate(value, row, row.expires_at, "operator"))
+  const mode = mappedReferences
+    ? await faxReferenceMode(
+        env.DB,
+        target,
+        row,
+        value.bindingSha256,
+        referenceSets,
+      )
+    : "operator";
+  if (!mode) return null;
+  return (await setCandidate(value, row, row.expires_at, mode))
     ? [value]
     : null;
 }
@@ -713,6 +834,7 @@ export async function collectProviderFreshness(
   if (!Number.isFinite(clock) || Math.abs(clock) > 8.64e15)
     return { ...result, freshnessChecksFailed: 1 };
   const now = new Date(clock).toISOString();
+  const referenceSets: ReferenceSetCache = new Map();
   for (const mechanism of [
     "fax",
     "fax_manual",
@@ -722,7 +844,14 @@ export async function collectProviderFreshness(
     "delivery_manual",
   ] as const) {
     try {
-      const batch = await page(env.DB, mechanism);
+      const mappedReferences =
+        mechanism === "fax_manual" &&
+        (await mappedFaxReferencesAvailable(env.DB));
+      const batch = await page(
+        env.DB,
+        mechanism,
+        mappedReferences ? mappedFaxManualQuery : sourceQueries[mechanism],
+      );
       let resend: ResendEvidence | null = null;
       if (mechanism === "resend" && batch.targets.length) {
         try {
@@ -739,7 +868,13 @@ export async function collectProviderFreshness(
           if (mechanism === "fax")
             values = await faxRegistered(env, target, now);
           else if (mechanism === "fax_manual")
-            values = await faxManual(env, target, now);
+            values = await faxManual(
+              env,
+              target,
+              now,
+              mappedReferences,
+              referenceSets,
+            );
           else if (mechanism === "fax_legacy")
             values = await faxLegacy(env, target, now);
           else if (mechanism === "delivery_manual")

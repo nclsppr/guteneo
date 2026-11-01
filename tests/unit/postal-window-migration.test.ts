@@ -1,6 +1,10 @@
 import { readFile, readdir } from "node:fs/promises";
 import { afterAll, beforeAll, expect, it } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
+import {
+  createD1IntegrityFixture,
+  type D1IntegrityFixture,
+} from "../helpers/d1-integrity";
 import { unstable_splitSqlQuery } from "wrangler";
 import { canonicalJson, sha256 } from "../../packages/domain/src/index";
 import {
@@ -15,6 +19,7 @@ import type { Env } from "../../apps/api/src/env";
 
 let mf: Miniflare;
 let db: D1Database;
+let integrity: D1IntegrityFixture | undefined;
 const migrationName = "0036_postal_window_options.sql";
 const now = new Date().toISOString();
 const created = new Date(Date.now() - 20 * 86400000).toISOString();
@@ -32,8 +37,10 @@ async function apply(name: string) {
   );
 }
 beforeAll(async () => {
+  integrity = await createD1IntegrityFixture();
   mf = new Miniflare(
     convertV4MiniflareOptions({
+      resourcePersistencePath: integrity.persistencePath,
       name: "postal-window-migration",
       modules: true,
       script: 'export default {fetch(){return new Response("ok")}}',
@@ -50,7 +57,8 @@ beforeAll(async () => {
     await apply(name);
 });
 afterAll(async () => {
-  await mf?.dispose();
+  if (integrity && mf && db) await integrity.dispose(mf, db);
+  else await mf?.dispose();
 });
 
 async function seed(
@@ -348,9 +356,7 @@ it("extends active non-French qualifications without changing history, expiry, r
   expect((await db.prepare("PRAGMA foreign_key_check").all()).results).toEqual(
     [],
   );
-  expect(
-    await db.prepare("PRAGMA quick_check").first<string>("quick_check"),
-  ).toBe("ok");
+  expect((await integrity!.check(db)).quick_check).toBe("ok");
 });
 
 async function verifyHistoricalRenewal() {

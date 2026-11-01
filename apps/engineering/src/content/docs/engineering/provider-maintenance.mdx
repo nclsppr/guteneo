@@ -59,6 +59,36 @@ latency and billed rows have not been measured. An explicitly forbidden fax rout
 still fails preparation and no longer supplies an unused price-expiry warning
 after its current binding is proven.
 
+## Maintain the existing France/Germany reference group
+
+The 1.1.25 candidate adds a separate private registration for fourteen existing
+provider-verified FR/DE fixed-line bindings and four unchanged more-specific
+exclusions. It does not reuse or widen the local Luxembourg pilot. One bounded
+current-catalog CSV read covers the group per scheduled attempt, with exact
+Luxembourg-origin EEA matching, all applicable parent/sub-prefix rows, current
+ownership/destination inspection, the fax-page fee and dated rational FX.
+
+Daily renewal can install at most seven-day technical revisions. Any ambiguous
+rate, newly uncovered sub-prefix, source or binding drift refuses the group.
+An active quote or queued/submitting/unknown commitment defers all fourteen
+replacements. One guarded transaction preserves old rows and quote fingerprints,
+retires only the expected predecessors and inserts fourteen revisions or none.
+The existing exclusions, route permissions, page limits, duration model and quote
+TTL remain exact; no approval, recipient, credit, hold or outbox is changed.
+
+Migration 0071 adds immutable registered sets, lease/backoff state, revision
+membership and append-only evidence. One scheduler invocation can start one
+network group: due FR/DE work gets the first opportunity and defers LU to a later
+tick. This is not a global limit across overlapping isolates; exact leases fence
+each registered set. Compatible deployed runtime and schema must
+be verified before private registration or refresh; code/schema order follows the
+compatibility review. No new public browser/REST/MCP/native surface, permission,
+provider write or paid resource is added. Other manual policies remain manual.
+The [group contract](https://github.com/nclsppr/guteneo/blob/main/docs/FAX_EEA_REFERENCE_MAINTENANCE.md)
+owns selection, operator authority, failure/recovery and source/hosted proof.
+This remains a local candidate: runtime publication, exact registration, actual
+scheduled renewal and real delivery are separate observations.
+
 ## Warn during the final twenty-four hours
 
 An active binding without a valid replacement opens a durable incident when its
@@ -80,7 +110,7 @@ independent of the email-delivery provider being inspected. Native alert
 aggregation and its reminder cadence remain distinct from the incident's
 idempotent database key. This is not an exactly-once email-delivery guarantee.
 
-The 1.1.24 local candidate derives two numeric alert fields after the server's
+The deployed 1.1.24 implementation derives two numeric alert fields after the server's
 closed observation projection: `alertClass` distinguishes ordinary observations
 (0), original failures (1), qualified healthy freshness (2) and failed or unknown
 freshness (3); `alertFailure` is zero or one. Freshness takes precedence over
@@ -107,9 +137,10 @@ expressions deeper than ten and explicit timestamps under its request-bound
 range; the inspected editor exposed no Manual selector. None saved a replacement. A subsequent existing-counter probe was accepted with
 floating-point `1.0`, whose type matches the native numeric JSON SUM; integer
 `1` had caused incompatible conditional branches. This validates the aggregate
-type shape only. The new marker fields remain undeployed and the final monitor
-unsaved. The fallback still requires exact-marker native validation and
-saved readback. Deploy and verify marker runtime first, retain the old query
+type shape only. Subsequent 1.1.24 runtime publication and the final saved
+Automatic/300-second native configuration were independently verified on
+1 November. Neither that readback nor the probe qualifies every provider renewal
+or a new notification receipt. Deploy and verify marker runtime first, retain the old query
 during five minutes of coverage, then apply only the reviewed SQL and interval.
 Legacy logs cannot prove marker coverage. Recovery requires failure-free current
 freshness evidence and a successful scheduled evaluation; ordinary HTTP success

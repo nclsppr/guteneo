@@ -3,6 +3,10 @@ import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { unstable_splitSqlQuery } from "wrangler";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
+  createD1IntegrityFixture,
+  type D1IntegrityFixture,
+} from "../helpers/d1-integrity";
+import {
   faxUsageEstimate,
   makeFaxUsageQuote,
   type FaxUsageTariff,
@@ -18,6 +22,7 @@ const deadline = "2026-11-03T23:59:59.999Z";
 const renewedAt = "2026-10-27T12:00:00.000Z";
 const phone = "+35240000000"; // Synthetic fixture; never submitted to a provider.
 let mf: Miniflare, db: D1Database;
+let integrity: D1IntegrityFixture | undefined;
 let before: Record<string, unknown>, rollback: Record<string, unknown>;
 let beforeSchema: unknown[], rollbackSchema: unknown[];
 let migrated: Record<string, unknown>, migratedSchema: unknown[];
@@ -75,8 +80,10 @@ async function schema() {
 }
 
 beforeAll(async () => {
+  integrity = await createD1IntegrityFixture();
   mf = new Miniflare(
     convertV4MiniflareOptions({
+      resourcePersistencePath: integrity.persistencePath,
       modules: true,
       script: 'export default {fetch(){return new Response("fixture")}}',
       compatibilityDate: "2026-09-16",
@@ -177,7 +184,8 @@ beforeAll(async () => {
     await sql(readFileSync(new URL(name, directory), "utf8"));
 });
 afterAll(async () => {
-  await mf?.dispose();
+  if (integrity && mf && db) await integrity.dispose(mf, db);
+  else await mf?.dispose();
 });
 
 describe("bounded +3524 pilot extension — populated isolated D1", () => {
@@ -195,7 +203,7 @@ describe("bounded +3524 pilot extension — populated isolated D1", () => {
     expect(
       (await db.prepare("PRAGMA foreign_key_check").all()).results,
     ).toEqual([]);
-    expect(await db.prepare("PRAGMA quick_check").first()).toEqual({
+    expect(await integrity!.check(db)).toEqual({
       quick_check: "ok",
     });
     expect(
