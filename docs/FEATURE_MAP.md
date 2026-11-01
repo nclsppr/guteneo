@@ -520,7 +520,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [POSTAL_WORLDWIDE.md](POSTAL_WORLDWIDE.md) · **Implementation:** [apps/api/src/postal.ts](../apps/api/src/postal.ts)
 
-**Tests:** [tests/unit/pingen-destination-availability.test.ts](../tests/unit/pingen-destination-availability.test.ts), [tests/unit/postal-worldwide-contracts.test.ts](../tests/unit/postal-worldwide-contracts.test.ts), [tests/unit/postal.test.ts](../tests/unit/postal.test.ts), [tests/unit/providers.test.ts](../tests/unit/providers.test.ts), [tests/integration/live-delivery-quotes.test.ts](../tests/integration/live-delivery-quotes.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/e2e/postal-final-send.spec.ts](../tests/e2e/postal-final-send.spec.ts)
+**Tests:** [tests/unit/pingen-destination-availability.test.ts](../tests/unit/pingen-destination-availability.test.ts), [tests/unit/pingen-destination-runtime.test.ts](../tests/unit/pingen-destination-runtime.test.ts), [tests/unit/ses-runtime.test.ts](../tests/unit/ses-runtime.test.ts), [tests/unit/postal-worldwide-contracts.test.ts](../tests/unit/postal-worldwide-contracts.test.ts), [tests/unit/postal.test.ts](../tests/unit/postal.test.ts), [tests/unit/providers.test.ts](../tests/unit/providers.test.ts), [tests/integration/live-delivery-quotes.test.ts](../tests/integration/live-delivery-quotes.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/e2e/postal-final-send.spec.ts](../tests/e2e/postal-final-send.spec.ts)
 
 **Documented REST operations**
 

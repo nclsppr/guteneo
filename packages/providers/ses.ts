@@ -258,7 +258,8 @@ export class SesEmailProvider {
           body,
         },
       );
-      const response = await this.fetcher(signed, {
+      const fetcher = this.fetcher;
+      const response = await fetcher(signed, {
         redirect: "manual",
         signal: AbortSignal.timeout(20_000),
       });

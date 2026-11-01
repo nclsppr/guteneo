@@ -1,5 +1,14 @@
 # Guteneo product contract
 
+## Postal availability correction — 1 November 2026 candidate 1.1.28
+
+A native Worker callback error prevented the new country reference from being
+read in the first 1.1.27 publication. The qualified 1.1.26 application was restored
+while preserving compatible schema and renderer improvements. Candidate 1.1.28
+corrects only that callback invocation. Every recognized destination still needs
+fresh eligibility, its actual provider price and the existing approvals; source
+failures remain closed and printed addresses are unchanged.
+
 ## Worldwide postal destinations — 1 November 2026 candidate 1.1.27
 
 Guteneo must allow postal preparation for every destination recognized by Pingen,

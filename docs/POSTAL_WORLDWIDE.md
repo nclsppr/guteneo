@@ -10,6 +10,16 @@ the local fixtures establish real sending to these destinations.
 The postal expansion does not change fax destinations, tariff references or
 route authority. The fourteen FR/DE fax references are a separate mechanism.
 
+## Native Worker callback qualification
+
+The 1.1.28 corrective candidate invokes the stored fetch callback without binding
+it to the reader. Real workerd tests cover this native-runtime boundary; Node
+fetch mocks alone did not qualify it. The first 1.1.27 application publication was
+restored to 1.1.26 after the real requirements read caught the failure. Schema
+0072 and the private renderer remain installed and compatible. No availability
+rule, source, parser, cache or approval is relaxed. Cloudflare source access and
+authenticated requirements metadata still need actual hosted evidence.
+
 ## Country reference and current availability
 
 The versioned country/alias reference comes from Pingen's

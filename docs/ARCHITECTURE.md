@@ -1,5 +1,17 @@
 # Architecture
 
+## Native fetch callback boundary — 1 November 2026 candidate 1.1.28
+
+The destination reader stores a fetch callback, not a method of the reader.
+Invoke it through a local variable: Workers rejects an implicit reader receiver
+for its native global fetch. Node fetch and injected arrow mocks do not reveal
+this difference. A real workerd bundle now tests default construction and the
+factory with native fetch and a deterministic outbound service, including cache,
+restriction and unknown-source refusal under the production compatibility flags.
+No source, transport guard, deadline, parser, snapshot or approval rule changes.
+The existing SES client uses the same unbound callback correction. Signing,
+message construction, provider selection and unknown-outcome handling stay exact.
+
 ## Worldwide postal address branch — 1 November 2026 candidate 1.1.27
 
 Shared contracts contain the dated 250-code Pingen country/alias reference and a
