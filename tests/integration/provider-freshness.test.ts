@@ -115,7 +115,11 @@ async function collect(
 ) {
   const found = new Map<string, FreshnessEvaluation>();
   let failed = 0;
-  for (let i = 0; i < 5; i++) {
+  // Immutable fixture history survives between cases. Start a complete sweep
+  // rather than assuming the current tenant falls within five six-target pages.
+  await db.prepare("DELETE FROM provider_freshness_cursors").run();
+  const completed = new Set<string>();
+  for (let i = 0; i < 100; i++) {
     const value = await collectProviderFreshness(env, {
       now: () => NOW + tick++,
       ...dependencies,
@@ -124,8 +128,25 @@ async function collect(
     for (const row of value.evaluations)
       if (row.organizationId === org)
         found.set(row.family + row.bindingSha256, row);
+    const cursors = await db
+      .prepare(
+        "SELECT mechanism,after_organization_id,after_target_id FROM provider_freshness_cursors",
+      )
+      .all<{
+        mechanism: string;
+        after_organization_id: string;
+        after_target_id: string;
+      }>();
+    for (const cursor of cursors.results)
+      if (!cursor.after_organization_id && !cursor.after_target_id)
+        completed.add(cursor.mechanism);
+    if (completed.size === 6)
+      return {
+        evaluations: [...found.values()],
+        freshnessChecksFailed: failed,
+      };
   }
-  return { evaluations: [...found.values()], freshnessChecksFailed: failed };
+  throw new Error("Fixture provider inventory did not complete");
 }
 async function register(expires = at(DAY)) {
   fixture = await createFaxUsageFixture(db, () => NOW, {
@@ -983,9 +1004,9 @@ describe("selected provider deadline collection", () => {
       await reconcileFreshnessAlerts(db, active.evaluations, at(2000)),
     ).toMatchObject({ freshnessAtRisk: 0, freshnessResolved: 1 });
   });
-  it("advances durable pages beyond six targets without resolving unvisited warnings", async () => {
+  it("covers more than five pages without resolving unvisited warnings", async () => {
     const targets = new Set<string>();
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 32; i++) {
       const value = await createFaxUsageFixture(db, () => NOW, {
         account_id: env.TELNYX_ACCOUNT_ID!,
         connection_id: "123",
@@ -996,7 +1017,7 @@ describe("selected provider deadline collection", () => {
     }
     const seen = new Set<string>();
     let nonemptyCursor = false;
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 100 && seen.size < targets.size; i++) {
       const result = await collectProviderFreshness(
         { ...env },
         { now: () => NOW + i },
@@ -1014,6 +1035,17 @@ describe("selected provider deadline collection", () => {
     }
     expect(nonemptyCursor).toBe(true);
     expect(seen).toEqual(targets);
+    // At least 31 targets precede this tenant, regardless of UUID ordering.
+    // A helper that stops after five pages silently omits its evaluation.
+    const lastTenant = [...targets].sort().at(-1)!;
+    const complete = await collect(lastTenant);
+    expect(complete.evaluations).toContainEqual(
+      expect.objectContaining({
+        organizationId: lastTenant,
+        family: "fax_tariff",
+        active: true,
+      }),
+    );
   });
   it("uses no provider network and mutates only progress cursors", async () => {
     const statements: string[] = [];
