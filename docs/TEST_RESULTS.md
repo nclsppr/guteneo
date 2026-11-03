@@ -1,5 +1,30 @@
 # Executed verification
 
+## Read-only MCP annotations — 3 November 2026 candidate 1.1.29
+
+Recovered the semantic annotation changes from the older PR130 candidate onto
+main `92070104`, retaining the current postal public-reference lookup and its
+`openWorldHint:true`. Thirty-six business reads now declare read-only and
+idempotent hints; successful production connection activity remains separate
+access metadata. Upload/recovery mutations, destructive actions, scopes, current
+membership, expert mandates and browser-only PDF purchases retain their guards.
+
+Local verification passed 257 tests in 12 focused Vitest files, including SDK
+transport discovery, existing-report replay and refusal of a new PDF purchase by
+an assistant. Typecheck, lint, documentation generation/checks, base-relative
+repository standards and integration synchronization passed. The synthetic
+annotation audit covered 83 tools, 332 explicit booleans and 258 source references
+without executing business handlers. The deterministic package tests passed; the
+rebuilt 1.1.29 archive was 1,341,256 bytes with SHA-256
+`c6b6501d7ab2e7e5ba8c1862a9969777202d6eb90e93cec20bae5a3b90b0dcf2`.
+The engineering build passed its type, route/link and publication checks plus
+four security tests, producing 408 static assets from the local candidate.
+
+These are local source/package results, not full-suite, hosted CI, deployed MCP,
+actual host confirmation behavior or marketplace rescan/submission evidence.
+No provider request, paid check, message, production configuration or deployment
+was performed by this verification.
+
 ## Postal native-fetch correction — 1 November 2026 candidate 1.1.28
 
 The real post-publication requirements read caught an Illegal invocation hidden

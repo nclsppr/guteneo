@@ -158,9 +158,8 @@ new batch. `resume_distribution` continues only preparations in the frozen plan,
 without reopening generation, approving sends or retrying unknown provider outcomes.
 Existing PDFs/provenance remain.
 
-[Annotation remediation](MCP_ANNOTATION_REMEDIATION.md) records all four booleans for
-67 tools. Success may persist production connection activity, so full-contract
-`readOnlyHint:false`/`idempotentHint:false` also apply to observed business reads.
+[Annotation remediation](MCP_ANNOTATION_REMEDIATION.md) links the current matrix with all four booleans. Business reads declare `readOnlyHint:true`/`idempotentHint:true`; the
+connection's last-used time may advance after production success as access metadata.
 `npm run audit:mcp` checks actual local `tools/list` coverage. On 20 October,
 55 `tests/integration/template-workflow.test.ts` cases including excluded-record
 freezing, 16 `tests/unit/mcp-annotation-audit.test.ts` cases, full typecheck/lint and

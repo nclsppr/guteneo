@@ -342,9 +342,23 @@ tool-only workflows usable in clients that do not render MCP Apps.
 ## Host confirmations and server authority both matter
 
 Honor the host's execution permissions. Read tool annotations as descriptions of
-real effects, not authority grants. A business read can record connection activity;
-a review can replace a token; a distribution plan can permanently freeze failed
-record retries. Those effects must be represented honestly in the catalog.
+real effects, not authority grants. Business reads declare read-only and idempotent
+annotations. Successful production calls may still refresh connection activity;
+that access metadata is separate from the tool's business effects. A review can
+replace a token, and a distribution plan can permanently freeze failed-record
+retries. Those mutations retain their explicit effect annotations.
+
+The PDF-validation MCP entry point can retrieve an existing approved report. It
+refuses a new paid check before creating or charging anything; only the browser
+purchase flow can create that operation. Reading annotations never grant purchase,
+mandate, sending or new OAuth authority. Keep current external-read hints, including
+the postal requirements lookup of the fixed official public restrictions source.
+
+When a handler changes, review its complete production path, regenerate the
+annotation matrix documentation and run the synthetic SDK discovery audit plus
+handler tests. A stale matrix or missing justification fails the audit. The
+3 November 2026 candidate changes metadata only; its local tests and rebuilt
+package establish neither deployed host behavior nor a renewed marketplace scan.
 
 ### Maintain directory-compatible tool metadata
 

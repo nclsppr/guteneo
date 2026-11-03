@@ -994,14 +994,14 @@ describe("immutable PDF diagnostics and explicit per-check purchases", () => {
     try {
       const { tools } = await client.listTools();
       const names = tools.map((tool) => tool.name);
-      // Business replay remains keyed, but the shared MCP wrapper also persists
-      // successful connection activity; the complete tool is not idempotent.
+      // An assistant can only replay an existing report, so the tool reads.
+      // The connection's last-used time is connection metadata, not its effect.
       const validationTool = tools.find((tool) => tool.name === "validate_pdf")!;
       expect(validationTool.annotations).toEqual({
         title: validationTool.title,
-        readOnlyHint: false,
+        readOnlyHint: true,
         destructiveHint: false,
-        idempotentHint: false,
+        idempotentHint: true,
         openWorldHint: false,
       });
       expect(names).toContain("validate_pdf");
