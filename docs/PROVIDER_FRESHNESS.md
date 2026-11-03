@@ -175,6 +175,11 @@ only that exact binding. Missing pages, missing credentials and failed reads do
 not imply recovery.
 
 The existing minute scheduler performs bounded collection with durable cursors.
+Integration fixtures retain immutable history between cases. Their collection
+helper starts a fresh sweep and waits until all six cursors have completed, with
+a 100-pass failure bound. A 32-target regression covers tenants beyond the first
+five six-target pages; fixture order must not silently omit the current tenant.
+This test-only sweep does not change production scheduling or collection limits.
 The separate `freshness` observation emits `FRESHNESS_AT_RISK` for risk/expiry and
 `FRESHNESS_CHECK_FAILED` when inspection or reconciliation fails. A normal Cron
 `complete` heartbeat cannot hide a failed check, and an expiry warning does not
