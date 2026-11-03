@@ -19,13 +19,46 @@ cannot create or broaden that registration. Sender ownership, route permission,
 channel activation, available credit, immutable approval, actual sending and
 expert mandates remain independent gates.
 
+## February 2027 pilot extension
+
+The operator authorized extending the existing Luxembourg fixed `+3524` test
+through 28 February 2027 in Paris time. The final permitted validity timestamp
+is `2027-02-28T22:59:59.999Z`. The pilot exercises outbound local fax with
+Local Calling still unverified. The existing page limit (at most ten), EUR2
+ceiling, per-dispatch approval, scan and provider gates continue to apply.
+
+Migration 0073 preserves the original registration, tariff rows and evidence.
+A separately installed, immutable extension binds the existing registration by
+tenant and source. Its effective authority becomes visible to the scheduler
+and freshness collector. Only a fresh scheduler revision on the leased
+`+3524` route can use the new upper bound. A revision expires after at most
+seven days or at the pilot boundary, whichever comes first. The existing daily
+cadence and bounded source reads apply. France and Germany retain their own
+qualified reference group. Belgium requires separate route qualification.
+
+A platform operator performs activation after verifying the deployed runtime and
+migration 0073. Review the private exact-scope activation statement against the
+current source, prior tariff fingerprint and in-flight work. Execute it once
+through the authorized D1 operator channel. The extension schedules the existing
+refresher. A failed read or active commitment defers eligibility. Normal
+collection replaces the old authority incident with an expired tariff signal
+until genuine source renewal completes. Verify route availability after renewal
+and observe Cloudflare recovery separately.
+
+Activation uses the existing scheduled Worker and provider reads. It adds a
+single indexed authority lookup per inspected binding and one SQL guard per
+new extended tariff. Hosted costs and runtime performance remain unmeasured
+until release. The operator action grants pilot eligibility only. Browser,
+native, REST and MCP clients retain their existing preparation and consent
+requirements.
+
 ## Luxembourg pilot scope
 
 This candidate supports only the existing local Luxembourg fixed `+3524`
 operator-test route with canonical options `{}`. Refresh preserves the existing
 live tariff's exact page limit, up to ten pages, and its 200-cent ceiling; it
-cannot increase or decrease that limit. Its independently authorized pilot deadline remains
-3 November 2026; daily source refresh does not extend that deadline. Other
+cannot increase or decrease that limit. The original registration records a
+3 November 2026 deadline. The February extension is a separate operator record. Other
 prefixes, destinations, option combinations or normal provider-verified routes
 are not implemented by this LU maintenance path and must not be registered as if
 covered. The separate 1.1.25 [FR/DE reference-group candidate](FAX_EEA_REFERENCE_MAINTENANCE.md)

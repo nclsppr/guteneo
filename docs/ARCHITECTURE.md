@@ -1,5 +1,10 @@
 # Architecture
 
+Migration 0073 projects the original Luxembourg fax registration with its
+optional tenant-scoped February authorization. The existing scheduler and
+freshness collector share the resulting deadline. The [pilot contract](FAX_TARIFF_MAINTENANCE.md#february-2027-pilot-extension)
+owns activation, immutable revisions and recovery.
+
 ## Workspace report boundary — 3 November 2026 candidate
 
 Browser-only Administration routes derive the organization and current role

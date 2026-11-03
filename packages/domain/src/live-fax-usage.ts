@@ -185,6 +185,14 @@ export function faxUsageEstimate(t: FaxUsageTariff, pages: number) {
 
 /** Private operator policy; never inferred from an assistant's request or provider capability. */
 function operatorRouteTest(t: FaxUsageTariff): boolean {
+  let deadline = "2026-09-24T09:00:01.620Z";
+  if (t.destination_prefix === "+3524") {
+    deadline =
+      t.source_reference ===
+      `automatic-public-reference:sha256:${t.source_sha256}`
+        ? "2027-02-28T22:59:59.999Z"
+        : "2026-11-03T23:59:59.999Z";
+  }
   return (
     t.route_qualification === "operator_test" &&
     t.origin_class === "local" &&
@@ -208,10 +216,7 @@ function operatorRouteTest(t: FaxUsageTariff): boolean {
         Date.parse(t.expires_at) - Date.parse(t.evidence_observed_at) <=
           168 * 3600_000 &&
         t.max_pages <= 7
-      : t.expires_at <=
-        (t.destination_prefix === "+3524"
-          ? "2026-11-03T23:59:59.999Z"
-          : "2026-09-24T09:00:01.620Z")) &&
+      : t.expires_at <= deadline) &&
     Date.parse(t.expires_at) - Date.parse(t.valid_from) <= 7 * 86400_000
   );
 }

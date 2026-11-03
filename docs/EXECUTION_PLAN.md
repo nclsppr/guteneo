@@ -1,5 +1,11 @@
 # Execution plan and handoff
 
+## Luxembourg pilot extension through February 2027
+
+The operator authorized continuing the existing fixed +3524 test through
+28 February 2027 Paris time. The [pilot contract](FAX_TARIFF_MAINTENANCE.md#february-2027-pilot-extension)
+owns the scope, independent activation and post-release qualification.
+
 ## Cloudflare authority alert — 3 November 2026 diagnosis
 
 Read-only Mail, runtime and D1 evidence identifies one Luxembourg operator-test

@@ -294,6 +294,54 @@ describe("selected provider deadline collection", () => {
         ?.candidates[0].deadline,
     ).toBe(cap);
   });
+  it("replaces the expired pilot authority while retaining the expired tariff signal until renewal", async () => {
+    const sourceId = await register(cap);
+    const expiredAt = Date.parse(cap) + 1000;
+    const org = fixture.ctx.organizationId;
+    const before = await collect(org, { now: () => expiredAt });
+    await reconcileFreshnessAlerts(
+      db,
+      before.evaluations,
+      new Date(expiredAt).toISOString(),
+    );
+
+    const expiresAt = "2027-02-28T22:59:59.999Z";
+    await insertRecord(db, "fax_pilot_authority_extensions", {
+      organization_id: org,
+      source_id: sourceId,
+      authorization_reference: "ISOLATED FEBRUARY PILOT EXTENSION",
+      expires_at: expiresAt,
+      created_at: new Date(expiredAt + 1).toISOString(),
+    });
+    const after = await collect(org, { now: () => expiredAt + 2 });
+    expect(
+      after.evaluations.find((value) => value.family === "fax_authority")
+        ?.candidates[0],
+    ).toMatchObject({ deadline: expiresAt, mode: "operator" });
+    expect(
+      after.evaluations.find(
+        (value) => value.family === "fax_tariff" && value.active,
+      )?.candidates[0],
+    ).toMatchObject({ deadline: cap, mode: "automatic" });
+    await reconcileFreshnessAlerts(
+      db,
+      after.evaluations,
+      new Date(expiredAt + 2).toISOString(),
+    );
+    expect(
+      (
+        await db
+          .prepare(
+            "SELECT family,state FROM provider_freshness_incidents WHERE organization_id=? AND family IN ('fax_authority','fax_tariff') ORDER BY family",
+          )
+          .bind(org)
+          .all()
+      ).results,
+    ).toEqual([
+      { family: "fax_authority", state: "resolved" },
+      { family: "fax_tariff", state: "expired" },
+    ]);
+  });
   it("preserves a warning when sender verification or credentials disappear without an explicit suspension", async () => {
     await register();
     const first = await collect();

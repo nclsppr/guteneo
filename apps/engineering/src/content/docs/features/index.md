@@ -7,7 +7,7 @@ sidebar:
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->
 
-**28 domains · 445 capabilities · 45 journeys · 77 REST operations · 83 MCP tools.**
+**28 domains · 446 capabilities · 45 journeys · 77 REST operations · 83 MCP tools.**
 
 Follow a branch to find its behavior, access boundary and engineering guide. Use the site search to find a specific capability.
 
@@ -56,7 +56,7 @@ This is an implementation inventory, not a live availability dashboard. Current 
 - [Engineering documentation](/features/engineering-docs/) — 12 capabilities
 - [Codex Cloud development](/features/cloud-development/) — 8 capabilities
 - [Continuous reviewer preparation](/features/continuous-review/) — 6 capabilities
-- [Automatic fax tariff maintenance](/features/fax-tariff-maintenance/) — 13 capabilities
+- [Automatic fax tariff maintenance](/features/fax-tariff-maintenance/) — 14 capabilities
 - [Consumed provider freshness and J-1 alerts](/features/provider-freshness/) — 12 capabilities
 
 ## Across the branches
