@@ -14,6 +14,22 @@ The [dispatch lifecycle](/architecture/dispatch-lifecycle/) owns ordinary sendin
 states. [Secure distribution](/workflows/secure-distribution/) owns independent
 render/deposit commitments. This page explains how their background work differs.
 
+## Overlap reads only after the durable gate
+
+The 3 November candidate reads channel control, suppression, sender and document
+readiness concurrently only after the consumer has conditionally claimed the
+current attempt. All checks complete before quote validation or any provider
+submission. Failure retains the same refusal/reconciliation behavior; parallel
+reads do not authorize replay or remove tenant predicates. Document maintenance
+fetches its two cursors together, while purge decisions, object deletion, audit
+and cursor advancement remain ordered.
+
+Deterministic local tests hold individual reads unresolved and verify that no
+provider is called early, including rejection of each readiness guard. These are
+scheduling and authority checks, not production throughput measurements. The
+[async audit](https://github.com/nclsppr/guteneo/blob/main/docs/ASYNC_HOT_PATH_AUDIT.md)
+records the related API, PDF and cryptographic dependency boundaries.
+
 ## Route the message to its actual job
 
 The application consumer distinguishes ordinary dispatch references from secure

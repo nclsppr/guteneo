@@ -1,6 +1,6 @@
 {
   "name": "guteneo",
-  "version": "1.1.29",
+  "version": "1.1.30",
   "private": true,
   "type": "module",
   "engines": {
@@ -64,7 +64,11 @@
     "deploy:engineering": "node scripts/deploy-engineering.mjs",
     "sync:integrations": "node integrations/sync.mjs",
     "check:integrations": "node integrations/sync.mjs --check",
-    "check:dependencies": "node --import tsx scripts/ci/check-dependencies.ts"
+    "check:dependencies": "node --import tsx scripts/ci/check-dependencies.ts",
+    "build:auth0-email": "node scripts/build-auth0-brand-preview.mjs",
+    "check:auth0-email": "node scripts/build-auth0-brand-preview.mjs --check",
+    "test:auth0-email": "node --test tests/security/auth0-email-branding.test.mjs",
+    "test:auth0-email:browser": "playwright test --config playwright.auth0-email.config.ts"
   },
   "dependencies": {
     "@cloudflare/puppeteer": "^1.4.0",
@@ -114,6 +118,7 @@
     "eslint": "^10.13.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "jsonc-parser": "3.3.1",
+    "liquidjs": "10.30.1",
     "miniflare": "5.20261006.1-alpha",
     "prettier": "^3.9.10",
     "tsx": "^4.23.15",

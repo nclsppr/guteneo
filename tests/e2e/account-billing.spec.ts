@@ -34,6 +34,20 @@ test("profile changes persist through the browser and current-session revocation
     await expect(page.getByLabel("Votre nom", { exact: true })).toHaveValue(
       userName,
     );
+    // The personal profile no longer renames the workspace.
+    await expect(
+      page.getByLabel("Nom de l’espace de travail", { exact: true }),
+    ).toHaveCount(0);
+    await page
+      .getByRole("button", { name: "Enregistrer les modifications" })
+      .click();
+    await expect(
+      page
+        .getByRole("status")
+        .filter({ hasText: "Votre profil a été enregistré." }),
+    ).toBeVisible();
+    await page.goto("/#/app/administration/settings");
+    await expect(page.getByRole("main")).toBeFocused();
     await page
       .getByLabel("Nom de l’espace de travail", { exact: true })
       .fill(organizationName);
@@ -46,15 +60,16 @@ test("profile changes persist through the browser and current-session revocation
     await expect(
       page
         .getByRole("status")
-        .filter({ hasText: "Votre profil a été enregistré." }),
+        .filter({ hasText: "Le nom de l’espace de travail a été enregistré." }),
     ).toBeVisible();
     await page.reload();
-    await expect(page.getByLabel("Votre nom", { exact: true })).toHaveValue(
-      userName,
-    );
     await expect(
       page.getByLabel("Nom de l’espace de travail", { exact: true }),
     ).toHaveValue(organizationName);
+    await page.goto("/#/app/account");
+    await expect(page.getByLabel("Votre nom", { exact: true })).toHaveValue(
+      userName,
+    );
     const persisted = (await (
       await page.request.get("/api/session")
     ).json()) as Session;

@@ -6,9 +6,14 @@ export async function maintainDocuments(
   const cutoff = new Date(Date.now() - 90 * 86400000).toISOString();
   let purged = 0,
     orphans = 0;
-  const purgeState = await env.DB.prepare(
-    "SELECT value FROM maintenance_state WHERE key='document_purge_cursor'",
-  ).first<{ value: string }>();
+  // Both cursors are independent of this run's mutations. Read their state in
+  // one round trip before preserving the ordered purge/delete/audit workflow.
+  const cursors = await env.DB.prepare(
+    "SELECT key,value FROM maintenance_state WHERE key IN ('document_purge_cursor','r2_orphan_cursor')",
+  ).all<{ key: string; value: string }>();
+  const purgeState = cursors.results.find(
+    (row) => row.key === "document_purge_cursor",
+  );
   const after = purgeState?.value
     ? (JSON.parse(purgeState.value) as { created_at: string; id: string })
     : { created_at: "", id: "" };
@@ -63,9 +68,7 @@ export async function maintainDocuments(
       last ? JSON.stringify({ created_at: last.created_at, id: last.id }) : "",
     )
     .run();
-  const state = await env.DB.prepare(
-    "SELECT value FROM maintenance_state WHERE key='r2_orphan_cursor'",
-  ).first<{ value: string }>();
+  const state = cursors.results.find((row) => row.key === "r2_orphan_cursor");
   const listing = await env.DOCUMENTS.list({
     limit: 50,
     cursor: state?.value || undefined,

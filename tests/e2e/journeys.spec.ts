@@ -48,7 +48,8 @@ test("admin empty DLQ and contract fixture navigate to the real dispatch without
   page,
 }) => {
   await login(page);
-  await page.goto("/#/app/admin");
+  // Operator diagnostics moved to Administration → Settings.
+  await page.goto("/#/app/administration/settings");
   await expect(
     page.getByRole("heading", { name: "Messages en file d’échec" }),
   ).toBeVisible();
@@ -96,7 +97,8 @@ test("admin empty DLQ and contract fixture navigate to the real dispatch without
     }),
   );
   await page
-    .locator(".page-heading")
+    .locator(".section-toolbar")
+    .filter({ hasText: "Exploitation" })
     .getByRole("button", { name: "Actualiser", exact: true })
     .click();
   await expect(
@@ -373,7 +375,10 @@ test("CSV duplicate checks precede a campaign with individual frozen preparation
   await login(page);
   await page.goto("/#/app/campaigns");
   const name = `Campagne E2E ${crypto.randomUUID().slice(0, 8)}`;
-  const campaignNameInput = page.getByLabel("Nom de la campagne");
+  const campaignNameInput = page.getByRole("textbox", {
+    name: "Nom de la campagne",
+    exact: true,
+  });
   await campaignNameInput.fill(name);
   await expect(campaignNameInput).toHaveValue(name);
   await page

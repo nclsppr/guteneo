@@ -387,6 +387,7 @@ export function PersonalSpace({
           <ApplicationSwitcher
             application="personal"
             hasWorkspace={currentWorkspace !== null}
+            canAdministerWorkspace={currentWorkspace?.role === "admin"}
             canAccessBelvedere={session.canAccessBelvedere === true}
           />
         </div>

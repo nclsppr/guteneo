@@ -212,20 +212,20 @@ function revokeStatements(
 }
 
 async function account(env: AuthEnv, session: AuthenticatedSession) {
-  const user = await env.DB.prepare(
-    "SELECT name,preferred_locale,preferred_dashboard_appearance FROM users WHERE id=?",
-  )
-    .bind(session.context.userId)
-    .first<{
-      name: string;
-      preferred_locale: SupportedLocale | null;
-      preferred_dashboard_appearance: DashboardAppearance;
-    }>();
-  const organization = await env.DB.prepare(
-    "SELECT name FROM organizations WHERE id=?",
-  )
-    .bind(session.context.organizationId)
-    .first<{ name: string }>();
+  const [user, organization] = await Promise.all([
+    env.DB.prepare(
+      "SELECT name,preferred_locale,preferred_dashboard_appearance FROM users WHERE id=?",
+    )
+      .bind(session.context.userId)
+      .first<{
+        name: string;
+        preferred_locale: SupportedLocale | null;
+        preferred_dashboard_appearance: DashboardAppearance;
+      }>(),
+    env.DB.prepare("SELECT name FROM organizations WHERE id=?")
+      .bind(session.context.organizationId)
+      .first<{ name: string }>(),
+  ]);
   return {
     user: {
       id: session.context.userId,

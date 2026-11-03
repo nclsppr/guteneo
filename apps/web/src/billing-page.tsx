@@ -164,7 +164,7 @@ function PreviewBilling() {
           "Invoices and payments will appear here with your real account. No payment or subscription is created in this preview.",
         )}
         action={
-          <a className="button subtle" href="#/app/usage">
+          <a className="button subtle" href="#/app/administration/consumption">
             {msg("View demo usage")}
           </a>
         }

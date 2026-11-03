@@ -63,7 +63,14 @@ export const declaredBrowserSkips = [
     "application",
     mobileProjects,
     "studio-space.spec.ts",
-    "every workshop entry of an administrator stays in view at 1280 by 720",
+    "every Correspondence entry of an administrator stays in view at 1280 by 720",
+    "Desktop sidebar geometry; phones use the collapsed navigation.",
+  ],
+  [
+    "application",
+    mobileProjects,
+    "studio-space.spec.ts",
+    "the former member address keeps Administration navigation in view at 1280 by 720",
     "Desktop sidebar geometry; phones use the collapsed navigation.",
   ],
   [

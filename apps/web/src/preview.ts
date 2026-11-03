@@ -354,12 +354,17 @@ async function fixturePdf(title: string) {
 async function createWorkspace(slug: string): Promise<Workspace> {
   const documents: DocumentRecord[] = [];
   const contents = new Map<string, Uint8Array>();
-  for (const [index, title] of [
-    "Your correspondence",
-    "Workshop invitation",
-  ].entries()) {
-    const bytes = await fixturePdf(title);
-    const digest = await crypto.subtle.digest("SHA-256", new Uint8Array(bytes));
+  const fixtures = await Promise.all(
+    ["Your correspondence", "Workshop invitation"].map(async (title) => {
+      const bytes = await fixturePdf(title);
+      const digest = await crypto.subtle.digest(
+        "SHA-256",
+        new Uint8Array(bytes),
+      );
+      return { title, bytes, digest };
+    }),
+  );
+  for (const [index, { title, bytes, digest }] of fixtures.entries()) {
     const id = `preview_${slug}_document_${index + 1}`;
     documents.push({
       id,

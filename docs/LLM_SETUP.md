@@ -138,6 +138,16 @@ tools, schemas, annotations, scopes, host confirmations, approval and provider
 gates. The correction input and platform views remain browser-only. Package
 parity establishes no actual host import, marketplace update, CI or deployment.
 
+### Async read source synchronization — 3 November 2026
+
+The 1.1.30 candidate overlaps independent reads and cryptographic work inside
+existing API/domain paths. Shared authentication, document and domain imports
+remain in the MCP fingerprint, so application/portable/Claude/Cursor manifests
+and downloadable archives advance together. The package review retains existing
+tools, scopes, schemas, annotation semantics, approval and provider gates.
+No host instruction changes are needed for the implementation-only scheduling
+change. Package parity proves neither host import nor runtime publication.
+
 ## Connecting hosts
 
 ### Shared OAuth and separate host qualification

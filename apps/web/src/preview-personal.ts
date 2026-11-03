@@ -190,6 +190,13 @@ export function createPreviewPersonal(preview: Preview) {
       } satisfies PersonalSession;
     }
     if (route === "/personal/account/sessions") return { items: [] };
+    // The fixture has no per-state breakdown; the list stays usable without it.
+    if (route === "/personal/documents/summary")
+      throw new PreviewError(
+        "PREVIEW_SUMMARY_UNAVAILABLE",
+        "Fictional document counts by state are not simulated.",
+        409,
+      );
     if (route === "/personal/documents") {
       const query = new URLSearchParams(parameters);
       const kind = query.get("kind") ?? "shared";
@@ -205,7 +212,34 @@ export function createPreviewPersonal(preview: Preview) {
           "INVALID_INPUT",
           "The fictional document search is limited to 200 characters.",
         );
+      const status = query.get("status");
+      const sender = query.get("sender");
+      if ((query.get("sort") ?? "recent") !== "recent")
+        throw new PreviewError(
+          "PREVIEW_SORT_UNAVAILABLE",
+          "Fictional documents are listed by most recent first only.",
+          409,
+        );
+      if (
+        status !== null &&
+        !["available", "pending", "expiring", "ended"].includes(status)
+      )
+        throw new PreviewError("INVALID_INPUT", "Unknown fictional status.");
+      // Filters belong to the cursor, like the search they refine.
+      const filterKey =
+        status !== null || sender !== null
+          ? JSON.stringify([search, status, sender])
+          : search;
       const forwarded = new URLSearchParams();
+      if (query.has("limit")) {
+        const limit = Number(query.get("limit"));
+        if (!Number.isInteger(limit) || limit < 1 || limit > 50)
+          throw new PreviewError(
+            "INVALID_INPUT",
+            "Fictional document pages must contain between 1 and 50 items.",
+          );
+        forwarded.set("limit", String(limit));
+      }
       const suppliedCursor = query.get("cursor");
       if (suppliedCursor !== null) {
         try {
@@ -221,7 +255,7 @@ export function createPreviewPersonal(preview: Preview) {
             decoded.length !== 4 ||
             decoded[0] !== scope(current) ||
             decoded[1] !== kind ||
-            decoded[2] !== search ||
+            decoded[2] !== filterKey ||
             typeof decoded[3] !== "string"
           )
             throw new Error("Foreign cursor");
@@ -288,18 +322,32 @@ export function createPreviewPersonal(preview: Preview) {
         )) as Page<DocumentRecord>;
       }
       await unchanged(current, options);
+      const fixtureSender = "Fictional browser scenario · no delivery";
+      const counts = preview.configuration().counts;
       return {
         items: result.items
           .map((document) => item(current, document, kind))
           .filter(
             (document) =>
-              !search ||
-              exactIdentifier ||
-              document.title.toLocaleLowerCase().includes(search),
+              (!search ||
+                exactIdentifier ||
+                document.title.toLocaleLowerCase().includes(search)) &&
+              (sender === null || sender === fixtureSender) &&
+              (status === null ||
+                (status === "available" && document.status === "active") ||
+                (status === "pending" && document.status === "pending")),
           ),
-        nextCursor: result.nextCursor
-          ? `preview_personal_page_${encode([scope(current), kind, search, result.nextCursor])}`
-          : null,
+        nextCursor:
+          result.nextCursor &&
+          (sender === null || sender === fixtureSender) &&
+          status !== "expiring" &&
+          status !== "ended"
+            ? `preview_personal_page_${encode([scope(current), kind, filterKey, result.nextCursor])}`
+            : null,
+        // Only an unfiltered volume scenario knows its exact total.
+        ...(counts && !search && status === null && sender === null
+          ? { total: counts.documents }
+          : {}),
       };
     }
     const match = route.match(

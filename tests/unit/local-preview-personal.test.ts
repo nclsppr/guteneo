@@ -122,6 +122,57 @@ describe("local-only personal browser adapter", () => {
     });
   });
 
+  it("binds filtered fixture cursors and refuses unsupported summaries and sorting", async () => {
+    const { personal, options } = await fixture();
+    const page = (await personal.request(
+      "/personal/documents?limit=25",
+      options,
+    )) as { items: PersonalDocumentItem[]; total: number };
+    expect(page.items).toHaveLength(25);
+    expect(page.total).toBe(1000);
+    for (const limit of [0, 51, 1.5])
+      await expect(
+        personal.request(`/personal/documents?limit=${limit}`, options),
+      ).rejects.toMatchObject({ code: "INVALID_INPUT" });
+    const available = (await personal.request(
+      "/personal/documents?status=available&limit=25",
+      options,
+    )) as { items: PersonalDocumentItem[]; nextCursor: string; total?: number };
+    expect(available.items.length).toBeGreaterThan(0);
+    expect(available.items.length).toBeLessThanOrEqual(25);
+    expect(available.items.every((item) => item.status === "active")).toBe(
+      true,
+    );
+    expect(available.total).toBeUndefined();
+    await expect(
+      personal.request(
+        `/personal/documents?status=pending&cursor=${encodeURIComponent(available.nextCursor)}`,
+        options,
+      ),
+    ).rejects.toMatchObject({ code: "INVALID_PREVIEW_CURSOR" });
+    await expect(
+      personal.request(
+        `/personal/documents?status=available&sender=another&cursor=${encodeURIComponent(available.nextCursor)}`,
+        options,
+      ),
+    ).rejects.toMatchObject({ code: "INVALID_PREVIEW_CURSOR" });
+    await expect(
+      personal.request("/personal/documents?sender=another", options),
+    ).resolves.toMatchObject({ items: [], nextCursor: null });
+    await expect(
+      personal.request("/personal/documents?status=ended", options),
+    ).resolves.toMatchObject({ items: [], nextCursor: null });
+    await expect(
+      personal.request("/personal/documents?sort=title", options),
+    ).rejects.toMatchObject({ code: "PREVIEW_SORT_UNAVAILABLE", status: 409 });
+    await expect(
+      personal.request("/personal/documents/summary", options),
+    ).rejects.toMatchObject({
+      code: "PREVIEW_SUMMARY_UNAVAILABLE",
+      status: 409,
+    });
+  });
+
   it("provides read-only detail and accessible text without creating delivery or audit evidence", async () => {
     const { personal, options, list } = await fixture();
     const active = list.items.find((item) => item.status === "active")!;

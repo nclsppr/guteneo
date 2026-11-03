@@ -70,9 +70,11 @@ test("a single invitation requires reviewing the chosen recipient and role befor
   await invites
     .getByRole("button", { name: "Envoyer les invitations", exact: true })
     .click();
-  await expect(invites.getByRole("status")).toContainText(
-    "Les invitations ont été traitées",
-  );
+  await expect(
+    invites
+      .getByRole("status")
+      .filter({ hasText: "Les invitations ont été traitées" }),
+  ).toBeVisible();
   expect(writes).toEqual([
     {
       emails: ["alex@example.com"],

@@ -169,3 +169,15 @@ content: this is not end-to-end encryption, certified archival storage or DRM.
 Continue with [background jobs](/engineering/background-jobs/) for durable work,
 [authority](/architecture/authority-and-tenancy/) for role/session boundaries and
 [troubleshooting](/engineering/troubleshooting/) for safe recovery.
+
+## Owner-bound document lists
+
+My documents reads its page and optional category summary concurrently after the
+personal session resolves. Search, status, sender and sorting are server-side and
+owner-bound; each page hydrates metadata in one query plus its filtered count,
+without loading document content. Unassociated titles remain hidden. Filters
+and sort live in the URL; changing them invalidates earlier cursors and results.
+A missing summary leaves the page usable, while an authority refusal clears both
+page and summary. Current authentication policy, account changes and every
+reader/download/deposit authorization remain enforced independently. Local D1
+and intercepted-browser checks do not establish hosted-volume or delivery proof.

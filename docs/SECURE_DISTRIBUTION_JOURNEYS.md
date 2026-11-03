@@ -16,14 +16,14 @@ Contract and journeys, updated for the 27 October 2026 source candidate. This de
 
 ## Authority and entry conditions
 
-| Actor                        | Required authority                                                                       | Scope                                                                                                         |
-| ---------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Preparer                     | Current membership, preparation permission, accessible verified source                   | Own preparation, exact source and frozen quote                                                                |
-| Approver                     | Administrator or supervisor with approval permission; browser and current-policy session | Workspace review, approval and recipient association                                                          |
-| Renewing approver            | Same browser, current approval permission, source access and recent document session     | Replace only an eligible unsubmitted preparation; obtain new human review                                     |
-| Recipient                    | Personal principal, verified address, current-policy session and policy-bound association        | Own shared access and personal copies                                                                         |
-| Assistant / OAuth API client | Intersection of role, scopes and current connection                                      | Workspace preparation/follow-up; confirmation after browser evidence, no recipient identity or personal vault |
-| Platform operator            | Separate configuration/publication authorization                                         | Service activation; no authority derived from workspace role                                                  |
+| Actor                        | Required authority                                                                        | Scope                                                                                                         |
+| ---------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Preparer                     | Current membership, preparation permission, accessible verified source                    | Own preparation, exact source and frozen quote                                                                |
+| Approver                     | Administrator or supervisor with approval permission; browser and current-policy session  | Workspace review, approval and recipient association                                                          |
+| Renewing approver            | Same browser, current approval permission, source access and recent document session      | Replace only an eligible unsubmitted preparation; obtain new human review                                     |
+| Recipient                    | Personal principal, verified address, current-policy session and policy-bound association | Own shared access and personal copies                                                                         |
+| Assistant / OAuth API client | Intersection of role, scopes and current connection                                       | Workspace preparation/follow-up; confirmation after browser evidence, no recipient identity or personal vault |
+| Platform operator            | Separate configuration/publication authorization                                          | Service activation; no authority derived from workspace role                                                  |
 
 Account, language and sign-in are shared. Receipt creates no sender membership; plugin installation or possession of a document address creates no rights. Verified email does not establish physical identity. The server controls document policy, never a browser field. `strong` is default; `verified_account` is the explicitly requested live choice, requiring verified account/email, linked Auth0 identity and signed `auth_time` in a current session, without claiming MFA or certified physical identity. Unknown values or environment/D1 disagreement close access. With `verified_account`, a valid, unexpired and unrevoked session covers reading, association, approval, export, deposit and deletion without another document sign-in. Positive, nonfuture authentication time, verified address and exact linked identity remain mandatory. The explicit `strong` policy retains fifteen-minute authentication for reading/association/approval and five minutes for export/deposit/deletion.
 
@@ -155,6 +155,33 @@ Recipients may export then delete their copy. Deletion removes personal access, 
 
 **My documents** separates both categories. Server-side owner-bound filtering, bounded search and pagination cover all authorized documents rather than only the first client-filtered rows. 401/403 clears loaded lists/cursors; obsolete pagination responses after refresh cannot restore them. Account language remains shared across Guteneo.
 
+3 November 2026 recovery candidate: `GET /api/personal/documents` hydrates
+one owner-bound page in one database read, with a second parallel read for the
+filtered `total`, after the current personal-session and rate-limit fence. It
+accepts `status=available|pending|expiring|ended`, exact displayed `sender`,
+`sort=recent|oldest|expiry|title`, bounded search and up to 50 rows. Expiring
+means available and ending within 14 days. Each sort has a stable keyset cursor;
+earlier recency cursors retain their original shape. The four product languages'
+accented letters are folded for search/title ordering, without claiming complete
+Unicode collation. Unassociated titles remain hidden, unsearchable and unsorted.
+
+The browser reads `/api/personal/documents/summary` beside the first page, never
+before it. Category state counts and up to 100 sender choices require the same
+personal authority and no-store headers; a summary outage leaves the list usable.
+Category, filters, sort and page size live in the URL. A changed filter removes
+old page data immediately, cancels a pending page request and starts again at the
+first page; an obsolete response cannot restore its cursor or results. A 401/403
+from either list or summary clears all loaded metadata. Refresh/retry rechecks
+authority; changing account remounts all page state. The optional generic
+workspace invitation remains independent of document contents and access.
+
+These reads expose no workspace OAuth/MCP or native personal-vault capability,
+perform no document-content prefetch and grant no sender membership. The current
+server authentication policy, association, approval, retention and financial
+invariants are unchanged. Local migrated-D1 and intercepted-browser qualification
+are recorded in [frontend performance](FRONTEND_PERFORMANCE.md); hosted volume,
+real recipients and provider delivery remain separate evidence.
+
 **Use Guteneo** remains in the same session. Recipients can prepare sends/share documents, choose an existing membership or request an initial workspace. The server explicitly creates required business structures with real channels closed and administrator role for the creator. Creation/selection reloads the chosen preparation document and workspace session; identity, rights and CSRF all come from the new server session without retaining old workspace context. Failures stay visible in the personal area. Selecting the sender's workspace without membership is denied. Receipt implies no new login identity, mandatory subscription or marketing consent.
 
 Ordinary application entry (`/#/app`) by a verified account without a workshop
@@ -172,6 +199,20 @@ forced workspace. New accounts use V2 while existing layout choices remain saved
 See [layout defaults](DASHBOARD_V2.md#new-account-default--27-october-2026-candidate).
 
 Service promotion is generic/voluntary. Titles, contents, senders and reading actions do not personalize offers. Promised document access never depends on commercial conversion.
+
+Recipient-to-workspace path, requalified with ten local desktop/mobile scenarios
+on 3 November 2026: the email
+link opens My documents; a person without an account uses **Create my Guteneo
+account** (Auth0 `screen_hint=signup`), and the callback creates the user,
+identity link and personal session without any membership. After the verified
+claim, the list shows a generic **Send your own documents too** prompt while
+the account has no workspace; **Use Guteneo** creates the workspace in one
+named step with the creator as administrator, channels closed and no charge,
+then the new administrator finds the workspace in **Administration**. The
+local distribution scenarios exercise the fictional recipient, its personal
+session, voluntary services, workspace creation with the administrator role
+and its settings in Administration; real Auth0 sign-up and provider delivery
+remain separately unqualified.
 
 ## Audit and information for people
 

@@ -1,24 +1,31 @@
 # Web applications
 
-Guteneo's browser product is four applications: **Studio**, **Correspondence**,
-**My documents** and **Belvédère**. Each one evolves on its own (code, styles,
+Guteneo's browser product is five applications: **Studio**, **Correspondence**,
+**My documents**, **Administration** and **Belvédère**. Each one evolves on its own (code, styles,
 loading and authority) and all of them follow one design system. This document
 owns those rules. [`apps/web/applications.json`](../apps/web/applications.json)
 records who owns each source file, and `npm run lint` enforces both sides
 through [`scripts/check-applications.mjs`](../scripts/check-applications.mjs).
 
-## The four applications
+## The five applications
 
-| Application    | Purpose                                                    | Authority                                       | Internal id |
-| -------------- | ---------------------------------------------------------- | ----------------------------------------------- | ----------- |
-| Studio         | Templates, data and generations                            | Current workspace membership                    | `studio`    |
-| Correspondence | Preparation, review, sending, tracking and workspace setup | Current workspace membership                    | `workshop`  |
-| My documents   | Documents received and personal copies                     | Personal session; no workspace required         | `personal`  |
-| Belvédère      | Read-only platform observation                             | Its separate global authority, checked per read | `belvedere` |
+| Application    | Purpose                                                                 | Authority                                                                               | Internal id      |
+| -------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ---------------- |
+| Studio         | Templates, data and generations                                         | Current workspace membership                                                            | `studio`         |
+| Correspondence | Preparation, review, sending and tracking                               | Current workspace membership                                                            | `workshop`       |
+| My documents   | Documents received and personal copies                                  | Personal session; no workspace required                                                 | `personal`       |
+| Administration | One workspace's reports, exports, members, access, billing and settings | Current membership: administrators; report views for supervisors with report permission | `administration` |
+| Belvédère      | Read-only platform observation                                          | Its separate global authority, checked per read                                         | `belvedere`      |
 
 Renaming an application changes its localized label only. Internal ids, routes
-(`/app/...`, `/app/studio/...`, `/app/my-documents`) and API paths stay stable, as
-[repository standards](REPOSITORY_STANDARDS.md) require.
+(`/app/...`, `/app/studio/...`, `/app/my-documents`, `/app/administration/...`)
+and API paths stay stable, as [repository standards](REPOSITORY_STANDARDS.md)
+require. The 3 November 2026 recovery moves workspace management (members,
+invitations, usage, billing, workspace name, channel controls and diagnostics)
+from Correspondence and the personal profile into Administration; `/app/admin`,
+`/app/usage` and `/app/billing` remain aliases. The
+[administration contract](WORKSPACE_ADMINISTRATION.md) owns its authority,
+exports and the decision to keep Belvédère platform-only.
 
 ## Ownership layers
 
@@ -40,6 +47,17 @@ Consequences:
 - The host loads each application on demand, so an application's code and styles
   ship in its own chunks and one application's growth does not slow another.
 - A new source file must be added to the manifest; an unowned file fails the check.
+
+## My documents list modules
+
+My documents owns separate route, claim, list, reader and status modules. The
+list's filters, category, sort and page size belong to its address; its cursor
+stack belongs to the current account and query. A query change discards the old
+page, cancels its request and disables stale pagination. The summary read runs
+alongside the page; unavailable counts do not block documents. All rows keep the
+shared controls, typography, color tokens and responsive geometry. The
+[recipient journey](SECURE_DISTRIBUTION_JOURNEYS.md#find-documents-and-discover-services)
+owns the API and authority contract.
 
 ## From Studio to Correspondence
 
@@ -116,7 +134,9 @@ applying to the current server page. Complete chart/finance detail arrays use th
 shared browser controls.
 
 The four human membership roles, independent supervisor permissions, personal
-access and Belvédère's separate platform authority remain unchanged. Controls
+access and Belvédère's separate platform authority remain unchanged.
+Administration's report and export routes are server-paged and browser-only;
+its tables disable browser search and pagination like Belvédère's. Controls
 organize rows already supplied by the authorized page; they grant no tenant
 access, approval, paid operation, mandate or new REST/MCP/native capability.
 State stays inside the mounted table and is not written to account preferences,

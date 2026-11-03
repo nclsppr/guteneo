@@ -1,8 +1,8 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**27 domains · 425 features · 44 journeys · 77 documented REST operations · 83 MCP tools**
-Updated 2026-11-01.
+**28 domains · 445 features · 45 journeys · 77 documented REST operations · 83 MCP tools**
+Updated 2026-11-03.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
 
@@ -14,31 +14,32 @@ Start here to find a feature, its authority and its technical owner. Read [repos
 mindmap
   root((Guteneo))
     Access
-      Access and identity (37)
+      Access and identity (39)
       Team and responsibilities (10)
+      Workspace administration and reports (10)
     Create
-      Documents and protection (20)
+      Documents and protection (21)
       Template studio (14)
       Data and mappings (11)
       PDF generation and distribution (15)
     Deliver
-      Fax (9)
+      Fax (10)
       Postal mail (10)
       Email and protected links (14)
-      Sensitive distribution and personal documents (31)
+      Sensitive distribution and personal documents (34)
       Dispatch dry run (7)
     Operate
       Campaigns and tracking (8)
-      Credits and billing (8)
+      Credits and billing (9)
       Workspace layout and browser appearance (37)
       PDF verification (10)
     Interfaces
       Assistants and API (31)
       iPhone and iPad (9)
-      Public pages, languages and appearance (23)
+      Public pages, languages and appearance (24)
     Operations
       Reviewer OAuth qualification (9)
-      Operations and reliability (31)
+      Operations and reliability (32)
       Belvédère platform oversight (14)
       Public service status (16)
       Engineering documentation (12)
@@ -50,28 +51,29 @@ mindmap
 
 ### Access
 
-- [Access and identity](#identity) — 37 features; browser-session.
+- [Access and identity](#identity) — 39 features; browser-session.
 - [Team and responsibilities](#team) — 10 features; browser-session.
+- [Workspace administration and reports](#administration) — 10 features; browser-session.
 
 ### Create
 
-- [Documents and protection](#documents) — 20 features; capability-gated.
+- [Documents and protection](#documents) — 21 features; capability-gated.
 - [Template studio](#templates) — 14 features; capability-gated.
 - [Data and mappings](#datasets) — 11 features; capability-gated.
 - [PDF generation and distribution](#generation) — 15 features; capability-gated.
 
 ### Deliver
 
-- [Fax](#fax) — 9 features; capability-gated.
+- [Fax](#fax) — 10 features; capability-gated.
 - [Postal mail](#postal) — 10 features; capability-gated.
 - [Email and protected links](#email) — 14 features; capability-gated.
-- [Sensitive distribution and personal documents](#secure-distribution) — 31 features; capability-gated.
+- [Sensitive distribution and personal documents](#secure-distribution) — 34 features; capability-gated.
 - [Dispatch dry run](#dry-run) — 7 features; read-only.
 
 ### Operate
 
 - [Campaigns and tracking](#campaigns) — 8 features; capability-gated.
-- [Credits and billing](#billing) — 8 features; partial.
+- [Credits and billing](#billing) — 9 features; partial.
 - [Workspace layout and browser appearance](#dashboard) — 37 features; browser-session.
 - [PDF verification](#pdf-verification) — 10 features; capability-gated.
 
@@ -79,12 +81,12 @@ mindmap
 
 - [Assistants and API](#assistants) — 31 features; host-qualified.
 - [iPhone and iPad](#native) — 9 features; local-candidate.
-- [Public pages, languages and appearance](#public) — 23 features; public.
+- [Public pages, languages and appearance](#public) — 24 features; public.
 
 ### Operations
 
 - [Reviewer OAuth qualification](#reviewer-oauth) — 9 features; operator-gated.
-- [Operations and reliability](#operations) — 31 features; operator-gated.
+- [Operations and reliability](#operations) — 32 features; operator-gated.
 - [Belvédère platform oversight](#belvedere) — 14 features; operator-gated.
 - [Public service status](#status) — 16 features; public.
 - [Engineering documentation](#engineering-docs) — 12 features; public.
@@ -208,10 +210,12 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Normal verified-account browser entry reuses Auth0 SSO within the existing one-hour session bound; signed authentication time is requested without forcing personal-entry max_age=0, and explicit fresh/account-switch behavior remains
 - Verified-account personal and document-authentication recovery use ordinary bounded Auth0 SSO without fresh=1; strong and explicit freshness recovery retain forced authentication. Legacy sessions missing signed auth_time require a real new authorization response, never a timestamp reconstructed from session creation; safe return paths, locale, tenant rights and human approval remain unchanged
 - Workspace and personal browser sessions project only canAccessBelvedere for navigation; signed privileged browser evidence and current membership remain mandatory, with no authority derived from mutable profile email or workspace role
+- Authenticated account reads and independent login/callback digests overlap while retaining saved appearance, canonical invitation validation, transaction-bound issuer, nonce and subject checks before session writes
+- Four-language Auth0 account email candidates with normalized request language and English fallback; current owned application IDs scope body, subject and sender while exact prior Liquid fields preserve other or missing clients. Offline Liquid/browser proof, remote application and real delivery remain separate; enabled flags, redirect and expiry are unchanged
 
 **Contract:** [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · **Implementation:** [apps/api/src/auth.ts](../apps/api/src/auth.ts)
 
-**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/mcp-auth0-domain.test.ts](../tests/unit/mcp-auth0-domain.test.ts), [tests/unit/postal-authority.test.ts](../tests/unit/postal-authority.test.ts), [tests/integration/expert-status.test.ts](../tests/integration/expert-status.test.ts), [tests/unit/workspace-entry.test.ts](../tests/unit/workspace-entry.test.ts), [tests/integration/workspace-invitations.test.ts](../tests/integration/workspace-invitations.test.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts)
+**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/mcp-auth0-domain.test.ts](../tests/unit/mcp-auth0-domain.test.ts), [tests/unit/postal-authority.test.ts](../tests/unit/postal-authority.test.ts), [tests/integration/expert-status.test.ts](../tests/integration/expert-status.test.ts), [tests/unit/workspace-entry.test.ts](../tests/unit/workspace-entry.test.ts), [tests/integration/workspace-invitations.test.ts](../tests/integration/workspace-invitations.test.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/unit/api-async.test.ts](../tests/unit/api-async.test.ts), [tests/security/auth0-email-branding.test.mjs](../tests/security/auth0-email-branding.test.mjs), [tests/auth0-email-e2e/email.spec.ts](../tests/auth0-email-e2e/email.spec.ts)
 
 
 
@@ -266,10 +270,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - A database-wide single App-finalizer lease bounds App assembly only; existing minute cron prioritizes expired leases, fences the original writer first and releases logical capacity without rerunning the pipeline. Cleanup remains at most two sessions/80 parts, waits for original expiry plus 90 seconds, retains unresolved debt/tombstones and never deletes registered/deduplicated originals; total Worker memory is not qualified by this admission limit
 - Authenticated documents.originalFilePicker exposes explicit_local_original and conversationAttachmentAccess:false; SDK context updates contain only registered document ID/status and bound original size/SHA, never content/base64/filename/token. Actual 1.1.6 Desktop registered-ID delivery to the model failed; the 1.1.8 source candidate adds standard text alongside structured context plus explicit Use in conversation for the same four-key receipt, with native retests pending and no automatic chat message on import
 - MCP_DOCUMENT_UPLOAD_APP is off by default: strict existing-connection/revision JSON supports at most one hour of qualification, while explicit enabled mode supports a separately reviewed general production rollout after actual qualification and authorized delivery; both retain current writer/OAuth guards, observer denial and no browser fetch, Origin/network permission, new scope, approval, paid check, mandate or infrastructure
+- Bounded document-analysis reads and PDF canvas/text extraction overlap; both renderer tasks settle before completion or cleanup, with stale-response and sensitive-source fences retained
 
 **Contract:** [SCANNER_RESCAN.md](SCANNER_RESCAN.md) · **Implementation:** [apps/api/src/documents.ts](../apps/api/src/documents.ts)
 
-**Tests:** [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/integration/private-document-upload.test.ts](../tests/integration/private-document-upload.test.ts), [tests/unit/private-document-upload-mcp.test.ts](../tests/unit/private-document-upload-mcp.test.ts), [tests/security/private-pdf-client.test.mjs](../tests/security/private-pdf-client.test.mjs), [tests/integration/mcp-app-document-upload.test.ts](../tests/integration/mcp-app-document-upload.test.ts), [tests/unit/mcp-app-upload-contracts.test.ts](../tests/unit/mcp-app-upload-contracts.test.ts), [tests/unit/mcp-app-upload.test.ts](../tests/unit/mcp-app-upload.test.ts), [tests/browser/mcp-document-upload.test.mjs](../tests/browser/mcp-document-upload.test.mjs), [tests/security/mcp-document-upload.test.mjs](../tests/security/mcp-document-upload.test.mjs)
+**Tests:** [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/integration/private-document-upload.test.ts](../tests/integration/private-document-upload.test.ts), [tests/unit/private-document-upload-mcp.test.ts](../tests/unit/private-document-upload-mcp.test.ts), [tests/security/private-pdf-client.test.mjs](../tests/security/private-pdf-client.test.mjs), [tests/integration/mcp-app-document-upload.test.ts](../tests/integration/mcp-app-document-upload.test.ts), [tests/unit/mcp-app-upload-contracts.test.ts](../tests/unit/mcp-app-upload-contracts.test.ts), [tests/unit/mcp-app-upload.test.ts](../tests/unit/mcp-app-upload.test.ts), [tests/browser/mcp-document-upload.test.mjs](../tests/browser/mcp-document-upload.test.mjs), [tests/security/mcp-document-upload.test.mjs](../tests/security/mcp-document-upload.test.mjs), [tests/unit/api-async.test.ts](../tests/unit/api-async.test.ts), [tests/unit/document-browser-async.test.ts](../tests/unit/document-browser-async.test.ts), [tests/unit/web-async-pdf.test.ts](../tests/unit/web-async-pdf.test.ts)
 
 **Documented REST operations**
 
@@ -487,10 +492,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Unsendable reviewer mode stops before approval
 - Explicit continuous access removes periodic reviewer-reference renewal for the exact restricted single-member account; archived pricing stays labelled, quotes retain their 900-second lifetime and approval/sending remain prohibited
 - Registered live commercial references refresh from actual official sources and provider-ownership reads through the existing scheduler; bounded leases/backoff and active-quote deferral preserve immutable approved prices
+- Read-only readiness overlaps outbound-profile inspection with ordered bounded phone pagination; partial errors retain stable stage order and tariff/replay/settlement dependencies remain fenced
 
 **Contract:** [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md) · **Implementation:** [packages/domain/src/index.ts](../packages/domain/src/index.ts)
 
-**Tests:** [tests/e2e/fax-pricing.spec.ts](../tests/e2e/fax-pricing.spec.ts), [tests/integration/continuous-review-preparation.test.ts](../tests/integration/continuous-review-preparation.test.ts), [tests/integration/fax-tariff-refresh.test.ts](../tests/integration/fax-tariff-refresh.test.ts), [tests/unit/fax-tariff-sources.test.ts](../tests/unit/fax-tariff-sources.test.ts), [tests/unit/fax-eea-reference.test.ts](../tests/unit/fax-eea-reference.test.ts), [tests/unit/verified-fax-reference-registration.test.ts](../tests/unit/verified-fax-reference-registration.test.ts), [tests/integration/verified-fax-reference-refresh.test.ts](../tests/integration/verified-fax-reference-refresh.test.ts), [tests/integration/provider-freshness-collector.test.ts](../tests/integration/provider-freshness-collector.test.ts)
+**Tests:** [tests/e2e/fax-pricing.spec.ts](../tests/e2e/fax-pricing.spec.ts), [tests/integration/continuous-review-preparation.test.ts](../tests/integration/continuous-review-preparation.test.ts), [tests/integration/fax-tariff-refresh.test.ts](../tests/integration/fax-tariff-refresh.test.ts), [tests/unit/fax-tariff-sources.test.ts](../tests/unit/fax-tariff-sources.test.ts), [tests/unit/fax-eea-reference.test.ts](../tests/unit/fax-eea-reference.test.ts), [tests/unit/verified-fax-reference-registration.test.ts](../tests/unit/verified-fax-reference-registration.test.ts), [tests/integration/verified-fax-reference-refresh.test.ts](../tests/integration/verified-fax-reference-refresh.test.ts), [tests/integration/provider-freshness-collector.test.ts](../tests/integration/provider-freshness-collector.test.ts), [tests/unit/providers-async.test.ts](../tests/unit/providers-async.test.ts), [tests/unit/domain-async.test.ts](../tests/unit/domain-async.test.ts)
 
 **Documented REST operations**
 
@@ -610,10 +616,13 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Provider preflight validates the transport reservation after deducting already committed secure retention/personal-copy charges from the immutable total ceiling; it retains all active attempt, approval, sender and tenant checks
 - One explicit priced browser Send action records approval then activation after two attestations; a failed response requires read-only Check status before same-key recovery, without effect-driven writes or another MCP confirmation after active readback
 - Local D1/R2 regressions cover revocation of metadata/images/text/permitted-original/deposit, decryption races, concurrent deposit and duplicate-copy workers; durable copies converge on exact bytes and single receipts without reviving revoked shared access
+- My documents hydrates each owner-bound page in one query plus a filtered total, with state/sender filters, four keyset sort orders and accent-folded search; hidden unassociated titles never participate
+- A parallel summary provides category counts and at most 100 sender choices; summary failure does not delay the list, filter changes discard old page cursors and authority refusals clear all loaded metadata
+- Page-by-page My documents navigation and a generic prompt to create a workspace for accounts without one
 
 **Contract:** [SECURE_DISTRIBUTION_JOURNEYS.md](SECURE_DISTRIBUTION_JOURNEYS.md) · **Implementation:** [apps/api/src/secure-distributions.ts](../apps/api/src/secure-distributions.ts)
 
-**Tests:** [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/distribution-e2e/distribution-pricing.e2e.ts](../tests/distribution-e2e/distribution-pricing.e2e.ts), [tests/distribution-e2e/distribution-lifecycle.e2e.ts](../tests/distribution-e2e/distribution-lifecycle.e2e.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/distribution-verified-e2e/lifecycle.e2e.ts](../tests/distribution-verified-e2e/lifecycle.e2e.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/auth-navigation-recovery.test.ts](../tests/unit/auth-navigation-recovery.test.ts), [tests/e2e/secure-distribution-recovery.spec.ts](../tests/e2e/secure-distribution-recovery.spec.ts), [tests/integration/secure-resend-journey.test.ts](../tests/integration/secure-resend-journey.test.ts), [tests/e2e/secure-distribution-send.spec.ts](../tests/e2e/secure-distribution-send.spec.ts)
+**Tests:** [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/distribution-e2e/distribution-pricing.e2e.ts](../tests/distribution-e2e/distribution-pricing.e2e.ts), [tests/distribution-e2e/distribution-lifecycle.e2e.ts](../tests/distribution-e2e/distribution-lifecycle.e2e.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/distribution-verified-e2e/lifecycle.e2e.ts](../tests/distribution-verified-e2e/lifecycle.e2e.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/auth-navigation-recovery.test.ts](../tests/unit/auth-navigation-recovery.test.ts), [tests/e2e/secure-distribution-recovery.spec.ts](../tests/e2e/secure-distribution-recovery.spec.ts), [tests/integration/secure-resend-journey.test.ts](../tests/integration/secure-resend-journey.test.ts), [tests/e2e/secure-distribution-send.spec.ts](../tests/e2e/secure-distribution-send.spec.ts), [tests/unit/personal-document-list.test.ts](../tests/unit/personal-document-list.test.ts), [tests/e2e/personal-document-list.spec.ts](../tests/e2e/personal-document-list.spec.ts)
 
 **Documented REST operations**
 
@@ -716,10 +725,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Prepared Stripe integration with separate commercial qualification
 - Read-only tenant-scoped monthly consumption history; current/latest/explicit UTC month selection preserves previous usage and simulation boundaries
 - GitHub-style annual daily activity grid from exact UTC posted debits, selectable years/day detail, keyboard navigation and contained phone scrolling; reservations and simulation remain distinct
+- Authorized overview and selected-period usage overlap independent reads while retaining explicit/latest period selection and current administrator/reporting authority
 
 **Contract:** [WELCOME_CREDIT.md](WELCOME_CREDIT.md) · **Implementation:** [apps/api/src/billing.ts](../apps/api/src/billing.ts)
 
-**Tests:** [tests/unit/billing.test.ts](../tests/unit/billing.test.ts), [tests/integration/welcome-credit.test.ts](../tests/integration/welcome-credit.test.ts), [tests/e2e/usage-history.spec.ts](../tests/e2e/usage-history.spec.ts), [tests/e2e/usage-activity.spec.ts](../tests/e2e/usage-activity.spec.ts), [tests/integration/live-delivery-quotes.test.ts](../tests/integration/live-delivery-quotes.test.ts), [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts), [tests/unit/pdf-validation-pricing.test.ts](../tests/unit/pdf-validation-pricing.test.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/auth.test.ts](../tests/unit/auth.test.ts)
+**Tests:** [tests/unit/billing.test.ts](../tests/unit/billing.test.ts), [tests/integration/welcome-credit.test.ts](../tests/integration/welcome-credit.test.ts), [tests/e2e/usage-history.spec.ts](../tests/e2e/usage-history.spec.ts), [tests/e2e/usage-activity.spec.ts](../tests/e2e/usage-activity.spec.ts), [tests/integration/live-delivery-quotes.test.ts](../tests/integration/live-delivery-quotes.test.ts), [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts), [tests/unit/pdf-validation-pricing.test.ts](../tests/unit/pdf-validation-pricing.test.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/api-async.test.ts](../tests/unit/api-async.test.ts), [tests/unit/domain-async.test.ts](../tests/unit/domain-async.test.ts)
 
 **Documented REST operations**
 
@@ -858,10 +868,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Self-hosted interface fonts use optional display and three emitted-asset preloads, preserving the approved type when ready while keeping already-visible text geometry stable when font delivery is slow; delayed-font tests qualify desktop and mobile browsers separately, and shared public heading wrapping and responsive wordmark/action bounds preserve narrow layouts with unavailable-font metrics
 - Ordinary same-origin links between registered public pages retain one browser document and loaded application; all small public page components are available on the first interactive click without HTML, route-code, session or private-data prefetch. Canonical English URLs, four-language presentation, static direct entries, history, anchors, focus and destination metadata remain coherent; unavailable initial JavaScript retains the complete static page. Pointer route focus does not frame script-focused containers; keyboard route focus underlines the new main title in the brand blue while interactive controls retain their focus indicators
 - Public film play controls are disabled in server HTML until the client handler mounts; releasing route code starts no movie, and the first enabled click keeps playback/fullscreen in the native gesture with the resolved locale
+- Public fixture PDFs initialize concurrently with deterministic order, no business bindings or extra network dependency
 
 **Contract:** [MULTILINGUAL.md](MULTILINGUAL.md) · **Implementation:** [packages/contracts/src/public-site.json](../packages/contracts/src/public-site.json)
 
-**Tests:** [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/preview-e2e/public-render-stability.spec.ts](../tests/preview-e2e/public-render-stability.spec.ts), [tests/unit/locale-bootstrap.test.ts](../tests/unit/locale-bootstrap.test.ts), [tests/unit/public-locale-negotiation.test.ts](../tests/unit/public-locale-negotiation.test.ts), [tests/preview-e2e/language-navigation.spec.ts](../tests/preview-e2e/language-navigation.spec.ts), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts), [tests/preview-e2e/public-menu-escape.spec.ts](../tests/preview-e2e/public-menu-escape.spec.ts), [tests/unit/public-assets.test.ts](../tests/unit/public-assets.test.ts), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/unit/public-http-error.test.ts](../tests/unit/public-http-error.test.ts), [tests/preview-e2e/homepage.spec.ts](../tests/preview-e2e/homepage.spec.ts), [tests/preview-e2e/homepage-film.spec.ts](../tests/preview-e2e/homepage-film.spec.ts), [tests/preview-e2e/seo.spec.ts](../tests/preview-e2e/seo.spec.ts), [tests/preview-e2e/theme.spec.ts](../tests/preview-e2e/theme.spec.ts), [tests/unit/standalone-theme.test.ts](../tests/unit/standalone-theme.test.ts), [tests/preview-e2e/public-artwork.spec.ts](../tests/preview-e2e/public-artwork.spec.ts), [tests/unit/public-preview.test.ts](../tests/unit/public-preview.test.ts), [tests/preview-e2e/preview.spec.ts](../tests/preview-e2e/preview.spec.ts), [tests/preview-e2e/mobile-workspace.spec.ts](../tests/preview-e2e/mobile-workspace.spec.ts), [tests/unit/public-footer.test.ts](../tests/unit/public-footer.test.ts), [tests/security/brand-icons.test.mjs](../tests/security/brand-icons.test.mjs), [tests/preview-e2e/font-render-stability.spec.ts](../tests/preview-e2e/font-render-stability.spec.ts), [tests/unit/public-navigation.test.ts](../tests/unit/public-navigation.test.ts), [tests/preview-e2e/public-navigation.spec.ts](../tests/preview-e2e/public-navigation.spec.ts)
+**Tests:** [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/preview-e2e/public-render-stability.spec.ts](../tests/preview-e2e/public-render-stability.spec.ts), [tests/unit/locale-bootstrap.test.ts](../tests/unit/locale-bootstrap.test.ts), [tests/unit/public-locale-negotiation.test.ts](../tests/unit/public-locale-negotiation.test.ts), [tests/preview-e2e/language-navigation.spec.ts](../tests/preview-e2e/language-navigation.spec.ts), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts), [tests/preview-e2e/public-menu-escape.spec.ts](../tests/preview-e2e/public-menu-escape.spec.ts), [tests/unit/public-assets.test.ts](../tests/unit/public-assets.test.ts), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/unit/public-http-error.test.ts](../tests/unit/public-http-error.test.ts), [tests/preview-e2e/homepage.spec.ts](../tests/preview-e2e/homepage.spec.ts), [tests/preview-e2e/homepage-film.spec.ts](../tests/preview-e2e/homepage-film.spec.ts), [tests/preview-e2e/seo.spec.ts](../tests/preview-e2e/seo.spec.ts), [tests/preview-e2e/theme.spec.ts](../tests/preview-e2e/theme.spec.ts), [tests/unit/standalone-theme.test.ts](../tests/unit/standalone-theme.test.ts), [tests/preview-e2e/public-artwork.spec.ts](../tests/preview-e2e/public-artwork.spec.ts), [tests/unit/public-preview.test.ts](../tests/unit/public-preview.test.ts), [tests/preview-e2e/preview.spec.ts](../tests/preview-e2e/preview.spec.ts), [tests/preview-e2e/mobile-workspace.spec.ts](../tests/preview-e2e/mobile-workspace.spec.ts), [tests/unit/public-footer.test.ts](../tests/unit/public-footer.test.ts), [tests/security/brand-icons.test.mjs](../tests/security/brand-icons.test.mjs), [tests/preview-e2e/font-render-stability.spec.ts](../tests/preview-e2e/font-render-stability.spec.ts), [tests/unit/public-navigation.test.ts](../tests/unit/public-navigation.test.ts), [tests/preview-e2e/public-navigation.spec.ts](../tests/preview-e2e/public-navigation.spec.ts), [tests/unit/web-async-preview.test.ts](../tests/unit/web-async-preview.test.ts)
 
 
 
@@ -987,10 +998,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - TypeScript 7 validator behavior tests use native Node type stripping and an exact JSONC parser declared in both root and service manifests; independent root-only and service-only installs preserve complete shared security assertions.
 - Every PR retains complete 24-job validation; an ordinary main merge may reuse a fresh complete same-repository PR proof only for identical Git trees, trusted CI policy, current locks, exact recorded runtimes and complete successful job/test inventories; missing or uncertain metadata runs full, fresh advisory checks remain, and an independent final gate rejects drift or arbitrary skips.
 - Same-run static builds deduplicate identical bytes into commit/tree-bound SHA-256 objects, verify full object and selected release/health inventories before reconstruction, narrow only prebuilt browser/distribution source checkouts, preserve authored caption scripts and retain raw debug evidence separately from compact aggregate proof; no LFS migration, test removal or paid provisioning.
+- Claimed dispatch preflight overlaps independent tenant reads before submission; maintenance cursor reads are combined while deletion, audits and mutation order remain unchanged
 
 **Contract:** [CI.md](CI.md) · **Implementation:** [scripts/deploy-public.mjs](../scripts/deploy-public.mjs)
 
-**Tests:** [tests/security/ci-artifacts.test.mjs](../tests/security/ci-artifacts.test.mjs), [tests/security/ci-results.test.mjs](../tests/security/ci-results.test.mjs), [tests/security/ci-browser-results.test.mjs](../tests/security/ci-browser-results.test.mjs), [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs), [apps/pdf-validator/tests/probe-credentials.test.mjs](../apps/pdf-validator/tests/probe-credentials.test.mjs), [tests/security/production-monitor.test.mjs](../tests/security/production-monitor.test.mjs), [tests/security/observability.test.mjs](../tests/security/observability.test.mjs), [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts), [apps/scanner/tests/maintenance-status.test.mjs](../apps/scanner/tests/maintenance-status.test.mjs), [apps/scanner/tests/qualification-artifact.test.mjs](../apps/scanner/tests/qualification-artifact.test.mjs), [tests/security/verify-release.test.mjs](../tests/security/verify-release.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/unit/public-routes.test.ts](../tests/unit/public-routes.test.ts), [tests/integration/secure-resend-journey.test.ts](../tests/integration/secure-resend-journey.test.ts), [tests/unit/providers-webhooks.test.ts](../tests/unit/providers-webhooks.test.ts), [tests/security/dependency-release.test.mjs](../tests/security/dependency-release.test.mjs), [tests/unit/dependency-compatibility.test.ts](../tests/unit/dependency-compatibility.test.ts), [tests/security/mcp-registration.test.mjs](../tests/security/mcp-registration.test.mjs), [tests/security/ci-build-artifact.test.mjs](../tests/security/ci-build-artifact.test.mjs), [tests/security/ci-validation-proof.test.mjs](../tests/security/ci-validation-proof.test.mjs), [tests/security/sqlite-integrity-proof.test.mjs](../tests/security/sqlite-integrity-proof.test.mjs)
+**Tests:** [tests/security/ci-artifacts.test.mjs](../tests/security/ci-artifacts.test.mjs), [tests/security/ci-results.test.mjs](../tests/security/ci-results.test.mjs), [tests/security/ci-browser-results.test.mjs](../tests/security/ci-browser-results.test.mjs), [tests/security/main-only-release.test.mjs](../tests/security/main-only-release.test.mjs), [tests/security/pdf-validator-release.test.mjs](../tests/security/pdf-validator-release.test.mjs), [apps/pdf-validator/tests/probe-credentials.test.mjs](../apps/pdf-validator/tests/probe-credentials.test.mjs), [tests/security/production-monitor.test.mjs](../tests/security/production-monitor.test.mjs), [tests/security/observability.test.mjs](../tests/security/observability.test.mjs), [tests/integration/documents.test.ts](../tests/integration/documents.test.ts), [tests/unit/telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts), [apps/scanner/tests/maintenance-status.test.mjs](../apps/scanner/tests/maintenance-status.test.mjs), [apps/scanner/tests/qualification-artifact.test.mjs](../apps/scanner/tests/qualification-artifact.test.mjs), [tests/security/verify-release.test.mjs](../tests/security/verify-release.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/unit/public-routes.test.ts](../tests/unit/public-routes.test.ts), [tests/integration/secure-resend-journey.test.ts](../tests/integration/secure-resend-journey.test.ts), [tests/unit/providers-webhooks.test.ts](../tests/unit/providers-webhooks.test.ts), [tests/security/dependency-release.test.mjs](../tests/security/dependency-release.test.mjs), [tests/unit/dependency-compatibility.test.ts](../tests/unit/dependency-compatibility.test.ts), [tests/security/mcp-registration.test.mjs](../tests/security/mcp-registration.test.mjs), [tests/security/ci-build-artifact.test.mjs](../tests/security/ci-build-artifact.test.mjs), [tests/security/ci-validation-proof.test.mjs](../tests/security/ci-validation-proof.test.mjs), [tests/security/sqlite-integrity-proof.test.mjs](../tests/security/sqlite-integrity-proof.test.mjs), [tests/unit/domain-async.test.ts](../tests/unit/domain-async.test.ts)
 
 **Documented REST operations**
 
@@ -1174,6 +1186,30 @@ Supervisor approval/reporting options are independent and off by default. Resour
 **Contract:** [PROVIDER_FRESHNESS.md](PROVIDER_FRESHNESS.md) · **Implementation:** [apps/api/src/provider-freshness.ts](../apps/api/src/provider-freshness.ts)
 
 **Tests:** [tests/integration/freshness-alerts.test.ts](../tests/integration/freshness-alerts.test.ts), [tests/integration/provider-freshness.test.ts](../tests/integration/provider-freshness.test.ts), [tests/integration/postal-policy-refresh.test.ts](../tests/integration/postal-policy-refresh.test.ts), [tests/integration/resend-policy-refresh.test.ts](../tests/integration/resend-policy-refresh.test.ts), [tests/security/native-alerting-plan.test.mjs](../tests/security/native-alerting-plan.test.mjs), [tests/unit/observability.test.ts](../tests/unit/observability.test.ts), [tests/security/resend-setup.test.mjs](../tests/security/resend-setup.test.mjs), [apps/scanner/tests/maintenance-status.test.mjs](../apps/scanner/tests/maintenance-status.test.mjs)
+
+
+
+<a id="administration"></a>
+### Workspace administration and reports
+
+**Availability model:** browser-session. 3 November 2026 recovered source candidate. Current local qualification and limits are recorded in the administration contract; hosted CI, production-data and physical-device qualification remain separate.
+
+**Surfaces:** Authenticated browser membership only; OAuth, MCP and native callers are refused.
+
+- Dedicated Administration application for one workspace, offered to administrators and to supervisors with report permission; the server recomputes permissions from the current membership on every read
+- Overview with Belvédère-style figures, daily activity and channel/state breakdowns, limited to the authenticated workspace
+- Server-paged activity filtered by channel, state, attention or reference, without recipients, subjects, document titles or message content
+- Consumption from the posted charge ledger by service, channel and month, beside the former monthly usage ledger and calendar
+- Members, roles, supervisor options, invitations and member activity moved from Correspondence; workspace name, channel controls and diagnostics moved from the personal profile to Settings
+- Open access, assistant authorizations and recorded sign-ins of members, without connection countries
+- Audit log of actions and resource identifiers, never audit details
+- CSV, Excel and PDF exports of the period with exact decimal amounts from integer minor units, formula-safe CSV, a cumulative 10,000-row and 4 MiB text refusal, bounded cells and a global 500-row PDF with explicit omissions and an audit entry per export
+- Earlier /app/admin, /app/usage and /app/billing addresses remain aliases, including billing portal returns
+- URL periods reject malformed dates safely; custom fields follow presets and history, stale reads cannot overwrite the current workspace, and obsolete export downloads are cancelled
+
+**Contract:** [WORKSPACE_ADMINISTRATION.md](WORKSPACE_ADMINISTRATION.md) · **Implementation:** [apps/api/src/administration.ts](../apps/api/src/administration.ts)
+
+**Tests:** [tests/unit/administration.test.ts](../tests/unit/administration.test.ts), [tests/e2e/account-billing.spec.ts](../tests/e2e/account-billing.spec.ts), [tests/e2e/workspace-roles.spec.ts](../tests/e2e/workspace-roles.spec.ts), [tests/e2e/team-invitations.spec.ts](../tests/e2e/team-invitations.spec.ts), [tests/e2e/usage-history.spec.ts](../tests/e2e/usage-history.spec.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/workspace-administration-client.test.ts](../tests/unit/workspace-administration-client.test.ts), [tests/e2e/workspace-administration.spec.ts](../tests/e2e/workspace-administration.spec.ts)
 
 
 
@@ -1618,6 +1654,16 @@ Identify the mechanism that actually consumes a deadline, including selected fir
 **Failure/recovery:** No date bump after an unrelated GET, automatic key widening, manual-policy conversion, consent extension, cap reset, hold removal or unknown communication retry. Confirmed Resend contradictions block their affected consumer; automatic-price drift does not replace an exact qualified manual override, and failed reads preserve their true uncertainty. Do not clear unvisited bindings, stale evidence, failed checks or missing freshness telemetry with an HTTP success or healthy Cron heartbeat; native recovery requires explicit healthy freshness coverage after the five-minute failure window, with original error conditions conservatively retained for five minutes and nominal native detection up to one five-minute cycle plus external delay; the separate minute heartbeat and application security/send gates are unchanged. API 1.1.22, migrations 0068–0070 and legacy native email receipt were observed on 31 October; PR131 compatibility is deployed on 1 November, and 1.1.24 plus the final saved native monitor were independently verified; 1.1.26 is deployed and separately authorized Full-access Resend source inspection passed, while genuine renewal/recovery still awaits the 11:37 UTC Cron evidence at this handoff. Rejected native probes remain distinct from later success; actual provider renewals, notifications and real delivery retain separate qualification. An unknown historical postal lineage remains unknown; an explicitly forbidden fax route stays forbidden and supplies no consumed price-expiry warning.
 
 [Detailed contract](PROVIDER_FRESHNESS.md).
+
+### J45 · Administer a workspace and export its reports
+
+**Actor:** Workspace administrator; supervisor with report permission for report views. **Branch:** Correspondence keeps preparation and tracking; the personal profile keeps the person's own settings; Belvédère stays platform-only.
+
+Open Administration from the application switcher → choose a period preset or a custom UTC range → read the overview, activity, consumption and access → manage members, invitations, billing and workspace settings → download the complete report as Excel or PDF, or one dataset as CSV → find the export recorded in the audit log
+
+**Failure/recovery:** Changed membership refuses with MEMBERSHIP_CHANGED; assistants and native clients receive BROWSER_REQUIRED. Invalid dates recover in the browser and are refused by the API; periods over 366 days and export row/text bounds fail explicitly. PDFs disclose global row omissions. Changing a period or identity cancels obsolete downloads.
+
+[Detailed contract](WORKSPACE_ADMINISTRATION.md).
 
 ## Required maintenance
 

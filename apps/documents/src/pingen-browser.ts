@@ -158,8 +158,17 @@ export async function renderPostalPage(input: {
       background: "rgb(255,255,255)",
     }).promise;
     const rgba = context.getImageData(0, 0, width, height).data;
-    const hash = await crypto.subtle.digest("SHA-256", rgba);
-    const rasterSha256 = Array.from(new Uint8Array(hash), (byte) =>
+    // The first-page text layer is independent of the completed raster's hash.
+    // Wait for both even on failure so cleanup never races PDF.js extraction.
+    const [hashResult, textResult] = await Promise.allSettled([
+      crypto.subtle.digest("SHA-256", rgba),
+      input.page === 1
+        ? page.getTextContent({ disableNormalization: true })
+        : null,
+    ]);
+    if (hashResult.status === "rejected") throw hashResult.reason;
+    if (textResult.status === "rejected") throw textResult.reason;
+    const rasterSha256 = Array.from(new Uint8Array(hashResult.value), (byte) =>
       byte.toString(16).padStart(2, "0"),
     ).join("");
     let binary = "";
@@ -168,7 +177,7 @@ export async function renderPostalPage(input: {
     const rgbaBase64 = btoa(binary);
     let address: PostalPageEvidence["address"] = null;
     if (input.page === 1) {
-      const content = await page.getTextContent({ disableNormalization: true });
+      const content = textResult.value!;
       if (content.items.length > 20_000) throw new Error("TEXT_LIMIT");
       const items: AddressTextItem[] = [];
       const issues = new Set<string>();

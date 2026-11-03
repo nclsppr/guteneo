@@ -1,0 +1,178 @@
+/* Workspace administration: period controls, figures, panels and exports. */
+.administration-period {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 20px;
+  margin-bottom: 20px;
+}
+.administration-presets {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-alt);
+}
+.administration-presets button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+.administration-presets button[aria-pressed="true"] {
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: var(--shadow);
+}
+.administration-presets button:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.administration-custom-period,
+.administration-reference {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 12px;
+}
+.administration-custom-period .field,
+.administration-reference .field {
+  margin-bottom: 0;
+}
+.administration-custom-period .button,
+.administration-reference .button {
+  min-height: 44px;
+}
+.administration-period-note {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.administration-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.administration-panel {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.administration-panel h2 {
+  margin: 0;
+  font-size: 20px;
+}
+/* Full content width: the annual calendar needs every column. */
+.administration-usage {
+  margin-top: 32px;
+}
+.administration-usage > .section-toolbar h2 {
+  margin: 0;
+}
+.administration-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 20px;
+}
+.administration-columns > .administration-panel {
+  margin-bottom: 0;
+}
+.administration-columns + * {
+  margin-top: 20px;
+}
+.administration-statuses {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.administration-statuses li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+}
+.administration-statuses a {
+  text-decoration: none;
+}
+.administration-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 16px;
+  margin-bottom: 16px;
+}
+.administration-filters > .field {
+  margin-bottom: 0;
+  min-width: min(100%, 200px);
+}
+.administration-range {
+  margin: 0 0 8px;
+  color: var(--muted);
+}
+.administration-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+.administration-pager span {
+  color: var(--muted);
+}
+.administration-exports {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+.administration-export {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.administration-export h3 {
+  margin: 0;
+  font-size: 18px;
+}
+.administration-export > p {
+  margin: 0;
+  color: var(--muted);
+}
+.administration-export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+}
+@media (max-width: 640px) {
+  .administration-panel {
+    padding: 16px;
+  }
+  .administration-pager .button,
+  .administration-export-actions .button {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}

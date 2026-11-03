@@ -82,6 +82,10 @@ async function fixture(
       ready: () => void;
       gate: Promise<void>;
     } | null,
+    holdNextMembers: null as {
+      ready: () => void;
+      gate: Promise<void>;
+    } | null,
   };
   await page.route("**/api/**", async (route) => {
     const request = route.request();
@@ -225,15 +229,23 @@ async function fixture(
       if (update.organizationName)
         session.organization.name = update.organizationName;
       body = { saved: true };
-    } else if (path === "/admin/members")
-      body = { items: members, nextCursor: null };
-    else if (path.startsWith("/admin/members/") && method === "PATCH") {
+    } else if (path === "/admin/members") {
+      body = { items: structuredClone(members), nextCursor: null };
+      const held = state.holdNextMembers;
+      state.holdNextMembers = null;
+      if (held) {
+        held.ready();
+        await held.gate;
+      }
+    } else if (path.startsWith("/admin/members/") && method === "PATCH") {
       const member = members.find((item) => item.id === path.split("/")[3]);
       Object.assign(member!, request.postDataJSON());
       body = { self: false, sessionsRevoked: true };
     } else if (path === "/admin/invitations")
       body = { items: [], nextCursor: null };
     else if (path === "/admin") body = { controls: [], deadLetters: [] };
+    else if (path === "/administration/members")
+      body = { items: [], total: 0, page: 1, pageSize: 50 };
     else {
       unmatched.push(`${method} ${path}`);
       status = 503;
@@ -716,7 +728,7 @@ test("contact failure is recoverable and switching workshops removes the previou
   await expect(
     contacts.getByRole("link", { name: /validation@example.invalid/ }),
   ).toHaveCount(0);
-  await expect(page.locator("#account-organization")).toHaveValue(
+  await expect(page.locator(".account-identity-details")).toContainText(
     "Deuxième atelier",
   );
   // The new workspace reads its own contacts; the old ones never reappear.
@@ -867,19 +879,49 @@ test("member emails distinguish identical names and role controls target the sel
   });
   await save.focus();
   await expect(save).toBeFocused();
-  await page.keyboard.press("Enter");
-  await expect(team.getByRole("status")).toContainText("Le rôle a été modifié");
-  expect(data.writes).toEqual([
-    {
-      method: "PATCH",
-      path: "/admin/members/same-name-colleague",
-      body: {
-        role: "viewer",
-        supervisorCanApprove: false,
-        supervisorCanReport: false,
+  let release!: () => void;
+  let requested!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const ready = new Promise<void>((resolve) => {
+    requested = resolve;
+  });
+  data.state.holdNextMembers = { ready: requested, gate };
+  try {
+    await page.keyboard.press("Enter");
+    await ready;
+    // A successful mutation and its still-pending refresh announce separate states.
+    await expect(team.getByRole("status")).toHaveCount(2);
+    await expect(
+      team.getByRole("status").filter({ hasText: "Le rôle a été modifié" }),
+    ).toBeVisible();
+    expect(data.writes).toEqual([
+      {
+        method: "PATCH",
+        path: "/admin/members/same-name-colleague",
+        body: {
+          role: "viewer",
+          supervisorCanApprove: false,
+          supervisorCanReport: false,
+        },
       },
-    },
-  ]);
-  await fits(page);
-  expect(data.unmatched).toEqual([]);
+    ]);
+    release();
+    await expect(
+      team.getByLabel(`Rôle de ${colleagueLabel}`, { exact: true }),
+    ).toHaveValue("viewer");
+    await expect(
+      team.getByLabel(
+        `Rôle de ${data.session.user.name} (${data.session.user.email})`,
+        { exact: true },
+      ),
+    ).toHaveValue("admin");
+    await expect(team.getByRole("status")).toHaveCount(1);
+    await fits(page);
+    expect(data.unmatched).toEqual([]);
+  } finally {
+    release();
+    await page.unrouteAll({ behavior: "wait" });
+  }
 });

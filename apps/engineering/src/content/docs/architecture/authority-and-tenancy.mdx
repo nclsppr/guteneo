@@ -19,6 +19,15 @@ workspace contract. A workspace Bearer token, administrator role or expert manda
 cannot read another person's personal documents. Identity binds issuer/subject,
 never equality of email addresses.
 
+Account-email presentation also preserves application boundaries. The four
+Auth0 email candidates use English, French, German and Luxembourgish with an
+English fallback. Before a template write, the operator script verifies current
+ownership of each selected OAuth client. Its Liquid condition scopes body,
+subject and sender to those application IDs; other or missing IDs retain the
+exact prior template fields. Enabled flags, link expiry and redirect settings
+remain unchanged. Offline Liquid and 320-pixel browser checks do not prove live
+Auth0 delivery, sender authentication or human consent.
+
 Explicit workspace creation/selection reloads current workspace authority. It
 does not weaken the owner boundary or automatically activate a channel. See
 [secure distribution](/workflows/secure-distribution/) for independent recipient
@@ -99,3 +108,25 @@ Use the [dispatch lifecycle](/architecture/dispatch-lifecycle/) for commitment
 semantics, [MCP integration](/integrations/mcp/) for assistant behavior and
 [security controls](/engineering/security-and-reliability/) for request/storage
 boundaries.
+
+## Workspace Administration
+
+Administration is a separate browser application for one current workspace.
+Administrators receive management and report views; supervisors need their
+independent report permission. Member/access/audit exports remain restricted
+to administrators. The API rereads membership on each operation and refuses
+assistant, OAuth and native requests. Platform Belvédère authority never follows
+from a customer workspace role.
+
+Reports project references, dates, states and ledger amounts, excluding
+recipients, message content, document titles, supplier costs and raw audit
+details. Exports have cumulative row/text limits and record an audit entry with
+parameters and counts only. CSV and Excel retain every permitted row; PDF
+states any rows omitted by its rendering limit. These reports are not tax
+invoices. Source implementation and local fixtures do not establish production
+financial or real-account qualification.
+
+The browser keeps periods in its address, cancels obsolete reads and downloads,
+and removes loaded metadata when authority is refused. Workspace/account changes
+start fresh pages. Earlier management addresses remain aliases, including the
+billing portal return; permission is checked again at the destination.

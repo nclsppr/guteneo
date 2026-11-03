@@ -246,6 +246,17 @@ The 29 October V2 sidebar geometry case is desktop-only: its two declared
 mobile-project skips bring the registry to twenty project-specific exceptions.
 The Studio space candidate adds the same exception for its 1280 × 720 check in
 `studio-space.spec.ts`, bringing the registry to twenty-two.
+The 3 November Administration recovery renames that check for Correspondence
+and adds a separate check for the former member address redirecting to
+Administration. Both verify desktop sidebar geometry; only mobile Chromium and
+iPhone WebKit skip them, with the unchanged reason `Desktop sidebar geometry;
+phones use the collapsed navigation.` The registry therefore contains twenty-four
+project-specific exceptions. Desktop Chromium must execute both scenarios.
+The recovery's first corrected browser run passed its component jobs but the
+aggregate rejected the stale title and undeclared second case. Recovery updates
+only these exact declarations, with regressions rejecting the former title,
+nearby titles and mismatched files, reasons, projects or suites. It grants no
+additional permissions or deployment authority.
 The gate still rejects obsolete declarations, unexpected skips and incomplete
 execution. Validate registry maintenance with `verifyBrowserEvidence` against
 the original current-run reports and fresh inventories, not just `--list` or

@@ -246,7 +246,29 @@ test("switching workspace honours a refusal and lands at the root of the current
   ]);
 });
 
-test("every workshop entry of an administrator stays in view at 1280 by 720", async ({
+async function expectNavigationFits(page: Page, expectedHrefs: string[]) {
+  await expect(page.locator(".workspace-navigation nav a")).toHaveCount(
+    expectedHrefs.length,
+  );
+  const layout = await page
+    .locator(".workspace-navigation")
+    .evaluate((element) => ({
+      scrolls: element.scrollHeight > element.clientHeight,
+      bottom: element.getBoundingClientRect().bottom,
+      viewportBottom: window.innerHeight,
+      links: [...element.querySelectorAll("nav a")].map((link) => ({
+        href: link.getAttribute("href"),
+        bottom: link.getBoundingClientRect().bottom,
+      })),
+    }));
+  expect(layout.links.map((link) => link.href)).toEqual(expectedHrefs);
+  expect(layout.scrolls, page.url()).toBe(false);
+  expect(layout.bottom).toBeLessThanOrEqual(layout.viewportBottom);
+  for (const link of layout.links)
+    expect(link.bottom).toBeLessThanOrEqual(layout.bottom);
+}
+
+test("every Correspondence entry of an administrator stays in view at 1280 by 720", async ({
   page,
   isMobile,
 }) => {
@@ -254,25 +276,60 @@ test("every workshop entry of an administrator stays in view at 1280 by 720", as
     isMobile,
     "Desktop sidebar geometry; phones use the collapsed navigation.",
   );
-  await fixture(page);
+  const state = await fixture(page);
   await page.setViewportSize({ width: 1280, height: 720 });
-  for (const route of ["", "/documents", "/dispatches", "/admin"]) {
+  for (const route of ["", "/documents", "/dispatches"]) {
     await page.goto(`/#/app${route}`);
     await expect(page.locator("#main-content h1")).toBeVisible();
-    const layout = await page
-      .locator(".workspace-navigation")
-      .evaluate((element) => ({
-        scrolls: element.scrollHeight > element.clientHeight,
-        bottom: element.getBoundingClientRect().bottom,
-        links: [...element.querySelectorAll("nav a")].map(
-          (link) => link.getBoundingClientRect().bottom,
-        ),
-      }));
-    expect(layout.links).toHaveLength(12);
-    expect(layout.scrolls, route || "/app").toBe(false);
-    for (const bottom of layout.links)
-      expect(bottom).toBeLessThanOrEqual(layout.bottom);
+    await expect(applicationTrigger(page)).toContainText("Correspondance");
+    await expectNavigationFits(page, [
+      "#/app/prepare",
+      "#/app",
+      "#/app/connection",
+      "#/app/documents",
+      "#/app/secure-distributions",
+      "#/app/dispatches",
+      "#/app/campaigns",
+      "#/app/senders",
+      "#/app/pdf-checks",
+    ]);
   }
+  expect(state.writes).toEqual([]);
+});
+
+test("the former member address keeps Administration navigation in view at 1280 by 720", async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(
+    isMobile,
+    "Desktop sidebar geometry; phones use the collapsed navigation.",
+  );
+  const state = await fixture(page);
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto("/#/app/admin?from=2026-10-01&to=2026-10-30");
+  await expect(page).toHaveURL(
+    /#\/app\/administration\/members\?from=2026-10-01&to=2026-10-30$/,
+  );
+  await expect(page.locator("#main-content h1")).toHaveText(
+    "Membres et invitations",
+  );
+  await expect(applicationTrigger(page)).toContainText("Administration");
+  await expect(
+    page.locator('.workspace-navigation a[aria-current="page"]'),
+  ).toHaveAttribute("href", "#/app/administration/members");
+  await expectNavigationFits(page, [
+    "#/app/administration",
+    "#/app/administration/activity",
+    "#/app/administration/consumption",
+    "#/app/administration/reports",
+    "#/app/administration/members",
+    "#/app/administration/connections",
+    "#/app/administration/audit",
+    "#/app/administration/billing",
+    "#/app/administration/settings",
+  ]);
+  expect(state.writes).toEqual([]);
 });
 
 test("A to B to A always offers the other workspace and shows its own documents", async ({

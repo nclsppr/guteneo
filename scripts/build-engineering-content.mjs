@@ -46,6 +46,7 @@ const guide = {
   dashboard: "/engineering/contributing/",
   "pdf-verification": "/workflows/pdf-diagnostics/",
   operations: "/engineering/security-and-reliability/",
+  administration: "/architecture/authority-and-tenancy/",
   belvedere: "/administration/belvedere/",
   status: "/engineering/testing/",
   "engineering-docs": "/engineering/contributing/",

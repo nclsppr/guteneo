@@ -93,14 +93,14 @@ const associatedData = (
     ]),
   );
 async function seal(
-  env: ProtectedDocumentsEnv,
+  key: CryptoKey,
   row: Parameters<typeof associatedData>[0],
   value: unknown,
 ): Promise<string> {
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const cipher = await crypto.subtle.encrypt(
     { name: "AES-GCM", iv, additionalData: associatedData(row) },
-    await encryptionKey(env),
+    key,
     encoder.encode(JSON.stringify(value)),
   );
   return `${base64(iv)}.${base64(new Uint8Array(cipher))}`;
@@ -192,7 +192,7 @@ export async function prepareProtectedDocument(
   now = new Date().toISOString(),
 ): Promise<PreparedProtectedDocument> {
   await member(env, ctx);
-  await encryptionKey(env);
+  const key = await encryptionKey(env);
   await assertLegacySourceAllowed(env.DB, ctx.organizationId, input.documentId);
   const duration = input.durationDays ?? 7;
   if (![1, 7, 30].includes(duration))
@@ -219,8 +219,11 @@ export async function prepareProtectedDocument(
   const expiresAt = new Date(
     Date.parse(now) + duration * 86400_000,
   ).toISOString();
-  const sealed = await seal(env, material, { token, password });
-  const verifier = await passwordVerifier(password, salt);
+  const [sealed, verifier, tokenHash] = await Promise.all([
+    seal(key, material, { token, password }),
+    passwordVerifier(password, salt),
+    sha256(token),
+  ]);
   await env.DB.batch([
     env.DB.prepare(
       "UPDATE protected_document_hostings SET status='expired',sealed_secrets='' WHERE organization_id=? AND document_id=? AND status IN ('draft','active') AND expires_at<=?",
@@ -233,7 +236,7 @@ export async function prepareProtectedDocument(
       document.id,
       document.sha256,
       duration,
-      await sha256(token),
+      tokenHash,
       salt,
       verifier,
       sealed,

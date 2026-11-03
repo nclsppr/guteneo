@@ -134,7 +134,7 @@ test("legacy name-only saves leave the language unset and preserve customer name
   await page.goto("/#/app/account");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.locator("#account-name")).toHaveValue("PDF prêt");
-  await expect(page.locator("#account-organization")).toHaveValue(
+  await expect(page.locator(".account-identity-details")).toContainText(
     "Courrier postal",
   );
   await expect(page.locator(".language-preference select")).toHaveValue("");

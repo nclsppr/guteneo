@@ -12,10 +12,9 @@ export const workspaceRouteModules = {
   personal: routeModule(() => import("./personal-area")),
   dispatch: routeModule(() => import("./dispatch-pages")),
   workspace: routeModule(() => import("./workspace-pages")),
-  billing: routeModule(() => import("./billing-page")),
   postal: routeModule(() => import("./postal-review-page")),
   account: routeModule(() => import("./account-page")),
-  invitations: routeModule(() => import("./team-invitations")),
+  administration: routeModule(() => import("./administration")),
   connection: routeModule(() => import("./assistant-workspace")),
   studio: routeModule(() => import("./document-studio")),
   distribution: routeModule(() => import("./distribution-pages")),
@@ -30,16 +29,12 @@ export async function preloadWorkspaceRoute(route: string): Promise<void> {
     /^\/app\/(documents|prepare|dispatches|dispatch)(\/|$)/.test(path)
   )
     await workspaceRouteModules.dispatch();
-  else if (/^\/app\/(campaigns|campaign|senders|usage)(\/|$)/.test(path))
+  else if (/^\/app\/(campaigns|campaign|senders)(\/|$)/.test(path))
     await workspaceRouteModules.workspace();
-  else if (path === "/app/admin")
-    await Promise.all([
-      workspaceRouteModules.workspace(),
-      workspaceRouteModules.account(),
-      workspaceRouteModules.invitations(),
-    ]);
+  // Earlier management addresses are aliases of Administration.
+  else if (/^\/app\/(administration|admin|billing|usage)(\/|$|\?)/.test(path))
+    await workspaceRouteModules.administration();
   else if (path === "/app/account") await workspaceRouteModules.account();
-  else if (path === "/app/billing") await workspaceRouteModules.billing();
   else if (path.startsWith("/app/postal/"))
     await workspaceRouteModules.postal();
   else if (/^\/app\/connection(\/|$)/.test(path))

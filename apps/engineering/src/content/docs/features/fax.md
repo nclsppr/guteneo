@@ -1,6 +1,6 @@
 ---
 title: "Fax"
-description: "9 capabilities in the deliver branch of Guteneo."
+description: "10 capabilities in the deliver branch of Guteneo."
 sidebar:
   order: 7
 ---
@@ -27,6 +27,7 @@ Implemented fax contracts. Release 1.1.20 and migrations 0066–0067 are deploye
 <li id="feature-e322e320b56e">Unsendable reviewer mode stops before approval</li>
 <li id="feature-d201405f7b7f">Explicit continuous access removes periodic reviewer-reference renewal for the exact restricted single-member account; archived pricing stays labelled, quotes retain their 900-second lifetime and approval/sending remain prohibited</li>
 <li id="feature-8a942d3218f3">Registered live commercial references refresh from actual official sources and provider-ownership reads through the existing scheduler; bounded leases/backoff and active-quote deferral preserve immutable approved prices</li>
+<li id="feature-90bd3e8fbaf7">Read-only readiness overlaps outbound-profile inspection with ordered bounded phone pagination; partial errors retain stable stage order and tariff/replay/settlement dependencies remain fenced</li>
 </ol>
 
 ## REST operations

@@ -5,6 +5,11 @@ on `pieper.eu.auth0.com`. This customization was authorized for Guteneo; the for
 product no longer uses this tenant. The tenant must already use New Universal Login:
 the script refuses to switch authentication experiences.
 
+Account email presentation has a separate [template contract](AUTH0_EMAIL_BRANDING.md).
+Its recovery candidate changes only existing email body, subject and from fields;
+it performs no client-logo or Universal Login mutation. Local proof does not
+extend the historical provider evidence below.
+
 ## Presentation
 
 - Paper `#f6f5ef`, form `#fffefa`, text `#181b22`, buttons and links `#2450db`.

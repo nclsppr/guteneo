@@ -61,6 +61,21 @@ async function fixture(
     else if (path === "/account/sessions" || path === "/account/contacts")
       body = { items: [], hasMore: false };
     else if (path === "/admin") body = { controls: [], deadLetters: [] };
+    else if (path === "/administration/members")
+      body = { items: [], total: 0, page: 1, pageSize: 50 };
+    else if (path === "/administration/consumption")
+      body = {
+        generatedAt: now,
+        period: { from: now.slice(0, 10), to: now.slice(0, 10) },
+        basis: "simulation_confirmation",
+        totalMinor: 0,
+        reservedMinor: 0,
+        credit: null,
+        services: [],
+        channels: [],
+        daily: [],
+        monthly: [],
+      };
     else if (path === "/admin/members")
       body = { items: [member], nextCursor: null };
     else if (
@@ -141,7 +156,9 @@ test("administrator assigns a supervisor and independently saves approval and re
       name: "Enregistrer le rôle de Alex Responsable de correspondance",
     })
     .click();
-  await expect(team.getByRole("status")).toContainText("doit se reconnecter");
+  await expect(
+    team.getByRole("status").filter({ hasText: "doit se reconnecter" }),
+  ).toBeVisible();
   expect(state.writes[0]).toEqual({
     role: "supervisor",
     supervisorCanApprove: false,
@@ -381,9 +398,9 @@ test("switching workspace refreshes its name and permissions without carrying ov
     await route.fulfill({ status: 200, json: body });
   });
   await page.goto("/#/app/account");
-  await expect(
-    page.getByLabel("Nom de l’espace de travail", { exact: true }),
-  ).toHaveValue("Atelier de préparation");
+  await expect(page.locator(".account-identity-details")).toContainText(
+    "Atelier de préparation",
+  );
   const switcher = page.locator(
     ".sidebar .workspace-switcher .space-switcher-trigger",
   );
@@ -399,9 +416,9 @@ test("switching workspace refreshes its name and permissions without carrying ov
   await page.evaluate(() => {
     location.hash = "#/app/account";
   });
-  await expect(
-    page.getByLabel("Nom de l’espace de travail", { exact: true }),
-  ).toHaveValue("Atelier de consultation");
+  await expect(page.locator(".account-identity-details")).toContainText(
+    "Atelier de consultation",
+  );
   expect(switches).toEqual([{ organizationId: "second" }]);
 });
 

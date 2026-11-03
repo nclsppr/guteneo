@@ -63,7 +63,13 @@ import { formatLocale, useLocale } from "./locale";
 import { ThemeToggle } from "./theme-toggle";
 import { ApplicationSwitcher } from "./space-switcher";
 import { WorkspaceIdentity } from "./workspace-identity";
-import { api, setSession, type Session } from "./api";
+import {
+  api,
+  canAdminister,
+  permissionsFor,
+  setSession,
+  type Session,
+} from "./api";
 import { WorkspaceRouteProvider } from "./components";
 import { DataTable } from "./data-table";
 import "./belvedere.css";
@@ -314,6 +320,11 @@ export default function Belvedere({
             <ApplicationSwitcher
               application="belvedere"
               hasWorkspace={!!session}
+              canAdministerWorkspace={
+                !!session &&
+                !sessionExpired &&
+                (canAdminister(session) || permissionsFor(session).viewReports)
+              }
               canAccessBelvedere={!sessionExpired}
             />
           ) : (

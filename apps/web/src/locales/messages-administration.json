@@ -1,0 +1,662 @@
+{
+  "Activité de l’espace de travail": [
+    "Workspace activity",
+    "Aktivität des Arbeitsbereichs",
+    "Aktivitéit vum Aarbechtsberäich"
+  ],
+  "Consommation": [
+    "Consumption",
+    "Verbrauch",
+    "Verbrauch"
+  ],
+  "Rapports et exports": [
+    "Reports and exports",
+    "Berichte und Exporte",
+    "Berichter an Exporter"
+  ],
+  "Membres et invitations": [
+    "Members and invitations",
+    "Mitglieder und Einladungen",
+    "Memberen an Invitatiounen"
+  ],
+  "Rôles, permissions d’approbation et de rapports, accès et invitations de cet espace de travail.": [
+    "Roles, approval and report permissions, access and invitations of this workspace.",
+    "Rollen, Freigabe- und Berichtsrechte, Zugänge und Einladungen dieses Arbeitsbereichs.",
+    "Rollen, Fräigabe- a Berichtsrechter, Zougäng an Invitatioune vun dësem Aarbechtsberäich."
+  ],
+  "Accès et connexions": [
+    "Access and sign-ins",
+    "Zugänge und Anmeldungen",
+    "Zougäng an Umeldungen"
+  ],
+  "Journal d’audit": [
+    "Audit log",
+    "Prüfprotokoll",
+    "Auditprotokoll"
+  ],
+  "Vue d’ensemble de l’espace de travail": [
+    "Workspace overview",
+    "Übersicht des Arbeitsbereichs",
+    "Iwwersiicht vum Aarbechtsberäich"
+  ],
+  "Canal non conservé": [
+    "Channel not retained",
+    "Kanal nicht gespeichert",
+    "Kanal net gespäichert"
+  ],
+  "Navigateur": [
+    "Browser",
+    "Browser",
+    "Browser"
+  ],
+  "Application mobile": [
+    "Mobile app",
+    "Mobile App",
+    "Mobil App"
+  ],
+  "Ancien abonnement": [
+    "Former subscription",
+    "Früheres Abonnement",
+    "Fréiert Abonnement"
+  ],
+  "Date de début": [
+    "Start date",
+    "Startdatum",
+    "Startdatum"
+  ],
+  "Date de fin": [
+    "End date",
+    "Enddatum",
+    "Enddatum"
+  ],
+  "Appliquer": [
+    "Apply",
+    "Anwenden",
+    "Uwenden"
+  ],
+  "Les dates sont en UTC. Une période couvre au plus 366 jours.": [
+    "Dates are in UTC. A period covers at most 366 days.",
+    "Die Daten sind in UTC. Ein Zeitraum umfasst höchstens 366 Tage.",
+    "D’Datume sinn an UTC. En Zäitraum ëmfaasst héchstens 366 Deeg."
+  ],
+  "Les rapports lisent votre espace de travail connecté. Ils ne sont pas simulés dans cet aperçu ; les membres, l’utilisation, la facturation et les paramètres restent disponibles.": [
+    "Workspace reports read your signed-in workspace. They are not simulated in this preview; members, usage, billing and settings remain available.",
+    "Berichte lesen Ihren angemeldeten Arbeitsbereich. Sie werden in dieser Vorschau nicht simuliert; Mitglieder, Nutzung, Abrechnung und Einstellungen bleiben verfügbar.",
+    "Berichter liesen Ären ugemellten Aarbechtsberäich. Si ginn an dëser Virschau net simuléiert; Memberen, Notzung, Ofrechnung an Astellunge bleiwen disponibel."
+  ],
+  "Activité, consommation et accès de cet espace de travail uniquement. Aucun destinataire, titre de document ni contenu de message n’apparaît ici.": [
+    "Activity, consumption and access for this workspace only. No recipient, document title or message content appears here.",
+    "Aktivität, Verbrauch und Zugänge nur dieses Arbeitsbereichs. Hier erscheinen keine Empfänger, Dokumenttitel oder Nachrichteninhalte.",
+    "Aktivitéit, Verbrauch an Zougäng just vun dësem Aarbechtsberäich. Hei erschéngt keen Empfänger, Dokumenttitel oder Noriichteninhalt."
+  ],
+  "Espace de travail de simulation : activité fictive, sans remise ni débit réels.": [
+    "Simulation workspace: fictional activity, no real delivery or charge.",
+    "Simulations-Arbeitsbereich: fiktive Aktivität, keine echte Zustellung oder Belastung.",
+    "Simulatiouns-Aarbechtsberäich: fiktiv Aktivitéit, keng reell Zoustellung oder Belaaschtung."
+  ],
+  "{0} envois acceptés attendent leur transmission.": [
+    "{0} accepted dispatches are waiting to be transmitted.",
+    "{0} angenommene Sendungen warten auf die Übermittlung.",
+    "{0} ugeholl Sendunge waarden op d’Iwwermëttlung."
+  ],
+  "{0} envois demandent une vérification.": [
+    "{0} dispatches need attention.",
+    "{0} Sendungen müssen geprüft werden.",
+    "{0} Sendunge mussen iwwerpréift ginn."
+  ],
+  "Les examiner": [
+    "Review them",
+    "Prüfen",
+    "Iwwerpréiwen"
+  ],
+  "{0} remis": [
+    "{0} delivered",
+    "{0} zugestellt",
+    "{0} zougestallt"
+  ],
+  "{0} réservés": [
+    "{0} reserved",
+    "{0} reserviert",
+    "{0} reservéiert"
+  ],
+  "À vérifier": [
+    "Needing attention",
+    "Zu prüfen",
+    "Ze iwwerpréiwen"
+  ],
+  "Échoués, rejetés ou incertains": [
+    "Failed, rejected or uncertain",
+    "Fehlgeschlagen, abgelehnt oder ungewiss",
+    "Feelgeschloen, refuséiert oder onsécher"
+  ],
+  "Membres": [
+    "Members",
+    "Mitglieder",
+    "Memberen"
+  ],
+  "{0} accès actifs": [
+    "{0} active access",
+    "{0} aktive Zugänge",
+    "{0} aktiv Zougäng"
+  ],
+  "Documents importés": [
+    "Documents imported",
+    "Importierte Dokumente",
+    "Importéiert Dokumenter"
+  ],
+  "{0} pages envoyées": [
+    "{0} pages sent",
+    "{0} gesendete Seiten",
+    "{0} geschéckte Säiten"
+  ],
+  "Partages sécurisés": [
+    "Secure shares",
+    "Sichere Freigaben",
+    "Sécher Deelen"
+  ],
+  "Activés sur cette période": [
+    "Activated in this period",
+    "In diesem Zeitraum aktiviert",
+    "An dësem Zäitraum aktivéiert"
+  ],
+  "Crédit promotionnel": [
+    "Promotional credit",
+    "Aktionsguthaben",
+    "Promotiounsguthaben"
+  ],
+  "sur {0} accordés": [
+    "of {0} granted",
+    "von {0} gewährt",
+    "vun {0} accordéiert"
+  ],
+  "Connexions": [
+    "Sign-ins",
+    "Anmeldungen",
+    "Umeldungen"
+  ],
+  "Aucune activité sur cette période.": [
+    "No activity in this period.",
+    "Keine Aktivität in diesem Zeitraum.",
+    "Keng Aktivitéit an dësem Zäitraum."
+  ],
+  "Canaux": [
+    "Channels",
+    "Kanäle",
+    "Kanäl"
+  ],
+  "Envois par canal": [
+    "Dispatches by channel",
+    "Sendungen nach Kanal",
+    "Sendungen no Kanal"
+  ],
+  "Aucun envoi sur cette période.": [
+    "No dispatch in this period.",
+    "Keine Sendung in diesem Zeitraum.",
+    "Keng Sendung an dësem Zäitraum."
+  ],
+  "États": [
+    "States",
+    "Status",
+    "Statusen"
+  ],
+  "Télécharger le rapport de cette période": [
+    "Download this period's report",
+    "Bericht dieses Zeitraums herunterladen",
+    "Bericht vun dësem Zäitraum eroflueden"
+  ],
+  "Chaque envoi de cet espace de travail avec son état et ses montants. Les destinataires et contenus restent dans Correspondance.": [
+    "Every dispatch of this workspace with its state and amounts. Recipients and content stay in Correspondence.",
+    "Jede Sendung dieses Arbeitsbereichs mit Status und Beträgen. Empfänger und Inhalte bleiben in der Korrespondenz.",
+    "All Sendung vun dësem Aarbechtsberäich mat hirem Status an de Montanten. Empfänger an Inhalter bleiwen an der Korrespondenz."
+  ],
+  "Tous les canaux": [
+    "All channels",
+    "Alle Kanäle",
+    "All Kanäl"
+  ],
+  "État": [
+    "State",
+    "Status",
+    "Status"
+  ],
+  "Tous les états": [
+    "All states",
+    "Alle Status",
+    "All Statusen"
+  ],
+  "Référence de l’envoi": [
+    "Dispatch reference",
+    "Sendungsreferenz",
+    "Referenz vun der Sendung"
+  ],
+  "{0} envois": [
+    "{0} dispatches",
+    "{0} Sendungen",
+    "{0} Sendungen"
+  ],
+  "Créé": [
+    "Created",
+    "Erstellt",
+    "Erstallt"
+  ],
+  "Approuvé par": [
+    "Approved by",
+    "Freigegeben von",
+    "Fräigi vun"
+  ],
+  "Pages d’activité": [
+    "Activity pages",
+    "Aktivitätsseiten",
+    "Aktivitéitssäiten"
+  ],
+  "Aucun envoi sur cette période": [
+    "No dispatch in this period",
+    "Keine Sendung in diesem Zeitraum",
+    "Keng Sendung an dësem Zäitraum"
+  ],
+  "Modifiez la période ou les filtres.": [
+    "Change the period or the filters.",
+    "Ändern Sie den Zeitraum oder die Filter.",
+    "Ännert den Zäitraum oder d’Filteren."
+  ],
+  "Débits enregistrés de cet espace de travail par service, canal et mois.": [
+    "Posted charges of this workspace by service, channel and month.",
+    "Gebuchte Belastungen dieses Arbeitsbereichs nach Dienst, Kanal und Monat.",
+    "Gebucht Belaaschtunge vun dësem Aarbechtsberäich no Service, Kanal a Mount."
+  ],
+  "Selon la date de chaque débit": [
+    "By posting date of each charge",
+    "Nach Buchungsdatum jeder Belastung",
+    "No dem Buchungsdatum vun all Belaaschtung"
+  ],
+  "Réservations de simulation confirmées": [
+    "Confirmed simulation reservations",
+    "Bestätigte Simulationsreservierungen",
+    "Bestätegt Simulatiounsreservatiounen"
+  ],
+  "Réservé actuellement": [
+    "Reserved now",
+    "Derzeit reserviert",
+    "Elo reservéiert"
+  ],
+  "Par service": [
+    "By service",
+    "Nach Dienst",
+    "No Service"
+  ],
+  "Consommation par service": [
+    "Consumption by service",
+    "Verbrauch nach Dienst",
+    "Verbrauch no Service"
+  ],
+  "{0} débits": [
+    "{0} charges",
+    "{0} Belastungen",
+    "{0} Belaaschtungen"
+  ],
+  "Aucun débit sur cette période.": [
+    "No charge in this period.",
+    "Keine Belastung in diesem Zeitraum.",
+    "Keng Belaaschtung an dësem Zäitraum."
+  ],
+  "Par canal": [
+    "By channel",
+    "Nach Kanal",
+    "No Kanal"
+  ],
+  "Consommation par canal": [
+    "Consumption by channel",
+    "Verbrauch nach Kanal",
+    "Verbrauch no Kanal"
+  ],
+  "Par mois": [
+    "By month",
+    "Nach Monat",
+    "No Mount"
+  ],
+  "Consommation par mois": [
+    "Consumption by month",
+    "Verbrauch nach Monat",
+    "Verbrauch no Mount"
+  ],
+  "Mois": [
+    "Month",
+    "Monat",
+    "Mount"
+  ],
+  "Débits": [
+    "Charges",
+    "Belastungen",
+    "Belaaschtungen"
+  ],
+  "Activité des membres": [
+    "Member activity",
+    "Aktivität der Mitglieder",
+    "Aktivitéit vun de Memberen"
+  ],
+  "Dernière connexion": [
+    "Last sign-in",
+    "Letzte Anmeldung",
+    "Lescht Umeldung"
+  ],
+  "Approbations": [
+    "Approvals",
+    "Freigaben",
+    "Fräigaben"
+  ],
+  "Dernière action enregistrée": [
+    "Last recorded action",
+    "Letzte erfasste Aktion",
+    "Lescht erfaasst Aktioun"
+  ],
+  "Pages de membres": [
+    "Member pages",
+    "Mitgliederseiten",
+    "Membersäiten"
+  ],
+  "Sessions ouvertes et autorisations d’assistants des membres, et leurs connexions enregistrées. Une autorisation ne prouve pas une présence.": [
+    "Open sessions and assistant authorizations of members, and their recorded sign-ins. An authorization is not proof of presence.",
+    "Offene Sitzungen und Assistenten-Autorisierungen der Mitglieder sowie ihre erfassten Anmeldungen. Eine Autorisierung belegt keine Anwesenheit.",
+    "Oppe Sessiounen an Assistent-Autorisatioune vun de Memberen an hir erfaasst Umeldungen. Eng Autorisatioun beweist keng Presenz."
+  ],
+  "Accès en cours": [
+    "Current access",
+    "Aktuelle Zugänge",
+    "Aktuell Zougäng"
+  ],
+  "Pour déconnecter l’accès d’un membre, utilisez Membres.": [
+    "To disconnect a member's access, use Members.",
+    "Um den Zugang eines Mitglieds zu trennen, verwenden Sie Mitglieder.",
+    "Fir den Zougang vun engem Member ze trennen, benotzt Memberen."
+  ],
+  "Type d’accès": [
+    "Access type",
+    "Zugangsart",
+    "Zougangsaart"
+  ],
+  "Jusqu’à révocation": [
+    "Until revoked",
+    "Bis zum Widerruf",
+    "Bis zum Réckzuch"
+  ],
+  "Pages des accès en cours": [
+    "Current access pages",
+    "Seiten der aktuellen Zugänge",
+    "Säite vun den aktuellen Zougäng"
+  ],
+  "Aucun accès ouvert.": [
+    "No open access.",
+    "Kein offener Zugang.",
+    "Keen oppenen Zougang."
+  ],
+  "Les connexions sont conservées {0} jours.": [
+    "Sign-in records are kept for {0} days.",
+    "Anmeldungen werden {0} Tage aufbewahrt.",
+    "Umeldunge ginn {0} Deeg gespäichert."
+  ],
+  "Pages des connexions": [
+    "Sign-in pages",
+    "Anmeldungsseiten",
+    "Umeldungssäiten"
+  ],
+  "Aucune connexion enregistrée sur cette période.": [
+    "No sign-in recorded in this period.",
+    "Keine Anmeldung in diesem Zeitraum erfasst.",
+    "Keng Umeldung an dësem Zäitraum erfaasst."
+  ],
+  "Actions enregistrées de cet espace de travail : approbations, changements de membres, paramètres et exports. Les détails pouvant contenir du contenu ne sont pas affichés.": [
+    "Recorded actions of this workspace: approvals, member changes, settings and exports. Details that may contain content are not shown.",
+    "Erfasste Aktionen dieses Arbeitsbereichs: Freigaben, Mitgliederänderungen, Einstellungen und Exporte. Details, die Inhalte enthalten können, werden nicht angezeigt.",
+    "Erfaasst Aktioune vun dësem Aarbechtsberäich: Fräigaben, Ännerunge bei Memberen, Astellungen an Exporter. Detailer, déi Inhalt kéinten enthalen, ginn net ugewisen."
+  ],
+  "Par": [
+    "By",
+    "Von",
+    "Vun"
+  ],
+  "Service Guteneo": [
+    "Guteneo service",
+    "Guteneo-Dienst",
+    "Guteneo-Service"
+  ],
+  "Ressource": [
+    "Resource",
+    "Ressource",
+    "Ressource"
+  ],
+  "Pages du journal d’audit": [
+    "Audit pages",
+    "Seiten des Prüfprotokolls",
+    "Säite vum Auditprotokoll"
+  ],
+  "Aucune action enregistrée sur cette période": [
+    "No recorded action in this period",
+    "Keine erfasste Aktion in diesem Zeitraum",
+    "Keng erfaasst Aktioun an dësem Zäitraum"
+  ],
+  "Modifiez la période pour voir des actions plus anciennes.": [
+    "Change the period to see older actions.",
+    "Ändern Sie den Zeitraum, um ältere Aktionen zu sehen.",
+    "Ännert den Zäitraum, fir méi al Aktiounen ze gesinn."
+  ],
+  "Télécharger {0} au format {1}": [
+    "Download {0} as {1}",
+    "{0} als {1} herunterladen",
+    "{0} als {1} eroflueden"
+  ],
+  "Préparation du fichier…": [
+    "Preparing the file…",
+    "Datei wird vorbereitet…",
+    "De Fichier gëtt virbereet…"
+  ],
+  "Téléchargement lancé : {0}": [
+    "Download started: {0}",
+    "Download gestartet: {0}",
+    "Download gestart: {0}"
+  ],
+  "Téléchargez ce qui s’est passé dans cet espace de travail pour la période choisie. Chaque export est enregistré dans le journal d’audit.": [
+    "Download what happened in this workspace for the chosen period. Each export is recorded in the audit log.",
+    "Laden Sie herunter, was in diesem Arbeitsbereich im gewählten Zeitraum geschehen ist. Jeder Export wird im Prüfprotokoll erfasst.",
+    "Lued erof, wat an dësem Aarbechtsberäich am gewielten Zäitraum geschitt ass. All Export gëtt am Auditprotokoll erfaasst."
+  ],
+  "Les exports ne contiennent que des métadonnées : références, dates, états, montants et noms des membres. Les destinataires, titres de documents et contenus de messages ne sont jamais exportés. Un fichier de plus de 10 000 lignes est refusé : choisissez une période plus courte.": [
+    "Exports contain metadata only: references, dates, states, amounts and member names. Recipients, document titles and message content are never exported. A file over 10,000 rows is refused: choose a shorter period.",
+    "Exporte enthalten nur Metadaten: Referenzen, Daten, Status, Beträge und Mitgliedernamen. Empfänger, Dokumenttitel und Nachrichteninhalte werden nie exportiert. Eine Datei mit mehr als 10.000 Zeilen wird abgelehnt: Wählen Sie einen kürzeren Zeitraum.",
+    "Exporter enthalen nëmme Metadaten: Referenzen, Datumen, Statusen, Montanten an Nimm vu Memberen. Empfänger, Dokumenttitelen an Noriichteninhalter ginn ni exportéiert. E Fichier mat méi wéi 10.000 Zeile gëtt refuséiert: wielt e méi kuerzen Zäitraum."
+  ],
+  "Rapport complet de l’espace de travail": [
+    "Complete workspace report",
+    "Vollständiger Bericht des Arbeitsbereichs",
+    "Komplette Bericht vum Aarbechtsberäich"
+  ],
+  "Synthèse, canaux, états, activité, débits{0}. Excel contient une feuille par tableau ; le PDF est prêt à classer ou partager.": [
+    "Summary, channels, states, activity, charges{0}. Excel has one sheet per table; the PDF is ready to file or share.",
+    "Übersicht, Kanäle, Status, Aktivität, Belastungen{0}. Excel enthält ein Blatt pro Tabelle; das PDF ist zum Ablegen oder Teilen bereit.",
+    "Iwwersiicht, Kanäl, Statusen, Aktivitéit, Belaaschtungen{0}. Excel huet ee Blat pro Tabell; de PDF ass prett fir ofzeleeën oder ze deelen."
+  ],
+  ", membres, accès et journal d’audit": [
+    ", members, access and audit log",
+    ", Mitglieder, Zugänge und Prüfprotokoll",
+    ", Memberen, Zougäng an Auditprotokoll"
+  ],
+  "Activité": [
+    "Activity",
+    "Aktivität",
+    "Aktivitéit"
+  ],
+  "Chaque envoi créé sur la période avec son état et ses montants.": [
+    "Every dispatch created in the period with its state and amounts.",
+    "Jede im Zeitraum erstellte Sendung mit Status und Beträgen.",
+    "All am Zäitraum erstallt Sendung mat hirem Status an de Montanten."
+  ],
+  "Chaque débit enregistré pour la comptabilité, avec les totaux par service, canal et jour.": [
+    "Each posted charge for accounting, with totals by service, channel and day.",
+    "Jede gebuchte Belastung für die Buchhaltung, mit Summen nach Dienst, Kanal und Tag.",
+    "All gebucht Belaaschtung fir d’Comptabilitéit, mat Totaler no Service, Kanal an Dag."
+  ],
+  "Membres, rôles, permissions, accès et approbations sur la période.": [
+    "Members, roles, permissions, access and approvals in the period.",
+    "Mitglieder, Rollen, Rechte, Zugänge und Freigaben im Zeitraum.",
+    "Memberen, Rollen, Rechter, Zougäng a Fräigaben am Zäitraum."
+  ],
+  "Accès ouverts et connexions enregistrées des membres.": [
+    "Open access and recorded sign-ins of members.",
+    "Offene Zugänge und erfasste Anmeldungen der Mitglieder.",
+    "Oppen Zougäng an erfaasst Umeldunge vun de Memberen."
+  ],
+  "Actions enregistrées de l’espace de travail, exports compris.": [
+    "Recorded actions of the workspace, including exports.",
+    "Erfasste Aktionen des Arbeitsbereichs, einschließlich Exporte.",
+    "Erfaasst Aktioune vum Aarbechtsberäich, Exporter abegraff."
+  ],
+  "Paramètres de l’espace de travail": [
+    "Workspace settings",
+    "Einstellungen des Arbeitsbereichs",
+    "Astellunge vum Aarbechtsberäich"
+  ],
+  "Le nom de l’espace de travail, la disponibilité des canaux et les diagnostics d’exploitation. Votre profil et votre langue restent dans votre compte.": [
+    "The workspace name, channel availability and operating diagnostics. Your own profile and language stay in your account.",
+    "Name des Arbeitsbereichs, Verfügbarkeit der Kanäle und Betriebsdiagnosen. Ihr eigenes Profil und Ihre Sprache bleiben in Ihrem Konto.",
+    "Den Numm vum Aarbechtsberäich, d’Disponibilitéit vun de Kanäl an d’Betribsdiagnosen. Äert eegent Profil an Är Sprooch bleiwen an Ärem Kont."
+  ],
+  "Identité de l’espace de travail": [
+    "Workspace identity",
+    "Identität des Arbeitsbereichs",
+    "Identitéit vum Aarbechtsberäich"
+  ],
+  "Le nom de l’espace de travail a été enregistré.": [
+    "The workspace name has been saved.",
+    "Der Name des Arbeitsbereichs wurde gespeichert.",
+    "Den Numm vum Aarbechtsberäich gouf gespäichert."
+  ],
+  "Exploitation": [
+    "Operations",
+    "Betrieb",
+    "Betrib"
+  ],
+  "Indicateur du graphique": [
+    "Chart metric",
+    "Diagrammkennzahl",
+    "Kennzuel vum Diagramm"
+  ],
+  "{0} le {1}": [
+    "{0} on {1}",
+    "{0} am {1}",
+    "{0} de {1}"
+  ],
+  "sur cette période": [
+    "in this period",
+    "in diesem Zeitraum",
+    "an dësem Zäitraum"
+  ],
+  "Afficher le tableau de données": [
+    "Show the data table",
+    "Datentabelle anzeigen",
+    "Datentabell weisen"
+  ],
+  "Gérer cet espace de travail dans Administration": [
+    "Manage this workspace in Administration",
+    "Diesen Arbeitsbereich in der Verwaltung verwalten",
+    "Dësen Aarbechtsberäich an der Verwaltung geréieren"
+  ],
+  "Ouvrir les rapports de l’espace de travail dans Administration": [
+    "Open workspace reports in Administration",
+    "Berichte des Arbeitsbereichs in der Verwaltung öffnen",
+    "Berichter vum Aarbechtsberäich an der Verwaltung opmaachen"
+  ],
+  "Rapports": [
+    "Reports",
+    "Berichte",
+    "Berichter"
+  ],
+  "Paramètres": [
+    "Settings",
+    "Einstellungen",
+    "Astellungen"
+  ],
+  "Navigation de l’administration": [
+    "Administration navigation",
+    "Navigation der Verwaltung",
+    "Navigatioun vun der Verwaltung"
+  ],
+  "Ouvrez Guteneo dans votre navigateur pour administrer cet espace de travail.": [
+    "Open Guteneo in your browser to administer this workspace.",
+    "Öffnen Sie Guteneo in Ihrem Browser, um diesen Arbeitsbereich zu verwalten.",
+    "Maacht Guteneo an Ärem Browser op, fir dësen Aarbechtsberäich ze verwalten."
+  ],
+  "Votre accès à cet espace de travail a changé. Rechargez la page.": [
+    "Your access to this workspace has changed. Reload the page.",
+    "Ihr Zugang zu diesem Arbeitsbereich hat sich geändert. Laden Sie die Seite neu.",
+    "Ären Zougang zu dësem Aarbechtsberäich huet geännert. Lued d’Säit nei."
+  ],
+  "Choisissez une période d’au plus 366 jours et au plus 100 lignes par page.": [
+    "Choose a period of at most 366 days and at most 100 rows per page.",
+    "Wählen Sie einen Zeitraum von höchstens 366 Tagen und höchstens 100 Zeilen pro Seite.",
+    "Wielt en Zäitraum vun héchstens 366 Deeg an héchstens 100 Zeile pro Säit."
+  ],
+  "Cet export dépasse 10 000 lignes. Choisissez une période plus courte.": [
+    "This export has more than 10,000 rows. Choose a shorter period.",
+    "Dieser Export hat mehr als 10.000 Zeilen. Wählen Sie einen kürzeren Zeitraum.",
+    "Dësen Export huet méi wéi 10.000 Zeilen. Wielt e méi kuerzen Zäitraum."
+  ],
+  "Un fichier CSV contient un seul tableau. Choisissez Excel ou PDF pour le rapport complet.": [
+    "A CSV file holds one table. Choose Excel or PDF for the full report.",
+    "Eine CSV-Datei enthält eine Tabelle. Wählen Sie Excel oder PDF für den vollständigen Bericht.",
+    "E CSV-Fichier enthält eng eenzeg Tabell. Wielt Excel oder PDF fir de komplette Bericht."
+  ],
+  "Accès": [
+    "Access",
+    "Zugänge",
+    "Zougäng"
+  ],
+  "Vue d’ensemble": [
+    "Overview",
+    "Übersicht",
+    "Iwwersiicht"
+  ],
+  "L’accès aux rapports est requis.": [
+    "Report access is required.",
+    "Berichtszugang ist erforderlich.",
+    "Berichtszougang ass néideg."
+  ],
+  "Réservé pour les opérations en attente": [
+    "Held for pending operations",
+    "Für ausstehende Vorgänge reserviert",
+    "Fir ausstoend Operatioune reservéiert"
+  ],
+  "Choisissez une période d’au plus 366 jours.": [
+    "Choose a period of at most 366 days.",
+    "Wählen Sie einen Zeitraum von höchstens 366 Tagen.",
+    "Wielt en Zäitraum vun héchstens 366 Deeg."
+  ],
+  "Le PDF affiche au plus {0} lignes et signale les lignes omises. Choisissez Excel ou CSV pour toutes les lignes.": [
+    "PDF shows at most {0} rows and identifies omitted rows. Choose Excel or CSV for every row.",
+    "PDF zeigt höchstens {0} Zeilen und weist auf ausgelassene Zeilen hin. Wählen Sie Excel oder CSV für alle Zeilen.",
+    "De PDF weist héchstens {0} Zeilen a markéiert ausgeloosse Zeilen. Wielt Excel oder CSV fir all Zeilen."
+  ],
+  "Les montants du rapport dépassent la précision autorisée.": [
+    "Report amounts must be safe integer minor units.",
+    "Die Berichtsbeträge überschreiten die zulässige Genauigkeit.",
+    "D’Montante vum Bericht iwwerschreiden déi erlaabt Prezisioun."
+  ],
+  "Les valeurs du rapport dépassent la précision autorisée.": [
+    "Report values must be safe integers.",
+    "Die Berichtswerte überschreiten die zulässige Genauigkeit.",
+    "D’Wäerter vum Bericht iwwerschreiden déi erlaabt Prezisioun."
+  ],
+  "Ce montant dépasse la précision numérique d’Excel. Utilisez CSV.": [
+    "This amount exceeds spreadsheet numeric precision. Use CSV.",
+    "Dieser Betrag überschreitet die numerische Genauigkeit von Excel. Verwenden Sie CSV.",
+    "Dëse Montant iwwerschreit déi numeresch Prezisioun vun Excel. Benotzt CSV."
+  ],
+  "Choisissez une période plus courte ou un seul jeu de données à exporter.": [
+    "Choose a shorter period or a single export dataset.",
+    "Wählen Sie einen kürzeren Zeitraum oder einen einzelnen Exportdatensatz.",
+    "Wielt e méi kuerzen Zäitraum oder een eenzegen Exportdatensatz."
+  ],
+  "Cet export dépasse sa limite de texte. Choisissez une période plus courte ou un seul jeu de données.": [
+    "This export exceeds its text limit. Choose a shorter period or a single dataset.",
+    "Dieser Export überschreitet seine Textgrenze. Wählen Sie einen kürzeren Zeitraum oder einen einzelnen Datensatz.",
+    "Dësen Export iwwerschreit seng Textgrenz. Wielt e méi kuerzen Zäitraum oder een eenzegen Datensatz."
+  ]
+}

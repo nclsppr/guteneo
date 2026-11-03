@@ -166,7 +166,7 @@ function WorkspaceContactDirectory({
                 {msg(
                   "You can invite someone or assign these roles in Administration.",
                 )}{" "}
-                <a href="#/app/admin">
+                <a href="#/app/administration/members">
                   {msg("Manage members and invitations")}
                 </a>
               </>

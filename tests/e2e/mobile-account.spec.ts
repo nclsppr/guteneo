@@ -156,6 +156,8 @@ async function fixture(page: Page) {
     else if (path === "/admin/invitations")
       body = { items: [], nextCursor: null };
     else if (path === "/admin") body = { controls: [], deadLetters: [] };
+    else if (path === "/administration/members")
+      body = { items: [], total: 0, page: 1, pageSize: 50 };
     else if (path === "/dispatches") body = { items: [], nextCursor: null };
     else if (path === "/overview")
       body = {

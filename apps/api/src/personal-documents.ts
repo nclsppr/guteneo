@@ -7,7 +7,16 @@ import {
   type PersonalDocumentView,
   type SecureAuditEvent,
   type SecureDistributionPolicy,
+  type SecureDocumentKind,
 } from "../../../packages/contracts/src/secure-distribution";
+import {
+  PERSONAL_DOCUMENT_EXPIRING_DAYS,
+  type PersonalDocumentCounts,
+  type PersonalDocumentPage,
+  type PersonalDocumentSort,
+  type PersonalDocumentStatusFilter,
+  type PersonalDocumentSummary,
+} from "../../../packages/contracts/src/personal-documents";
 import { DomainError, canonicalJson } from "../../../packages/domain/src/index";
 import type { Env } from "./env";
 import {
@@ -62,6 +71,179 @@ const uid = (prefix: string) =>
   `${prefix}_${crypto.randomUUID().replaceAll("-", "")}`;
 const unavailable = () =>
   new DomainError("NOT_FOUND", "Document unavailable.", 404);
+
+/** Both categories in one row shape, always bound to the authenticated owner. */
+type OwnerDocumentRow = {
+  id: string;
+  kind: SecureDocumentKind;
+  created_at: string;
+  expires_at: string;
+  sort_expiry: string;
+  sort_title: string;
+  title: string;
+  sender: string;
+  bound: number;
+  state: PersonalDocumentItem["status"];
+  policy_json: string | null;
+  deposited_id: string | null;
+  deposited_status: string | null;
+  deposited_expires_at: string | null;
+};
+const listOrder: Record<
+  PersonalDocumentSort,
+  {
+    column: "created_at" | "sort_expiry" | "sort_title";
+    direction: "ASC" | "DESC";
+  }
+> = {
+  recent: { column: "created_at", direction: "DESC" },
+  oldest: { column: "created_at", direction: "ASC" },
+  expiry: { column: "sort_expiry", direction: "ASC" },
+  title: { column: "sort_title", direction: "ASC" },
+};
+// SQLite's lower() folds ASCII only. Fold the accented letters of the four
+// product languages too, so "été" finds "Été" and titles sort as people read.
+const FOLDED_LETTERS: readonly [string, string][] = [
+  ..."àáâãäåÀÁÂÃÄÅ"
+    .split("")
+    .map((letter) => [letter, "a"] as [string, string]),
+  ..."çÇ".split("").map((letter) => [letter, "c"] as [string, string]),
+  ..."èéêëÈÉÊË".split("").map((letter) => [letter, "e"] as [string, string]),
+  ..."ìíîïÌÍÎÏ".split("").map((letter) => [letter, "i"] as [string, string]),
+  ..."ñÑ".split("").map((letter) => [letter, "n"] as [string, string]),
+  ..."òóôõöøÒÓÔÕÖØ"
+    .split("")
+    .map((letter) => [letter, "o"] as [string, string]),
+  ..."ùúûüÙÚÛÜ".split("").map((letter) => [letter, "u"] as [string, string]),
+  ..."ýÿÝŸ".split("").map((letter) => [letter, "y"] as [string, string]),
+  ["æ", "ae"],
+  ["Æ", "ae"],
+  ["œ", "oe"],
+  ["Œ", "oe"],
+  ["ß", "ss"],
+];
+const foldedSql = (expression: string) =>
+  FOLDED_LETTERS.reduce(
+    (sql, [letter, base]) => `replace(${sql},'${letter}','${base}')`,
+    `lower(${expression})`,
+  );
+export function foldedSearch(value: string) {
+  return FOLDED_LETTERS.reduce(
+    (text, [letter, base]) => text.replaceAll(letter, base),
+    value.toLowerCase(),
+  )
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "");
+}
+const expiringBefore = (at: string) =>
+  new Date(
+    Date.parse(at) + PERSONAL_DOCUMENT_EXPIRING_DAYS * 86_400_000,
+  ).toISOString();
+// The state expressions mirror item(): expiry/revocation take precedence;
+// a current unbound share stays pending and always keeps its title hidden.
+function ownerDocuments(userId: string, at: string, kind?: SecureDocumentKind) {
+  const shared = `SELECT s.id,'shared' AS kind,s.activated_at AS created_at,s.expires_at,COALESCE(s.expires_at,s.activated_at) AS sort_expiry,CASE WHEN s.bound_at IS NOT NULL THEN ${foldedSql("s.source_name")} ELSE '' END AS sort_title,CASE WHEN s.bound_at IS NOT NULL THEN s.source_name ELSE '' END AS title,COALESCE(o.name,'Guteneo workspace') AS sender,s.bound_at IS NOT NULL AS bound,CASE WHEN s.status='revoked' THEN 'revoked' WHEN s.expires_at IS NULL OR s.expires_at<=? THEN 'expired' WHEN s.bound_at IS NOT NULL THEN 'active' ELSE 'pending' END AS state,s.policy_json,p.id AS deposited_id,p.status AS deposited_status,p.expires_at AS deposited_expires_at FROM secure_distributions s LEFT JOIN organizations o ON o.id=s.organization_id LEFT JOIN secure_personal_documents p ON p.user_id=s.recipient_user_id AND p.source_organization_id=s.organization_id AND p.source_distribution_id=s.id WHERE s.recipient_user_id=? AND s.activated_at IS NOT NULL`;
+  const personal = `SELECT id,'personal' AS kind,created_at,expires_at,expires_at AS sort_expiry,${foldedSql("source_name")} AS sort_title,source_name AS title,sender_name AS sender,1 AS bound,CASE WHEN status='active' AND expires_at>? THEN 'active' ELSE 'expired' END AS state,NULL AS policy_json,NULL AS deposited_id,NULL AS deposited_status,NULL AS deposited_expires_at FROM secure_personal_documents WHERE user_id=? AND status<>'deleted'`;
+  if (kind === "shared") return { sql: shared, values: [at, userId] };
+  if (kind === "personal") return { sql: personal, values: [at, userId] };
+  return {
+    sql: `${shared} UNION ALL ${personal}`,
+    values: [at, userId, at, userId],
+  };
+}
+function listFilter(
+  query: { status?: PersonalDocumentStatusFilter; sender?: string },
+  search: string,
+  at: string,
+) {
+  const conditions = [
+    `(?='' OR instr(${foldedSql("title")},?)>0 OR instr(${foldedSql("sender")},?)>0)`,
+  ];
+  const values: string[] = [search, search, search];
+  if (query.status === "available") conditions.push("state='active'");
+  else if (query.status === "pending") conditions.push("state='pending'");
+  else if (query.status === "expiring") {
+    conditions.push("state='active' AND expires_at<=?");
+    values.push(expiringBefore(at));
+  } else if (query.status === "ended")
+    conditions.push("state IN ('expired','revoked')");
+  if (query.sender !== undefined) {
+    conditions.push("sender=?");
+    values.push(query.sender);
+  }
+  return { sql: conditions.join(" AND "), values };
+}
+function encodeListCursor(
+  sort: PersonalDocumentSort,
+  value: string,
+  id: string,
+) {
+  // Recency keeps the original cursor shape so earlier pages stay valid.
+  const payload =
+    sort === "recent" ? { createdAt: value, id } : { sort, value, id };
+  return btoa(
+    Array.from(new TextEncoder().encode(JSON.stringify(payload)), (byte) =>
+      String.fromCharCode(byte),
+    ).join(""),
+  );
+}
+function decodeListCursor(cursor: string, sort: PersonalDocumentSort) {
+  try {
+    const parsed: unknown = JSON.parse(
+      new TextDecoder().decode(
+        Uint8Array.from(atob(cursor), (character) => character.charCodeAt(0)),
+      ),
+    );
+    if (!parsed || typeof parsed !== "object") throw new Error();
+    const fields = parsed as Record<string, unknown>;
+    const legacy =
+      fields.sort === undefined && typeof fields.createdAt === "string";
+    const value = legacy ? fields.createdAt : fields.value;
+    if (
+      (legacy ? "recent" : fields.sort) !== sort ||
+      typeof value !== "string" ||
+      typeof fields.id !== "string"
+    )
+      throw new Error();
+    return { value, id: fields.id };
+  } catch {
+    throw new DomainError("INVALID_CURSOR", "Invalid cursor.");
+  }
+}
+function ownerDocumentItem(
+  row: OwnerDocumentRow,
+  at: string,
+): PersonalDocumentItem {
+  if (row.kind === "personal")
+    return {
+      id: row.id,
+      kind: "personal",
+      title: row.title,
+      sender: row.sender,
+      status: row.state === "active" ? "active" : "expired",
+      expiresAt: row.expires_at,
+      createdAt: row.created_at,
+      allowOriginalDownload: true,
+      allowVaultDeposit: false,
+    };
+  const policy: SecureDistributionPolicy = JSON.parse(row.policy_json ?? "{}");
+  return {
+    id: row.id,
+    kind: "shared",
+    title: row.bound ? row.title : "Document awaiting verification",
+    sender: row.sender,
+    status: row.state,
+    expiresAt: row.expires_at,
+    createdAt: row.created_at,
+    allowOriginalDownload: policy.allowOriginalDownload,
+    allowVaultDeposit: policy.allowVaultDeposit && !row.deposited_id,
+    ...(row.deposited_id &&
+    row.deposited_status === "active" &&
+    (row.deposited_expires_at ?? "") > at
+      ? { depositedDocumentId: row.deposited_id }
+      : {}),
+  };
+}
 function personalBinding(userId: string, documentId: string, suffix: string) {
   return `personal:${userId}:${documentId}:${suffix}`;
 }
@@ -287,56 +469,91 @@ export class PersonalDocumentsService {
     query: {
       cursor?: string;
       limit?: number;
-      kind?: "shared" | "personal";
+      kind?: SecureDocumentKind;
       q?: string;
+      status?: PersonalDocumentStatusFilter;
+      sender?: string;
+      sort?: PersonalDocumentSort;
     } = {},
-  ) {
+  ): Promise<PersonalDocumentPage> {
     await this.rate(principal);
-    let after: { createdAt: string; id: string } | null = null;
-    if (query.cursor) {
-      try {
-        after = JSON.parse(atob(query.cursor));
-        if (
-          !after ||
-          typeof after.createdAt !== "string" ||
-          typeof after.id !== "string"
-        )
-          throw new Error();
-      } catch {
-        throw new DomainError("INVALID_CURSOR", "Invalid cursor.");
-      }
-    }
+    const sort = query.sort ?? "recent";
+    const order = listOrder[sort];
+    const after = query.cursor ? decodeListCursor(query.cursor, sort) : null;
     const limit = Math.min(50, Math.max(1, query.limit ?? 30));
-    const search = (query.q ?? "").trim().slice(0, 200).toLowerCase();
-    const rows = await this.env.DB.prepare(
-      `SELECT id,created_at FROM (
-      SELECT s.id,s.activated_at AS created_at,'shared' AS kind,CASE WHEN s.bound_at IS NOT NULL THEN lower(s.source_name) ELSE '' END AS title,lower(COALESCE(o.name,'')) AS sender FROM secure_distributions s LEFT JOIN organizations o ON o.id=s.organization_id WHERE s.recipient_user_id=? AND s.activated_at IS NOT NULL
-      UNION ALL SELECT id,created_at,'personal' AS kind,lower(source_name) AS title,lower(sender_name) AS sender FROM secure_personal_documents WHERE user_id=? AND status<>'deleted')
-      WHERE (? IS NULL OR kind=?) AND (?='' OR instr(title,?)>0 OR instr(sender,?)>0)
-      ${after ? "AND (created_at<? OR (created_at=? AND id<?))" : ""} ORDER BY created_at DESC,id DESC LIMIT ?`,
-    )
-      .bind(
-        principal.userId,
-        principal.userId,
-        query.kind ?? null,
-        query.kind ?? null,
-        search,
-        search,
-        search,
-        ...(after ? [after.createdAt, after.createdAt, after.id] : []),
-        limit + 1,
+    const search = foldedSearch((query.q ?? "").trim().slice(0, 200));
+    const at = now();
+    const source = ownerDocuments(principal.userId, at, query.kind);
+    const filter = listFilter(query, search, at);
+    const comparison = order.direction === "DESC" ? "<" : ">";
+    const keyset = after
+      ? `AND (${order.column}${comparison}? OR (${order.column}=? AND id${comparison}?))`
+      : "";
+    const [rows, count] = await Promise.all([
+      this.env.DB.prepare(
+        `SELECT * FROM (${source.sql}) WHERE ${filter.sql} ${keyset} ORDER BY ${order.column} ${order.direction},id ${order.direction} LIMIT ?`,
       )
-      .all<{ id: string; created_at: string }>();
+        .bind(
+          ...source.values,
+          ...filter.values,
+          ...(after ? [after.value, after.value, after.id] : []),
+          limit + 1,
+        )
+        .all<OwnerDocumentRow>(),
+      this.env.DB.prepare(
+        `SELECT count(*) AS total FROM (${source.sql}) WHERE ${filter.sql}`,
+      )
+        .bind(...source.values, ...filter.values)
+        .first<{ total: number }>(),
+    ]);
     const slice = rows.results.slice(0, limit),
       last = slice.at(-1);
     return {
-      items: await Promise.all(
-        slice.map((row) => this.item(principal, row.id)),
-      ),
+      // One query hydrates the whole page; no per-document lookups.
+      items: slice.map((row) => ownerDocumentItem(row, at)),
       nextCursor:
         rows.results.length > limit && last
-          ? btoa(JSON.stringify({ createdAt: last.created_at, id: last.id }))
+          ? encodeListCursor(sort, last[order.column], last.id)
           : null,
+      total: count?.total ?? 0,
+    };
+  }
+  async summary(
+    principal: PersonalPrincipal,
+  ): Promise<PersonalDocumentSummary> {
+    await this.rate(principal);
+    const at = now(),
+      soon = expiringBefore(at);
+    const counts = (kind: SecureDocumentKind) => {
+      const source = ownerDocuments(principal.userId, at, kind);
+      return this.env.DB.prepare(
+        `SELECT count(*) AS total,COALESCE(sum(state='active'),0) AS available,COALESCE(sum(state='pending'),0) AS pending,COALESCE(sum(state='active' AND expires_at<=?),0) AS expiring,COALESCE(sum(state IN ('expired','revoked')),0) AS ended FROM (${source.sql})`,
+      )
+        .bind(soon, ...source.values)
+        .first<PersonalDocumentCounts>();
+    };
+    const all = ownerDocuments(principal.userId, at);
+    const [shared, personal, senders, senderCount] = await Promise.all([
+      counts("shared"),
+      counts("personal"),
+      this.env.DB.prepare(
+        `SELECT sender AS name,count(*) AS documents FROM (${all.sql}) GROUP BY sender ORDER BY documents DESC,sender LIMIT 100`,
+      )
+        .bind(...all.values)
+        .all<{ name: string; documents: number }>(),
+      this.env.DB.prepare(
+        `SELECT count(DISTINCT sender) AS total FROM (${all.sql})`,
+      )
+        .bind(...all.values)
+        .first<{ total: number }>(),
+    ]);
+    const empty = { total: 0, available: 0, pending: 0, expiring: 0, ended: 0 };
+    return {
+      shared: shared ?? empty,
+      personal: personal ?? empty,
+      senders: senders.results,
+      sendersTotal: senderCount?.total ?? 0,
+      expiringDays: PERSONAL_DOCUMENT_EXPIRING_DAYS,
     };
   }
   async events(

@@ -85,5 +85,11 @@
     "Correspondance",
     "Korrespondenz",
     "Korrespondenz"
-  ]
+  ],
+  "application\u0004Administration": [
+    "Administration",
+    "Verwaltung",
+    "Verwaltung"
+  ],
+  "report-period\u0004Period": ["Période", "Zeitraum", "Zäitraum"]
 }

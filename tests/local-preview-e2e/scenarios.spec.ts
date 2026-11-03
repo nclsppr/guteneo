@@ -261,21 +261,22 @@ test("the five demo accounts retain the four real membership roles and expose Be
         ? "Camille · Demonstration"
         : `${account} · Fictional account`,
     );
-    await expect(page.locator('.sidebar a[href="#/app/admin"]')).toHaveCount(
-      account === "admin" ? 1 : 0,
-    );
-    await expect(page.locator('.sidebar a[href="#/app/usage"]')).toHaveCount(
-      ["admin", "supervisor"].includes(account) ? 1 : 0,
-    );
     await expect(page.locator('.sidebar a[href="#/app/prepare"]')).toHaveCount(
       ["admin", "supervisor", "member"].includes(account) ? 1 : 0,
     );
     await page.getByRole("button", { name: /^Application:/ }).click();
+    const applications = page.getByRole("navigation", {
+      name: "Applications",
+      exact: true,
+    });
     await expect(
-      page
-        .getByRole("navigation", { name: "Applications", exact: true })
-        .getByRole("link", { name: "Belvédère", exact: true }),
+      applications.getByRole("link", { name: "Belvédère", exact: true }),
     ).toHaveCount(account === "belvedere" ? 1 : 0);
+    // Workspace management moved to Administration, offered to administrators
+    // and to supervisors with report permission.
+    await expect(
+      applications.getByRole("link", { name: "Administration", exact: true }),
+    ).toHaveCount(["admin", "supervisor"].includes(account) ? 1 : 0);
     await page.getByRole("button", { name: /^Application:/ }).press("Escape");
   }
   expect(backend).toEqual([]);
@@ -310,7 +311,7 @@ test("Studio and My documents read the selected synthetic collections through no
   await expect(page.locator(".studio-list-row")).toHaveCount(50);
   await openApplication(page, "My documents");
   await expect(page.locator("main h1")).toHaveText("My documents");
-  await expect(page.locator(".secure-document-list > li")).toHaveCount(50);
+  await expect(page.locator(".secure-document-list > li")).toHaveCount(25);
   await expect(page.getByRole("note")).toContainText(
     "accounts and documents are fictional",
   );
@@ -327,7 +328,7 @@ test("Studio and My documents read the selected synthetic collections through no
     page.getByRole("button", { name: "Show more documents", exact: true }),
   ).toHaveCount(0);
   await openApplication(page, "My documents");
-  await expect(page.locator(".secure-document-list > li")).toHaveCount(50);
+  await expect(page.locator(".secure-document-list > li")).toHaveCount(25);
   const ready = page
     .locator(".secure-document-list > li")
     .filter({ has: page.getByText("Access available", { exact: true }) })

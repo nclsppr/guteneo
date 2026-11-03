@@ -358,7 +358,7 @@ for (const reason of [
     if (reason === "channel_stopped")
       await expect(
         page.getByRole("link", { name: "Ouvrir l’administration" }),
-      ).toHaveAttribute("href", "#/app/admin");
+      ).toHaveAttribute("href", "#/app/administration/settings");
     expect(state.writes).toEqual([]);
     expect(state.unmatched).toEqual([]);
   });

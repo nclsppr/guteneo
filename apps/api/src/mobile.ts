@@ -393,10 +393,12 @@ async function exchange(request: Request, env: Env): Promise<Response> {
       );
   }
   const input = exchangeInput.parse(await request.json());
-  const codeHash = await hashSecret(input.code);
-  const proof = await challenge(input.codeVerifier);
   const token = secret();
-  const tokenHash = await hashSecret(token);
+  const [codeHash, proof, tokenHash] = await Promise.all([
+    hashSecret(input.code),
+    challenge(input.codeVerifier),
+    hashSecret(token),
+  ]);
   const timestamp = now();
   const expiresAt = new Date(Date.now() + 3_600_000).toISOString();
   // D1 batch is atomic: the one-time code cannot create two sessions, including

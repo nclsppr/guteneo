@@ -1,0 +1,122 @@
+/* My documents list: dense rows, server filters and page navigation. */
+.personal-document-count {
+  display: inline-block;
+  min-width: 24px;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+}
+.personal-document-states {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.personal-document-states a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  text-decoration: none;
+}
+.personal-document-states a[aria-current="true"] {
+  border-color: var(--ink);
+  background: var(--paper);
+  font-weight: 600;
+}
+.personal-document-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 12px;
+  max-width: 780px;
+}
+.personal-document-controls .field {
+  margin-bottom: 0;
+  min-width: 0;
+}
+.personal-document-controls select {
+  width: 100%;
+  min-height: 44px;
+}
+.personal-document-range {
+  margin: 0;
+  color: var(--muted);
+}
+.personal-document-range:focus {
+  outline: none;
+}
+.personal-document-range:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 4px;
+}
+.personal-document-rows > li {
+  padding-block: 12px;
+}
+.personal-document-rows h2 {
+  font-size: 17px;
+}
+.personal-document-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+}
+.personal-document-meta small {
+  display: inline;
+  color: var(--muted);
+}
+.personal-document-state-pending,
+.personal-document-state-expired,
+.personal-document-state-revoked {
+  color: var(--muted);
+}
+.personal-document-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.personal-document-pager span {
+  color: var(--muted);
+}
+.personal-document-onboarding {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 24px;
+}
+.personal-document-onboarding > div {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+.personal-document-onboarding h2 {
+  margin-bottom: 6px;
+  font-size: 20px;
+}
+.personal-document-onboarding p {
+  margin: 0;
+  color: var(--muted);
+}
+@media (max-width: 640px) {
+  .personal-document-rows > li {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .personal-document-rows > li > .button,
+  .personal-document-pager .button,
+  .personal-document-onboarding .button {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,6 +1,6 @@
 ---
 title: "Documents and protection"
-description: "20 capabilities in the create branch of Guteneo."
+description: "21 capabilities in the create branch of Guteneo."
 sidebar:
   order: 3
 ---
@@ -38,6 +38,7 @@ Private App transport is published in 1.1.6 at source 147ada, with two actual Cl
 <li id="feature-0718ee8e054c">A database-wide single App-finalizer lease bounds App assembly only; existing minute cron prioritizes expired leases, fences the original writer first and releases logical capacity without rerunning the pipeline. Cleanup remains at most two sessions/80 parts, waits for original expiry plus 90 seconds, retains unresolved debt/tombstones and never deletes registered/deduplicated originals; total Worker memory is not qualified by this admission limit</li>
 <li id="feature-3a2d9015293f">Authenticated documents.originalFilePicker exposes explicit_local_original and conversationAttachmentAccess:false; SDK context updates contain only registered document ID/status and bound original size/SHA, never content/base64/filename/token. Actual 1.1.6 Desktop registered-ID delivery to the model failed; the 1.1.8 source candidate adds standard text alongside structured context plus explicit Use in conversation for the same four-key receipt, with native retests pending and no automatic chat message on import</li>
 <li id="feature-b5349f7299ec">MCP_DOCUMENT_UPLOAD_APP is off by default: strict existing-connection/revision JSON supports at most one hour of qualification, while explicit enabled mode supports a separately reviewed general production rollout after actual qualification and authorized delivery; both retain current writer/OAuth guards, observer denial and no browser fetch, Origin/network permission, new scope, approval, paid check, mandate or infrastructure</li>
+<li id="feature-1821000f65b7">Bounded document-analysis reads and PDF canvas/text extraction overlap; both renderer tasks settle before completion or cleanup, with stale-response and sensitive-source fences retained</li>
 </ol>
 
 ## REST operations

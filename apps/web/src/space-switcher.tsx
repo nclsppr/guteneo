@@ -6,6 +6,7 @@ import {
   Files,
   PenNib,
   Plus,
+  SlidersHorizontal,
   ShieldCheck,
   type Icon,
 } from "@phosphor-icons/react";
@@ -20,6 +21,8 @@ import {
 import { msg, msgIn } from "./messages";
 import "./space-switcher.css";
 
+/** Applications that work inside the current workspace session. */
+export type WorkspaceApplication = Exclude<ApplicationSpace, "personal">;
 /** A membership; the current workspace always comes from the active session. */
 export type SwitcherWorkspace = { id: string; name: string };
 
@@ -118,6 +121,12 @@ const applications: {
     needsWorkspace: false,
   },
   {
+    id: "administration",
+    Icon: SlidersHorizontal,
+    name: () => msgIn("application", "Administration"),
+    needsWorkspace: true,
+  },
+  {
     id: "belvedere",
     Icon: ShieldCheck,
     name: () => "Belvédère",
@@ -132,11 +141,14 @@ const applications: {
 export function ApplicationSwitcher({
   application,
   hasWorkspace,
+  canAdministerWorkspace = false,
   canAccessBelvedere = false,
   preview = false,
 }: {
   application: ApplicationSpace | "belvedere";
   hasWorkspace: boolean;
+  /** Current-workspace administration or report permission; reads recheck it. */
+  canAdministerWorkspace?: boolean;
   /** Server-projected hint only; the protected route checks authority again. */
   canAccessBelvedere?: boolean;
   /** The fictional public preview offers no other application. */
@@ -191,7 +203,12 @@ export function ApplicationSwitcher({
       >
         <ul>
           {applications
-            .filter((item) => item.id !== "belvedere" || canAccessBelvedere)
+            .filter(
+              (item) =>
+                (item.id !== "belvedere" || canAccessBelvedere) &&
+                (item.id !== "administration" ||
+                  (hasWorkspace && canAdministerWorkspace)),
+            )
             .map((item) => (
               <li key={item.id}>
                 <a
@@ -230,8 +247,8 @@ export function ApplicationSwitcher({
 }
 
 /**
- * The workspace Studio and Correspondence work in, and the person's other
- * memberships. Personal documents never depend on it.
+ * The workspace Studio, Correspondence and Administration work in, and the
+ * person's other memberships. Personal documents never depend on it.
  */
 export function WorkspaceSwitcher({
   application,
@@ -241,7 +258,7 @@ export function WorkspaceSwitcher({
   loadWorkspaces,
   enterWorkspace,
 }: {
-  application: "workshop" | "studio";
+  application: WorkspaceApplication;
   workspace: SwitcherWorkspace;
   /**
    * Changes with the account, the workspace or its authority. A list read for
@@ -252,7 +269,7 @@ export function WorkspaceSwitcher({
   preview?: boolean;
   /** Read when the panel opens for an identity; never on page load. */
   loadWorkspaces: (signal: AbortSignal) => Promise<SwitcherWorkspace[]>;
-  enterWorkspace: (id: string, space: "workshop" | "studio") => Promise<void>;
+  enterWorkspace: (id: string, space: WorkspaceApplication) => Promise<void>;
 }) {
   const panel = usePanel();
   const [listing, setListing] = useState<{

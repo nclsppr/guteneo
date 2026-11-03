@@ -25,7 +25,7 @@ function personalSession(id = "personal-performance-a"): PersonalSession {
   };
 }
 
-async function fixture(page: Page) {
+async function fixture(page: Page, delayMs = 0) {
   let session = personalSession();
   let listFailure = false;
   const reads: string[] = [];
@@ -40,6 +40,7 @@ async function fixture(page: Page) {
     const path = new URL(request.url()).pathname;
     if (request.method() !== "GET") writes.push(path);
     else reads.push(path);
+    if (delayMs) await new Promise((resolve) => setTimeout(resolve, delayMs));
     if (path === "/api/session")
       return route.fulfill({
         status: 401,
@@ -80,8 +81,8 @@ async function fixture(page: Page) {
     reads,
     writes,
     scripts,
-    switchAccount() {
-      session = personalSession("personal-performance-b");
+    switchAccount(id = "personal-performance-b") {
+      session = personalSession(id);
     },
     failList(value: boolean) {
       listFailure = value;
@@ -97,8 +98,8 @@ async function refreshSession(page: Page) {
 
 test("my documents opens independently of workspace authentication and unused editors", async ({
   page,
-}) => {
-  const state = await fixture(page);
+}, info) => {
+  const state = await fixture(page, 40);
   let releaseWorkspaceRead!: () => void;
   const workspaceRead = new Promise<void>((resolve) => {
     releaseWorkspaceRead = resolve;
@@ -118,9 +119,50 @@ test("my documents opens independently of workspace authentication and unused ed
         exact: true,
       }),
     ).toBeVisible();
+    const loading = await page.evaluate(async () => {
+      await new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      );
+      const resources = performance.getEntriesByType(
+        "resource",
+      ) as PerformanceResourceTiming[];
+      return {
+        firstUsefulDomAndRenderingOpportunityMs: performance.now(),
+        viewport: { width: innerWidth, height: innerHeight },
+        resources: resources
+          .filter((entry) => /\.(?:js|css)(?:\?|$)/.test(entry.name))
+          .map((entry) => ({
+            path: new URL(entry.name).pathname,
+            encodedBodySize: entry.encodedBodySize,
+            transferSize: entry.transferSize,
+            durationMs: entry.duration,
+          })),
+      };
+    });
+    await info.attach("personal-document-loading", {
+      body: JSON.stringify(
+        {
+          environment:
+            "Local Vite static preview; intercepted synthetic APIs delayed 40 ms; one sample; no CPU or network throttling",
+          project: info.project.name,
+          browser: page.context().browser()?.version(),
+          ...loading,
+          reads: state.reads,
+          writes: state.writes,
+        },
+        null,
+        2,
+      ),
+      contentType: "application/json",
+    });
+    // The category summary is read beside the first list page, never before.
     expect(
-      state.reads.filter((path) => path.startsWith("/api/personal/")),
-    ).toEqual(["/api/personal/session", "/api/personal/documents"]);
+      state.reads.filter((path) => path.startsWith("/api/personal/")).sort(),
+    ).toEqual([
+      "/api/personal/documents",
+      "/api/personal/documents/summary",
+      "/api/personal/session",
+    ]);
     expect(
       state.scripts.filter((path) =>
         /pdf-viewer|pdf\.worker|template-designer|document-studio|swagger-ui/.test(
@@ -376,6 +418,22 @@ test("focus revalidation replaces the personal account without reusing its docum
   ).toHaveCount(0);
   await expect(
     page.getByText("personal-performance-a@example.invalid", { exact: false }),
+  ).toHaveCount(0);
+  state.switchAccount("personal-performance-a");
+  await expect(async () => {
+    await refreshSession(page);
+    await expect(
+      page.getByRole("heading", {
+        name: "Document for personal-performance-a",
+        exact: true,
+      }),
+    ).toBeVisible({ timeout: 250 });
+  }).toPass();
+  await expect(
+    page.getByText("Document for personal-performance-b", { exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByText("personal-performance-b@example.invalid", { exact: false }),
   ).toHaveCount(0);
   expect(state.writes).toEqual([]);
 });

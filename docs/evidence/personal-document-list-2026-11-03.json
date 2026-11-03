@@ -1,0 +1,981 @@
+{
+  "recordedAt": "2026-11-03T01:18:33.154682+00:00",
+  "qualification": "Local migrated D1 and intercepted browser fixtures only; no real account, provider, production, hosted CI or physical device qualification",
+  "source": {
+    "gitBase": "9207010451037533a6e2f7150635c223c965f307",
+    "dirty": true,
+    "sourceFingerprints": {
+      "apps/api/src/personal-documents.ts": "9ed890f9df38df234d29c15f4edaf487241b70ec4601010d72671b41c69ed7b8",
+      "apps/api/src/secure-distribution-routes.ts": "4b87540e2394cd07abf0c7bd5b8be2c5d77bfdd49e5e81d06b8014e2ffc39a4c",
+      "apps/web/src/personal-documents.tsx": "870f3642088b44d53fc71486ad91c40e4a2d0c5d2052f3733fce1b17e40a4de8",
+      "apps/web/src/personal-document-list.tsx": "be58a29decab7d346b0f7c86d3b34e05befc421392160865c7fe5e2d5b024a41",
+      "apps/web/src/personal-document-reader.tsx": "209fad46d829a2b167ef513f81bed01c4d3b544ec9e17e79a67f9f90389ec88b",
+      "apps/web/src/personal-document-claim.tsx": "fbcebd922a1fd1d8ea65594d038d70f9cef872205f9aab74884a438cc435b339",
+      "apps/web/src/personal-document-status.ts": "5206c5a14716e13df6b0ab0b57948fa848d679daf3ec6dc285d2edaecf02f73f",
+      "apps/web/src/personal-documents.css": "6e6c3b447adf3d60e39b220f4681861b868be036ea9a4915e42976b37f2cb0c5",
+      "apps/web/src/messages.ts": "e9e8ed2db48d74739de6186893c961de9f9df35a1705038f1a8e798ce0d132dd",
+      "apps/web/src/locales/messages-personal-documents.json": "6421a6346a862838dea3d919e7fed421148852b68a9d70dc96cc1ac1c322cb93",
+      "apps/web/src/preview-personal.ts": "0df8b2df80b07c1b75e5bf4241ba0664e2545ed7100dcb8106c875b78e0672cc",
+      "packages/contracts/src/personal-documents.ts": "ef21ba15ecce6cd065f25b8a0c610d90b5b7ea22f5b1df936ac483b0a1efadbd"
+    },
+    "entrySha256": "6b2a84b5f2e193f6bda4269067fe3038b75f3148faa019fdb0b4667cfecf17bf",
+    "browserProbeSha256": "0daead346b703861d2479f39c43a37efde4063cf9be2e22d8a90fe3073535f7a"
+  },
+  "database": {
+    "baseline": "9207010451037533a6e2f7150635c223c965f307",
+    "environment": "Local Miniflare/workerd D1, 240 synthetic shared documents and one personal copy; single interleaved samples, no provider or production traffic",
+    "observations": [
+      {
+        "label": "main-92070104",
+        "limit": 1,
+        "preparedStatements": 5,
+        "durationMs": 24.217709000000013
+      },
+      {
+        "label": "recovered",
+        "limit": 1,
+        "preparedStatements": 3,
+        "durationMs": 17.771582999999737
+      },
+      {
+        "label": "main-92070104",
+        "limit": 25,
+        "preparedStatements": 77,
+        "durationMs": 347.09699999999975
+      },
+      {
+        "label": "recovered",
+        "limit": 25,
+        "preparedStatements": 3,
+        "durationMs": 18.96462500000007
+      },
+      {
+        "label": "main-92070104",
+        "limit": 50,
+        "preparedStatements": 152,
+        "durationMs": 708.287542
+      },
+      {
+        "label": "recovered",
+        "limit": 50,
+        "preparedStatements": 3,
+        "durationMs": 16.91362500000014
+      }
+    ]
+  },
+  "databasePlans": [
+    {
+      "operation": "recent",
+      "plans": [
+        {
+          "sqlSha256": "dd7fa982e5b3d1fd84550d94d610cbb2b91c93d77382f9244826afea016e80f4",
+          "plan": [
+            {
+              "id": 11,
+              "parent": 0,
+              "notused": 62,
+              "detail": "SEARCH s USING INDEX secure_distribution_recipient (recipient_user_id=?)"
+            },
+            {
+              "id": 20,
+              "parent": 0,
+              "notused": 46,
+              "detail": "SEARCH o USING INDEX sqlite_autoindex_organizations_1 (id=?) LEFT-JOIN"
+            },
+            {
+              "id": 166,
+              "parent": 0,
+              "notused": 47,
+              "detail": "SEARCH p USING INDEX sqlite_autoindex_secure_personal_documents_4 (user_id=? AND source_organization_id=? AND source_distribution_id=?) LEFT-JOIN"
+            },
+            {
+              "id": 305,
+              "parent": 0,
+              "notused": 0,
+              "detail": "USE TEMP B-TREE FOR ORDER BY"
+            }
+          ]
+        },
+        {
+          "sqlSha256": "627abc904fdf3d7026ee7bab69af085d144c09516e4b8f85be0bf48d1a97e35f",
+          "plan": [
+            {
+              "id": 7,
+              "parent": 0,
+              "notused": 62,
+              "detail": "SEARCH s USING INDEX secure_distribution_recipient (recipient_user_id=?)"
+            },
+            {
+              "id": 16,
+              "parent": 0,
+              "notused": 46,
+              "detail": "SEARCH o USING INDEX sqlite_autoindex_organizations_1 (id=?) LEFT-JOIN"
+            },
+            {
+              "id": 162,
+              "parent": 0,
+              "notused": 45,
+              "detail": "SEARCH p USING COVERING INDEX sqlite_autoindex_secure_personal_documents_4 (user_id=? AND source_organization_id=? AND source_distribution_id=?) LEFT-JOIN"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "operation": "oldest",
+      "plans": [
+        {
+          "sqlSha256": "828ccf90ffdfe06f4bad7b15b6038457805c2024932741f66e416d85849e9744",
+          "plan": [
+            {
+              "id": 11,
+              "parent": 0,
+              "notused": 62,
+              "detail": "SEARCH s USING INDEX secure_distribution_recipient (recipient_user_id=?)"
+            },
+            {
+              "id": 20,
+              "parent": 0,
+              "notused": 46,
+              "detail": "SEARCH o USING INDEX sqlite_autoindex_organizations_1 (id=?) LEFT-JOIN"
+            },
+            {
+              "id": 166,
+              "parent": 0,
+              "notused": 47,
+              "detail": "SEARCH p USING INDEX sqlite_autoindex_secure_personal_documents_4 (user_id=? AND source_organization_id=? AND source_distribution_id=?) LEFT-JOIN"
+            },
+            {
+              "id": 305,
+              "parent": 0,
+              "notused": 0,
+              "detail": "USE TEMP B-TREE FOR ORDER BY"
+            }
+          ]
+        },
+        {
+          "sqlSha256": "627abc904fdf3d7026ee7bab69af085d144c09516e4b8f85be0bf48d1a97e35f",
+          "plan": [
+            {
+              "id": 7,
+              "parent": 0,
+              "notused": 62,
+              "detail": "SEARCH s USING INDEX secure_distribution_recipient (recipient_user_id=?)"
+            },
+            {
+              "id": 16,
+              "parent": 0,
+              "notused": 46,
+              "detail": "SEARCH o USING INDEX sqlite_autoindex_organizations_1 (id=?) LEFT-JOIN"
+            },
+            {
+              "id": 162,
+              "parent": 0,
+              "notused": 45,
+              "detail": "SEARCH p USING COVERING INDEX sqlite_autoindex_secure_personal_documents_4 (user_id=? AND source_organization_id=? AND source_distribution_id=?) LEFT-JOIN"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "operation": "title",
+      "plans": [
+        {
+          "sqlSha256": "44069acefde2454c6c5f9f5c949b2562b2c5c7875930292cb8096e213f8762aa",
+          "plan": [
+            {
+              "id": 11,
+              "parent": 0,
+              "notused": 62,
+              "detail": "SEARCH s USING INDEX secure_distribution_recipient (recipient_user_id=?)"
+            },
+            {
+              "id": 20,
+              "parent": 0,
+              "notused": 46,
+              "detail": "SEARCH o USING INDEX sqlite_autoindex_organizations_1 (id=?) LEFT-JOIN"
+            },
+            {
+              "id": 166,
+              "parent": 0,
+              "notused": 47,
+              "detail": "SEARCH p USING INDEX sqlite_autoindex_secure_personal_documents_4 (user_id=? AND source_organization_id=? AND source_distribution_id=?) LEFT-JOIN"
+            },
+            {
+              "id": 305,
+              "parent": 0,
+              "notused": 0,
+              "detail": "USE TEMP B-TREE FOR ORDER BY"
+            }
+          ]
+        },
+        {
+          "sqlSha256": "627abc904fdf3d7026ee7bab69af085d144c09516e4b8f85be0bf48d1a97e35f",
+          "plan": [
+            {
+              "id": 7,
+              "parent": 0,
+              "notused": 62,
+              "detail": "SEARCH s USING INDEX secure_distribution_recipient (recipient_user_id=?)"
+            },
+            {
+              "id": 16,
+              "parent": 0,
+              "notused": 46,
+              "detail": "SEARCH o USING INDEX sqlite_autoindex_organizations_1 (id=?) LEFT-JOIN"
+            },
+            {
+              "id": 162,
+              "parent": 0,
+              "notused": 45,
+              "detail": "SEARCH p USING COVERING INDEX sqlite_autoindex_secure_personal_documents_4 (user_id=? AND source_organization_id=? AND source_distribution_id=?) LEFT-JOIN"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "operation": "expiry",
+      "plans": [
+        {
+          "sqlSha256": "b320b6a02328296fa463e37eab567fb8e96341b51698993e69fb19a238065a3a",
+          "plan": [
+            {
+              "id": 11,
+              "parent": 0,
+              "notused": 62,
+              "detail": "SEARCH s USING INDEX secure_distribution_recipient (recipient_user_id=?)"
+            },
+            {
+              "id": 20,
+              "parent": 0,
+              "notused": 46,
+              "detail": "SEARCH o USING INDEX sqlite_autoindex_organizations_1 (id=?) LEFT-JOIN"
+            },
+            {
+              "id": 166,
+              "parent": 0,
+              "notused": 47,
+              "detail": "SEARCH p USING INDEX sqlite_autoindex_secure_personal_documents_4 (user_id=? AND source_organization_id=? AND source_distribution_id=?) LEFT-JOIN"
+            },
+            {
+              "id": 305,
+              "parent": 0,
+              "notused": 0,
+              "detail": "USE TEMP B-TREE FOR ORDER BY"
+            }
+          ]
+        },
+        {
+          "sqlSha256": "627abc904fdf3d7026ee7bab69af085d144c09516e4b8f85be0bf48d1a97e35f",
+          "plan": [
+            {
+              "id": 7,
+              "parent": 0,
+              "notused": 62,
+              "detail": "SEARCH s USING INDEX secure_distribution_recipient (recipient_user_id=?)"
+            },
+            {
+              "id": 16,
+              "parent": 0,
+              "notused": 46,
+              "detail": "SEARCH o USING INDEX sqlite_autoindex_organizations_1 (id=?) LEFT-JOIN"
+            },
+            {
+              "id": 162,
+              "parent": 0,
+              "notused": 45,
+              "detail": "SEARCH p USING COVERING INDEX sqlite_autoindex_secure_personal_documents_4 (user_id=? AND source_organization_id=? AND source_distribution_id=?) LEFT-JOIN"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "operation": "summary",
+      "plans": [
+        {
+          "sqlSha256": "df45ef10df4fc60b8575775d44cd44dd91b78041e51532385fe320e7e4ffbb99",
+          "plan": [
+            {
+              "id": 6,
+              "parent": 0,
+              "notused": 62,
+              "detail": "SEARCH s USING INDEX secure_distribution_recipient (recipient_user_id=?)"
+            },
+            {
+              "id": 15,
+              "parent": 0,
+              "notused": 44,
+              "detail": "SEARCH o USING COVERING INDEX sqlite_autoindex_organizations_1 (id=?) LEFT-JOIN"
+            },
+            {
+              "id": 21,
+              "parent": 0,
+              "notused": 45,
+              "detail": "SEARCH p USING COVERING INDEX sqlite_autoindex_secure_personal_documents_4 (user_id=? AND source_organization_id=? AND source_distribution_id=?) LEFT-JOIN"
+            }
+          ]
+        },
+        {
+          "sqlSha256": "5dc69c2cacbccccafcab93273deb016290249f4dec093378e7212d2aac68a61b",
+          "plan": [
+            {
+              "id": 4,
+              "parent": 0,
+              "notused": 62,
+              "detail": "SEARCH secure_personal_documents USING INDEX sqlite_autoindex_secure_personal_documents_4 (user_id=?)"
+            }
+          ]
+        },
+        {
+          "sqlSha256": "90665a988de443d858ad50970aef0caca967fbfa38d3b47be2cc185759ebf6e3",
+          "plan": [
+            {
+              "id": 2,
+              "parent": 0,
+              "notused": 0,
+              "detail": "CO-ROUTINE (subquery-2)"
+            },
+            {
+              "id": 3,
+              "parent": 2,
+              "notused": 0,
+              "detail": "COMPOUND QUERY"
+            },
+            {
+              "id": 4,
+              "parent": 3,
+              "notused": 0,
+              "detail": "LEFT-MOST SUBQUERY"
+            },
+            {
+              "id": 9,
+              "parent": 4,
+              "notused": 62,
+              "detail": "SEARCH s USING INDEX secure_distribution_recipient (recipient_user_id=?)"
+            },
+            {
+              "id": 18,
+              "parent": 4,
+              "notused": 46,
+              "detail": "SEARCH o USING INDEX sqlite_autoindex_organizations_1 (id=?) LEFT-JOIN"
+            },
+            {
+              "id": 47,
+              "parent": 3,
+              "notused": 0,
+              "detail": "UNION ALL"
+            },
+            {
+              "id": 50,
+              "parent": 47,
+              "notused": 62,
+              "detail": "SEARCH secure_personal_documents USING INDEX sqlite_autoindex_secure_personal_documents_4 (user_id=?)"
+            },
+            {
+              "id": 82,
+              "parent": 0,
+              "notused": 58,
+              "detail": "SCAN (subquery-2)"
+            },
+            {
+              "id": 85,
+              "parent": 0,
+              "notused": 0,
+              "detail": "USE TEMP B-TREE FOR GROUP BY"
+            },
+            {
+              "id": 125,
+              "parent": 0,
+              "notused": 0,
+              "detail": "USE TEMP B-TREE FOR ORDER BY"
+            }
+          ]
+        },
+        {
+          "sqlSha256": "0d81499b27ab61171a7e28bc586166b924cadf7630a8767aeeadf7ef85c67d17",
+          "plan": [
+            {
+              "id": 2,
+              "parent": 0,
+              "notused": 0,
+              "detail": "CO-ROUTINE (subquery-2)"
+            },
+            {
+              "id": 3,
+              "parent": 2,
+              "notused": 0,
+              "detail": "COMPOUND QUERY"
+            },
+            {
+              "id": 4,
+              "parent": 3,
+              "notused": 0,
+              "detail": "LEFT-MOST SUBQUERY"
+            },
+            {
+              "id": 9,
+              "parent": 4,
+              "notused": 62,
+              "detail": "SEARCH s USING INDEX secure_distribution_recipient (recipient_user_id=?)"
+            },
+            {
+              "id": 18,
+              "parent": 4,
+              "notused": 46,
+              "detail": "SEARCH o USING INDEX sqlite_autoindex_organizations_1 (id=?) LEFT-JOIN"
+            },
+            {
+              "id": 47,
+              "parent": 3,
+              "notused": 0,
+              "detail": "UNION ALL"
+            },
+            {
+              "id": 50,
+              "parent": 47,
+              "notused": 62,
+              "detail": "SEARCH secure_personal_documents USING INDEX sqlite_autoindex_secure_personal_documents_4 (user_id=?)"
+            },
+            {
+              "id": 78,
+              "parent": 0,
+              "notused": 0,
+              "detail": "USE TEMP B-TREE FOR count(DISTINCT)"
+            },
+            {
+              "id": 79,
+              "parent": 0,
+              "notused": 58,
+              "detail": "SCAN (subquery-2)"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "browserEnvironment": {
+    "server": "Local Vite static preview at 127.0.0.1:8794",
+    "node": "v24.18.0",
+    "platform": "darwin arm64",
+    "locale": "en interface selected by synthetic personal session; fr-FR browser locale",
+    "apiDelayMs": 40,
+    "cache": "Fresh browser context per sample; interception disables HTTP cache; OS cache not reset",
+    "sampling": "One sample per browser; no baseline browser comparison; host workload not isolated",
+    "firstUsefulDefinition": "Visible document heading asserted, followed by two requestAnimationFrame opportunities; DOM/render opportunity, not physical first paint",
+    "resourceTiming": "JS/CSS resource timing at first useful observation, including bootstrap/module preloads; reported encodedBodySize and transferSize differ by browser compression",
+    "limitations": [
+      "Synthetic API timing is not backend latency.",
+      "Single local D1 samples do not establish a production latency improvement.",
+      "Bounded statement count and page size do not bound rows scanned for totals, sorting or sender aggregation.",
+      "No hosted CI, merge, deployment or live sensitive-document journey is qualified."
+    ]
+  },
+  "browserSamples": [
+    {
+      "environment": "Local Vite static preview; intercepted synthetic APIs delayed 40 ms; one sample; no CPU or network throttling",
+      "project": "chromium",
+      "browser": "156.0.8078.4",
+      "firstUsefulDomAndRenderingOpportunityMs": 295.10000002384186,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "resources": [
+        {
+          "path": "/theme-init.js",
+          "encodedBodySize": 1542,
+          "transferSize": 1842,
+          "durationMs": 12.5,
+          "sha256": "9bea926bdb3bfaf443ebb226a1176cd9aa29cdcd0ef8edcb88d779cc35f3e71b"
+        },
+        {
+          "path": "/locale-init.js",
+          "encodedBodySize": 1112,
+          "transferSize": 1412,
+          "durationMs": 14.100000023841858,
+          "sha256": "35993862bf8744f23ff13f02429b8c1c1fa01dac4bbbfa1b6189795b1d6285da"
+        },
+        {
+          "path": "/assets/rolldown-runtime-XKyaHtl9.js",
+          "encodedBodySize": 726,
+          "transferSize": 1026,
+          "durationMs": 15.800000011920929,
+          "sha256": "548d1dbf321e7d2ae804fcc158b588706a7c52f8ca175de1490c6ccb4dbe55b7"
+        },
+        {
+          "path": "/assets/index-BFyspM28.js",
+          "encodedBodySize": 186185,
+          "transferSize": 186485,
+          "durationMs": 39.90000003576279,
+          "sha256": "0feb7f3921cd77bf20a89a6afb6400d37483d40ff23cae3ec1f361e8e0a1ca36"
+        },
+        {
+          "path": "/assets/jsx-runtime-DkucFTfG.js",
+          "encodedBodySize": 52513,
+          "transferSize": 52813,
+          "durationMs": 27.399999976158142,
+          "sha256": "3db76b30a11a4f66024904e3ec0e94ea90d24edef3742059f62fca0159849d95"
+        },
+        {
+          "path": "/assets/preload-helper-BLdHbfdN.js",
+          "encodedBodySize": 797,
+          "transferSize": 1097,
+          "durationMs": 18.400000035762787,
+          "sha256": "8aec9ff75ffa86a03d51268b63126abadb3754aa5a6b6c5bb16e4e2446a63dee"
+        },
+        {
+          "path": "/assets/CaretRight.es-D-okood6.js",
+          "encodedBodySize": 804,
+          "transferSize": 1104,
+          "durationMs": 20.80000001192093,
+          "sha256": "805b9af97b1626cc9c6af3c2df74343007c389c542aa34f2e6c3c201bcefe74d"
+        },
+        {
+          "path": "/assets/WarningCircle.es-DHRGVcWH.js",
+          "encodedBodySize": 679,
+          "transferSize": 979,
+          "durationMs": 23.5,
+          "sha256": "3ee7bf317d7675d77c046e80b9daf5507640486b8b06c9cb62fed1429f819738"
+        },
+        {
+          "path": "/assets/auth-navigation-BQ_Ad_-H.js",
+          "encodedBodySize": 1020,
+          "transferSize": 1320,
+          "durationMs": 25.100000023841858,
+          "sha256": "7b99076acfb364363ec6a05c654364034caef4939e9d7cfcf3958731693f6b19"
+        },
+        {
+          "path": "/assets/api-CeZcnUY0.js",
+          "encodedBodySize": 269115,
+          "transferSize": 269415,
+          "durationMs": 47.200000047683716,
+          "sha256": "a8f00eadd18ae0e74582c040ef83a14a102ae5ed9171fcad1a9e9a9eff71300a"
+        },
+        {
+          "path": "/assets/components-DAlPP39J.js",
+          "encodedBodySize": 14576,
+          "transferSize": 14876,
+          "durationMs": 25.30000001192093,
+          "sha256": "6e29890179b5fa1027f58299473fc98941e021bf9ddc8399ee676d5cfb90f1ea"
+        },
+        {
+          "path": "/assets/ArrowUpRight.es--_zpcmkU.js",
+          "encodedBodySize": 634,
+          "transferSize": 934,
+          "durationMs": 28.19999998807907,
+          "sha256": "0034e003c3b2c69755446c2f61420b7c195ac90e0c6a53ff8ac071d38817b25b"
+        },
+        {
+          "path": "/assets/Sun.es-CAENYvra.js",
+          "encodedBodySize": 2062,
+          "transferSize": 2362,
+          "durationMs": 30.099999964237213,
+          "sha256": "f9f4ee665484c456f1a535ef1c3c88c7d22914b3b6ac5a9a8f76450a30db69c7"
+        },
+        {
+          "path": "/assets/Check.es-B8CvK7eS.js",
+          "encodedBodySize": 601,
+          "transferSize": 901,
+          "durationMs": 30.299999952316284,
+          "sha256": "1f314448a1b9b2048f19f9c3a79b303fc9882068971a20f2be24e0189aaf92dd"
+        },
+        {
+          "path": "/assets/Copy.es-ude4NMq7.js",
+          "encodedBodySize": 626,
+          "transferSize": 926,
+          "durationMs": 30.799999952316284,
+          "sha256": "697a3a67020f612fbd751528300587e2f7986bcf5f597365c1bc92076055fec2"
+        },
+        {
+          "path": "/assets/DownloadSimple.es-Dbt3AjG6.js",
+          "encodedBodySize": 705,
+          "transferSize": 1005,
+          "durationMs": 31.900000035762787,
+          "sha256": "0831a64af8f5795fcfcd1280b8a8dfdb63b8751f778ec851d3eb9997813a4b4c"
+        },
+        {
+          "path": "/assets/language-select-CjyFLmsb.js",
+          "encodedBodySize": 2523,
+          "transferSize": 2823,
+          "durationMs": 33.60000002384186,
+          "sha256": "03f5bbe07ac7574c1dfce0a86a65c734a0f944c24903972172a5f796ed9aa1ac"
+        },
+        {
+          "path": "/assets/List.es-Bt8v815F.js",
+          "encodedBodySize": 565,
+          "transferSize": 865,
+          "durationMs": 32.69999998807907,
+          "sha256": "08b033199e92070982f9db5988340f3abfc620277bdaf765ef4c68a9410df967"
+        },
+        {
+          "path": "/assets/theme-BYRIOx62.js",
+          "encodedBodySize": 1018,
+          "transferSize": 1318,
+          "durationMs": 33,
+          "sha256": "0d6c9f3b3148e5700119497ffaf55565455d80c9dd87e524e62a4a20c2c42454"
+        },
+        {
+          "path": "/assets/theme-toggle-lYCo1JTt.js",
+          "encodedBodySize": 749,
+          "transferSize": 1049,
+          "durationMs": 34.09999996423721,
+          "sha256": "0427a0b8a722a75855d6b3c8e01ebde4e4f39004470e886ad1d61f329194810f"
+        },
+        {
+          "path": "/assets/components-G5QNLehj.css",
+          "encodedBodySize": 1604,
+          "transferSize": 1904,
+          "durationMs": 11.100000023841858,
+          "sha256": "62d50313fc3269de9d92f62eed15ee49b6e00dabf15529f1a18b920dc3ed5fbd"
+        },
+        {
+          "path": "/assets/language-select-SbAVVthq.css",
+          "encodedBodySize": 722,
+          "transferSize": 1022,
+          "durationMs": 13.300000011920929,
+          "sha256": "ec7e47604a8bed6fc02aa901e13a0af1e888ad50ba76fdb6ed223e8a551483ce"
+        },
+        {
+          "path": "/assets/index-DCH2Uth-.css",
+          "encodedBodySize": 29705,
+          "transferSize": 30005,
+          "durationMs": 18.80000001192093,
+          "sha256": "13632b3f15b03a8ef14441395df8cbf4acda3a8fdeca9731ca5ed1bbae57116e"
+        },
+        {
+          "path": "/assets/personal-area-Cf7lTKuy.js",
+          "encodedBodySize": 10512,
+          "transferSize": 10812,
+          "durationMs": 6.800000011920929,
+          "sha256": "7a80dee4e6ffa61dedf0e23f6328c7e972f9c04fba83f20b8f4f511184ebd6b4"
+        },
+        {
+          "path": "/assets/LockKey.es-CwUjBzCg.js",
+          "encodedBodySize": 910,
+          "transferSize": 1210,
+          "durationMs": 6.300000011920929,
+          "sha256": "a813b574958bdcf895e2060d9922dbc8c74e05118c96679e57b3fc3c7a7d908b"
+        },
+        {
+          "path": "/assets/appearance-preferences-DhxDDt5y.js",
+          "encodedBodySize": 551,
+          "transferSize": 851,
+          "durationMs": 5.600000023841858,
+          "sha256": "b0420ec22357b5d99668c8789c48d976d6d9363fc4ddd43ad204da7bf8c1f9b6"
+        },
+        {
+          "path": "/assets/secure-audit-history-CSwMynQB.js",
+          "encodedBodySize": 1353,
+          "transferSize": 1653,
+          "durationMs": 6.300000011920929,
+          "sha256": "c17fe1def66c00e3a0a53cc47f70d35eb654fe17fcda79bafa5777f8b1a3b932"
+        },
+        {
+          "path": "/assets/Monitor.es-DhD9eEtr.js",
+          "encodedBodySize": 706,
+          "transferSize": 1006,
+          "durationMs": 6.199999988079071,
+          "sha256": "e41a437de763d08902c3dd26f7aad95824b5012a046b48093231bea5283568df"
+        },
+        {
+          "path": "/assets/personal-area-B0jVk8bY.css",
+          "encodedBodySize": 683,
+          "transferSize": 983,
+          "durationMs": 6.5,
+          "sha256": "611b7ca0342f7732850666539955fd63b84bac6e61ed926fdf7f1679c7219726"
+        }
+      ],
+      "reads": [
+        "/api/personal/session",
+        "/api/personal/documents",
+        "/api/personal/documents/summary"
+      ],
+      "writes": [],
+      "summary": {
+        "js": {
+          "requests": 25,
+          "encodedBodySize": 552584,
+          "transferSize": 560084
+        },
+        "css": {
+          "requests": 4,
+          "encodedBodySize": 32714,
+          "transferSize": 33914
+        }
+      }
+    },
+    {
+      "environment": "Local Vite static preview; intercepted synthetic APIs delayed 40 ms; one sample; no CPU or network throttling",
+      "project": "iphone-webkit",
+      "browser": "27.2",
+      "firstUsefulDomAndRenderingOpportunityMs": 415,
+      "viewport": {
+        "width": 390,
+        "height": 664
+      },
+      "resources": [
+        {
+          "path": "/theme-init.js",
+          "encodedBodySize": 1559,
+          "transferSize": 1859,
+          "durationMs": 10,
+          "sha256": "9bea926bdb3bfaf443ebb226a1176cd9aa29cdcd0ef8edcb88d779cc35f3e71b"
+        },
+        {
+          "path": "/locale-init.js",
+          "encodedBodySize": 1129,
+          "transferSize": 1429,
+          "durationMs": 9,
+          "sha256": "35993862bf8744f23ff13f02429b8c1c1fa01dac4bbbfa1b6189795b1d6285da"
+        },
+        {
+          "path": "/assets/index-BFyspM28.js",
+          "encodedBodySize": 186339,
+          "transferSize": 186639,
+          "durationMs": 24,
+          "sha256": "0feb7f3921cd77bf20a89a6afb6400d37483d40ff23cae3ec1f361e8e0a1ca36"
+        },
+        {
+          "path": "/assets/components-G5QNLehj.css",
+          "encodedBodySize": 1621,
+          "transferSize": 1921,
+          "durationMs": 8,
+          "sha256": "62d50313fc3269de9d92f62eed15ee49b6e00dabf15529f1a18b920dc3ed5fbd"
+        },
+        {
+          "path": "/assets/language-select-SbAVVthq.css",
+          "encodedBodySize": 739,
+          "transferSize": 1039,
+          "durationMs": 9,
+          "sha256": "ec7e47604a8bed6fc02aa901e13a0af1e888ad50ba76fdb6ed223e8a551483ce"
+        },
+        {
+          "path": "/assets/index-DCH2Uth-.css",
+          "encodedBodySize": 29738,
+          "transferSize": 30038,
+          "durationMs": 12,
+          "sha256": "13632b3f15b03a8ef14441395df8cbf4acda3a8fdeca9731ca5ed1bbae57116e"
+        },
+        {
+          "path": "/assets/rolldown-runtime-XKyaHtl9.js",
+          "encodedBodySize": 726,
+          "transferSize": 1026,
+          "durationMs": 9,
+          "sha256": "548d1dbf321e7d2ae804fcc158b588706a7c52f8ca175de1490c6ccb4dbe55b7"
+        },
+        {
+          "path": "/assets/jsx-runtime-DkucFTfG.js",
+          "encodedBodySize": 52562,
+          "transferSize": 52862,
+          "durationMs": 9,
+          "sha256": "3db76b30a11a4f66024904e3ec0e94ea90d24edef3742059f62fca0159849d95"
+        },
+        {
+          "path": "/assets/api-CeZcnUY0.js",
+          "encodedBodySize": 269328,
+          "transferSize": 269628,
+          "durationMs": 38,
+          "sha256": "a8f00eadd18ae0e74582c040ef83a14a102ae5ed9171fcad1a9e9a9eff71300a"
+        },
+        {
+          "path": "/assets/preload-helper-BLdHbfdN.js",
+          "encodedBodySize": 814,
+          "transferSize": 1114,
+          "durationMs": 10,
+          "sha256": "8aec9ff75ffa86a03d51268b63126abadb3754aa5a6b6c5bb16e4e2446a63dee"
+        },
+        {
+          "path": "/assets/CaretRight.es-D-okood6.js",
+          "encodedBodySize": 821,
+          "transferSize": 1121,
+          "durationMs": 10,
+          "sha256": "805b9af97b1626cc9c6af3c2df74343007c389c542aa34f2e6c3c201bcefe74d"
+        },
+        {
+          "path": "/assets/WarningCircle.es-DHRGVcWH.js",
+          "encodedBodySize": 696,
+          "transferSize": 996,
+          "durationMs": 12,
+          "sha256": "3ee7bf317d7675d77c046e80b9daf5507640486b8b06c9cb62fed1429f819738"
+        },
+        {
+          "path": "/assets/auth-navigation-BQ_Ad_-H.js",
+          "encodedBodySize": 1037,
+          "transferSize": 1337,
+          "durationMs": 12,
+          "sha256": "7b99076acfb364363ec6a05c654364034caef4939e9d7cfcf3958731693f6b19"
+        },
+        {
+          "path": "/assets/ArrowUpRight.es--_zpcmkU.js",
+          "encodedBodySize": 651,
+          "transferSize": 951,
+          "durationMs": 13,
+          "sha256": "0034e003c3b2c69755446c2f61420b7c195ac90e0c6a53ff8ac071d38817b25b"
+        },
+        {
+          "path": "/assets/components-DAlPP39J.js",
+          "encodedBodySize": 14594,
+          "transferSize": 14894,
+          "durationMs": 14,
+          "sha256": "6e29890179b5fa1027f58299473fc98941e021bf9ddc8399ee676d5cfb90f1ea"
+        },
+        {
+          "path": "/assets/Sun.es-CAENYvra.js",
+          "encodedBodySize": 2079,
+          "transferSize": 2379,
+          "durationMs": 14,
+          "sha256": "f9f4ee665484c456f1a535ef1c3c88c7d22914b3b6ac5a9a8f76450a30db69c7"
+        },
+        {
+          "path": "/assets/Check.es-B8CvK7eS.js",
+          "encodedBodySize": 618,
+          "transferSize": 918,
+          "durationMs": 14,
+          "sha256": "1f314448a1b9b2048f19f9c3a79b303fc9882068971a20f2be24e0189aaf92dd"
+        },
+        {
+          "path": "/assets/Copy.es-ude4NMq7.js",
+          "encodedBodySize": 643,
+          "transferSize": 943,
+          "durationMs": 14,
+          "sha256": "697a3a67020f612fbd751528300587e2f7986bcf5f597365c1bc92076055fec2"
+        },
+        {
+          "path": "/assets/DownloadSimple.es-Dbt3AjG6.js",
+          "encodedBodySize": 722,
+          "transferSize": 1022,
+          "durationMs": 18,
+          "sha256": "0831a64af8f5795fcfcd1280b8a8dfdb63b8751f778ec851d3eb9997813a4b4c"
+        },
+        {
+          "path": "/assets/language-select-CjyFLmsb.js",
+          "encodedBodySize": 2540,
+          "transferSize": 2840,
+          "durationMs": 19,
+          "sha256": "03f5bbe07ac7574c1dfce0a86a65c734a0f944c24903972172a5f796ed9aa1ac"
+        },
+        {
+          "path": "/assets/List.es-Bt8v815F.js",
+          "encodedBodySize": 582,
+          "transferSize": 882,
+          "durationMs": 18,
+          "sha256": "08b033199e92070982f9db5988340f3abfc620277bdaf765ef4c68a9410df967"
+        },
+        {
+          "path": "/assets/theme-BYRIOx62.js",
+          "encodedBodySize": 1035,
+          "transferSize": 1335,
+          "durationMs": 19,
+          "sha256": "0d6c9f3b3148e5700119497ffaf55565455d80c9dd87e524e62a4a20c2c42454"
+        },
+        {
+          "path": "/assets/theme-toggle-lYCo1JTt.js",
+          "encodedBodySize": 766,
+          "transferSize": 1066,
+          "durationMs": 20,
+          "sha256": "0427a0b8a722a75855d6b3c8e01ebde4e4f39004470e886ad1d61f329194810f"
+        },
+        {
+          "path": "/assets/personal-area-Cf7lTKuy.js",
+          "encodedBodySize": 10530,
+          "transferSize": 10830,
+          "durationMs": 6,
+          "sha256": "7a80dee4e6ffa61dedf0e23f6328c7e972f9c04fba83f20b8f4f511184ebd6b4"
+        },
+        {
+          "path": "/assets/LockKey.es-CwUjBzCg.js",
+          "encodedBodySize": 927,
+          "transferSize": 1227,
+          "durationMs": 6,
+          "sha256": "a813b574958bdcf895e2060d9922dbc8c74e05118c96679e57b3fc3c7a7d908b"
+        },
+        {
+          "path": "/assets/appearance-preferences-DhxDDt5y.js",
+          "encodedBodySize": 568,
+          "transferSize": 868,
+          "durationMs": 6,
+          "sha256": "b0420ec22357b5d99668c8789c48d976d6d9363fc4ddd43ad204da7bf8c1f9b6"
+        },
+        {
+          "path": "/assets/Monitor.es-DhD9eEtr.js",
+          "encodedBodySize": 723,
+          "transferSize": 1023,
+          "durationMs": 7,
+          "sha256": "e41a437de763d08902c3dd26f7aad95824b5012a046b48093231bea5283568df"
+        },
+        {
+          "path": "/assets/secure-audit-history-CSwMynQB.js",
+          "encodedBodySize": 1370,
+          "transferSize": 1670,
+          "durationMs": 7,
+          "sha256": "c17fe1def66c00e3a0a53cc47f70d35eb654fe17fcda79bafa5777f8b1a3b932"
+        },
+        {
+          "path": "/assets/personal-area-B0jVk8bY.css",
+          "encodedBodySize": 700,
+          "transferSize": 1000,
+          "durationMs": 8,
+          "sha256": "611b7ca0342f7732850666539955fd63b84bac6e61ed926fdf7f1679c7219726"
+        }
+      ],
+      "reads": [
+        "/api/personal/session",
+        "/api/personal/documents",
+        "/api/personal/documents/summary"
+      ],
+      "writes": [],
+      "summary": {
+        "js": {
+          "requests": 25,
+          "encodedBodySize": 553359,
+          "transferSize": 560859
+        },
+        "css": {
+          "requests": 4,
+          "encodedBodySize": 32798,
+          "transferSize": 33998
+        }
+      }
+    }
+  ],
+  "regressions": {
+    "unitFiles": {
+      "tests/unit/secure-distribution-core.test.ts": 81,
+      "tests/unit/secure-distribution-web.test.ts": 47,
+      "tests/unit/local-preview-personal.test.ts": 12,
+      "tests/unit/personal-document-list.test.ts": 7
+    },
+    "browserInitial": {
+      "files": 6,
+      "projects": [
+        "chromium",
+        "iphone-webkit"
+      ],
+      "passed": 72
+    },
+    "browserFinalList": {
+      "tests/e2e/personal-document-list.spec.ts": 7,
+      "projects": [
+        "chromium",
+        "iphone-webkit"
+      ],
+      "passed": 14
+    },
+    "uniqueBrowserScenarios": 78,
+    "note": "The final list run repeats eight scenarios included in the initial 72; final seven unit list cases also verify all 241 projections and four keyset orders.",
+    "visualInspection": "Desktop and iPhone-sized French document views, mobile category counts and 25/50-row controls inspected from local screenshots; four additional fixture runs passed.",
+    "checks": [
+      "typecheck",
+      "lint: four applications, 193 owned files",
+      "docs:check",
+      "check:integrations: unchanged MCP/package fingerprints",
+      "build:engineering: 408 assets",
+      "check:engineering: zero errors, four existing hints, MDX link lint and four boundary tests",
+      "build: typecheck, web/integration archives and Worker dry run"
+    ],
+    "finalEntryRecheck": "Both entry scenarios passed on the final rebuilt bundle after enforcing the local fixture page limit; the entry and previously measured assets remained byte-identical."
+  }
+}

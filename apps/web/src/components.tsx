@@ -1008,3 +1008,37 @@ function generalErrorMessage(code: string): string | undefined {
   };
   return labels[code] ? msg(labels[code]) : undefined;
 }
+
+/** Read-only rendering of an operator diagnostic payload. */
+export function Diagnostics({ value }: { value: unknown }) {
+  if (value === null || value === undefined)
+    return <span className="muted">{t.unknown}</span>;
+  if (typeof value !== "object")
+    return (
+      <span>
+        {typeof value === "boolean" ? (value ? t.yes : t.no) : String(value)}
+      </span>
+    );
+  if (Array.isArray(value))
+    return (
+      <ul className="diagnostic-list">
+        {value.map((item, i) => (
+          <li key={i}>
+            <Diagnostics value={item} />
+          </li>
+        ))}
+      </ul>
+    );
+  return (
+    <dl className="diagnostics">
+      {Object.entries(value as Record<string, unknown>).map(([key, item]) => (
+        <div key={key}>
+          <dt>{key.replaceAll("_", " ")}</dt>
+          <dd>
+            <Diagnostics value={item} />
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
