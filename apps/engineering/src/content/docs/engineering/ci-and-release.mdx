@@ -379,6 +379,19 @@ exceptions and the rejection of obsolete declarations stay enforced; do not add
 a waiver for a scenario that now executes on both profiles. A local evidence
 replay qualifies the registry correction, not a new hosted CI run or release.
 
+The 3 November Administration recovery split the desktop sidebar check into
+Correspondence navigation and the former member address redirecting to
+Administration. Both remain required on desktop Chromium. Only mobile Chromium
+and iPhone WebKit carry their exact geometry exception, using the same declared
+reason. Renaming one test and adding the other initially left the registry stale:
+all component jobs passed, but aggregate verification correctly refused the run.
+The correction replaces the old title and adds the second exact entry, with
+regressions rejecting any other title, file, reason, project or suite. Preserve
+the original reports, replay the gate against fresh inventories, then qualify
+the corrected revision in hosted CI. This maintenance changes neither runner
+permissions nor merge and publication authority; local replay alone does not
+qualify a hosted run or production release.
+
 The observed pre-sharding main run spent most of its browser critical path on
 sequential application and preview tests in the iPhone job. The completed
 [26 October main run](https://github.com/nclsppr/guteneo/actions/runs/40254684422)
