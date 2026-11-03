@@ -99,40 +99,50 @@ export async function renderExpertReviewPage(input: {
     const encoded = new Uint8Array(binary.length);
     for (let index = 0; index < binary.length; index++)
       encoded[index] = binary.charCodeAt(index);
-    const imageSha256 = Array.from(
-      new Uint8Array(await crypto.subtle.digest("SHA-256", encoded)),
-      (byte) => byte.toString(16).padStart(2, "0"),
-    ).join("");
-    const reader = page
-      .streamTextContent({ disableNormalization: true })
-      .getReader();
-    let text = "",
-      textTruncated = false,
-      entries = 0;
-    try {
-      textLoop: for (;;) {
-        const chunk = await reader.read();
-        if (chunk.done) break;
-        for (const entry of chunk.value.items) {
-          if (++entries > 20_000) {
-            textTruncated = true;
-            break textLoop;
+    // Digesting the encoded image does not depend on the text layer. Settle
+    // both before the finally block releases the page, including on failure.
+    const [imageResult, textResult] = await Promise.allSettled([
+      crypto.subtle.digest("SHA-256", encoded),
+      (async () => {
+        const reader = page
+          .streamTextContent({ disableNormalization: true })
+          .getReader();
+        let text = "",
+          textTruncated = false,
+          entries = 0;
+        try {
+          textLoop: for (;;) {
+            const chunk = await reader.read();
+            if (chunk.done) break;
+            for (const entry of chunk.value.items) {
+              if (++entries > 20_000) {
+                textTruncated = true;
+                break textLoop;
+              }
+              if (!("str" in entry)) continue;
+              const value = entry.str + (entry.hasEOL ? "\n" : " ");
+              const remaining = input.maxTextCharacters - text.length;
+              if (value.length > remaining) {
+                text += value.slice(0, remaining);
+                textTruncated = true;
+                break textLoop;
+              }
+              text += value;
+            }
           }
-          if (!("str" in entry)) continue;
-          const value = entry.str + (entry.hasEOL ? "\n" : " ");
-          const remaining = input.maxTextCharacters - text.length;
-          if (value.length > remaining) {
-            text += value.slice(0, remaining);
-            textTruncated = true;
-            break textLoop;
-          }
-          text += value;
+        } finally {
+          await reader.cancel().catch(() => undefined);
+          reader.releaseLock();
         }
-      }
-    } finally {
-      await reader.cancel().catch(() => undefined);
-      reader.releaseLock();
-    }
+        return { text, textTruncated };
+      })(),
+    ]);
+    if (imageResult.status === "rejected") throw imageResult.reason;
+    if (textResult.status === "rejected") throw textResult.reason;
+    const imageSha256 = Array.from(new Uint8Array(imageResult.value), (byte) =>
+      byte.toString(16).padStart(2, "0"),
+    ).join("");
+    const { text, textTruncated } = textResult.value;
     if (state.guteneoRenderWarning) throw new Error("PDF_RENDER_WARNING");
     return {
       page: input.page,

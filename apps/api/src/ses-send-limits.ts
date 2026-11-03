@@ -100,19 +100,21 @@ export async function submitSesWithLimits(
       if (!active) return denied("SES_ACTIVE_ATTEMPT_REQUIRED");
       // This diagnostic read never grants a send; the atomic write above owns
       // permission. Prefer a broad temporary-limit message if state moved.
-      const usage = await db
-        .prepare(
-          `SELECT COUNT(*) AS used FROM ses_send_reservations WHERE account_id=? AND region=? AND
+      const [usage, policy] = await Promise.all([
+        db
+          .prepare(
+            `SELECT COUNT(*) AS used FROM ses_send_reservations WHERE account_id=? AND region=? AND
         (status IN ('reserved','unknown') OR (status='accepted' AND completed_at_ms>?))`,
-        )
-        .bind(scope.accountId, scope.region, started - DAY_MS)
-        .first<{ used: number }>();
-      const policy = await db
-        .prepare(
-          "SELECT max_recipients_24h FROM ses_send_limit_policies WHERE account_id=? AND region=? AND status='qualified' AND qualified_at_ms<=? AND expires_at_ms>?",
-        )
-        .bind(scope.accountId, scope.region, started, started)
-        .first<{ max_recipients_24h: number }>();
+          )
+          .bind(scope.accountId, scope.region, started - DAY_MS)
+          .first<{ used: number }>(),
+        db
+          .prepare(
+            "SELECT max_recipients_24h FROM ses_send_limit_policies WHERE account_id=? AND region=? AND status='qualified' AND qualified_at_ms<=? AND expires_at_ms>?",
+          )
+          .bind(scope.accountId, scope.region, started, started)
+          .first<{ max_recipients_24h: number }>(),
+      ]);
       const daily = scope.sandbox
         ? Math.min(
             policy?.max_recipients_24h ?? DEFAULT_DAILY_LIMIT,

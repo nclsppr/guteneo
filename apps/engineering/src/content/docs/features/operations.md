@@ -1,6 +1,6 @@
 ---
 title: "Operations and reliability"
-description: "31 capabilities in the operations branch of Guteneo."
+description: "32 capabilities in the operations branch of Guteneo."
 sidebar:
   order: 20
 ---
@@ -49,6 +49,7 @@ Implemented operational tooling; changes require explicit authority and exact-so
 <li id="feature-c62f3d93a217">TypeScript 7 validator behavior tests use native Node type stripping and an exact JSONC parser declared in both root and service manifests; independent root-only and service-only installs preserve complete shared security assertions.</li>
 <li id="feature-59c149ef471c">Every PR retains complete 24-job validation; an ordinary main merge may reuse a fresh complete same-repository PR proof only for identical Git trees, trusted CI policy, current locks, exact recorded runtimes and complete successful job/test inventories; missing or uncertain metadata runs full, fresh advisory checks remain, and an independent final gate rejects drift or arbitrary skips.</li>
 <li id="feature-459721b72b29">Same-run static builds deduplicate identical bytes into commit/tree-bound SHA-256 objects, verify full object and selected release/health inventories before reconstruction, narrow only prebuilt browser/distribution source checkouts, preserve authored caption scripts and retain raw debug evidence separately from compact aggregate proof; no LFS migration, test removal or paid provisioning.</li>
+<li id="feature-383511a05da4">Claimed dispatch preflight overlaps independent tenant reads before submission; maintenance cursor reads are combined while deletion, audits and mutation order remain unchanged</li>
 </ol>
 
 ## REST operations

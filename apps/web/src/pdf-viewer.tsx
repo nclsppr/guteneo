@@ -157,9 +157,15 @@ export default function PdfViewer({
         viewport,
         background: "#ffffff",
       });
-      await task.promise;
-      if (cancelled) return;
-      const text = await page.getTextContent();
+      // Both operations read the same already-loaded page. Extract accessible
+      // text while the canvas renders, then publish them together.
+      const [rendered, extracted] = await Promise.allSettled([
+        task.promise,
+        page.getTextContent(),
+      ]);
+      if (rendered.status === "rejected") throw rendered.reason;
+      if (extracted.status === "rejected") throw extracted.reason;
+      const text = extracted.value;
       if (!cancelled) {
         setPageText(
           text.items.map((item) => ("str" in item ? item.str : "")).join(" "),

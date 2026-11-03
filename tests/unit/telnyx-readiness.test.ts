@@ -290,8 +290,8 @@ describe("read-only Telnyx inspection", () => {
     const fetcher = mocked([
       app,
       page([number()], 1, 2),
-      page([number("1000000000000000004")], 2, 2),
       profile,
+      page([number("1000000000000000004")], 2, 2),
     ]);
     const result = await inspectTelnyxReadiness(config, fetcher);
     expect(result.status).toBe("ok");
@@ -354,8 +354,8 @@ describe("read-only Telnyx inspection", () => {
     expect(paths).toEqual([
       `/v2/fax_applications/${config.connectionId}`,
       "/v2/phone_numbers",
-      "/v2/phone_numbers",
       `/v2/outbound_voice_profiles/${profileId}`,
+      "/v2/phone_numbers",
     ]);
     expect(JSON.stringify(result)).not.toMatch(
       /private|never-return|callback|token|call_recording/,
@@ -392,7 +392,7 @@ describe("read-only Telnyx inspection", () => {
       ...page([number(`100000000000000000${index + 3}`)], index + 1, 100),
       links: { next: "https://unrelated.invalid/steal" },
     }));
-    const fetcher = mocked([app, ...responses, profile]);
+    const fetcher = mocked([app, responses[0], profile, ...responses.slice(1)]);
     const result = await inspectTelnyxReadiness(config, fetcher);
     expect(result.numberPagination).toEqual({ pagesRead: 4, complete: false });
     expect(result.numbers).toHaveLength(4);

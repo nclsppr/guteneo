@@ -1476,23 +1476,26 @@ async function handleAuthRouteOperation(
     const browser = randomSecret();
     const verifier = randomSecret();
     const nonce = randomSecret();
-    const bytes = new Uint8Array(
-      await crypto.subtle.digest("SHA-256", encoder.encode(verifier)),
-    );
+    const invitationToken = readCookie(request, cookieName(env, "invitation"));
+    const [digest, stateHash, browserHash, invitationHash] = await Promise.all([
+      crypto.subtle.digest("SHA-256", encoder.encode(verifier)),
+      hashSecret(state),
+      hashSecret(browser),
+      isWorkspaceInvitationToken(invitationToken)
+        ? hashSecret(invitationToken)
+        : null,
+    ]);
+    const bytes = new Uint8Array(digest);
     const challenge = btoa(String.fromCharCode(...bytes))
       .replaceAll("+", "-")
       .replaceAll("/", "_")
       .replaceAll("=", "");
-    const invitationToken = readCookie(request, cookieName(env, "invitation"));
-    const invitationHash = isWorkspaceInvitationToken(invitationToken)
-      ? await hashSecret(invitationToken)
-      : null;
     await env.DB.prepare(
       "INSERT INTO auth_transactions(state_hash,browser_hash,code_verifier,nonce,return_to,expires_at,preferred_locale,invitation_token_hash,authorization_issuer,identity_issuer,account_context) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
     )
       .bind(
-        await hashSecret(state),
-        await hashSecret(browser),
+        stateHash,
+        browserHash,
         verifier,
         nonce,
         safeReturnPath(url.searchParams.get("returnTo")),
@@ -1569,10 +1572,14 @@ async function handleAuthRouteOperation(
       (code && code.length > 4096)
     )
       throw new AuthError("LOGIN_STATE_INVALID", "Restart sign-in.");
+    const [stateHash, browserHash] = await Promise.all([
+      hashSecret(state),
+      hashSecret(browser),
+    ]);
     const transaction = await env.DB.prepare(
       "DELETE FROM auth_transactions WHERE state_hash=? AND browser_hash=? AND expires_at>? RETURNING code_verifier,nonce,return_to,preferred_locale,invitation_token_hash,authorization_issuer,identity_issuer,account_context",
     )
-      .bind(await hashSecret(state), await hashSecret(browser), nowISO())
+      .bind(stateHash, browserHash, nowISO())
       .first<{
         invitation_token_hash: string | null;
         authorization_issuer: string | null;
@@ -1642,18 +1649,20 @@ async function handleAuthRouteOperation(
         "LOGIN_EXCHANGE_FAILED",
         "Incomplete identity response.",
       );
-    const claims = await validateAuth0TokenAtIssuer(
-      tokens.id_token,
-      env,
-      "id",
-      authorizationIssuer,
-    );
-    const accessClaims = await validateAuth0TokenAtIssuer(
-      tokens.access_token,
-      env,
-      "access",
-      authorizationIssuer,
-    );
+    const [claims, accessClaims] = await Promise.all([
+      validateAuth0TokenAtIssuer(
+        tokens.id_token,
+        env,
+        "id",
+        authorizationIssuer,
+      ),
+      validateAuth0TokenAtIssuer(
+        tokens.access_token,
+        env,
+        "access",
+        authorizationIssuer,
+      ),
+    ]);
     if (claims.nonce !== transaction.nonce || claims.sub !== accessClaims.sub)
       throw new AuthError(
         "LOGIN_STATE_INVALID",

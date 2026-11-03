@@ -500,15 +500,10 @@ export class PostalService {
 
   async get(authority: PostalAuthority, id: string): Promise<PostalReview> {
     const row = await this.row(authority, id);
-    const document = await this.domain.getDocument(
-      authority.context,
-      row.document_id,
-    );
-    const addressPage = await addressPageForDocument(
-      this.env.DB,
-      row.organization_id,
-      row.document_id,
-    );
+    const [document, addressPage] = await Promise.all([
+      this.domain.getDocument(authority.context, row.document_id),
+      addressPageForDocument(this.env.DB, row.organization_id, row.document_id),
+    ]);
     const report = this.report(row);
     const superseded = this.superseded(row, report);
     const timedOut =

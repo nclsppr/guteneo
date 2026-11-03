@@ -160,28 +160,28 @@ export class BillingService {
 
   async overview(actor: AuthContext) {
     await requireAdmin(this.env, actor);
-    const organization = await this.env.DB.prepare(
-      "SELECT mode FROM organizations WHERE id=?",
-    )
-      .bind(actor.organizationId)
-      .first<{ mode: string }>();
     const live = this.env.STRIPE_MODE === "live" ? 1 : 0;
-    const customer = await account(this.env, actor.organizationId, live);
     const period = new Date().toISOString().slice(0, 7);
-    const [subscriptions, usage] = await Promise.all([
-      this.env.DB.prepare(
-        "SELECT id,status,cancel_at_period_end,canceled_at,created,synced_at FROM billing_subscriptions WHERE organization_id=? AND livemode=? ORDER BY created DESC,id DESC LIMIT 50",
-      )
-        .bind(actor.organizationId, live)
-        .all(),
-      this.env.DB.prepare(
-        "SELECT channel,period,limit_count,reserved_count,confirmed_count,limit_minor,reserved_minor,confirmed_minor,currency FROM usage WHERE organization_id=? AND period=? ORDER BY channel",
-      )
-        .bind(actor.organizationId, period)
-        .all(),
-    ]);
+    const [organization, customer, subscriptions, usage, welcomeCredit] =
+      await Promise.all([
+        this.env.DB.prepare("SELECT mode FROM organizations WHERE id=?")
+          .bind(actor.organizationId)
+          .first<{ mode: string }>(),
+        account(this.env, actor.organizationId, live),
+        this.env.DB.prepare(
+          "SELECT id,status,cancel_at_period_end,canceled_at,created,synced_at FROM billing_subscriptions WHERE organization_id=? AND livemode=? ORDER BY created DESC,id DESC LIMIT 50",
+        )
+          .bind(actor.organizationId, live)
+          .all(),
+        this.env.DB.prepare(
+          "SELECT channel,period,limit_count,reserved_count,confirmed_count,limit_minor,reserved_minor,confirmed_minor,currency FROM usage WHERE organization_id=? AND period=? ORDER BY channel",
+        )
+          .bind(actor.organizationId, period)
+          .all(),
+        readWelcomeCredit(this.env.DB, actor.organizationId),
+      ]);
     return {
-      welcomeCredit: await readWelcomeCredit(this.env.DB, actor.organizationId),
+      welcomeCredit,
       topUpAvailable: false,
       provider: "stripe",
       status: billingConfigured(this.env)

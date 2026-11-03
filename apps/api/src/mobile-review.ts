@@ -151,18 +151,16 @@ export async function handleMobileReview(
       403,
     );
   }
-  const preferred = await env.DB.prepare(
-    "SELECT preferred_locale FROM users WHERE id=?",
-  )
-    .bind(session.context.userId)
-    .first<{ preferred_locale: string | null }>();
+  const id = match[1];
+  const [preferred, detail] = await Promise.all([
+    env.DB.prepare("SELECT preferred_locale FROM users WHERE id=?")
+      .bind(session.context.userId)
+      .first<{ preferred_locale: string | null }>(),
+    domain.getDispatch(session.context, id).catch(() => null),
+  ]);
   locale = normalizeLocale(preferred?.preferred_locale) ?? locale;
   const reviewPath = `${url.pathname}?locale=${locale}`;
-  const id = match[1];
-  let detail;
-  try {
-    detail = await domain.getDispatch(session.context, id);
-  } catch {
+  if (!detail) {
     return render(
       `<h1>${t("Dispatch unavailable")}</h1><p>${t("You cannot view this dispatch from this workspace.")}</p>`,
       404,

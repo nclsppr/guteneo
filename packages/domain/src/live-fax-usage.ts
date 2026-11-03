@@ -235,26 +235,28 @@ export async function resolveFaxUsageTariff(
     .first();
   if (!owns) return undefined;
   if (!id.safeParse(identity.outboundProfileId).success) throw unavailable();
-  const t = await db
-    .prepare(
-      "SELECT * FROM trusted_fax_usage_tariffs WHERE organization_id=? AND sender_id=? AND account_id=? AND connection_id=? AND outbound_profile_id=? AND options_json=? AND substr(?,1,length(destination_prefix))=destination_prefix ORDER BY length(destination_prefix) DESC,(status='qualified') DESC,created_at DESC,id DESC LIMIT 1",
-    )
-    .bind(
-      organizationId,
-      senderId,
-      identity.accountId,
-      identity.connectionId,
-      identity.outboundProfileId!,
-      options,
-      number,
-    )
-    .first<FaxUsageTariff>();
-  const sender = await db
-    .prepare(
-      "SELECT address FROM senders WHERE organization_id=? AND id=? AND channel='fax' AND mode='production' AND status='verified'",
-    )
-    .bind(organizationId, senderId)
-    .first<{ address: string }>();
+  const [t, sender] = await Promise.all([
+    db
+      .prepare(
+        "SELECT * FROM trusted_fax_usage_tariffs WHERE organization_id=? AND sender_id=? AND account_id=? AND connection_id=? AND outbound_profile_id=? AND options_json=? AND substr(?,1,length(destination_prefix))=destination_prefix ORDER BY length(destination_prefix) DESC,(status='qualified') DESC,created_at DESC,id DESC LIMIT 1",
+      )
+      .bind(
+        organizationId,
+        senderId,
+        identity.accountId,
+        identity.connectionId,
+        identity.outboundProfileId!,
+        options,
+        number,
+      )
+      .first<FaxUsageTariff>(),
+    db
+      .prepare(
+        "SELECT address FROM senders WHERE organization_id=? AND id=? AND channel='fax' AND mode='production' AND status='verified'",
+      )
+      .bind(organizationId, senderId)
+      .first<{ address: string }>(),
+  ]);
   const reviewAccess =
     t?.execution_scope === "review_prepare_only"
       ? await db
@@ -518,13 +520,15 @@ export async function settleFaxUsage(
       "Evidence date is in the future.",
       409,
     );
-  const fingerprint = await sha256(canonicalJson(p));
-  const prior = await db
-    .prepare(
-      "SELECT * FROM fax_usage_settlements WHERE organization_id=? AND dispatch_id=?",
-    )
-    .bind(p.organizationId, p.dispatchId)
-    .first<FaxUsageSettlement>();
+  const [fingerprint, prior] = await Promise.all([
+    sha256(canonicalJson(p)),
+    db
+      .prepare(
+        "SELECT * FROM fax_usage_settlements WHERE organization_id=? AND dispatch_id=?",
+      )
+      .bind(p.organizationId, p.dispatchId)
+      .first<FaxUsageSettlement>(),
+  ]);
   if (prior) {
     if (prior.proof_fingerprint !== fingerprint)
       throw new DomainError(
@@ -534,16 +538,18 @@ export async function settleFaxUsage(
       );
     return prior;
   }
-  const q = await db
-    .prepare(
-      "SELECT * FROM live_fax_quotes_v3 WHERE organization_id=? AND dispatch_id=?",
-    )
-    .bind(p.organizationId, p.dispatchId)
-    .first<FaxUsageQuote>();
-  const row = await db
-    .prepare("SELECT * FROM dispatches WHERE organization_id=? AND id=?")
-    .bind(p.organizationId, p.dispatchId)
-    .first<Dispatch>();
+  const [q, row] = await Promise.all([
+    db
+      .prepare(
+        "SELECT * FROM live_fax_quotes_v3 WHERE organization_id=? AND dispatch_id=?",
+      )
+      .bind(p.organizationId, p.dispatchId)
+      .first<FaxUsageQuote>(),
+    db
+      .prepare("SELECT * FROM dispatches WHERE organization_id=? AND id=?")
+      .bind(p.organizationId, p.dispatchId)
+      .first<Dispatch>(),
+  ]);
   if (
     !q ||
     !row ||

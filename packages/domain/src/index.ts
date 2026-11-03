@@ -890,21 +890,23 @@ export class DomainService {
     key(idempotencyKey);
     if (!["fax", "email", "postal"].includes(input.channel))
       throw new DomainError("INVALID_CHANNEL", "Unknown delivery channel.");
-    const requestHash = await sha256(
-      canonicalJson(
-        secureDistribution
-          ? { ...input, secureDistribution }
-          : renewal
-            ? { ...input, renewalOf: renewal.id }
-            : input,
+    const [requestHash, existing] = await Promise.all([
+      sha256(
+        canonicalJson(
+          secureDistribution
+            ? { ...input, secureDistribution }
+            : renewal
+              ? { ...input, renewalOf: renewal.id }
+              : input,
+        ),
       ),
-    );
-    const existing = await this.db
-      .prepare(
-        "SELECT * FROM dispatches WHERE organization_id=? AND prepare_key=?",
-      )
-      .bind(ctx.organizationId, idempotencyKey)
-      .first<Dispatch>();
+      this.db
+        .prepare(
+          "SELECT * FROM dispatches WHERE organization_id=? AND prepare_key=?",
+        )
+        .bind(ctx.organizationId, idempotencyKey)
+        .first<Dispatch>(),
+    ]);
     if (existing) {
       if (existing.request_hash !== requestHash)
         throw new DomainError(
@@ -2308,21 +2310,23 @@ export class DomainService {
         ? (storedPeriods.find((value) => value <= currentPeriod) ??
           currentPeriod)
         : (requestedPeriod ?? currentPeriod);
+    const [welcomeCredit, usage] = await Promise.all([
+      readWelcomeCredit(this.db, ctx.organizationId),
+      this.db
+        .prepare(
+          "SELECT channel,period,limit_count,reserved_count,confirmed_count,limit_minor,reserved_minor,confirmed_minor,currency FROM usage WHERE organization_id=? AND period=? ORDER BY channel",
+        )
+        .bind(ctx.organizationId, period)
+        .all(),
+    ]);
     return {
       period,
       currentPeriod,
       availablePeriods: [...new Set([currentPeriod, ...storedPeriods])].sort(
         (a, b) => b.localeCompare(a),
       ),
-      welcomeCredit: await readWelcomeCredit(this.db, ctx.organizationId),
-      items: (
-        await this.db
-          .prepare(
-            "SELECT channel,period,limit_count,reserved_count,confirmed_count,limit_minor,reserved_minor,confirmed_minor,currency FROM usage WHERE organization_id=? AND period=? ORDER BY channel",
-          )
-          .bind(ctx.organizationId, period)
-          .all()
-      ).results,
+      welcomeCredit,
+      items: usage.results,
     };
   }
   async usageActivity(ctx: ActorContext, requestedYear?: string) {
@@ -2484,35 +2488,46 @@ export class DomainService {
       .first<Dispatch>();
     if (!row || row.active_attempt_id !== attemptId)
       return { processed: false, status: row?.status ?? "not_found" };
-    const control = await this.db
-      .prepare(
-        "SELECT enabled FROM channel_controls WHERE organization_id=? AND channel=?",
-      )
-      .bind(row.organization_id, row.channel)
-      .first<{ enabled: number }>();
     const recipient = JSON.parse(row.recipient_json) as { email?: string };
-    const suppressed = recipient.email
-      ? await this.db
+    // These tenant-scoped checks are independent, but all must finish before
+    // any quote validation or provider submission can proceed.
+    const [control, suppressed, senderReady, documentReady] = await Promise.all(
+      [
+        this.db
           .prepare(
-            "SELECT 1 FROM suppressions WHERE organization_id=? AND email=?",
+            "SELECT enabled FROM channel_controls WHERE organization_id=? AND channel=?",
           )
-          .bind(row.organization_id, recipient.email)
-          .first()
-      : null;
-    const senderReady = await this.db
-      .prepare(
-        "SELECT 1 FROM senders WHERE organization_id=? AND id=? AND status='verified' AND address=? AND mode=?",
-      )
-      .bind(row.organization_id, row.sender_id, row.sender_address, row.mode)
-      .first();
-    const documentReady =
-      !row.document_id ||
-      (await this.db
-        .prepare(
-          "SELECT 1 FROM documents WHERE organization_id=? AND id=? AND status='ready'",
-        )
-        .bind(row.organization_id, row.document_id)
-        .first());
+          .bind(row.organization_id, row.channel)
+          .first<{ enabled: number }>(),
+        recipient.email
+          ? this.db
+              .prepare(
+                "SELECT 1 FROM suppressions WHERE organization_id=? AND email=?",
+              )
+              .bind(row.organization_id, recipient.email)
+              .first()
+          : null,
+        this.db
+          .prepare(
+            "SELECT 1 FROM senders WHERE organization_id=? AND id=? AND status='verified' AND address=? AND mode=?",
+          )
+          .bind(
+            row.organization_id,
+            row.sender_id,
+            row.sender_address,
+            row.mode,
+          )
+          .first(),
+        row.document_id
+          ? this.db
+              .prepare(
+                "SELECT 1 FROM documents WHERE organization_id=? AND id=? AND status='ready'",
+              )
+              .bind(row.organization_id, row.document_id)
+              .first()
+          : true,
+      ],
+    );
     if (!control?.enabled || suppressed || !senderReady || !documentReady) {
       await this.rejectAttempt(
         row,

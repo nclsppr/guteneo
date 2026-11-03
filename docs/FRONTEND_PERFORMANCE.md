@@ -1,5 +1,24 @@
 # Frontend loading and table controls
 
+## Independent PDF and fixture work — 3 November 2026 candidate
+
+The loaded PDF page now starts canvas rendering and accessible text extraction
+in the same effect, then waits for both to settle before publishing text or
+leaving the busy state. Render failures keep their existing priority; stale
+loads and cancelled effects cannot publish either result. This adds no request,
+asset, dependency or speculative document read. Public preview creates its two
+bounded fixture PDF/hash pipelines concurrently and applies them in the original
+order. Private document rendering similarly waits for both digest and bounded
+text extraction before releasing the rendered page.
+
+Deferred-promise regressions measure the dependency boundary directly: both
+operations start while the first remains unresolved, and completion/cleanup
+waits for both. These are deterministic scheduling observations, not measured
+production latency or transfer reductions. The existing PDF.js lazy-load and
+input-buffer ownership remain unchanged. See the
+[async audit](ASYNC_HOT_PATH_AUDIT.md) for the complete preserved authority and
+resource ordering, and [verification](TEST_RESULTS.md) for this port's evidence.
+
 ## Operational table controls — 30 October 2026 local candidate
 
 The [shared operational table contract](WEB_APPLICATIONS.md#operational-tables--30-october-2026-candidate)

@@ -366,13 +366,19 @@ export class DocumentService {
     if (!ids.length) return { ...page, items: [] as AnalyzedDocument[] };
     const byId = new Map<string, AnalysisRow>();
     // D1 binds are capped per statement; preserve the domain's full 100-row page.
-    for (let offset = 0; offset < ids.length; offset += 90) {
-      const chunk = ids.slice(offset, offset + 90);
-      const rows = await this.env.DB.prepare(
-        `SELECT * FROM document_analysis WHERE organization_id=? AND document_id IN (${chunk.map(() => "?").join(",")})`,
-      )
-        .bind(ctx.organizationId, ...chunk)
-        .all<AnalysisRow>();
+    const chunks: string[][] = [];
+    for (let offset = 0; offset < ids.length; offset += 90)
+      chunks.push(ids.slice(offset, offset + 90));
+    const results = await Promise.all(
+      chunks.map((chunk) =>
+        this.env.DB.prepare(
+          `SELECT * FROM document_analysis WHERE organization_id=? AND document_id IN (${chunk.map(() => "?").join(",")})`,
+        )
+          .bind(ctx.organizationId, ...chunk)
+          .all<AnalysisRow>(),
+      ),
+    );
+    for (const rows of results) {
       for (const row of rows.results) byId.set(row.document_id, row);
     }
     return {

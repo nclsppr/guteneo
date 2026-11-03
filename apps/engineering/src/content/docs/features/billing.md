@@ -1,6 +1,6 @@
 ---
 title: "Credits and billing"
-description: "8 capabilities in the operate branch of Guteneo."
+description: "9 capabilities in the operate branch of Guteneo."
 sidebar:
   order: 13
 ---
@@ -26,6 +26,7 @@ Credits, ledger, monthly history and annual activity are published. Dated 25 Oct
 <li id="feature-413e08f6f713">Prepared Stripe integration with separate commercial qualification</li>
 <li id="feature-ce82ea1538be">Read-only tenant-scoped monthly consumption history; current/latest/explicit UTC month selection preserves previous usage and simulation boundaries</li>
 <li id="feature-d971254e1b05">GitHub-style annual daily activity grid from exact UTC posted debits, selectable years/day detail, keyboard navigation and contained phone scrolling; reservations and simulation remain distinct</li>
+<li id="feature-61fe5e189a9e">Authorized overview and selected-period usage overlap independent reads while retaining explicit/latest period selection and current administrator/reporting authority</li>
 </ol>
 
 ## REST operations

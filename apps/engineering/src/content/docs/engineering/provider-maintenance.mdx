@@ -57,6 +57,23 @@ applies to the existing SES transport: use local signing and fake outbound
 responses for its workerd regression, preserving production activation, envelope
 and reconciliation rules.
 
+## Independent inspection reads
+
+The 3 November candidate overlaps outbound-profile inspection with the bounded,
+ordered phone-number pagination only after the Telnyx application is validated.
+Both results settle before the final readiness projection; partial errors keep
+the stable numbers-before-profile order even when requests finish in reverse.
+Pagination, scopes, timeout and failure classification remain unchanged. No
+request creates a provider resource or qualifies delivery.
+
+Fax tariff/sender reads overlap after ownership and outbound-profile guards;
+continuous review access still depends on the resulting tariff. Settlement
+fingerprints/replay reads and quote/dispatch reads retain their integrity and
+atomic-write fences. SES usage/policy diagnostics overlap only after a refused
+atomic reservation and active-attempt validation; diagnostics cannot grant a send.
+The [local audit](https://github.com/nclsppr/guteneo/blob/main/docs/ASYNC_HOT_PATH_AUDIT.md)
+and tests establish deterministic scheduling, not live provider latency.
+
 ## Renew the references an active operation uses
 
 The maintenance contract starts with the consumer. A date matters when the

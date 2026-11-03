@@ -209,9 +209,13 @@ export async function inspectTelnyxReadiness(
     errors: [],
     liveSendingVerified: false,
   };
-  const failed = (stage: Stage, error: unknown) => {
+  const failed = (
+    stage: Stage,
+    error: unknown,
+    errors: InspectionError[] = result.errors,
+  ) => {
     const safe = error instanceof InspectionFailure ? error : null;
-    result.errors.push({
+    errors.push({
       stage,
       code: safe?.code ?? "request_failed",
       ...(safe?.httpStatus === undefined
@@ -301,134 +305,147 @@ export async function inspectTelnyxReadiness(
     return result;
   }
 
-  try {
-    for (let page = 1; page <= MAX_PAGES; page++) {
-      const query = new URLSearchParams({
-        "filter[connection_id]": config.connectionId,
-        "page[number]": String(page),
-        "page[size]": String(PAGE_SIZE),
-      });
-      const response = await get(`/phone_numbers?${query}`);
-      result.numberPagination.pagesRead++;
-      const meta = paginationSchema.safeParse(response.meta);
-      if (
-        !Array.isArray(response.data) ||
-        response.data.length > PAGE_SIZE ||
-        !meta.success ||
-        meta.data.page_number !== page ||
-        (meta.data.total_pages < page &&
-          !(
-            page === 1 &&
-            meta.data.total_pages === 0 &&
-            response.data.length === 0
-          ))
-      )
-        throw new InspectionFailure("invalid_response");
-      for (const value of response.data) {
-        if (!value || typeof value !== "object" || Array.isArray(value))
-          throw new InspectionFailure("invalid_response");
-        // Enforce the requested connection again even if Telnyx ignores its filter.
-        if (
-          (value as Record<string, unknown>).connection_id !==
-          config.connectionId
-        ) {
-          if (
-            !result.errors.some(
-              (e) =>
-                e.stage === "numbers" && e.code === "response_scope_mismatch",
-            )
-          )
-            failed("numbers", new InspectionFailure("response_scope_mismatch"));
-          continue;
-        }
-        const parsed = numberSchema.safeParse(value);
-        if (!parsed.success) throw new InspectionFailure("invalid_response");
-        const number = parsed.data;
-        if (result.numbers.some((existing) => existing.id === number.id))
-          throw new InspectionFailure("invalid_response");
-        result.numbers.push({
-          id: number.id,
-          phoneNumber: number.phone_number,
-          status: number.status,
-          country: number.country_iso_alpha2,
-          features: {
-            t38FaxGatewayEnabled: number.t38_fax_gateway_enabled ?? null,
-            hdVoiceEnabled: number.hd_voice_enabled ?? null,
-          },
+  async function inspectNumbers() {
+    try {
+      for (let page = 1; page <= MAX_PAGES; page++) {
+        const query = new URLSearchParams({
+          "filter[connection_id]": config.connectionId,
+          "page[number]": String(page),
+          "page[size]": String(PAGE_SIZE),
         });
+        const response = await get(`/phone_numbers?${query}`);
+        result.numberPagination.pagesRead++;
+        const meta = paginationSchema.safeParse(response.meta);
+        if (
+          !Array.isArray(response.data) ||
+          response.data.length > PAGE_SIZE ||
+          !meta.success ||
+          meta.data.page_number !== page ||
+          (meta.data.total_pages < page &&
+            !(
+              page === 1 &&
+              meta.data.total_pages === 0 &&
+              response.data.length === 0
+            ))
+        )
+          throw new InspectionFailure("invalid_response");
+        for (const value of response.data) {
+          if (!value || typeof value !== "object" || Array.isArray(value))
+            throw new InspectionFailure("invalid_response");
+          // Enforce the requested connection again even if Telnyx ignores its filter.
+          if (
+            (value as Record<string, unknown>).connection_id !==
+            config.connectionId
+          ) {
+            if (
+              !result.errors.some(
+                (e) =>
+                  e.stage === "numbers" && e.code === "response_scope_mismatch",
+              )
+            )
+              failed(
+                "numbers",
+                new InspectionFailure("response_scope_mismatch"),
+              );
+            continue;
+          }
+          const parsed = numberSchema.safeParse(value);
+          if (!parsed.success) throw new InspectionFailure("invalid_response");
+          const number = parsed.data;
+          if (result.numbers.some((existing) => existing.id === number.id))
+            throw new InspectionFailure("invalid_response");
+          result.numbers.push({
+            id: number.id,
+            phoneNumber: number.phone_number,
+            status: number.status,
+            country: number.country_iso_alpha2,
+            features: {
+              t38FaxGatewayEnabled: number.t38_fax_gateway_enabled ?? null,
+              hdVoiceEnabled: number.hd_voice_enabled ?? null,
+            },
+          });
+        }
+        if (page >= meta.data.total_pages) {
+          result.numberPagination.complete = !result.errors.some(
+            (e) => e.stage === "numbers",
+          );
+          break;
+        }
+        if (page === MAX_PAGES)
+          failed("numbers", new InspectionFailure("pagination_limit"));
       }
-      if (page >= meta.data.total_pages) {
-        result.numberPagination.complete = !result.errors.some(
-          (e) => e.stage === "numbers",
-        );
-        break;
-      }
-      if (page === MAX_PAGES)
-        failed("numbers", new InspectionFailure("pagination_limit"));
+    } catch (error) {
+      failed("numbers", error);
     }
-  } catch (error) {
-    failed("numbers", error);
   }
 
+  // Both reads depend on the validated application, not on each other. Keep
+  // pagination ordered and collect profile errors separately for stable output.
   const profileId = result.application.outboundVoiceProfileId;
-  if (profileId) {
-    try {
-      const response = await get(`/outbound_voice_profiles/${profileId}`);
-      const parsed = profileSchema
-        .omit({ max_destination_rate: true, daily_spend_limit: true })
-        .safeParse(response.data);
-      if (!parsed.success) {
-        const fields = Object.keys(profileSchema.shape);
-        const invalidFields = [
-          ...new Set(
-            parsed.error.issues
-              .map((issue) => String(issue.path[0]))
-              .filter((field) => fields.includes(field)),
-          ),
+  const profileErrors: InspectionError[] = [];
+  async function inspectOutboundProfile() {
+    if (profileId) {
+      try {
+        const response = await get(`/outbound_voice_profiles/${profileId}`);
+        const parsed = profileSchema
+          .omit({ max_destination_rate: true, daily_spend_limit: true })
+          .safeParse(response.data);
+        if (!parsed.success) {
+          const fields = Object.keys(profileSchema.shape);
+          const invalidFields = [
+            ...new Set(
+              parsed.error.issues
+                .map((issue) => String(issue.path[0]))
+                .filter((field) => fields.includes(field)),
+            ),
+          ];
+          throw new InspectionFailure(
+            "invalid_response",
+            undefined,
+            invalidFields,
+          );
+        }
+        const profile = parsed.data;
+        if (profile.id !== profileId)
+          throw new InspectionFailure("response_scope_mismatch");
+        // A malformed optional monetary setting must stay unknown without hiding
+        // independently validated country/concurrency restrictions.
+        const raw = response.data as Record<string, unknown>;
+        const rate = profileSchema.shape.max_destination_rate.safeParse(
+          raw.max_destination_rate,
+        );
+        const spend = profileSchema.shape.daily_spend_limit.safeParse(
+          raw.daily_spend_limit,
+        );
+        const invalidLimits = [
+          ...(!rate.success ? ["max_destination_rate"] : []),
+          ...(!spend.success ? ["daily_spend_limit"] : []),
         ];
-        throw new InspectionFailure(
-          "invalid_response",
-          undefined,
-          invalidFields,
-        );
+        if (invalidLimits.length)
+          failed(
+            "outbound_profile",
+            new InspectionFailure("invalid_response", undefined, invalidLimits),
+            profileErrors,
+          );
+        result.outboundProfile = {
+          id: profile.id,
+          enabled: profile.enabled ?? null,
+          whitelistedDestinations: profile.whitelisted_destinations ?? null,
+          concurrentCallLimit:
+            profile.concurrent_call_limit === undefined
+              ? "unknown"
+              : profile.concurrent_call_limit,
+          maxDestinationRate: rate.success ? (rate.data ?? null) : null,
+          dailySpendLimitUsd: spend.success ? (spend.data ?? null) : null,
+          dailySpendLimitEnabled: profile.daily_spend_limit_enabled ?? null,
+        };
+      } catch (error) {
+        failed("outbound_profile", error, profileErrors);
       }
-      const profile = parsed.data;
-      if (profile.id !== profileId)
-        throw new InspectionFailure("response_scope_mismatch");
-      // A malformed optional monetary setting must stay unknown without hiding
-      // independently validated country/concurrency restrictions.
-      const raw = response.data as Record<string, unknown>;
-      const rate = profileSchema.shape.max_destination_rate.safeParse(
-        raw.max_destination_rate,
-      );
-      const spend = profileSchema.shape.daily_spend_limit.safeParse(
-        raw.daily_spend_limit,
-      );
-      const invalidLimits = [
-        ...(!rate.success ? ["max_destination_rate"] : []),
-        ...(!spend.success ? ["daily_spend_limit"] : []),
-      ];
-      if (invalidLimits.length)
-        failed(
-          "outbound_profile",
-          new InspectionFailure("invalid_response", undefined, invalidLimits),
-        );
-      result.outboundProfile = {
-        id: profile.id,
-        enabled: profile.enabled ?? null,
-        whitelistedDestinations: profile.whitelisted_destinations ?? null,
-        concurrentCallLimit:
-          profile.concurrent_call_limit === undefined
-            ? "unknown"
-            : profile.concurrent_call_limit,
-        maxDestinationRate: rate.success ? (rate.data ?? null) : null,
-        dailySpendLimitUsd: spend.success ? (spend.data ?? null) : null,
-        dailySpendLimitEnabled: profile.daily_spend_limit_enabled ?? null,
-      };
-    } catch (error) {
-      failed("outbound_profile", error);
     }
   }
+  await Promise.all([inspectNumbers(), inspectOutboundProfile()]);
+  result.errors.push(...profileErrors);
   result.status = result.errors.length ? "partial" : "ok";
   return result;
 }

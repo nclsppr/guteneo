@@ -1,5 +1,55 @@
 # Executed verification
 
+## Async hot-path port — 3 November 2026
+
+Candidate **1.1.30**, branch `codex/recovery-async-hot-paths`, ports only
+`46c812dc` onto the current-main baseline `92070104`. Current appearance,
+invitation validation, transaction-bound issuer, secure-distribution hash,
+sensitive-source policy, requested usage periods and continuous fax-review
+checks are retained. The old email-setup overlap is omitted because its current
+source/rate computations depend on sender-policy reads.
+
+Executed locally with isolated D1/R2 fixtures and intercepted provider responses
+on the initial port over `92070104`:
+
+- Full Vitest suite: **3,728/3,728 tests across 187 files**.
+- The targeted concurrency suite passes **57/57** in seven files, including
+  **33 new cases** in six files. Deferred promises prove overlap, bounded fanout,
+  authorization/submission barriers, result association, error order, cancellation
+  and cleanup. Port regressions preserve account appearance and explicit/latest
+  usage selection.
+- Node security suite: **662/662**.
+- Focused application journeys: **4/4** on Chromium and iPhone WebKit, covering
+  PDF generation/preview, frozen approval, simulated delivery, exact-byte import
+  and cross-organization preview refusal.
+- Focused public-preview journeys: **2/2** on desktop Chromium and iPhone WebKit,
+  covering fixture PDF rendering and refusal of backend actions.
+- Typecheck, ESLint, generated documentation, repository standards, application
+  build, private document Worker dry-run and public preview build pass. Engineering
+  build and subsequent check pass, including **4/4** publication/security checks.
+  On a fresh checkout its link checker first requires the generated route manifest;
+  building the site supplied it without changing any assertion.
+- Plugin version and MCP source/package closure are synchronized. No tool,
+  scope, authority or host instruction is introduced by this scheduling change.
+
+The port was then rebased onto MCP candidate `e971b0ac`. All 17 modified runtime
+files remained byte-identical to the fully tested port; `mcp.ts` and its 36
+read-only annotations remained identical to the new parent. Post-rebase validation
+passes **314/314** tests across 19 MCP/async files and **662/662** security tests,
+plus typecheck, lint, documentation/standards, application and Engineering builds,
+and integration synchronization. The source annotation audit finds no issues
+across 83 tools, 332 booleans and 258 references. The rebuilt 1.1.30 archive is
+1,341,330 bytes with SHA-256
+`d4140af5df488171f63cb92475a3e17f1eb51f6f232e08ea6e75593316a48cd8`.
+The complete Vitest suite and six browser journeys above were not repeated after
+this MCP-only base change; exact final hosted CI remains a separate gate.
+
+Logs and machine-readable reports are retained in
+`~/.codex/artifacts/guteneo-recovery-20261103/async/`. This is deterministic local
+fixture evidence; no production latency improvement has been measured. Full
+browser-suite, physical-device and exact-commit hosted CI qualification remain
+separate. No remote migration, real communication or deployment occurred.
+
 ## Read-only MCP annotations — 3 November 2026 candidate 1.1.29
 
 Recovered the semantic annotation changes from the older PR130 candidate onto
@@ -500,6 +550,36 @@ These historical totals do not qualify the 2 October reconciliation and are not
 added to its results. They do not replace the dated live release evidence below.
 
 ## Previous verification — 2026-09-17
+
+## Original async hot-path audit — historical baseline, 3 November 2026
+
+The original [async audit](ASYNC_HOT_PATH_AUDIT.md) covered 158 runtime source
+files on the older `ca028d13` baseline and was committed as `46c812dc` on
+`codex/async-hot-paths`. These historical results describe that checkout only;
+the current-main port is qualified separately above.
+
+Executed locally on macOS with Node 24.18.0:
+
+- Full Vitest run: **1,609/1,609 tests in 89 files**, including **30 new
+  deterministic concurrency cases in six files**. Deferred promises verify
+  overlap, authorization/submission barriers, bounded fanout, result association,
+  cancellation, serialization and rejection cleanup. Existing integration cases
+  use real local Miniflare D1/R2 and Chromium rendering.
+- Node security suite: **215/215**.
+- Focused application browser journeys: **4/4** on desktop Chromium and iPhone
+  WebKit, covering PDF generation/preview, frozen approval, simulated delivery,
+  exact-byte import and cross-organization preview refusal.
+- Focused public-preview browser journeys: **2/2** on desktop Chromium and iPhone
+  WebKit, covering fixture PDF rendering and refusal of backend actions.
+- Typecheck, ESLint, application build/Worker dry-run, private document Worker
+  dry-run, public preview build, and `git diff --check` passed.
+
+Logs and machine-readable reports are retained outside the repository in
+`~/.codex/artifacts/guteneo-async-hot-paths-20261103/`. These results are local
+fixture evidence, not production latency measurements or real provider sends.
+The full application/preview browser suites, native-device qualification and
+exact-commit hosted CI were not run for this candidate. No remote migration,
+merge or deployment was performed.
 
 ## Workshop roles, self-enrolment and invitations — local candidate, 2 October 2026
 
