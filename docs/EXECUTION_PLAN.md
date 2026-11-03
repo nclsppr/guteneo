@@ -1,5 +1,15 @@
 # Execution plan and handoff
 
+## Cloudflare authority alert — 3 November 2026 diagnosis
+
+Read-only Mail, runtime and D1 evidence identifies one Luxembourg operator-test
+fax authority approaching its 14:43:37 UTC deadline, with no failed freshness
+checks or production attempts since 2 November. Technical FR/DE and Resend
+renewals succeeded. The [dated diagnosis](CLOUDFLARE_ALERT_DIAGNOSIS_2026-11-03.md)
+owns the evidence, limits and proposed pilot retirement or newly qualified
+production-route path. No authority, tariff, incident, native monitor or
+production deployment is changed by this diagnostic branch.
+
 ## Administration recovery — 3 November 2026 candidate
 
 The second preserved Workshop lot is rebuilt independently on the recovered
