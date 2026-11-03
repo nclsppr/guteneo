@@ -1,5 +1,36 @@
 # Executed verification
 
+## Auth0 account email recovery — 3 November 2026 local candidate
+
+The clean recovery adds four application-scoped account email templates with
+English, French, German and Luxembourgish copy, preserving exact prior Liquid
+fields for other or missing client identities. The focused Node run passes
+27 tests: 18 email tests and 9 existing Universal Login branding tests. Tests
+cover real Liquid rendering, locale fallback, escaping, ownership revocation,
+complete inventories, preservation, concurrent edits, partial outcomes and
+idempotence. The email API permits no client/logo or provider mutation.
+
+All 16 Chromium cases pass at 320 pixels, each with the official image available
+and then blocked, verified by the decoded-image state. Long synthetic links do
+not overflow; all action buttons retain a minimum 44-pixel target. Thirty-two
+screenshots are local fixture evidence, including inspected Luxembourgish and
+German cases. TypeScript, ESLint, dependency compatibility, generated-template
+and documentation checks pass. The engineering build validates 408 static assets
+and its four security tests. No Auth0 inspect/apply command, hosted email render,
+real send, provider configuration or production deployment was performed. The
+[email contract](AUTH0_EMAIL_BRANDING.md) records recovery provenance and limits.
+
+The same **27 Node tests and 16 browser cases** pass after rebasing this lot onto
+P1 `aac8b1f6`. All 13 Auth0 source/template/config/test files remain byte-identical
+to `9a1ce289`; the application stays at 1.1.30 with LiquidJS pinned to 10.30.1.
+Types, lint, generated templates/docs, base-relative standards, dependency
+compatibility, integration synchronization and Engineering build/check pass.
+The dependency audit passes its high/critical gate and reports ten moderate
+Minimatch/tooling findings whose lock entries are unchanged from the P1 parent.
+Logs and screenshots are retained in
+`~/.codex/artifacts/guteneo-recovery-20261103/auth0-rebase/`. No remote Auth0
+operation was used for this combined verification.
+
 ## My documents stack verification — 3 November 2026
 
 The P1 document-list recovery from `e53595e7` is rebased onto async candidate

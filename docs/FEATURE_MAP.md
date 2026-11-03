@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**27 domains · 433 features · 44 journeys · 77 documented REST operations · 83 MCP tools**
+**27 domains · 434 features · 44 journeys · 77 documented REST operations · 83 MCP tools**
 Updated 2026-11-03.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -14,7 +14,7 @@ Start here to find a feature, its authority and its technical owner. Read [repos
 mindmap
   root((Guteneo))
     Access
-      Access and identity (38)
+      Access and identity (39)
       Team and responsibilities (10)
     Create
       Documents and protection (21)
@@ -50,7 +50,7 @@ mindmap
 
 ### Access
 
-- [Access and identity](#identity) — 38 features; browser-session.
+- [Access and identity](#identity) — 39 features; browser-session.
 - [Team and responsibilities](#team) — 10 features; browser-session.
 
 ### Create
@@ -209,10 +209,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Verified-account personal and document-authentication recovery use ordinary bounded Auth0 SSO without fresh=1; strong and explicit freshness recovery retain forced authentication. Legacy sessions missing signed auth_time require a real new authorization response, never a timestamp reconstructed from session creation; safe return paths, locale, tenant rights and human approval remain unchanged
 - Workspace and personal browser sessions project only canAccessBelvedere for navigation; signed privileged browser evidence and current membership remain mandatory, with no authority derived from mutable profile email or workspace role
 - Authenticated account reads and independent login/callback digests overlap while retaining saved appearance, canonical invitation validation, transaction-bound issuer, nonce and subject checks before session writes
+- Four-language Auth0 account email candidates with normalized request language and English fallback; current owned application IDs scope body, subject and sender while exact prior Liquid fields preserve other or missing clients. Offline Liquid/browser proof, remote application and real delivery remain separate; enabled flags, redirect and expiry are unchanged
 
 **Contract:** [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · **Implementation:** [apps/api/src/auth.ts](../apps/api/src/auth.ts)
 
-**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/mcp-auth0-domain.test.ts](../tests/unit/mcp-auth0-domain.test.ts), [tests/unit/postal-authority.test.ts](../tests/unit/postal-authority.test.ts), [tests/integration/expert-status.test.ts](../tests/integration/expert-status.test.ts), [tests/unit/workspace-entry.test.ts](../tests/unit/workspace-entry.test.ts), [tests/integration/workspace-invitations.test.ts](../tests/integration/workspace-invitations.test.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/unit/api-async.test.ts](../tests/unit/api-async.test.ts)
+**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/mcp-auth0-domain.test.ts](../tests/unit/mcp-auth0-domain.test.ts), [tests/unit/postal-authority.test.ts](../tests/unit/postal-authority.test.ts), [tests/integration/expert-status.test.ts](../tests/integration/expert-status.test.ts), [tests/unit/workspace-entry.test.ts](../tests/unit/workspace-entry.test.ts), [tests/integration/workspace-invitations.test.ts](../tests/integration/workspace-invitations.test.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/unit/api-async.test.ts](../tests/unit/api-async.test.ts), [tests/security/auth0-email-branding.test.mjs](../tests/security/auth0-email-branding.test.mjs), [tests/auth0-email-e2e/email.spec.ts](../tests/auth0-email-e2e/email.spec.ts)
 
 
 

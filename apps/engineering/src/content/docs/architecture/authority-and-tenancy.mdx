@@ -19,6 +19,15 @@ workspace contract. A workspace Bearer token, administrator role or expert manda
 cannot read another person's personal documents. Identity binds issuer/subject,
 never equality of email addresses.
 
+Account-email presentation also preserves application boundaries. The four
+Auth0 email candidates use English, French, German and Luxembourgish with an
+English fallback. Before a template write, the operator script verifies current
+ownership of each selected OAuth client. Its Liquid condition scopes body,
+subject and sender to those application IDs; other or missing IDs retain the
+exact prior template fields. Enabled flags, link expiry and redirect settings
+remain unchanged. Offline Liquid and 320-pixel browser checks do not prove live
+Auth0 delivery, sender authentication or human consent.
+
 Explicit workspace creation/selection reloads current workspace authority. It
 does not weaken the owner boundary or automatically activate a channel. See
 [secure distribution](/workflows/secure-distribution/) for independent recipient

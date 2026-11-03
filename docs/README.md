@@ -26,6 +26,8 @@ and brand-aligned diagrams. `docs.guteneo.com` is reserved for customer document
 Run `npm run docs:build` and `npm run docs:check` to synchronize both views.
 
 The [document email contract](PROTECTED_EMAIL.md) links the account invitation, V2 template and [recipient feedback lifecycle](EMAIL_RECIPIENT_FEEDBACK.md).
+The [Auth0 account email contract](AUTH0_EMAIL_BRANDING.md) owns the four-language
+template candidates, application scope, preserved fallback and offline validation.
 The [private original transport](PRIVATE_DOCUMENT_UPLOAD.md) owns binary, bounded
 inline and the default-off App selected-original transport; the
 [dated Claude qualification](CLAUDE_QUALIFICATION.md) owns Desktop exact private

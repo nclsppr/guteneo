@@ -23,6 +23,9 @@ use their declared language; production instructions and provenance descriptions
 remain English. Localized App Store listing text belongs to frontend
 internationalization. Recipient-facing transactional copy belongs in its declared
 locale catalog; API messages, error codes and provider contracts remain English.
+Auth0 account emails declare their recipient strings in
+`integrations/auth0/emails/locales/messages.json`; the adjacent HTML Liquid and
+subject files are generated localized artifacts, checked against that source.
 User-provided documents, addresses, names and content keep their exact bytes; this policy is not
 a content translation service.
 

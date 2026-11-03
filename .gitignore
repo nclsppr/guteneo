@@ -13,3 +13,5 @@ reports/mcp-document-upload/
 *.log
 .DS_Store
 __pycache__/
+reports/auth0-email-preview/
+reports/auth0-email-browser/
