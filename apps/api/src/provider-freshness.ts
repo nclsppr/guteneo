@@ -412,7 +412,7 @@ async function faxRegistered(
     "registered_fax:" + target.target_id,
   );
   const source = await env.DB.prepare(
-    "SELECT source.*,o.mode AS organization_mode,s.address AS sender_address,s.status AS sender_status,s.mode AS sender_mode,c.enabled AS channel_enabled,EXISTS(SELECT 1 FROM valid_fax_tariff_refresh_sources valid WHERE valid.organization_id=source.organization_id AND valid.id=source.id) AS valid_source FROM fax_tariff_refresh_sources source JOIN organizations o ON o.id=source.organization_id LEFT JOIN senders s ON s.organization_id=source.organization_id AND s.id=source.sender_id AND s.channel='fax' LEFT JOIN channel_controls c ON c.organization_id=source.organization_id AND c.channel='fax' WHERE source.organization_id=? AND source.id=?",
+    "SELECT source.*,o.mode AS organization_mode,s.address AS sender_address,s.status AS sender_status,s.mode AS sender_mode,c.enabled AS channel_enabled,EXISTS(SELECT 1 FROM valid_fax_tariff_refresh_sources valid WHERE valid.organization_id=source.organization_id AND valid.id=source.id) AS valid_source FROM effective_fax_tariff_refresh_sources source JOIN organizations o ON o.id=source.organization_id LEFT JOIN senders s ON s.organization_id=source.organization_id AND s.id=source.sender_id AND s.channel='fax' LEFT JOIN channel_controls c ON c.organization_id=source.organization_id AND c.channel='fax' WHERE source.organization_id=? AND source.id=?",
   )
     .bind(target.organization_id, target.target_id)
     .first<Row>();

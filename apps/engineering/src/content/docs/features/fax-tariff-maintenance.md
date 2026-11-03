@@ -1,6 +1,6 @@
 ---
 title: "Automatic fax tariff maintenance"
-description: "13 capabilities in the operations branch of Guteneo."
+description: "14 capabilities in the operations branch of Guteneo."
 sidebar:
   order: 26
 ---
@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Restricted operator authority required.
 
-Production 1.1.20 includes migration 0067 and the explicitly registered bounded local +3524 pilot. Actual server-key catalog discovery and its first genuine automatic refresh were observed; the distinct 1.1.25 FR/DE fourteen-route renewal group remains a local candidate requiring migration/runtime validation, explicit private registration and a genuine scheduled result. Actual delivery remains separately unqualified and no historical CSV fallback is allowed.
+Production 1.1.28 ran the Luxembourg pilot refresh successfully before its original 3 November expiry. The France/Germany group has independent scheduled production renewal evidence. The February extension is a local candidate requiring compatible release, private operator activation and genuine scheduled renewal. Actual delivery has separate qualification.
 
 **Surfaces:** Authorized private operator CLI/service-binding qualification and registration, and existing scheduled backend maintenance; no public browser, REST or MCP registration authority.
 
@@ -18,7 +18,8 @@ Production 1.1.20 includes migration 0067 and the explicitly registered bounded 
 ## Capabilities
 
 <ol>
-<li id="feature-0428b8007c6a">The separate LU maintainer supports the existing local Luxembourg fixed +3524 operator-test route with canonical empty options and EUR2; refresh preserves its exact existing page limit up to ten pages and never extends its independent 3 November 2026 pilot deadline; continuous reviewer preparation remains capped at seven pages</li>
+<li id="feature-5325edf4150b">The separate LU maintainer supports the existing local Luxembourg fixed +3524 operator-test route with canonical empty options and EUR2; refresh preserves its exact existing page limit up to ten pages and respects the independently authorized pilot deadline, including the scoped February 2027 extension after operator activation; continuous reviewer preparation remains capped at seven pages</li>
+<li id="feature-b18826146e41">Migration 0073 supports a separate immutable February authority for the existing +3524 registration, and schedules the next genuine refresh after reviewed operator activation</li>
 <li id="feature-fea7c89505c3">Explicit registration binds an exact tenant, sender, provider account/application/profile, destination prefix and options to an authorized global-conversational public commercial catalog</li>
 <li id="feature-3a4c32b375ed">Daily authenticated current-catalog discovery plus bounded official fax-page, selected allowlisted CSV and dated ECB reads and current provider ownership inspection create new immutable revisions with at most 168-hour validity</li>
 <li id="feature-c7cdcc6fb886">Public commercial references do not claim negotiated supplier prices or a freshly observed provider UI association; original source and association dates retain their meaning</li>

@@ -51,17 +51,39 @@ beforeAll(async () => {
   const directory = new URL("../../migrations/", import.meta.url);
   for (const file of readdirSync(directory)
     .filter((name) => name.endsWith(".sql"))
-    .sort())
-    await db.batch(
-      unstable_splitSqlQuery(
-        readFileSync(new URL(file, directory), "utf8"),
-      ).map((sql) => db.prepare(sql)),
-    );
+    .sort()) {
+    const migration = unstable_splitSqlQuery(
+      readFileSync(new URL(file, directory), "utf8"),
+    ).map((sql) => db.prepare(sql));
+    if (!file.startsWith("0073_")) {
+      await db.batch(migration);
+      continue;
+    }
+    await setupFixture();
+    await register();
+    expect(await refreshFaxTariffs(env, { now, fetcher: network() })).toEqual({
+      ...empty,
+      tariffsRefreshed: 1,
+    });
+    const historical = await current();
+    await quote();
+    await db.batch(migration);
+    expect(await current()).toEqual(historical);
+    expect(
+      (await db.prepare("PRAGMA foreign_key_check").all()).results,
+    ).toEqual([]);
+    await db
+      .prepare(
+        "UPDATE fax_tariff_refresh_sources SET status='revoked' WHERE organization_id=? AND id=?",
+      )
+      .bind(fixture.ctx.organizationId, sourceId)
+      .run();
+  }
 });
 afterAll(async () => {
   await mf?.dispose();
 });
-beforeEach(async () => {
+async function setupFixture() {
   clock = Date.parse("2026-10-30T10:00:00.000Z");
   minute = "0.010000001";
   currentDeckUrl = deckUrl;
@@ -97,7 +119,8 @@ beforeEach(async () => {
     TELNYX_OUTBOUND_VOICE_PROFILE_ID: "456",
   } as Env;
   sourceId = crypto.randomUUID();
-});
+}
+beforeEach(setupFixture);
 async function register() {
   await insertRecord(db, "fax_tariff_refresh_sources", {
     id: sourceId,
@@ -246,6 +269,54 @@ describe("automatic real fax tariff references", () => {
     expect(prepare).not.toHaveBeenCalled();
     expect(await refreshFaxTariffs(env, { now, fetcher })).toEqual(empty);
     expect(fetcher).not.toHaveBeenCalled();
+  });
+
+  it("resumes an expired pilot only after an explicit extension and refreshes up to the February boundary", async () => {
+    await register();
+    const original = await current();
+    const expiresAt = "2027-02-28T22:59:59.999Z";
+    clock = Date.parse("2027-02-27T12:00:00.000Z");
+    const fetcher = network();
+    expect(await refreshFaxTariffs(env, { now, fetcher })).toEqual(empty);
+    expect(fetcher).not.toHaveBeenCalled();
+
+    const extension = {
+      organization_id: fixture.ctx.organizationId,
+      source_id: sourceId,
+      authorization_reference: "ISOLATED FEBRUARY PILOT EXTENSION",
+      expires_at: expiresAt,
+      created_at: stamp(),
+    };
+    await expect(
+      insertRecord(db, "fax_pilot_authority_extensions", {
+        ...extension,
+        organization_id: "another_workspace",
+      }),
+    ).rejects.toThrow("fax_pilot_authority_extension_invalid");
+    await insertRecord(db, "fax_pilot_authority_extensions", extension);
+    await expect(
+      insertRecord(db, "fax_pilot_authority_extensions", extension),
+    ).rejects.toThrow("UNIQUE constraint");
+    expect(await current()).toEqual(original);
+    expect(await refreshFaxTariffs(env, { now, fetcher })).toEqual({
+      ...empty,
+      tariffsRefreshed: 1,
+    });
+    expect(await current()).toMatchObject({
+      expires_at: expiresAt,
+      local_calling_verified: 0,
+      operator_test_ceiling_minor: 200,
+      destination_prefix: "+3524",
+    });
+    await quote();
+    await noExecution();
+    clock = Date.parse(expiresAt);
+    await expect(quote()).rejects.toMatchObject({
+      code: "LIVE_PRICING_REQUIRED",
+    });
+    const calls = fetcher.mock.calls.length;
+    expect(await refreshFaxTariffs(env, { now, fetcher })).toEqual(empty);
+    expect(fetcher.mock.calls.length).toBe(calls);
   });
 
   it("installs genuinely fetched page, CSV and FX prices atomically and refreshes again after 24 hours", async () => {
