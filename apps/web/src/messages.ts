@@ -15,6 +15,7 @@ import studioExtra from "./locales/messages-studio-extra.json";
 import studioDistribution from "./locales/messages-studio-distribution-settings.json";
 import roles from "./locales/messages-roles.json";
 import secureDocuments from "./locales/messages-secure-documents.json";
+import personalDocuments from "./locales/messages-personal-documents.json";
 import identity from "./locales/messages-identity.json";
 import pdfChecks from "./locales/messages-pdf-checks.json";
 import dashboardV2 from "./locales/messages-dashboard-v2.json";
@@ -54,6 +55,8 @@ const sources: Record<string, readonly string[]>[] = [
   shell,
   pricing,
   roles,
+  // Personal list translations take precedence over the older secure catalog.
+  personalDocuments,
   secureDocuments,
   identity,
   pdfChecks,

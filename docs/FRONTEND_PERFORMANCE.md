@@ -1,5 +1,62 @@
 # Frontend loading and table controls
 
+## My documents list recovery — 3 November 2026 local candidate
+
+The recovered list hydrates a whole owner-bound page and its filtered total in
+parallel after the existing authentication/rate fence. It removes per-document
+lookups without changing the item projection. The optional summary starts beside
+the list after personal-session validation; its four aggregate reads overlap.
+A summary availability failure leaves the list usable. A 401/403 refusal clears
+both rows and counts, and a delayed response cannot restore them. Changing a
+query discards its old page/cursor immediately; previous/next replace at most
+25 or 50 rows. Account changes remount the personal list.
+
+[The local evidence record](evidence/personal-document-list-2026-11-03.json)
+binds the source, browser probe, emitted entry and observed JS/CSS assets. The D1
+fixture contains 240 owner shares, one owner copy and records belonging to another
+account, with every repository migration applied through Miniflare/workerd.
+Each page size was measured once for main `92070104`, then once for the recovered
+service against that same database. Counts include the session-fenced rate
+statement; the new list always uses two SELECTs. The separate summary uses its
+own rate statement plus four SELECTs.
+
+| List limit | Prepared statements, main → recovery | Local elapsed ms, main → recovery |
+| --- | ---: | ---: |
+| 1 | 5 → 3 | 24.2 → 17.8 |
+| 25 | 77 → 3 | 347.1 → 19.0 |
+| 50 | 152 → 3 | 708.3 → 16.9 |
+
+The statement reduction is independent of page size. These single local timing
+samples are not production latency or a general throughput benchmark. Query
+plans use the recipient index and the owner/organization/distribution unique
+index for copies. Ordering still uses a temporary B-tree; totals and sender
+aggregation inspect the owner's matching rows. No constant-cost claim, large
+production-volume qualification or index migration follows from this fixture.
+
+The recorded browser observations use the original P1 static Vite build, one
+fresh context per engine, a fixed 40 ms synthetic API delay and no CPU/network
+throttling. The host
+was not isolated and no browser baseline was measured. First useful means an
+asserted visible document heading followed by two animation-frame opportunities,
+not physical first paint. Resource Timing records bootstrap and module preloads
+at that observation; browser compression produces slightly different body sizes.
+
+| Engine / viewport | First useful DOM (ms) | JS requests / encoded / transferred bytes | CSS requests / encoded / transferred bytes | API reads / writes |
+| --- | ---: | --- | --- | --- |
+| Chromium 156 / 1280 × 720 | 295.1 | 25 / 552,584 / 560,084 | 4 / 32,714 / 33,914 | 3 / 0 |
+| WebKit 27.2 / 390 × 664 | 415.0 | 25 / 553,359 / 560,859 | 4 / 32,798 / 33,998 | 3 / 0 |
+
+The three reads are the personal session, first list page and optional summary.
+No workspace session, document content, PDF viewer/worker, designer or Swagger
+bundle loads for this entry. The database projection, hidden unassociated titles,
+owner isolation, legacy cursors and four sorts have local unit coverage. Browser
+regressions cover URL reload, 25/50-row replacement, delayed filters/pages/counts,
+401/403 removal, summary failure, identity A → B → A, code recovery, appearance,
+long names and four locales on desktop Chromium and iPhone-sized WebKit. The
+record distinguishes the 72-scenario suite from its final 14-scenario list rerun
+(78 distinct browser scenarios). These fixtures qualify neither a physical device
+nor a real account, provider, deployed service or hosted CI run.
+
 ## Independent PDF and fixture work — 3 November 2026 candidate
 
 The loaded PDF page now starts canvas rendering and accessible text extraction

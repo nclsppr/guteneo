@@ -1,5 +1,27 @@
 # Executed verification
 
+## My documents stack verification — 3 November 2026
+
+The P1 document-list recovery from `e53595e7` is rebased onto async candidate
+`ec6c9f0d`. Both runtime implementations remain byte-identical to their previously
+qualified commits; only generated documentation and the performance narrative
+needed reconciliation. The source/package contract remains unchanged at 1.1.30,
+with 83 MCP tools and 36 read-only annotations.
+
+Local combined validation passes **286/286 tests in 15 files**, including owner
+list/filter/cursor coverage, personal authentication, secure-distribution approval
+boundaries, preview fixtures, MCP annotations and all async regression files.
+All **662** security checks, typecheck, lint, documentation/standards, integration
+package/audit checks, application build and Engineering build/check pass. The
+Engineering check includes four publication-security tests. Evidence is retained
+in `~/.codex/artifacts/guteneo-recovery-20261103/documents-rebase/`.
+
+The original P1 browser observations and measurements remain tied to their source
+in [frontend performance](FRONTEND_PERFORMANCE.md#my-documents-list-recovery--3-november-2026-local-candidate).
+They were not repeated after combining the unchanged P1 and async implementations.
+Full-suite hosted CI, real accounts, physical devices and deployment remain
+separate qualifications.
+
 ## Async hot-path port — 3 November 2026
 
 Candidate **1.1.30**, branch `codex/recovery-async-hot-paths`, ports only

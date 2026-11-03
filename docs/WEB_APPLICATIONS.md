@@ -41,6 +41,18 @@ Consequences:
   ship in its own chunks and one application's growth does not slow another.
 - A new source file must be added to the manifest; an unowned file fails the check.
 
+## My documents list modules
+
+My documents owns separate route, claim, list, reader and status modules. The
+list's filters, category, sort and page size belong to its address; its cursor
+stack belongs to the current account and query. A query change discards the old
+page, cancels its request and disables stale pagination. The summary read runs
+alongside the page; unavailable counts do not block documents. All rows keep the
+shared controls, typography, color tokens and responsive geometry. This recovery
+adds no application or change to workspace navigation. The
+[recipient journey](SECURE_DISTRIBUTION_JOURNEYS.md#find-documents-and-discover-services)
+owns the API and authority contract.
+
 ## From Studio to Correspondence
 
 Studio selects verified generated PDFs, then opens

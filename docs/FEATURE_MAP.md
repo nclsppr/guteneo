@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**27 domains · 431 features · 44 journeys · 77 documented REST operations · 83 MCP tools**
+**27 domains · 433 features · 44 journeys · 77 documented REST operations · 83 MCP tools**
 Updated 2026-11-03.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -25,7 +25,7 @@ mindmap
       Fax (10)
       Postal mail (10)
       Email and protected links (14)
-      Sensitive distribution and personal documents (31)
+      Sensitive distribution and personal documents (33)
       Dispatch dry run (7)
     Operate
       Campaigns and tracking (8)
@@ -65,7 +65,7 @@ mindmap
 - [Fax](#fax) — 10 features; capability-gated.
 - [Postal mail](#postal) — 10 features; capability-gated.
 - [Email and protected links](#email) — 14 features; capability-gated.
-- [Sensitive distribution and personal documents](#secure-distribution) — 31 features; capability-gated.
+- [Sensitive distribution and personal documents](#secure-distribution) — 33 features; capability-gated.
 - [Dispatch dry run](#dry-run) — 7 features; read-only.
 
 ### Operate
@@ -613,10 +613,12 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Provider preflight validates the transport reservation after deducting already committed secure retention/personal-copy charges from the immutable total ceiling; it retains all active attempt, approval, sender and tenant checks
 - One explicit priced browser Send action records approval then activation after two attestations; a failed response requires read-only Check status before same-key recovery, without effect-driven writes or another MCP confirmation after active readback
 - Local D1/R2 regressions cover revocation of metadata/images/text/permitted-original/deposit, decryption races, concurrent deposit and duplicate-copy workers; durable copies converge on exact bytes and single receipts without reviving revoked shared access
+- My documents hydrates each owner-bound page in one query plus a filtered total, with state/sender filters, four keyset sort orders and accent-folded search; hidden unassociated titles never participate
+- A parallel summary provides category counts and at most 100 sender choices; summary failure does not delay the list, filter changes discard old page cursors and authority refusals clear all loaded metadata
 
 **Contract:** [SECURE_DISTRIBUTION_JOURNEYS.md](SECURE_DISTRIBUTION_JOURNEYS.md) · **Implementation:** [apps/api/src/secure-distributions.ts](../apps/api/src/secure-distributions.ts)
 
-**Tests:** [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/distribution-e2e/distribution-pricing.e2e.ts](../tests/distribution-e2e/distribution-pricing.e2e.ts), [tests/distribution-e2e/distribution-lifecycle.e2e.ts](../tests/distribution-e2e/distribution-lifecycle.e2e.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/distribution-verified-e2e/lifecycle.e2e.ts](../tests/distribution-verified-e2e/lifecycle.e2e.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/auth-navigation-recovery.test.ts](../tests/unit/auth-navigation-recovery.test.ts), [tests/e2e/secure-distribution-recovery.spec.ts](../tests/e2e/secure-distribution-recovery.spec.ts), [tests/integration/secure-resend-journey.test.ts](../tests/integration/secure-resend-journey.test.ts), [tests/e2e/secure-distribution-send.spec.ts](../tests/e2e/secure-distribution-send.spec.ts)
+**Tests:** [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/distribution-e2e/distribution-pricing.e2e.ts](../tests/distribution-e2e/distribution-pricing.e2e.ts), [tests/distribution-e2e/distribution-lifecycle.e2e.ts](../tests/distribution-e2e/distribution-lifecycle.e2e.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/distribution-verified-e2e/lifecycle.e2e.ts](../tests/distribution-verified-e2e/lifecycle.e2e.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/auth-navigation-recovery.test.ts](../tests/unit/auth-navigation-recovery.test.ts), [tests/e2e/secure-distribution-recovery.spec.ts](../tests/e2e/secure-distribution-recovery.spec.ts), [tests/integration/secure-resend-journey.test.ts](../tests/integration/secure-resend-journey.test.ts), [tests/e2e/secure-distribution-send.spec.ts](../tests/e2e/secure-distribution-send.spec.ts), [tests/unit/personal-document-list.test.ts](../tests/unit/personal-document-list.test.ts), [tests/e2e/personal-document-list.spec.ts](../tests/e2e/personal-document-list.spec.ts)
 
 **Documented REST operations**
 

@@ -1,6 +1,6 @@
 ---
 title: "Sensitive distribution and personal documents"
-description: "31 capabilities in the deliver branch of Guteneo."
+description: "33 capabilities in the deliver branch of Guteneo."
 sidebar:
   order: 10
 ---
@@ -49,6 +49,8 @@ Implemented candidate with migrations 0055–0059 and separate deterministic str
 <li id="feature-a57a041d1487">Provider preflight validates the transport reservation after deducting already committed secure retention/personal-copy charges from the immutable total ceiling; it retains all active attempt, approval, sender and tenant checks</li>
 <li id="feature-8a4676396a87">One explicit priced browser Send action records approval then activation after two attestations; a failed response requires read-only Check status before same-key recovery, without effect-driven writes or another MCP confirmation after active readback</li>
 <li id="feature-7a62af39f473">Local D1/R2 regressions cover revocation of metadata/images/text/permitted-original/deposit, decryption races, concurrent deposit and duplicate-copy workers; durable copies converge on exact bytes and single receipts without reviving revoked shared access</li>
+<li id="feature-8f749543096c">My documents hydrates each owner-bound page in one query plus a filtered total, with state/sender filters, four keyset sort orders and accent-folded search; hidden unassociated titles never participate</li>
+<li id="feature-d7139b2d81c3">A parallel summary provides category counts and at most 100 sender choices; summary failure does not delay the list, filter changes discard old page cursors and authority refusals clear all loaded metadata</li>
 </ol>
 
 ## REST operations

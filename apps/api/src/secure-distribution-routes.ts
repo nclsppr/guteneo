@@ -8,6 +8,10 @@ import {
   secureClaimSchema,
   securePageEventSchema,
 } from "../../../packages/contracts/src/secure-distribution";
+import {
+  personalDocumentSorts,
+  personalDocumentStatusFilters,
+} from "../../../packages/contracts/src/personal-documents";
 import type { Env } from "./env";
 import {
   authenticatePersonalBrowser,
@@ -86,12 +90,19 @@ export async function handlePersonalDocumentRoute(
         limit: z.coerce.number().int().min(1).max(50).default(30),
         kind: z.enum(["shared", "personal"]).optional(),
         q: z.string().max(200).optional(),
+        status: z.enum(personalDocumentStatusFilters).optional(),
+        sender: z.string().min(1).max(200).optional(),
+        sort: z.enum(personalDocumentSorts).optional(),
       })
       .parse(Object.fromEntries(url.searchParams));
     return Response.json(await service.list(principal, query), {
       headers: noStore,
     });
   }
+  if (path === "/api/personal/documents/summary" && request.method === "GET")
+    return Response.json(await service.summary(principal), {
+      headers: noStore,
+    });
   if (path === "/api/personal/documents/claim" && request.method === "POST") {
     const body = await secureJson(request, secureClaimSchema);
     return Response.json(await service.claim(principal, body.token), {

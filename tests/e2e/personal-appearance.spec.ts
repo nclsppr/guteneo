@@ -73,6 +73,16 @@ async function fixture(
       };
       return route.fulfill({ json: session });
     }
+    if (path === "/api/personal/documents/summary")
+      return route.fulfill({
+        status: 503,
+        json: {
+          error: {
+            code: "TEMPORARILY_UNAVAILABLE",
+            message: "Optional synthetic counts unavailable",
+          },
+        },
+      });
     if (path === "/api/personal/documents")
       return route.fulfill({
         json: {
@@ -285,9 +295,11 @@ test("a personal account opens the only layout without workshop reads or account
     page.locator(".personal-space-header [data-theme-toggle]"),
   ).toHaveCount(1);
   await expect(page.locator(".personal-space-header select")).toHaveCount(0);
-  expect(state.reads).toEqual([
-    "/api/personal/session",
+  // The category summary is read beside the first list page, never before.
+  expect([...state.reads].sort()).toEqual([
     "/api/personal/documents",
+    "/api/personal/documents/summary",
+    "/api/personal/session",
   ]);
   expect(
     state.scripts.filter((path) =>

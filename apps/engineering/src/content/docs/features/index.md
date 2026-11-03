@@ -7,7 +7,7 @@ sidebar:
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->
 
-**27 domains · 431 capabilities · 44 journeys · 77 REST operations · 83 MCP tools.**
+**27 domains · 433 capabilities · 44 journeys · 77 REST operations · 83 MCP tools.**
 
 Follow a branch to find its behavior, access boundary and engineering guide. Use the site search to find a specific capability.
 
@@ -30,7 +30,7 @@ This is an implementation inventory, not a live availability dashboard. Current 
 - [Fax](/features/fax/) — 10 capabilities
 - [Postal mail](/features/postal/) — 10 capabilities
 - [Email and protected links](/features/email/) — 14 capabilities
-- [Sensitive distribution and personal documents](/features/secure-distribution/) — 31 capabilities
+- [Sensitive distribution and personal documents](/features/secure-distribution/) — 33 capabilities
 - [Dispatch dry run](/features/dry-run/) — 7 capabilities
 
 ## Operate

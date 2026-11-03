@@ -1,5 +1,16 @@
 # Execution plan and handoff
 
+## My documents recovery — 3 November 2026 candidate
+
+The personal-document lot is recovered from the preserved Workshop draft onto
+current main, independently of the Administration application. It adds bounded
+owner filters, four keyset sorts, totals and parallel optional summaries, and
+replaces repeated per-item hydration with one page read plus count. The browser
+invalidates old cursors on query changes and clears metadata on authority refusal.
+See [recipient journeys](SECURE_DISTRIBUTION_JOURNEYS.md) for the current contract
+and [frontend performance](FRONTEND_PERFORMANCE.md) for dated local qualification.
+No migration, provider configuration, communication or deployment is included.
+
 ## Native postal availability fetch — 1 November 2026 corrective candidate 1.1.28
 
 The first 1.1.27 publication exposed a native Workers receiver error before the

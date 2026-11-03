@@ -1,0 +1,77 @@
+{
+  "En attente de vérification": [
+    "Awaiting verification",
+    "Wartet auf Überprüfung",
+    "Waart op Iwwerpréiwung"
+  ],
+  "Bientôt terminés": ["Ending soon", "Endet bald", "Hält geschwënn op"],
+  "Terminés": ["Ended", "Beendet", "Ofgelaf"],
+  "Filtrer par état": [
+    "Filter by status",
+    "Nach Status filtern",
+    "No Status filteren"
+  ],
+  "Tous": ["All", "Alle", "All"],
+  "Tous les expéditeurs": ["All senders", "Alle Absender", "All Ofsender"],
+  "{0} ({1})": ["{0} ({1})", "{0} ({1})", "{0} ({1})"],
+  "Trier par": ["Sort by", "Sortieren nach", "Sortéieren no"],
+  "Les plus récents d’abord": [
+    "Most recent first",
+    "Neueste zuerst",
+    "Déi neist als éischt"
+  ],
+  "Les plus anciens d’abord": [
+    "Oldest first",
+    "Älteste zuerst",
+    "Déi eelst als éischt"
+  ],
+  "Échéance la plus proche": [
+    "Ending soonest",
+    "Frühestes Ende zuerst",
+    "Fréist Enn als éischt"
+  ],
+  "Titre de A à Z": ["Title A–Z", "Titel A–Z", "Titel A–Z"],
+  "Documents par page": [
+    "Documents per page",
+    "Dokumente pro Seite",
+    "Dokumenter pro Säit"
+  ],
+  "Documents {0} à {1} sur {2}": [
+    "Documents {0}–{1} of {2}",
+    "Dokumente {0}–{1} von {2}",
+    "Dokumenter {0}–{1} vun {2}"
+  ],
+  "Reçu le {0}": ["Received {0}", "Erhalten am {0}", "Kritt de {0}"],
+  "Aucun document correspondant": [
+    "No matching documents",
+    "Keine passenden Dokumente",
+    "Keng passend Dokumenter"
+  ],
+  "Modifiez la recherche ou les filtres pour voir d’autres documents.": [
+    "Change the search or filters to see other documents.",
+    "Ändern Sie die Suche oder die Filter, um andere Dokumente zu sehen.",
+    "Ännert d’Sich oder d’Filteren, fir aner Dokumenter ze gesinn."
+  ],
+  "Pages de documents": ["Document pages", "Dokumentseiten", "Dokumentsäiten"],
+  "Afficher les documents précédents": [
+    "Previous documents",
+    "Vorherige Dokumente anzeigen",
+    "Vireg Dokumenter weisen"
+  ],
+  "Afficher les documents suivants": [
+    "Next documents",
+    "Nächste Dokumente anzeigen",
+    "Nächst Dokumenter weisen"
+  ],
+  "Page {0}": ["Page {0}", "Seite {0}", "Säit {0}"],
+  "Envoyez aussi vos propres documents": [
+    "Send your own documents too",
+    "Senden Sie auch Ihre eigenen Dokumente",
+    "Schéckt och Är eegen Dokumenter"
+  ],
+  "Votre compte peut aussi envoyer. Créez votre espace de travail en une étape avec la même connexion : vous en devenez l’administrateur et rien n’est envoyé sans votre vérification.": [
+    "Your account can also send. Create your workspace in one step with this same sign-in: you become its administrator and nothing is sent without your review.",
+    "Ihr Konto kann auch senden. Erstellen Sie Ihren Arbeitsbereich in einem Schritt mit derselben Anmeldung: Sie werden dessen Administrator, und nichts wird ohne Ihre Prüfung gesendet.",
+    "Äre Kont kann och schécken. Erstellt Ären Aarbechtsberäich an engem Schrëtt mat derselwechter Umeldung: Dir gitt säin Administrateur an näischt gëtt ouni Är Kontroll geschéckt."
+  ]
+}

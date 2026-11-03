@@ -186,7 +186,12 @@
       "files": [
         "personal-area.tsx",
         "personal-space.tsx",
-        "personal-documents.tsx"
+        "personal-documents.tsx",
+        "personal-documents.css",
+        "personal-document-list.tsx",
+        "personal-document-reader.tsx",
+        "personal-document-claim.tsx",
+        "personal-document-status.ts"
       ]
     },
     "belvedere": {

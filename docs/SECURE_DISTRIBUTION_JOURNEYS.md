@@ -155,6 +155,33 @@ Recipients may export then delete their copy. Deletion removes personal access, 
 
 **My documents** separates both categories. Server-side owner-bound filtering, bounded search and pagination cover all authorized documents rather than only the first client-filtered rows. 401/403 clears loaded lists/cursors; obsolete pagination responses after refresh cannot restore them. Account language remains shared across Guteneo.
 
+3 November 2026 recovery candidate: `GET /api/personal/documents` hydrates
+one owner-bound page in one database read, with a second parallel read for the
+filtered `total`, after the current personal-session and rate-limit fence. It
+accepts `status=available|pending|expiring|ended`, exact displayed `sender`,
+`sort=recent|oldest|expiry|title`, bounded search and up to 50 rows. Expiring
+means available and ending within 14 days. Each sort has a stable keyset cursor;
+earlier recency cursors retain their original shape. The four product languages'
+accented letters are folded for search/title ordering, without claiming complete
+Unicode collation. Unassociated titles remain hidden, unsearchable and unsorted.
+
+The browser reads `/api/personal/documents/summary` beside the first page, never
+before it. Category state counts and up to 100 sender choices require the same
+personal authority and no-store headers; a summary outage leaves the list usable.
+Category, filters, sort and page size live in the URL. A changed filter removes
+old page data immediately, cancels a pending page request and starts again at the
+first page; an obsolete response cannot restore its cursor or results. A 401/403
+from either list or summary clears all loaded metadata. Refresh/retry rechecks
+authority; changing account remounts all page state. The optional generic
+workspace invitation remains independent of document contents and access.
+
+These reads expose no workspace OAuth/MCP or native personal-vault capability,
+perform no document-content prefetch and grant no sender membership. The current
+server authentication policy, association, approval, retention and financial
+invariants are unchanged. Local migrated-D1 and intercepted-browser qualification
+are recorded in [frontend performance](FRONTEND_PERFORMANCE.md); hosted volume,
+real recipients and provider delivery remain separate evidence.
+
 **Use Guteneo** remains in the same session. Recipients can prepare sends/share documents, choose an existing membership or request an initial workspace. The server explicitly creates required business structures with real channels closed and administrator role for the creator. Creation/selection reloads the chosen preparation document and workspace session; identity, rights and CSRF all come from the new server session without retaining old workspace context. Failures stay visible in the personal area. Selecting the sender's workspace without membership is denied. Receipt implies no new login identity, mandatory subscription or marketing consent.
 
 Ordinary application entry (`/#/app`) by a verified account without a workshop
