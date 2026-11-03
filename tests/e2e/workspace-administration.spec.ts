@@ -249,9 +249,11 @@ test("an administrator manages the workspace in Administration, not in the profi
     "Vue d’ensemble de l’espace de travail",
   );
   await expect(page.locator(".stat-tile").first()).toContainText("1 234");
-  await expect(page.getByRole("status").first()).toContainText(
-    "3 envois demandent une vérification.",
-  );
+  await expect(
+    page
+      .getByRole("status")
+      .filter({ hasText: "3 envois demandent une vérification." }),
+  ).toBeVisible();
   const summary = page.locator(".workspace-navigation summary");
   if (await summary.isVisible()) await summary.click();
   await expect(navigation(page).getByRole("link")).toHaveText([
