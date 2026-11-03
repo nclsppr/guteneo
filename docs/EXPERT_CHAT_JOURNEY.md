@@ -16,12 +16,11 @@ review or review it again when necessary; never create another send or infer
 non-delivery from the token error.
 
 Business reads such as `read_document_pages` do not alter the document or create
-a review token. Successful MCP calls can nevertheless persist the visible
-production connection activity, so the complete tool contract retains
-`readOnlyHint:false` and `idempotentHint:false`. Descriptions disclose this common
-effect centrally.
+a review token, and declare `readOnlyHint:true` and `idempotentHint:true`. The
+MCP adapter may refresh the connection's last-used time after production success;
+that connection metadata is disclosed centrally and is not an effect of the tool.
 
-The [remediation dossier](MCP_ANNOTATION_REMEDIATION.md) covers all 67 tools, all
+The [remediation dossier](MCP_ANNOTATION_REMEDIATION.md) links the current complete tool matrix, all
 four boolean justifications and actual local `tools/list` validation through
 `npm run audit:mcp`. On 20 October, the audit passed for 67 tools, 268 explicit
 booleans and 216 code references with no issues. All 46 expert-approval tests,

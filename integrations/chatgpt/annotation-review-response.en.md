@@ -12,12 +12,13 @@ Hello,
 Thank you for the feedback on Guteneo v0.3.2. We have audited the current server
 implementation and prepared a local remediation candidate.
 
-The current local MCP catalogue exposes 67 tools. All four hint fields are
+The current local reviewed profile exposes 83 tools, including eight default-off
+App tools. Ordinary discovery exposes 75 tools. All four hint fields are
 explicit booleans for each tool. We have prepared a complete per-tool matrix
 explaining each value and citing the relevant implementation. We also found
 that our previous local justification table omitted `dry_run_dispatch`.
 
-The candidate changes two destructive annotations:
+Earlier remediation already corrected two destructive annotations:
 
 - `review_dispatch`: issuing a new review token invalidates the previously valid
   token for the same dispatch and connection.
@@ -25,10 +26,11 @@ The candidate changes two destructive annotations:
   prevents retrying failed records in the original generation job, including
   records excluded from that plan.
 
-We have clarified the related descriptions and the persistent connection-activity
-update that explains why business retrieval tools advertise `readOnlyHint: false`
-and `idempotentHint: false`. The candidate does not relax authorization or
-approval requirements.
+We have clarified the related descriptions. Business retrieval tools now advertise
+`readOnlyHint: true` and `idempotentHint: true`: the connection's last-used time,
+which may advance after successful production calls, is connection metadata rather than an effect
+of these tools. The candidate does not relax authorization or approval
+requirements.
 
 These findings concern our current source; they do not establish which exact
 tool or scan caused the v0.3.2 rejection. Before resubmission, the corrected

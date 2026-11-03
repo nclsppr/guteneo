@@ -8,7 +8,7 @@ connector picker displays these fields; if a manual logo field is available,
 use [this canonical PNG](https://guteneo.com/brand/guteneo-mark.png). Installing a
 logo or package grants no account access or approval.
 
-This directory prepares candidate **1.1.19**. Package version, application
+This directory prepares candidate **1.1.29**. Package version, application
 capabilities and MCP server identity follow the same source version; the release
 fingerprint identifies actually served code. Building an archive updates neither
 the server nor a directory. The builder also emits the dedicated
@@ -239,3 +239,11 @@ release. `mcp-contract.json` binds the package to its MCP source and packaged
 files; builds reject a stale record. Follow the versioning, synchronization and
 verification procedure in [LLM_SETUP.md](https://github.com/nclsppr/guteneo/blob/main/docs/LLM_SETUP.md).
 This check proves source consistency, not installation or hosted qualification.
+
+## Read-only tool metadata
+
+Business reads declare read-only and idempotent annotations. The server may still
+refresh connection activity after a successful production call; this access
+metadata creates no business operation. Annotations grant no scope, membership,
+mandate or purchase authority. Mutations, uploads and delegated sends retain
+their explicit effects and existing confirmation requirements.

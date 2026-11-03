@@ -194,10 +194,10 @@ describe("MCP annotation audit", () => {
     for (const name of diagnosticNames)
       expect(tools.find((tool) => tool.name === name)?.annotations).toEqual({
         title: tools.find((tool) => tool.name === name)?.title,
-        readOnlyHint: false,
+        readOnlyHint: true,
         destructiveHint: false,
         openWorldHint: false,
-        idempotentHint: false,
+        idempotentHint: true,
       });
     for (const tool of tools) {
       expect(tool.title, tool.name).toEqual(expect.any(String));
