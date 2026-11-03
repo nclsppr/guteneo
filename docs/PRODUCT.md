@@ -1,5 +1,17 @@
 # Guteneo product contract
 
+## Workspace Administration — 3 November 2026 candidate
+
+Administration is the fifth browser application. Current workspace
+administrators manage members, access, billing and settings there; supervisors
+with report permission can read activity, consumption and reports. The personal
+profile keeps personal preferences and Correspondence keeps preparation and
+tracking. Earlier management addresses and Stripe portal returns remain valid.
+Belvédère retains its separate platform authority. See the
+[workspace administration contract](WORKSPACE_ADMINISTRATION.md) for permissions,
+exports, recovery and qualification limits. This candidate activates no provider
+and sends no communication.
+
 ## Postal availability correction — 1 November 2026 candidate 1.1.28
 
 A native Worker callback error prevented the new country reference from being

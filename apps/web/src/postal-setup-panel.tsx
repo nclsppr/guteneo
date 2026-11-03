@@ -65,7 +65,7 @@ export function PostalSetupPanel({
           <p>{t.postalSetup.stopped}</p>
           <p className="field-hint">{t.postalSetup.stoppedBody}</p>
           {canManage && setup.canManage && (
-            <a className="button" href="#/app/admin">
+            <a className="button" href="#/app/administration/settings">
               {t.postalSetup.administration}
             </a>
           )}

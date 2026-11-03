@@ -234,6 +234,8 @@ async function fixture(
     } else if (path === "/admin/invitations")
       body = { items: [], nextCursor: null };
     else if (path === "/admin") body = { controls: [], deadLetters: [] };
+    else if (path === "/administration/members")
+      body = { items: [], total: 0, page: 1, pageSize: 50 };
     else {
       unmatched.push(`${method} ${path}`);
       status = 503;
@@ -716,7 +718,7 @@ test("contact failure is recoverable and switching workshops removes the previou
   await expect(
     contacts.getByRole("link", { name: /validation@example.invalid/ }),
   ).toHaveCount(0);
-  await expect(page.locator("#account-organization")).toHaveValue(
+  await expect(page.locator(".account-identity-details")).toContainText(
     "Deuxième atelier",
   );
   // The new workspace reads its own contacts; the old ones never reappear.

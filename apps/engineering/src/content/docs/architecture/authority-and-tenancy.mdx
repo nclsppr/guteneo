@@ -108,3 +108,25 @@ Use the [dispatch lifecycle](/architecture/dispatch-lifecycle/) for commitment
 semantics, [MCP integration](/integrations/mcp/) for assistant behavior and
 [security controls](/engineering/security-and-reliability/) for request/storage
 boundaries.
+
+## Workspace Administration
+
+Administration is a separate browser application for one current workspace.
+Administrators receive management and report views; supervisors need their
+independent report permission. Member/access/audit exports remain restricted
+to administrators. The API rereads membership on each operation and refuses
+assistant, OAuth and native requests. Platform Belvédère authority never follows
+from a customer workspace role.
+
+Reports project references, dates, states and ledger amounts, excluding
+recipients, message content, document titles, supplier costs and raw audit
+details. Exports have cumulative row/text limits and record an audit entry with
+parameters and counts only. CSV and Excel retain every permitted row; PDF
+states any rows omitted by its rendering limit. These reports are not tax
+invoices. Source implementation and local fixtures do not establish production
+financial or real-account qualification.
+
+The browser keeps periods in its address, cancels obsolete reads and downloads,
+and removes loaded metadata when authority is refused. Workspace/account changes
+start fresh pages. Earlier management addresses remain aliases, including the
+billing portal return; permission is checked again at the destination.

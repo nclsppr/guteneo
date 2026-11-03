@@ -161,8 +161,13 @@ test("creating and selecting a workshop reloads its session without changing the
 
   // Stay in the mounted document: a fresh server cookie alone does not update
   // Application's workshop state or the API module's mutation CSRF token.
-  await browser.evaluate(() => { location.hash = "/app/account"; return true; });
+  // The new administrator manages the workspace in Administration; the
+  // personal profile no longer edits it.
+  await browser.evaluate(() => { location.hash = "/app/administration/settings"; return true; });
   await expect(screen.getByLabel("Nom de l’espace de travail")).toHaveValue("Atelier personnel de test");
+  await browser.evaluate(() => { location.hash = "/app/account"; return true; });
+  await expect(browser.locator(".account-identity-details")).toContainText("Atelier personnel de test");
+  await expect(screen.getByLabel("Nom de l’espace de travail")).toHaveCount(0);
   await screen.getByLabel("Votre nom", { exact: true }).fill("Destinataire après création");
   const [createdProfile] = await Promise.all([
     browser.waitForResponse("**/api/account"),
@@ -205,8 +210,8 @@ test("creating and selecting a workshop reloads its session without changing the
     expect(selected.body.organization.id).toBe("org_studio");
     expect(selected.body.user.role).toBe("member");
     await browser.evaluate(() => { location.hash = "/app/account"; return true; });
-    await expect(screen.getByLabel("Nom de l’espace de travail")).toHaveValue("Studio Papier · Simulation");
-    await expect(screen.getByLabel("Nom de l’espace de travail")).toBeDisabled();
+    await expect(browser.locator(".account-identity-details")).toContainText("Studio Papier · Simulation");
+    await expect(screen.getByLabel("Nom de l’espace de travail")).toHaveCount(0);
     await screen.getByLabel("Votre nom", { exact: true }).fill("Destinataire après sélection");
     const [selectedProfile] = await Promise.all([
       browser.waitForResponse("**/api/account"),

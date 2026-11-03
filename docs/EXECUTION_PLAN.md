@@ -1,5 +1,17 @@
 # Execution plan and handoff
 
+## Administration recovery — 3 November 2026 candidate
+
+The second preserved Workshop lot is rebuilt independently on the recovered
+My documents commit. It introduces the fifth workspace application, keeps
+legacy management/Stripe links and preserves Belvédère's separate authority.
+Invalid URL dates, stale custom-period fields, late report/download responses
+and refresh metadata are corrected. API finance, current membership and export
+bounds have separate synthetic qualification; see
+[the contract](WORKSPACE_ADMINISTRATION.md). Local evidence, hosted CI, merge and
+production publication remain distinct. No provider, real communication or
+production deployment is included.
+
 ## My documents recovery — 3 November 2026 candidate
 
 The personal-document lot is recovered from the preserved Workshop draft onto

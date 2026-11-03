@@ -63,6 +63,7 @@ import {
   TemplateWorkflowService,
   type WorkflowActor,
 } from "./template-workflow";
+import { createAdministrationRoutes } from "./administration";
 import {
   createTemplateWorkflowRoutes,
   templateWorkflowScope,
@@ -788,6 +789,8 @@ const postalAuthority = async (request: Request, env: Env, scope: string) => {
   return postalBrowserAuthority(request, env, request.method !== "GET");
 };
 app.route("/", createTemplateWorkflowRoutes(domain, postalAuthority));
+// Workspace administration reads and exports: browser membership authority only.
+app.route("/", createAdministrationRoutes());
 const secureService = (env: Env) =>
   new SecureDistributionService(env, domain(env));
 async function secureMcpService(

@@ -1,5 +1,13 @@
 # Belvédère — guteneo control tower
 
+## Scope — 31 October 2026 decision
+
+Belvédère remains platform-only under the Watcher authority. Workspace
+administrators receive tenant-scoped counterparts of its overview, dispatch,
+member, connection and finance views, with CSV/Excel/PDF exports, in the
+separate **Administration** application. Only presentation is shared; queries
+and authority are not. See [workspace administration](WORKSPACE_ADMINISTRATION.md#belvédère-scope-decision).
+
 ## Canonical application entry — 29 October 2026 local candidate
 
 The protected canonical `/belvedere` entry reuses the canonical host's existing

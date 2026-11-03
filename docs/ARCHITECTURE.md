@@ -1,5 +1,18 @@
 # Architecture
 
+## Workspace report boundary — 3 November 2026 candidate
+
+Browser-only Administration routes derive the organization and current role
+from authenticated membership and project bounded metadata without recipients,
+document titles, message content, supplier costs or raw audit details. Reports
+and exports preserve separate production-ledger and simulation-reservation
+semantics. Runtime file limits bound CSV/XLSX/PDF generation before restitution;
+exports record their parameters and counts, never their values. The dedicated
+application loads separately and remounts on workspace/account changes. See the
+[authoritative administration contract](WORKSPACE_ADMINISTRATION.md) for exact
+bounds, current authority, periods and recovery. No migration or MCP/native
+capability is added.
+
 ## Native fetch callback boundary — 1 November 2026 candidate 1.1.28
 
 The destination reader stores a fetch callback, not a method of the reader.

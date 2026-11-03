@@ -18,6 +18,9 @@ import {
   Wrench,
   Plus,
   Receipt,
+  DownloadSimple,
+  UsersThree,
+  ListChecks,
   List,
   AddressBook,
   WarningCircle,
@@ -45,10 +48,12 @@ import { syncPublicSharing } from "./public-sharing";
 import { usePublicLocation } from "./public-navigation";
 import { Brand } from "./brand";
 import {
+  administrationRoutes,
   navigationEntryFor,
   spaceHome,
   spaceOf,
   studioRoutes,
+  type AdministrationEntry,
   type StudioEntry,
   type WorkshopEntry,
 } from "./app-routes";
@@ -56,6 +61,7 @@ import {
   ApplicationSwitcher,
   WorkspaceSwitcher,
   type SwitcherWorkspace,
+  type WorkspaceApplication,
 } from "./space-switcher";
 import {
   BEFORE_WORKSPACE_NAVIGATION,
@@ -211,21 +217,6 @@ const Senders = lazy(() =>
     .workspace()
     .then((module) => ({ default: module.Senders })),
 );
-const Usage = lazy(() =>
-  workspaceRouteModules
-    .workspace()
-    .then((module) => ({ default: module.Usage })),
-);
-const Admin = lazy(() =>
-  workspaceRouteModules
-    .workspace()
-    .then((module) => ({ default: module.Admin })),
-);
-const Billing = lazy(() =>
-  workspaceRouteModules
-    .billing()
-    .then((module) => ({ default: module.Billing })),
-);
 const PostalReviewPage = lazy(() =>
   workspaceRouteModules.postal().then((module) => ({
     default: module.PostalReviewPage,
@@ -236,22 +227,13 @@ const Account = lazy(() =>
     .account()
     .then((module) => ({ default: module.Account })),
 );
-const TeamAdmin = lazy(() =>
-  workspaceRouteModules
-    .account()
-    .then((module) => ({ default: module.TeamAdmin })),
-);
-const TeamInvitations = lazy(() =>
-  workspaceRouteModules.invitations().then((module) => ({
-    default: module.TeamInvitations,
-  })),
-);
 const Connection = lazy(() =>
   workspaceRouteModules.connection().then((module) => ({
     default: module.Connection,
   })),
 );
 const DocumentStudio = lazy(() => workspaceRouteModules.studio());
+const Administration = lazy(() => workspaceRouteModules.administration());
 const DistributionPage = lazy(() => workspaceRouteModules.distribution());
 const SecureDistributionPage = lazy(() =>
   workspaceRouteModules.secureDistribution().then((module) => ({
@@ -317,11 +299,79 @@ const workshopNavigation: readonly NavigationItem<WorkshopEntry>[] = [
   { id: "dispatches", path: "/app/dispatches", Icon: PaperPlaneTilt },
   { id: "campaigns", path: "/app/campaigns", Icon: Stack },
   { id: "senders", path: "/app/senders", Icon: AddressBook },
-  { id: "usage", path: "/app/usage", Icon: ChartBar },
   { id: "pdfChecks", path: "/app/pdf-checks", Icon: Check },
-  { id: "billing", path: "/app/billing", Icon: Receipt },
-  { id: "admin", path: "/app/admin", Icon: Wrench },
 ];
+// Workspace management, moved out of Correspondence and the personal profile.
+// Report entries also serve supervisors with report permission.
+const administrationNavigation: readonly (NavigationItem<AdministrationEntry> & {
+  admin: boolean;
+})[] = [
+  {
+    id: "administrationOverview",
+    path: administrationRoutes.home,
+    Icon: SquaresFour,
+    admin: false,
+  },
+  {
+    id: "administrationActivity",
+    path: administrationRoutes.activity,
+    Icon: PaperPlaneTilt,
+    admin: false,
+  },
+  {
+    id: "administrationConsumption",
+    path: administrationRoutes.consumption,
+    Icon: ChartBar,
+    admin: false,
+  },
+  {
+    id: "administrationReports",
+    path: administrationRoutes.reports,
+    Icon: DownloadSimple,
+    admin: false,
+  },
+  {
+    id: "administrationMembers",
+    path: administrationRoutes.members,
+    Icon: UsersThree,
+    admin: true,
+  },
+  {
+    id: "administrationConnections",
+    path: administrationRoutes.connections,
+    Icon: PlugsConnected,
+    admin: true,
+  },
+  {
+    id: "administrationAudit",
+    path: administrationRoutes.audit,
+    Icon: ListChecks,
+    admin: true,
+  },
+  {
+    id: "administrationBilling",
+    path: administrationRoutes.billing,
+    Icon: Receipt,
+    admin: true,
+  },
+  {
+    id: "administrationSettings",
+    path: administrationRoutes.settings,
+    Icon: Wrench,
+    admin: true,
+  },
+];
+const administrationLabels: Record<AdministrationEntry, () => string> = {
+  administrationOverview: () => msg("Overview"),
+  administrationActivity: () => msg("Activity"),
+  administrationConsumption: () => msg("Consumption"),
+  administrationReports: () => msg("Reports"),
+  administrationMembers: () => msg("Members"),
+  administrationConnections: () => msg("Access"),
+  administrationAudit: () => msg("Audit log"),
+  administrationBilling: () => msg("Billing"),
+  administrationSettings: () => msg("Settings"),
+};
 const studioNavigation: readonly NavigationItem<StudioEntry>[] = [
   { id: "templates", path: studioRoutes.templates, Icon: FileText },
   { id: "datasets", path: studioRoutes.datasets, Icon: Table },
@@ -704,6 +754,16 @@ function WorkspaceApplication({
         <DocumentStudio route={route} session={session} />
       </Suspense>
     );
+  else if (/^\/app\/administration(\/|$)/.test(page))
+    content = (
+      <Suspense fallback={<Loading />}>
+        <Administration
+          route={route}
+          session={session}
+          onUpdated={refreshSession}
+        />
+      </Suspense>
+    );
   else if (page === "/app/documents")
     content = <Documents canPrepare={permissions.prepareDispatches} />;
   else if (page === "/app/prepare" && !permissions.prepareDispatches)
@@ -769,37 +829,44 @@ function WorkspaceApplication({
         canPrepare={permissions.prepareDispatches}
       />
     );
-  else if (page === "/app/usage")
-    content = permissions.viewReports ? (
-      <Usage />
-    ) : (
-      <RolePermissionNotice reports />
-    );
-  else if (page === "/app/billing") content = <Billing session={session} />;
   else if (page === "/app/pdf-checks" || page === "/app/plan")
     content = <PdfCheckPage session={session} />;
   else if (page === "/app/account")
     content = <Account session={session} onUpdated={refreshSession} />;
-  else if (page === "/app/admin" && !permissions.manageMembers)
-    content = <RolePermissionNotice />;
-  else if (page === "/app/admin")
-    content = (
-      <Admin>
-        <TeamAdmin session={session} onUpdated={refreshSession} />
-        {!publicPreview && <TeamInvitations />}
-      </Admin>
-    );
   else content = <Overview session={session} />;
-  const navigationLabel = (id: WorkshopEntry | StudioEntry) =>
-    id === "secure-distributions" ? msg("Secure distribution") : t.nav[id];
-  const space = spaceOf(page);
-  const navigation: readonly NavigationItem<WorkshopEntry | StudioEntry>[] =
-    space === "studio" ? studioNavigation : workshopNavigation;
+  const navigationLabel = (
+    id: WorkshopEntry | StudioEntry | AdministrationEntry,
+  ) =>
+    id in administrationLabels
+      ? administrationLabels[id as AdministrationEntry]()
+      : id === "secure-distributions"
+        ? msg("Secure distribution")
+        : t.nav[
+            id as Exclude<WorkshopEntry | StudioEntry, "secure-distributions">
+          ];
+  const routeSpace = spaceOf(page);
+  const space: WorkspaceApplication =
+    routeSpace === "personal" ? "workshop" : routeSpace;
+  const canOpenAdministration =
+    canAdminister(session) || permissions.viewReports;
+  const navigation: readonly NavigationItem<
+    WorkshopEntry | StudioEntry | AdministrationEntry
+  >[] =
+    space === "studio"
+      ? studioNavigation
+      : space === "administration"
+        ? administrationNavigation.filter(
+            (entry) =>
+              canOpenAdministration && (!entry.admin || canAdminister(session)),
+          )
+        : workshopNavigation;
   const navigationName =
     space === "studio"
       ? msg("Studio navigation")
-      : msg("Correspondence navigation");
-  const enterWorkspace = async (id: string, target: "workshop" | "studio") => {
+      : space === "administration"
+        ? msg("Administration navigation")
+        : msg("Correspondence navigation");
+  const enterWorkspace = async (id: string, target: WorkspaceApplication) => {
     // Let a screen with unsaved work refuse before the session changes.
     if (
       !window.dispatchEvent(
@@ -847,14 +914,15 @@ function WorkspaceApplication({
         </div>
         <div className="sidebar-context">
           <ApplicationSwitcher
-            application={space === "studio" ? "studio" : "workshop"}
+            application={space}
             hasWorkspace
+            canAdministerWorkspace={canOpenAdministration}
             canAccessBelvedere={session.canAccessBelvedere === true}
             preview={publicPreview}
           />
           <WorkspaceSwitcher
             key={session.user.id}
-            application={space === "studio" ? "studio" : "workshop"}
+            application={space}
             workspace={session.organization}
             identity={[
               session.user.id,
@@ -905,12 +973,6 @@ function WorkspaceApplication({
               </a>
             )}
             {navigation
-              .filter(
-                (n) =>
-                  (!["admin", "billing"].includes(n.id) ||
-                    canAdminister(session)) &&
-                  (n.id !== "usage" || permissions.viewReports),
-              )
               .filter(
                 (n) =>
                   !publicPreview ||

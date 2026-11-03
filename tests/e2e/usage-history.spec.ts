@@ -13,6 +13,20 @@ async function fixture(page: Page, failCurrent = false) {
     if (request.method() === "GET") reads.push(`${url.pathname}${url.search}`);
     else writes.push(url.pathname);
     let body: unknown = { items: [], nextCursor: null };
+    // Administration's consumption summary, read beside the usage ledger.
+    if (url.pathname === "/api/administration/consumption")
+      body = {
+        generatedAt: "2026-10-25T12:00:00.000Z",
+        period: { from: "2026-09-26", to: "2026-10-25" },
+        basis: "posted_ledger",
+        totalMinor: 0,
+        reservedMinor: 0,
+        credit: null,
+        services: [],
+        channels: [],
+        daily: [],
+        monthly: [],
+      };
     if (url.pathname === "/api/session")
       body = {
         organization: { id: "history-fixture", name: "History fixture" },
@@ -36,8 +50,18 @@ async function fixture(page: Page, failCurrent = false) {
         currency: "EUR",
         evidence: "production",
         days: [
-          { date: "2026-09-17", amountMinor: 9, dispatchCount: 1, chargeCount: 1 },
-          { date: "2026-09-21", amountMinor: 354, dispatchCount: 1, chargeCount: 1 },
+          {
+            date: "2026-09-17",
+            amountMinor: 9,
+            dispatchCount: 1,
+            chargeCount: 1,
+          },
+          {
+            date: "2026-09-21",
+            amountMinor: 354,
+            dispatchCount: 1,
+            chargeCount: 1,
+          },
         ],
         totals: {
           amountMinor: 363,

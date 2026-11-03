@@ -52,10 +52,8 @@ test(`mobile navigation exposes every destination and returns focus to the opene
     "#/app/dispatches",
     "#/app/campaigns",
     "#/app/senders",
-    "#/app/usage",
     "#/app/pdf-checks",
-    "#/app/billing",
-    "#/app/admin",
+    // Usage, billing and administration moved to the Administration app.
   ];
   await expect(links).toHaveCount(destinations.length);
   expect(
@@ -67,8 +65,8 @@ test(`mobile navigation exposes every destination and returns focus to the opene
     expect((await link.boundingBox())?.height).toBeGreaterThanOrEqual(44);
     expect((await link.boundingBox())?.width).toBeGreaterThanOrEqual(44);
   }
-  await nav.getByRole("link", { name: "Facturation", exact: true }).click();
-  await expect(page.locator("main h1")).toHaveText("Facturation");
+  await nav.getByRole("link", { name: "Expéditeurs", exact: true }).click();
+  await expect(page.locator("main h1")).toHaveText("Qui prend la plume ?");
   await expect(nav).toBeHidden();
   await expect(page.locator("main")).toBeFocused();
   await toggle.focus();
@@ -209,8 +207,8 @@ test("mobile navigation preserves restored summary focus after deferred route fr
 
   const frames = await deferAnimationFrames(page);
   try {
-    await nav.getByRole("link", { name: "Facturation", exact: true }).click();
-    await expect(page.locator("main h1")).toHaveText("Facturation");
+    await nav.getByRole("link", { name: "Expéditeurs", exact: true }).click();
+    await expect(page.locator("main h1")).toHaveText("Qui prend la plume ?");
     await expect(nav).toBeHidden();
     await frames.settle();
     await expect(page.locator("main")).toBeFocused();
@@ -229,7 +227,7 @@ test("mobile navigation preserves restored summary focus after deferred route fr
 
   // Selecting the already-open destination still closes the menu and moves
   // focus into the page, even though no route-change effect will run.
-  await nav.getByRole("link", { name: "Facturation", exact: true }).click();
+  await nav.getByRole("link", { name: "Expéditeurs", exact: true }).click();
   await expect(nav).toBeHidden();
   await expect(page.locator("main")).toBeFocused();
   await toggle.focus();
@@ -253,10 +251,11 @@ test("mobile tables retain all fields without horizontal scrolling at 320px and 
       ["/campaigns", "Une lettre. Plusieurs destinations."],
       ["/connection", "Vos assistants, votre correspondance."],
       ["/senders", "Qui prend la plume ?"],
-      ["/usage", "Chaque envoi compte."],
-      ["/billing", "Facturation"],
+      ["/administration/consumption", "Consommation"],
+      ["/administration/billing", "Facturation"],
       ["/account", "Mon compte"],
-      ["/admin", "L’espace de travail sous surveillance."],
+      ["/administration/members", "Membres et invitations"],
+      ["/administration/settings", "Paramètres de l’espace de travail"],
       ["/prepare", "Préparer une correspondance."],
     ]) {
       await page.goto(`/#/app${route}`);

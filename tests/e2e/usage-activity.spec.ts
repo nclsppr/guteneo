@@ -32,6 +32,20 @@ async function fixture(page: Page, locale: "fr" | "de" = "fr") {
         csrfToken: "fixture-only",
         simulation: false,
       };
+    // Administration's consumption summary, read beside the usage ledger.
+    if (url.pathname === "/api/administration/consumption")
+      body = {
+        generatedAt: "2026-10-25T12:00:00.000Z",
+        period: { from: "2026-09-26", to: "2026-10-25" },
+        basis: "posted_ledger",
+        totalMinor: 0,
+        reservedMinor: 0,
+        credit: null,
+        services: [],
+        channels: [],
+        daily: [],
+        monthly: [],
+      };
     if (url.pathname === "/api/usage")
       body = {
         period: "2026-09",

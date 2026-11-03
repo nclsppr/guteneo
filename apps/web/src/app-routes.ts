@@ -3,7 +3,8 @@
  * entry it highlights, the Studio addresses and aliases for earlier links.
  * Routes are hash paths such as `/app/studio/templates?new=blank`.
  */
-export type ApplicationSpace = "workshop" | "studio" | "personal";
+export type ApplicationSpace =
+  "workshop" | "studio" | "personal" | "administration";
 
 export type WorkshopEntry =
   | "overview"
@@ -13,10 +14,31 @@ export type WorkshopEntry =
   | "documents"
   | "pdfChecks"
   | "senders"
-  | "connection"
-  | "usage"
-  | "billing"
-  | "admin";
+  | "connection";
+
+/** Workspace administration: reports, members, billing and settings. */
+export type AdministrationEntry =
+  | "administrationOverview"
+  | "administrationActivity"
+  | "administrationConsumption"
+  | "administrationReports"
+  | "administrationMembers"
+  | "administrationConnections"
+  | "administrationAudit"
+  | "administrationBilling"
+  | "administrationSettings";
+
+export const administrationRoutes = {
+  home: "/app/administration",
+  activity: "/app/administration/activity",
+  consumption: "/app/administration/consumption",
+  reports: "/app/administration/reports",
+  members: "/app/administration/members",
+  connections: "/app/administration/connections",
+  audit: "/app/administration/audit",
+  billing: "/app/administration/billing",
+  settings: "/app/administration/settings",
+} as const;
 
 export type StudioEntry = "templates" | "datasets" | "generations";
 
@@ -64,12 +86,14 @@ export const spaceHome: Record<ApplicationSpace, string> = {
   workshop: "/app",
   studio: studioRoutes.home,
   personal: "/app/my-documents",
+  administration: administrationRoutes.home,
 };
 
 const personalPage = /^\/app\/(my-documents|services|personal-account)(\/|$)/;
 const studioPage = /^\/app\/studio(\/|$)/;
+const administrationPage = /^\/app\/administration(\/|$)/;
 
-// Earlier Studio links keep working; the query is retained.
+// Earlier application links keep working; the query is retained.
 const studioAliases: [RegExp, string][] = [
   [/^\/app\/templates(?=$|\?)/, studioRoutes.templates],
   [/^\/app\/template\//, "/app/studio/template/"],
@@ -78,9 +102,14 @@ const studioAliases: [RegExp, string][] = [
   [/^\/app\/generations(?=$|\?)/, studioRoutes.generations],
   [/^\/app\/generation\//, "/app/studio/generation/"],
   [/^\/app\/studio\/?(?=$|\?)/, studioRoutes.home],
+  // Workspace management moved from Correspondence and the profile to
+  // Administration; earlier links, including billing returns, keep working.
+  [/^\/app\/admin(?=$|\?)/, administrationRoutes.members],
+  [/^\/app\/billing(?=$|\?)/, administrationRoutes.billing],
+  [/^\/app\/usage(?=$|\?)/, administrationRoutes.consumption],
 ];
 
-/** The canonical route for an earlier or shortened Studio address. */
+/** The canonical route for an earlier or shortened application address. */
 export function canonicalApplicationRoute(route: string): string {
   for (const [alias, canonical] of studioAliases)
     if (alias.test(route)) return route.replace(alias, canonical);
@@ -94,6 +123,7 @@ function pathOf(route: string) {
 export function spaceOf(route: string): ApplicationSpace {
   const path = pathOf(route);
   if (personalPage.test(path)) return "personal";
+  if (administrationPage.test(path)) return "administration";
   if (studioPage.test(path)) return "studio";
   return "workshop";
 }
@@ -101,8 +131,18 @@ export function spaceOf(route: string): ApplicationSpace {
 /** The navigation entry a page belongs to, for `aria-current`. */
 export function navigationEntryFor(
   route: string,
-): WorkshopEntry | StudioEntry | undefined {
+): WorkshopEntry | StudioEntry | AdministrationEntry | undefined {
   const path = pathOf(route);
+  const administration = (
+    Object.entries(administrationRoutes) as [
+      keyof typeof administrationRoutes,
+      string,
+    ][]
+  ).find(([, entry]) => entry === path);
+  if (administration)
+    return administration[0] === "home"
+      ? "administrationOverview"
+      : (`administration${administration[0][0].toUpperCase()}${administration[0].slice(1)}` as AdministrationEntry);
   if (path === "/app") return "overview";
   if (
     /^\/app\/(dispatches|prepare)$/.test(path) ||
@@ -117,9 +157,6 @@ export function navigationEntryFor(
   if (path === "/app/pdf-checks" || path === "/app/plan") return "pdfChecks";
   if (path === "/app/senders") return "senders";
   if (/^\/app\/connection(\/|$)/.test(path)) return "connection";
-  if (path === "/app/usage") return "usage";
-  if (path === "/app/billing") return "billing";
-  if (/^\/app\/admin(\/|$)/.test(path)) return "admin";
   // Correcting a generation's data stays in Generations, where it started.
   if (
     /^\/app\/studio\/template\//.test(path) &&

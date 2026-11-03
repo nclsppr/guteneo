@@ -1,0 +1,199 @@
+{
+  "Workspace report": [
+    "Rapport de l’espace de travail",
+    "Bericht des Arbeitsbereichs",
+    "Bericht vum Aarbechtsberäich"
+  ],
+  "Activity": ["Activité", "Aktivität", "Aktivitéit"],
+  "Consumption": ["Consommation", "Verbrauch", "Verbrauch"],
+  "Members": ["Membres", "Mitglieder", "Memberen"],
+  "Connections": ["Connexions", "Verbindungen", "Verbindungen"],
+  "Audit log": ["Journal d’audit", "Prüfprotokoll", "Auditprotokoll"],
+  "Summary": ["Synthèse", "Übersicht", "Iwwersiicht"],
+  "Channels": ["Canaux", "Kanäle", "Kanäl"],
+  "Statuses": ["États", "Status", "Statusen"],
+  "Charges": ["Débits", "Belastungen", "Belaaschtungen"],
+  "Consumption by service": [
+    "Consommation par service",
+    "Verbrauch nach Dienst",
+    "Verbrauch no Service"
+  ],
+  "Consumption by channel": [
+    "Consommation par canal",
+    "Verbrauch nach Kanal",
+    "Verbrauch no Kanal"
+  ],
+  "Daily consumption": [
+    "Consommation quotidienne",
+    "Täglicher Verbrauch",
+    "Deegleche Verbrauch"
+  ],
+  "Indicator": ["Indicateur", "Kennzahl", "Indikator"],
+  "Value": ["Valeur", "Wert", "Wäert"],
+  "Workspace": ["Espace de travail", "Arbeitsbereich", "Aarbechtsberäich"],
+  "Mode": ["Mode", "Modus", "Modus"],
+  "Period": ["Période", "Zeitraum", "Zäitraum"],
+  "Generated (UTC)": ["Généré (UTC)", "Erstellt (UTC)", "Erstallt (UTC)"],
+  "Dispatches": ["Envois", "Sendungen", "Sendungen"],
+  "Delivered": ["Remis", "Zugestellt", "Zougestallt"],
+  "Needing attention": ["À vérifier", "Zu prüfen", "Ze kontrolléieren"],
+  "Pages": ["Pages", "Seiten", "Säiten"],
+  "Consumption (EUR)": [
+    "Consommation (EUR)",
+    "Verbrauch (EUR)",
+    "Verbrauch (EUR)"
+  ],
+  "Reserved (EUR)": ["Réservé (EUR)", "Reserviert (EUR)", "Reservéiert (EUR)"],
+  "Documents imported": [
+    "Documents importés",
+    "Importierte Dokumente",
+    "Importéiert Dokumenter"
+  ],
+  "Secure shares activated": [
+    "Partages sécurisés activés",
+    "Aktivierte sichere Freigaben",
+    "Aktivéiert sécher Deelen"
+  ],
+  "Active access": ["Accès actifs", "Aktive Zugänge", "Aktiv Zougäng"],
+  "Promotional credit available (EUR)": [
+    "Crédit promotionnel disponible (EUR)",
+    "Verfügbares Aktionsguthaben (EUR)",
+    "Disponibelt Promotiounsguthaben (EUR)"
+  ],
+  "Channel": ["Canal", "Kanal", "Kanal"],
+  "Status": ["État", "Status", "Status"],
+  "Reference": ["Référence", "Referenz", "Referenz"],
+  "Created (UTC)": ["Créé (UTC)", "Erstellt (UTC)", "Erstallt (UTC)"],
+  "Updated (UTC)": [
+    "Mis à jour (UTC)",
+    "Aktualisiert (UTC)",
+    "Aktualiséiert (UTC)"
+  ],
+  "Email delivery": [
+    "Remise par e-mail",
+    "E-Mail-Zustellung",
+    "E-Mail-Zoustellung"
+  ],
+  "Destination country": [
+    "Pays de destination",
+    "Zielland",
+    "Destinatiounsland"
+  ],
+  "Estimate (EUR)": ["Estimation (EUR)", "Schätzung (EUR)", "Schätzung (EUR)"],
+  "Ceiling (EUR)": ["Plafond (EUR)", "Obergrenze (EUR)", "Plafong (EUR)"],
+  "Approved by": ["Approuvé par", "Freigegeben von", "Fräigi vun"],
+  "Campaign": ["Campagne", "Kampagne", "Campagne"],
+  "Service": ["Service", "Dienst", "Service"],
+  "Amount (EUR)": ["Montant (EUR)", "Betrag (EUR)", "Montant (EUR)"],
+  "Charged (UTC)": ["Débité (UTC)", "Belastet (UTC)", "Belaascht (UTC)"],
+  "Date": ["Date", "Datum", "Datum"],
+  "Member": ["Membre", "Mitglied", "Member"],
+  "Email": ["E-mail", "E-Mail", "E-Mail"],
+  "Role": ["Rôle", "Rolle", "Roll"],
+  "Can approve": ["Peut approuver", "Darf freigeben", "Däerf fräiginn"],
+  "Can read reports": [
+    "Peut lire les rapports",
+    "Darf Berichte lesen",
+    "Däerf Berichter liesen"
+  ],
+  "Joined (UTC)": ["Arrivée (UTC)", "Beigetreten (UTC)", "Bäigetrueden (UTC)"],
+  "Last seen (UTC)": [
+    "Dernière connexion (UTC)",
+    "Zuletzt gesehen (UTC)",
+    "Lescht gesinn (UTC)"
+  ],
+  "Approvals in period": [
+    "Approbations sur la période",
+    "Freigaben im Zeitraum",
+    "Fräigaben am Zäitraum"
+  ],
+  "Last activity (UTC)": [
+    "Dernière activité (UTC)",
+    "Letzte Aktivität (UTC)",
+    "Lescht Aktivitéit (UTC)"
+  ],
+  "Record": ["Enregistrement", "Eintrag", "Androg"],
+  "Access type": ["Type d’accès", "Zugangsart", "Zougangsaart"],
+  "Expires (UTC)": ["Expire (UTC)", "Läuft ab (UTC)", "Leeft of (UTC)"],
+  "Action": ["Action", "Aktion", "Aktioun"],
+  "Actor": ["Auteur", "Ausführende Person", "Auteur"],
+  "Resource": ["Ressource", "Ressource", "Ressource"],
+  "Time (UTC)": ["Heure (UTC)", "Zeit (UTC)", "Zäit (UTC)"],
+  "Current access": ["Accès en cours", "Aktueller Zugang", "Aktuellen Zougang"],
+  "Sign-in": ["Connexion", "Anmeldung", "Umeldung"],
+  "Production": ["Production", "Produktion", "Produktioun"],
+  "Simulation": ["Simulation", "Simulation", "Simulatioun"],
+  "Yes": ["Oui", "Ja", "Jo"],
+  "No": ["Non", "Nein", "Nee"],
+  "Fax": ["Fax", "Fax", "Fax"],
+  "Postal mail": ["Courrier postal", "Briefpost", "Bréifpost"],
+  "Unknown": ["Inconnu", "Unbekannt", "Onbekannt"],
+  "Prepared": ["Préparé", "Vorbereitet", "Virbereet"],
+  "Queued": ["En file d’attente", "In Warteschlange", "An der Waardeschlaang"],
+  "Submitting": [
+    "Transmission en cours",
+    "Wird übermittelt",
+    "Gëtt iwwermëttelt"
+  ],
+  "Outcome unknown": [
+    "Résultat inconnu",
+    "Ergebnis unbekannt",
+    "Resultat onbekannt"
+  ],
+  "Accepted": ["Accepté", "Angenommen", "Ugeholl"],
+  "Failed": ["Échoué", "Fehlgeschlagen", "Feelgeschloen"],
+  "Cancelled": ["Annulé", "Storniert", "Annuléiert"],
+  "Bounced": ["Rejeté", "Unzustellbar", "Net zoustellbar"],
+  "Complaint": ["Plainte", "Beschwerde", "Reklamatioun"],
+  "Printed": ["Imprimé", "Gedruckt", "Gedréckt"],
+  "Handed to the post": [
+    "Remis à la poste",
+    "An die Post übergeben",
+    "Der Post iwwerginn"
+  ],
+  "Administrator": ["Administrateur", "Administrator", "Administrateur"],
+  "Supervisor": ["Superviseur", "Aufsicht", "Superviseur"],
+  "Observer": ["Observateur", "Beobachter", "Beobachter"],
+  "Browser": ["Navigateur", "Browser", "Browser"],
+  "Mobile app": ["Application mobile", "Mobile App", "Mobil App"],
+  "Assistant (MCP)": ["Assistant (MCP)", "Assistent (MCP)", "Assistent (MCP)"],
+  "PDF checks": ["Vérifications PDF", "PDF-Prüfungen", "PDF-Kontrollen"],
+  "Secure distribution": [
+    "Distribution sécurisée",
+    "Sichere Verteilung",
+    "Sécher Verdeelung"
+  ],
+  "Legacy plan": [
+    "Ancien abonnement",
+    "Früheres Abonnement",
+    "Fréiert Abonnement"
+  ],
+  "No document": ["Sans document", "Ohne Dokument", "Ouni Dokument"],
+  "Attachment": ["Pièce jointe", "Anhang", "Unhank"],
+  "Protected link": ["Lien protégé", "Geschützter Link", "Geschützte Link"],
+  "Page {0} of {1}": [
+    "Page {0} sur {1}",
+    "Seite {0} von {1}",
+    "Säit {0} vun {1}"
+  ],
+  "No rows for this period.": [
+    "Aucune ligne pour cette période.",
+    "Keine Zeilen für diesen Zeitraum.",
+    "Keng Zeile fir dësen Zäitraum."
+  ],
+  "Showing the first {0} of {1} rows. Use the Excel or CSV export for the complete list.": [
+    "Affichage des {0} premières lignes sur {1}. Utilisez l’export Excel ou CSV pour la liste complète.",
+    "Die ersten {0} von {1} Zeilen werden angezeigt. Verwenden Sie den Excel- oder CSV-Export für die vollständige Liste.",
+    "Déi éischt {0} vun {1} Zeile ginn ugewisen. Benotzt den Excel- oder CSV-Export fir déi komplett Lëscht."
+  ],
+  "Simulation workspace: fictional activity, no real delivery or charge.": [
+    "Espace de travail de simulation : activité fictive, sans remise ni débit réels.",
+    "Simulations-Arbeitsbereich: fiktive Aktivität, keine echte Zustellung oder Belastung.",
+    "Simulatiouns-Aarbechtsberäich: fiktiv Aktivitéit, keng reell Zoustellung oder Belaaschtung."
+  ],
+  "Consumption uses posted charge dates; dispatch counts use creation dates. No recipient, document title or message content is included.": [
+    "La consommation suit la date des débits ; les envois suivent leur date de création. Aucun destinataire, titre de document ni contenu de message n’est inclus.",
+    "Der Verbrauch folgt dem Belastungsdatum, Sendungen ihrem Erstellungsdatum. Keine Empfänger, Dokumenttitel oder Nachrichteninhalte sind enthalten.",
+    "De Verbrauch follegt dem Datum vun de Belaaschtungen, d’Sendungen hirem Erstellungsdatum. Keen Empfänger, Dokumenttitel oder Noriichteninhalt ass dobäi."
+  ]
+}

@@ -355,7 +355,7 @@ export class BillingService {
       );
     const fields = new URLSearchParams({
       customer: mapping.customer_id,
-      return_url: `${this.env.APP_ORIGIN}/#/app/billing`,
+      return_url: `${this.env.APP_ORIGIN}/#/app/administration/billing`,
       locale: "fr",
     });
     if (this.env.STRIPE_PORTAL_CONFIGURATION_ID)

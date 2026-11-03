@@ -1,5 +1,61 @@
 # Frontend loading and table controls
 
+## Workspace Administration recovery — 3 November 2026 local candidate
+
+Administration uses one lazy application module behind the current workspace
+session. Its overview reads the session, capabilities and one tenant-bound
+summary; independent API aggregates overlap after the membership fence. Report
+pages hide old metadata during a refresh and discard obsolete period/account
+responses. Export requests cancel at address changes before React's deferred
+route commit, so even a transport ignoring abort cannot start an old download.
+Consumption refreshes its summary, ledger and calendar once through one action.
+
+[The evidence record](evidence/workspace-administration-2026-11-03.json) binds
+source fingerprints, the built entry and observed assets. Each browser used a
+fresh context against the optimized local application, intercepted fictional
+API data and no injected delay or CPU/network throttle. These are single samples
+on a shared host with no browser baseline. First useful DOM means an asserted
+visible overview heading and figure followed by two animation-frame
+opportunities; it is not a physical paint measurement. Resource Timing was read
+after the screenshot and includes bootstrap scripts and module preloads.
+
+| Engine / viewport | First useful DOM (ms) | JS requests / encoded / transferred bytes | CSS requests / encoded / transferred bytes | API reads / writes |
+| --- | ---: | --- | --- | --- |
+| Chromium 156 / 1280 × 720 | 324.3 | 22 / 570,843 / 577,443 | 4 / 34,748 / 35,948 | 3 / 0 |
+| WebKit 27.2 / 390 × 664 | 379.0 | 22 / 571,534 / 578,134 | 4 / 34,832 / 36,032 | 3 / 0 |
+
+Neither PDF viewer/worker, document designer nor Swagger code loads for this
+entry. The backend export renderer stays on the server. Independent browser
+checks preserve the existing route preloading/recovery behavior, four locales,
+mobile layout, aliases and personal-profile access. New regressions cover manual
+period rejection without changing the address, delayed reads/downloads, current
+workspace A → B → A, removed report permission and one consumption refresh.
+The broad 190-case run had three failures (one export cancellation race and two
+ambiguous mobile selectors); all affected paths pass in the subsequent 56-case
+run. The final PDF-limit and locale runs qualify the changed copy and final asset
+measurement separately. Public preview (10 applicable cases), DEV preview (10)
+and local recipient/workspace creation (10) also pass. These are local fixtures,
+not hosted CI, provider, Auth0 real-account or physical-device evidence.
+
+Exports have one cumulative 10,000-row limit, 4 MiB of raw UTF-8 cell text and
+4,096 characters per cell. CSV/XLSX preserve all accepted rows. PDF displays at
+most 500 rows across all tables and discloses exact shown/total counts. On one
+synthetic 10,000-row × 14-column Node fixture, reducing the PDF from 2,000 to 500
+rendered rows reduced observed additional heap from 90.4 MB to 40.5 MB and elapsed
+time from 756 ms to 268 ms. The same final PDF also rendered in local
+workerd/Miniflare: 15 pages, last included/first omitted row and the omission
+notice checked from decoded PDF text. Independent openpyxl read all 10,000 rows
+of the workbook without warnings.
+
+The measurement records Node CPU, heap and RSS separately; it does **not** prove
+the deployed Worker's memory or CPU budget. No production cost or throughput
+claim follows from it. A production qualification must include representative
+maximum-size reports under the deployed runtime and account limits before
+expanding these bounds. Exact money and browser-only current-membership guards
+are covered by isolated migrated D1 fixtures with production mode flags and no
+provider traffic; real customer ledgers are not part of this proof.
+
+
 ## My documents list recovery — 3 November 2026 local candidate
 
 The recovered list hydrates a whole owner-bound page and its filtered total in

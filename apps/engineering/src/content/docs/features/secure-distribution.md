@@ -1,6 +1,6 @@
 ---
 title: "Sensitive distribution and personal documents"
-description: "33 capabilities in the deliver branch of Guteneo."
+description: "34 capabilities in the deliver branch of Guteneo."
 sidebar:
   order: 10
 ---
@@ -51,6 +51,7 @@ Implemented candidate with migrations 0055–0059 and separate deterministic str
 <li id="feature-7a62af39f473">Local D1/R2 regressions cover revocation of metadata/images/text/permitted-original/deposit, decryption races, concurrent deposit and duplicate-copy workers; durable copies converge on exact bytes and single receipts without reviving revoked shared access</li>
 <li id="feature-8f749543096c">My documents hydrates each owner-bound page in one query plus a filtered total, with state/sender filters, four keyset sort orders and accent-folded search; hidden unassociated titles never participate</li>
 <li id="feature-d7139b2d81c3">A parallel summary provides category counts and at most 100 sender choices; summary failure does not delay the list, filter changes discard old page cursors and authority refusals clear all loaded metadata</li>
+<li id="feature-f4bc0532f72a">Page-by-page My documents navigation and a generic prompt to create a workspace for accounts without one</li>
 </ol>
 
 ## REST operations

@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**27 domains · 434 features · 44 journeys · 77 documented REST operations · 83 MCP tools**
+**28 domains · 445 features · 45 journeys · 77 documented REST operations · 83 MCP tools**
 Updated 2026-11-03.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -16,6 +16,7 @@ mindmap
     Access
       Access and identity (39)
       Team and responsibilities (10)
+      Workspace administration and reports (10)
     Create
       Documents and protection (21)
       Template studio (14)
@@ -25,7 +26,7 @@ mindmap
       Fax (10)
       Postal mail (10)
       Email and protected links (14)
-      Sensitive distribution and personal documents (33)
+      Sensitive distribution and personal documents (34)
       Dispatch dry run (7)
     Operate
       Campaigns and tracking (8)
@@ -52,6 +53,7 @@ mindmap
 
 - [Access and identity](#identity) — 39 features; browser-session.
 - [Team and responsibilities](#team) — 10 features; browser-session.
+- [Workspace administration and reports](#administration) — 10 features; browser-session.
 
 ### Create
 
@@ -65,7 +67,7 @@ mindmap
 - [Fax](#fax) — 10 features; capability-gated.
 - [Postal mail](#postal) — 10 features; capability-gated.
 - [Email and protected links](#email) — 14 features; capability-gated.
-- [Sensitive distribution and personal documents](#secure-distribution) — 33 features; capability-gated.
+- [Sensitive distribution and personal documents](#secure-distribution) — 34 features; capability-gated.
 - [Dispatch dry run](#dry-run) — 7 features; read-only.
 
 ### Operate
@@ -616,6 +618,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Local D1/R2 regressions cover revocation of metadata/images/text/permitted-original/deposit, decryption races, concurrent deposit and duplicate-copy workers; durable copies converge on exact bytes and single receipts without reviving revoked shared access
 - My documents hydrates each owner-bound page in one query plus a filtered total, with state/sender filters, four keyset sort orders and accent-folded search; hidden unassociated titles never participate
 - A parallel summary provides category counts and at most 100 sender choices; summary failure does not delay the list, filter changes discard old page cursors and authority refusals clear all loaded metadata
+- Page-by-page My documents navigation and a generic prompt to create a workspace for accounts without one
 
 **Contract:** [SECURE_DISTRIBUTION_JOURNEYS.md](SECURE_DISTRIBUTION_JOURNEYS.md) · **Implementation:** [apps/api/src/secure-distributions.ts](../apps/api/src/secure-distributions.ts)
 
@@ -1186,6 +1189,30 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 
 
+<a id="administration"></a>
+### Workspace administration and reports
+
+**Availability model:** browser-session. 3 November 2026 recovered source candidate. Current local qualification and limits are recorded in the administration contract; hosted CI, production-data and physical-device qualification remain separate.
+
+**Surfaces:** Authenticated browser membership only; OAuth, MCP and native callers are refused.
+
+- Dedicated Administration application for one workspace, offered to administrators and to supervisors with report permission; the server recomputes permissions from the current membership on every read
+- Overview with Belvédère-style figures, daily activity and channel/state breakdowns, limited to the authenticated workspace
+- Server-paged activity filtered by channel, state, attention or reference, without recipients, subjects, document titles or message content
+- Consumption from the posted charge ledger by service, channel and month, beside the former monthly usage ledger and calendar
+- Members, roles, supervisor options, invitations and member activity moved from Correspondence; workspace name, channel controls and diagnostics moved from the personal profile to Settings
+- Open access, assistant authorizations and recorded sign-ins of members, without connection countries
+- Audit log of actions and resource identifiers, never audit details
+- CSV, Excel and PDF exports of the period with exact decimal amounts from integer minor units, formula-safe CSV, a cumulative 10,000-row and 4 MiB text refusal, bounded cells and a global 500-row PDF with explicit omissions and an audit entry per export
+- Earlier /app/admin, /app/usage and /app/billing addresses remain aliases, including billing portal returns
+- URL periods reject malformed dates safely; custom fields follow presets and history, stale reads cannot overwrite the current workspace, and obsolete export downloads are cancelled
+
+**Contract:** [WORKSPACE_ADMINISTRATION.md](WORKSPACE_ADMINISTRATION.md) · **Implementation:** [apps/api/src/administration.ts](../apps/api/src/administration.ts)
+
+**Tests:** [tests/unit/administration.test.ts](../tests/unit/administration.test.ts), [tests/e2e/account-billing.spec.ts](../tests/e2e/account-billing.spec.ts), [tests/e2e/workspace-roles.spec.ts](../tests/e2e/workspace-roles.spec.ts), [tests/e2e/team-invitations.spec.ts](../tests/e2e/team-invitations.spec.ts), [tests/e2e/usage-history.spec.ts](../tests/e2e/usage-history.spec.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/workspace-administration-client.test.ts](../tests/unit/workspace-administration-client.test.ts), [tests/e2e/workspace-administration.spec.ts](../tests/e2e/workspace-administration.spec.ts)
+
+
+
 ## Customer journeys and recovery
 
 ### J01 · Discover and sign in
@@ -1627,6 +1654,16 @@ Identify the mechanism that actually consumes a deadline, including selected fir
 **Failure/recovery:** No date bump after an unrelated GET, automatic key widening, manual-policy conversion, consent extension, cap reset, hold removal or unknown communication retry. Confirmed Resend contradictions block their affected consumer; automatic-price drift does not replace an exact qualified manual override, and failed reads preserve their true uncertainty. Do not clear unvisited bindings, stale evidence, failed checks or missing freshness telemetry with an HTTP success or healthy Cron heartbeat; native recovery requires explicit healthy freshness coverage after the five-minute failure window, with original error conditions conservatively retained for five minutes and nominal native detection up to one five-minute cycle plus external delay; the separate minute heartbeat and application security/send gates are unchanged. API 1.1.22, migrations 0068–0070 and legacy native email receipt were observed on 31 October; PR131 compatibility is deployed on 1 November, and 1.1.24 plus the final saved native monitor were independently verified; 1.1.26 is deployed and separately authorized Full-access Resend source inspection passed, while genuine renewal/recovery still awaits the 11:37 UTC Cron evidence at this handoff. Rejected native probes remain distinct from later success; actual provider renewals, notifications and real delivery retain separate qualification. An unknown historical postal lineage remains unknown; an explicitly forbidden fax route stays forbidden and supplies no consumed price-expiry warning.
 
 [Detailed contract](PROVIDER_FRESHNESS.md).
+
+### J45 · Administer a workspace and export its reports
+
+**Actor:** Workspace administrator; supervisor with report permission for report views. **Branch:** Correspondence keeps preparation and tracking; the personal profile keeps the person's own settings; Belvédère stays platform-only.
+
+Open Administration from the application switcher → choose a period preset or a custom UTC range → read the overview, activity, consumption and access → manage members, invitations, billing and workspace settings → download the complete report as Excel or PDF, or one dataset as CSV → find the export recorded in the audit log
+
+**Failure/recovery:** Changed membership refuses with MEMBERSHIP_CHANGED; assistants and native clients receive BROWSER_REQUIRED. Invalid dates recover in the browser and are refused by the API; periods over 366 days and export row/text bounds fail explicitly. PDFs disclose global row omissions. Changing a period or identity cancels obsolete downloads.
+
+[Detailed contract](WORKSPACE_ADMINISTRATION.md).
 
 ## Required maintenance
 

@@ -465,7 +465,9 @@ describe("organization billing without fabricated charges", () => {
       const form = new URLSearchParams(init!.body as string);
       const customer = form.get("customer");
       keys.push(new Headers(init!.headers).get("Idempotency-Key")!);
-      expect(form.get("return_url")).toBe(`${origin}/#/app/billing`);
+      expect(form.get("return_url")).toBe(
+        `${origin}/#/app/administration/billing`,
+      );
       return Response.json({
         object: "billing_portal.session",
         customer,

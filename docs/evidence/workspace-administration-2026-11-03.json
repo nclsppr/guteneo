@@ -1,0 +1,739 @@
+{
+  "recordedAt": "2026-11-03T01:52:33.899103+00:00",
+  "qualification": "Local intercepted browser, migrated synthetic D1, Node serializer and workerd renderer fixtures only; no real account, provider, deployment, hosted CI, physical device or deployed Worker memory-budget qualification",
+  "source": {
+    "gitBase": "e53595e78131d4349f08cfeb70fc597a3c8a5841",
+    "dirty": true,
+    "sourceFingerprints": {
+      "apps/api/src/billing.ts": "4b4fb813e11842f660701b12e4751b9d2245e64775b591472547b0345966b2a4",
+      "apps/web/src/App.tsx": "8e75cc2ba23fce8e3ee59fe4581fbeb02f59e11cfeddb5e5d4c1fc1f7b14e004",
+      "apps/web/src/app-routes.ts": "565bc040ad76b87a44a6ebc2fda3c8dcf0fab656dac1e8c8e62341e5628ee53e",
+      "apps/web/src/workspace-route-loader.ts": "9170fb23a8a3897b5dc937db6156cd80705a476c35ebb957edb7e4a263035b43",
+      "apps/web/src/space-switcher.tsx": "d7a1f6919519aa4aebb5e6c9ab0ad62d2932b4e320906a4950805831db4fdf42",
+      "apps/web/src/personal-space.tsx": "74ab62f17761f649aff40d0467479cbf3fb767338072508eb54fd7cf571b1e95",
+      "apps/web/src/belvedere.tsx": "bcdd0da71aeba278df7868d6f62269619592daa0241f2a7567d2a455c900d59b",
+      "apps/web/src/locales/messages-administration.json": "88c5f87b65d8d6630e5b725b63ffbebae3f1dfa7440a591bd614a93c44d28a23",
+      "apps/web/src/locales/message-contexts.json": "4500c7e578d9efadd77c57ce3adeae55faf83bb564331aef3474b96235797513",
+      "packages/contracts/src/administration.ts": "a0de1f93137b576966878b3984ca1381c9f677302b71940768e03f8cac55032a",
+      "apps/web/src/administration.tsx": "7d831bfea18243223c3f9418665c3769f8130bb5f42f4da4743abe398552ff2e",
+      "apps/web/src/administration-team.tsx": "cb3d9658bb8214faa1a8fc9e173b5baae2624f44b8535ae6fbace20f1fbe5da3",
+      "apps/web/src/administration.css": "c706a00f95f3fd551ffb3e5d20fa7da4070b7e938e014dc63031abf9a9ee6520",
+      "apps/web/src/administration-settings.tsx": "2627313e938e8c426123b2aaa0c3218e1bdc9c8f1ef85610be30b1933d6e4374",
+      "apps/web/src/administration-views.tsx": "22888c464c02c1c8f815463fd195a59fcf2283009fdba5dd668adf66c3dd7170",
+      "apps/web/src/administration-operations.tsx": "365fefc4f79e01285671427f69520a21ca0ae4fe28ad011fe19c2fdb7977e127",
+      "apps/web/src/administration-data.ts": "2bc790a92bd177e1864f44c20c0ec85bb80ca1486bbdd754beb5252784de5c06",
+      "apps/web/src/activity-chart.css": "53d40211fe826d2e1f6bea35a1a735a8f51b946eecc3616630893fd98c4e9fb2",
+      "apps/web/src/activity-chart.tsx": "e8b371f8e4b4d8c6c83253bdd322fb96c177a8bb64f92bdbcc340f9ff9416b6f"
+    },
+    "entrySha256": "78c87943aec957a2775d515294d16e8f85a1f3501dfd7a9220043dbe4ede3fdd",
+    "browserProbeSha256": "72e4b02e585a18b94ce85953cfed3b88657238442b5fdb18c2819cfa3021a318"
+  },
+  "browser": {
+    "environment": "Fresh Chromium and iPhone WebKit contexts against optimized local application build, intercepted API, no delay/CPU/network throttle; host load not isolated; one sample per engine; no baseline or production-speedup claim. Readiness is visible overview heading and first stat tile plus two animation-frame opportunities, not physical first paint. Resource Timing captured after the screenshot and includes bootstrap and module preloads.",
+    "observations": [
+      {
+        "project": "chromium",
+        "firstUsefulDomMs": 324.30000001192093,
+        "browserVersion": "156.0.8078.4",
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "fixture": "intercepted API; no latency injection; local optimized build",
+        "reads": [
+          "/session",
+          "/capabilities",
+          "/administration/overview?from=2026-10-05&to=2026-11-03"
+        ],
+        "resources": [
+          {
+            "path": "/assets/ibm-plex-sans-latin-400-normal-CDDApCn2.woff2",
+            "encodedBodySize": 22588,
+            "transferSize": 22888
+          },
+          {
+            "path": "/assets/eb-garamond-latin-400-normal-BCNrxLz_.woff2",
+            "encodedBodySize": 23820,
+            "transferSize": 24120
+          },
+          {
+            "path": "/assets/eb-garamond-latin-500-normal-DehAIUv0.woff2",
+            "encodedBodySize": 25264,
+            "transferSize": 25564
+          },
+          {
+            "path": "/theme-init.js",
+            "encodedBodySize": 1542,
+            "transferSize": 1842
+          },
+          {
+            "path": "/locale-init.js",
+            "encodedBodySize": 1112,
+            "transferSize": 1412
+          },
+          {
+            "path": "/assets/index-CpzUwhj3.js",
+            "encodedBodySize": 188255,
+            "transferSize": 188555
+          },
+          {
+            "path": "/assets/rolldown-runtime-XKyaHtl9.js",
+            "encodedBodySize": 429,
+            "transferSize": 729
+          },
+          {
+            "path": "/assets/preload-helper-BLdHbfdN.js",
+            "encodedBodySize": 797,
+            "transferSize": 1097
+          },
+          {
+            "path": "/assets/jsx-runtime-BH1Cw4mf.js",
+            "encodedBodySize": 52564,
+            "transferSize": 52864
+          },
+          {
+            "path": "/assets/CaretRight.es-Bf8FgOJY.js",
+            "encodedBodySize": 804,
+            "transferSize": 1104
+          },
+          {
+            "path": "/assets/api-xMjXzxKt.js",
+            "encodedBodySize": 275923,
+            "transferSize": 276223
+          },
+          {
+            "path": "/assets/WarningCircle.es-BXOQp-c-.js",
+            "encodedBodySize": 677,
+            "transferSize": 977
+          },
+          {
+            "path": "/assets/auth-navigation-yVNHr6nV.js",
+            "encodedBodySize": 1019,
+            "transferSize": 1319
+          },
+          {
+            "path": "/assets/components-DJ7zoQg6.js",
+            "encodedBodySize": 14916,
+            "transferSize": 15216
+          },
+          {
+            "path": "/assets/ArrowUpRight.es-BWas2Qaf.js",
+            "encodedBodySize": 632,
+            "transferSize": 932
+          },
+          {
+            "path": "/assets/Sun.es-DGWhBSTs.js",
+            "encodedBodySize": 2059,
+            "transferSize": 2359
+          },
+          {
+            "path": "/assets/Check.es-DBSLu9a2.js",
+            "encodedBodySize": 600,
+            "transferSize": 900
+          },
+          {
+            "path": "/assets/Copy.es-4A33Cjzf.js",
+            "encodedBodySize": 624,
+            "transferSize": 924
+          },
+          {
+            "path": "/assets/DownloadSimple.es-CR3Wn7eC.js",
+            "encodedBodySize": 703,
+            "transferSize": 1003
+          },
+          {
+            "path": "/assets/language-select-BIFiZhgG.js",
+            "encodedBodySize": 2522,
+            "transferSize": 2822
+          },
+          {
+            "path": "/assets/List.es-D2ajXNVp.js",
+            "encodedBodySize": 563,
+            "transferSize": 863
+          },
+          {
+            "path": "/assets/components-G5QNLehj.css",
+            "encodedBodySize": 1604,
+            "transferSize": 1904
+          },
+          {
+            "path": "/assets/language-select-SbAVVthq.css",
+            "encodedBodySize": 722,
+            "transferSize": 1022
+          },
+          {
+            "path": "/assets/theme-Bh7Cg8Qj.js",
+            "encodedBodySize": 1019,
+            "transferSize": 1319
+          },
+          {
+            "path": "/assets/theme-toggle-Dzh3-6Me.js",
+            "encodedBodySize": 745,
+            "transferSize": 1045
+          },
+          {
+            "path": "/assets/index-DCH2Uth-.css",
+            "encodedBodySize": 29705,
+            "transferSize": 30005
+          },
+          {
+            "path": "/assets/administration-DBKJn5Hg.js",
+            "encodedBodySize": 22744,
+            "transferSize": 23044
+          },
+          {
+            "path": "/assets/file-input-LWzx4SpT.js",
+            "encodedBodySize": 594,
+            "transferSize": 894
+          },
+          {
+            "path": "/assets/administration-DfLlf2o2.css",
+            "encodedBodySize": 2717,
+            "transferSize": 3017
+          },
+          {
+            "path": "/api/session",
+            "encodedBodySize": 445,
+            "transferSize": 745
+          },
+          {
+            "path": "/brand/guteneo-portrait-128.webp",
+            "encodedBodySize": 15068,
+            "transferSize": 15368
+          },
+          {
+            "path": "/api/capabilities",
+            "encodedBodySize": 42,
+            "transferSize": 342
+          },
+          {
+            "path": "/assets/ibm-plex-sans-latin-500-normal-6ng42L7E.woff2",
+            "encodedBodySize": 24184,
+            "transferSize": 24484
+          },
+          {
+            "path": "/assets/ibm-plex-mono-latin-400-normal-DMJ8VG8y.woff2",
+            "encodedBodySize": 14708,
+            "transferSize": 15008
+          },
+          {
+            "path": "/assets/ibm-plex-sans-latin-600-normal-CuJfVYMP.woff2",
+            "encodedBodySize": 24252,
+            "transferSize": 24552
+          },
+          {
+            "path": "/api/administration/overview",
+            "encodedBodySize": 3538,
+            "transferSize": 3838
+          }
+        ],
+        "assets": {
+          "/theme-init.js": "9bea926bdb3bfaf443ebb226a1176cd9aa29cdcd0ef8edcb88d779cc35f3e71b",
+          "/locale-init.js": "35993862bf8744f23ff13f02429b8c1c1fa01dac4bbbfa1b6189795b1d6285da",
+          "/assets/index-CpzUwhj3.js": "ff7a62abaff8421ab3b147fe9e2d3b2f1f53ae12c4289f9890d758d24e37d119",
+          "/assets/rolldown-runtime-XKyaHtl9.js": "548d1dbf321e7d2ae804fcc158b588706a7c52f8ca175de1490c6ccb4dbe55b7",
+          "/assets/preload-helper-BLdHbfdN.js": "8aec9ff75ffa86a03d51268b63126abadb3754aa5a6b6c5bb16e4e2446a63dee",
+          "/assets/jsx-runtime-BH1Cw4mf.js": "5945b1ad378567780949ff374d97d208d37147aab417dfa6e3560b72f9afad67",
+          "/assets/CaretRight.es-Bf8FgOJY.js": "d6735976890a94f95ad02a7e035548293850b9361dd20ceca8b2635d1ac4d1d5",
+          "/assets/api-xMjXzxKt.js": "cc399c1d49d6d39d95d796d4d5f98e8773e47ff4143dc23441819802ba0fd67a",
+          "/assets/WarningCircle.es-BXOQp-c-.js": "04d9906ac26d20526ef8b86a7758387940d884d5805ea24fe71763f98fa9caba",
+          "/assets/auth-navigation-yVNHr6nV.js": "9c8f8230f14c082c5838114dcdc42ecc8778b983beda601d3a3132de0bbab309",
+          "/assets/components-DJ7zoQg6.js": "1c2ced3982ac3bf9270a96f9b114cc69b0bcae2daa4b575a2ef9b3c6b2102c5e",
+          "/assets/ArrowUpRight.es-BWas2Qaf.js": "97b620c5db6e3e29836d66604f2fa615ebc254e265c1dcd594c6a57968aea787",
+          "/assets/Sun.es-DGWhBSTs.js": "3925a81c8186ae4455eefb7516d1b77114211f7006d3bbe0ef358f6d44df022f",
+          "/assets/Check.es-DBSLu9a2.js": "c2447d2c6f40e01dffab9c292ed1fc3ef63ff636fce45dacb6eab1c73afd8f53",
+          "/assets/Copy.es-4A33Cjzf.js": "e42e209fbb4c59c98cfabe50745bbcd8cd8f8cd735c57f8ce0d32db186477c94",
+          "/assets/DownloadSimple.es-CR3Wn7eC.js": "38ddf45550dc9df216eb464310fe84290be87b632356c83abe933a9b7076cdfc",
+          "/assets/language-select-BIFiZhgG.js": "253249f1ebcb3a21a9de20dcb1d11bb355df08a895c0fd70149b28bb9856c3cc",
+          "/assets/List.es-D2ajXNVp.js": "2c9e99f31b3191d03abe42ed5e7e76ff0fdb0918f4260073f801cef1a6d86b79",
+          "/assets/components-G5QNLehj.css": "62d50313fc3269de9d92f62eed15ee49b6e00dabf15529f1a18b920dc3ed5fbd",
+          "/assets/language-select-SbAVVthq.css": "ec7e47604a8bed6fc02aa901e13a0af1e888ad50ba76fdb6ed223e8a551483ce",
+          "/assets/theme-Bh7Cg8Qj.js": "5b9de0a8f3d834dc5f422818a4a3fceb0df11fd1f5c312de43bef3f2200ea09e",
+          "/assets/theme-toggle-Dzh3-6Me.js": "bf26f493323b61f15787cadf5a041da9cca5ebde5e23ca9f523629a1ef54d8ff",
+          "/assets/index-DCH2Uth-.css": "13632b3f15b03a8ef14441395df8cbf4acda3a8fdeca9731ca5ed1bbae57116e",
+          "/assets/administration-DBKJn5Hg.js": "556c5cbd49abcd642c47b3e930a7adeca9e4f9b455cc573bbb0750e510379668",
+          "/assets/file-input-LWzx4SpT.js": "8df1fced03a0d3526de0cdffd2f3acc310e9fa69657738b98b2c68498009c135",
+          "/assets/administration-DfLlf2o2.css": "a8b62c182c931510deecf8fbfc938938f91b33e208633a0ffe1b1b388d9eca16"
+        },
+        "totals": {
+          "js": {
+            "requests": 22,
+            "encodedBytes": 570843,
+            "transferredBytes": 577443
+          },
+          "css": {
+            "requests": 4,
+            "encodedBytes": 34748,
+            "transferredBytes": 35948
+          }
+        }
+      },
+      {
+        "project": "iphone-webkit",
+        "firstUsefulDomMs": 379,
+        "browserVersion": "27.2",
+        "viewport": {
+          "width": 390,
+          "height": 664
+        },
+        "fixture": "intercepted API; no latency injection; local optimized build",
+        "reads": [
+          "/session",
+          "/capabilities",
+          "/administration/overview?from=2026-10-05&to=2026-11-03"
+        ],
+        "resources": [
+          {
+            "path": "/assets/ibm-plex-sans-latin-400-normal-CDDApCn2.woff2",
+            "encodedBodySize": 22588,
+            "transferSize": 22888
+          },
+          {
+            "path": "/assets/eb-garamond-latin-400-normal-BCNrxLz_.woff2",
+            "encodedBodySize": 23820,
+            "transferSize": 24120
+          },
+          {
+            "path": "/assets/eb-garamond-latin-500-normal-DehAIUv0.woff2",
+            "encodedBodySize": 25264,
+            "transferSize": 25564
+          },
+          {
+            "path": "/assets/components-G5QNLehj.css",
+            "encodedBodySize": 1621,
+            "transferSize": 1921
+          },
+          {
+            "path": "/assets/language-select-SbAVVthq.css",
+            "encodedBodySize": 739,
+            "transferSize": 1039
+          },
+          {
+            "path": "/theme-init.js",
+            "encodedBodySize": 1559,
+            "transferSize": 1859
+          },
+          {
+            "path": "/locale-init.js",
+            "encodedBodySize": 1129,
+            "transferSize": 1429
+          },
+          {
+            "path": "/assets/index-DCH2Uth-.css",
+            "encodedBodySize": 29738,
+            "transferSize": 30038
+          },
+          {
+            "path": "/assets/index-CpzUwhj3.js",
+            "encodedBodySize": 188392,
+            "transferSize": 188692
+          },
+          {
+            "path": "/site.webmanifest",
+            "encodedBodySize": 271,
+            "transferSize": 571
+          },
+          {
+            "path": "/assets/rolldown-runtime-XKyaHtl9.js",
+            "encodedBodySize": 446,
+            "transferSize": 746
+          },
+          {
+            "path": "/assets/jsx-runtime-BH1Cw4mf.js",
+            "encodedBodySize": 52611,
+            "transferSize": 52911
+          },
+          {
+            "path": "/assets/preload-helper-BLdHbfdN.js",
+            "encodedBodySize": 814,
+            "transferSize": 1114
+          },
+          {
+            "path": "/assets/CaretRight.es-Bf8FgOJY.js",
+            "encodedBodySize": 821,
+            "transferSize": 1121
+          },
+          {
+            "path": "/assets/auth-navigation-yVNHr6nV.js",
+            "encodedBodySize": 1036,
+            "transferSize": 1336
+          },
+          {
+            "path": "/assets/WarningCircle.es-BXOQp-c-.js",
+            "encodedBodySize": 694,
+            "transferSize": 994
+          },
+          {
+            "path": "/assets/ArrowUpRight.es-BWas2Qaf.js",
+            "encodedBodySize": 649,
+            "transferSize": 949
+          },
+          {
+            "path": "/assets/components-DJ7zoQg6.js",
+            "encodedBodySize": 14934,
+            "transferSize": 15234
+          },
+          {
+            "path": "/assets/Sun.es-DGWhBSTs.js",
+            "encodedBodySize": 2076,
+            "transferSize": 2376
+          },
+          {
+            "path": "/assets/Copy.es-4A33Cjzf.js",
+            "encodedBodySize": 641,
+            "transferSize": 941
+          },
+          {
+            "path": "/assets/Check.es-DBSLu9a2.js",
+            "encodedBodySize": 617,
+            "transferSize": 917
+          },
+          {
+            "path": "/assets/DownloadSimple.es-CR3Wn7eC.js",
+            "encodedBodySize": 720,
+            "transferSize": 1020
+          },
+          {
+            "path": "/assets/language-select-BIFiZhgG.js",
+            "encodedBodySize": 2539,
+            "transferSize": 2839
+          },
+          {
+            "path": "/assets/List.es-D2ajXNVp.js",
+            "encodedBodySize": 580,
+            "transferSize": 880
+          },
+          {
+            "path": "/assets/theme-Bh7Cg8Qj.js",
+            "encodedBodySize": 1036,
+            "transferSize": 1336
+          },
+          {
+            "path": "/assets/theme-toggle-Dzh3-6Me.js",
+            "encodedBodySize": 762,
+            "transferSize": 1062
+          },
+          {
+            "path": "/assets/api-xMjXzxKt.js",
+            "encodedBodySize": 276097,
+            "transferSize": 276397
+          },
+          {
+            "path": "/api/session",
+            "encodedBodySize": 0,
+            "transferSize": 0
+          },
+          {
+            "path": "/assets/administration-DBKJn5Hg.js",
+            "encodedBodySize": 22770,
+            "transferSize": 23070
+          },
+          {
+            "path": "/assets/file-input-LWzx4SpT.js",
+            "encodedBodySize": 611,
+            "transferSize": 911
+          },
+          {
+            "path": "/assets/administration-DfLlf2o2.css",
+            "encodedBodySize": 2734,
+            "transferSize": 3034
+          },
+          {
+            "path": "/brand/guteneo-portrait-192.webp",
+            "encodedBodySize": 33534,
+            "transferSize": 33834
+          },
+          {
+            "path": "/assets/ibm-plex-sans-latin-500-normal-6ng42L7E.woff2",
+            "encodedBodySize": 24184,
+            "transferSize": 24484
+          },
+          {
+            "path": "/assets/ibm-plex-mono-latin-400-normal-DMJ8VG8y.woff2",
+            "encodedBodySize": 14708,
+            "transferSize": 15008
+          },
+          {
+            "path": "/api/capabilities",
+            "encodedBodySize": 0,
+            "transferSize": 0
+          },
+          {
+            "path": "/api/administration/overview",
+            "encodedBodySize": 0,
+            "transferSize": 0
+          },
+          {
+            "path": "/assets/ibm-plex-sans-latin-600-normal-CuJfVYMP.woff2",
+            "encodedBodySize": 24252,
+            "transferSize": 24552
+          }
+        ],
+        "assets": {
+          "/assets/components-G5QNLehj.css": "62d50313fc3269de9d92f62eed15ee49b6e00dabf15529f1a18b920dc3ed5fbd",
+          "/assets/language-select-SbAVVthq.css": "ec7e47604a8bed6fc02aa901e13a0af1e888ad50ba76fdb6ed223e8a551483ce",
+          "/theme-init.js": "9bea926bdb3bfaf443ebb226a1176cd9aa29cdcd0ef8edcb88d779cc35f3e71b",
+          "/locale-init.js": "35993862bf8744f23ff13f02429b8c1c1fa01dac4bbbfa1b6189795b1d6285da",
+          "/assets/index-DCH2Uth-.css": "13632b3f15b03a8ef14441395df8cbf4acda3a8fdeca9731ca5ed1bbae57116e",
+          "/assets/index-CpzUwhj3.js": "ff7a62abaff8421ab3b147fe9e2d3b2f1f53ae12c4289f9890d758d24e37d119",
+          "/assets/rolldown-runtime-XKyaHtl9.js": "548d1dbf321e7d2ae804fcc158b588706a7c52f8ca175de1490c6ccb4dbe55b7",
+          "/assets/jsx-runtime-BH1Cw4mf.js": "5945b1ad378567780949ff374d97d208d37147aab417dfa6e3560b72f9afad67",
+          "/assets/preload-helper-BLdHbfdN.js": "8aec9ff75ffa86a03d51268b63126abadb3754aa5a6b6c5bb16e4e2446a63dee",
+          "/assets/CaretRight.es-Bf8FgOJY.js": "d6735976890a94f95ad02a7e035548293850b9361dd20ceca8b2635d1ac4d1d5",
+          "/assets/auth-navigation-yVNHr6nV.js": "9c8f8230f14c082c5838114dcdc42ecc8778b983beda601d3a3132de0bbab309",
+          "/assets/WarningCircle.es-BXOQp-c-.js": "04d9906ac26d20526ef8b86a7758387940d884d5805ea24fe71763f98fa9caba",
+          "/assets/ArrowUpRight.es-BWas2Qaf.js": "97b620c5db6e3e29836d66604f2fa615ebc254e265c1dcd594c6a57968aea787",
+          "/assets/components-DJ7zoQg6.js": "1c2ced3982ac3bf9270a96f9b114cc69b0bcae2daa4b575a2ef9b3c6b2102c5e",
+          "/assets/Sun.es-DGWhBSTs.js": "3925a81c8186ae4455eefb7516d1b77114211f7006d3bbe0ef358f6d44df022f",
+          "/assets/Copy.es-4A33Cjzf.js": "e42e209fbb4c59c98cfabe50745bbcd8cd8f8cd735c57f8ce0d32db186477c94",
+          "/assets/Check.es-DBSLu9a2.js": "c2447d2c6f40e01dffab9c292ed1fc3ef63ff636fce45dacb6eab1c73afd8f53",
+          "/assets/DownloadSimple.es-CR3Wn7eC.js": "38ddf45550dc9df216eb464310fe84290be87b632356c83abe933a9b7076cdfc",
+          "/assets/language-select-BIFiZhgG.js": "253249f1ebcb3a21a9de20dcb1d11bb355df08a895c0fd70149b28bb9856c3cc",
+          "/assets/List.es-D2ajXNVp.js": "2c9e99f31b3191d03abe42ed5e7e76ff0fdb0918f4260073f801cef1a6d86b79",
+          "/assets/theme-Bh7Cg8Qj.js": "5b9de0a8f3d834dc5f422818a4a3fceb0df11fd1f5c312de43bef3f2200ea09e",
+          "/assets/theme-toggle-Dzh3-6Me.js": "bf26f493323b61f15787cadf5a041da9cca5ebde5e23ca9f523629a1ef54d8ff",
+          "/assets/api-xMjXzxKt.js": "cc399c1d49d6d39d95d796d4d5f98e8773e47ff4143dc23441819802ba0fd67a",
+          "/assets/administration-DBKJn5Hg.js": "556c5cbd49abcd642c47b3e930a7adeca9e4f9b455cc573bbb0750e510379668",
+          "/assets/file-input-LWzx4SpT.js": "8df1fced03a0d3526de0cdffd2f3acc310e9fa69657738b98b2c68498009c135",
+          "/assets/administration-DfLlf2o2.css": "a8b62c182c931510deecf8fbfc938938f91b33e208633a0ffe1b1b388d9eca16"
+        },
+        "totals": {
+          "js": {
+            "requests": 22,
+            "encodedBytes": 571534,
+            "transferredBytes": 578134
+          },
+          "css": {
+            "requests": 4,
+            "encodedBytes": 34832,
+            "transferredBytes": 36032
+          }
+        }
+      }
+    ]
+  },
+  "api": {
+    "scope": "Administration browser API recovery; isolated local fixtures only; no provider calls, deployment, commit or index mutation by this agent",
+    "files": {
+      "apps/api/src/administration.ts": "b450be68fbabc9eb0ad7b108da0eec4036b452537af06ba40cfe26e4af20f9a0",
+      "apps/api/src/administration-exports.ts": "ab3e4b930f2c9510cd55c7f17282a368bf034072d3b5b9e624d9dea7939f4d97",
+      "apps/api/src/locales/administration-exports.json": "aefd856c4c5dbd82bbfa974b67c74922f994c68be37feafb05ef9df4da0fda1b",
+      "tests/unit/administration.test.ts": "5609ea0ba4d949dd979242d90aba4336353cd153d81403aa0495be716fa4b6df",
+      "tests/unit/administration-finance.test.ts": "229854566134d5c1e68c59010bfb77180cd136752e1fd303124d1f471e1b414a",
+      "tests/unit/administration-exports.test.ts": "47041406415f3588efc9da312813f881c10b3ec60e97392b184fe783bfddad26"
+    },
+    "checks": {
+      "targetedVitest": {
+        "files": 3,
+        "tests": 22,
+        "passed": 22,
+        "log": "qualification.log"
+      },
+      "focusedEslint": "passed",
+      "independentWorkbookReadback": "openpyxl-readback.json",
+      "actualLocalWorkerRenderer": "workerd-render.json; 10k selected rows, 500 drawn, 15 pages, last row and omission notice decoded from actual PDF"
+    },
+    "authority": [
+      "authenticated browser session hash bound to membership user and tenant",
+      "current membership role and supervisor report permission",
+      "session existence, expiry and configured verification/MFA policy rechecked after reads/rendering",
+      "browser admin/report supervisor allowed per dataset; operator/viewer/native/MCP rejected; member details admin only",
+      "role change, session deletion, session expiry and report permission removal during report loading refuse response/export and do not record export success"
+    ],
+    "financialEvidence": {
+      "environment": "MODE production and ENVIRONMENT production, all current migrations, disposable Miniflare D1",
+      "fixtures": [
+        "domain-created fax dispatches: late settlement, zero cost, amount capped at reservation, second tenant separation",
+        "protected hosting approval/confirmation through production domain and debit triggers, synthetic receipt",
+        "secure distribution retained records for read projection only, not full purchase lifecycle",
+        "PDF validation completed diagnostic, failed processing without charge, pending reservation"
+      ],
+      "postingDateTotalMinor": 314,
+      "reservedMinor": 111,
+      "availableMinor": 4575,
+      "creationDateOverview": "dispatch creation basis, intentionally different from ledger posted consumption period",
+      "safeIntegerAmounts": "JSON fails closed on unsafe individual values or aggregates; decimal CSV/PDF retain cents at MAX_SAFE_INTEGER; numeric XLSX monetary cells reject values beyond 15 significant digits",
+      "tax": "No uniform excluding-tax claim; underlying ledger semantics remain unchanged",
+      "retiredHorizonCoverage": "Not added to new Administration fixture; repository existing belvedere-finance.test.ts independently covers retained pre-retirement charges"
+    },
+    "bounds": {
+      "maximumCumulativeRows": 10000,
+      "maximumCellCharacters": 4096,
+      "maximumUtf8CellTextBytes": 4194304,
+      "maximumPdfRenderedRowsAcrossAllTables": 500,
+      "omissions": "explicit displayed row count versus total per omitted PDF table",
+      "countRace": "checks actual fetched item length as well as COUNT; connections cumulative rows guarded",
+      "invalidOrOversize": "422 before export audit success; no silent CSV/XLSX row truncation",
+      "pdfBoundSource": "ADMINISTRATION_PDF_MAX_ROWS shared contract imported by renderer and UI"
+    },
+    "serializerEvidence": [
+      "CSV formula prefix protection including leading spaces/tabs/CR/LF; quoting and UTF-8 BOM",
+      "OOXML ZIP relationships and XML validated; control/surrogate characters rejected; numeric amounts and dates typed",
+      "10,000-row XLSX read with independent openpyxl 3.1.5 without warnings",
+      "real PDF decoded text verifies last rendered row, omitted row absence and explicit truncation notices",
+      "independent reviewer reproduced exact positive/negative MAX_SAFE monetary formatting across all four locales",
+      "Bundled actual renderer executed inside local workerd/Miniflare fetch, without providers; PDF output 500-row boundary and notice independently decoded"
+    ],
+    "benchmarks": {
+      "csv": {
+        "format": "csv",
+        "selectedRows": 10000,
+        "renderedRows": 10000,
+        "durationMs": 60.83012500000001,
+        "cpuUserMs": 82.472,
+        "cpuSystemMs": 4.512,
+        "heapDeltaBytes": 20984320,
+        "rssDeltaBytes": 40697856,
+        "maxRSSBytes": 159645696,
+        "responseBytes": 3730181,
+        "runtime": "v24.18.0",
+        "platform": "darwin",
+        "qualification": "one local Node process; synthetic inputs; not deployed Worker CPU or peak-memory proof"
+      },
+      "xlsx": {
+        "format": "xlsx",
+        "selectedRows": 10000,
+        "renderedRows": 10000,
+        "durationMs": 299.951708,
+        "cpuUserMs": 353.219,
+        "cpuSystemMs": 14.517,
+        "heapDeltaBytes": 49055248,
+        "rssDeltaBytes": 113573888,
+        "maxRSSBytes": 220315648,
+        "responseBytes": 827148,
+        "runtime": "v24.18.0",
+        "platform": "darwin",
+        "qualification": "one local Node process; synthetic inputs; not deployed Worker CPU or peak-memory proof"
+      },
+      "pdf": {
+        "format": "pdf",
+        "selectedRows": 10000,
+        "renderedRows": 500,
+        "durationMs": 267.875583,
+        "cpuUserMs": 427.413,
+        "cpuSystemMs": 24.677,
+        "heapDeltaBytes": 40529912,
+        "rssDeltaBytes": 99778560,
+        "maxRSSBytes": 223494144,
+        "responseBytes": 157735,
+        "runtime": "v24.18.0",
+        "platform": "darwin",
+        "qualification": "one local Node process; synthetic inputs; not deployed Worker CPU or peak-memory proof"
+      }
+    },
+    "knownLimits": [
+      "Local Node timing, heap delta and RSS are not deployed Worker CPU/memory qualification; reduced PDF500 heap delta about40.5MB versus90.4MB at2000, Node maxRSS about223.5MB. Local workerd PDF succeeds but does not enforce a production128MB memory budget.",
+      "No native Excel/LibreOffice or Acrobat acceptance performed",
+      "No provider call, live ledger/customer record, Auth0 real-client or production deployment involved",
+      "Coowner handles project-wide typecheck/build/tests/docs and commit; independent API reviewer owns separate review artifact"
+    ],
+    "pdfBoundReduction": {
+      "previousMaxRows": 2000,
+      "newMaxRows": 500,
+      "previousBenchmark": "benchmark-pdf-2000.json",
+      "newBenchmark": "benchmark-pdf.json",
+      "heapDeltaReductionPercent": 55.2,
+      "durationReductionPercent": 64.6
+    }
+  },
+  "pdfLimitComparison": {
+    "before": {
+      "format": "pdf",
+      "selectedRows": 10000,
+      "renderedRows": 2000,
+      "durationMs": 756.275208,
+      "cpuUserMs": 1068.791,
+      "cpuSystemMs": 58.959,
+      "heapDeltaBytes": 90445840,
+      "rssDeltaBytes": 243433472,
+      "maxRSSBytes": 349782016,
+      "responseBytes": 622831,
+      "runtime": "v24.18.0",
+      "platform": "darwin",
+      "qualification": "one local Node process; synthetic inputs; not deployed Worker CPU or peak-memory proof"
+    },
+    "after": {
+      "format": "pdf",
+      "selectedRows": 10000,
+      "renderedRows": 500,
+      "durationMs": 267.875583,
+      "cpuUserMs": 427.413,
+      "cpuSystemMs": 24.677,
+      "heapDeltaBytes": 40529912,
+      "rssDeltaBytes": 99778560,
+      "maxRSSBytes": 223494144,
+      "responseBytes": 157735,
+      "runtime": "v24.18.0",
+      "platform": "darwin",
+      "qualification": "one local Node process; synthetic inputs; not deployed Worker CPU or peak-memory proof"
+    },
+    "decision": "500 rows across the whole PDF, shared API/UI contract; exact CSV/XLSX retain up to 10000 cumulative rows. Local Node heap delta reduced by 55%, not a deployed memory-limit proof."
+  },
+  "workerdRender": {
+    "runtime": "local workerd via Miniflare",
+    "selectedRows": 10000,
+    "renderedRows": 500,
+    "status": 200,
+    "bytes": 157736,
+    "pages": 15,
+    "elapsedIncludingWorkerStartupMs": 371.06495900000004,
+    "lastRow": "ROW_00499",
+    "firstOmittedRow": "ROW_00500",
+    "omissionNotice": "Showing the first 500 of 10,000 rows.",
+    "qualification": "actual local Worker renderer and decoded PDF; no provider; not deployed Worker CPU or memory-budget proof"
+  },
+  "workbookReadback": {
+    "reader": "openpyxl 3.1.5",
+    "dataRows": 10000,
+    "columns": 14,
+    "firstId": "ROW_00000",
+    "lastId": "ROW_09999",
+    "firstConsumption": 0.0,
+    "lastConsumption": 0.11,
+    "warnings": [],
+    "qualification": "independent local OOXML reader; not native Excel acceptance"
+  },
+  "checks": {
+    "apiUnit": {
+      "tests": 22,
+      "passed": 22
+    },
+    "clientBillingRoutesUnit": {
+      "tests": 27,
+      "passed": 27
+    },
+    "broadApplicationBrowser": {
+      "total": 190,
+      "passed": 184,
+      "skipped": 3,
+      "failed": 3,
+      "failuresResolvedBy": "56-case final rerun: cancellation at hash navigation; precise campaign-name textbox and role-update status locators"
+    },
+    "finalAffectedApplicationBrowser": {
+      "total": 56,
+      "passed": 56
+    },
+    "pdfLimitFinalBrowser": {
+      "total": 28,
+      "passed": 20,
+      "failed": 8,
+      "failure": "New note locator matched both the simulation banner and report notice; narrowed to main"
+    },
+    "finalLocaleAndMeasurementBrowser": {
+      "total": 8,
+      "passed": 8
+    },
+    "publicPreviewMobile": {
+      "passed": 10,
+      "skipped": 4
+    },
+    "localPreview": {
+      "passed": 10,
+      "initialFailures": "Old 50-row expectation replaced with P1 current25; Vite outdated Optimize Dep504 cleared by warm cache; missing Belvedere loopback fixture server started"
+    },
+    "recipientJourneys": {
+      "passed": 10,
+      "environment": "Actual local D1/renderer simulation; desktop and iPhone WebKit; provider delivery and Auth0 real signup not exercised"
+    }
+  }
+}

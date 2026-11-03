@@ -298,7 +298,8 @@ test("V2 keeps every destination in view and in place on common desktop screens"
       "/documents",
       "/prepare",
       "/dispatches",
-      "/admin",
+      // Administration has its own navigation; keep to Correspondence pages.
+      "/senders",
     ]) {
       await page.goto(`/#/app${route}`);
       await expect(page.locator("#main-content h1")).toBeVisible();

@@ -40,6 +40,8 @@
         "data-table.tsx",
         "data-table-model.ts",
         "data-table.css",
+        "activity-chart.tsx",
+        "activity-chart.css",
         "api.ts",
         "personal-api.ts",
         "preview.ts",
@@ -150,7 +152,7 @@
       ]
     },
     "correspondence": {
-      "description": "Prepares, reviews, sends and tracks correspondence, and runs the workspace. Internal id: workshop.",
+      "description": "Prepares, reviews, sends and tracks correspondence. Internal id: workshop.",
       "files": [
         "workspace-pages.tsx",
         "dispatch-pages.tsx",
@@ -165,16 +167,11 @@
         "postal-quote-followup.ts",
         "postal-cutoff-notice.tsx",
         "postal-cutoff-notice.css",
-        "usage-activity.tsx",
-        "usage-activity.css",
-        "billing-page.tsx",
         "account-page.tsx",
         "expert-approval.tsx",
         "expert-approval.css",
         "workspace-contacts.tsx",
         "workspace-contacts.css",
-        "team-invitations.tsx",
-        "invitation-csv.ts",
         "assistant-workspace.tsx",
         "assistant-state.ts",
         "distribution-pages.tsx",
@@ -204,6 +201,23 @@
         "belvedere-globe-data.json",
         "belvedere-data.ts",
         "belvedere-i18n.ts"
+      ]
+    },
+    "administration": {
+      "description": "Workspace administration: reports, exports, members, access, billing and settings under current membership authority.",
+      "files": [
+        "administration.tsx",
+        "administration.css",
+        "administration-data.ts",
+        "administration-views.tsx",
+        "administration-team.tsx",
+        "administration-settings.tsx",
+        "administration-operations.tsx",
+        "billing-page.tsx",
+        "team-invitations.tsx",
+        "invitation-csv.ts",
+        "usage-activity.tsx",
+        "usage-activity.css"
       ]
     }
   },

@@ -11,6 +11,7 @@ import { api, date, isPublicPreview, type Session } from "./api";
 import {
   ConfirmAction,
   DateTimezone,
+  Diagnostics,
   ErrorNotice,
   Field,
   Loading,
@@ -18,7 +19,6 @@ import {
   useAction,
   useResource,
 } from "./components";
-import { Diagnostics } from "./workspace-pages";
 import { AssistantGuide, AssistantPicker } from "./assistant-guides";
 import { getAssistant } from "./assistant-catalog";
 import { useAssistantConnections, useDirectChoice } from "./assistant-state";
