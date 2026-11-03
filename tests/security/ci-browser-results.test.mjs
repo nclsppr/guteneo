@@ -30,13 +30,13 @@ function spec(id, project, file = "passing.spec.ts", title = id) {
     ],
   };
 }
-function fixture() {
+function fixture(skips = declaredBrowserSkips) {
   const inventories = Object.fromEntries(
     suitePlans().map((plan) => {
       const specs = Array.from({ length: 3 }, (_, index) =>
         spec(`same-cross-suite-id-${index}`, plan.project),
       );
-      for (const skip of declaredBrowserSkips.filter(
+      for (const skip of skips.filter(
         (item) =>
           item.suite === plan.suite && item.projects.includes(plan.project),
       ))
@@ -61,7 +61,7 @@ function fixture() {
       );
       let skipped = 0;
       for (const item of specs) {
-        const skip = declaredBrowserSkips.find(
+        const skip = skips.find(
           (entry) =>
             entry.suite === plan.suite &&
             entry.projects.includes(plan.project) &&
@@ -128,7 +128,7 @@ test("complete browser evidence matches independently discovered IDs across conf
   const result = requireBrowserResults(inventories, rows, identity);
   assert.equal(result.rows, 9);
   assert.equal(result.suites, 8);
-  assert.equal(result.declaredSkipped, 22);
+  assert.equal(result.declaredSkipped, 24);
   assert.equal(result.discovered, result.passed + result.declaredSkipped);
 });
 
@@ -200,6 +200,64 @@ test("a new runtime skip with an annotation is still refused", () => {
   assert.throws(() =>
     requireBrowserResults(value.inventories, value.rows, identity),
   );
+});
+
+const sidebarGeometrySkips = [
+  "every Correspondence entry of an administrator stays in view at 1280 by 720",
+  "the former member address keeps Administration navigation in view at 1280 by 720",
+].map((title) => ({
+  suite: "application",
+  projects: ["mobile-chromium", "iphone-webkit"],
+  file: "studio-space.spec.ts",
+  title,
+  reason: "Desktop sidebar geometry; phones use the collapsed navigation.",
+}));
+const sidebarFixtureSkips = [
+  ...declaredBrowserSkips.filter((skip) => skip.file !== "studio-space.spec.ts"),
+  ...sidebarGeometrySkips,
+];
+
+test("Correspondence and Administration geometry accept their exact reviewed mobile skips", () => {
+  const value = fixture(sidebarFixtureSkips);
+  const result = requireBrowserResults(value.inventories, value.rows, identity);
+  assert.equal(result.declaredSkipped, 24);
+});
+
+test("sidebar geometry exceptions do not waive another title, file, reason, project or suite", () => {
+  for (const skip of sidebarGeometrySkips) {
+    for (const project of skip.projects) {
+      for (const mutate of [
+        (entry) => (entry.title += " with another assertion"),
+        (entry) =>
+          (entry.title =
+            "every workshop entry of an administrator stays in view at 1280 by 720"),
+        (entry) => (entry.file = "another-sidebar.spec.ts"),
+        (entry) =>
+          (entry.tests[0].annotations[0].description = "Another mobile waiver"),
+      ]) {
+        const value = fixture(sidebarFixtureSkips);
+        const entry = value.rows
+          .filter((row) => row.project === project)
+          .flatMap((row) => row.reports.application.suites[0].specs)
+          .find((entry) => entry.file === skip.file && entry.title === skip.title);
+        assert.ok(entry);
+        mutate(entry);
+        assert.throws(() =>
+          requireBrowserResults(value.inventories, value.rows, identity),
+        );
+      }
+    }
+    for (const extraSkip of [
+      { ...skip, projects: ["chromium"] },
+      { ...skip, suite: "preview", projects: ["iphone"] },
+    ]) {
+      const value = fixture([...sidebarFixtureSkips, extraSkip]);
+      assert.throws(
+        () => requireBrowserResults(value.inventories, value.rows, identity),
+        /Unexpected browser skips, failures or interruptions/,
+      );
+    }
+  }
 });
 
 test("planned skips require their exact existing reason and executed reports cannot be lists or retries", () => {
