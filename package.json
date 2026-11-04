@@ -89,6 +89,7 @@
     "aws4fetch": "^1.0.20",
     "fast-xml-parser": "5.11.2",
     "fflate": "0.8.3",
+    "fontkit": "2.0.4",
     "hono": "4.13.13",
     "jose": "^6.2.13",
     "papaparse": "^5.7.0",

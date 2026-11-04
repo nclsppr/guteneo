@@ -34,6 +34,16 @@
   "Mode": ["Mode", "Modus", "Modus"],
   "Period": ["Période", "Zeitraum", "Zäitraum"],
   "Generated (UTC)": ["Généré (UTC)", "Erstellt (UTC)", "Erstallt (UTC)"],
+  "Period: {0} – {1}": [
+    "Période : {0} – {1}",
+    "Zeitraum: {0} – {1}",
+    "Zäitraum: {0} – {1}"
+  ],
+  "Generated (UTC): {0}": [
+    "Généré (UTC) : {0}",
+    "Erstellt (UTC): {0}",
+    "Erstallt (UTC): {0}"
+  ],
   "Dispatches": ["Envois", "Sendungen", "Sendungen"],
   "Delivered": ["Remis", "Zugestellt", "Zougestallt"],
   "Needing attention": ["À vérifier", "Zu prüfen", "Ze kontrolléieren"],
