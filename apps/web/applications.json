@@ -48,6 +48,7 @@
         "preview-data.ts",
         "preview-studio.ts",
         "preview-personal.ts",
+        "preview-administration.ts",
         "local-preview.ts",
         "local-preview-controls.tsx",
         "local-preview-controls.css",

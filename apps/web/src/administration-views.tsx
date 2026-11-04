@@ -234,18 +234,6 @@ function Pager({
   );
 }
 
-export function PreviewUnavailable() {
-  return (
-    <div className="notice info" role="note">
-      <p>
-        {msg(
-          "Workspace reports read your signed-in workspace. They are not simulated in this preview; members, usage, billing and settings remain available.",
-        )}
-      </p>
-    </div>
-  );
-}
-
 export function AdministrationOverviewPage({ route }: { route: string }) {
   const period = readPeriod(route);
   const resource = useAdministrationResource<AdministrationOverview>(
@@ -256,9 +244,6 @@ export function AdministrationOverviewPage({ route }: { route: string }) {
     <>
       <PageHeading
         title={msg("Workspace overview")}
-        intro={msg(
-          "Activity, consumption and access for this workspace only. No recipient, document title or message content appears here.",
-        )}
         action={<RefreshButton onClick={resource.refresh} />}
       />
       <PeriodControls route={route} path={administrationRoutes.home} />
@@ -268,15 +253,6 @@ export function AdministrationOverviewPage({ route }: { route: string }) {
       ) : (
         data && (
           <>
-            {data.workspace.mode === "simulation" && (
-              <div className="notice info" role="note">
-                <p>
-                  {msg(
-                    "Simulation workspace: fictional activity, no real delivery or charge.",
-                  )}
-                </p>
-              </div>
-            )}
             {data.incidents.length > 0 && (
               <div className="notice warning" role="status">
                 <WarningCircle size={24} aria-hidden="true" />
@@ -302,7 +278,7 @@ export function AdministrationOverviewPage({ route }: { route: string }) {
                 </p>
               </div>
             )}
-            <div className="administration-stats">
+            <div className="administration-stats administration-stats-primary">
               <StatTile
                 label={msg("Dispatches")}
                 value={count(data.totals.dispatches)}
@@ -323,6 +299,16 @@ export function AdministrationOverviewPage({ route }: { route: string }) {
               >
                 {msg("Failed, rejected or uncertain")}
               </StatTile>
+              {data.credit && (
+                <StatTile
+                  label={msg("Promotional credit")}
+                  value={amount(data.credit.availableMinor)}
+                >
+                  {msg("of {0} granted", amount(data.credit.grantedMinor))}
+                </StatTile>
+              )}
+            </div>
+            <div className="administration-stats administration-stats-secondary">
               <StatTile
                 label={msg("Members")}
                 value={count(data.totals.members)}
@@ -341,14 +327,6 @@ export function AdministrationOverviewPage({ route }: { route: string }) {
               >
                 {msg("Activated in this period")}
               </StatTile>
-              {data.credit && (
-                <StatTile
-                  label={msg("Promotional credit")}
-                  value={amount(data.credit.availableMinor)}
-                >
-                  {msg("of {0} granted", amount(data.credit.grantedMinor))}
-                </StatTile>
-              )}
             </div>
             <section className="administration-panel">
               <h2>{msg("Daily activity")}</h2>
@@ -479,9 +457,6 @@ export function AdministrationActivityPage({ route }: { route: string }) {
     <>
       <PageHeading
         title={msg("Workspace activity")}
-        intro={msg(
-          "Every dispatch of this workspace with its state and amounts. Recipients and content stay in Correspondence.",
-        )}
         action={<RefreshButton onClick={resource.refresh} />}
       />
       <PeriodControls
@@ -564,6 +539,7 @@ export function AdministrationActivityPage({ route }: { route: string }) {
           </p>
           <DateTimezone />
           <DataTable
+            className="administration-table"
             label={msg("Workspace activity")}
             items={resource.data.items}
             getRowKey={(item) => item.id}
@@ -670,9 +646,6 @@ export function AdministrationConsumptionPage({ route }: { route: string }) {
     <>
       <PageHeading
         title={msg("Consumption")}
-        intro={msg(
-          "Posted charges of this workspace by service, channel and month.",
-        )}
         action={
           <RefreshButton
             onClick={() => {
@@ -758,6 +731,7 @@ export function AdministrationConsumptionPage({ route }: { route: string }) {
               <section className="administration-panel">
                 <h2>{msg("By month")}</h2>
                 <DataTable
+                  className="administration-table"
                   label={msg("Consumption by month")}
                   items={data.monthly}
                   getRowKey={(row) => row.month}
@@ -816,6 +790,7 @@ export function AdministrationMemberActivity({ route }: { route: string }) {
           <>
             <DateTimezone />
             <DataTable
+              className="administration-table"
               label={msg("Member activity")}
               items={resource.data.items}
               getRowKey={(item) => item.userId}
@@ -938,6 +913,7 @@ export function AdministrationConnectionsPage({ route }: { route: string }) {
                 <>
                   <DateTimezone />
                   <DataTable
+                    className="administration-table"
                     label={msg("Current access")}
                     items={data.current.items}
                     getRowKey={(item) => `${item.kind}:${item.id}`}
@@ -999,6 +975,7 @@ export function AdministrationConnectionsPage({ route }: { route: string }) {
               {data.events.items.length ? (
                 <>
                   <DataTable
+                    className="administration-table"
                     label={msg("Sign-ins")}
                     items={data.events.items}
                     getRowKey={(item) => item.id}
@@ -1063,6 +1040,7 @@ export function AdministrationAuditPage({ route }: { route: string }) {
         <>
           <DateTimezone />
           <DataTable
+            className="administration-table"
             label={msg("Audit log")}
             items={resource.data.items}
             getRowKey={(item) => item.id}
@@ -1140,12 +1118,14 @@ function ExportCard({
   text,
   period,
   allowed = ["xlsx", "pdf", "csv"],
+  available = true,
 }: {
   dataset: AdministrationExportDataset;
   title: string;
   text: ReactNode;
   period: Period;
   allowed?: AdministrationExportFormat[];
+  available?: boolean;
 }) {
   const action = useAction();
   const [downloaded, setDownloaded] = useState<string>();
@@ -1171,7 +1151,7 @@ function ExportCard({
               key={format}
               type="button"
               className="button"
-              disabled={action.pending}
+              disabled={action.pending || !available}
               aria-label={msg("Download {0} as {1}", title, label)}
               onClick={() =>
                 void action.run(async () => {
@@ -1212,9 +1192,12 @@ function ExportCard({
 export function AdministrationReportsPage({
   route,
   canManageMembers,
+  downloadsAvailable = true,
 }: {
   route: string;
   canManageMembers: boolean;
+  /** The browser-only preview cannot generate a file. */
+  downloadsAvailable?: boolean;
 }) {
   const period = readPeriod(route);
   return (
@@ -1237,6 +1220,15 @@ export function AdministrationReportsPage({
           )}
         </p>
       </div>
+      {!downloadsAvailable && (
+        <div className="notice info" role="note">
+          <p>
+            {msg(
+              "This preview has no server: files are generated only in a signed-in workspace.",
+            )}
+          </p>
+        </div>
+      )}
       <div
         className="administration-exports"
         key={`${period.from}:${period.to}:${canManageMembers}`}
@@ -1244,6 +1236,7 @@ export function AdministrationReportsPage({
         <ExportCard
           dataset="report"
           period={period}
+          available={downloadsAvailable}
           title={msg("Complete workspace report")}
           text={msg(
             "Summary, channels, states, activity, charges{0}. Excel has one sheet per table; the PDF is ready to file or share.",
@@ -1254,6 +1247,7 @@ export function AdministrationReportsPage({
         <ExportCard
           dataset="activity"
           period={period}
+          available={downloadsAvailable}
           title={msg("Activity")}
           text={msg(
             "Every dispatch created in the period with its state and amounts.",
@@ -1262,6 +1256,7 @@ export function AdministrationReportsPage({
         <ExportCard
           dataset="consumption"
           period={period}
+          available={downloadsAvailable}
           title={msg("Consumption")}
           text={msg(
             "Each posted charge for accounting, with totals by service, channel and day.",
@@ -1272,6 +1267,7 @@ export function AdministrationReportsPage({
             <ExportCard
               dataset="members"
               period={period}
+              available={downloadsAvailable}
               title={msg("Members")}
               text={msg(
                 "Members, roles, permissions, access and approvals in the period.",
@@ -1280,12 +1276,14 @@ export function AdministrationReportsPage({
             <ExportCard
               dataset="connections"
               period={period}
+              available={downloadsAvailable}
               title={msg("Access and sign-ins")}
               text={msg("Open access and recorded sign-ins of members.")}
             />
             <ExportCard
               dataset="audit"
               period={period}
+              available={downloadsAvailable}
               title={msg("Audit log")}
               text={msg(
                 "Recorded actions of the workspace, including exports.",
