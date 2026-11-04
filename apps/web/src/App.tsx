@@ -1,4 +1,4 @@
-import { msg } from "./messages";
+import { msg, msgIn } from "./messages";
 import { isAdvancedLocalPreview } from "./local-preview";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
@@ -522,6 +522,24 @@ function Application() {
       ?.setAttribute("content", description);
     syncPublicSharing();
   }, [locale, emailPreferencesRoute, publicLocation]);
+  useEffect(() => {
+    // Private pages name their application in the tab, after the public
+    // metadata effect above, instead of keeping the homepage title.
+    if (!route.startsWith("/app") || emailPreferencesRoute) return;
+    const path = route.split("?")[0] ?? "";
+    const application = {
+      personal:
+        path === "/app/services"
+          ? msg("Use Guteneo")
+          : path === "/app/personal-account"
+            ? msg("Account and security")
+            : msg("My documents"),
+      studio: msgIn("application", "Studio"),
+      workshop: msgIn("application", "Correspondence"),
+      administration: msgIn("application", "Administration"),
+    }[spaceOf(path)];
+    document.title = `${application} | guteneo`;
+  }, [route, locale, emailPreferencesRoute, publicLocation]);
   if (emailPreferencesRoute)
     return (
       <Suspense fallback={<Loading />}>

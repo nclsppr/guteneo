@@ -8,6 +8,7 @@ async function fixture(
   locale = "fr",
 ) {
   let workspace = "administration-fixture";
+  let canReport = true;
   const totals = new Map<string, number>();
   const reads: string[] = [];
   const writes: string[] = [];
@@ -33,9 +34,9 @@ async function fixture(
           preferredLocale: locale,
           name: role === "admin" ? "Camille Admin" : "Lou Rapports",
           role,
-          supervisorCanReport: role === "supervisor",
+          supervisorCanReport: role === "supervisor" && canReport,
         },
-        permissions: workspacePermissions(role, { canReport: true }),
+        permissions: workspacePermissions(role, { canReport }),
         csrfToken: "fixture-only",
         simulation: true,
       };
@@ -60,8 +61,16 @@ async function fixture(
         acr: null,
         verifiedAccount: true,
         authenticatedAt: Date.now(),
+        // The server projects each membership's current report right.
         workspaces: [
-          { id: workspace, name: "Atelier Alpha", role, current: true },
+          {
+            id: workspace,
+            name: "Atelier Alpha",
+            role,
+            current: true,
+            canViewReports: workspacePermissions(role, { canReport })
+              .viewReports,
+          },
         ],
       };
     else if (path === "/personal/documents/summary") {
@@ -227,6 +236,9 @@ async function fixture(
     },
     changeRole(next: typeof role) {
       role = next;
+    },
+    revokeReports() {
+      canReport = false;
     },
     overviewTotal(from: string, total: number) {
       totals.set(from, total);
@@ -414,6 +426,50 @@ test("a workspace administrator can return from My documents to Administration",
     "Vue d’ensemble de l’espace de travail",
   );
   await expect(page.locator(".stat-tile").first()).toContainText("1 234");
+  expect(state.writes).toEqual([]);
+});
+
+test("a supervisor with report permission reaches Administration from My documents", async ({
+  page,
+}) => {
+  const state = await fixture(page, "supervisor");
+  await page.goto("/#/app/my-documents");
+  await expect(page.locator("main h1")).toHaveText("Mes documents");
+  await page.getByRole("button", { name: /^Application/ }).click();
+  await page
+    .getByRole("navigation", { name: "Applications", exact: true })
+    .getByRole("link", { name: "Administration", exact: true })
+    .click();
+  await expect(page.locator("main h1")).toHaveText(
+    "Vue d’ensemble de l’espace de travail",
+  );
+  expect(state.reads.some((read) => read.startsWith("/admin/members"))).toBe(
+    false,
+  );
+  expect(state.writes).toEqual([]);
+});
+
+test("My documents stops offering Administration once the report right is removed", async ({
+  page,
+}) => {
+  const state = await fixture(page, "supervisor");
+  state.revokeReports();
+  await page.goto("/#/app/my-documents");
+  await expect(page.locator("main h1")).toHaveText("Mes documents");
+  await page.getByRole("button", { name: /^Application/ }).click();
+  const applications = page.getByRole("navigation", {
+    name: "Applications",
+    exact: true,
+  });
+  await expect(
+    applications.getByRole("link", { name: "Mes documents", exact: true }),
+  ).toBeVisible();
+  await expect(
+    applications.getByRole("link", { name: "Administration", exact: true }),
+  ).toHaveCount(0);
+  expect(state.reads.some((read) => read.startsWith("/administration/"))).toBe(
+    false,
+  );
   expect(state.writes).toEqual([]);
 });
 

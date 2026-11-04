@@ -9,6 +9,7 @@ import {
   defaultDashboardAppearance,
 } from "../../../packages/contracts/src/dashboard-appearance";
 import { documentAccessMode } from "../../../packages/contracts/src/document-authentication";
+import { workspacePermissions } from "../../../packages/contracts/src/roles";
 import {
   AuthError,
   authenticatePersonalBrowser,
@@ -120,6 +121,12 @@ export async function publicPersonalSession(
       name: member.organization_name,
       role: member.role,
       current: member.organization_id === current?.organization_id,
+      // A navigation hint from the current membership; Administration reads
+      // recheck it, and focus revalidation drops it once the right is removed.
+      canViewReports: workspacePermissions(member.role, {
+        canApprove: member.supervisor_can_approve === 1,
+        canReport: member.supervisor_can_report === 1,
+      }).viewReports,
     })),
   };
 }

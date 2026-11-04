@@ -394,6 +394,71 @@ test("paging replaces the bounded rows and changing page size restarts at the fi
   expect(state.writes).toEqual([]);
 });
 
+test("returning from a document restores its page, position and focus without rereading", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.setViewportSize({ width: 1280, height: 720 });
+  const listReads: string[] = [];
+  await page.route("**/api/personal/documents?**", (route) => {
+    const query = new URL(route.request().url()).searchParams;
+    listReads.push(query.toString());
+    const size = Number(query.get("limit"));
+    const offset = Number(query.get("cursor") ?? 0);
+    return route.fulfill({
+      json: {
+        items: Array.from({ length: Math.min(size, 51 - offset) }, (_, i) =>
+          item(`Document ${offset + i + 1}`),
+        ),
+        nextCursor: offset + size < 51 ? String(offset + size) : null,
+        total: 51,
+      },
+    });
+  });
+  await page.route(
+    (url) => url.pathname.startsWith("/api/personal/documents/Document"),
+    (route) =>
+      route.fulfill({
+        status: 404,
+        json: { error: { code: "NOT_FOUND", message: "Not found." } },
+      }),
+  );
+  await page.goto("/#/app/my-documents");
+  await page
+    .getByRole("button", { name: "Next documents", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Document 26", exact: true }),
+  ).toBeVisible();
+  const open = page.locator('[data-document-link="Document 40"]');
+  await open.scrollIntoViewIfNeeded();
+  const scrollY = await page.evaluate(() => window.scrollY);
+  expect(scrollY).toBeGreaterThan(0);
+  const reads = listReads.length;
+  await open.click();
+  const back = page.getByRole("link", {
+    name: "Back to my documents",
+    exact: true,
+  });
+  await expect(back).toBeVisible();
+  await expect(open).toBeHidden();
+  await back.click();
+  await expect(open).toBeFocused();
+  await expect(
+    page.getByRole("heading", { name: "Document 26", exact: true }),
+  ).toBeVisible();
+  expect(
+    Math.abs((await page.evaluate(() => window.scrollY)) - scrollY),
+  ).toBeLessThan(2);
+  // Browser Back from the document returns to the same row as well.
+  await open.click();
+  await expect(back).toBeVisible();
+  await page.goBack();
+  await expect(open).toBeFocused();
+  expect(listReads).toHaveLength(reads);
+  expect(state.writes).toEqual([]);
+});
+
 for (const status of [401, 403])
   test(`a ${status} summary refusal cannot be overwritten by a delayed authorized list`, async ({
     page,
