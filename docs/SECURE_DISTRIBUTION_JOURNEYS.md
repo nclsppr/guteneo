@@ -175,6 +175,14 @@ from either list or summary clears all loaded metadata. Refresh/retry rechecks
 authority; changing account remounts all page state. The optional generic
 workspace invitation remains independent of document contents and access.
 
+4 November 2026: opening a document keeps the list mounted but hidden, so the
+back link and browser Back return to the same page, scroll position and focus
+on that document's link without a new read; deleting or saving a copy rereads
+the current page and counts. Rows show the sender and either the end of
+availability/retention or, once ended, "Access ended …"/"Retention ended …";
+revoked rows show only their state. Measurements on 5,000 documents are in
+[frontend performance](FRONTEND_PERFORMANCE.md).
+
 These reads expose no workspace OAuth/MCP or native personal-vault capability,
 perform no document-content prefetch and grant no sender membership. The current
 server authentication policy, association, approval, retention and financial
@@ -182,7 +190,7 @@ invariants are unchanged. Local migrated-D1 and intercepted-browser qualificatio
 are recorded in [frontend performance](FRONTEND_PERFORMANCE.md); hosted volume,
 real recipients and provider delivery remain separate evidence.
 
-**Use Guteneo** remains in the same session. Recipients can prepare sends/share documents, choose an existing membership or request an initial workspace. The server explicitly creates required business structures with real channels closed and administrator role for the creator. Creation/selection reloads the chosen preparation document and workspace session; identity, rights and CSRF all come from the new server session without retaining old workspace context. Failures stay visible in the personal area. Selecting the sender's workspace without membership is denied. Receipt implies no new login identity, mandatory subscription or marketing consent.
+**Use Guteneo** remains in the same session. Recipients can prepare sends/share documents, choose an existing membership or request an initial workspace. Below the workspace form, three destination cards (**Send documents**, **Share a sensitive document**, **Manage a workspace**) choose where the workspace opens and return focus to the form; it states "Next: …" and creation says the person becomes administrator, channels start closed and nothing is charged without explicit approval. `?next=` accepts only those known destinations; **Manage a workspace** lists only memberships whose server-projected report right allows Administration. The server explicitly creates required business structures with real channels closed and administrator role for the creator. Creation/selection reloads the chosen preparation document and workspace session; identity, rights and CSRF all come from the new server session without retaining old workspace context. Failures stay visible in the personal area. Selecting the sender's workspace without membership is denied. Receipt implies no new login identity, mandatory subscription or marketing consent.
 
 Ordinary application entry (`/#/app`) by a verified account without a workshop
 now opens **Use Guteneo** with the workspace form before service cards. Choose

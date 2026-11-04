@@ -1,6 +1,6 @@
 ---
 title: "Workspace administration and reports"
-description: "10 capabilities in the access branch of Guteneo."
+description: "13 capabilities in the access branch of Guteneo."
 sidebar:
   order: 28
 ---
@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Authenticated browser session.
 
-3 November 2026 recovered source candidate. Current local qualification and limits are recorded in the administration contract; hosted CI, production-data and physical-device qualification remain separate.
+4 November 2026 continuation of the 3 November recovered source candidate. Current local qualification and limits are recorded in the administration contract; hosted CI, production-data and physical-device qualification remain separate.
 
 **Surfaces:** Authenticated browser membership only; OAuth, MCP and native callers are refused.
 
@@ -28,4 +28,7 @@ sidebar:
 <li id="feature-362e5c9aadee">CSV, Excel and PDF exports of the period with exact decimal amounts from integer minor units, formula-safe CSV, a cumulative 10,000-row and 4 MiB text refusal, bounded cells and a global 500-row PDF with explicit omissions and an audit entry per export</li>
 <li id="feature-29dc2e239b7e">Earlier /app/admin, /app/usage and /app/billing addresses remain aliases, including billing portal returns</li>
 <li id="feature-7f33dc04f3af">URL periods reject malformed dates safely; custom fields follow presets and history, stale reads cannot overwrite the current workspace, and obsolete export downloads are cancelled</li>
+<li id="feature-73bbd208ff0d">My documents and Use Guteneo offer Administration from a server-computed per-membership report right in the personal session; removal hides it and the API refuses meanwhile</li>
+<li id="feature-bd7353f7e9ae">PDF exports embed the pinned Roboto font only when a drawn string is outside WinAnsi, size columns from content, wrap headers, share the 500-row budget across tables and localize header dates; the Excel summary stores typed numbers, money and date-time</li>
+<li id="feature-c7a827772d90">The public preview renders Administration over its fictional workspace with the server's permission split; exports stay disabled there</li>
 </ol>

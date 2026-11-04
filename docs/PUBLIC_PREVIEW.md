@@ -61,8 +61,20 @@ counts, and the default dedicated fixture remains compatible with prior tests.
 Production canonical Belvédère continues to check its actual authenticated
 platform authority on every read.
 
+Administration in the preview renders the real pages over the tab's fictional
+workspace: `preview-administration.ts` derives overview, activity,
+consumption, members, access and audit from the same fictional dispatches,
+documents and members the other applications show, validates periods like the
+server and applies its permission split (members, access and audit for
+administrators; report views for supervisors with report permission). It
+invents no preparer, connection country or real record. Generated volume
+scenarios are refused with `PREVIEW_ADMINISTRATION_DEFAULT_ONLY`, and export
+buttons stay disabled with a notice, since no file can be generated without a
+server.
+
 Source contracts: `preview-data.ts`, `preview.ts`, `preview-studio.ts`,
-`preview-personal.ts`, `local-preview.ts` and `local-preview-controls.tsx` under
+`preview-personal.ts`, `preview-administration.ts`, `local-preview.ts` and
+`local-preview-controls.tsx` under
 `apps/web/src`; the dedicated local server and `tests/fixtures/local-belvedere.ts`
 remain server/test-only. `playwright.local-preview.config.ts` is a separate DEV
 qualification configuration; hosted CI's production/browser-preview inventory and

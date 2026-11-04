@@ -26,6 +26,12 @@ from Correspondence and the personal profile into Administration; `/app/admin`,
 `/app/usage` and `/app/billing` remain aliases. The
 [administration contract](WORKSPACE_ADMINISTRATION.md) owns its authority,
 exports and the decision to keep Belvédère platform-only.
+Since 4 November 2026 the personal session projects a server-computed report
+right per membership, so My documents and Use Guteneo offer Administration to
+the same people the workspace switcher does (administrators, supervisors with
+report permission) and stop as soon as that right is removed. Each
+authenticated page also names its application in the browser tab
+(`Administration | guteneo`, `My documents | guteneo`, …).
 
 ## Ownership layers
 

@@ -56,6 +56,35 @@ are covered by isolated migrated D1 fixtures with production mode flags and no
 provider traffic; real customer ledgers are not part of this proof.
 
 
+## My documents at 5,000 documents — 4 November 2026 local measurement
+
+One fictional recipient account received 5,000 shares from five fictional
+senders (names with accents, `ł`, `ř`, `ß`, `·`) and kept 400 saved copies, in
+an isolated migrated D1 served by local workerd (`--persist-to` outside the
+default state). One Chromium run drove the real web build; server timings are
+those reported per request, single samples on an unisolated laptop, not
+production latency.
+
+| Step | Requests (server ms) |
+| --- | --- |
+| Open the list | personal session 12 · first page 45 · summary 72 |
+| Status "ending soon" · sort "ending soonest" | one page each, 21 · 18 |
+| Accent-folded search "ete" alone · combined with status and sort | 142 · 29 |
+| Sender filter (1,000 documents) | 25–57 |
+| Next page 2 → 4 (keyset, sort "oldest") | 19–23 each |
+| Saved copies tab | 12 |
+
+Before this change, returning from a document (back link or browser Back)
+rebuilt the list at page 1 with two or three new reads, losing the range
+"Documents 76 à 100". The list now stays mounted but hidden while a document is
+open: both returns show the same range, first row, scroll position and focus on
+the opened document's link with no list or summary read. Deleting a copy or
+saving one from the reader rereads the current page and counts. Focus
+revalidation keeps the same personal session object when nothing changed, so it
+no longer rereads the list. `tests/e2e/personal-document-list.spec.ts` covers
+the return path; the fixture composition and raw step timings are in the
+[4 November record](evidence/mydocuments-administration-2026-11-04.json).
+
 ## My documents list recovery — 3 November 2026 local candidate
 
 The recovered list hydrates a whole owner-bound page and its filtered total in
