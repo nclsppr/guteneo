@@ -1,5 +1,28 @@
 # Architecture
 
+## Secure source-copy boundary — 5 November 2026 candidate
+
+The browser-only source-copy service creates one creator-private document per
+tenant/user/idempotency key from an accessible ready original. It checks exact
+size/SHA-256 and existing production scan evidence, writes an independent R2
+object, then rechecks current browser authority and the unchanged source in the
+document-insertion transaction. Migration 0073 separates copies from ordinary
+hash deduplication, reserves them for secure sharing immediately and consumes
+content quota once per inserted copy. The durable document is the retry receipt;
+uncertain writes retain their immutable object for recovery/orphan maintenance.
+No provider, approval, financial reservation or outbox operation is involved.
+
+The [source-copy journey](SECURE_DISTRIBUTION_JOURNEYS.md#create-a-source-copy-for-secure-sharing--5-november-2026-candidate)
+owns browser entry, rights, recovery and the limit of revocation. Previous
+deliveries and postal work keep their original reference. This candidate is
+separate from recipient-owned retained copies and creates no personal-vault
+authority. Publish the compatible runtime before migration 0073; ordinary imports
+use an upsert compatible with both index sets, and audit receipts exclude secure
+copies from legacy access and normal deduplication without requiring the new
+column. Missing copy schema fails closed before R2 work. After migration, rollback
+must preserve compatible registration logic. Dated local evidence and separately
+authorized production publication remain distinct.
+
 ## Workspace report boundary — 3 November 2026 candidate
 
 Browser-only Administration routes derive the organization and current role

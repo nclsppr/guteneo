@@ -1,6 +1,6 @@
 ---
 title: "Sensitive distribution and personal documents"
-description: "35 capabilities in the deliver branch of Guteneo."
+description: "36 capabilities in the deliver branch of Guteneo."
 sidebar:
   order: 10
 ---
@@ -9,9 +9,9 @@ sidebar:
 
 **Access boundary:** Current capability and authority required.
 
-Implemented candidate with migrations 0055–0059 and separate deterministic strong/verified_account qualification. Default strong, explicitly selected verified_account, aligned environment/D1 policy and human approval remain mandatory; real Auth0, provider delivery, publication and external-client proof are separate.
+Implemented candidate with migrations 0055–0059 and separate deterministic strong/verified_account qualification. Source-copy recovery adds migration 0073 after the compatible runtime is published. Default strong, explicitly selected verified_account, aligned environment/D1 policy and human approval remain mandatory; real Auth0, provider delivery, publication and external-client proof are separate.
 
-**Surfaces:** Workspace and personal web UI in FR/EN/DE/LB with shared V2 primitives; workspace REST/MCP and assistant packages under scopes. Recipient access, sensitive approval and explicit quote renewal are browser-only; workspace Bearer tokens cannot open the personal vault. Native and real host support need surface-specific qualification.
+**Surfaces:** Workspace and personal web UI in FR/EN/DE/LB with shared V2 primitives; workspace REST/MCP and assistant packages under scopes. Source-copy recovery, recipient access, sensitive approval and explicit quote renewal are browser-only; workspace Bearer tokens cannot create source copies or open the personal vault. Native and real host support need surface-specific qualification.
 
 [Read the engineering guide](/workflows/secure-distribution/) · [All features](/features/)
 
@@ -19,7 +19,8 @@ Implemented candidate with migrations 0055–0059 and separate deterministic str
 
 <ol>
 <li id="feature-08115f58a8e9">One Guteneo account receives, keeps documents and uses services, with zero workspaces permitted</li>
-<li id="feature-6d0917d240c7">Prepare a verified PDF for one named recipient; immutable permissions, term, tax-exclusive price and notification language; revoke unexpired legacy draft/active hosting first, and use a dedicated source after any referenced postal derivation, legacy send, postal preflight or provider draft</li>
+<li id="feature-331c5a3d7bdb">Prepare a verified PDF for one named recipient; immutable permissions, term, tax-exclusive price and notification language; legacy protected links, postal derivations, ordinary sends, postal preflights and provider drafts prevent reuse of the same source</li>
+<li id="feature-409d30d3c27b">Both browser composers offer an explicit source copy after a legacy-source refusal: new creator-private document and independent exact-byte R2 object, reserved for secure sharing immediately; preserve form input and retry the same key without another copy or quota debit, with no automatic preparation, approval, sending or recall of prior copies</li>
 <li id="feature-f5e6d1d8fb7f">Bounded durable private rendering serves authorized page images and accessible text; the reader never delivers the original PDF</li>
 <li id="feature-8b90be060e64">Shared terms of 7/30/90/365 days and personal-copy terms of 365/1095 days; personal-copy options are funded at activation even when unused</li>
 <li id="feature-5ffc6245e7d3">Versioned prices and separate invitation transport; activated retention commitments are nonrefundable even after revocation</li>

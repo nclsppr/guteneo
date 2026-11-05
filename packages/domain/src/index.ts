@@ -117,6 +117,8 @@ export type DocumentRecord = {
   created_at: string;
   /** Null/absent keeps the historical organization-wide exact-import behavior. */
   access_owner_id?: string | null;
+  /** Independent source reserved for secure distribution. */
+  secure_copy_source_id?: string | null;
 };
 export type DispatchStatus =
   | "prepared"
@@ -552,7 +554,7 @@ export class DomainService {
     const fence = authority?.sql();
     const insert = this.db
       .prepare(
-        `INSERT INTO documents(id,organization_id,name,sha256,size,pages,status,source,storage_key,created_at,access_owner_id) SELECT ?,?,?,?,?,?,?,?,?,?,? WHERE ${fence?.condition ?? "1=1"} ON CONFLICT(${input.privateToCreator ? "organization_id,sha256,access_owner_id" : "organization_id,sha256"}) WHERE status<>'purged' AND access_owner_id IS ${input.privateToCreator ? "NOT " : ""}NULL DO UPDATE SET status=documents.status RETURNING *`,
+        `INSERT INTO documents(id,organization_id,name,sha256,size,pages,status,source,storage_key,created_at,access_owner_id) SELECT ?,?,?,?,?,?,?,?,?,?,? WHERE ${fence?.condition ?? "1=1"} ON CONFLICT DO UPDATE SET status=documents.status WHERE documents.status<>'purged' AND documents.organization_id=excluded.organization_id AND documents.sha256=excluded.sha256 AND documents.size=excluded.size AND documents.access_owner_id IS excluded.access_owner_id AND NOT EXISTS(SELECT 1 FROM audit_log copy_receipt WHERE copy_receipt.organization_id=documents.organization_id AND copy_receipt.resource_id=documents.id AND copy_receipt.action='document.secure_copy_created') RETURNING *`,
       )
       .bind(
         id,
@@ -575,7 +577,7 @@ export class DomainService {
       statements.push(
         this.db
           .prepare(
-            `UPDATE documents SET status='ready',pages=? WHERE organization_id=? AND sha256=? AND access_owner_id IS ? AND status='quarantined' AND pages=0 AND ${fence?.condition ?? "1=1"}`,
+            `UPDATE documents SET status='ready',pages=? WHERE organization_id=? AND sha256=? AND access_owner_id IS ? AND NOT EXISTS(SELECT 1 FROM audit_log copy_receipt WHERE copy_receipt.organization_id=documents.organization_id AND copy_receipt.resource_id=documents.id AND copy_receipt.action='document.secure_copy_created') AND status='quarantined' AND pages=0 AND ${fence?.condition ?? "1=1"}`,
           )
           .bind(
             input.pages,
@@ -976,12 +978,13 @@ export class DomainService {
     if (input.documentId) {
       document = await this.getDocument(ctx, input.documentId);
       if (
-        await this.db
+        document.secure_copy_source_id ||
+        (await this.db
           .prepare(
             "SELECT 1 FROM secure_distributions WHERE organization_id=? AND source_id=?",
           )
           .bind(ctx.organizationId, document.id)
-          .first()
+          .first())
       )
         throw new DomainError(
           "SENSITIVE_SOURCE_LEGACY_FORBIDDEN",

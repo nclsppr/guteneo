@@ -1,5 +1,16 @@
 # Execution plan and handoff
 
+## Secure source copy — 5 November 2026 candidate
+
+Both secure-sharing browser entry points recover from legacy-source isolation
+refusals with an explicit creator-private exact-PDF copy. The new source is
+independent and reserved for secure sharing; previous sends, links and copies
+remain unchanged. Form input and same-key recovery are preserved, with no
+automatic preparation, approval or communication. See
+[the source-copy contract](SECURE_DISTRIBUTION_JOURNEYS.md#create-a-source-copy-for-secure-sharing--5-november-2026-candidate).
+Migration, test evidence and publication limits are recorded with the candidate;
+production deployment remains separately authorized.
+
 ## Cloudflare authority alert — 3 November 2026 diagnosis
 
 Read-only Mail, runtime and D1 evidence identifies one Luxembourg operator-test

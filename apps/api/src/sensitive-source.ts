@@ -6,8 +6,8 @@ import { DomainError } from "../../../packages/domain/src/index";
 export function legacySourceFence(organizationId: string, documentId: string) {
   return {
     condition:
-      "NOT EXISTS(SELECT 1 FROM secure_distributions legacy_sensitive_source WHERE legacy_sensitive_source.organization_id=? AND legacy_sensitive_source.source_id=?)",
-    values: [organizationId, documentId],
+      "NOT EXISTS(SELECT 1 FROM secure_distributions legacy_sensitive_source WHERE legacy_sensitive_source.organization_id=? AND legacy_sensitive_source.source_id=?) AND NOT EXISTS(SELECT 1 FROM audit_log legacy_secure_copy WHERE legacy_secure_copy.organization_id=? AND legacy_secure_copy.resource_id=? AND legacy_secure_copy.action='document.secure_copy_created')",
+    values: [organizationId, documentId, organizationId, documentId],
   };
 }
 

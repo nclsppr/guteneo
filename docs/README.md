@@ -78,6 +78,10 @@ authoritative section instead of copying it. Every feature change must update th
 atlas, affected permissions and customer journeys in the same pull request, as
 required by [AGENTS.md](../AGENTS.md).
 
+The [secure source-copy recovery](SECURE_DISTRIBUTION_JOURNEYS.md#create-a-source-copy-for-secure-sharing--5-november-2026-candidate)
+describes the browser action for documents already used by ordinary sending or
+postal workflows, its independent private source and its publication limits.
+
 The [strict MCP registration controller](MCP_REGISTRATION.md) owns the separately gated native Auth0 registration candidate and its qualification limits.
 
 The [FR/DE fax reference-group contract](FAX_EEA_REFERENCE_MAINTENANCE.md) owns

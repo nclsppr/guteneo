@@ -28,6 +28,13 @@ personal vault or claims to have verified their identity.
    identifier; never create a second preparation. Present the exact EUR quote
    excluding tax: shared retention, any personal retention, notification and
    total. Never invent a price.
+   If preparation reports `SECURE_SOURCE_LEGACY_LINK`,
+   `SECURE_SOURCE_LEGACY_DERIVATION` or `SECURE_SOURCE_LEGACY_OUTBOUND`, explain
+   that historical use can block this source even after cancellation/failure.
+   Direct the person to the Guteneo browser composer to choose **Create a copy
+   for this secure share**, then prepare/review the independent source there.
+   Copy creation is browser-only and grants no approval or sending authority.
+   It neither cancels an earlier transfer nor recalls copies already received.
 5. Before activation, explain that the funded term is non-refundable even if
    the workspace disables sharing before expiry. Have the person open
    `approvalUrl` to review content, recipient, rights and price in the Guteneo

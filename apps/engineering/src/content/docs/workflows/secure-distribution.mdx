@@ -29,6 +29,26 @@ the same account without inventing a sender membership for the recipient.
 
 ## Freeze the sharing contract before approval
 
+An ordinary send, protected link or postal preparation can already use the source,
+even after cancellation or failure. Both browser composers then offer **Create a
+copy for this secure share**. This creates an independent creator-private source
+with exactly the same PDF bytes, reserves it for secure sharing and selects it
+without losing the entered recipient, message or options. Preparation and human
+review remain explicit. Existing links, transfers and delivered copies retain
+their own rules; revoking the new share cannot recall earlier copies.
+
+This recovery requires current browser preparation rights and source access.
+The endpoint rejects OAuth/native authority and sources already bound to sensitive
+distribution. Exact integrity, ready status, production scan proof, CSRF and
+content quotas remain enforced. Stable-key retries return the same copy and
+consume no duplicate quota. Copy creation performs no distribution activation or
+provider call. This candidate requires runtime-first publication: deploy the
+compatible runtime before the source-copy migration, which changes ordinary
+deduplication indexes. Before migration, copy creation is unavailable and ordinary
+imports remain compatible. After migration, a rollback must retain that compatible
+registration logic. Local source/tests alone do not establish a deployed recovery
+journey.
+
 The preparer selects one accessible verified PDF, one recipient, term, permissions,
 notification language, message and complete quote. Sources are limited to 10 MiB
 and 100 pages. Rendering runs in durable batches of at most three pages and

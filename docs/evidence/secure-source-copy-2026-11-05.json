@@ -1,0 +1,249 @@
+{
+  "date": "2026-11-05",
+  "baseCommit": "b0d09153",
+  "scope": "Local synthetic D1/R2 backend and intercepted-browser qualification; no hosted identity, provider communication or production publication.",
+  "sourceSha256": {
+    "apps/api/src/secure-document-copy.ts": "f912ad422afa0fbb62d8b2257c4a3b8a3103a089ba32c1e8080a41b2d7dfcc40",
+    "apps/api/src/index.ts": "1a86128ba7dc70a73497256c1ba007812bd2c60f0922feb05c841001807d9727",
+    "apps/api/src/sensitive-source.ts": "5b26f758accf5c5518f5d57a5c2b43f39d7c1a3e125397b50d32d1bd8f4f56de",
+    "apps/api/src/document-upload.ts": "6a53dd395b5e3d610c33ec586224c31327e948e98f7415837ee77db81025f62c",
+    "packages/domain/src/index.ts": "6301697a8dbb820b53cdfccbd21a479dcd7603bfd2f89b52ce7a5425e922d4b3",
+    "migrations/0073_secure_document_source_copies.sql": "43fbae20e0afaccc58c913e78c998bea2b13b9af5e6bc91201e9c0460da8a13f",
+    "apps/web/src/secure-source-copy.tsx": "f7f2e4eed5f958d27de6ef37f2a4295cd79f615fda11b20fa4b5a3b635b0927f",
+    "apps/web/src/secure-distribution-pages.tsx": "bbf20365ca8a6bc5e6573ca0edc701c3857f8d4b2d1df5cb10a869004bcd5be7",
+    "apps/web/src/dispatch-pages.tsx": "1ee49e1aa17e2e3d9dc2bdc022f5385d513aa707ec51aff2bf85731ed8fba1a1",
+    "apps/web/src/locales/messages-secure-documents.json": "2985af70526ebc935ebbb36c9d288c9ae4356811dc8ea66d745cd398a796d8be",
+    "apps/web/src/api.ts": "56f1cd7712df610a71570f9098cad6367cdd25205bf3e1da7aa528e3134bb5d8",
+    "package.json": "9361a4dce1139856b5e99943a4ac14dce845707d697bee57b3c843a8f251c9db"
+  },
+  "backend": {
+    "newSourceCopyCasesPassed": 15,
+    "privateUploadCasesPassed": 41,
+    "mcpAppUploadCasesPassed": 24,
+    "legacyBoundaryCasesPassed": 24,
+    "documentCasesPassed": 18,
+    "deliveryQuoteCasesPassed": 37,
+    "mcpIntegrationCasesPassed": 35
+  },
+  "browser": {
+    "passed": 144,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0,
+    "elapsedSeconds": 137.62,
+    "specs": [
+      "protected-email.spec.ts",
+      "secure-distribution-recovery.spec.ts",
+      "secure-distribution-send.spec.ts",
+      "secure-source-copy.spec.ts"
+    ],
+    "projects": [
+      "chromium",
+      "mobile-chromium",
+      "iphone-webkit"
+    ],
+    "note": "Broad regression precedes two added API-error translations; no executable source changed afterward."
+  },
+  "performance": [
+    {
+      "project": "chromium",
+      "composer": "secure",
+      "resourceCount": 39,
+      "javascriptEncodedBytes": 559867,
+      "javascriptTransferredBytes": 567067,
+      "firstContentfulPaintMs": 212,
+      "firstUsefulFormMs": 356.2999999523163,
+      "readsBeforeRecovery": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/secure-distributions/catalog",
+        "/api/documents"
+      ],
+      "readsAfterCopy": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/secure-distributions/catalog",
+        "/api/documents"
+      ],
+      "writesBeforeExplicitPreparation": [
+        "/api/secure-distributions",
+        "/api/documents/doc_original/secure-copy"
+      ]
+    },
+    {
+      "project": "chromium",
+      "composer": "email",
+      "resourceCount": 48,
+      "javascriptEncodedBytes": 590094,
+      "javascriptTransferredBytes": 599394,
+      "firstContentfulPaintMs": 176,
+      "firstUsefulFormMs": 506.1999999284744,
+      "readsBeforeRecovery": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/documents",
+        "/api/senders"
+      ],
+      "readsAfterCopy": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/documents",
+        "/api/senders"
+      ],
+      "writesBeforeExplicitPreparation": [
+        "/api/secure-distributions",
+        "/api/documents/doc_original/secure-copy"
+      ]
+    },
+    {
+      "project": "mobile-chromium",
+      "composer": "secure",
+      "resourceCount": 39,
+      "javascriptEncodedBytes": 559867,
+      "javascriptTransferredBytes": 567067,
+      "firstContentfulPaintMs": 152,
+      "firstUsefulFormMs": 228.10000002384186,
+      "readsBeforeRecovery": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/secure-distributions/catalog",
+        "/api/documents"
+      ],
+      "readsAfterCopy": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/secure-distributions/catalog",
+        "/api/documents"
+      ],
+      "writesBeforeExplicitPreparation": [
+        "/api/secure-distributions",
+        "/api/documents/doc_original/secure-copy"
+      ]
+    },
+    {
+      "project": "mobile-chromium",
+      "composer": "email",
+      "resourceCount": 48,
+      "javascriptEncodedBytes": 590094,
+      "javascriptTransferredBytes": 599394,
+      "firstContentfulPaintMs": 148,
+      "firstUsefulFormMs": 474.8000000715256,
+      "readsBeforeRecovery": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/documents",
+        "/api/senders"
+      ],
+      "readsAfterCopy": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/documents",
+        "/api/senders"
+      ],
+      "writesBeforeExplicitPreparation": [
+        "/api/secure-distributions",
+        "/api/documents/doc_original/secure-copy"
+      ]
+    },
+    {
+      "project": "iphone-webkit",
+      "composer": "secure",
+      "resourceCount": 40,
+      "javascriptEncodedBytes": 560584,
+      "javascriptTransferredBytes": 567784,
+      "firstContentfulPaintMs": 234,
+      "firstUsefulFormMs": 383,
+      "readsBeforeRecovery": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/secure-distributions/catalog",
+        "/api/documents"
+      ],
+      "readsAfterCopy": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/secure-distributions/catalog",
+        "/api/documents"
+      ],
+      "writesBeforeExplicitPreparation": [
+        "/api/secure-distributions",
+        "/api/documents/doc_original/secure-copy"
+      ]
+    },
+    {
+      "project": "iphone-webkit",
+      "composer": "email",
+      "resourceCount": 49,
+      "javascriptEncodedBytes": 590933,
+      "javascriptTransferredBytes": 600233,
+      "firstContentfulPaintMs": 145,
+      "firstUsefulFormMs": 1000,
+      "readsBeforeRecovery": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/documents",
+        "/api/senders"
+      ],
+      "readsAfterCopy": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/documents",
+        "/api/senders"
+      ],
+      "writesBeforeExplicitPreparation": [
+        "/api/secure-distributions",
+        "/api/documents/doc_original/secure-copy"
+      ]
+    }
+  ],
+  "limitations": [
+    "Browser API data is intercepted and fictional.",
+    "Backend uses actual local D1/R2 with synthetic source/provider fixtures.",
+    "Single timing samples on an unisolated host are not production latency or a baseline improvement.",
+    "No CI, hosted Auth0/recipient/provider qualification, merge, migration or production deployment is established.",
+    "Only the four affected browser specs and final focused source-copy rerun were qualified; the entire application E2E suite was not rerun."
+  ],
+  "finalBrowser": {
+    "passed": 27,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0,
+    "elapsedSeconds": 33.91,
+    "specs": [
+      "secure-source-copy.spec.ts"
+    ],
+    "projects": [
+      "chromium",
+      "mobile-chromium",
+      "iphone-webkit"
+    ],
+    "note": "Final catalog/build; performance and screenshots correspond to this run."
+  },
+  "generalValidation": {
+    "unitAndIntegration": {
+      "filesPassed": 194,
+      "casesPassed": 3819,
+      "failed": 0,
+      "elapsedSeconds": 394.8,
+      "workers": 2,
+      "command": "npx vitest run --fileParallelism --maxWorkers=2"
+    },
+    "security": {
+      "casesPassed": 682,
+      "failed": 0,
+      "elapsedSeconds": 35.42,
+      "command": "node --test tests/security/*.test.mjs"
+    },
+    "checksPassed": [
+      "typecheck",
+      "lint",
+      "build (Worker dry run only)",
+      "docs:build",
+      "docs:check",
+      "build:engineering",
+      "check:engineering",
+      "audit:mcp",
+      "check:integrations"
+    ]
+  }
+}

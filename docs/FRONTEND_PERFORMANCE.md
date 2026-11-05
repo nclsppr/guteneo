@@ -1,5 +1,42 @@
 # Frontend loading and table controls
 
+## Secure source-copy recovery — 5 November 2026 local measurement
+
+Both composers reuse one small recovery hook/notice inside their existing lazy
+Correspondence modules. Creating a copy uses its POST response to update the
+selector: it adds no document-list refresh, polling or heavyweight viewer import.
+The entered recipient, message, HTML, permissions and price choices stay in
+memory. Selecting another source or delivery mode clears obsolete recovery.
+
+[The evidence record](evidence/secure-source-copy-2026-11-05.json) binds source
+hashes and six single samples from fresh contexts against the optimized local
+build, with intercepted fictional API data and no network/CPU throttle. First
+useful form means the visible, enabled source selector, measured from navigation;
+it is not a physical paint measurement or a claimed improvement over a baseline.
+
+| Browser / form | First useful form (ms) | Encoded JS / transferred JS (bytes) | Bootstrap GETs / additional recovery GETs |
+| --- | ---: | ---: | ---: |
+| Desktop Chromium / secure share | 356.3 | 559,867 / 567,067 | 4 / 0 |
+| Desktop Chromium / email | 506.2 | 590,094 / 599,394 | 4 / 0 |
+| Pixel 7 Chromium / secure share | 228.1 | 559,867 / 567,067 | 4 / 0 |
+| Pixel 7 Chromium / email | 474.8 | 590,094 / 599,394 | 4 / 0 |
+| iPhone 13 WebKit / secure share | 383.0 | 560,584 / 567,784 | 4 / 0 |
+| iPhone 13 WebKit / email | 1,000.0 | 590,933 / 600,233 | 4 / 0 |
+
+The broad affected browser run passes 144/144 across these three projects, with
+zero skips, flaky cases or unexpected failures, in 137.62 seconds. It covers
+both complete drafts, explicit copy-only writes, same-key retries, double clicks,
+stale selection, delivery-mode changes, distinct same-name copy labels and all
+four interface languages. Each recovery performs only the failed preparation
+and the explicit copy request until the person chooses preparation again.
+Two remaining API-error catalog entries were then added; the final build passes
+all 27 focused source-copy browser cases in 33.91 seconds. The table and captures
+above correspond to this final build, under concurrent local test activity.
+[Desktop](evidence/secure-source-copy-desktop-2026-11-05.png) and
+[mobile](evidence/secure-source-copy-mobile-2026-11-05.png) captures retain the
+selected copy and draft. These local fixtures do not qualify hosted Auth0,
+physical devices, real recipients, provider communication or production latency.
+
 ## Workspace Administration recovery — 3 November 2026 local candidate
 
 Administration uses one lazy application module behind the current workspace

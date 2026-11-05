@@ -59,6 +59,7 @@ export type DocumentRecord = {
   pages: number;
   status: string;
   source: string;
+  secure_copy_source_id?: string | null;
   created_at: string;
   analysis?: DocumentAnalysis;
 };

@@ -161,6 +161,7 @@ beforeAll(async () => {
           "0059_document_authentication_policy.sql",
           "0060_pdf_validation_per_check.sql",
           "0065_verified_account_session_policy.sql",
+          "0073_secure_document_source_copies.sql",
         ].includes(f),
     )
     .sort())
