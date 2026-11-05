@@ -1,0 +1,218 @@
+{
+  "recordedAt": "2026-11-04T22:30:00Z",
+  "qualification": "Local isolated workerd/D1 servers, intercepted browser fixtures, the browser-only preview model and local Node measurements only. No real account, recipient, provider, deployment, hosted CI, physical device, native Excel/LibreOffice/Acrobat or deployed Worker memory/CPU qualification.",
+  "source": {
+    "gitBase": "69dd0b3703c89e95e433a15cc292265758d5b11a",
+    "branch": "codex/mydocuments-administration-reprise-20261104",
+    "dirty": true,
+    "sourceFingerprints": {
+      "apps/api/src/administration-exports.ts": "45d0ae13866cc7e7ce7af1caa97a55fd6620c67fe2e9798f02aadf96c819a003",
+      "apps/api/src/administration-pdf-font.ts": "76f27e09a815cda958f48e1a99f8fa167e413d62e7c6738527e2497582eec9c4",
+      "apps/api/src/administration-pdf-font-data.ts": "b32063cbb7d20ad742da4546ded7bde703d933ef4d835d2da04ae682df15da6b",
+      "apps/api/src/personal-auth.ts": "9031d6b7475987f1bfad4e012df300b92cac3e032f8d53e4ee3fee76d2702e88",
+      "apps/web/src/personal-space.tsx": "2da9df89573cf6fd63c229db2366ec5f63a0e1319946afc326bbca7a116bc206",
+      "apps/web/src/personal-documents.tsx": "5cf354f0b371f90e4c6b6cd94d929bbbc0d2765cb94b654f53e5ba5e7374541f",
+      "apps/web/src/personal-document-list.tsx": "a30d0d9b1316caa938e9af90078031ff1305c4e64b7ec314c4e569dc3f2a4b59",
+      "apps/web/src/personal-document-reader.tsx": "1a1bb0658ba67877fc2b6b5aacf81629e210f7f060025033700be063b14f5dcf",
+      "apps/web/src/space-switcher.tsx": "9c82a3a13bcfdb4f3c721d341aebd3406c2a72ee2bf477c89f1bf4be2fcc1095",
+      "apps/web/src/workspace-entry.ts": "c5d5cc5c963c302977ee2322da160e20e14ea0bcc51b6535aa83805c2cf6af9e",
+      "apps/web/src/administration.tsx": "512748902a577750dceaf2d2fe7d36a4f3357fb6b15ab5ac9c183176a73fc991",
+      "apps/web/src/administration-views.tsx": "6c135b33d9eb9bdd058928b402ca38deba8cdc65f31103f73cb662fbbb789291",
+      "apps/web/src/preview-administration.ts": "9c2a5b65f81f658b270349f1bced49aba42e87db12f2683b27630de2ebfb53cd",
+      "apps/web/src/preview.ts": "0263b1309d879dbc924ea3bfa1d3004d8467ddbd313a33d4e933387c5ae587ee",
+      "apps/web/src/secure-documents.css": "cf88a5145837151312269a1fd657d4872b1452e8b6eb719a6479ab7856a47981",
+      "scripts/build-administration-pdf-font.mjs": "24a7eba662f1227103988add84c80ed4c0045dc6e87a77135dcdd6deba07abd5"
+    }
+  },
+  "myDocumentsVolume": {
+    "environment": "Real web build on local workerd with --persist-to in an isolated .wrangler/reprise-* folder; one Chromium run; server times as reported per request; unisolated laptop; single samples, not production latency.",
+    "fixture": {
+      "recipientShares": 5000,
+      "recipientSavedCopies": 400,
+      "senders": [
+        "Atelier Gutenberg · Simulation",
+        "Studio Papier · Simulation",
+        "Cabinet Dvořák · Fictif",
+        "Étude Müller & Söhne · Fiktiv",
+        "Biuro Łódź · Fikcyjne"
+      ],
+      "states": "Every 20th share revoked, then pending, two expiring, two ended, the rest available; titles include accented and Luxembourgish/German letters for folded search",
+      "workspaceActivity": "3,200 fictional dispatches, 2,327 reservations, 800 audit entries and 900 sign-in events in the senders' simulation workspaces"
+    },
+    "serverMs": {
+      "personalSession": 12,
+      "firstPage": 45,
+      "summary": 72,
+      "statusFilter": 21,
+      "sortExpiry": 18,
+      "foldedSearchAlone": 142,
+      "foldedSearchWithStatusAndSort": 29,
+      "senderFilter1000": [25, 57],
+      "keysetPages2to4": [19, 23],
+      "savedCopiesTab": 12
+    },
+    "returnPath": {
+      "before": "Back link and browser Back from a document opened on page 4 rebuilt page 1 (\"Documents 1 à 25 sur 5 000\") with two or three list/summary reads.",
+      "after": "Both returns keep \"Documents 76 à 100 sur 5 000\", the same first row, the scroll position and focus on the opened document's link, with no list or summary read.",
+      "regression": "tests/e2e/personal-document-list.spec.ts › returning from a document restores its page, position and focus without rereading"
+    }
+  },
+  "administrationAccess": {
+    "change": "The personal session projects canViewReports per membership from workspacePermissions(role, supervisor flags) on each read; My documents and Use Guteneo offer Administration from it and the services bridge accepts only known next destinations.",
+    "tests": [
+      "tests/unit/personal-auth.test.ts › personal workspace hints follow current membership rights",
+      "tests/unit/workspace-entry.test.ts",
+      "tests/e2e/workspace-administration.spec.ts › a supervisor with report permission reaches Administration from My documents",
+      "tests/e2e/workspace-administration.spec.ts › My documents stops offering Administration once the report right is removed"
+    ]
+  },
+  "exports": {
+    "environment": "Files downloaded from the isolated local server as the fictional atelier administrator for 2026-10-06 – 2026-11-04 (809 dispatches; members named Gülşen Yılmaz, Łukasz Dvořák, Анна Петрова) and opened with macOS Quick Look; later PDF pages were extracted with pdf-lib and rendered the same way.",
+    "files": [
+      {
+        "dataset": "report",
+        "format": "pdf",
+        "locale": "fr",
+        "ms": 269,
+        "bytes": 172896,
+        "pages": 16
+      },
+      {
+        "dataset": "report",
+        "format": "xlsx",
+        "locale": "fr",
+        "ms": 79,
+        "bytes": 79939
+      },
+      {
+        "dataset": "activity",
+        "format": "csv",
+        "locale": "de",
+        "ms": 20,
+        "bytes": 92185
+      },
+      {
+        "dataset": "activity",
+        "format": "xlsx",
+        "locale": "lb",
+        "ms": 30,
+        "bytes": 50490
+      },
+      {
+        "dataset": "activity",
+        "format": "pdf",
+        "locale": "lb",
+        "ms": 125,
+        "bytes": 164002,
+        "pages": 15
+      },
+      {
+        "dataset": "consumption",
+        "format": "csv",
+        "locale": "en",
+        "ms": 16,
+        "bytes": 22181
+      },
+      {
+        "dataset": "consumption",
+        "format": "pdf",
+        "locale": "de",
+        "ms": 50,
+        "bytes": 53122,
+        "pages": 14
+      },
+      {
+        "dataset": "members",
+        "format": "pdf",
+        "locale": "fr",
+        "ms": 37,
+        "bytes": 79739,
+        "pages": 1
+      },
+      {
+        "dataset": "members",
+        "format": "xlsx",
+        "locale": "de",
+        "ms": 13,
+        "bytes": 3138
+      },
+      {
+        "dataset": "audit",
+        "format": "csv",
+        "locale": "fr",
+        "ms": 10,
+        "bytes": 16626
+      }
+    ],
+    "observed": [
+      "CSV: UTF-8 byte-order mark, localized headers, ISO UTC times, decimal amounts and raw codes for machine use",
+      "Excel: summary columns fit their labels and values; counts and amounts are numbers (1 045,06 in a French reader) and the generation time is a date-time cell",
+      "PDF: Turkish, Polish/Czech and Cyrillic member names drawn with the embedded font; headers wrap on two lines and repeat on later pages; 14-column activity dates and statuses fit; French header \"Période : 6 oct. 2026 – 4 nov. 2026 · Généré (UTC) : 04/11/2026 16:03\"",
+      "Report PDF row budget shared: summary, channels, states, services, channels by consumption, days and members print whole; activity (809), access and audit (235) share the rest at about 145 rows each, with an explicit shown/total notice such as \"Affichage des 145 premières lignes sur 235\""
+    ],
+    "pdfCostNode24": {
+      "fixture": "One 500-row, 14-column activity export, cold process, local Node 24",
+      "winAnsiOnly": {
+        "ms": [185, 200],
+        "rssGrowthMB": [80, 82],
+        "bytes": 160850
+      },
+      "mainBranchWinAnsiOnly": {
+        "ms": [191, 199],
+        "rssGrowthMB": [82, 84],
+        "bytes": 158132
+      },
+      "embeddedFont": {
+        "ms": [329, 351],
+        "rssGrowthMB": 99,
+        "bytes": 240825
+      }
+    },
+    "unitTests": "tests/unit/administration-exports.test.ts decodes PDF text with pdf.js, checks the font is embedded only when needed, characters outside the font become ?, the font bytes match font-coverage.json, and the row budget shares (pdfRowShares)."
+  },
+  "browserReview": {
+    "environment": "Chromium against the isolated local server; account languages saved per combination in the fictional database",
+    "combinations": [
+      "1440×900 light fr",
+      "390×844 dark de (mobile, touch)",
+      "1280×800 dark en",
+      "390×844 light lb (mobile, touch)"
+    ],
+    "screens": [
+      "My documents list",
+      "document reader",
+      "Use Guteneo with next=/app/administration",
+      "Administration overview, activity, consumption, members, reports, billing, settings"
+    ],
+    "results": "40 screens: no horizontal overflow, no page error, no text below WCAG AA contrast by an in-page computed-color check (disabled and hidden content excluded). Controls reported without a name were inside closed <details> menus. Targets under 24 px are the activity table's reference links and the moved year calendar cells, which keep their data-table equivalent.",
+    "keyboard": "All tab stops on My documents show a focus ring in reading order; Enter on a destination card sets aria-pressed, moves focus to the form heading and updates \"Next: …\"."
+  },
+  "limits": [
+    "No hosted CI, production data, physical device or real Auth0/provider qualification.",
+    "PDF characters outside the bundled Roboto coverage (for example CJK) are drawn as ?.",
+    "Deployed Worker memory and CPU for the embedded-font PDF path are not measured.",
+    "The preparer of a dispatch and connection countries are not modelled and are not shown or invented.",
+    "Timings are single local samples."
+  ],
+  "workerBundle": {
+    "command": "npm run build (wrangler deploy --dry-run)",
+    "mainKiB": 5130.89,
+    "mainGzipKiB": 1140.8,
+    "branchKiB": 6033.42,
+    "branchGzipKiB": 1411.04,
+    "note": "The Roboto font data and fontkit are bundled but initialized lazily, only for PDFs that need them."
+  },
+  "checks": {
+    "typecheck": "pass",
+    "lint": "pass (204 application files owned)",
+    "fontData": "node scripts/build-administration-pdf-font.mjs --check: pass",
+    "docs": "npm run docs:build and docs:check: pass",
+    "vitest": "193 files, 3,788 tests passed",
+    "nodeSecurity": "681 of 682 passed; apps/pdf-validator worker.test.mjs failed because the local sandbox refused os.killpg (PermissionError); that code is unchanged on this branch",
+    "playwrightApplication": "1,092 tests on chromium, mobile-chromium and iphone-webkit: 1,070 passed, 19 skipped, 3 failed (one services-order test, fixed); after the fix personal-appearance 42/42 and the services/list/studio/route specs 77 passed, 4 skipped",
+    "distribution": "npm run test:distribution on isolated ports: 14/14 on desktop and phone",
+    "publicPreview": "npm run test:preview (CI=1): 295 passed, 5 skipped",
+    "localPreview": "playwright.local-preview.config.ts (CI=1, loopback Belvédère demo started separately): 10/10",
+    "isolation": "Application and distribution suites ran from a throwaway worktree with its own default D1 and copied web build; no demo or shared database was touched"
+  }
+}

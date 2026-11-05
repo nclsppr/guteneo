@@ -11,6 +11,7 @@ import {
   type PreviewDataCounts,
 } from "./preview-data";
 import { readPreviewStudio } from "./preview-studio";
+import { readPreviewAdministration } from "./preview-administration";
 import type {
   Channel,
   Dispatch,
@@ -625,10 +626,19 @@ export function createPreviewApi(options: { advancedLocal?: boolean } = {}) {
       } satisfies Session;
     }
     const rights = permissions();
+    const administrationMembers = [
+      "/administration/members",
+      "/administration/connections",
+      "/administration/audit",
+    ].includes(route);
     if (
       (route.startsWith("/billing") && !rights.manageBilling) ||
-      (route.startsWith("/admin") && !rights.manageOrganization) ||
-      (route.startsWith("/usage") && !rights.viewReports)
+      (route.startsWith("/admin") &&
+        !route.startsWith("/administration") &&
+        !rights.manageOrganization) ||
+      (route.startsWith("/usage") && !rights.viewReports) ||
+      (route.startsWith("/administration") &&
+        !(administrationMembers ? rights.manageMembers : rights.viewReports))
     )
       fail(
         "FORBIDDEN",
@@ -698,6 +708,7 @@ export function createPreviewApi(options: { advancedLocal?: boolean } = {}) {
             name: workspaceName(slug),
             role: role(),
             current: slug === organization,
+            canViewReports: rights.viewReports,
           })),
         };
       if (route === "/account/sessions" || route === "/account/contacts")
@@ -708,6 +719,46 @@ export function createPreviewApi(options: { advancedLocal?: boolean } = {}) {
           day: now().slice(0, 10),
           connections: [],
         };
+      if (route.startsWith("/administration/")) {
+        // Generated volume scenarios list records only; their logical totals
+        // cannot be summed honestly in the browser.
+        if (generated)
+          fail(
+            "PREVIEW_ADMINISTRATION_DEFAULT_ONLY",
+            "Administration figures are simulated in the default fictional scenario. Choose it to explore reports.",
+            409,
+          );
+        return copy(
+          readPreviewAdministration({
+            path,
+            now: now(),
+            workspace: {
+              id: workspaceId(organization!),
+              name: workspaceName(organization!),
+            },
+            user: {
+              name:
+                settings.account === "admin"
+                  ? "Camille · Demonstration"
+                  : `${settings.account} · Fictional account`,
+            },
+            dispatches: state.dispatches.map((detail) => detail.dispatch),
+            documents: state.documents,
+            members: (["admin", "supervisor", "member", "viewer"] as const).map(
+              (membership) => ({
+                id: `preview_user_${organization}_${membership}`,
+                name: `${membership} · Fictional account`,
+                email: `${membership}@example.invalid`,
+                role: membership,
+                supervisorCanApprove: membership === "supervisor",
+                supervisorCanReport: membership === "supervisor",
+              }),
+            ),
+            credit: previewCredit(state),
+            fail,
+          }),
+        );
+      }
       if (route === "/admin/members")
         return page(
           (["admin", "supervisor", "member", "viewer"] as const).map(

@@ -12,7 +12,6 @@ import { Billing } from "./billing-page";
 import { TeamAdmin } from "./administration-team";
 import { TeamInvitations } from "./team-invitations";
 import { AdministrationSettings } from "./administration-settings";
-import { UsageLedger } from "./administration-operations";
 import {
   AdministrationActivityPage,
   AdministrationAuditPage,
@@ -21,7 +20,6 @@ import {
   AdministrationMemberActivity,
   AdministrationOverviewPage,
   AdministrationReportsPage,
-  PreviewUnavailable,
 } from "./administration-views";
 import "./administration.css";
 
@@ -60,35 +58,19 @@ export default function Administration({
         <RolePermissionNotice />
       </>
     );
-  const previewReport = (title: string) => (
-    <>
-      <PageHeading title={title} />
-      <PreviewUnavailable />
-    </>
-  );
+  // The public preview reads its own fictional workspace through the same
+  // pages; only the downloads need the server and stay disabled there.
   switch (path) {
     case administrationRoutes.activity:
-      return isPublicPreview ? (
-        previewReport(msg("Workspace activity"))
-      ) : (
-        <AdministrationActivityPage route={route} />
-      );
+      return <AdministrationActivityPage route={route} />;
     case administrationRoutes.consumption:
-      return isPublicPreview ? (
-        <>
-          {previewReport(msg("Consumption"))}
-          <UsageLedger />
-        </>
-      ) : (
-        <AdministrationConsumptionPage route={route} />
-      );
+      return <AdministrationConsumptionPage route={route} />;
     case administrationRoutes.reports:
-      return isPublicPreview ? (
-        previewReport(msg("Reports and exports"))
-      ) : (
+      return (
         <AdministrationReportsPage
           route={route}
           canManageMembers={permissions.manageMembers}
+          downloadsAvailable={!isPublicPreview}
         />
       );
     case administrationRoutes.members:
@@ -102,30 +84,18 @@ export default function Administration({
           />
           <TeamAdmin session={session} onUpdated={onUpdated} />
           {!isPublicPreview && <TeamInvitations />}
-          {!isPublicPreview && <AdministrationMemberActivity route={route} />}
+          <AdministrationMemberActivity route={route} />
         </>
       );
     case administrationRoutes.connections:
-      return isPublicPreview ? (
-        previewReport(msg("Access and sign-ins"))
-      ) : (
-        <AdministrationConnectionsPage route={route} />
-      );
+      return <AdministrationConnectionsPage route={route} />;
     case administrationRoutes.audit:
-      return isPublicPreview ? (
-        previewReport(msg("Audit log"))
-      ) : (
-        <AdministrationAuditPage route={route} />
-      );
+      return <AdministrationAuditPage route={route} />;
     case administrationRoutes.billing:
       return <Billing session={session} />;
     case administrationRoutes.settings:
       return <AdministrationSettings session={session} onUpdated={onUpdated} />;
     default:
-      return isPublicPreview ? (
-        previewReport(msg("Workspace overview"))
-      ) : (
-        <AdministrationOverviewPage route={route} />
-      );
+      return <AdministrationOverviewPage route={route} />;
   }
 }

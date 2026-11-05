@@ -657,3 +657,27 @@ describe("one personal identity without implicit workshop authority", () => {
     expect(() => requirePersonalStrongAuthentication(principal)).toThrow();
   });
 });
+
+describe("personal workspace hints follow current membership rights", () => {
+  it("projects report rights per workspace and drops them once removed", async () => {
+    const ordinary = await login({ amr: ["pwd"], auth_time: now() - 60, "https://guteneo.com/document_authentication": null });
+    const userId = ordinary.principal.userId;
+    const stamp = new Date().toISOString();
+    await db.batch([
+      db.prepare("INSERT INTO organizations(id,name,mode,created_at) VALUES('org_hint_report','Reports workspace','simulation',?),('org_hint_plain','Plain workspace','simulation',?)").bind(stamp, stamp),
+      db.prepare("INSERT INTO memberships(organization_id,user_id,role,created_at,supervisor_can_approve,supervisor_can_report) VALUES('org_hint_report',?,'supervisor',?,0,1),('org_hint_plain',?,'supervisor',?,1,0)").bind(userId, stamp, userId, stamp),
+    ]);
+    const hints = async () =>
+      Object.fromEntries(
+        (await publicPersonalSession(env, ordinary.principal)).workspaces.map(
+          (workspace: { id: string; canViewReports?: boolean }) => [workspace.id, workspace.canViewReports],
+        ),
+      );
+    expect(await hints()).toEqual({ org_hint_plain: false, org_hint_report: true });
+    await db.prepare("UPDATE memberships SET supervisor_can_report=0 WHERE organization_id='org_hint_report' AND user_id=?").bind(userId).run();
+    expect(await hints()).toEqual({ org_hint_plain: false, org_hint_report: false });
+    await db.batch([
+      db.prepare("DELETE FROM memberships WHERE user_id=? AND organization_id IN ('org_hint_report','org_hint_plain')").bind(userId),
+    ]);
+  });
+});

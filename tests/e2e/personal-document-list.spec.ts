@@ -394,6 +394,193 @@ test("paging replaces the bounded rows and changing page size restarts at the fi
   expect(state.writes).toEqual([]);
 });
 
+test("returning from a document restores its page, position and focus without rereading", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.setViewportSize({ width: 1280, height: 720 });
+  const listReads: string[] = [];
+  await page.route("**/api/personal/documents?**", (route) => {
+    const query = new URL(route.request().url()).searchParams;
+    listReads.push(query.toString());
+    const size = Number(query.get("limit"));
+    const offset = Number(query.get("cursor") ?? 0);
+    return route.fulfill({
+      json: {
+        items: Array.from({ length: Math.min(size, 51 - offset) }, (_, i) =>
+          item(`Document ${offset + i + 1}`),
+        ),
+        nextCursor: offset + size < 51 ? String(offset + size) : null,
+        total: 51,
+      },
+    });
+  });
+  await page.route(
+    (url) => url.pathname.startsWith("/api/personal/documents/Document"),
+    (route) =>
+      route.fulfill({
+        status: 404,
+        json: { error: { code: "NOT_FOUND", message: "Not found." } },
+      }),
+  );
+  await page.goto("/#/app/my-documents");
+  await page
+    .getByRole("button", { name: "Next documents", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Document 26", exact: true }),
+  ).toBeVisible();
+  const open = page.locator('[data-document-link="Document 40"]');
+  await open.scrollIntoViewIfNeeded();
+  const scrollY = await page.evaluate(() => window.scrollY);
+  expect(scrollY).toBeGreaterThan(0);
+  const reads = listReads.length;
+  await open.click();
+  const back = page.getByRole("link", {
+    name: "Back to my documents",
+    exact: true,
+  });
+  await expect(back).toBeVisible();
+  await expect(open).toBeHidden();
+  await back.click();
+  await expect(open).toBeFocused();
+  await expect(
+    page.getByRole("heading", { name: "Document 26", exact: true }),
+  ).toBeVisible();
+  expect(
+    Math.abs((await page.evaluate(() => window.scrollY)) - scrollY),
+  ).toBeLessThan(2);
+  // Browser Back from the document returns to the same row as well.
+  await open.click();
+  await expect(back).toBeVisible();
+  await page.goBack();
+  await expect(open).toBeFocused();
+  expect(listReads).toHaveLength(reads);
+  expect(state.writes).toEqual([]);
+});
+
+for (const initialTotal of [26, 51])
+  test(`deleting the final copy returns from page ${Math.ceil(initialTotal / 25)} to the remaining page`, async ({
+    page,
+  }) => {
+    await fixture(page);
+    let total = initialTotal;
+    let deletions = 0;
+    const cursors: number[] = [];
+    const copy = (id: string) => ({ ...item(id), kind: "personal" });
+    await page.route("**/api/personal/documents?**", (route) => {
+      const query = new URL(route.request().url()).searchParams;
+      const offset = Number(query.get("cursor") ?? 0);
+      const size = Number(query.get("limit"));
+      cursors.push(offset);
+      return route.fulfill({
+        json: {
+          items: Array.from(
+            { length: Math.max(0, Math.min(size, total - offset)) },
+            (_, index) => copy(`Copy-${offset + index + 1}`),
+          ),
+          nextCursor: offset + size < total ? String(offset + size) : null,
+          total,
+        },
+      });
+    });
+    await page.route(
+      `**/api/personal/documents/Copy-${initialTotal}`,
+      (route) =>
+        route.fulfill({
+          json: {
+            ...copy(`Copy-${initialTotal}`),
+            pages: [],
+            audit: [],
+            auditNextCursor: null,
+          },
+        }),
+    );
+    await page.route(
+      `**/api/personal/documents/Copy-${initialTotal}/delete`,
+      (route) => {
+        expect(route.request().method()).toBe("POST");
+        deletions += 1;
+        // The 51-copy case also removes page 2 concurrently with this delete.
+        total = 25;
+        return route.fulfill({ json: { deleted: true } });
+      },
+    );
+    await page.goto("/#/app/my-documents?kind=personal");
+    for (let offset = 25; offset < initialTotal; offset += 25) {
+      await page
+        .getByRole("button", { name: "Next documents", exact: true })
+        .click();
+      await expect(
+        page.locator(`[data-document-link="Copy-${offset + 1}"]`),
+      ).toBeVisible();
+    }
+    await page.locator(`[data-document-link="Copy-${initialTotal}"]`).click();
+    await page
+      .getByRole("button", { name: "Delete my copy", exact: true })
+      .click();
+    await page
+      .getByRole("button", { name: "Confirm deletion", exact: true })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: "Copy-1", exact: true }),
+    ).toBeVisible();
+    await expect(page.locator("#personal-document-results")).toHaveText(
+      "Documents 1–25 of 25",
+    );
+    await expect(
+      page.getByText("No saved copies", { exact: true }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("navigation", { name: "Document pages", exact: true }),
+    ).toHaveCount(0);
+    expect(cursors).toEqual(
+      initialTotal === 26 ? [0, 25, 25, 0] : [0, 25, 50, 50, 25, 0],
+    );
+    expect(deletions).toBe(1);
+  });
+
+test("an authority refusal while recovering an emptied page clears cached rows", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  let reads = 0;
+  await page.route("**/api/personal/documents?**", (route) => {
+    reads += 1;
+    if (reads === 3)
+      return route.fulfill({
+        status: 403,
+        json: { error: { code: "FORBIDDEN", message: "Copy access refused." } },
+      });
+    return route.fulfill({
+      json:
+        reads === 1
+          ? {
+              items: [item("Previously authorized copy")],
+              nextCursor: "25",
+              total: 26,
+            }
+          : { items: [], nextCursor: null, total: 25 },
+    });
+  });
+  await page.goto("/#/app/my-documents");
+  await page
+    .getByRole("button", { name: "Next documents", exact: true })
+    .click();
+  await expect(page.getByRole("alert")).toContainText("FORBIDDEN");
+  await expect(
+    page.getByRole("heading", {
+      name: "Previously authorized copy",
+      exact: true,
+    }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("navigation", { name: "Document pages", exact: true }),
+  ).toHaveCount(0);
+  expect(reads).toBe(3);
+  expect(state.writes).toEqual([]);
+});
+
 for (const status of [401, 403])
   test(`a ${status} summary refusal cannot be overwritten by a delayed authorized list`, async ({
     page,

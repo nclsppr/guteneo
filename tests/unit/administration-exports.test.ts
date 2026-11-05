@@ -4,6 +4,7 @@ import { XMLParser, XMLValidator } from "fast-xml-parser";
 import { PDFDocument, PDFRawStream, decodePDFRawStream } from "pdf-lib";
 import {
   minorToDecimal,
+  pdfRowShares,
   renderAdministrationExport,
 } from "../../apps/api/src/administration-exports";
 import type { AdministrationExportData } from "../../apps/api/src/administration";
@@ -227,8 +228,122 @@ describe("bounded administration serializers", () => {
     );
     const pdf = await pdfText(result.body as Uint8Array);
     expect(pdf.pages).toBeLessThanOrEqual(17);
-    expect(pdf.text).toContain("ROW_00150");
-    expect(pdf.text).not.toContain("ROW_00151");
-    expect(pdf.text).toContain("Showing the first 150 of 350 rows.");
+    expect(pdf.text).toContain("ROW_00250");
+    expect(pdf.text).not.toContain("ROW_00251");
+    expect(
+      pdf.text.split("Showing the first 250 of 350 rows.").length - 1,
+    ).toBe(2);
+  });
+
+  it("prints small report tables whole before sharing the rest", () => {
+    // Summary, channels, statuses, activity, services, channels, days,
+    // members, connections and audit of a busy month.
+    const sizes = [15, 3, 6, 809, 1, 3, 29, 6, 160, 225];
+    const shares = pdfRowShares(sizes, 500);
+    expect(shares.reduce((sum, share) => sum + share, 0)).toBe(500);
+    for (const index of [0, 1, 2, 4, 5, 6, 7])
+      expect(shares[index]).toBe(sizes[index]);
+    expect(Math.min(shares[3], shares[8], shares[9])).toBeGreaterThan(140);
+    expect(pdfRowShares([0, 2, 0], 500)).toEqual([0, 2, 0]);
+    expect(pdfRowShares([600, 600], 500)).toEqual([250, 250]);
+  });
+});
+
+describe("administration PDF characters", () => {
+  // pdf.js decodes the embedded font's Unicode map, like a reader would.
+  async function readableText(bytes: Uint8Array) {
+    const { getDocument } = await import("pdfjs-dist/legacy/build/pdf.mjs");
+    const document = await getDocument({
+      data: bytes.slice(),
+      useSystemFonts: false,
+      standardFontDataUrl: new URL(
+        "../../node_modules/pdfjs-dist/standard_fonts/",
+        import.meta.url,
+      ).pathname,
+    }).promise;
+    const pages: string[] = [];
+    for (let index = 1; index <= document.numPages; index++) {
+      const content = await (await document.getPage(index)).getTextContent();
+      pages.push(
+        content.items.map((item) => ("str" in item ? item.str : "")).join(" "),
+      );
+    }
+    return pages.join("\n");
+  }
+  const fontNames = async (bytes: Uint8Array) =>
+    (await PDFDocument.load(bytes)).context
+      .enumerateIndirectObjects()
+      .map(([, object]) => String(object))
+      .filter((value) => value.includes("/BaseFont"))
+      .join(" ");
+
+  it("keeps names outside WinAnsi readable with the embedded Unicode font", async () => {
+    const names = [
+      "Łukasz Dvořák",
+      "Gülşen Yılmaz",
+      "Анна Петрова",
+      "Ștefan Țepeș",
+    ];
+    const result = await renderAdministrationExport({
+      ...input("pdf", { members: names.map(member) }),
+      workspace: {
+        id: "synthetic",
+        name: "Biuro Łódź",
+        mode: "simulation" as const,
+        createdAt: "2026-01-01T00:00:00.000Z",
+      },
+    });
+    const bytes = result.body as Uint8Array;
+    const text = await readableText(bytes);
+    for (const name of [...names, "Biuro Łódź"]) expect(text).toContain(name);
+    expect(text).not.toContain("?ukasz");
+    expect(await fontNames(bytes)).toMatch(/Roboto/);
+  });
+
+  it("keeps the standard fonts when every drawn character is WinAnsi", async () => {
+    const result = await renderAdministrationExport({
+      ...input("pdf", {
+        members: ["Élodie Müller", "Jean-François Bœuf", "Ëmer Lëtzebuerg"].map(
+          member,
+        ),
+      }),
+      locale: "lb" as const,
+    });
+    const bytes = result.body as Uint8Array;
+    const text = await readableText(bytes);
+    expect(text).toContain("Élodie Müller");
+    expect(text).toContain("Jean-François Bœuf");
+    expect(await fontNames(bytes)).not.toMatch(/Roboto/);
+  });
+
+  it("marks characters the embedded font cannot draw instead of dropping them", async () => {
+    const result = await renderAdministrationExport(
+      input("pdf", { members: [member("田中 Łukasz")] }),
+    );
+    const text = await readableText(result.body as Uint8Array);
+    expect(text).toContain("?? Łukasz");
+  });
+});
+
+describe("administration PDF font data", () => {
+  it("embeds exactly the pinned pdfme Roboto bytes and coverage", async () => {
+    const { createHash } = await import("node:crypto");
+    const { readFile } = await import("node:fs/promises");
+    const font =
+      await import("../../apps/api/src/administration-pdf-font-data");
+    const coverage = JSON.parse(
+      await readFile(
+        new URL("../../packages/templates/font-coverage.json", import.meta.url),
+        "utf8",
+      ),
+    );
+    const bytes = Buffer.from(font.ADMINISTRATION_PDF_FONT_BASE64, "base64");
+    expect(createHash("sha256").update(bytes).digest("hex")).toBe(
+      coverage.fontSha256,
+    );
+    expect(font.ADMINISTRATION_PDF_FONT_SHA256).toBe(coverage.fontSha256);
+    expect(font.ADMINISTRATION_PDF_FONT_CODE_POINTS).toEqual(
+      coverage.codePoints,
+    );
   });
 });

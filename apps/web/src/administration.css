@@ -62,8 +62,20 @@
   gap: 12px;
   margin-bottom: 20px;
 }
+/* Activity and money first; workspace context in a quieter second row. */
+.administration-stats-primary {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  margin-bottom: 12px;
+}
+.administration-stats-secondary .stat-tile {
+  padding-block: 12px;
+}
+.administration-stats-secondary .stat-tile > strong {
+  font-size: 22px;
+}
 .administration-panel {
   display: grid;
+  align-content: start;
   gap: 12px;
   min-width: 0;
   margin-bottom: 20px;
@@ -93,6 +105,16 @@
 }
 .administration-columns + * {
   margin-top: 20px;
+}
+/* One-line states keep server-paged rows compact and scannable. */
+.administration-table .status {
+  white-space: nowrap;
+}
+.administration-dispatch-link {
+  display: inline-flex;
+  align-items: center;
+  min-width: 24px;
+  min-height: 24px;
 }
 .administration-statuses {
   display: grid;

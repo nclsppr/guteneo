@@ -61,8 +61,26 @@ counts, and the default dedicated fixture remains compatible with prior tests.
 Production canonical Belvédère continues to check its actual authenticated
 platform authority on every read.
 
+Administration in the preview renders the real pages over the tab's fictional
+workspace: `preview-administration.ts` derives overview, activity,
+consumption, members, access and audit from the same fictional dispatches,
+documents and members the other applications show. Invalid dates, periods over
+366 inclusive days, non-integer pagination, pages outside 1–1,000 and page sizes
+outside 1–100 return `INVALID_FILTERS`, matching the server's bounds. Consumption
+uses each fixture's confirmation timestamp (`updated_at`) for period selection
+and daily/monthly grouping, consistently with the preview usage calendar.
+Overview and activity keep their dispatch-creation basis. Sign-in history
+respects the selected period, while active connections remain current.
+The preview applies the server's permission split (members, access and audit for
+administrators; report views for supervisors with report permission). It
+invents no preparer, connection country or real record. Generated volume
+scenarios are refused with `PREVIEW_ADMINISTRATION_DEFAULT_ONLY`, and export
+buttons stay disabled with a notice, since no file can be generated without a
+server.
+
 Source contracts: `preview-data.ts`, `preview.ts`, `preview-studio.ts`,
-`preview-personal.ts`, `local-preview.ts` and `local-preview-controls.tsx` under
+`preview-personal.ts`, `preview-administration.ts`, `local-preview.ts` and
+`local-preview-controls.tsx` under
 `apps/web/src`; the dedicated local server and `tests/fixtures/local-belvedere.ts`
 remain server/test-only. `playwright.local-preview.config.ts` is a separate DEV
 qualification configuration; hosted CI's production/browser-preview inventory and

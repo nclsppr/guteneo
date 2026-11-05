@@ -73,5 +73,47 @@
     "Your account can also send. Create your workspace in one step with this same sign-in: you become its administrator and nothing is sent without your review.",
     "Ihr Konto kann auch senden. Erstellen Sie Ihren Arbeitsbereich in einem Schritt mit derselben Anmeldung: Sie werden dessen Administrator, und nichts wird ohne Ihre Prüfung gesendet.",
     "Äre Kont kann och schécken. Erstellt Ären Aarbechtsberäich an engem Schrëtt mat derselwechter Umeldung: Dir gitt säin Administrateur an näischt gëtt ouni Är Kontroll geschéckt."
-  ]
+  ],
+  "Gérer un espace de travail": [
+    "Manage a workspace",
+    "Einen Arbeitsbereich verwalten",
+    "En Aarbechtsberäich geréieren"
+  ],
+  "Suivez l’activité et la consommation, gérez les membres et la facturation, et téléchargez les rapports.": [
+    "Follow activity and consumption, manage members and billing, and download reports.",
+    "Verfolgen Sie Aktivität und Verbrauch, verwalten Sie Mitglieder und Abrechnung und laden Sie Berichte herunter.",
+    "Verfollegt Aktivitéit a Verbrauch, geréiert Memberen an Ofrechnung, a luet Berichter erof."
+  ],
+  "Que souhaitez-vous faire ?": [
+    "What would you like to do?",
+    "Was möchten Sie tun?",
+    "Wat wëllt Dir maachen?"
+  ],
+  "Ensuite : {0}": ["Next: {0}", "Danach: {0}", "Duerno: {0}"],
+  "Ensuite : votre espace de travail": [
+    "Next: your workspace",
+    "Danach: Ihr Arbeitsbereich",
+    "Duerno: Ären Aarbechtsberäich"
+  ],
+  "Seuls les espaces de travail où votre rôle inclut les rapports sont proposés. Demandez cette permission à un administrateur.": [
+    "Only workspaces where your role includes reports are listed. Ask an administrator for this permission.",
+    "Es werden nur Arbeitsbereiche angezeigt, in denen Ihre Rolle Berichte umfasst. Bitten Sie einen Administrator um diese Berechtigung.",
+    "Et ginn nëmmen Aarbechtsberäicher gewisen, an deenen Är Roll Berichter ëmfaasst. Frot en Administrateur no dëser Berechtegung."
+  ],
+  "Vous en devenez l’administrateur. Ses canaux d’envoi démarrent fermés et rien n’est facturé sans votre accord explicite.": [
+    "You become its administrator. Its sending channels start closed and nothing is charged without your explicit approval.",
+    "Sie werden dessen Administrator. Seine Versandkanäle sind zunächst geschlossen, und ohne Ihre ausdrückliche Zustimmung wird nichts berechnet.",
+    "Dir gitt säin Administrateur. Seng Versandkanäl sinn am Ufank zou an ouni Är explizit Zoustëmmung gëtt näischt verrechent."
+  ],
+  "Conservation terminée le {0}": [
+    "Retention ended {0}",
+    "Aufbewahrung endete am {0}",
+    "Opbewarung ofgelaf de {0}"
+  ],
+  "Accès terminé le {0}": [
+    "Access ended {0}",
+    "Zugang endete am {0}",
+    "Zougang ofgelaf de {0}"
+  ],
+  "Expéditeur : {0}": ["Sender: {0}", "Absender: {0}", "Ofsender: {0}"]
 }

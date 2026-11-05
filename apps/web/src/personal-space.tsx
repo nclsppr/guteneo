@@ -11,6 +11,7 @@ import {
   Files,
   PaperPlaneTilt,
   ShieldCheck,
+  SlidersHorizontal,
 } from "@phosphor-icons/react";
 import { Brand } from "./brand";
 import { ApiError, date, type Session } from "./api";
@@ -41,12 +42,22 @@ import {
   type PersonalSessionRead,
 } from "./personal-api";
 import { ApplicationSwitcher } from "./space-switcher";
-import { workspaceInvitationPath } from "./workspace-entry";
+import {
+  workspaceDestination,
+  workspaceInvitationPath,
+} from "./workspace-entry";
 import {
   clearPendingDocumentInvitation,
   personalAuthenticationReturnTo,
 } from "./document-invitation";
 import "./secure-documents.css";
+
+/** Server-projected rights only choose navigation; Administration rechecks them. */
+function canOpenAdministration(
+  workspace: PersonalSession["workspaces"][number],
+) {
+  return workspace.role === "admin" || workspace.canViewReports === true;
+}
 
 export function isPersonalRoute(page: string) {
   return /^\/app\/(my-documents|services|personal-account)(\/|$)/.test(page);
@@ -292,7 +303,13 @@ export function PersonalSpace({
           revision !== sessionReadRevision.current
         )
           return;
-        setPersonalSession(current);
+        // An unchanged revalidation keeps the same object, so documents and
+        // counts are not reread each time the tab regains focus.
+        setPersonalSession((previous) =>
+          previous && JSON.stringify(previous) === JSON.stringify(current)
+            ? previous
+            : current,
+        );
         applyAccountLocale(current.user.preferredLocale);
         setError(undefined);
       } catch (cause) {
@@ -387,7 +404,11 @@ export function PersonalSpace({
           <ApplicationSwitcher
             application="personal"
             hasWorkspace={currentWorkspace !== null}
-            canAdministerWorkspace={currentWorkspace?.role === "admin"}
+            canAdministerWorkspace={
+              currentWorkspace
+                ? canOpenAdministration(currentWorkspace)
+                : session.workspaces.some(canOpenAdministration)
+            }
             canAccessBelvedere={session.canAccessBelvedere === true}
           />
         </div>
@@ -443,6 +464,7 @@ export function PersonalSpace({
         />
         {page === "/app/services" ? (
           <PersonalServices
+            key={route}
             session={session}
             next={new URLSearchParams(route.split("?")[1]).get("next")}
           />
@@ -480,33 +502,41 @@ function PersonalServices({
   session: PersonalSession;
   next: string | null;
 }) {
-  const [workspaceId, setWorkspaceId] = useState(
+  const requested = workspaceDestination(next);
+  const [destination, setDestination] = useState(
+    requested ?? { path: "/app/prepare", kind: "prepare" as const },
+  );
+  // Administration needs report rights in the chosen workspace; creating a
+  // workspace makes its creator an administrator, so it stays available.
+  const eligible = session.workspaces.filter(
+    (workspace) =>
+      destination.kind !== "administration" || canOpenAdministration(workspace),
+  );
+  const [chosenWorkspace, setWorkspaceId] = useState(
     session.workspaces.find((workspace) => workspace.current)?.id ??
       session.workspaces[0]?.id ??
       "",
   );
+  const workspaceId = eligible.some((item) => item.id === chosenWorkspace)
+    ? chosenWorkspace
+    : (eligible[0]?.id ?? "");
   const [name, setName] = useState("");
   const [entry, setEntry] = useState<"create" | "join">("create");
   const [invitation, setInvitation] = useState("");
-  const [requestedPath, setRequestedPath] = useState(
-    next && /^\/app(?:$|\/(prepare|secure-distributions\/new)(\?|$))/.test(next)
-      ? next
-      : "/app/prepare",
-  );
   const action = useAction();
   async function enter(event: FormEvent) {
     event.preventDefault();
     await action.run(async () => {
       if (!workspaceId && entry === "join") {
-        const destination = workspaceInvitationPath(
+        const invitationPath = workspaceInvitationPath(
           invitation,
           window.location.origin,
         );
-        if (!destination)
+        if (!invitationPath)
           throw new Error(
             msg("Paste the complete Guteneo workspace invitation link."),
           );
-        window.location.assign(destination);
+        window.location.assign(invitationPath);
         return;
       }
       await personalApi<{
@@ -524,16 +554,46 @@ function PersonalServices({
       );
       // The workshop cookie has rotated. Remount Application so its session,
       // tenant and CSRF token all come from the new server session.
-      window.history.replaceState(null, "", `/#${requestedPath}`);
+      window.history.replaceState(null, "", `/#${destination.path}`);
       window.location.reload();
     });
   }
+  const choices = [
+    {
+      path: "/app/prepare",
+      kind: "prepare" as const,
+      Icon: PaperPlaneTilt,
+      title: msg("Send documents"),
+      text: msg(
+        "Prepare an email, fax or postal dispatch. Review the content and price before confirming.",
+      ),
+      action: msg("Prepare a dispatch"),
+    },
+    {
+      path: "/app/secure-distributions/new",
+      kind: "share" as const,
+      Icon: Files,
+      title: msg("Share a sensitive document"),
+      text: msg(
+        "Grant individual access to a document and follow the available viewing events.",
+      ),
+      action: msg("New share"),
+    },
+    {
+      path: "/app/administration",
+      kind: "administration" as const,
+      Icon: SlidersHorizontal,
+      title: msg("Manage a workspace"),
+      text: msg(
+        "Follow activity and consumption, manage members and billing, and download reports.",
+      ),
+      action: msg("Open Administration"),
+    },
+  ];
+  const chosen = choices.find((choice) => choice.kind === destination.kind);
   return (
     <div className="secure-document-layout">
-      <PageHeading
-        title={msg("Use Guteneo")}
-        intro={msg("One account for your documents and Guteneo services.")}
-      />
+      <PageHeading title={msg("Use Guteneo")} />
       <p className="secure-document-intro">
         {msg(
           "Your received documents remain accessible without purchasing a service.",
@@ -542,20 +602,34 @@ function PersonalServices({
       <form
         className="secure-document-panel secure-document-form"
         aria-busy={action.pending}
+        aria-describedby="personal-workspace-destination"
         onSubmit={(event) => void enter(event)}
       >
         <h2 id="personal-workspace-entry" tabIndex={-1}>
-          {session.workspaces.length
+          {eligible.length
             ? msg("Choose a workspace")
             : msg("Create or join a workspace")}
         </h2>
-        {session.workspaces.length ? (
+        <p id="personal-workspace-destination" className="field-hint">
+          {chosen
+            ? msg("Next: {0}", chosen.title)
+            : msg("Next: your workspace")}
+        </p>
+        {destination.kind === "administration" &&
+          session.workspaces.length > eligible.length && (
+            <p className="field-hint" role="note">
+              {msg(
+                "Only workspaces where your role includes reports are listed. Ask an administrator for this permission.",
+              )}
+            </p>
+          )}
+        {eligible.length ? (
           <Field label={msg("Active workspace")}>
             <select
               value={workspaceId}
               onChange={(event) => setWorkspaceId(event.target.value)}
             >
-              {session.workspaces.map((workspace) => (
+              {eligible.map((workspace) => (
                 <option key={workspace.id} value={workspace.id}>
                   {workspace.name}
                 </option>
@@ -582,7 +656,7 @@ function PersonalServices({
           <Field
             label={msg("Your workspace name")}
             hint={msg(
-              "Your sending workspace is created only when you request it, using the same account.",
+              "You become its administrator. Its sending channels start closed and nothing is charged without your explicit approval.",
             )}
           >
             <input
@@ -637,45 +711,35 @@ function PersonalServices({
         </button>
         <ErrorNotice error={action.error} />
       </form>
-      <div className="personal-space-service-grid">
-        <article className="secure-document-panel">
-          <PaperPlaneTilt size={28} aria-hidden="true" />
-          <h2>{msg("Send documents")}</h2>
-          <p>
-            {msg(
-              "Prepare an email, fax or postal dispatch. Review the content and price before confirming.",
-            )}
-          </p>
-          <button
-            className="button"
-            type="button"
-            onClick={() => {
-              setRequestedPath("/app/prepare");
-              document.getElementById("personal-workspace-entry")?.focus();
-            }}
+      {/* The workspace form stays first; these choices only change where it
+          opens, and choosing one returns focus to the form. */}
+      <div
+        className="personal-space-service-grid"
+        role="group"
+        aria-label={msg("What would you like to do?")}
+      >
+        {choices.map((choice) => (
+          <article
+            key={choice.kind}
+            className="secure-document-panel"
+            data-selected={destination.kind === choice.kind || undefined}
           >
-            {msg("Prepare a dispatch")}
-          </button>
-        </article>
-        <article className="secure-document-panel">
-          <Files size={28} aria-hidden="true" />
-          <h2>{msg("Share a sensitive document")}</h2>
-          <p>
-            {msg(
-              "Grant individual access to a document and follow the available viewing events.",
-            )}
-          </p>
-          <button
-            className="button"
-            type="button"
-            onClick={() => {
-              setRequestedPath("/app/secure-distributions/new");
-              document.getElementById("personal-workspace-entry")?.focus();
-            }}
-          >
-            {msg("New share")}
-          </button>
-        </article>
+            <choice.Icon size={28} aria-hidden="true" />
+            <h2>{choice.title}</h2>
+            <p>{choice.text}</p>
+            <button
+              className="button"
+              type="button"
+              aria-pressed={destination.kind === choice.kind}
+              onClick={() => {
+                setDestination({ path: choice.path, kind: choice.kind });
+                document.getElementById("personal-workspace-entry")?.focus();
+              }}
+            >
+              {choice.action}
+            </button>
+          </article>
+        ))}
       </div>
       <a className="text-link" href="/#pricing">
         {msg("View pricing")}

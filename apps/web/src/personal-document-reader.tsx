@@ -28,10 +28,16 @@ export function PersonalDocumentReader({
   id,
   session,
   onSessionInvalid,
+  backRoute,
+  onChanged,
 }: {
   id: string;
   session: PersonalSession;
   onSessionInvalid: () => void;
+  /** The list view this document was opened from, when there was one. */
+  backRoute?: string;
+  /** A saved or deleted copy changes the list the person returns to. */
+  onChanged?: () => void;
 }) {
   const [document, setDocument] = useState<PersonalDocumentView>();
   const [error, setError] = useState<Error>();
@@ -68,6 +74,13 @@ export function PersonalDocumentReader({
   }, [id, session, version, onSessionInvalid]);
   const awaitingDeposit =
     depositPreparing && !document?.depositedDocumentId && !loading && !error;
+  // A copy saved from here changes the list and its counts once it exists.
+  const savedCopy =
+    deposited?.id ??
+    (depositPreparing ? document?.depositedDocumentId : undefined);
+  useEffect(() => {
+    if (savedCopy) onChanged?.();
+  }, [savedCopy, onChanged]);
   useEffect(() => {
     if (!awaitingDeposit) return;
     const refresh = () => {
@@ -135,11 +148,12 @@ export function PersonalDocumentReader({
     <div className="secure-document-layout">
       <a
         className="text-link"
-        href={
-          document?.kind === "personal"
-            ? "#/app/my-documents?kind=personal"
-            : "#/app/my-documents"
-        }
+        href={`#${
+          backRoute ??
+          (document?.kind === "personal"
+            ? "/app/my-documents?kind=personal"
+            : "/app/my-documents")
+        }`}
       >
         <ArrowLeft size={17} aria-hidden="true" />
         {msg("Back to my documents")}
@@ -168,9 +182,7 @@ export function PersonalDocumentReader({
         document && (
           <>
             <section className="secure-document-panel">
-              <p>
-                {msg("Sender")} : <strong>{document.sender}</strong>
-              </p>
+              <p>{msg("Sender: {0}", document.sender)}</p>
               <p>
                 {document.kind === "personal"
                   ? msg("Retained until {0}", date(document.expiresAt))
@@ -349,7 +361,12 @@ export function PersonalDocumentReader({
                               key: crypto.randomUUID(),
                             },
                           );
-                          go("/app/my-documents?kind=personal");
+                          onChanged?.();
+                          go(
+                            backRoute?.includes("kind=personal")
+                              ? backRoute
+                              : "/app/my-documents?kind=personal",
+                          );
                         })
                       }
                     />

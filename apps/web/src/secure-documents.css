@@ -2,6 +2,10 @@
   display: grid;
   gap: 24px;
 }
+/* A remembered list stays mounted, but hidden, while a document is open. */
+.secure-document-layout[hidden] {
+  display: none;
+}
 .secure-document-layout .page-heading {
   margin-bottom: 0;
 }
@@ -342,6 +346,15 @@
 }
 .personal-space-service-grid .button {
   margin-top: auto;
+}
+.personal-space-service-grid .secure-document-panel[data-selected] {
+  border-color: var(--blue);
+  box-shadow: inset 0 0 0 1px var(--blue);
+}
+.personal-space-service-grid .button[aria-pressed="true"] {
+  border-color: var(--blue);
+  background: var(--blue-tint);
+  color: var(--blue-ink);
 }
 .personal-account-layout .form-panel {
   min-width: 0;

@@ -16,9 +16,19 @@ import type { AdministrationExportData } from "./administration";
 import catalog from "./locales/administration-exports.json";
 
 type CellType = "text" | "code" | "integer" | "money" | "datetime" | "boolean";
-type Cell = string | number | boolean | null;
+type Scalar = string | number | boolean | null;
+/** A value typed apart from its column, as in the report summary. */
+type Typed = { value: Scalar; type: CellType };
+type Cell = Scalar | Typed;
 type Column = { label: string; type: CellType };
 type Table = { title: string; columns: Column[]; rows: Cell[][] };
+const typed = (value: Scalar, type: CellType): Typed => ({ value, type });
+/** The value and type a cell renders with. */
+function resolve(cell: Cell, column: Column): [Scalar, CellType] {
+  return cell !== null && typeof cell === "object"
+    ? [cell.value, cell.type]
+    : [cell, column.type];
+}
 
 // Bound the complete report, not merely each query. This limits synchronous
 // serialization, string copies, ZIP buffers and PDF allocation in one request.
@@ -114,23 +124,23 @@ function tables(
           ),
         ],
         [t("Period"), `${input.period.from} – ${input.period.to}`],
-        [t("Generated (UTC)"), input.generatedAt],
-        [t("Dispatches"), String(totals.dispatches)],
-        [t("Delivered"), String(totals.delivered)],
-        [t("Needing attention"), String(totals.attention)],
-        [t("Pages"), String(totals.pages)],
-        [t("Consumption (EUR)"), minorToDecimal(totals.consumptionMinor)],
-        [t("Reserved (EUR)"), minorToDecimal(totals.reservedMinor)],
-        [t("Documents imported"), String(totals.documents)],
-        [t("Secure shares activated"), String(totals.secureShares)],
-        [t("Members"), String(totals.members)],
-        [t("Active access"), String(totals.activeConnections)],
+        [t("Generated (UTC)"), typed(input.generatedAt, "datetime")],
+        [t("Dispatches"), typed(totals.dispatches, "integer")],
+        [t("Delivered"), typed(totals.delivered, "integer")],
+        [t("Needing attention"), typed(totals.attention, "integer")],
+        [t("Pages"), typed(totals.pages, "integer")],
+        [t("Consumption (EUR)"), typed(totals.consumptionMinor, "money")],
+        [t("Reserved (EUR)"), typed(totals.reservedMinor, "money")],
+        [t("Documents imported"), typed(totals.documents, "integer")],
+        [t("Secure shares activated"), typed(totals.secureShares, "integer")],
+        [t("Members"), typed(totals.members, "integer")],
+        [t("Active access"), typed(totals.activeConnections, "integer")],
         ...(overview.credit
           ? [
               [
                 t("Promotional credit available (EUR)"),
-                minorToDecimal(overview.credit.availableMinor),
-              ] as Cell[],
+                typed(overview.credit.availableMinor, "money"),
+              ],
             ]
           : []),
       ],
@@ -337,7 +347,7 @@ function tables(
 const BYTE_ORDER_MARK = String.fromCharCode(0xfeff);
 /** Spreadsheet applications evaluate these leading characters as formulas. */
 const FORMULA_START = /^(?:[\t\r\n]|\s*[=+\-@])/;
-function csvCell(value: Cell, type: CellType) {
+function csvCell(value: Scalar, type: CellType) {
   if (value === null || value === undefined) return "";
   let text =
     type === "money" && typeof value === "number"
@@ -356,7 +366,7 @@ function csv(table: Table) {
     table.columns.map((column) => csvCell(column.label, "text")).join(","),
     ...table.rows.map((row) =>
       row
-        .map((value, index) => csvCell(value, table.columns[index].type))
+        .map((value, index) => csvCell(...resolve(value, table.columns[index])))
         .join(","),
     ),
   ];
@@ -410,7 +420,13 @@ function sheetName(title: string, used: Set<string>) {
   return name;
 }
 function sheetXml(table: Table, label: (code: string) => string) {
-  const cell = (value: Cell, type: CellType, ref: string, style = 0) => {
+  const shown = (value: Scalar, type: CellType) =>
+    type === "boolean"
+      ? label(value ? "Yes" : "No")
+      : type === "code"
+        ? label(codeLabels[String(value)] ?? String(value))
+        : String(value);
+  const cell = (value: Scalar, type: CellType, ref: string, style = 0) => {
     if (value === null || value === undefined) return "";
     if (type === "money" && typeof value === "number")
       return `<c r="${ref}" s="2"><v>${minorToDecimal(value)}</v></c>`;
@@ -420,12 +436,7 @@ function sheetXml(table: Table, label: (code: string) => string) {
       const serial = excelSerial(value);
       if (serial !== null) return `<c r="${ref}" s="3"><v>${serial}</v></c>`;
     }
-    const text =
-      type === "boolean"
-        ? label(value ? "Yes" : "No")
-        : type === "code"
-          ? label(codeLabels[String(value)] ?? String(value))
-          : String(value);
+    const text = shown(value, type);
     return `<c r="${ref}" t="inlineStr"${style ? ` s="${style}"` : ""}><is><t xml:space="preserve">${xml(text)}</t></is></c>`;
   };
   const header = table.columns
@@ -439,24 +450,32 @@ function sheetXml(table: Table, label: (code: string) => string) {
         `<row r="${rowIndex + 2}">${row
           .map((value, index) =>
             cell(
-              value,
-              table.columns[index].type,
+              ...resolve(value, table.columns[index]),
               `${columnName(index)}${rowIndex + 2}`,
             ),
           )
           .join("")}</row>`,
     )
     .join("");
-  const widths = table.columns
-    .map((column, index) => {
-      const width = Math.min(
-        48,
-        Math.max(
-          10,
-          column.label.length + 2,
-          column.type === "datetime" ? 18 : 0,
-        ),
-      );
+  // Fit each column to its longest label or value, within a readable bound.
+  const longest = table.columns.map((column) => column.label.length);
+  for (const row of table.rows)
+    row.forEach((item, index) => {
+      const [value, type] = resolve(item, table.columns[index]);
+      if (value === null || value === undefined) return;
+      const length =
+        type === "datetime"
+          ? 16
+          : type === "money" && typeof value === "number"
+            ? minorToDecimal(value).length + 3
+            : type === "integer"
+              ? String(value).length + 2
+              : shown(value, type).length;
+      if (length > longest[index]) longest[index] = length;
+    });
+  const widths = longest
+    .map((length, index) => {
+      const width = Math.min(60, Math.max(10, length + 2));
       return `<col min="${index + 1}" max="${index + 1}" width="${width}" customWidth="1"/>`;
     })
     .join("");
@@ -493,11 +512,95 @@ function xlsx(sheets: Table[], label: (code: string) => string) {
 
 // ---- PDF -------------------------------------------------------------------
 
-// Characters outside the standard fonts' WinAnsi encoding become "?"; names
-// stay readable for Latin scripts used by the four product languages.
-const WIN_ANSI = /[^ -~ -ÿ€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ]/g;
-const pdfText = (value: string) =>
-  value.replace(/\s+/g, " ").replace(WIN_ANSI, "?");
+// The standard fonts draw WinAnsi only. Product copy in the four languages
+// stays within it; names and workspace text outside it use the embedded
+// Unicode font, loaded only for the files that need it.
+const OUTSIDE_WIN_ANSI =
+  /[^\u0020-\u007E\u00A0-\u00FF€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ]/;
+const OUTSIDE_WIN_ANSI_ALL = new RegExp(OUTSIDE_WIN_ANSI.source, "g");
+const flatText = (value: string) => value.replace(/\s+/g, " ");
+type PdfFonts = {
+  regular: PDFFont;
+  bold: PDFFont;
+  unicode: { font: PDFFont; text: (value: string) => string } | null;
+};
+/** The font and drawable text for one string, keeping bold where possible. */
+function pdfRun(value: string, fonts: PdfFonts, standard: PDFFont) {
+  const flat = flatText(value);
+  if (!OUTSIDE_WIN_ANSI.test(flat)) return { text: flat, font: standard };
+  if (fonts.unicode)
+    return { text: fonts.unicode.text(flat), font: fonts.unicode.font };
+  return { text: flat.replace(OUTSIDE_WIN_ANSI_ALL, "?"), font: standard };
+}
+/** Words, also broken after hyphens, each marking a preceding space. */
+function tokens(text: string) {
+  return text
+    .split(" ")
+    .flatMap((word) =>
+      word.split(/(?<=-)/).map((part, index) => ({ part, space: index === 0 })),
+    );
+}
+/** At most `lines` lines broken at spaces and hyphens; the last is shortened. */
+function wrap(
+  text: string,
+  font: PDFFont,
+  size: number,
+  width: number,
+  lines: number,
+) {
+  if (lines === 1) return [fit(text, font, size, width)];
+  const result: string[] = [];
+  let current = "";
+  for (const { part, space } of tokens(text)) {
+    const next = current ? `${current}${space ? " " : ""}${part}` : part;
+    if (!current || font.widthOfTextAtSize(next, size) <= width) current = next;
+    else {
+      result.push(current);
+      current = part;
+    }
+  }
+  result.push(current);
+  return [...result.slice(0, lines - 1), result.slice(lines - 1).join(" ")]
+    .slice(0, result.length)
+    .map((line) => fit(line, font, size, width));
+}
+/**
+ * Integer water-filling: every table receives up to the same share of the
+ * row budget, so small tables print whole and the largest share the rest.
+ */
+export function pdfRowShares(sizes: readonly number[], budget: number) {
+  const shares = sizes.map(() => 0);
+  let remaining = budget;
+  let open = sizes.flatMap((size, index) => (size > 0 ? [index] : []));
+  while (remaining > 0 && open.length) {
+    const each = Math.max(1, Math.floor(remaining / open.length));
+    for (const index of open) {
+      const grant = Math.min(each, sizes[index] - shares[index], remaining);
+      shares[index] += grant;
+      remaining -= grant;
+    }
+    open = open.filter((index) => shares[index] < sizes[index]);
+  }
+  return shares;
+}
+/** Widths from content: spare room is spread, overflow trims the widest. */
+function columnWidths(natural: number[], available: number) {
+  const total = natural.reduce((sum, value) => sum + value, 0);
+  if (total <= available)
+    return natural.map((value) => (value * available) / total);
+  const sorted = [...natural].sort((a, b) => a - b);
+  let remaining = available,
+    cap = available / natural.length;
+  for (const [index, value] of sorted.entries()) {
+    const each = remaining / (sorted.length - index);
+    if (value >= each) {
+      cap = each;
+      break;
+    }
+    remaining -= value;
+  }
+  return natural.map((value) => Math.min(value, cap));
+}
 function fit(text: string, font: PDFFont, size: number, width: number) {
   if (font.widthOfTextAtSize(text, size) <= width) return text;
   let low = 0,
@@ -522,6 +625,7 @@ async function pdf(
   document.setCreationDate(new Date(input.generatedAt));
   const regular = await document.embedFont(StandardFonts.Helvetica);
   const bold = await document.embedFont(StandardFonts.HelveticaBold);
+  const fonts: PdfFonts = { regular, bold, unicode: null };
   const [width, height] = [841.89, 595.28];
   const margin = 36;
   const ink = rgb(0.09, 0.1, 0.13),
@@ -548,12 +652,22 @@ async function pdf(
       )
       .join("");
   };
+  // Four-digit years and a 24-hour clock read the same in every language.
   const dateTime = new Intl.DateTimeFormat(locale, {
-    dateStyle: "short",
-    timeStyle: "short",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
     timeZone: "UTC",
   });
-  const display = (value: Cell, type: CellType) => {
+  const day = new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium",
+    timeZone: "UTC",
+  });
+  const display = (cell: Cell, column: Column) => {
+    const [value, type] = resolve(cell, column);
     if (value === null || value === undefined || value === "") return "—";
     if (type === "money" && typeof value === "number") return exactMoney(value);
     if (type === "integer" && typeof value === "number")
@@ -566,6 +680,30 @@ async function pdf(
     }
     return String(value);
   };
+  const shares = pdfRowShares(
+    sheets.map((table) => table.rows.length),
+    ADMINISTRATION_PDF_MAX_ROWS,
+  );
+  const drawnRows = sheets.map((table, tableIndex) =>
+    table.rows
+      .slice(0, shares[tableIndex])
+      .map((row) =>
+        row.map((value, index) => display(value, table.columns[index])),
+      ),
+  );
+  if (
+    [
+      input.workspace.name,
+      ...sheets.flatMap((table) => [
+        table.title,
+        ...table.columns.map((column) => column.label),
+      ]),
+      ...drawnRows.flat(2),
+    ].some((value) => OUTSIDE_WIN_ANSI.test(flatText(value)))
+  )
+    fonts.unicode = await (
+      await import("./administration-pdf-font")
+    ).embedUnicodeFont(document);
   let page = document.addPage([width, height]);
   let y = height - margin;
   const newPage = () => {
@@ -577,23 +715,28 @@ async function pdf(
     options: { font?: PDFFont; size?: number; color?: typeof ink; x?: number },
   ) => {
     const size = options.size ?? 9;
-    page.drawText(
-      fit(pdfText(text), options.font ?? regular, size, width - 2 * margin),
-      {
-        x: options.x ?? margin,
-        y,
-        size,
-        font: options.font ?? regular,
-        color: options.color ?? ink,
-      },
-    );
+    const run = pdfRun(text, fonts, options.font ?? regular);
+    page.drawText(fit(run.text, run.font, size, width - 2 * margin), {
+      x: options.x ?? margin,
+      y,
+      size,
+      font: run.font,
+      color: options.color ?? ink,
+    });
   };
   write(`guteneo · ${input.workspace.name}`, { font: bold, size: 18 });
   y -= 22;
   write(title, { font: bold, size: 12, color: accent });
   y -= 16;
   write(
-    `${t("Period")}: ${input.period.from} – ${input.period.to} · ${t("Generated (UTC)")}: ${dateTime.format(Date.parse(input.generatedAt))}`,
+    `${t(
+      "Period: {0} – {1}",
+      day.format(Date.parse(`${input.period.from}T00:00:00Z`)),
+      day.format(Date.parse(`${input.period.to}T00:00:00Z`)),
+    )} · ${t(
+      "Generated (UTC): {0}",
+      dateTime.format(Date.parse(input.generatedAt)),
+    )}`,
     { color: muted },
   );
   y -= 13;
@@ -614,66 +757,85 @@ async function pdf(
   );
   y -= 22;
   const rowHeight = 14;
-  let remainingRows = ADMINISTRATION_PDF_MAX_ROWS;
-  for (const table of sheets) {
+  const measure = (value: string, font: PDFFont) => {
+    const run = pdfRun(value, fonts, font);
+    return run.font.widthOfTextAtSize(run.text, 8);
+  };
+  for (const [tableIndex, table] of sheets.entries()) {
     if (y < margin + 60) newPage();
     write(table.title, { font: bold, size: 11 });
     y -= 16;
-    const weights = table.columns.map((column) =>
-      column.type === "datetime"
-        ? 1.3
-        : column.type === "text"
-          ? 1.6
-          : column.type === "money"
-            ? 1.1
-            : 0.9,
+    const rows = drawnRows[tableIndex];
+    // A header needs its longest word and may use two lines; a value one.
+    const widths = columnWidths(
+      table.columns.map(
+        (column, index) =>
+          6 +
+          Math.max(
+            measure(column.label, bold) / 2,
+            ...tokens(flatText(column.label)).map(({ part }) =>
+              measure(part, bold),
+            ),
+            ...rows.map((row) => measure(row[index], regular)),
+          ),
+      ),
+      width - 2 * margin,
     );
-    const total = weights.reduce((sum, weight) => sum + weight, 0);
-    const widths = weights.map(
-      (weight) => ((width - 2 * margin) * weight) / total,
-    );
-    const drawRow = (cells: string[], font: PDFFont, color = ink) => {
+    // Headers may take two lines; values keep one line per row.
+    const drawRow = (
+      cells: string[],
+      font: PDFFont,
+      color = ink,
+      lines = 1,
+    ) => {
+      const runs = cells.map((text, index) => {
+        const run = pdfRun(text, fonts, font);
+        return {
+          font: run.font,
+          lines: wrap(run.text, run.font, 8, widths[index] - 6, lines),
+        };
+      });
+      const extra = (Math.max(...runs.map((run) => run.lines.length)) - 1) * 9;
       let x = margin;
-      cells.forEach((text, index) => {
-        page.drawText(fit(pdfText(text), font, 8, widths[index] - 6), {
-          x,
-          y,
-          size: 8,
-          font,
-          color,
-        });
+      runs.forEach((run, index) => {
+        run.lines.forEach((text, position) =>
+          page.drawText(text, {
+            x,
+            y: y - position * 9,
+            size: 8,
+            font: run.font,
+            color,
+          }),
+        );
         x += widths[index];
       });
       page.drawLine({
-        start: { x: margin, y: y - 4 },
-        end: { x: width - margin, y: y - 4 },
+        start: { x: margin, y: y - extra - 4 },
+        end: { x: width - margin, y: y - extra - 4 },
         thickness: 0.5,
         color: line,
       });
-      y -= rowHeight;
+      y -= rowHeight + extra;
     };
     const header = () =>
       drawRow(
         table.columns.map((column) => column.label),
         bold,
         muted,
+        2,
       );
     header();
     if (!table.rows.length) {
       write(t("No rows for this period."), { color: muted, size: 8 });
       y -= rowHeight;
     }
-    const shown = Math.min(table.rows.length, remainingRows);
-    remainingRows -= shown;
-    for (const row of table.rows.slice(0, shown)) {
+    const shown = rows.length;
+    for (const row of rows) {
       if (y < margin + rowHeight) {
         newPage();
         header();
       }
-      drawRow(
-        row.map((value, index) => display(value, table.columns[index].type)),
-        regular,
-      );
+      drawRow(row, regular);
     }
     if (table.rows.length > shown) {
       if (y < margin + rowHeight) newPage();
@@ -744,7 +906,8 @@ export async function renderAdministrationExport(input: ExportInput) {
     );
   for (const sheet of sheets)
     for (const row of sheet.rows)
-      for (const [index, value] of row.entries()) {
+      for (const [index, item] of row.entries()) {
+        const [value, type] = resolve(item, sheet.columns[index]);
         if (typeof value === "number" && !Number.isSafeInteger(value))
           throw new DomainError(
             "INVALID_REPORT_AMOUNT",
@@ -753,7 +916,7 @@ export async function renderAdministrationExport(input: ExportInput) {
           );
         if (
           input.format === "xlsx" &&
-          sheet.columns[index].type === "money" &&
+          type === "money" &&
           typeof value === "number" &&
           Math.abs(value) > 999_999_999_999_999
         )

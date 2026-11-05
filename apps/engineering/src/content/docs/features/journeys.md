@@ -365,6 +365,6 @@ Identify the mechanism that actually consumes a deadline, including selected fir
 
 **Actor:** Workspace administrator; supervisor with report permission for report views · **Branch:** Correspondence keeps preparation and tracking; the personal profile keeps the person's own settings; Belvédère stays platform-only
 
-Open Administration from the application switcher → choose a period preset or a custom UTC range → read the overview, activity, consumption and access → manage members, invitations, billing and workspace settings → download the complete report as Excel or PDF, or one dataset as CSV → find the export recorded in the audit log
+Open Administration from the application switcher, including from My documents or Use Guteneo when the current membership allows reports → choose a period preset or a custom UTC range → read the overview, activity, consumption and access → manage members, invitations, billing and workspace settings → download the complete report as Excel or PDF, or one dataset as CSV → find the export recorded in the audit log
 
 **Failure and recovery:** Changed membership refuses with MEMBERSHIP_CHANGED; assistants and native clients receive BROWSER_REQUIRED. Invalid dates recover in the browser and are refused by the API; periods over 366 days and export row/text bounds fail explicitly. PDFs disclose global row omissions. Changing a period or identity cancels obsolete downloads.

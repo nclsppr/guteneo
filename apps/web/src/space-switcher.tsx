@@ -12,6 +12,7 @@ import {
 } from "@phosphor-icons/react";
 import { useEffect, useId, useRef, useState } from "react";
 import { spaceHome, type ApplicationSpace } from "./app-routes";
+import { workspaceBridgeRoute } from "./workspace-entry";
 import {
   ErrorNotice,
   NAVIGATION_PANEL_OPEN,
@@ -206,8 +207,8 @@ export function ApplicationSwitcher({
             .filter(
               (item) =>
                 (item.id !== "belvedere" || canAccessBelvedere) &&
-                (item.id !== "administration" ||
-                  (hasWorkspace && canAdministerWorkspace)),
+                // Without an active workspace the entry leads to choosing one.
+                (item.id !== "administration" || canAdministerWorkspace),
             )
             .map((item) => (
               <li key={item.id}>
@@ -217,7 +218,7 @@ export function ApplicationSwitcher({
                       ? isAdvancedLocalPreview
                         ? localBelvedereHref
                         : "/belvedere"
-                      : `${application === "belvedere" ? "/" : ""}#${item.needsWorkspace && !hasWorkspace ? "/app/services" : spaceHome[item.id]}`
+                      : `${application === "belvedere" ? "/" : ""}#${item.needsWorkspace && !hasWorkspace ? workspaceBridgeRoute(spaceHome[item.id]) : spaceHome[item.id]}`
                   }
                   target={
                     item.id === "belvedere" && isAdvancedLocalPreview

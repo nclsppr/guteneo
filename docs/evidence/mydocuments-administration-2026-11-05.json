@@ -1,0 +1,387 @@
+{
+  "recordedAt": "2026-11-05T01:59:16Z",
+  "parent": "aa1ea91f57c84e0a976359ea2ca14bb85d985f2d",
+  "sourceSha256": {
+    "apps/web/src/personal-document-list.tsx": "bcf9da15e41b474bb047d41f88ea136a437ddb30a87cbaaabd35faf7b05036ba",
+    "apps/web/src/personal-space.tsx": "e21a39b449285dd889799a5d990b51db1a14e275d407a14e5a0b4f2793d52cfc",
+    "apps/web/src/preview-administration.ts": "012ba09a5038dbbf79e1712400f46a6a8eac3dfee96dee9d34fac78956d1d992",
+    "apps/web/src/administration-views.tsx": "0f00fa326d2885e956ff52fd7663dff6300aaf54b9fb64aa5c6c7fa727a72ac3",
+    "apps/web/src/administration.css": "faf0a0d12a620e0920b43cee5b388e0c8cca85dc533428790acfbc245ede8fb9",
+    "tests/e2e/personal-document-list.spec.ts": "3de6f991f016d8a829ca252aba770dc8fd79bec9e286a1666120fffcd9b1813a",
+    "tests/e2e/personal-appearance.spec.ts": "8787db21d46c3f361f88273edac88f971867d0e18466fe662db077faa9064246",
+    "tests/e2e/workspace-administration.spec.ts": "8709e41c453886cb818bd12ece60ba6e0ee243d5e84b56663662b6a785bd7913",
+    "tests/e2e/usage-activity.spec.ts": "283a7983a0d66f810fe2e38637e642e0df2cab7b4d7bdd5769f8d1aff285ce77",
+    "tests/unit/preview-administration.test.ts": "a7785b465f8a3fc5981a2c6666180098e8bd28d84c3fb4b5ddc38de20041895b"
+  },
+  "localChecks": {
+    "typecheck": "passed",
+    "lint": "passed",
+    "focusedUnitAndIntegrationTestsPassed": 128,
+    "focusedBrowserTestsPassed": 18,
+    "browserProfiles": [
+      "chromium",
+      "mobile-chromium",
+      "iphone-webkit"
+    ],
+    "browserFixtures": "Local built application on workerd with isolated state and intercepted synthetic API responses.",
+    "coverage": [
+      "Deleting the final copy on page two or three returns to a populated page. A permission refusal during recovery clears cached rows.",
+      "The open workspace bridge follows Administration navigation and browser history, and filters membership choices.",
+      "Administration dispatch links and mobile calendar targets have at least 24 CSS pixels in both dimensions.",
+      "Preview consumption follows confirmation timestamps across UTC month boundaries. Sign-in history respects the period and malformed dates or pagination are rejected."
+    ]
+  },
+  "pdfWorkerd": {
+    "runtime": {
+      "node": "v24.18.0",
+      "miniflare": "5.20261006.1-alpha",
+      "workerd": "1.20261006.1",
+      "platform": "darwin",
+      "arch": "arm64",
+      "bundleBytes": 1547912
+    },
+    "sourceSha256": {
+      "apps/api/src/administration-exports.ts": "45d0ae13866cc7e7ce7af1caa97a55fd6620c67fe2e9798f02aadf96c819a003",
+      "apps/api/src/administration-pdf-font.ts": "76f27e09a815cda958f48e1a99f8fa167e413d62e7c6738527e2497582eec9c4",
+      "apps/api/src/administration-pdf-font-data.ts": "b32063cbb7d20ad742da4546ded7bde703d933ef4d835d2da04ae682df15da6b",
+      "packages/contracts/src/administration.ts": "a0de1f93137b576966878b3984ca1381c9f677302b71940768e03f8cac55032a"
+    },
+    "methodAndLimits": [
+      "Actual bundled renderer executes inside fresh local workerd/Miniflare isolates with no data bindings and outbound HTTP blocked. Synthetic fixtures only.",
+      "Cold means first render after runtime ready; runtime startup is reported separately. Warm means five sequential renders following one warmup in the same runtime; no explicit GC. Three fresh runtimes per cold case.",
+      "CPU is whole owned workerd process CPU from macOS ps with 10 ms resolution; not Cloudflare billable CPU. Elapsed request time includes request and response transport.",
+      "RSS is whole workerd process, sampled every 20 ms plus before/after. It includes Miniflare internal isolates and native memory; it is not target isolate memory or guaranteed peak.",
+      "CDP Runtime.getHeapUsage is target-isolate heap before and after requests only, with inspector overhead; it is not peak live heap and does not establish hosted 128 MiB compliance.",
+      "Local inspector runtime has no hosted production CPU/memory enforcement. No hosted performance, native Acrobat/Excel, or physical-device qualification."
+    ],
+    "successfulRequests": 40,
+    "cases": {
+      "standard-representative": {
+        "cold": {
+          "rows": 50,
+          "samples": 3,
+          "requestMs": [
+            58,
+            96
+          ],
+          "processCpuMs": [
+            130,
+            150
+          ],
+          "sampledProcessRssMiB": [
+            103,
+            103
+          ],
+          "heapUsedAfterMiB": [
+            11,
+            11
+          ],
+          "pdfBytes": [
+            18151,
+            18151
+          ]
+        },
+        "warm": {
+          "rows": 50,
+          "samples": 5,
+          "requestMs": [
+            14,
+            15
+          ],
+          "processCpuMs": [
+            10,
+            20
+          ],
+          "sampledProcessRssMiB": [
+            104,
+            117
+          ],
+          "heapUsedAfterMiB": [
+            13,
+            17
+          ],
+          "pdfBytes": [
+            18151,
+            18151
+          ]
+        }
+      },
+      "unicode-representative": {
+        "cold": {
+          "rows": 50,
+          "samples": 3,
+          "requestMs": [
+            118,
+            120
+          ],
+          "processCpuMs": [
+            250,
+            260
+          ],
+          "sampledProcessRssMiB": [
+            109,
+            109
+          ],
+          "heapUsedAfterMiB": [
+            14,
+            14
+          ],
+          "pdfBytes": [
+            94756,
+            94756
+          ]
+        },
+        "warm": {
+          "rows": 50,
+          "samples": 5,
+          "requestMs": [
+            38,
+            47
+          ],
+          "processCpuMs": [
+            50,
+            100
+          ],
+          "sampledProcessRssMiB": [
+            121,
+            146
+          ],
+          "heapUsedAfterMiB": [
+            14,
+            23
+          ],
+          "pdfBytes": [
+            94756,
+            94756
+          ]
+        }
+      },
+      "standard-stress": {
+        "cold": {
+          "rows": 500,
+          "samples": 3,
+          "requestMs": [
+            185,
+            191
+          ],
+          "processCpuMs": [
+            310,
+            320
+          ],
+          "sampledProcessRssMiB": [
+            136,
+            137
+          ],
+          "heapUsedAfterMiB": [
+            27,
+            27
+          ],
+          "pdfBytes": [
+            161422,
+            161423
+          ]
+        },
+        "warm": {
+          "rows": 500,
+          "samples": 5,
+          "requestMs": [
+            122,
+            147
+          ],
+          "processCpuMs": [
+            120,
+            210
+          ],
+          "sampledProcessRssMiB": [
+            153,
+            204
+          ],
+          "heapUsedAfterMiB": [
+            17,
+            39
+          ],
+          "pdfBytes": [
+            161422,
+            161423
+          ]
+        }
+      },
+      "unicode-stress": {
+        "cold": {
+          "rows": 500,
+          "samples": 3,
+          "requestMs": [
+            830,
+            836
+          ],
+          "processCpuMs": [
+            1150,
+            1160
+          ],
+          "sampledProcessRssMiB": [
+            149,
+            149
+          ],
+          "heapUsedAfterMiB": [
+            23,
+            23
+          ],
+          "pdfBytes": [
+            241763,
+            241764
+          ]
+        },
+        "warm": {
+          "rows": 500,
+          "samples": 5,
+          "requestMs": [
+            760,
+            913
+          ],
+          "processCpuMs": [
+            800,
+            950
+          ],
+          "sampledProcessRssMiB": [
+            164,
+            204
+          ],
+          "heapUsedAfterMiB": [
+            28,
+            56
+          ],
+          "pdfBytes": [
+            241763,
+            241763
+          ]
+        }
+      }
+    },
+    "maximumCellProbe": {
+      "rows": 500,
+      "syntheticNameCharactersPerRow": 4096,
+      "requestMs": 8101,
+      "processCpuMs": 8410,
+      "heapUsedAfterMiB": 50,
+      "pdfBytes": 238774
+    },
+    "fidelity": [
+      {
+        "pdfSha256": "c5452f6b3039dedc09caf31a186491047a288c100cbed6937c4db6d46fedec3c",
+        "fixture": "standard-representative-cold-1.pdf",
+        "pages": 2,
+        "checks": {
+          "noUnicodeReplacementCharacter": true,
+          "renderedRowIds": 50,
+          "firstRow": "ROW_00001",
+          "lastRow": "ROW_00050",
+          "workspaceExact": true
+        }
+      },
+      {
+        "pdfSha256": "3e7bd409ab9d750d6acbf1043161e43fcf757c4e488f54b3961f8cccc5e31b42",
+        "fixture": "standard-stress-cold-1.pdf",
+        "pages": 15,
+        "checks": {
+          "noUnicodeReplacementCharacter": true,
+          "renderedRowIds": 500,
+          "firstRow": "ROW_00001",
+          "lastRow": "ROW_00500",
+          "workspaceExact": true
+        }
+      },
+      {
+        "pdfSha256": "9b797bd0f9e16da65865863367b4b961de2bb45f301151f4eecb536dcd6834a5",
+        "fixture": "unicode-representative-cold-1.pdf",
+        "pages": 2,
+        "checks": {
+          "noUnicodeReplacementCharacter": true,
+          "renderedRowIds": 50,
+          "firstRow": "ROW_00001",
+          "lastRow": "ROW_00050",
+          "workspaceExact": true
+        }
+      },
+      {
+        "pdfSha256": "76ed79b62b9a5a2358b918576e8059ed17bc5ac3a1a8d90c5d97bcab351ba5d5",
+        "fixture": "unicode-stress-cold-1.pdf",
+        "pages": 15,
+        "checks": {
+          "noUnicodeReplacementCharacter": true,
+          "renderedRowIds": 500,
+          "firstRow": "ROW_00001",
+          "lastRow": "ROW_00500",
+          "workspaceExact": true
+        }
+      },
+      {
+        "pdfSha256": "95180178c2c650da74d89d40ecf05c74b71dfa1f6f249b7d57ef2e6d4d09226e",
+        "fixture": "unicode-boundary-10000.pdf",
+        "pages": 15,
+        "checks": {
+          "noUnicodeReplacementCharacter": true,
+          "renderedRowIds": 500,
+          "firstRow": "ROW_00001",
+          "lastRow": "ROW_00500",
+          "firstOmittedAbsent": true,
+          "omissionNotice": true,
+          "workspaceExact": true
+        }
+      },
+      {
+        "pdfSha256": "f6271277bb9283a180e7f08a78fe1971e0499b0fbe25d37f96f7c63127de0822",
+        "fixture": "unicode-members.pdf",
+        "pages": 1,
+        "checks": {
+          "noUnicodeReplacementCharacter": true,
+          "exactNames": [
+            {
+              "name": "Łukasz Dvořák",
+              "present": true
+            },
+            {
+              "name": "Gülşen Yılmaz",
+              "present": true
+            },
+            {
+              "name": "Анна Петрова",
+              "present": true
+            },
+            {
+              "name": "Ștefan Țepeș",
+              "present": true
+            }
+          ],
+          "workspaceExact": true
+        }
+      },
+      {
+        "pdfSha256": "fa38681b8cad0c7a78a374aa4661fbe3048e6f6923a7a267dfcaac4f3e71bddd",
+        "fixture": "unsupported-members.pdf",
+        "pages": 1,
+        "checks": {
+          "noUnicodeReplacementCharacter": true,
+          "exactNames": [
+            {
+              "name": "?? Łukasz",
+              "present": true
+            }
+          ],
+          "workspaceExact": true
+        }
+      },
+      {
+        "pdfSha256": "39ef923f3b401d8f6af723df0676fa35629f519c680e21509283391e4988e327",
+        "fixture": "unicode-max-cell-500.pdf",
+        "pages": 15,
+        "checks": {
+          "noUnicodeReplacementCharacter": true,
+          "renderedRowIds": 500,
+          "firstRow": "ROW_00001",
+          "lastRow": "ROW_00500",
+          "workspaceExact": true
+        }
+      }
+    ]
+  }
+}

@@ -558,7 +558,8 @@
         "Local D1/R2 regressions cover revocation of metadata/images/text/permitted-original/deposit, decryption races, concurrent deposit and duplicate-copy workers; durable copies converge on exact bytes and single receipts without reviving revoked shared access",
         "My documents hydrates each owner-bound page in one query plus a filtered total, with state/sender filters, four keyset sort orders and accent-folded search; hidden unassociated titles never participate",
         "A parallel summary provides category counts and at most 100 sender choices; summary failure does not delay the list, filter changes discard old page cursors and authority refusals clear all loaded metadata",
-        "Page-by-page My documents navigation and a generic prompt to create a workspace for accounts without one"
+        "Page-by-page My documents navigation and a generic prompt to create a workspace for accounts without one",
+        "Returning from a document by link or browser Back restores the same page, scroll position and focus without a new read; deleting or saving a copy rereads the page and counts, and deleting the final copy on a page returns to a valid page; ended rows show their end date"
       ],
       "status": "Implemented candidate with migrations 0055–0059 and separate deterministic strong/verified_account qualification. Default strong, explicitly selected verified_account, aligned environment/D1 policy and human approval remain mandatory; real Auth0, provider delivery, publication and external-client proof are separate.",
       "surfaces": "Workspace and personal web UI in FR/EN/DE/LB with shared V2 primitives; workspace REST/MCP and assistant packages under scopes. Recipient access, sensitive approval and explicit quote renewal are browser-only; workspace Bearer tokens cannot open the personal vault. Native and real host support need surface-specific qualification.",
@@ -1353,9 +1354,12 @@
         "Audit log of actions and resource identifiers, never audit details",
         "CSV, Excel and PDF exports of the period with exact decimal amounts from integer minor units, formula-safe CSV, a cumulative 10,000-row and 4 MiB text refusal, bounded cells and a global 500-row PDF with explicit omissions and an audit entry per export",
         "Earlier /app/admin, /app/usage and /app/billing addresses remain aliases, including billing portal returns",
-        "URL periods reject malformed dates safely; custom fields follow presets and history, stale reads cannot overwrite the current workspace, and obsolete export downloads are cancelled"
+        "URL periods reject malformed dates safely; custom fields follow presets and history, stale reads cannot overwrite the current workspace, and obsolete export downloads are cancelled",
+        "My documents and Use Guteneo offer Administration from a server-computed per-membership report right in the personal session; selecting it from an already open workspace form applies the new URL destination and eligible membership filter; removal hides it and the API refuses meanwhile",
+        "PDF exports embed the pinned Roboto font only when a drawn string is outside WinAnsi, size columns from content, wrap headers, share the 500-row budget across tables and localize header dates; the Excel summary stores typed numbers, money and date-time",
+        "The public preview renders Administration over its fictional workspace with the server's permission split, validates date and pagination bounds, and groups consumption by confirmation day and month; sign-in history follows the selected range and exports stay disabled"
       ],
-      "status": "3 November 2026 recovered source candidate. Current local qualification and limits are recorded in the administration contract; hosted CI, production-data and physical-device qualification remain separate.",
+      "status": "4 November 2026 continuation of the 3 November recovered source candidate. Current local qualification and limits are recorded in the administration contract; hosted CI, production-data and physical-device qualification remain separate.",
       "tests": [
         "tests/unit/administration.test.ts",
         "tests/e2e/account-billing.spec.ts",
@@ -1364,7 +1368,11 @@
         "tests/e2e/usage-history.spec.ts",
         "tests/distribution-e2e/personal-account.e2e.ts",
         "tests/unit/workspace-administration-client.test.ts",
-        "tests/e2e/workspace-administration.spec.ts"
+        "tests/e2e/workspace-administration.spec.ts",
+        "tests/unit/administration-exports.test.ts",
+        "tests/unit/preview-administration.test.ts",
+        "tests/unit/workspace-entry.test.ts",
+        "tests/unit/personal-auth.test.ts"
       ],
       "surfaces": "Authenticated browser membership only; OAuth, MCP and native callers are refused.",
       "id": "administration",
@@ -1775,7 +1783,7 @@
       "id": "J45",
       "title": "Administer a workspace and export its reports",
       "actor": "Workspace administrator; supervisor with report permission for report views",
-      "steps": "Open Administration from the application switcher → choose a period preset or a custom UTC range → read the overview, activity, consumption and access → manage members, invitations, billing and workspace settings → download the complete report as Excel or PDF, or one dataset as CSV → find the export recorded in the audit log",
+      "steps": "Open Administration from the application switcher, including from My documents or Use Guteneo when the current membership allows reports → choose a period preset or a custom UTC range → read the overview, activity, consumption and access → manage members, invitations, billing and workspace settings → download the complete report as Excel or PDF, or one dataset as CSV → find the export recorded in the audit log",
       "branch": "Correspondence keeps preparation and tracking; the personal profile keeps the person's own settings; Belvédère stays platform-only",
       "doc": "WORKSPACE_ADMINISTRATION.md",
       "failure": "Changed membership refuses with MEMBERSHIP_CHANGED; assistants and native clients receive BROWSER_REQUIRED. Invalid dates recover in the browser and are refused by the API; periods over 366 days and export row/text bounds fail explicitly. PDFs disclose global row omissions. Changing a period or identity cancels obsolete downloads."

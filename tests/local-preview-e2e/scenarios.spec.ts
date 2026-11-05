@@ -336,7 +336,8 @@ test("Studio and My documents read the selected synthetic collections through no
   await ready
     .getByRole("link", { name: "Open the document", exact: true })
     .click();
-  await expect(page.locator("main h1")).toContainText(
+  // The list stays mounted, hidden, so returning restores its page and row.
+  await expect(page.locator("main h1:visible")).toContainText(
     "Fictional received preview",
   );
   await page.locator(".secure-document-page").scrollIntoViewIfNeeded();

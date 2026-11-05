@@ -46,10 +46,22 @@ appearance, sessions and assistant delegation, and only displays the workspace
 and role. Correspondence no longer lists Usage, Billing or Administration. The
 application switcher offers Administration to administrators and to supervisors
 with report permission in workspace and Belvédère sessions; the server rechecks
-either way. My documents can offer it to a current workspace administrator from
-its personal-session projection. That projection has no supervisor report flag,
-so a supervisor returns through Studio or Correspondence to select Administration;
-no workspace read is added to the personal entry merely to infer this hint.
+either way. My documents and Use Guteneo offer it from the personal-session
+projection, which carries a server-computed `canViewReports` per membership
+(4 November 2026): the same `workspacePermissions` rule as the workspace
+session, read from the current membership row on every personal-session read.
+A supervisor with report permission therefore finds Administration there too;
+removing the permission or the membership removes the entry at the next
+personal-session read, and the Administration API refuses in the meantime.
+The hint grants nothing and adds no workspace read to the personal entry.
+Without a workspace session, the entry goes through
+`/app/services?next=/app/administration`: Use Guteneo preselects **Manage a
+workspace**, lists only memberships whose projection allows reports, rotates
+the workspace session for the chosen one and opens Administration. Only known
+destinations (preparation, new share, Administration pages) are accepted as
+`next`, with their query; anything else falls back to the workspace home.
+Choosing Administration while Use Guteneo is already open applies the new
+destination and its membership filter to the workspace form.
 
 ### Period and response lifetime
 
@@ -72,11 +84,12 @@ shared four-language resources.
 
 ### Views
 
-- **Overview**: dispatches, delivered, needing attention, consumption and
-  reservations, members and active access, imported documents, activated secure
-  shares, promotional credit; daily activity (dispatches, consumption,
-  sign-ins) with an equivalent data table; channels; states linking to the
-  filtered activity; incident notices.
+- **Overview**: a primary row (dispatches, consumption, needing attention,
+  promotional credit) above a secondary row (members, imported documents,
+  activated secure shares); daily activity (dispatches, consumption, sign-ins)
+  with an equivalent data table; channels; states linking to the filtered
+  activity; incident notices. Simulation is stated once by the workspace
+  notice, not repeated per page.
 - **Activity**: every dispatch of the period, filtered on the server by channel,
   state, "needing attention" or reference, 50 per page. Columns: reference,
   creation, channel, state, pages, coarse destination country, consumption,
@@ -119,13 +132,30 @@ shared four-language resources.
   characters, or cumulative raw text exceeds 4 MiB. CSV/Excel keep every row
   within those limits. PDF draws at most 500 rows across the whole file and
   explicitly states shown/total counts for every omitted table, pointing to
-  Excel or CSV. Narrow the period or choose an individual dataset to recover.
+  Excel or CSV. The budget is shared: every table receives up to the same
+  share, so small tables print whole and the largest ones divide the rest
+  (the local fictional report with 809 dispatches and 235 audit entries
+  prints about 145 rows of each large table, never "0 of N"). Narrow the period or choose an
+  individual dataset to recover.
 - CSV is UTF-8 with a byte-order mark, CRLF and quoted fields. Cells starting
   with `=`, `+`, `-`, `@`, tab or carriage return are prefixed with `'` so a
   spreadsheet never evaluates a member name or reference as a formula.
 - Excel is genuine Office Open XML (inline strings, frozen header, filters),
-  zipped with the existing pinned `fflate`. PDF uses `pdf-lib` standard fonts;
-  characters outside WinAnsi become `?`.
+  zipped with the existing pinned `fflate`. Column widths follow the longest
+  label or value (10–60 characters). The report summary stores counts as
+  integers, amounts as money numbers and the generation time as a UTC
+  date-time cell, so spreadsheets can compute with them.
+- PDF uses `pdf-lib` Helvetica while every drawn string is WinAnsi. When a
+  workspace name, member, actor or other drawn value is not, the file embeds
+  the pinned Roboto font already bundled for document templates
+  (`packages/templates/font-coverage.json`, SHA-256 checked by
+  `scripts/build-administration-pdf-font.mjs --check`) through `fontkit` 2.0.4,
+  loaded lazily only for such files. Latin Extended, Greek and Cyrillic then
+  render; characters outside that font (for example CJK) still become `?`.
+  Columns are sized from their content (headers wrap onto two lines, values
+  keep one line and are shortened with an ellipsis only when the page is too
+  narrow); headers repeat on each page. The header localizes its punctuation,
+  period dates and generation time (four-digit year, 24-hour UTC clock).
 - Headers follow the account language (fr/en/de/lb). Excel/PDF also localize
   coded values; CSV preserves the original codes for machine use. Responses
   are `private, no-store`, `noindex`, `no-referrer`, attachment-only and are
@@ -171,15 +201,43 @@ renders the 500-row PDF, whose last included/first omitted row and notice are
 verified from decoded text. The browser qualification and measured loading path
 are detailed in [frontend performance](FRONTEND_PERFORMANCE.md).
 
+[The 4 November 2026 record](evidence/mydocuments-administration-2026-11-04.json)
+adds the personal-session report hint, the services-bridge destinations, the
+preview fixtures and the export readability changes. Real files downloaded from
+a local workerd server (fictional workspace, 809 dispatches, members named in
+Turkish, Polish/Czech and Russian) were opened with macOS Quick Look: CSV, the
+Excel summary/activity/members sheets and PDF first, middle and last pages in
+French, German and Luxembourgish. Unit tests decode the PDF text with pdf.js
+and check the embedded font is absent from WinAnsi-only files. Native
+Excel/LibreOffice/Acrobat acceptance is still not claimed.
+
+[The 5 November follow-up](evidence/mydocuments-administration-2026-11-05.json)
+records the workspace destination and empty-page recovery regressions, preview
+period validation and 24-pixel dispatch links and mobile calendar targets.
+Forty isolated workerd renders succeeded. With 500 rows of long Unicode names,
+requests took 760–913 ms after warm-up. A separate 500-row probe at the cell
+length limit took 8.10 seconds. Extracted PDF text confirms supported names,
+the 500-row bound and the explicit omission notice.
+
 ### Known gaps
 
 - No hosted, production-data or physical-device qualification. Independent
   openpyxl reads verify the 10,000-row workbook, but native Excel/LibreOffice and
   Acrobat acceptance remains unqualified. Local Node memory/timing measurements
   do not qualify the deployed Worker memory limit.
-- Public preview shows members, usage ledger, billing and settings; overview,
-  activity, access, audit and exports state that they read the signed-in
-  workspace and are not simulated.
+- The public preview derives overview, activity, consumption, members, access
+  and audit from its own fictional workspace (`preview-administration.ts`,
+  same permission split as the server; large generated volumes refuse with
+  `PREVIEW_ADMINISTRATION_DEFAULT_ONLY`). Its export buttons are disabled and
+  say so: the preview has no server to generate files.
+- PDF Unicode cost, measured once in local Node 24 for a 500-row, 14-column
+  activity export: WinAnsi-only files keep the main-branch cost (about
+  190 ms, 80 MB RSS growth, 161 KB); a file needing the embedded font takes
+  about 340 ms, 99 MB RSS growth and 241 KB. The Worker bundle grows from
+  5,131 to 6,033 KiB (gzip 1,141 to 1,411 KiB), within Cloudflare's compressed Worker size limits. Deployed Worker memory and
+  CPU limits remain unqualified for that path. The follow-up measures local
+  process CPU and RSS and samples the target heap after rendering. These
+  measurements do not establish peak isolate usage or hosted limits.
 - Activity does not attribute a dispatch to its preparer (dispatches record no
   creator); it shows the approver. Connection countries are not shown to
   administrators.

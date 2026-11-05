@@ -24,7 +24,14 @@ export type PersonalSession = {
   acr: string | null;
   verifiedAccount: boolean;
   authenticatedAt: number | null;
-  workspaces: { id: string; name: string; role: string; current: boolean }[];
+  workspaces: {
+    id: string;
+    name: string;
+    role: string;
+    current: boolean;
+    /** Server-computed report right; absent from earlier servers. */
+    canViewReports?: boolean;
+  }[];
 };
 
 /** A single entry read; never cached across personal-area visits or identities. */

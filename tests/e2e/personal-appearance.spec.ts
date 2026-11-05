@@ -126,6 +126,9 @@ async function fixture(
     rejectSave(value: boolean) {
       rejectSave = value;
     },
+    setWorkspaces(workspaces: PersonalSession["workspaces"]) {
+      session = { ...session, workspaces };
+    },
     switchAccount() {
       session = {
         ...session,
@@ -187,6 +190,67 @@ test("ordinary application entry offers workspace setup before service cards", a
       })),
     ),
   });
+});
+
+test("the workspace bridge follows an Administration destination selected while already open", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  state.setWorkspaces([
+    {
+      id: "report-workspace",
+      name: "Report workspace",
+      role: "admin",
+      current: false,
+      canViewReports: true,
+    },
+    {
+      id: "reader-workspace",
+      name: "Reader workspace",
+      role: "viewer",
+      current: false,
+      canViewReports: false,
+    },
+  ]);
+  await page.goto("/#/app/services");
+  await expect(page.locator("#personal-workspace-destination")).toHaveText(
+    "Next: Send documents",
+  );
+  const options = page.getByLabel("Active workspace").locator("option");
+  await expect(options).toHaveText([
+    "Report workspace",
+    "Reader workspace",
+    "Create my workspace",
+  ]);
+  await page.getByRole("button", { name: /^Application/ }).click();
+  await page
+    .getByRole("navigation", { name: "Applications", exact: true })
+    .getByRole("link", { name: "Administration", exact: true })
+    .click();
+  await expect(page).toHaveURL(
+    /#\/app\/services\?next=%2Fapp%2Fadministration$/,
+  );
+  await expect(page.locator("#personal-workspace-destination")).toHaveText(
+    "Next: Manage a workspace",
+  );
+  await expect(
+    page.getByRole("button", { name: "Open Administration", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(options).toHaveText(["Report workspace", "Create my workspace"]);
+  await page.goBack();
+  await expect(page.locator("#personal-workspace-destination")).toHaveText(
+    "Next: Send documents",
+  );
+  await expect(options).toHaveText([
+    "Report workspace",
+    "Reader workspace",
+    "Create my workspace",
+  ]);
+  await page.goForward();
+  await expect(page.locator("#personal-workspace-destination")).toHaveText(
+    "Next: Manage a workspace",
+  );
+  expect(state.writes).toEqual([]);
 });
 
 for (const [locale, setup, invitationLabel, review, error] of [
