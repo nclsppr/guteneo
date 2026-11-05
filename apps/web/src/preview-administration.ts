@@ -40,23 +40,32 @@ export type PreviewAdministrationInput = {
   fail: (code: string, message: string, status?: number) => never;
 };
 
-function period(
+function filters(
   query: URLSearchParams,
   now: string,
   fail: PreviewAdministrationInput["fail"],
 ) {
   const valid = (value: string) =>
     /^\d{4}-\d{2}-\d{2}$/.test(value) &&
-    new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
+    Number.isFinite(Date.parse(value)) &&
+    new Date(value).toISOString().slice(0, 10) === value;
   const to = query.get("to") ?? now.slice(0, 10);
   const from =
     query.get("from") ??
     new Date(Date.parse(now) - 29 * DAY).toISOString().slice(0, 10);
+  const page = Number(query.get("page") ?? 1);
+  const pageSize = Number(query.get("pageSize") ?? 25);
   if (
     !valid(from) ||
     !valid(to) ||
     from > to ||
-    Date.parse(to) - Date.parse(from) > 365 * DAY
+    Date.parse(to) - Date.parse(from) > 365 * DAY ||
+    !Number.isInteger(page) ||
+    page < 1 ||
+    page > 1000 ||
+    !Number.isInteger(pageSize) ||
+    pageSize < 1 ||
+    pageSize > 100
   )
     fail(
       "INVALID_FILTERS",
@@ -68,15 +77,15 @@ function period(
     to,
     start: `${from}T00:00:00.000Z`,
     end: new Date(Date.parse(to) + DAY).toISOString(),
+    page,
+    pageSize,
   };
 }
 
-function paged<T>(items: T[], query: URLSearchParams): AdministrationPage<T> {
-  const pageSize = Math.min(
-    100,
-    Math.max(1, Number(query.get("pageSize") ?? 25)),
-  );
-  const page = Math.max(1, Number(query.get("page") ?? 1));
+function paged<T>(
+  items: T[],
+  { page, pageSize }: { page: number; pageSize: number },
+): AdministrationPage<T> {
   return {
     items: items.slice((page - 1) * pageSize, page * pageSize),
     total: items.length,
@@ -95,7 +104,7 @@ export function readPreviewAdministration(
 ): unknown {
   const [route, search] = input.path.split("?");
   const query = new URLSearchParams(search);
-  const range = period(query, input.now, input.fail);
+  const range = filters(query, input.now, input.fail);
   const inPeriod = input.dispatches.filter(
     (dispatch) =>
       dispatch.created_at >= range.start && dispatch.created_at < range.end,
@@ -216,10 +225,17 @@ export function readPreviewAdministration(
         approvedBy: dispatch.status === "prepared" ? null : input.user.name,
         campaignId: dispatch.campaign_id ?? null,
       }));
-    return paged(items, query);
+    return paged(items, range);
   }
   if (route === "/administration/consumption") {
-    const charged = inPeriod.filter(consumed);
+    // Consumption follows the fixture confirmation date, as /usage/activity
+    // does; the overview and activity retain dispatch creation dates.
+    const charged = input.dispatches.filter(
+      (dispatch) =>
+        consumed(dispatch) &&
+        dispatch.updated_at >= range.start &&
+        dispatch.updated_at < range.end,
+    );
     const byChannel = new Map<string, Dispatch[]>();
     for (const dispatch of charged)
       byChannel.set(dispatch.channel, [
@@ -227,9 +243,12 @@ export function readPreviewAdministration(
         dispatch,
       ]);
     const byDay = new Map<string, Dispatch[]>();
+    const byMonth = new Map<string, Dispatch[]>();
     for (const dispatch of charged) {
       const date = dispatch.updated_at.slice(0, 10);
       byDay.set(date, [...(byDay.get(date) ?? []), dispatch]);
+      const month = date.slice(0, 7);
+      byMonth.set(month, [...(byMonth.get(month) ?? []), dispatch]);
     }
     const total = sum(charged, () => true);
     return {
@@ -254,15 +273,13 @@ export function readPreviewAdministration(
           amountMinor: sum(items, () => true),
           charges: items.length,
         })),
-      monthly: charged.length
-        ? [
-            {
-              month: input.now.slice(0, 7),
-              amountMinor: total,
-              charges: charged.length,
-            },
-          ]
-        : [],
+      monthly: [...byMonth]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([month, items]) => ({
+          month,
+          amountMinor: sum(items, () => true),
+          charges: items.length,
+        })),
     } satisfies AdministrationConsumption;
   }
   if (route === "/administration/members")
@@ -283,7 +300,7 @@ export function readPreviewAdministration(
             : 0,
         lastActivityAt: member.role === "admin" ? input.now : null,
       })),
-      query,
+      range,
     );
   if (route === "/administration/connections")
     return {
@@ -300,7 +317,7 @@ export function readPreviewAdministration(
             lastSeenAt: input.now,
           },
         ],
-        query,
+        range,
       ),
       events: paged(
         [
@@ -310,8 +327,11 @@ export function readPreviewAdministration(
             userName: input.user.name,
             occurredAt: input.now,
           },
-        ],
-        query,
+        ].filter(
+          (event) =>
+            event.occurredAt >= range.start && event.occurredAt < range.end,
+        ),
+        range,
       ),
       retentionDays: 90,
     } satisfies AdministrationConnections;
@@ -326,7 +346,7 @@ export function readPreviewAdministration(
           resourceId: dispatch.id,
           createdAt: dispatch.created_at,
         })),
-      query,
+      range,
     );
   return input.fail("NOT_FOUND", "Route not found.", 404);
 }

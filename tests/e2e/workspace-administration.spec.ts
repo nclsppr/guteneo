@@ -286,6 +286,13 @@ test("an administrator manages the workspace in Administration, not in the profi
     "Activité de l’espace de travail",
   );
   await expect(page.getByText("dispatch-administration-1")).toBeVisible();
+  const dispatchLink = page.getByRole("link", {
+    name: "dispatch-administration-1",
+    exact: true,
+  });
+  const dispatchTarget = await dispatchLink.boundingBox();
+  expect(dispatchTarget?.width).toBeGreaterThanOrEqual(24);
+  expect(dispatchTarget?.height).toBeGreaterThanOrEqual(24);
   await expect(
     page.getByRole("button", { name: "Page suivante", exact: true }),
   ).toBeVisible();

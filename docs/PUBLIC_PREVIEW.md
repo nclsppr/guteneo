@@ -64,8 +64,14 @@ platform authority on every read.
 Administration in the preview renders the real pages over the tab's fictional
 workspace: `preview-administration.ts` derives overview, activity,
 consumption, members, access and audit from the same fictional dispatches,
-documents and members the other applications show, validates periods like the
-server and applies its permission split (members, access and audit for
+documents and members the other applications show. Invalid dates, periods over
+366 inclusive days, non-integer pagination, pages outside 1–1,000 and page sizes
+outside 1–100 return `INVALID_FILTERS`, matching the server's bounds. Consumption
+uses each fixture's confirmation timestamp (`updated_at`) for period selection
+and daily/monthly grouping, consistently with the preview usage calendar.
+Overview and activity keep their dispatch-creation basis. Sign-in history
+respects the selected period, while active connections remain current.
+The preview applies the server's permission split (members, access and audit for
 administrators; report views for supervisors with report permission). It
 invents no preparer, connection country or real record. Generated volume
 scenarios are refused with `PREVIEW_ADMINISTRATION_DEFAULT_ONLY`, and export

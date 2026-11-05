@@ -554,7 +554,10 @@ export function AdministrationActivityPage({ route }: { route: string }) {
                 rowHeader: true,
                 sortable: false,
                 render: (item) => (
-                  <a href={`#/app/dispatch/${encodeURIComponent(item.id)}`}>
+                  <a
+                    className="administration-dispatch-link"
+                    href={`#/app/dispatch/${encodeURIComponent(item.id)}`}
+                  >
                     <code>{item.id}</code>
                   </a>
                 ),

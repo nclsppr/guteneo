@@ -245,25 +245,33 @@ export function PersonalDocumentList({
       return;
     const controller = new AbortController();
     paginationRequest.current = controller;
-    const target = stack.at(-1) ?? null;
     const current = generation.current;
     await navigation.run(async () => {
       try {
-        const next = await personalApi<ListPage>(
-          target
-            ? `${listPath}&cursor=${encodeURIComponent(target)}`
-            : listPath,
-          session,
-          { signal: controller.signal },
-        );
-        if (
-          controller.signal.aborted ||
-          current !== generation.current ||
-          accessDenied.current
-        )
-          return;
+        let next: ListPage;
+        let nextStack = stack;
+        for (;;) {
+          const target = nextStack.at(-1) ?? null;
+          next = await personalApi<ListPage>(
+            target
+              ? `${listPath}&cursor=${encodeURIComponent(target)}`
+              : listPath,
+            session,
+            { signal: controller.signal },
+          );
+          if (
+            controller.signal.aborted ||
+            current !== generation.current ||
+            accessDenied.current
+          )
+            return;
+          // Deleting the final copy can remove this page. Walk back through
+          // visited cursors until a remaining page or the empty first page.
+          if (next.items.length || nextStack.length === 1) break;
+          nextStack = nextStack.slice(0, -1);
+        }
         setResult(next);
-        setCursors(stack);
+        setCursors(nextStack);
         document
           .getElementById("personal-document-results")
           ?.focus({ preventScroll: false });

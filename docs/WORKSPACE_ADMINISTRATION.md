@@ -60,6 +60,8 @@ workspace**, lists only memberships whose projection allows reports, rotates
 the workspace session for the chosen one and opens Administration. Only known
 destinations (preparation, new share, Administration pages) are accepted as
 `next`, with their query; anything else falls back to the workspace home.
+Choosing Administration while Use Guteneo is already open applies the new
+destination and its membership filter to the workspace form.
 
 ### Period and response lifetime
 
@@ -209,6 +211,14 @@ French, German and Luxembourgish. Unit tests decode the PDF text with pdf.js
 and check the embedded font is absent from WinAnsi-only files. Native
 Excel/LibreOffice/Acrobat acceptance is still not claimed.
 
+[The 5 November follow-up](evidence/mydocuments-administration-2026-11-05.json)
+records the workspace destination and empty-page recovery regressions, preview
+period validation and 24-pixel dispatch links and mobile calendar targets.
+Forty isolated workerd renders succeeded. With 500 rows of long Unicode names,
+requests took 760–913 ms after warm-up. A separate 500-row probe at the cell
+length limit took 8.10 seconds. Extracted PDF text confirms supported names,
+the 500-row bound and the explicit omission notice.
+
 ### Known gaps
 
 - No hosted, production-data or physical-device qualification. Independent
@@ -225,7 +235,9 @@ Excel/LibreOffice/Acrobat acceptance is still not claimed.
   190 ms, 80 MB RSS growth, 161 KB); a file needing the embedded font takes
   about 340 ms, 99 MB RSS growth and 241 KB. The Worker bundle grows from
   5,131 to 6,033 KiB (gzip 1,141 to 1,411 KiB), within Cloudflare's compressed Worker size limits. Deployed Worker memory and
-  CPU limits remain unqualified for that path.
+  CPU limits remain unqualified for that path. The follow-up measures local
+  process CPU and RSS and samples the target heap after rendering. These
+  measurements do not establish peak isolate usage or hosted limits.
 - Activity does not attribute a dispatch to its preparer (dispatches record no
   creator); it shows the approver. Connection countries are not shown to
   administrators.

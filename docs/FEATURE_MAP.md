@@ -619,7 +619,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - My documents hydrates each owner-bound page in one query plus a filtered total, with state/sender filters, four keyset sort orders and accent-folded search; hidden unassociated titles never participate
 - A parallel summary provides category counts and at most 100 sender choices; summary failure does not delay the list, filter changes discard old page cursors and authority refusals clear all loaded metadata
 - Page-by-page My documents navigation and a generic prompt to create a workspace for accounts without one
-- Returning from a document by link or browser Back restores the same page, scroll position and focus without a new read; deleting or saving a copy rereads the current page and counts; ended rows show their end date
+- Returning from a document by link or browser Back restores the same page, scroll position and focus without a new read; deleting or saving a copy rereads the page and counts, and deleting the final copy on a page returns to a valid page; ended rows show their end date
 
 **Contract:** [SECURE_DISTRIBUTION_JOURNEYS.md](SECURE_DISTRIBUTION_JOURNEYS.md) · **Implementation:** [apps/api/src/secure-distributions.ts](../apps/api/src/secure-distributions.ts)
 
@@ -1207,9 +1207,9 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - CSV, Excel and PDF exports of the period with exact decimal amounts from integer minor units, formula-safe CSV, a cumulative 10,000-row and 4 MiB text refusal, bounded cells and a global 500-row PDF with explicit omissions and an audit entry per export
 - Earlier /app/admin, /app/usage and /app/billing addresses remain aliases, including billing portal returns
 - URL periods reject malformed dates safely; custom fields follow presets and history, stale reads cannot overwrite the current workspace, and obsolete export downloads are cancelled
-- My documents and Use Guteneo offer Administration from a server-computed per-membership report right in the personal session; removal hides it and the API refuses meanwhile
+- My documents and Use Guteneo offer Administration from a server-computed per-membership report right in the personal session; selecting it from an already open workspace form applies the new URL destination and eligible membership filter; removal hides it and the API refuses meanwhile
 - PDF exports embed the pinned Roboto font only when a drawn string is outside WinAnsi, size columns from content, wrap headers, share the 500-row budget across tables and localize header dates; the Excel summary stores typed numbers, money and date-time
-- The public preview renders Administration over its fictional workspace with the server's permission split; exports stay disabled there
+- The public preview renders Administration over its fictional workspace with the server's permission split, validates date and pagination bounds, and groups consumption by confirmation day and month; sign-in history follows the selected range and exports stay disabled
 
 **Contract:** [WORKSPACE_ADMINISTRATION.md](WORKSPACE_ADMINISTRATION.md) · **Implementation:** [apps/api/src/administration.ts](../apps/api/src/administration.ts)
 

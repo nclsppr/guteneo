@@ -267,6 +267,7 @@ test("calendar supports leap years, roving keyboard focus and contained mobile s
   if (isMobile) {
     const bounds = await leap.boundingBox();
     expect(bounds?.width).toBeGreaterThanOrEqual(24);
+    expect(bounds?.height).toBeGreaterThanOrEqual(24);
     expect(
       await activity
         .locator(".usage-activity-scroll")

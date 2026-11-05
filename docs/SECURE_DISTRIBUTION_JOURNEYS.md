@@ -177,8 +177,10 @@ workspace invitation remains independent of document contents and access.
 
 4 November 2026: opening a document keeps the list mounted but hidden, so the
 back link and browser Back return to the same page, scroll position and focus
-on that document's link without a new read; deleting or saving a copy rereads
-the current page and counts. Rows show the sender and either the end of
+on that document's link without a new read. Deleting or saving a copy rereads
+the current page and counts. When deleting a copy empties the current page,
+the list returns to a preceding page with remaining copies, or the empty first
+page if there are none. Rows show the sender and either the end of
 availability/retention or, once ended, "Access ended …"/"Retention ended …";
 revoked rows show only their state. Measurements on 5,000 documents are in
 [frontend performance](FRONTEND_PERFORMANCE.md).

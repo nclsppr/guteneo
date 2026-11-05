@@ -464,6 +464,7 @@ export function PersonalSpace({
         />
         {page === "/app/services" ? (
           <PersonalServices
+            key={route}
             session={session}
             next={new URLSearchParams(route.split("?")[1]).get("next")}
           />
