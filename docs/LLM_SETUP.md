@@ -150,6 +150,17 @@ change. Package parity proves neither host import nor runtime publication.
 
 ## Connecting hosts
 
+### Secure source-copy recovery — 5 November 2026 candidate
+
+The 1.1.31 candidate adds a browser-only recovery action for sources already used
+by ordinary sending or postal workflows. Shared domain and sensitive-source
+guards remain in the MCP fingerprint; application/portable/Claude/Cursor versions
+and archives advance together. The secure-distribution workflow directs legacy
+source refusals to the browser action. No MCP tool, scope, annotation permission,
+approval authority or provider gate is added. Current tool schemas/annotations
+retain their behavior. Package parity and local tests establish no actual host
+import, marketplace update, merge or production publication.
+
 ### Shared OAuth and separate host qualification
 
 All supported MCP transports start at `https://guteneo.com/mcp` and read its

@@ -27,6 +27,7 @@ import {
   type PrivateUploadView,
 } from "../../apps/api/src/document-upload";
 import { DocumentService } from "../../apps/api/src/documents";
+import { SecureDocumentCopyService } from "../../apps/api/src/secure-document-copy";
 import type { Env } from "../../apps/api/src/env";
 import { DomainService } from "../../packages/domain/src/index";
 
@@ -860,6 +861,56 @@ describe("private original PDF transport with real D1/R2 and document pipeline",
     expect(upload).toHaveBeenCalledTimes(1);
     expect(await usage()).toEqual({ uploads: 1, bytes: bytes.length });
   });
+  it("does not recover an unknown ordinary upload to a reserved secure copy with the same private hash", async () => {
+    const domain = new DomainService(db, { mode: "production" });
+    const ctx = { ...identity.context, actor: "browser" as const };
+    const sourceKey = `${ctx.organizationId}/documents/${sha256}/source.pdf`;
+    await bucket.put(sourceKey, bytes);
+    const source = await domain.registerDocument(ctx, {
+      name: "source.pdf",
+      sha256,
+      size: bytes.length,
+      pages: 1,
+      status: "ready",
+      source: "import",
+      storageKey: sourceKey,
+      scanVerified: true,
+      privateToCreator: true,
+    });
+    const copy = await new SecureDocumentCopyService(env, domain).create(
+      {
+        context: ctx,
+        assertCurrent: async () => {
+          await domain.authorizeWrite(ctx);
+        },
+        sql: () => ({
+          condition:
+            "EXISTS(SELECT 1 FROM memberships WHERE organization_id=? AND user_id=? AND role=?)",
+          values: [ctx.organizationId, ctx.userId, ctx.role],
+        }),
+      },
+      source.id,
+      "secure-copy",
+    );
+    await db
+      .prepare(
+        "UPDATE documents SET status='purged' WHERE organization_id=? AND id=?",
+      )
+      .bind(ctx.organizationId, source.id)
+      .run();
+    const reservation = await begin();
+    vi.spyOn(documents, "upload").mockRejectedValue(
+      new Error("SYNTHETIC no ordinary registration"),
+    );
+    expect((await service.receive(put(reservation))).status).toBe(409);
+    expect(await service.get(identity, reservation.uploadId)).toMatchObject({
+      status: "unknown",
+      nextAction: "do_not_retry",
+    });
+    expect(await bucket.get(copy.storage_key)).not.toBeNull();
+    expect(await usage()).toEqual({ uploads: 1, bytes: bytes.length });
+  });
+
   it("keeps an uncertain unregistered import terminal and cleans only its unreferenced owned object", async () => {
     const reservation = await begin();
     const upload = vi

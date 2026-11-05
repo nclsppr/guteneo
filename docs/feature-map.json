@@ -1,6 +1,6 @@
 {
   "title": "Guteneo feature tree and developer atlas",
-  "updated": "2026-11-03",
+  "updated": "2026-11-05",
   "scope": "Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.",
   "roleNote": "Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards. Personal account authority is separate from workspace membership. Template/default email copy and link placeholders grant no approval or recipient consent. Sensitive approval and recipient association always require the browser under the active document policy; an expert mandate cannot replace them.",
   "groups": [
@@ -526,7 +526,8 @@
       "availability": "capability-gated",
       "features": [
         "One Guteneo account receives, keeps documents and uses services, with zero workspaces permitted",
-        "Prepare a verified PDF for one named recipient; immutable permissions, term, tax-exclusive price and notification language; revoke unexpired legacy draft/active hosting first, and use a dedicated source after any referenced postal derivation, legacy send, postal preflight or provider draft",
+        "Prepare a verified PDF for one named recipient; immutable permissions, term, tax-exclusive price and notification language; legacy protected links, postal derivations, ordinary sends, postal preflights and provider drafts prevent reuse of the same source",
+        "Both browser composers offer an explicit source copy after a legacy-source refusal: new creator-private document and independent exact-byte R2 object, reserved for secure sharing immediately; preserve form input and retry the same key without another copy or quota debit, with no automatic preparation, approval, sending or recall of prior copies",
         "Bounded durable private rendering serves authorized page images and accessible text; the reader never delivers the original PDF",
         "Shared terms of 7/30/90/365 days and personal-copy terms of 365/1095 days; personal-copy options are funded at activation even when unused",
         "Versioned prices and separate invitation transport; activated retention commitments are nonrefundable even after revocation",
@@ -561,13 +562,14 @@
         "Page-by-page My documents navigation and a generic prompt to create a workspace for accounts without one",
         "Returning from a document by link or browser Back restores the same page, scroll position and focus without a new read; deleting or saving a copy rereads the page and counts, and deleting the final copy on a page returns to a valid page; ended rows show their end date"
       ],
-      "status": "Implemented candidate with migrations 0055–0059 and separate deterministic strong/verified_account qualification. Default strong, explicitly selected verified_account, aligned environment/D1 policy and human approval remain mandatory; real Auth0, provider delivery, publication and external-client proof are separate.",
-      "surfaces": "Workspace and personal web UI in FR/EN/DE/LB with shared V2 primitives; workspace REST/MCP and assistant packages under scopes. Recipient access, sensitive approval and explicit quote renewal are browser-only; workspace Bearer tokens cannot open the personal vault. Native and real host support need surface-specific qualification.",
+      "status": "Implemented candidate with migrations 0055–0059 and separate deterministic strong/verified_account qualification. Source-copy recovery adds migration 0073 after the compatible runtime is published. Default strong, explicitly selected verified_account, aligned environment/D1 policy and human approval remain mandatory; real Auth0, provider delivery, publication and external-client proof are separate.",
+      "surfaces": "Workspace and personal web UI in FR/EN/DE/LB with shared V2 primitives; workspace REST/MCP and assistant packages under scopes. Source-copy recovery, recipient access, sensitive approval and explicit quote renewal are browser-only; workspace Bearer tokens cannot create source copies or open the personal vault. Native and real host support need surface-specific qualification.",
       "tests": [
         "tests/unit/personal-auth.test.ts",
         "tests/unit/document-invitation.test.ts",
         "tests/unit/mcp-secure-distribution.test.ts",
         "tests/integration/secure-approval-boundary.test.ts",
+        "tests/integration/secure-source-copy.test.ts",
         "tests/distribution-e2e/personal-account.e2e.ts",
         "tests/distribution-e2e/distribution-pricing.e2e.ts",
         "tests/distribution-e2e/distribution-lifecycle.e2e.ts",
@@ -580,6 +582,7 @@
         "tests/e2e/secure-distribution-recovery.spec.ts",
         "tests/integration/secure-resend-journey.test.ts",
         "tests/e2e/secure-distribution-send.spec.ts",
+        "tests/e2e/secure-source-copy.spec.ts",
         "tests/unit/personal-document-list.test.ts",
         "tests/e2e/personal-document-list.spec.ts"
       ],
@@ -1426,7 +1429,7 @@
       "steps": "Collect recipient and ready PDF → default to My documents, with an explicit attachment alternative → optionally supply subject/message/custom HTML with {{document_url}}, otherwise use localized workspace V2 defaults → prepare secure distribution → follow rendering on the same ID → browser review exact email, PDF, policy and quote → attest the email request → approve and confirm → track. Message-only and explicit legacy modes retain ordinary dispatch approval. → recipient may explicitly unsubscribe/report through the footer; track the response separately from delivery and access.",
       "branch": "Deliver",
       "doc": "PROTECTED_EMAIL.md",
-      "failure": "Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later workspace/profile changes do not rewrite frozen content or resend existing mail. Missing/invalid documents do not permit defaults; malformed or wrong-mode button markers require corrected preparation. Account content overflow identifies the field and limit before rendering; generated buttons follow the notification locale even when interface and account language differ. For secure account invitations only, use explicit browser quote recovery from the original eligible unsubmitted share; review the replacement price again. Fresh sign-in preserves the existing safe share path and grants no approval."
+      "failure": "Never infer recipient consent. Legacy-source refusals offer an explicit creator-private secure copy, including after historical cancellation/failure; preserve form input, select the copy and prepare separately. Copy recovery is browser-only, reuses the same key after an uncertain response and never cancels/recalls earlier deliveries. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later workspace/profile changes do not rewrite frozen content or resend existing mail. Missing/invalid documents do not permit defaults; malformed or wrong-mode button markers require corrected preparation. Account content overflow identifies the field and limit before rendering; generated buttons follow the notification locale even when interface and account language differ. For secure account invitations only, use explicit browser quote recovery from the original eligible unsubmitted share; review the replacement price again. Fresh sign-in preserves the existing safe share path and grants no approval."
     },
     {
       "id": "J06",
@@ -1836,6 +1839,14 @@
       "Yes",
       "No",
       "Current member + scopes + qualified channel/transport"
+    ],
+    [
+      "Create a source copy for secure sharing",
+      "Current browser preparation authority + source access",
+      "Current browser preparation authority + source access",
+      "Current browser preparation authority + source access",
+      "No",
+      "No OAuth/MCP/native authority; browser CSRF, exact ready source, production scan proof and content quota required; copying grants no approval or sending authority"
     ],
     [
       "Reserve/transfer a private original PDF",

@@ -67,6 +67,11 @@ import {
 } from "./protected-document";
 import { EmailComposer, emailDraftHtml } from "./email-composer";
 import {
+  SecureSourceCopyNotice,
+  secureSourceCopyLabel,
+  useSecureSourceCopy,
+} from "./secure-source-copy";
+import {
   DocumentDeliveryChoice,
   type DocumentEmailMode,
 } from "./document-delivery-choice";
@@ -862,6 +867,17 @@ export function PrepareDispatch({
   const [retentionDays, setRetentionDays] = useState<7 | 30 | 90 | 365>(7);
   const [allowOriginalDownload, setAllowOriginalDownload] = useState(true);
   const [uploaded, setUploaded] = useState<DocumentRecord>();
+  const [copiedDocument, setCopiedDocument] = useState<DocumentRecord>();
+  const sourceCopy = useSecureSourceCopy(
+    documentId,
+    (document) => {
+      setCopiedDocument(document);
+      setDocumentId(document.id);
+      key.current = crypto.randomUUID();
+      action.clear();
+    },
+    channel === "email" && emailDeliveryMode === "my_documents",
+  );
   const uploadFollowup = useDocumentFollowup(uploaded?.id ?? null);
   const uploadedDocument = uploadFollowup.document ?? uploaded;
   const [senderId, setSenderId] = useState("");
@@ -944,6 +960,7 @@ export function PrepareDispatch({
   if (initial.data?.id === initialDocument)
     candidates.set(initial.data.id, initial.data);
   if (uploadedDocument) candidates.set(uploadedDocument.id, uploadedDocument);
+  if (copiedDocument) candidates.set(copiedDocument.id, copiedDocument);
   const available = [...candidates.values()].filter(
     (item) => item.status === "ready",
   );
@@ -974,7 +991,7 @@ export function PrepareDispatch({
     });
   }
   async function prepare() {
-    if (submitting.current) return;
+    if (submitting.current || sourceCopy.pending) return;
     submitting.current = true;
     await action.run(async () => {
       if (documentUnavailable)
@@ -1052,26 +1069,32 @@ export function PrepareDispatch({
         documentId &&
         emailDeliveryMode === "my_documents"
       ) {
-        const distribution = await api<SecureDistributionView>(
-          "/secure-distributions",
-          {
-            method: "POST",
-            key: key.current,
-            body: {
-              documentId,
-              senderId: selectedSender,
-              recipient: { address: recipient.email },
-              retentionDays,
-              allowOriginalDownload,
-              recipientBinding: "verified_email",
-              ...(subject.trim() ? { subject } : {}),
-              ...(text.trim() ? { message: text } : {}),
-              ...(html.trim() ? { html } : {}),
-              notificationLocale: emailLocale,
-              costCeilingMinor: ceilingMinor,
+        let distribution: SecureDistributionView;
+        try {
+          distribution = await api<SecureDistributionView>(
+            "/secure-distributions",
+            {
+              method: "POST",
+              key: key.current,
+              body: {
+                documentId,
+                senderId: selectedSender,
+                recipient: { address: recipient.email },
+                retentionDays,
+                allowOriginalDownload,
+                recipientBinding: "verified_email",
+                ...(subject.trim() ? { subject } : {}),
+                ...(text.trim() ? { message: text } : {}),
+                ...(html.trim() ? { html } : {}),
+                notificationLocale: emailLocale,
+                costCeilingMinor: ceilingMinor,
+              },
             },
-          },
-        );
+          );
+        } catch (error) {
+          if (sourceCopy.offer(error, documentId)) return;
+          throw error;
+        }
         go(`/app/secure-distribution/${encodeURIComponent(distribution.id)}`);
         return;
       }
@@ -1139,6 +1162,7 @@ export function PrepareDispatch({
           documents.error ?? initial.error ?? senders.error ?? action.error
         }
       />
+      <SecureSourceCopyNotice copy={sourceCopy} />
       {channel === "postal" && !simulation && (
         <ErrorNotice error={requirements.error} retry={requirements.refresh} />
       )}
@@ -1158,11 +1182,11 @@ export function PrepareDispatch({
           event.preventDefault();
           void prepare();
         }}
-        aria-busy={action.pending}
+        aria-busy={action.pending || sourceCopy.pending}
       >
         <fieldset
           className="prepare-fields"
-          disabled={action.pending}
+          disabled={action.pending || sourceCopy.pending}
           onChange={changed}
         >
           <legend className="sr-only">{msg("Delivery preparation")}</legend>
@@ -1212,7 +1236,7 @@ export function PrepareDispatch({
               )}
               {available.map((d) => (
                 <option value={d.id} key={d.id}>
-                  {d.name} · {d.pages} {msg(" pp.")}
+                  {secureSourceCopyLabel(d)} · {d.pages} {msg(" pp.")}
                 </option>
               ))}
             </select>

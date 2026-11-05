@@ -1,8 +1,8 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**28 domains · 449 features · 45 journeys · 77 documented REST operations · 83 MCP tools**
-Updated 2026-11-03.
+**28 domains · 450 features · 45 journeys · 77 documented REST operations · 83 MCP tools**
+Updated 2026-11-05.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
 
@@ -26,7 +26,7 @@ mindmap
       Fax (10)
       Postal mail (10)
       Email and protected links (14)
-      Sensitive distribution and personal documents (35)
+      Sensitive distribution and personal documents (36)
       Dispatch dry run (7)
     Operate
       Campaigns and tracking (8)
@@ -67,7 +67,7 @@ mindmap
 - [Fax](#fax) — 10 features; capability-gated.
 - [Postal mail](#postal) — 10 features; capability-gated.
 - [Email and protected links](#email) — 14 features; capability-gated.
-- [Sensitive distribution and personal documents](#secure-distribution) — 35 features; capability-gated.
+- [Sensitive distribution and personal documents](#secure-distribution) — 36 features; capability-gated.
 - [Dispatch dry run](#dry-run) — 7 features; read-only.
 
 ### Operate
@@ -112,6 +112,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Activate the MCP Apps diagnostic | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No; distinct authorized operator controls a bounded server setting, never an assistant tool or mandate |
 | Read accessible workshop content | Yes | Yes | Yes | Yes | Current member + consented scopes + document access |
 | Import and prepare | Yes | Yes | Yes | No | Current member + scopes + qualified channel/transport |
+| Create a source copy for secure sharing | Current browser preparation authority + source access | Current browser preparation authority + source access | Current browser preparation authority + source access | No | No OAuth/MCP/native authority; browser CSRF, exact ready source, production scan proof and content quota required; copying grants no approval or sending authority |
 | Reserve/transfer a private original PDF | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | Own connected OAuth writer + documents:write | No | Current writer + documents:write + explicit original-file permission and exact bytes; binary capability bound to one operation/connection/expiry or one inline original up to 64 KiB through the same 0061 fences; no read/send/approval authority |
 | Select/import a local original through the gated MCP App | Own eligible current OAuth writer connection only | Own eligible current OAuth writer connection only | Own eligible current OAuth writer connection only | No | Current writer + documents:write + explicit server qualification/general-rollout activation + device selection/Import; both modes retain current production OAuth authority, and App-only staging adds no send/approval/mandate right or access to an earlier conversation attachment |
 | Use a registered App receipt in the conversation | Own eligible registered App receipt only | Own eligible registered App receipt only | Own eligible registered App receipt only | No | Only an explicit post-registration UI gesture requests the same four-key document receipt through the official host bridge; no message on import, approval/sending claim, file content, extra scope or automatic attachment access |
@@ -581,12 +582,13 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="secure-distribution"></a>
 ### Sensitive distribution and personal documents
 
-**Availability model:** capability-gated. Implemented candidate with migrations 0055–0059 and separate deterministic strong/verified_account qualification. Default strong, explicitly selected verified_account, aligned environment/D1 policy and human approval remain mandatory; real Auth0, provider delivery, publication and external-client proof are separate.
+**Availability model:** capability-gated. Implemented candidate with migrations 0055–0059 and separate deterministic strong/verified_account qualification. Source-copy recovery adds migration 0073 after the compatible runtime is published. Default strong, explicitly selected verified_account, aligned environment/D1 policy and human approval remain mandatory; real Auth0, provider delivery, publication and external-client proof are separate.
 
-**Surfaces:** Workspace and personal web UI in FR/EN/DE/LB with shared V2 primitives; workspace REST/MCP and assistant packages under scopes. Recipient access, sensitive approval and explicit quote renewal are browser-only; workspace Bearer tokens cannot open the personal vault. Native and real host support need surface-specific qualification.
+**Surfaces:** Workspace and personal web UI in FR/EN/DE/LB with shared V2 primitives; workspace REST/MCP and assistant packages under scopes. Source-copy recovery, recipient access, sensitive approval and explicit quote renewal are browser-only; workspace Bearer tokens cannot create source copies or open the personal vault. Native and real host support need surface-specific qualification.
 
 - One Guteneo account receives, keeps documents and uses services, with zero workspaces permitted
-- Prepare a verified PDF for one named recipient; immutable permissions, term, tax-exclusive price and notification language; revoke unexpired legacy draft/active hosting first, and use a dedicated source after any referenced postal derivation, legacy send, postal preflight or provider draft
+- Prepare a verified PDF for one named recipient; immutable permissions, term, tax-exclusive price and notification language; legacy protected links, postal derivations, ordinary sends, postal preflights and provider drafts prevent reuse of the same source
+- Both browser composers offer an explicit source copy after a legacy-source refusal: new creator-private document and independent exact-byte R2 object, reserved for secure sharing immediately; preserve form input and retry the same key without another copy or quota debit, with no automatic preparation, approval, sending or recall of prior copies
 - Bounded durable private rendering serves authorized page images and accessible text; the reader never delivers the original PDF
 - Shared terms of 7/30/90/365 days and personal-copy terms of 365/1095 days; personal-copy options are funded at activation even when unused
 - Versioned prices and separate invitation transport; activated retention commitments are nonrefundable even after revocation
@@ -623,7 +625,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [SECURE_DISTRIBUTION_JOURNEYS.md](SECURE_DISTRIBUTION_JOURNEYS.md) · **Implementation:** [apps/api/src/secure-distributions.ts](../apps/api/src/secure-distributions.ts)
 
-**Tests:** [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/distribution-e2e/distribution-pricing.e2e.ts](../tests/distribution-e2e/distribution-pricing.e2e.ts), [tests/distribution-e2e/distribution-lifecycle.e2e.ts](../tests/distribution-e2e/distribution-lifecycle.e2e.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/distribution-verified-e2e/lifecycle.e2e.ts](../tests/distribution-verified-e2e/lifecycle.e2e.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/auth-navigation-recovery.test.ts](../tests/unit/auth-navigation-recovery.test.ts), [tests/e2e/secure-distribution-recovery.spec.ts](../tests/e2e/secure-distribution-recovery.spec.ts), [tests/integration/secure-resend-journey.test.ts](../tests/integration/secure-resend-journey.test.ts), [tests/e2e/secure-distribution-send.spec.ts](../tests/e2e/secure-distribution-send.spec.ts), [tests/unit/personal-document-list.test.ts](../tests/unit/personal-document-list.test.ts), [tests/e2e/personal-document-list.spec.ts](../tests/e2e/personal-document-list.spec.ts)
+**Tests:** [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/integration/secure-source-copy.test.ts](../tests/integration/secure-source-copy.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/distribution-e2e/distribution-pricing.e2e.ts](../tests/distribution-e2e/distribution-pricing.e2e.ts), [tests/distribution-e2e/distribution-lifecycle.e2e.ts](../tests/distribution-e2e/distribution-lifecycle.e2e.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/distribution-verified-e2e/lifecycle.e2e.ts](../tests/distribution-verified-e2e/lifecycle.e2e.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/auth-navigation-recovery.test.ts](../tests/unit/auth-navigation-recovery.test.ts), [tests/e2e/secure-distribution-recovery.spec.ts](../tests/e2e/secure-distribution-recovery.spec.ts), [tests/integration/secure-resend-journey.test.ts](../tests/integration/secure-resend-journey.test.ts), [tests/e2e/secure-distribution-send.spec.ts](../tests/e2e/secure-distribution-send.spec.ts), [tests/e2e/secure-source-copy.spec.ts](../tests/e2e/secure-source-copy.spec.ts), [tests/unit/personal-document-list.test.ts](../tests/unit/personal-document-list.test.ts), [tests/e2e/personal-document-list.spec.ts](../tests/e2e/personal-document-list.spec.ts)
 
 **Documented REST operations**
 
@@ -1265,7 +1267,7 @@ Read postal setup and current destination restrictions independently from recogn
 
 Collect recipient and ready PDF → default to My documents, with an explicit attachment alternative → optionally supply subject/message/custom HTML with {{document_url}}, otherwise use localized workspace V2 defaults → prepare secure distribution → follow rendering on the same ID → browser review exact email, PDF, policy and quote → attest the email request → approve and confirm → track. Message-only and explicit legacy modes retain ordinary dispatch approval. → recipient may explicitly unsubscribe/report through the footer; track the response separately from delivery and access.
 
-**Failure/recovery:** Never infer recipient consent. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later workspace/profile changes do not rewrite frozen content or resend existing mail. Missing/invalid documents do not permit defaults; malformed or wrong-mode button markers require corrected preparation. Account content overflow identifies the field and limit before rendering; generated buttons follow the notification locale even when interface and account language differ. For secure account invitations only, use explicit browser quote recovery from the original eligible unsubmitted share; review the replacement price again. Fresh sign-in preserves the existing safe share path and grants no approval.
+**Failure/recovery:** Never infer recipient consent. Legacy-source refusals offer an explicit creator-private secure copy, including after historical cancellation/failure; preserve form input, select the copy and prepare separately. Copy recovery is browser-only, reuses the same key after an uncertain response and never cancels/recalls earlier deliveries. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later workspace/profile changes do not rewrite frozen content or resend existing mail. Missing/invalid documents do not permit defaults; malformed or wrong-mode button markers require corrected preparation. Account content overflow identifies the field and limit before rendering; generated buttons follow the notification locale even when interface and account language differ. For secure account invitations only, use explicit browser quote recovery from the original eligible unsubmitted share; review the replacement price again. Fresh sign-in preserves the existing safe share path and grants no approval.
 
 [Detailed contract](PROTECTED_EMAIL.md).
 

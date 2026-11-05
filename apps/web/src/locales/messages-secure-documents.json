@@ -1265,5 +1265,85 @@
     "The workspace has not authorized a personal copy.",
     "Der Arbeitsbereich hat keine persönliche Kopie erlaubt.",
     "Den Aarbechtsberäich huet keng perséinlech Kopie erlaabt."
+  ],
+  "Utiliser une copie distincte pour ce partage": [
+    "Use a separate copy for this share",
+    "Eine separate Kopie für diese Freigabe verwenden",
+    "Eng separat Kopie fir dëst Deelen benotzen"
+  ],
+  "Ce PDF est lié à un autre parcours d’envoi, même si celui-ci a été annulé ou a échoué. Créez une copie indépendante pour ce partage sécurisé.": [
+    "This PDF is linked to another sending workflow, even if that workflow was cancelled or failed. Create an independent copy for this secure share.",
+    "Dieses PDF ist mit einem anderen Versandablauf verknüpft, auch wenn dieser abgebrochen wurde oder fehlgeschlagen ist. Erstellen Sie eine unabhängige Kopie für diese sichere Freigabe.",
+    "Dëse PDF ass mat engem aneren Envoi verbonnen, och wann dësen annuléiert gouf oder feelgeschloen ass. Erstellt eng onofhängeg Kopie fir dëst séchert Deelen."
+  ],
+  "La copie contient le même PDF. Elle ne modifie pas les envois antérieurs et ne rappelle pas les copies déjà reçues.": [
+    "The copy contains the same PDF. It does not change earlier deliveries or recall copies already received.",
+    "Die Kopie enthält dasselbe PDF. Sie ändert frühere Zustellungen nicht und ruft bereits empfangene Kopien nicht zurück.",
+    "D’Kopie enthält dee selwechte PDF. Si ännert fréier Envoien net a rifft scho kritt Kopien net zeréck."
+  ],
+  "Créer une copie pour ce partage sécurisé": [
+    "Create a copy for this secure share",
+    "Kopie für diese sichere Freigabe erstellen",
+    "Eng Kopie fir dëst séchert Deelen erstellen"
+  ],
+  "Création de la copie…": [
+    "Creating copy…",
+    "Kopie wird erstellt…",
+    "D’Kopie gëtt erstallt…"
+  ],
+  "Copie sélectionnée. Préparez et vérifiez le partage pour continuer.": [
+    "Copy selected. Prepare and review the share to continue.",
+    "Kopie ausgewählt. Bereiten Sie die Freigabe vor und prüfen Sie sie, um fortzufahren.",
+    "Kopie ausgewielt. Bereet d’Deelung vir a kontrolléiert se fir weiderzemaachen."
+  ],
+  "La copie sécurisée n’est pas encore disponible. Réessayez après la mise à jour de l’application.": [
+    "Secure document copying is not available yet. Try again after the application update.",
+    "Das Erstellen sicherer Dokumentkopien ist noch nicht verfügbar. Versuchen Sie es nach der Aktualisierung der Anwendung erneut.",
+    "D’Erstelle vu sécheren Dokumentkopien ass nach net disponibel. Probéiert et no der Aktualiséierung vun der Applikatioun nach eng Kéier."
+  ],
+  "Choisissez un document prêt qui n’est pas déjà utilisé dans un partage sécurisé. Sa preuve d’analyse exacte doit être disponible.": [
+    "Choose a ready document outside an existing secure workflow. Its exact scan evidence must be available.",
+    "Wählen Sie ein bereites Dokument, das noch nicht in einer sicheren Freigabe verwendet wird. Der Prüfnachweis für die exakte Datei muss verfügbar sein.",
+    "Wielt e prett Dokument, dat nach net an engem sécheren Deelen benotzt gëtt. De Kontrollnoweis fir déi exakt Datei muss disponibel sinn."
+  ],
+  "Cette copie a expiré. Créez une autre copie avec une nouvelle demande.": [
+    "This copy has expired. Create another copy with a new request.",
+    "Diese Kopie ist abgelaufen. Erstellen Sie mit einer neuen Anfrage eine weitere Kopie.",
+    "Dës Kopie ass ofgelaf. Erstellt mat enger neier Ufro eng aner Kopie."
+  ],
+  "Votre session ou votre accès au document a changé. Réessayez depuis votre atelier.": [
+    "Your session or document access changed. Try again from your workspace.",
+    "Ihre Sitzung oder Ihr Dokumentzugriff hat sich geändert. Versuchen Sie es erneut von Ihrem Arbeitsbereich aus.",
+    "Är Sessioun oder Ären Zougang zum Dokument huet sech geännert. Probéiert et nach eng Kéier vun Ärem Atelier aus."
+  ],
+  "L’intégrité du fichier original n’a pas pu être vérifiée.": [
+    "The original file's integrity could not be verified.",
+    "Die Integrität der Originaldatei konnte nicht überprüft werden.",
+    "D’Integritéit vun der Originaldatei konnt net kontrolléiert ginn."
+  ],
+  "L’original de ce document est indisponible.": [
+    "The original of this document is unavailable.",
+    "Das Original dieses Dokuments ist nicht verfügbar.",
+    "D’Original vun dësem Dokument ass net disponibel."
+  ],
+  "L’intégrité de la copie sécurisée n’a pas pu être vérifiée.": [
+    "The secure copy's integrity could not be verified.",
+    "Die Integrität der sicheren Kopie konnte nicht überprüft werden.",
+    "D’Integritéit vun der sécherer Kopie konnt net kontrolléiert ginn."
+  ],
+  "{0} — copie sécurisée": [
+    "{0} — secure copy",
+    "{0} — sichere Kopie",
+    "{0} — sécher Kopie"
+  ],
+  "Ouvrez Guteneo dans votre navigateur pour créer une copie sécurisée.": [
+    "Open Guteneo in your browser to create a secure copy.",
+    "Öffnen Sie Guteneo in Ihrem Browser, um eine sichere Kopie zu erstellen.",
+    "Maacht Guteneo an Ärem Browser op, fir eng sécher Kopie ze erstellen."
+  ],
+  "Cette clé d’idempotence a été utilisée pour une autre source.": [
+    "This idempotency key was used for a different source.",
+    "Dieser Idempotenzschlüssel wurde für eine andere Quelle verwendet.",
+    "Dësen Idempotenzschlëssel gouf fir eng aner Quell benotzt."
   ]
 }

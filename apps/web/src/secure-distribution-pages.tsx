@@ -43,6 +43,11 @@ import type { SecureDistributionView } from "../../../packages/contracts/src/sec
 import { personalApi, personalBlob } from "./personal-api";
 import { emailDraftHtml, EmailComposer } from "./email-composer";
 import {
+  SecureSourceCopyNotice,
+  secureSourceCopyLabel,
+  useSecureSourceCopy,
+} from "./secure-source-copy";
+import {
   documentEmailDefaults,
   renderTransactionalEmail,
 } from "../../../packages/contracts/src/email-template";
@@ -201,9 +206,21 @@ function SecureDistributionComposer({ session }: { session: Session }) {
     crypto.randomUUID(),
   );
   const action = useAction();
+  const submitting = useRef(false);
+  const [copiedDocument, setCopiedDocument] = useState<DocumentRecord>();
+  const sourceCopy = useSecureSourceCopy(documentId, (document) => {
+    setCopiedDocument(document);
+    setDocumentId(document.id);
+    changed();
+  });
   const readyDocuments =
     documents.data?.items.filter((document) => document.status === "ready") ??
     [];
+  if (
+    copiedDocument &&
+    !readyDocuments.some((item) => item.id === copiedDocument.id)
+  )
+    readyDocuments.push(copiedDocument);
   const selectedDocument = readyDocuments.find(
     (document) => document.id === documentId,
   );
@@ -223,29 +240,38 @@ function SecureDistributionComposer({ session }: { session: Session }) {
   }
   async function prepare(event: FormEvent) {
     event.preventDefault();
+    if (submitting.current || sourceCopy.pending) return;
+    submitting.current = true;
     await action.run(async () => {
-      const prepared = await api<SecurePublication>("/secure-distributions", {
-        method: "POST",
-        key: idempotencyKey,
-        body: {
-          documentId,
-          recipient: {
-            address: recipientAddress.trim(),
-            ...(recipientName.trim() ? { name: recipientName.trim() } : {}),
+      let prepared: SecurePublication;
+      try {
+        prepared = await api<SecurePublication>("/secure-distributions", {
+          method: "POST",
+          key: idempotencyKey,
+          body: {
+            documentId,
+            recipient: {
+              address: recipientAddress.trim(),
+              ...(recipientName.trim() ? { name: recipientName.trim() } : {}),
+            },
+            retentionDays,
+            allowOriginalDownload,
+            allowVaultDeposit,
+            personalRetentionDays,
+            recipientBinding,
+            ...(subject.trim() ? { subject: subject.trim() } : {}),
+            ...(message.trim() ? { message } : {}),
+            ...(html.trim() ? { html } : {}),
+            notificationLocale: emailLocale,
           },
-          retentionDays,
-          allowOriginalDownload,
-          allowVaultDeposit,
-          personalRetentionDays,
-          recipientBinding,
-          ...(subject.trim() ? { subject: subject.trim() } : {}),
-          ...(message.trim() ? { message } : {}),
-          ...(html.trim() ? { html } : {}),
-          notificationLocale: emailLocale,
-        },
-      });
+        });
+      } catch (error) {
+        if (sourceCopy.offer(error, documentId)) return;
+        throw error;
+      }
       go(`/app/secure-distribution/${encodeURIComponent(prepared.id)}`);
     });
+    submitting.current = false;
   }
   return (
     <div className="secure-document-layout">
@@ -272,7 +298,7 @@ function SecureDistributionComposer({ session }: { session: Session }) {
         catalog.data && (
           <form
             className="secure-document-form secure-distribution-composer"
-            aria-busy={action.pending}
+            aria-busy={action.pending || sourceCopy.pending}
             onSubmit={(event) => void prepare(event)}
           >
             <section className="secure-document-panel">
@@ -288,13 +314,14 @@ function SecureDistributionComposer({ session }: { session: Session }) {
                   required
                   onChange={(event) => {
                     setDocumentId(event.target.value);
+                    action.clear();
                     changed();
                   }}
                 >
                   <option value="">{msg("Choose a document")}</option>
                   {readyDocuments.map((document) => (
                     <option key={document.id} value={document.id}>
-                      {document.name}
+                      {secureSourceCopyLabel(document)}
                     </option>
                   ))}
                 </select>
@@ -505,6 +532,7 @@ function SecureDistributionComposer({ session }: { session: Session }) {
               type="submit"
               disabled={
                 action.pending ||
+                sourceCopy.pending ||
                 !selectedDocument ||
                 displayedPrice === undefined
               }
@@ -515,6 +543,7 @@ function SecureDistributionComposer({ session }: { session: Session }) {
               <ArrowRight size={18} aria-hidden="true" />
             </button>
             <ErrorNotice error={action.error} />
+            <SecureSourceCopyNotice copy={sourceCopy} />
           </form>
         )
       )}

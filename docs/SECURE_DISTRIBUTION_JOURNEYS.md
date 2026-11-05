@@ -1,5 +1,55 @@
 # Sensitive distribution and personal documents
 
+## Create a source copy for secure sharing — 5 November 2026 candidate
+
+When an existing protected link, ordinary send or postal preparation prevents
+secure sharing, both browser composers offer **Create a copy for this secure
+share**. Historical cancelled/failed operations can cause this refusal too; it
+does not imply that another send is still active. The action keeps the entered
+recipient, message and options, selects the new document, and leaves preparation
+and final human review as separate actions.
+
+The copy contains exactly the same PDF bytes but has a new document identifier,
+an independent private storage object and creator-private access. It is reserved
+for secure sharing from creation. It does not change the original document,
+revoke an existing link, cancel a postal transfer or recall copies already sent.
+Revoking the new share protects only future access through that share.
+
+`POST /api/documents/{id}/secure-copy` accepts an empty JSON object and a stable
+`Idempotency-Key` from the authenticated browser with current preparation rights
+and source access. Repeating that request returns the same copy; using its key
+for another source is rejected. Sources already used by sensitive distribution
+cannot be copied through this recovery route. Integrity, ready status, production
+scan proof and ordinary content quotas remain mandatory. Copy creation itself
+creates no distribution, approval, financial reservation, outbox or provider call.
+
+This is local candidate behavior. Publish the compatible 1.1.31 runtime before
+applying migration `0073_secure_document_source_copies.sql`: ordinary imports
+and legacy-source checks work without the column, while copy creation returns
+`SECURE_COPY_NOT_AVAILABLE` before storage work. Applying 0073 then enables
+copies. Its rebuilt partial indexes are incompatible with the previous runtime's
+explicit upsert target; do not apply it first or roll back to that older runtime
+after migration. A rollback must retain the compatible registration logic.
+Hosted authentication, production publication and actual recipient/provider
+behavior remain separate qualification.
+
+Local qualification: 15 new migrated-D1/R2 source-copy cases pass, including
+equal/different-byte concurrency, source or membership changes during storage,
+uncertain committed results, quota and the pre-0073 runtime transition. The
+existing private-upload, document, legacy-boundary, quote and MCP package suites
+also pass. The final affected browser regression passes 144/144 across desktop
+Chromium, Pixel 7 Chromium and iPhone WebKit. The
+[source hashes, measurements and limits](FRONTEND_PERFORMANCE.md#secure-source-copy-recovery--5-november-2026-local-measurement)
+retain the distinction between local synthetic backend/browser proof and a live
+hosted journey.
+
+Final general validation passes all 3,819 unit/integration cases in 194 files
+(two workers) and all 682 repository security checks. Typecheck, lint, application
+build/Worker dry run, documentation and engineering checks, MCP annotation audit
+and synchronized package checks pass. The browser qualification covers the four
+affected specs plus the final 27-case source-copy rerun; it is not a rerun of the
+entire application E2E suite. No hosted CI or production action is claimed.
+
 ## Local boundary regression — 29 October 2026
 
 The reprise adds real transient D1/R2 integration cases for revocation across
@@ -109,9 +159,9 @@ The session-policy change separately requires migration 0065. Behavior tests and
 
 Sensitive distribution is not a transparent upgrade of password links or postal preparations:
 
-- Revoke unexpired legacy `draft`/`active` hosting first. `SECURE_SOURCE_LEGACY_LINK` directs this under current workspace rights.
-- Any derived/reserved/generated postal-preparation row blocks conversion with `SECURE_SOURCE_LEGACY_DERIVATION`. Use a dedicated sensitive source; never erase history to bypass the restriction.
-- Any legacy send, postal preflight or provider draft referencing the source also blocks preparation with `SECURE_SOURCE_LEGACY_OUTBOUND`, including after cancellation/failure. Use a dedicated source; this prevents conversion during an in-flight provider transfer.
+- Unexpired legacy `draft`/`active` hosting blocks conversion with `SECURE_SOURCE_LEGACY_LINK`. Revoke it under current workspace rights, or explicitly create an independent source copy for secure sharing.
+- Any derived/reserved/generated postal-preparation row blocks conversion with `SECURE_SOURCE_LEGACY_DERIVATION`. Create a dedicated source copy; never erase history to bypass the restriction.
+- Any legacy send, postal preflight or provider draft referencing the source also blocks preparation with `SECURE_SOURCE_LEGACY_OUTBOUND`, including after cancellation/failure. Create a dedicated source copy; the original remains available to its existing workflows during an in-flight provider transfer.
 
 Once referenced by sensitive distribution, a source cannot serve legacy postal processing, cropping, analysis, old-password recovery or legacy-link content. New ordinary email/fax/postal attachments are also prohibited. Only the dedicated sensitive invitation without source attachment (`document_id` null) continues under ordinary rights. `SENSITIVE_SOURCE_LEGACY_FORBIDDEN` applies even after sensitive failure/revocation; no workspace role, OAuth scope or expert mandate reverses it.
 

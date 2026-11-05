@@ -29,6 +29,14 @@ secure endpoint for this account journey. An unavailable account service or
 incompatible source never falls back to an attachment/password link. Existing
 sent emails are not rewritten, migrated or resent.
 
+When earlier sending/postal use or a legacy protected link prevents secure
+preparation, the individual email form offers the same explicit
+[source-copy recovery](SECURE_DISTRIBUTION_JOURNEYS.md#create-a-source-copy-for-secure-sharing--5-november-2026-candidate)
+as the dedicated secure-share form. It preserves the complete draft and selects
+an independent private source. Preparation and human review remain explicit;
+copying neither cancels earlier work nor recalls delivered files. This recovery
+is browser-only and adds no MCP/native copying authority.
+
 ## V2 default and custom HTML
 
 Subject and body are independently optional for an accessible ready PDF. Blank

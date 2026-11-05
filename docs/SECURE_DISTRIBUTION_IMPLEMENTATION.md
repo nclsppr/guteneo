@@ -78,6 +78,11 @@ Distribution review and approval are exclusively human browser actions. Migratio
 
 Sources used by this new distribution are restricted to their creator and current workspace approvers, with existing private restrictions. Content/review also pass current document policy. This does not retroactively qualify every old product document. Sources must be dedicated: revoke still-valid legacy protected links; a source already referenced by an ordinary dispatch, provider preparation, postal preflight or postal derivation cannot become sensitive. Sensitive sources cannot return to those legacy paths. Bidirectional application/SQL guards also close asynchronous preparation races. Migration recalls no copy previously transferred or downloaded.
 
+The 5 November candidate adds [browser source-copy recovery](SECURE_DISTRIBUTION_JOURNEYS.md#create-a-source-copy-for-secure-sharing--5-november-2026-candidate)
+to both secure-sharing entry points. It creates an independent creator-private
+exact-byte source rather than converting the original; the linked journey owns
+permissions, quota/idempotency, runtime-first migration order and local proof.
+
 ## Objects and retention
 
 Each distribution binds an immutable PDF, recipient, rendering, policy, pricing version and invitation dispatch. The analyzed PDF remains private; viewing never returns the source PDF. The private renderer prepares at most three pages per job, with an opaque watermark burned into pixels and separate accessible text. Unsupported content/budgets fail closed rather than opening the original as fallback.

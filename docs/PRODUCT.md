@@ -1,5 +1,15 @@
 # Guteneo product contract
 
+## Dedicated source copy for secure sharing — 5 November 2026 candidate
+
+The browser offers **Create a copy for this secure share** when a document's
+ordinary sending, postal or protected-link history prevents secure distribution.
+It selects an independent creator-private copy of the exact PDF and preserves
+the entered recipient, message and options. Preparation and human review remain
+explicit. The original and any previous transfers/copies keep their own rules;
+new share revocation cannot recall them. The copy is reserved for secure sharing
+from creation. See [the journey and qualification boundary](SECURE_DISTRIBUTION_JOURNEYS.md#create-a-source-copy-for-secure-sharing--5-november-2026-candidate).
+
 ## Workspace Administration — 3 November 2026 candidate
 
 Administration is the fifth browser application. Current workspace

@@ -612,7 +612,9 @@ describe("Trusted live fax quotes — isolated D1, no provider sends", () => {
             // These are historical organization-visible imports. A private PDF
             // must never be projected into a schema without owner access rules.
             expect(row.access_owner_id).toBeNull();
+            expect(row.secure_copy_source_id).toBeNull();
             delete row.access_owner_id;
+            delete row.secure_copy_source_id;
           }
           // Supervisor options did not exist in the pre-v2 membership schema.
           if (table === "memberships") {

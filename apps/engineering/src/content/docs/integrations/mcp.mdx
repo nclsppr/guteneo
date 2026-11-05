@@ -95,6 +95,18 @@ actual host import or marketplace publication.
 
 ## Files must actually reach the service
 
+The 5 November **1.1.31 candidate** adds browser source-copy recovery for
+`SECURE_SOURCE_LEGACY_LINK`, `SECURE_SOURCE_LEGACY_DERIVATION` and
+`SECURE_SOURCE_LEGACY_OUTBOUND`. The packaged secure-distribution workflow directs
+the person to **Create a copy for this secure share** in the browser composer.
+Historical cancelled/failed work can cause this refusal. Copying preserves the
+exact PDF in an independent private source without cancelling earlier transfers
+or recalling delivered copies. It adds no MCP tool, scope, annotation permission,
+approval or sending authority. Native/OAuth clients cannot invoke the recovery
+endpoint. The [secure-distribution guide](/workflows/secure-distribution/#freeze-the-sharing-contract-before-approval)
+explains the separate preparation/review steps; synchronized packages and local
+tests remain distinct from marketplace or production publication.
+
 A model's description of an attachment is not its bytes. Use `import_document`
 when the host supplies an authorized exact-file HTTPS source or supported OpenAI
 file envelope. A local path, private host handle or login page is insufficient.

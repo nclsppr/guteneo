@@ -522,7 +522,7 @@ export class PrivateDocumentUploadService {
       .first<UploadRow>();
     if (current?.state === "unknown") {
       const document = await this.env.DB.prepare(
-        "SELECT id FROM documents WHERE organization_id=? AND sha256=? AND size=? AND access_owner_id=? AND status<>'purged'",
+        "SELECT id FROM documents WHERE organization_id=? AND sha256=? AND size=? AND access_owner_id=? AND status<>'purged' AND NOT EXISTS(SELECT 1 FROM audit_log copy_receipt WHERE copy_receipt.organization_id=documents.organization_id AND copy_receipt.resource_id=documents.id AND copy_receipt.action='document.secure_copy_created')",
       )
         .bind(
           current.organization_id,

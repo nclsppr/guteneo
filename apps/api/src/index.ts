@@ -45,6 +45,7 @@ import {
 } from "../../../packages/contracts/src/content";
 import { assertBaseConfiguration, assertConfiguration, type Env } from "./env";
 import { DocumentService } from "./documents";
+import { SecureDocumentCopyService } from "./secure-document-copy";
 import {
   McpAppDocumentUploadService,
   cleanupMcpAppDocumentUploads,
@@ -1138,6 +1139,19 @@ app.get("/api/documents/:id/content", async (c) => {
   );
   await authority?.assertCurrent();
   return response;
+});
+app.post("/api/documents/:id/secure-copy", async (c) => {
+  z.object({})
+    .strict()
+    .parse(await c.req.json());
+  return c.json(
+    await new SecureDocumentCopyService(c.env, domain(c.env)).create(
+      await postalBrowserAuthority(c.req.raw, c.env, true),
+      c.req.param("id"),
+      idempotency(c.req.header("Idempotency-Key")),
+    ),
+    201,
+  );
 });
 app.post("/api/documents/:id/rescan", async (c) =>
   c.json(
