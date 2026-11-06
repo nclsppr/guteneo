@@ -26,9 +26,30 @@ export async function renderExpertReviewPage(input: {
   const page = await state.guteneoPdf.getPage(input.page);
   const canvas = document.createElement("canvas");
   try {
-    // Reject annotations instead of silently omitting comments, signatures or
-    // form appearances. Structural rejection also covers unrequested pages.
-    if ((await page.getAnnotations()).length) throw new Error("ANNOTATIONS");
+    // The structural gate permits only plain URI hotspots without appearances
+    // or borders on every page. Recheck the parsed renderer view; navigation is
+    // never materialized as HTML or included in the image/text report.
+    const annotations = await page.getAnnotations();
+    if (
+      annotations.some(
+        (annotation) =>
+          annotation.annotationType !== state.pdfjsLib.AnnotationType.LINK ||
+          annotation.subtype !== "Link" ||
+          ![0, 4].includes(annotation.annotationFlags) ||
+          annotation.hasAppearance ||
+          annotation.borderStyle?.width !== 0 ||
+          annotation.contentsObj?.str ||
+          [
+            "action",
+            "dest",
+            "actions",
+            "attachment",
+            "setOCGState",
+            "resetForm",
+          ].some((key) => key in annotation),
+      )
+    )
+      throw new Error("ANNOTATIONS");
     const natural = page.getViewport({ scale: 1 });
     if (
       !Number.isFinite(natural.width) ||

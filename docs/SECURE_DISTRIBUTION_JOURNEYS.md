@@ -111,6 +111,23 @@ Presentation changes keep the separate authority/loading paths and
 four-language behavior; [frontend measurements](FRONTEND_PERFORMANCE.md) qualify
 only their recorded environment.
 
+## PDFs containing links — 6 November 2026 candidate
+
+A ready source may contain strictly validated links without a visible border or
+appearance. Preparation preserves the complete static page/text view and original
+bytes while leaving link navigation inactive. Visible annotations, forms, layers
+and other unsupported content still refuse preparation. Creating an exact source
+copy does not repair an unsupported PDF format.
+
+This uses the existing preparation permissions in the authority table and the
+same web/REST/MCP lifecycle above. An earlier failed preparation is not replayed
+by a status read or by publication; inspect its existing identifier before
+explicitly preparing again and completing human review. No source-original or
+legacy-link fallback is offered. The
+[private renderer contract and dated diagnosis](SECURE_DISTRIBUTION_IMPLEMENTATION.md#nonvisual-pdf-links--6-november-2026-candidate)
+owns the accepted shape, privacy and qualification limits. Native support retains
+its separately qualified browser-opening contract.
+
 ## Recover an expired invitation quote
 
 The invitation has its own immutable provider quote, which can expire while the

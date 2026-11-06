@@ -1,5 +1,14 @@
 import type { HTTPRequest } from "@cloudflare/puppeteer";
-import { PDFArray, PDFDocument, PDFName, PDFNumber, PDFStream } from "pdf-lib";
+import {
+  PDFArray,
+  PDFDict,
+  PDFDocument,
+  PDFHexString,
+  PDFName,
+  PDFNumber,
+  PDFStream,
+  PDFString,
+} from "pdf-lib";
 import { LIMITS } from "../../../packages/contracts/src/content";
 import { validatePdf } from "../../../packages/contracts/src/pdf";
 import {
@@ -116,6 +125,102 @@ async function boundedPdf(request: Request, signal: AbortSignal) {
     reader.releaseLock();
   }
 }
+/** A plain URI hotspot has no pixels to omit. Never pass its destination into
+ * the review report or create an interactive browser annotation layer. */
+function isNonvisualUriLink(annotation: unknown) {
+  if (!(annotation instanceof PDFDict)) return false;
+  const allowed = new Set([
+    "Type",
+    "Subtype",
+    "F",
+    "Border",
+    "Rect",
+    "A",
+    "StructParent",
+  ]);
+  if (annotation.keys().some((key) => !allowed.has(key.decodeText())))
+    return false;
+  const type = annotation.lookup(PDFName.of("Type"));
+  const subtype = annotation.lookup(PDFName.of("Subtype"));
+  if (
+    (type !== undefined &&
+      (!(type instanceof PDFName) || type.decodeText() !== "Annot")) ||
+    !(subtype instanceof PDFName) ||
+    subtype.decodeText() !== "Link"
+  )
+    return false;
+  const flags = annotation.lookup(PDFName.of("F"));
+  if (
+    flags !== undefined &&
+    (!(flags instanceof PDFNumber) || ![0, 4].includes(flags.asNumber()))
+  )
+    return false;
+  // Missing borders can have a visible default; BS can override Border. Both
+  // absent/ambiguous borders and every visual extension remain unsupported.
+  const border = annotation.lookup(PDFName.of("Border"));
+  if (
+    !(border instanceof PDFArray) ||
+    border.size() !== 3 ||
+    border
+      .asArray()
+      .some((entry) => !(entry instanceof PDFNumber) || entry.asNumber() !== 0)
+  )
+    return false;
+  const rect = annotation.lookup(PDFName.of("Rect"));
+  if (
+    !(rect instanceof PDFArray) ||
+    rect.size() !== 4 ||
+    rect
+      .asArray()
+      .some(
+        (entry) =>
+          !(entry instanceof PDFNumber) ||
+          !Number.isFinite(entry.asNumber()) ||
+          Math.abs(entry.asNumber()) > 1_000_000,
+      )
+  )
+    return false;
+  const parent = annotation.lookup(PDFName.of("StructParent"));
+  if (
+    parent !== undefined &&
+    (!(parent instanceof PDFNumber) ||
+      !Number.isSafeInteger(parent.asNumber()) ||
+      parent.asNumber() < 0)
+  )
+    return false;
+  const action = annotation.lookup(PDFName.of("A"));
+  if (
+    !(action instanceof PDFDict) ||
+    action
+      .keys()
+      .some((key) => !["Type", "S", "URI"].includes(key.decodeText()))
+  )
+    return false;
+  const typeOfAction = action.lookup(PDFName.of("Type"));
+  const actionType = action.lookup(PDFName.of("S"));
+  const uri = action.lookup(PDFName.of("URI"));
+  if (
+    (typeOfAction !== undefined &&
+      (!(typeOfAction instanceof PDFName) ||
+        typeOfAction.decodeText() !== "Action")) ||
+    !(actionType instanceof PDFName) ||
+    actionType.decodeText() !== "URI" ||
+    !(uri instanceof PDFString || uri instanceof PDFHexString)
+  )
+    return false;
+  const destination = uri.decodeText();
+  if (destination.length > 4096) return false;
+  for (const character of destination)
+    if (character.charCodeAt(0) < 32 || character.charCodeAt(0) === 127)
+      return false;
+  try {
+    return ["http:", "https:", "mailto:"].includes(
+      new URL(destination).protocol,
+    );
+  } catch {
+    return false;
+  }
+}
 async function assertRenderable(bytes: Uint8Array) {
   const pdf = await PDFDocument.load(bytes, {
     updateMetadata: false,
@@ -126,11 +231,16 @@ async function assertRenderable(bytes: Uint8Array) {
     pdf.catalog.has(PDFName.of("OCProperties"))
   )
     throw new Error("REVIEW_UNSUPPORTED_CONTENT");
+  let links = 0;
   for (const page of pdf.getPages()) {
     const annotations = page.node.lookup(PDFName.of("Annots"));
     if (
       annotations !== undefined &&
-      (!(annotations instanceof PDFArray) || annotations.size() > 0)
+      (!(annotations instanceof PDFArray) ||
+        (links += annotations.size()) > 1000 ||
+        annotations
+          .asArray()
+          .some((entry) => !isNonvisualUriLink(pdf.context.lookup(entry))))
     )
       throw new Error("REVIEW_UNSUPPORTED_CONTENT");
   }
@@ -193,7 +303,10 @@ export async function handleExpertReviewPages(
 ): Promise<Response> {
   const url = new URL(request.url);
   const secure = url.pathname === "/secure-pages";
-  if (request.method !== "POST" || (!secure && url.pathname !== "/review-pages"))
+  if (
+    request.method !== "POST" ||
+    (!secure && url.pathname !== "/review-pages")
+  )
     return new Response("Not found", { status: 404 });
   const watermark = secure ? request.headers.get("X-Guteneo-Watermark") : null;
   if (secure && (!watermark || !/^[A-Za-z0-9_-]{8,120}$/.test(watermark)))

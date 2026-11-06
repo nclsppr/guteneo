@@ -87,9 +87,12 @@ The renderer is private, isolated, has no network access, validates matching
 original/scan hashes, and bounds input, pixel/image/text output and duration.
 Images are returned only in MCP content, not duplicated in structured JSON.
 Images, blobs, tokens and signed URLs are never logged. The text layer is not
-OCR or evidence of what is visible. Unsupported forms, annotations and optional
-layers are rejected explicitly; an unreadable image never counts as a model
-having understood a page.
+OCR or evidence of what is visible. Unsupported forms, visible annotations and
+optional layers are rejected explicitly. The
+[6 November nonvisual-link candidate](SECURE_DISTRIBUTION_IMPLEMENTATION.md#nonvisual-pdf-links--6-november-2026-candidate)
+permits only strictly validated links without a visible border or appearance;
+the image/text view never activates their navigation. An unreadable image never
+counts as a model having understood a page.
 
 ## Earlier local validation
 
