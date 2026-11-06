@@ -41,12 +41,6 @@ export function renderEmailAction(
   return `<table ${table} style="max-width:100%;margin:${margin};border-collapse:separate;border-spacing:0"><tbody><tr><td align="center" style="background-color:${blue};border-radius:28px"><a href="${escapeEmailText(url)}" style="display:inline-block;background-color:${blue};padding:12px 22px;border:1px solid ${blue};border-radius:28px;color:#ffffff;font-family:${sans};font-size:16px;font-weight:700;line-height:24px;text-align:center;text-decoration:none;overflow-wrap:anywhere">${escapeEmailText(label)}</a></td></tr></tbody></table>`;
 }
 
-// Three short cancellation lines lead the eye to the engraved portrait. Empty
-// cells paint the lines without introducing spoken characters or dependencies.
-function postmark(): string {
-  return `<table ${table} align="right" width="32" style="width:32px;border-collapse:collapse"><tbody>${[0, 1, 2].map(() => '<tr><td style="border-top:1px solid #7186be;padding:2px 0;font-size:1px;line-height:1px"></td></tr>').join("")}</tbody></table>`;
-}
-
 export function renderEmailSheet(input: {
   title: string;
   bodyHtml: string;
@@ -63,7 +57,7 @@ export function renderEmailSheet(input: {
           ? 34
           : 36;
   const heading = `<h1 style="margin:0;color:${ink};font-family:Georgia,serif;font-size:${titleSize}px;font-weight:400;line-height:1.15;overflow-wrap:anywhere">${escapeEmailText(input.title)}</h1>`;
-  return `<table ${table} width="100%" style="width:100%;border-collapse:collapse;background-color:${paper}"><tbody><tr><td align="center" class="email-outer" style="padding:18px 8px 0"><!--[if mso]><table ${table} width="620"><tr><td><![endif]--><table ${table} width="100%" style="width:100%;max-width:620px;border-collapse:collapse;background-color:#ffffff;border:1px solid #dadad3;border-top:3px solid ${blue}"><tbody><tr><td class="email-header" style="padding:18px 0;${gutter};background-color:#faf9f4;border-bottom:1px solid #dadad3"><table ${full}><tbody><tr><td valign="middle"><p style="margin:0;color:${ink};font-family:Georgia,serif;font-size:32px;font-weight:400;line-height:1">guteneo</p></td><td width="32" valign="middle">${postmark()}</td>${input.headerArtworkHtml ? `<td align="right" valign="middle" style="width:1%">${input.headerArtworkHtml}</td>` : ""}</tr></tbody></table></td></tr><tr><td class="email-content" style="padding:30px 0 32px;${gutter};color:${ink};font-family:${sans};font-size:16px;line-height:26px;overflow-wrap:anywhere">${input.quoteTitle ? `<blockquote style="margin:0 0 20px">${heading}</blockquote>` : `<div style="margin:0 0 20px">${heading}</div>`}${input.bodyHtml}</td></tr></tbody></table><!--[if mso]></td></tr></table><![endif]--></td></tr></tbody></table>`;
+  return `<table ${table} width="100%" style="width:100%;border-collapse:collapse;background-color:${paper}"><tbody><tr><td align="center" class="email-outer" style="padding:18px 8px 0"><!--[if mso]><table ${table} width="620"><tr><td><![endif]--><table ${table} width="100%" style="width:100%;max-width:620px;border-collapse:collapse;background-color:#ffffff;border:1px solid #dadad3;border-top:3px solid ${blue}"><tbody><tr><td class="email-header" style="padding:18px 0;${gutter};background-color:#faf9f4;border-bottom:1px solid #dadad3"><table ${full}><tbody><tr><td valign="middle"><p style="margin:0;color:${ink};font-family:Georgia,serif;font-size:32px;font-weight:400;line-height:1">guteneo</p></td>${input.headerArtworkHtml ? `<td align="right" valign="middle" style="width:1%">${input.headerArtworkHtml}</td>` : ""}</tr></tbody></table></td></tr><tr><td class="email-content" style="padding:30px 0 32px;${gutter};color:${ink};font-family:${sans};font-size:16px;line-height:26px;overflow-wrap:anywhere">${input.quoteTitle ? `<blockquote style="margin:0 0 20px">${heading}</blockquote>` : `<div style="margin:0 0 20px">${heading}</div>`}${input.bodyHtml}</td></tr></tbody></table><!--[if mso]></td></tr></table><![endif]--></td></tr></tbody></table>`;
 }
 
 export function renderEmailNote(heading: string, text: string): string {

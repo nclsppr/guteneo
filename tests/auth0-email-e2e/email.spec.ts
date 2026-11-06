@@ -44,8 +44,15 @@ for (const name of TEMPLATE_NAMES as string[])
               (element) => (element as HTMLImageElement).naturalWidth > 0,
             ),
         ).toBe(available);
-        await expect(page.locator("img")).toHaveAttribute("width", "60");
-        await expect(page.locator("img")).toHaveAttribute("height", "60");
+        await expect(page.locator("img")).toHaveAttribute("width", "128");
+        await expect(page.locator("img")).toHaveAttribute("height", "70");
+        if (available)
+          expect(
+            await page.locator("img").evaluate((element) => ({
+              width: (element as HTMLImageElement).naturalWidth,
+              height: (element as HTMLImageElement).naturalHeight,
+            })),
+          ).toEqual({ width: 384, height: 210 });
         expect(await page.locator("html").getAttribute("lang")).toBe(language);
         await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
         await expect(page.getByRole("link")).toHaveAttribute(

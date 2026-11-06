@@ -7,8 +7,10 @@ and real tests; local tests do not prove actual delivery.
 
 The revised candidate uses a 620 px postal letter on ivory with a thin 3 px
 cobalt edge and a 32 px live ink wordmark. Qualified single-send Resend mail adds
-the approved 60 px text-free halftone portrait and three decorative cancellation
-lines only when the selected policy includes its inline bytes. The actual quoted
+the approved stamp/cancellation composition at 128 × 70 px only when the selected
+policy includes its inline bytes. The original stamp is slightly rotated; a
+translucent founding-edition seal overlaps its left edge with four undulating
+cancellation lines, leaving the face visible. The actual quoted
 filename is the sole, wrapping heading when present, otherwise the existing
 subject/localized fallback. Heading size steps down for longer text. French HTML
 guillemets use narrow nonbreaking spaces so a closing mark does not detach on
@@ -45,7 +47,7 @@ capability, password, customer content or provider credential belongs in these
 artifacts. Browser HTML and opening a local EML file qualify their inspected
 local rendering only. They establish neither delivery nor Gmail/Outlook behavior,
 sender authentication, an inbox avatar or publication. Preview EMLs carry the
-fixed portrait inline for a self-contained local file; Auth0's actual provider
+fixed brand artwork inline for a self-contained local file; Auth0's actual provider
 candidate still uses its fixed HTTPS image URL. Auth0 generation/application and
 actual delivery retain separate evidence.
 
@@ -89,10 +91,11 @@ production release.
 ## Revised portrait and transport boundary — 6 November 2026 candidate
 
 Default document and message-only business mail may include the exact approved
-17,264-byte PNG through an immutable inline content-ID attachment only under a
+29,888-byte PNG (384 × 210 source pixels, displayed at 128 × 70) through an
+immutable inline content-ID attachment only under a
 qualified single-send Resend policy that includes those bytes. The server's
 selected quote/policy decides eligibility before the HTML and approval are frozen;
-caller HTML or an assistant cannot assert it. The portrait digest is recorded in
+caller HTML or an assistant cannot assert it. The artwork digest is recorded in
 the generated CID inside the frozen HTML. No pricing change is introduced.
 The visible wordmark remains live text, so identity, heading, action and access instructions remain readable
 when a client does not display the decorative image. Preview rendering uses
@@ -107,8 +110,10 @@ The production quote must select `resend`, an `included_pdf` attachment basis an
 zero byte numerator. Only the server-generated path enables the sanitizer's fixed
 CID image; user/custom HTML keeps the ordinary image refusal. The CID includes
 the exact SHA-256 declared by `packages/contracts/src/email-branding.ts`; the
-[source/output provenance](../assets/brand/source/guteneo-email-portrait-proof.json)
-binds the approved source, final PNG, byte count and paper/alpha geometry.
+[source/output provenance](../assets/brand/source/guteneo-email-postmark-proof.json)
+binds the approved source, final PNG, byte count, overlap and paper/alpha geometry.
+The [brand contract](BRAND_IDENTITY.md#transactional-email-identity--6-november-2026-candidate)
+owns the founding-edition label's decorative meaning; it is never a send timestamp.
 The selected sender's normal authorization, content/price fingerprint and final
 provider guards still apply.
 
@@ -119,6 +124,10 @@ the exact fixed image reference, validates byte length and SHA-256, and supplies
 its inline `content_id` alongside any separately authorized original PDF. A body
 without the image receives no new attachment. Unknown image/CID shapes or altered
 bytes are rejected before HTTP; no image URL is fetched or customer bytes used.
+The bounded known-asset registry also retains the previous 60 px portrait CID,
+its exact 17,264-byte PNG and original dimensions. Existing frozen HTML keeps its
+own artwork rather than being rewritten to the current stamp; unknown CIDs remain
+refused.
 
 SES and other or unqualified policies retain the same typographic letter without
 the portrait and send no inline PNG. Existing attachment-free/raw-PDF quotes do
@@ -140,28 +149,28 @@ same record; 31/31 package/synchronization/Claude security checks pass. Tool
 schemas, annotations, scopes and host confirmations are unchanged. Package
 consistency is separate from actual host import or marketplace publication.
 
-Final revised-source visual qualification passes 160/160 gallery checks across
-32 fictional correspondence/Auth0 examples: Chromium at 320/390/900 px and
-WebKit at 320/390 px, with no horizontal overflow, external resource request or
-client error. Sixteen long-string/portrait-blocked checks pass separately.
-`reports/email-preview/refined-visual-checks.json` retains those local viewport
-samples. Eight desktop Chromium/emulated-iPhone real-composer cases pass,
-including natural-width-144 image rendering, while three browser security cases
-qualify the isolated preview's asset/egress boundary.
+The current stamp/cancellation source passes 160/160 gallery checks across all
+32 fictional correspondence/Auth0 cases in Chromium at 320/390/900 px and WebKit
+at 320/390 px. Every asset has intrinsic dimensions 384 × 210 and renders at
+128 × 70, with no horizontal overflow, external request or client error.
+`reports/email-preview/postmark-visual-checks.json` records these local samples.
+Independent MIME parsing verifies all 32 EMLs against the exact current PNG/CID,
+with four fictional PDF attachments, zero defects and zero stale references;
+`reports/email-preview/mime-checks.json` records zero sends.
 
-Python's independent standard-library MIME parser accepts all 32 self-contained
-EMLs with the exact final CID image, four fictional PDF attachments, zero parser
-defects and zero stale artwork references. `reports/email-preview/mime-checks.json`
-records the final 17,264-byte asset/hash and zero sends. Separate final unit/provider
-checks pass 127/127; package/synchronization checks pass 31/31. These overlapping
-local test scopes are not summed into a delivery count. Full current-suite,
-exact-head CI, provider, hosted Auth0 and publication evidence remain distinct.
+Current local qualification also passes 87 targeted unit/integration cases, three
+isolated browser attack cases, eighteen Auth0 contracts and sixteen Auth0 mobile
+cases. The private workerd email check and application build/Worker dry run pass.
+These are separate local scopes, not provider or recipient-delivery proof. The
+prior portrait-only captures, MIME and bundle measurements at `657c2dae` remain
+archived under `reports/email-preview/portrait-657c2dae/` and do not qualify the
+new artwork.
 
-[Revised frontend measurements](FRONTEND_PERFORMANCE.md#revised-postal-email-preview--6-november-2026-local-measurement)
-record the emitted 52-to-53 chunk change, exact component/page deltas and one
-optional 23,067-byte raw / 17,395-byte gzip-9 portrait module. Trusted previews
-load its local bytes on demand and permit only data images; the business-mail
-transport makes no image fetch. No speed gain or production latency is claimed.
+[Current frontend measurements](FRONTEND_PERFORMANCE.md#stamp-cancellation-artwork--6-november-2026-local-measurement)
+record 54 emitted JavaScript chunks, including isolated current and legacy image
+modules loaded only when their exact CID is displayed. The new module measures
+39,899 raw / 30,047 gzip-9 bytes; the legacy module retains 23,067 / 17,395 bytes.
+Business mail makes no image fetch, and no latency improvement is claimed.
 
 The earlier 1.1.32 Apple Mail observation and timings predate this revision. The
 revised portrait/CID candidate has no new native macOS Mail result in this proof;
@@ -169,8 +178,9 @@ the local gallery, MIME parser and emulated browsers do not qualify native clien
 Gmail, Outlook, inbox placement or delivery. No real email, DNS change, Auth0 write
 or production publication follows from these checks.
 
-The revised French letter's [mobile review](evidence/transactional-email-mobile-fr-2026-11-06.png)
-and [desktop review](evidence/transactional-email-desktop-fr-2026-11-06.png)
+The revised French letter's [mobile review](evidence/transactional-email-mobile-fr-2026-11-06.png),
+[desktop review](evidence/transactional-email-desktop-fr-2026-11-06.png) and
+[letterhead detail](evidence/transactional-email-postmark-fr-2026-11-06.png)
 show the current local candidate. These static captures qualify their inspected
 source/layout, separately from the interactive gallery, transport tests, native
 mail clients and a deployed recipient journey.

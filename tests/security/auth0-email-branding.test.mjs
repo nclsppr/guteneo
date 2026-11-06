@@ -132,7 +132,7 @@ for (const name of TEMPLATE_NAMES) {
       assert.match(body, /border-top:3px solid #2450db/);
       assert.match(body, /\[if mso\]><table [^>]*width="620"/);
       assert.equal((body.match(/<img /g) ?? []).length, 1);
-      assert.match(body, /width="60" height="60"/);
+      assert.match(body, /width="128" height="70"/);
       assert.doesNotMatch(body, /\{%|\{\{|<private>|<a[^>]*b="/);
       if (name !== "welcome_email")
         assert.match(body, /&amp;b=(?:&quot;|&#34;)&lt;private&gt;&#39;/);

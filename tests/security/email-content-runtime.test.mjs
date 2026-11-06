@@ -81,7 +81,7 @@ test("workerd preserves safe email buttons and localized document templates with
     assert.equal((accountTemplates[locale].match(/<img /g) ?? []).length, 1);
     assert.match(
       accountTemplates[locale],
-      /src="cid:guteneo-portrait\.[a-f0-9]{64}@guteneo\.com"/,
+      /src="cid:guteneo-postmark\.[a-f0-9]{64}@guteneo\.com"/,
     );
     assert.match(accountTemplates[locale], /border-top:3px solid #2450db/);
     assert.match(accountTemplates[locale], /background-color:#2450db/);

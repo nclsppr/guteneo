@@ -1,5 +1,8 @@
 import { expect, test } from "@playwright/test";
-import { renderEmailBrandImage } from "../../packages/contracts/src/email-branding";
+import {
+  EMAIL_BRAND_PORTRAIT_V1,
+  renderEmailBrandImage,
+} from "../../packages/contracts/src/email-branding";
 import {
   emailPreviewDocument,
   illustratedEmailPreview,
@@ -43,8 +46,22 @@ test("email preview frames block query, srcset, CSS and automatic navigation exf
     .poll(() =>
       image.evaluate((node) => (node as HTMLImageElement).naturalWidth),
     )
-    .toBe(144);
+    .toBe(384);
+  await expect(image).toHaveJSProperty("naturalHeight", 210);
+  await expect(image).toHaveAttribute("width", "128");
+  await expect(image).toHaveAttribute("height", "70");
+  await page.locator("iframe").evaluate(
+    (frame, content) => {
+      (frame as HTMLIFrameElement).srcdoc = content;
+    },
+    await illustratedEmailPreview(
+      renderEmailBrandImage(EMAIL_BRAND_PORTRAIT_V1),
+    ),
+  );
+  await expect(image).toHaveJSProperty("naturalWidth", 144);
+  await expect(image).toHaveJSProperty("naturalHeight", 144);
   await expect(image).toHaveAttribute("width", "60");
+  await expect(image).toHaveAttribute("height", "60");
   await expect(page.locator("iframe")).toHaveAttribute("sandbox", "");
   expect(requests).toEqual([]);
 });

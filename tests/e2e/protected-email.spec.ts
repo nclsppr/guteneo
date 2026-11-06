@@ -518,7 +518,10 @@ test("email without attachment requires its message and leaves automatic HTML to
   const portrait = page.frameLocator(".email-preview").locator("img");
   await expect(portrait).toHaveCount(1);
   await expect(portrait).toHaveAttribute("src", /^data:image\/png;base64,/);
-  await expect(portrait).toHaveJSProperty("naturalWidth", 144);
+  await expect(portrait).toHaveJSProperty("naturalWidth", 384);
+  await expect(portrait).toHaveJSProperty("naturalHeight", 210);
+  await expect(portrait).toHaveAttribute("width", "128");
+  await expect(portrait).toHaveAttribute("height", "70");
   await page.getByRole("button", { name: "Vérifier et préparer" }).click();
   await expect(
     page.getByRole("heading", { name: "Le bon à envoyer." }),

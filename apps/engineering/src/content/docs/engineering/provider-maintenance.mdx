@@ -253,7 +253,7 @@ command authorizes no DNS publication, certificate purchase or provider change.
 
 ## Inline transactional branding follows the quote
 
-The revised 6 November candidate adds one immutable built-in portrait only to
+The revised 6 November candidate adds one immutable built-in branding asset only to
 single-send Resend mail whose selected qualified policy already includes those
 bytes. The current gate requires Resend, an included attachment basis and zero
 byte pricing; no tariff or customer price changes. SES, other/unqualified policies
@@ -273,7 +273,9 @@ flowchart LR
 The image is source-controlled and hash-bound, not a caller attachment or fetch
 URL. Its exact bytes and length are checked before the Resend request; missing,
 unknown or altered identity refuses submission. A historical frozen body without
-that reference gains no image. Supplied custom HTML still cannot embed images or
+that reference gains no image. The bounded registry keeps the exact previous
+portrait bytes/dimensions for already frozen markup, without rewriting its CID to
+new art or exposing a caller image option. Supplied custom HTML still cannot embed images or
 choose the trusted CID. Preview image resolution uses trusted local/same-origin
 bytes and never qualifies provider delivery or makes the business-mail transport
 fetch an external image. Keep byte-priced and attachment-free negative tests

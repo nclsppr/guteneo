@@ -1,21 +1,36 @@
 import {
-  hasEmailBrandImage,
-  renderEmailBrandImage,
+  EMAIL_BRAND_CURRENT,
+  EMAIL_BRAND_PORTRAIT_V1,
+  emailBrandImageForHtml,
   resolveEmailBrandImage,
+  type EmailBrandAsset,
 } from "../../../packages/contracts/src/email-branding";
 
-let imageSource: string | null = null;
-let imageSourceLoad: Promise<string> | undefined;
-export const cachedEmailBrandPreviewSource = () => imageSource;
+const imageSources = new Map<string, string>();
+const imageSourceLoads = new Map<string, Promise<string>>();
+export const cachedEmailBrandPreviewSource = (image = EMAIL_BRAND_CURRENT) =>
+  imageSources.get(image.cid) ?? null;
 
-export function emailBrandPreviewSource(): Promise<string> {
-  return (imageSourceLoad ??=
-    import("../../../packages/contracts/src/email-branding-image").then(
-      ({ EMAIL_BRAND_IMAGE_BASE64 }) => {
-        imageSource = `data:image/png;base64,${EMAIL_BRAND_IMAGE_BASE64}`;
-        return imageSource;
-      },
-    ));
+export function emailBrandPreviewSource(
+  image: EmailBrandAsset = EMAIL_BRAND_CURRENT,
+): Promise<string> {
+  if (image !== EMAIL_BRAND_CURRENT && image !== EMAIL_BRAND_PORTRAIT_V1)
+    return Promise.reject(new Error("EMAIL_BRAND_PREVIEW_UNAVAILABLE"));
+  let loading = imageSourceLoads.get(image.cid);
+  if (!loading) {
+    // Fixed optional chunks; recipient input cannot choose a module or URL.
+    const module =
+      image === EMAIL_BRAND_PORTRAIT_V1
+        ? import("../../../packages/contracts/src/email-branding-portrait-v1-image")
+        : import("../../../packages/contracts/src/email-branding-image");
+    loading = module.then(({ EMAIL_BRAND_IMAGE_BASE64 }) => {
+      const source = `data:image/png;base64,${EMAIL_BRAND_IMAGE_BASE64}`;
+      imageSources.set(image.cid, source);
+      return source;
+    });
+    imageSourceLoads.set(image.cid, loading);
+  }
+  return loading;
 }
 
 /** No network source is permitted inside either raw custom drafts or reviewed
@@ -25,18 +40,19 @@ export function emailPreviewDocument(html: string, branded = false): string {
 }
 
 export function unillustratedEmailPreview(html: string): string {
-  return hasEmailBrandImage(html) ? html.replace(/<img\b[^>]*>/i, "") : html;
+  return emailBrandImageForHtml(html)
+    ? html.replace(/<img\b[^>]*>/i, "")
+    : html;
 }
 
 export async function illustratedEmailPreview(html: string): Promise<string> {
-  if (!hasEmailBrandImage(html)) return emailPreviewDocument(html);
+  const image = emailBrandImageForHtml(html);
+  if (!image) return emailPreviewDocument(html);
   // Separate optional chunk: ordinary app/template loading never contains the
   // PNG payload, and user URLs cannot affect its module or image source.
   const rendered = resolveEmailBrandImage(
     html,
-    await emailBrandPreviewSource(),
+    await emailBrandPreviewSource(image),
   );
-  if (rendered.includes(renderEmailBrandImage()))
-    throw new Error("EMAIL_BRAND_PREVIEW_UNAVAILABLE");
   return emailPreviewDocument(rendered, true);
 }

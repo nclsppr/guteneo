@@ -3,6 +3,10 @@ import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { join } from "node:path";
 import { chromium } from "@playwright/test";
+import {
+  EMAIL_BRAND_IMAGE_WIDTH,
+  EMAIL_BRAND_IMAGE_HEIGHT,
+} from "../packages/contracts/src/email-branding.ts";
 
 const directory = fileURLToPath(
   new URL("../reports/email-preview/", import.meta.url),
@@ -56,12 +60,15 @@ try {
     await page.locator("#eml-link").getAttribute("href"),
     "account-reset_email-de.eml",
   );
-  assert.equal(
+  assert.deepEqual(
     await page
       .frameLocator("iframe")
       .locator("img")
-      .evaluate((image) => image.naturalWidth),
-    144,
+      .evaluate((image) => ({
+        width: image.naturalWidth,
+        height: image.naturalHeight,
+      })),
+    { width: EMAIL_BRAND_IMAGE_WIDTH, height: EMAIL_BRAND_IMAGE_HEIGHT },
   );
   checks.push(
     "Language and account template selection update HTML and native Mail links together",

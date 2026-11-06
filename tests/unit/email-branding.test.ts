@@ -7,11 +7,14 @@ import {
   EMAIL_BRAND_FILENAME,
   EMAIL_BRAND_IMAGE_BYTES,
   EMAIL_BRAND_IMAGE_SHA256,
+  EMAIL_BRAND_PORTRAIT_V1,
+  emailBrandImageForHtml,
   emailBrandImageState,
   renderEmailBrandImage,
   resolveEmailBrandImage,
 } from "../../packages/contracts/src/email-branding";
 import { EMAIL_BRAND_IMAGE_BASE64 } from "../../packages/contracts/src/email-branding-image";
+import { EMAIL_BRAND_IMAGE_BASE64 as PORTRAIT_V1_BASE64 } from "../../packages/contracts/src/email-branding-portrait-v1-image";
 import { cleanEmailHtml } from "../../packages/contracts/src/content";
 import { ResendEmailProvider } from "../../packages/providers/resend";
 import {
@@ -45,6 +48,9 @@ const branded = () =>
   cleanEmailHtml(renderEmailBrandImage() + input.html, {
     allowBrandImage: true,
   }).html;
+// Historical frozen HTML is a literal fixture, independent of today's renderer.
+const portraitV1 =
+  '<img src="cid:guteneo-portrait.b8587959f2e236c39663508b01ef2eb29d9669a0c8f6ac298351358a8668c07b@guteneo.com" alt="" width="60" height="60" style="display:block;width:60px;border:0">';
 
 describe("fixed immutable inline email artwork", () => {
   it("binds the CID and compiled transport bytes to the same exact approved public PNG", async () => {
@@ -62,18 +68,18 @@ describe("fixed immutable inline email artwork", () => {
       EMAIL_BRAND_IMAGE_SHA256,
     );
     expect(EMAIL_BRAND_CID).toBe(
-      `guteneo-portrait.${EMAIL_BRAND_IMAGE_SHA256}@guteneo.com`,
+      `guteneo-postmark.${EMAIL_BRAND_IMAGE_SHA256}@guteneo.com`,
     );
     expect(bytes.subarray(0, 8)).toEqual(
       Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
     );
     expect([bytes.readUInt32BE(16), bytes.readUInt32BE(20)]).toEqual([
-      144, 144,
+      384, 210,
     ]);
     const proof = JSON.parse(
       await readFile(
         new URL(
-          "../../assets/brand/source/guteneo-email-portrait-proof.json",
+          "../../assets/brand/source/guteneo-email-postmark-proof.json",
           import.meta.url,
         ),
         "utf8",
@@ -86,6 +92,30 @@ describe("fixed immutable inline email artwork", () => {
         )
         .digest("hex"),
     ).toBe(proof.sourceSha256);
+    expect(renderEmailBrandImage()).toContain('width="128" height="70"');
+  });
+
+  it("keeps historical artwork bytes and canonical markup immutable without accepting it as new input", async () => {
+    const bytes = Buffer.from(PORTRAIT_V1_BASE64, "base64");
+    expect(bytes).toEqual(
+      await readFile(
+        new URL(
+          "../../apps/web/public/brand/guteneo-email-portrait-b8587959f2e236c3.png",
+          import.meta.url,
+        ),
+      ),
+    );
+    expect(bytes.length).toBe(17264);
+    expect(createHash("sha256").update(bytes).digest("hex")).toBe(
+      "b8587959f2e236c39663508b01ef2eb29d9669a0c8f6ac298351358a8668c07b",
+    );
+    expect([bytes.readUInt32BE(16), bytes.readUInt32BE(20)]).toEqual([
+      144, 144,
+    ]);
+    expect(renderEmailBrandImage(EMAIL_BRAND_PORTRAIT_V1)).toBe(portraitV1);
+    expect(emailBrandImageForHtml(portraitV1)).toBe(EMAIL_BRAND_PORTRAIT_V1);
+    expect(cleanEmailHtml(portraitV1).html).toBe("");
+    expect(cleanEmailHtml(portraitV1, { allowBrandImage: true }).html).toBe("");
   });
 
   it("retains only the server-approved CID when trusted and never permits images in customer HTML", () => {
@@ -178,6 +208,31 @@ describe("fixed immutable inline email artwork", () => {
     ).toEqual([]);
   });
 
+  it("transports a prior approved portrait with its original MIME bytes, CID and filename and unchanged frozen bodies", async () => {
+    const fetcher = vi.fn<Fetcher>().mockResolvedValue(accepted());
+    const html = `<p>Historical approved message</p>${portraitV1}`;
+    const text = "Historical approved message";
+    expect(
+      await new ResendEmailProvider(config, fetcher).submit({
+        ...input,
+        html,
+        text,
+      }),
+    ).toMatchObject({ status: "accepted" });
+    const body = JSON.parse(String(fetcher.mock.calls[0][1]?.body));
+    expect(body.html).toBe(html);
+    expect(body.text).toBe(text);
+    expect(body.attachments).toEqual([
+      {
+        filename: "guteneo-email-portrait-b8587959f2e236c3.png",
+        content_type: "image/png",
+        content: PORTRAIT_V1_BASE64,
+        content_id:
+          "guteneo-portrait.b8587959f2e236c39663508b01ef2eb29d9669a0c8f6ac298351358a8668c07b@guteneo.com",
+      },
+    ]);
+  });
+
   it.each([
     `<img src="cid:arbitrary">`,
     `${renderEmailBrandImage()}${renderEmailBrandImage()}`,
@@ -187,6 +242,9 @@ describe("fixed immutable inline email artwork", () => {
       EMAIL_BRAND_CID_URL,
       `${EMAIL_BRAND_CID_URL}?secret=value`,
     ),
+    portraitV1.replace('width="60"', 'width="128"'),
+    portraitV1.replace("b8587959", "00000000"),
+    `${portraitV1}${renderEmailBrandImage()}`,
   ])(
     "rejects unsupported or modified CID markup without a provider or image request",
     async (html) => {
@@ -222,6 +280,12 @@ describe("fixed immutable inline email artwork", () => {
       errorCode: "email_inline_branding_not_qualified",
       retryable: false,
     });
+    expect(await provider.submit({ ...input, html: portraitV1 })).toMatchObject(
+      {
+        status: "rejected",
+        errorCode: "email_inline_branding_not_qualified",
+      },
+    );
     expect(fetcher).not.toHaveBeenCalled();
   });
 
@@ -240,5 +304,22 @@ describe("fixed immutable inline email artwork", () => {
     expect(document).toContain("img-src data:");
     expect(document).not.toContain(EMAIL_BRAND_CID_URL);
     expect(emailPreviewDocument(unknown)).toContain("img-src 'none'");
+  });
+
+  it("previews historical and current artwork through separate cached fixed data payloads", async () => {
+    // Current was loaded above; a historical preview must never reuse its bytes.
+    const previous = await illustratedEmailPreview(portraitV1);
+    expect(previous).toContain(`data:image/png;base64,${PORTRAIT_V1_BASE64}`);
+    expect(previous).not.toContain(EMAIL_BRAND_IMAGE_BASE64);
+    expect(previous).toContain('width="60" height="60"');
+    expect(resolveEmailBrandImage(portraitV1)).toContain(
+      'src="https://guteneo.com/brand/guteneo-email-portrait-b8587959f2e236c3.png"',
+    );
+    const current = await illustratedEmailPreview(branded());
+    expect(current).toContain(
+      `data:image/png;base64,${EMAIL_BRAND_IMAGE_BASE64}`,
+    );
+    expect(current).not.toContain(PORTRAIT_V1_BASE64);
+    expect(current).toContain('width="128" height="70"');
   });
 });

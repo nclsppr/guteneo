@@ -39,7 +39,7 @@ import { t } from "./locale";
 import { pdfCheckErrorMessage } from "./pdf-check-errors";
 import { workspaceAuthenticationRecoveryHref } from "./auth-navigation";
 import {
-  hasEmailBrandImage,
+  emailBrandImageForHtml,
   resolveEmailBrandImage,
 } from "../../../packages/contracts/src/email-branding";
 import {
@@ -821,23 +821,28 @@ export function EmailPreview({
   html: string;
   allowBrandImage?: boolean;
 }) {
-  const [brandSource, setBrandSource] = useState<string | null>(
-    cachedEmailBrandPreviewSource,
-  );
-  const trustedBrand = allowBrandImage && hasEmailBrandImage(html);
+  const [loadedBrand, setLoadedBrand] = useState<{
+    cid: string;
+    source: string;
+  } | null>(null);
+  const brand = allowBrandImage ? emailBrandImageForHtml(html) : undefined;
+  const brandSource = brand
+    ? (cachedEmailBrandPreviewSource(brand) ??
+      (loadedBrand?.cid === brand.cid ? loadedBrand.source : null))
+    : null;
   useEffect(() => {
-    if (!trustedBrand || brandSource) return;
+    if (!brand || brandSource) return;
     let current = true;
-    void emailBrandPreviewSource()
+    void emailBrandPreviewSource(brand)
       .then((source) => {
-        if (current) setBrandSource(source);
+        if (current) setLoadedBrand({ cid: brand.cid, source });
       })
       .catch(() => undefined);
     return () => {
       current = false;
     };
-  }, [trustedBrand, brandSource]);
-  const content = trustedBrand
+  }, [brand, brandSource]);
+  const content = brand
     ? brandSource
       ? emailPreviewDocument(resolveEmailBrandImage(html, brandSource), true)
       : emailPreviewDocument(unillustratedEmailPreview(html))

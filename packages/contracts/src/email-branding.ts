@@ -1,54 +1,85 @@
-/** The approved wordless portrait, identified by its exact immutable PNG bytes.
- * Keep artwork bytes out of shared template/browser bundles. */
-export const EMAIL_BRAND_IMAGE_SHA256 =
-  "b8587959f2e236c39663508b01ef2eb29d9669a0c8f6ac298351358a8668c07b";
-export const EMAIL_BRAND_CID = `guteneo-portrait.${EMAIL_BRAND_IMAGE_SHA256}@guteneo.com`;
-export const EMAIL_BRAND_CID_URL = `cid:${EMAIL_BRAND_CID}`;
-export const EMAIL_BRAND_FILENAME =
-  "guteneo-email-portrait-b8587959f2e236c3.png";
-export const EMAIL_BRAND_ASSET_PATH = `/brand/${EMAIL_BRAND_FILENAME}`;
-export const EMAIL_BRAND_ASSET_URL = `https://guteneo.com${EMAIL_BRAND_ASSET_PATH}`;
-export const EMAIL_BRAND_IMAGE_BYTES = 17264;
+import current from "./email-branding-current.json" with { type: "json" };
+import portraitV1 from "./email-branding-portrait-v1.json" with { type: "json" };
 
-export const emailBrandImageAttributes = () => ({
-  src: EMAIL_BRAND_CID_URL,
-  alt: "",
-  width: "60",
-  height: "60",
-  style: "display:block;width:60px;border:0",
-});
+/** Immutable metadata only; artwork bytes stay outside initial browser bundles. */
+export type EmailBrandAsset = Readonly<
+  typeof current & {
+    assetPath: string;
+    assetUrl: string;
+  }
+>;
 
-export function renderEmailBrandImage(): string {
-  return `<img src="${EMAIL_BRAND_CID_URL}" alt="" width="60" height="60" style="display:block;width:60px;border:0">`;
+function asset(metadata: typeof current): EmailBrandAsset {
+  const assetPath = `/brand/${metadata.filename}`;
+  return Object.freeze({
+    ...metadata,
+    assetPath,
+    assetUrl: `https://guteneo.com${assetPath}`,
+  });
 }
 
-/** Only a real image reference requests the built-in payload. A quoted CID in
- * ordinary customer text never changes the MIME content. */
+export const EMAIL_BRAND_CURRENT = asset(current);
+/** Read/transport compatibility for already approved HTML. Never new input. */
+export const EMAIL_BRAND_PORTRAIT_V1 = asset(portraitV1);
+const assets = [EMAIL_BRAND_CURRENT, EMAIL_BRAND_PORTRAIT_V1];
+
+export const EMAIL_BRAND_IMAGE_SHA256 = EMAIL_BRAND_CURRENT.sha256;
+export const EMAIL_BRAND_CID = EMAIL_BRAND_CURRENT.cid;
+export const EMAIL_BRAND_CID_URL = `cid:${EMAIL_BRAND_CID}`;
+export const EMAIL_BRAND_FILENAME = EMAIL_BRAND_CURRENT.filename;
+export const EMAIL_BRAND_ASSET_PATH = EMAIL_BRAND_CURRENT.assetPath;
+export const EMAIL_BRAND_ASSET_URL = EMAIL_BRAND_CURRENT.assetUrl;
+export const EMAIL_BRAND_IMAGE_BYTES = EMAIL_BRAND_CURRENT.bytes;
+export const EMAIL_BRAND_IMAGE_WIDTH = EMAIL_BRAND_CURRENT.width;
+export const EMAIL_BRAND_IMAGE_HEIGHT = EMAIL_BRAND_CURRENT.height;
+export const EMAIL_BRAND_DISPLAY_WIDTH = EMAIL_BRAND_CURRENT.displayWidth;
+export const EMAIL_BRAND_DISPLAY_HEIGHT = EMAIL_BRAND_CURRENT.displayHeight;
+
+export const emailBrandImageAttributes = (image = EMAIL_BRAND_CURRENT) => ({
+  src: `cid:${image.cid}`,
+  alt: "",
+  width: String(image.displayWidth),
+  height: String(image.displayHeight),
+  style: `display:block;width:${image.displayWidth}px;border:0`,
+});
+
+export function renderEmailBrandImage(image = EMAIL_BRAND_CURRENT): string {
+  return `<img src="cid:${image.cid}" alt="" width="${image.displayWidth}" height="${image.displayHeight}" style="display:block;width:${image.displayWidth}px;border:0">`;
+}
+
+/** Only exact historical canonical tags request compiled artwork. A quoted CID
+ * in ordinary text, arbitrary CID or modified image never selects bytes. */
+export function emailBrandImageForHtml(
+  html: string,
+): EmailBrandAsset | undefined {
+  if (typeof html !== "string") return undefined;
+  const images = html.match(/<img\b[^>]*>/gi) ?? [];
+  if (images.length !== 1) return undefined;
+  const tag = images[0].replace(/\s*\/?>$/, ">");
+  return assets.find((image) => tag === renderEmailBrandImage(image));
+}
+
 export function emailBrandImageState(
   html: string,
 ): "none" | "fixed" | "invalid" {
   if (typeof html !== "string") return "invalid";
-  const images = html.match(/<img\b[^>]*>/gi) ?? [];
-  if (!images.length) return "none";
-  if (images.length !== 1) return "invalid";
-  return images[0].replace(/\s*\/?>$/, ">") === renderEmailBrandImage()
-    ? "fixed"
-    : "invalid";
+  if (!/<img\b/i.test(html)) return "none";
+  return emailBrandImageForHtml(html) ? "fixed" : "invalid";
 }
 
 export const hasEmailBrandImage = (html: string) =>
   emailBrandImageState(html) === "fixed";
 
-/** Preview-only reconstruction; the caller supplies its fixed local asset URL.
- * Does not resolve any other CID, source or customer-controlled URL. */
-export function resolveEmailBrandImage(
-  html: string,
-  source = EMAIL_BRAND_ASSET_URL,
-): string {
-  if (!hasEmailBrandImage(html)) return html;
-  const escaped = source.replaceAll("&", "&amp;").replaceAll('"', "&quot;");
+/** Preview-only reconstruction; historical markup retains its original artwork
+ * and dimensions. The caller may supply a fixed local image source. */
+export function resolveEmailBrandImage(html: string, source?: string): string {
+  const image = emailBrandImageForHtml(html);
+  if (!image) return html;
+  const escaped = (source ?? image.assetUrl)
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;");
   return html.replace(
     /<img\b[^>]*>/i,
-    renderEmailBrandImage().replace(EMAIL_BRAND_CID_URL, escaped),
+    renderEmailBrandImage(image).replace(`cid:${image.cid}`, escaped),
   );
 }
