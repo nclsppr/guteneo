@@ -1,21 +1,17 @@
+import { renderEmailBrandImage } from "./email-branding";
 import { deliveryExpiryDate, deliveryText } from "./delivery-messages";
 import type { SupportedLocale } from "./locale";
+import {
+  escapeEmailText as escape,
+  renderEmailAction,
+  renderEmailFooter,
+  renderEmailParagraphs,
+  renderEmailNote,
+  renderEmailSheet,
+} from "./email-presentation";
 
 export type ProtectedEmailDocument = { url: string; expiresAt: string };
 export type AccountEmailDocument = { url: string; retentionDays: number };
-function escape(value: string): string {
-  return value.replace(
-    /[&<>"']/g,
-    (character) =>
-      ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;",
-      })[character]!,
-  );
-}
 function workspaceLabel(name: string, locale: SupportedLocale): string {
   return (
     name.replace(/[\s\x00-\x1f\x7f]+/g, " ").trim() ||
@@ -77,16 +73,16 @@ export function protectedEmailInstructions(
     locale,
   ).replace("{0}", deliveryExpiryDate(expiresAt, locale));
 }
-/** A fixed, resource-free footer; only its href can contain the server-created URL. */
+/** Only the action href contains the server-created URL. */
 export function renderProtectedEmailFooter(
   document: ProtectedEmailDocument,
   locale: SupportedLocale,
   includeLink = true,
 ): string {
-  return `${includeLink ? renderDocumentEmailButton(document.url, deliveryText("View the protected document", locale)) : ""}<p style="margin:20px 0 0;color:#555963;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6">${escape(protectedEmailInstructions(document.expiresAt, locale))}</p>`;
+  return `${includeLink ? renderDocumentEmailButton(document.url, deliveryText("View the protected document", locale)) : ""}${renderEmailNote(deliveryText("Password and expiry", locale), protectedEmailInstructions(document.expiresAt, locale))}`;
 }
 export function renderDocumentEmailButton(url: string, label: string): string {
-  return `<p style="margin:28px 0"><a href="${escape(url)}" style="display:inline-block;background-color:#2450db;color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:600;line-height:1.5;text-decoration:none;padding:14px 24px;border:1px solid #2450db;border-radius:7px">${escape(label)}</a></p>`;
+  return renderEmailAction(url, label);
 }
 export function accountEmailInstructions(
   retentionDays: number,
@@ -99,13 +95,29 @@ export function renderAccountEmailFooter(
   locale: SupportedLocale,
   includeLink = true,
 ): string {
-  return `${includeLink ? renderDocumentEmailButton(document.url, deliveryText("Open in My documents", locale)) : ""}<p style="margin:24px 0 0;color:#555963;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6">${escape(accountEmailInstructions(document.retentionDays, locale)).replace(/\n/g, "<br>")}</p>`;
+  return `${includeLink ? renderDocumentEmailButton(document.url, deliveryText("Open in My documents", locale)) : ""}${renderEmailNote(deliveryText("Access to your document", locale), accountEmailInstructions(document.retentionDays, locale))}`;
 }
 export function renderEmailServiceFooter(
   locale: SupportedLocale,
   preferencesUrl: string,
 ): string {
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#f6f5ef;border-collapse:collapse"><tbody><tr><td align="center" style="padding:0 16px 32px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.8;color:#555963"><a href="https://guteneo.com/?lang=${locale}" style="color:#555963;text-decoration:underline">${escape(deliveryText("Discover guteneo", locale))}</a><br><a href="${escape(preferencesUrl)}" style="color:#555963;text-decoration:underline">${escape(deliveryText("Unsubscribe or report this email", locale))}</a></td></tr></tbody></table>`;
+  return renderEmailFooter(
+    `<p style="margin:0"><a style="display:inline-block;margin:0 16px 3px 0;color:#414855;text-decoration:underline" href="https://guteneo.com/?lang=${locale}">${escape(deliveryText("Discover guteneo", locale))}</a> <a href="${escape(preferencesUrl)}" style="display:inline-block;max-width:100%;color:#414855;text-decoration:underline">${escape(deliveryText("Unsubscribe or report this email", locale))}</a></p>`,
+  );
+}
+
+/** Message-only mail uses the supplied subject, without document-specific copy. */
+export function renderMessageEmail(input: {
+  subject: string;
+  text: string;
+  workspaceName: string;
+  locale: SupportedLocale;
+}): string {
+  return renderEmailSheet({
+    title: input.subject,
+    headerArtworkHtml: renderEmailBrandImage(),
+    bodyHtml: renderEmailParagraphs(input.text),
+  });
 }
 /** Shared draft/final presentation. Callers never pass arbitrary markup to this renderer. */
 export function renderTransactionalEmail(input: {
@@ -117,21 +129,30 @@ export function renderTransactionalEmail(input: {
   documentTitle?: string;
   preferencesUrl?: string;
 }): string {
-  const paragraphs = input.text
-    .split(/\n\s*\n/)
-    .map(
-      (paragraph) =>
-        `<p style="margin:0 0 18px">${escape(paragraph).replace(/\n/g, "<br>")}</p>`,
-    )
-    .join("");
+  const paragraphs = renderEmailParagraphs(input.text);
   const footer = input.accountDocument
-    ? renderAccountEmailFooter(input.accountDocument, input.locale)
+    ? renderAccountEmailFooter(input.accountDocument, input.locale, false)
     : input.protectedDocument
-      ? renderProtectedEmailFooter(input.protectedDocument, input.locale)
+      ? renderProtectedEmailFooter(input.protectedDocument, input.locale, false)
       : "";
-  const title = input.documentTitle?.trim()
-    ? `<blockquote style="margin:0 0 24px;padding:12px 18px;border-left:3px solid #2450db;color:#181b22;font-family:Georgia,serif;font-size:23px;line-height:1.4;overflow-wrap:anywhere">${escape(documentQuotation(input.documentTitle, input.locale))}</blockquote>`
+  const actionUrl = input.accountDocument?.url ?? input.protectedDocument?.url;
+  const action = actionUrl
+    ? renderEmailAction(
+        actionUrl,
+        deliveryText(
+          input.accountDocument
+            ? "Open in My documents"
+            : "View the protected document",
+          input.locale,
+        ),
+        "before-message",
+      )
     : "";
+  const title = input.documentTitle?.trim()
+    ? input.locale === "fr"
+      ? `«\u202f${input.documentTitle}\u202f»`
+      : documentQuotation(input.documentTitle, input.locale)
+    : undefined;
   const sender = workspaceLabel(input.workspaceName, input.locale);
   const signature = input.text.includes(sender)
     ? ""
@@ -139,5 +160,12 @@ export function renderTransactionalEmail(input: {
   const serviceFooter = input.preferencesUrl
     ? renderEmailServiceFooter(input.locale, input.preferencesUrl)
     : "";
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background-color:#f6f5ef"><tbody><tr><td align="center" style="padding:36px 16px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;border-collapse:separate;border-spacing:0"><tbody><tr><td style="padding:0 8px 24px"><p style="margin:0;color:#181b22;font-family:Georgia,serif;font-size:34px;font-weight:500;line-height:1.2">guteneo</p></td></tr><tr><td style="padding:32px 28px;background-color:#ffffff;border:1px solid #deddd7;border-radius:10px;color:#181b22;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.65"><h1 style="margin:0 0 24px;color:#181b22;font-family:Georgia,serif;font-size:36px;font-weight:400;line-height:1.15">${escape(deliveryText("Your document is ready.", input.locale))}</h1>${title}${paragraphs}${footer}${signature}</td></tr></tbody></table></td></tr></tbody></table>${serviceFooter}`;
+  return (
+    renderEmailSheet({
+      title: title ?? deliveryText("Your document is ready.", input.locale),
+      quoteTitle: Boolean(title),
+      headerArtworkHtml: renderEmailBrandImage(),
+      bodyHtml: `${action}${paragraphs}${signature}${footer}`,
+    }) + serviceFooter
+  );
 }

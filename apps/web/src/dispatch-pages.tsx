@@ -10,6 +10,7 @@ import type { SupportedLocale } from "../../../packages/contracts/src/locale";
 import {
   documentEmailDefaults,
   renderTransactionalEmail,
+  renderMessageEmail,
 } from "../../../packages/contracts/src/email-template";
 import { FAX_OPERATOR_TEST_NOTICE } from "../../../packages/contracts/src/fax-pricing";
 import {
@@ -1663,6 +1664,7 @@ export function PrepareDispatch({
             <>
               <h2>{t.dispatch.htmlPreview}</h2>
               <EmailPreview
+                allowBrandImage={!html.trim()}
                 html={
                   documentId && !html.trim()
                     ? renderTransactionalEmail({
@@ -1681,7 +1683,14 @@ export function PrepareDispatch({
                           ? { accountDocument: { url: "#", retentionDays } }
                           : {}),
                       })
-                    : emailDraftHtml(text, html)
+                    : !html.trim()
+                      ? renderMessageEmail({
+                          subject,
+                          text,
+                          workspaceName,
+                          locale: emailLocale,
+                        })
+                      : emailDraftHtml(text, html)
                 }
               />
               {!!documentId && emailDeliveryMode === "my_documents" && (
@@ -2446,7 +2455,7 @@ export function DispatchDetailPage({
           {d.html && (
             <>
               <h2>{t.dispatch.htmlPreview}</h2>
-              <EmailPreview html={d.html} />
+              <EmailPreview html={d.html} allowBrandImage />
               <details className="text-version">
                 <summary>{t.dispatch.textPreview}</summary>
                 <pre>{d.text}</pre>

@@ -252,6 +252,52 @@ remain illustrations.
   `test-results/brand/first-pass/` predates this correction and no longer
   describes the current identity.
 
+## Transactional email identity — 6 November 2026 candidate
+
+Guteneo-authored email uses a compact postal letter: white reading surface,
+ivory surroundings, a thin blue edge and primary pill action, a live lowercase
+ink-black `guteneo` wordmark and the original approved Gutenberg stamp with its
+real cancellation artwork. The stamp is slightly rotated; a translucent seal and
+four undulating cancellation lines overlap its left edge without covering the
+engraved face. The email wordmark and display heading use
+Georgia as the local fallback for the brand's serif lettering; body and supporting
+text use Arial/Helvetica/sans-serif. No remote font is needed. The actual quoted
+document name is the sole display heading when available. Keep readable body
+copy, a differentiated access note and quiet underlined service links, preserving
+the recipient's actual message, language and required access/expiry information.
+
+Only a qualified single-send Resend policy that includes the inline bytes may
+carry the approved stamp composition as a small immutable business-mail asset. Other
+policies, including SES, retain the typographic treatment and send no inline PNG;
+branding introduces no unpriced attachment. It grants no customer image embedding
+or remote fetch. Membership batch invitations also remain artwork-free; Auth0
+uses its separate fixed brand-asset HTTPS path. The original portrait is
+preserved. `scripts/build-email-postmark.mjs` reproduces the 128 × 70 px
+composition at three-times resolution; its source/output hashes, paper backing
+and overlap are recorded in `assets/brand/source/guteneo-email-postmark-proof.json`.
+`packages/contracts/src/email-branding.ts` binds the exact asset to its CID.
+White paper follows the original stamp's frame while the exterior and
+perforations remain transparent, without a white outline.
+
+The outlined IBM Plex seal reads `LUXEMBOURG / PREMIER JOUR / 16.09.26`, adapted
+from the site's founding-edition identity. This fixed decorative issue date is
+not the message's send date, a location observation, paid postage or delivery
+proof. It never contains recipient or document metadata. The previous portrait
+asset and CID retain their own exact-byte compatibility and provenance. Image blocking leaves the live wordmark, heading and
+action readable.
+
+[Email preparation](PROTECTED_EMAIL.md) owns the business-mail template,
+sanitization, immutable approval and client-proof boundary.
+[Auth0 account email](AUTH0_EMAIL_BRANDING.md) owns its separate generated Liquid
+templates, scope and provider application. Supplied custom HTML retains its
+existing contract instead of being silently redesigned. Local preview proves no
+real delivery or mailbox-client compatibility.
+
+A logo inside an HTML email and the identity icon beside a Gmail sender are
+separate surfaces. [Email sender identity](EMAIL_SENDER_IDENTITY.md) owns the
+inbox-logo candidate, domain prerequisites and independent qualification; a
+branded body grants no sender verification or displayed-avatar guarantee.
+
 ## External services
 
 Auth0 scripts prepare the **transparent portrait** for login and the

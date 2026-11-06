@@ -1,8 +1,8 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**28 domains · 450 features · 45 journeys · 77 documented REST operations · 83 MCP tools**
-Updated 2026-11-05.
+**28 domains · 453 features · 45 journeys · 77 documented REST operations · 83 MCP tools**
+Updated 2026-11-06.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
 
@@ -15,7 +15,7 @@ mindmap
   root((Guteneo))
     Access
       Access and identity (39)
-      Team and responsibilities (10)
+      Team and responsibilities (11)
       Workspace administration and reports (13)
     Create
       Documents and protection (21)
@@ -25,7 +25,7 @@ mindmap
     Deliver
       Fax (10)
       Postal mail (10)
-      Email and protected links (14)
+      Email and protected links (16)
       Sensitive distribution and personal documents (36)
       Dispatch dry run (7)
     Operate
@@ -52,7 +52,7 @@ mindmap
 ### Access
 
 - [Access and identity](#identity) — 39 features; browser-session.
-- [Team and responsibilities](#team) — 10 features; browser-session.
+- [Team and responsibilities](#team) — 11 features; browser-session.
 - [Workspace administration and reports](#administration) — 13 features; browser-session.
 
 ### Create
@@ -66,7 +66,7 @@ mindmap
 
 - [Fax](#fax) — 10 features; capability-gated.
 - [Postal mail](#postal) — 10 features; capability-gated.
-- [Email and protected links](#email) — 14 features; capability-gated.
+- [Email and protected links](#email) — 16 features; capability-gated.
 - [Sensitive distribution and personal documents](#secure-distribution) — 36 features; capability-gated.
 - [Dispatch dry run](#dry-run) — 7 features; read-only.
 
@@ -138,7 +138,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Read public pages/errors/status | Public; no privilege acquired | Public; no privilege acquired | Public; no privilege acquired | Public; no privilege acquired | Public read only; no extra tool/authority |
 | Choose public language and retain a presentation hint | Local browser presentation only; no session required | Local browser presentation only; no session required | Local browser presentation only; no session required | Local browser presentation only; no session required | No account-language setter or extra REST/MCP authority |
 | Choose system/light/dark browser appearance | Local browser presentation only | Local browser presentation only | Local browser presentation only | Local browser presentation only | No account preference setter, mandate or extra REST/MCP authority |
-| Configure Auth0/DNS/MCP issuer trust/reviewer refresh | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No business REST/MCP route; distinct authorised platform operator |
+| Configure Auth0/DNS/sender identity/MCP issuer trust/reviewer refresh | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No business REST/MCP route; distinct authorised platform operator |
 | Open global Belvédère | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No; distinct verified browser Watchkeeper |
 | Apply assistant content exclusions | No additional rights | No additional rights | No additional rights | No additional rights | Announce exclusions, stop known excluded content, request person-redacted copy; no automatic classification or web bypass |
 | Use a personal account and received documents without a workspace | Personal principal, no workspace authority gained | Personal principal, no workspace authority gained | Personal principal, no workspace authority gained | Personal principal, no workspace authority gained | No personal access through workspace Bearer |
@@ -212,7 +212,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Verified-account personal and document-authentication recovery use ordinary bounded Auth0 SSO without fresh=1; strong and explicit freshness recovery retain forced authentication. Legacy sessions missing signed auth_time require a real new authorization response, never a timestamp reconstructed from session creation; safe return paths, locale, tenant rights and human approval remain unchanged
 - Workspace and personal browser sessions project only canAccessBelvedere for navigation; signed privileged browser evidence and current membership remain mandatory, with no authority derived from mutable profile email or workspace role
 - Authenticated account reads and independent login/callback digests overlap while retaining saved appearance, canonical invitation validation, transaction-bound issuer, nonce and subject checks before session writes
-- Four-language Auth0 account email candidates with normalized request language and English fallback; current owned application IDs scope body, subject and sender while exact prior Liquid fields preserve other or missing clients. Offline Liquid/browser proof, remote application and real delivery remain separate; enabled flags, redirect and expiry are unchanged
+- Four-language Auth0 account email candidates with normalized request language and English fallback; current owned application IDs scope body, subject and sender while exact prior Liquid fields preserve other or missing clients. The 6 November visual candidate uses the coherent paper/ink/action letter direction; offline Liquid/browser proof, remote application and real delivery remain separate; enabled flags, redirect and expiry are unchanged
 
 **Contract:** [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · **Implementation:** [apps/api/src/auth.ts](../apps/api/src/auth.ts)
 
@@ -231,6 +231,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Member management, permission changes and atomic access revocation
 - Last-administrator protection
 - Individual/CSV invitations with batch preview and confirmation
+- The revised 6 November membership-invitation presentation candidate reuses the postal letter typography and primary pill without portrait/CID on the Resend batch path, preserving English subject/text, seven-day token lifetime, current administrator permission, verified-address acceptance and separate invitation-delivery activation
 - Verified-email acceptance, expiry and invitation revocation
 - Bounded browser-only responsible contacts filtered by current workshop membership
 - Login email distinguishes members with the same name; effective permissions stay readable
@@ -240,7 +241,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md) · **Implementation:** [packages/contracts/src/roles.ts](../packages/contracts/src/roles.ts)
 
-**Tests:** [tests/integration/workspace-roles.test.ts](../tests/integration/workspace-roles.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts)
+**Tests:** [tests/integration/workspace-roles.test.ts](../tests/integration/workspace-roles.test.ts), [tests/integration/workspace-invitations.test.ts](../tests/integration/workspace-invitations.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts)
 
 
 
@@ -559,7 +560,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 **Surfaces:** Individual web and MCP default to secure account delivery; REST uses /api/secure-distributions. Explicit attachments and legacy password links, campaigns and native message-only wire contracts remain compatible. Recipient access stays in the personal browser.
 
 - Individual web/MCP PDF email defaults to My documents: one verified recipient account, no separate password; optional subject/body, localized workspace V2 template and custom HTML href={{document_url}}; final message is frozen before browser approval; account text/HTML limits are exposed in capabilities and preparation descriptions with field-specific overflow errors before rendering
-- Text/HTML email without a file, with a PDF attachment or with a protected link
+- Text/HTML email without a file, with a PDF attachment or with a protected link; message-only default HTML uses the exact supplied subject/text in the shared letter, retains the supplied plain-text alternative and adds no document-ready copy or action; supplied custom HTML stays unwrapped
 - Recipient-request attestation and transactional requirements
 - Explicit quote and per-document hosting charge
 - Protected-link footer and expiration date use the authenticated sender account language (French fallback), with four-language catalog, UTC date formatting and declared Luxembourgish months independent of runtime Intl support; recipient link locale freezes before fingerprinting; no translation of entered content or rewrite of approved/sent messages
@@ -567,6 +568,8 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Accessible ready document emails can omit subject/body independently for localized authenticated-workspace defaults (body only when both text and HTML are absent; HTML otherwise derives text); message-only email still requires content and caller HTML cannot select workspace identity
 - Web individual/campaign forms omit blank document-message fields; individual account-button helpers use the notification locale and preserve authored HTML; the shared draft preview retains directly loaded or uploaded document titles outside the first list page without invented access URLs
 - Branded default document-email template or custom HTML with safe inline email styles; exact account-invitation or explicit legacy protected-link anchor href={{document_url}} resolves server-side without a duplicate CTA; markerless custom HTML gets a styled fallback and both retain access instructions before quote/fingerprint, with malformed/unsupported markers rejected and private URL/password summary masking retained
+- The revised 6 November email candidate uses a compact postal letter on ivory with a thin cobalt edge, live ink wordmark, approved original stamp with an overlapping founding-edition seal and four cancellation waves (a fixed decorative issue date, never the send timestamp), one quoted document-name heading, a primary pill and separate access note; a trusted immutable hash-bound CID artwork is included only by a qualified single-send Resend policy covering its reviewed inline bytes, with no price change; SES/other/unqualified policies and membership batch invitations send no inline PNG, offline previews use trusted local bytes and Auth0 retains one fixed brand HTTPS fallback. Supplied content/custom HTML, notification locale and immutable approved history remain preserved; the local gallery includes 32 fictional correspondence/Auth0 HTML and self-contained EML samples across four locales; the previous portrait CID remains exact-byte compatible; current stamp/cancellation qualification covers 160 Chromium/WebKit viewport checks and 32 MIME messages with no overflow, external requests, client errors or parser defects; earlier native Mail proof remains historical and no provider delivery is claimed
+- Sender-logo preparation is separate from the message body: a local inbox-identity asset or read-only domain diagnostic grants no DNS publication, certificate purchase, mailbox verification, provider activation or promised Gmail display
 - Private link, expiry and browser-only password entry
 - Download without a recipient account under access controls
 - Preparation, approval, tracking and provider policy
@@ -575,7 +578,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) · **Implementation:** [apps/api/src/protected-documents.ts](../apps/api/src/protected-documents.ts)
 
-**Tests:** [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts), [tests/integration/resend-email.test.ts](../tests/integration/resend-email.test.ts), [tests/unit/delivery-messages.test.ts](../tests/unit/delivery-messages.test.ts), [tests/unit/email-content.test.ts](../tests/unit/email-content.test.ts), [tests/security/email-content-runtime.test.mjs](../tests/security/email-content-runtime.test.mjs), [tests/unit/mcp-email.test.ts](../tests/unit/mcp-email.test.ts), [tests/unit/live-capabilities.test.ts](../tests/unit/live-capabilities.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/security/openapi.test.mjs](../tests/security/openapi.test.mjs), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts), [tests/e2e/protected-recipient.spec.ts](../tests/e2e/protected-recipient.spec.ts), [tests/e2e/email-recipient-attestation.spec.ts](../tests/e2e/email-recipient-attestation.spec.ts), [tests/e2e/email-preferences.spec.ts](../tests/e2e/email-preferences.spec.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts)
+**Tests:** [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts), [tests/integration/resend-email.test.ts](../tests/integration/resend-email.test.ts), [tests/unit/delivery-messages.test.ts](../tests/unit/delivery-messages.test.ts), [tests/unit/email-content.test.ts](../tests/unit/email-content.test.ts), [tests/unit/email-branding.test.ts](../tests/unit/email-branding.test.ts), [tests/unit/email-preview.test.ts](../tests/unit/email-preview.test.ts), [tests/e2e/email-branding-preview.spec.ts](../tests/e2e/email-branding-preview.spec.ts), [tests/security/email-content-runtime.test.mjs](../tests/security/email-content-runtime.test.mjs), [tests/unit/mcp-email.test.ts](../tests/unit/mcp-email.test.ts), [tests/unit/live-capabilities.test.ts](../tests/unit/live-capabilities.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/security/openapi.test.mjs](../tests/security/openapi.test.mjs), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts), [tests/e2e/protected-recipient.spec.ts](../tests/e2e/protected-recipient.spec.ts), [tests/e2e/email-recipient-attestation.spec.ts](../tests/e2e/email-recipient-attestation.spec.ts), [tests/e2e/email-preferences.spec.ts](../tests/e2e/email-preferences.spec.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts)
 
 
 
@@ -1227,7 +1230,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 Open the concise public homepage with its approved browser icon in its preselected URL/cookie/browser language, without a session probe or late translation → choose visitor language or the header appearance icon → read How it works, Getting started, Pricing or PDF checks and the complete Support FAQ through canonical shared navigation with initial styles and same-document page changes preserving language, metadata, focus and browser history → open Engineering documentation from the shared Resources footer for English technical guides → use the existing localized closing invitation and first-dispatch link above the home-only panorama → enter canonical Auth0 → register one personal account with V2 appearance → ordinary /app entry without membership opens Services with create/join workspace choice; explicit personal-document entry stays personal → create a workspace or review and accept an administrator invitation → verify current identity, saved account language and rights before useful private content. Return to the valid destination. Explicit logout opens the public home and restores the separate visitor choice. On workshop entry, download only the requested screen code alongside session verification; mount private content only after current authority resolves.
 
-**Failure/recovery:** Refuse invalid callback state, unknown issuer/subject or expired invitation. Recovery retries are explicit. Invalid/duplicate presentation hints fall back safely and grant no identity; explicit public language cannot be replaced by a conflicting late account read. Legacy storage migration excludes private/recovery URLs. Package download, optional Auth0 branding/domain and actual host sign-in each need separate proof. Public route presentation, a localized status link and the fictional example grant no approval or provider activation; failed detail loading retains complete styled static information. Modified/external/private/download links retain native behavior; unavailable initial JavaScript retains complete static HTML and native links without a blank loading page. Failed workshop code keeps the authenticated shell available and offers explicit page reload, with no automatic replay of writes. Public readiness cannot mount private sign-in before session resolution or create a duplicate hosted handoff.
+**Failure/recovery:** Refuse invalid callback state, unknown issuer/subject or expired invitation. Recovery retries are explicit. Invalid/duplicate presentation hints fall back safely and grant no identity; explicit public language cannot be replaced by a conflicting late account read. Legacy storage migration excludes private/recovery URLs. Package download, optional Auth0 branding/domain, application-scoped account-email templates and actual host sign-in each need separate proof; local email previews change no provider identity or inbox logo. Public route presentation, a localized status link and the fictional example grant no approval or provider activation; failed detail loading retains complete styled static information. Modified/external/private/download links retain native behavior; unavailable initial JavaScript retains complete static HTML and native links without a blank loading page. Failed workshop code keeps the authenticated shell available and offers explicit page reload, with no automatic replay of writes. Public readiness cannot mount private sign-in before session resolution or create a duplicate hosted handoff.
 
 [Detailed contract](ACCOUNT_IDENTITY.md).
 
@@ -1235,9 +1238,9 @@ Open the concise public homepage with its approved browser icon in its preselect
 
 **Actor:** Browser administrator. **Branch:** Access.
 
-Open members → invite individually or preview CSV → select role and supervisor options → confirm → track invitations → change/revoke rights. Members without management use workshop contacts.
+Open members → invite individually or preview CSV → select role and supervisor options → confirm → track invitations → receive the shared branded invitation with its unchanged English copy and explicit acceptance action under separately qualified delivery → change/revoke rights. Members without management use workshop contacts.
 
-**Failure/recovery:** Protect the last administrator. Rights changes revoke access/pending approvals. Directory errors announce manual recovery without stealing focus or losing profile input.
+**Failure/recovery:** Protect the last administrator. Rights changes revoke access/pending approvals. A branded body grants neither membership nor provider activation; recipient acceptance still needs the current matching verified account, and uncertain email outcomes are not automatically resent. Directory errors announce manual recovery without stealing focus or losing profile input.
 
 [Detailed contract](WORKSPACE_ROLES.md).
 
@@ -1265,9 +1268,9 @@ Read postal setup and current destination restrictions independently from recogn
 
 **Actor:** Preparer → current approver. **Branch:** Deliver.
 
-Collect recipient and ready PDF → default to My documents, with an explicit attachment alternative → optionally supply subject/message/custom HTML with {{document_url}}, otherwise use localized workspace V2 defaults → prepare secure distribution → follow rendering on the same ID → browser review exact email, PDF, policy and quote → attest the email request → approve and confirm → track. Message-only and explicit legacy modes retain ordinary dispatch approval. → recipient may explicitly unsubscribe/report through the footer; track the response separately from delivery and access.
+Collect recipient and ready PDF → default to My documents, with an explicit attachment alternative → optionally supply subject/message/custom HTML with {{document_url}}, otherwise use localized workspace defaults in the shared branded letter → prepare secure distribution → follow rendering on the same ID → browser review exact email, PDF, policy and quote → attest the email request → approve and confirm → track. Message-only and explicit legacy modes retain ordinary dispatch approval. → recipient may explicitly unsubscribe/report through the footer; track the response separately from delivery and access.
 
-**Failure/recovery:** Never infer recipient consent. Legacy-source refusals offer an explicit creator-private secure copy, including after historical cancellation/failure; preserve form input, select the copy and prepare separately. Copy recovery is browser-only, reuses the same key after an uncertain response and never cancels/recalls earlier deliveries. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later workspace/profile changes do not rewrite frozen content or resend existing mail. Missing/invalid documents do not permit defaults; malformed or wrong-mode button markers require corrected preparation. Account content overflow identifies the field and limit before rendering; generated buttons follow the notification locale even when interface and account language differ. For secure account invitations only, use explicit browser quote recovery from the original eligible unsubmitted share; review the replacement price again. Fresh sign-in preserves the existing safe share path and grants no approval.
+**Failure/recovery:** Never infer recipient consent. Legacy-source refusals offer an explicit creator-private secure copy, including after historical cancellation/failure; preserve form input, select the copy and prepare separately. Copy recovery is browser-only, reuses the same key after an uncertain response and never cancels/recalls earlier deliveries. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later workspace/profile or template-design changes do not rewrite frozen content or resend existing mail. Local sanitized HTML/EML previews grant no recipient consent, inbox-logo verification or production-delivery proof. Missing/invalid documents do not permit defaults; malformed or wrong-mode button markers require corrected preparation. Account content overflow identifies the field and limit before rendering; generated buttons follow the notification locale even when interface and account language differ. For secure account invitations only, use explicit browser quote recovery from the original eligible unsubmitted share; review the replacement price again. Fresh sign-in preserves the existing safe share path and grants no approval.
 
 [Detailed contract](PROTECTED_EMAIL.md).
 
@@ -1485,7 +1488,7 @@ Open the invitation → capture/remove its fragment token before any HTTP login 
 
 **Actor:** Authorized preparer → browser approver under the active document policy → authorized confirmer. **Branch:** Web/REST/MCP/packages prepare and follow; sensitive approval and quote renewal are browser-only.
 
-Open Secure distribution after Documents, keeping Overview/Assistants first and the active entry coherent → select an accessible ready PDF up to 100 pages/10 MiB → one recipient → 7/30/90/365 days → optional original export/personal copy → optional subject/message/custom HTML or localized workspace V2 defaults, plus approved binding policy → idempotent preparation → follow preparing under the same ID → review final pages/text, recipient, rights, message and tax-exclusive total including transport → separately attest the email request → one priced browser Send action records approval then activation with the existing verified session; MCP reads active state and tracks without another confirmation → inspect paginated provenance/actor audit with ninety-day detailed access and separate immutable receipts. Revocation blocks future access without refund. Explicit source pagination reaches older PDFs; permitted personal copies remain exportable even when the shared original is not. Provider submission retains only transport in its reservation after committing retention fees; signed outcomes update invitation tracking separately from shared access.
+Open Secure distribution after Documents, keeping Overview/Assistants first and the active entry coherent → select an accessible ready PDF up to 100 pages/10 MiB → one recipient → 7/30/90/365 days → optional original export/personal copy → optional subject/message/custom HTML or localized workspace defaults in the shared transactional letter, plus approved binding policy → idempotent preparation → follow preparing under the same ID → review final pages/text, recipient, rights, message and tax-exclusive total including transport → separately attest the email request → one priced browser Send action records approval then activation with the existing verified session; MCP reads active state and tracks without another confirmation → inspect paginated provenance/actor audit with ninety-day detailed access and separate immutable receipts. Revocation blocks future access without refund. Explicit source pagination reaches older PDFs; permitted personal copies remain exportable even when the shared original is not. Provider submission retains only transport in its reservation after committing retention fees; signed outcomes update invitation tracking separately from shared access.
 
 **Failure/recovery:** Unqualified source, integrity, scan, rendering, authority, price, credit or configuration closes the flow. Revoke unexpired legacy draft/active hosting first. A prior postal derivation, legacy send, postal preflight or provider draft requires a dedicated source even after cancellation/failure. Sensitive reference permanently excludes ordinary email/fax/postal attachments, legacy transforms, cropping, analysis and password reads; only the dedicated sourceless invitation remains eligible. Bidirectional service/SQL guards close concurrent legacy writes and provider-transfer races. No original/legacy-link fallback. An expired or changed invitation quote offers explicit browser renewal only for an eligible unsubmitted original; preserve stored inputs and ceiling, resume the same deterministic replacement after failure, then review and approve again. Accepted/attempted work never renews. Expert mandates and assistant-asserted consent cannot approve. Unknown outcomes reread the same ID without new orders or blind provider retry. Localized Sign in again voluntarily opens the existing hosted login: DOCUMENT_AUTHENTICATION_REQUIRED uses ordinary bounded SSO, while strong, explicit freshness and browser-approval refusals retain fresh=1. Recovery preserves the valid existing share path and locale while stripping query/secondary fragments, with no private form storage, automatic write replay or weaker session checks. Recipient invitation secrets stay outside returnTo. Dated Resend qualification/local email flags establish no installed global D1 quotas, webhook/secret or delivery. Secure preparation failures emit a fixed operational signal once; delivery failures and unknown results require inspecting the existing invitation dispatch, without resending or refunding committed hosting. Expired/revoked sessions require ordinary login; verified_account has no separate 15/5-minute authentication gate, while strong retains its existing windows. After a failed browser final action, explicitly check the same status before same-key recovery; status refresh sends nothing.
 

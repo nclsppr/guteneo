@@ -12,6 +12,7 @@ import {
   type ProviderResult,
 } from "./types";
 import { boundedText, jsonResponse } from "./transport";
+import { emailBrandImageState } from "../contracts/src/email-branding";
 
 function sesUnknown(): ProviderResult {
   return {
@@ -162,6 +163,10 @@ export class SesEmailProvider {
       new TextEncoder().encode(input.html + input.text).length > 1_000_000
     )
       errors.push("invalid_email_content");
+    // Existing SES no_attachments/raw_pdf_bytes qualifications do not price a
+    // brand MIME part. Never add unquoted bytes or downgrade it to an attachment.
+    if (emailBrandImageState(input.html) !== "none")
+      errors.push("email_inline_branding_not_qualified");
     if (!/^[a-zA-Z0-9_.:-]{1,200}$/.test(input.dispatchId))
       errors.push("invalid_dispatch_id");
     // Content and unsubscribe link are final before approval; never append hidden changes here.

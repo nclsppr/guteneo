@@ -38,6 +38,16 @@ import {
 import { t } from "./locale";
 import { pdfCheckErrorMessage } from "./pdf-check-errors";
 import { workspaceAuthenticationRecoveryHref } from "./auth-navigation";
+import {
+  emailBrandImageForHtml,
+  resolveEmailBrandImage,
+} from "../../../packages/contracts/src/email-branding";
+import {
+  cachedEmailBrandPreviewSource,
+  emailBrandPreviewSource,
+  emailPreviewDocument,
+  unillustratedEmailPreview,
+} from "./email-preview-document";
 
 export const BEFORE_WORKSPACE_NAVIGATION =
   "guteneo:before-workspace-navigation";
@@ -804,8 +814,39 @@ export function PdfPreview({
     </div>
   );
 }
-export function EmailPreview({ html }: { html: string }) {
-  const content = `<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:;"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font:16px/1.6 Georgia,serif;color:#181b22;margin:0;padding:24px;overflow-wrap:anywhere}body:has(>table[role="presentation"]){padding:0}img{max-width:100%}</style></head><body>${html}</body></html>`;
+export function EmailPreview({
+  html,
+  allowBrandImage = false,
+}: {
+  html: string;
+  allowBrandImage?: boolean;
+}) {
+  const [loadedBrand, setLoadedBrand] = useState<{
+    cid: string;
+    source: string;
+  } | null>(null);
+  const brand = allowBrandImage ? emailBrandImageForHtml(html) : undefined;
+  const brandSource = brand
+    ? (cachedEmailBrandPreviewSource(brand) ??
+      (loadedBrand?.cid === brand.cid ? loadedBrand.source : null))
+    : null;
+  useEffect(() => {
+    if (!brand || brandSource) return;
+    let current = true;
+    void emailBrandPreviewSource(brand)
+      .then((source) => {
+        if (current) setLoadedBrand({ cid: brand.cid, source });
+      })
+      .catch(() => undefined);
+    return () => {
+      current = false;
+    };
+  }, [brand, brandSource]);
+  const content = brand
+    ? brandSource
+      ? emailPreviewDocument(resolveEmailBrandImage(html, brandSource), true)
+      : emailPreviewDocument(unillustratedEmailPreview(html))
+    : emailPreviewDocument(html);
   return (
     <iframe
       className="email-preview"

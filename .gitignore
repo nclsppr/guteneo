@@ -15,3 +15,4 @@ reports/mcp-document-upload/
 __pycache__/
 reports/auth0-email-preview/
 reports/auth0-email-browser/
+reports/email-preview/

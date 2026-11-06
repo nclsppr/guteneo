@@ -1,0 +1,46 @@
+{
+  "fr": {
+    "workspace": "Atelier des Tilleuls",
+    "documentTitle": "Votre projet · novembre 2026.pdf",
+    "messageSubject": "Votre projet prend forme",
+    "message": "Bonjour,\n\nNous avons réuni les derniers éléments de votre projet. La prochaine étape sera de choisir ensemble les finitions et de confirmer le calendrier.\n\nVous pouvez répondre à ce message pour nous indiquer vos disponibilités.\n\nÀ bientôt,\nL’équipe de l’Atelier des Tilleuls",
+    "documents": {
+      "my_documents": "Bonjour,\n\nNous vous adressons le récapitulatif de votre projet pour le mois de novembre. Vous y retrouverez les étapes convenues et les éléments à valider avant notre prochain échange.\n\nMerci de votre confiance,\nL’équipe de l’Atelier des Tilleuls",
+      "protected_link": "Bonjour,\n\nLe compte rendu de notre dernier échange est disponible. Il rassemble les choix retenus et les prochaines étapes de votre projet.\n\nBonne lecture,\nL’équipe de l’Atelier des Tilleuls",
+      "attachment": "Bonjour,\n\nVous trouverez en pièce jointe le récapitulatif de votre projet pour novembre. Nous restons à votre disposition pour toute précision.\n\nBien cordialement,\nL’équipe de l’Atelier des Tilleuls"
+    }
+  },
+  "en": {
+    "workspace": "Northfield Studio",
+    "documentTitle": "Your project · November 2026.pdf",
+    "messageSubject": "Your project is taking shape",
+    "message": "Hello,\n\nWe have brought together the latest details of your project. Our next step is to choose the finishes together and confirm the schedule.\n\nYou can reply to this message with a convenient time to talk.\n\nSee you soon,\nThe Northfield Studio team",
+    "documents": {
+      "my_documents": "Hello,\n\nHere is your project summary for November. It brings together the agreed steps and the details to review before our next conversation.\n\nThank you for your trust,\nThe Northfield Studio team",
+      "protected_link": "Hello,\n\nThe notes from our last conversation are ready. They cover the choices we agreed on and the next steps for your project.\n\nBest wishes,\nThe Northfield Studio team",
+      "attachment": "Hello,\n\nYour project summary for November is attached. Please get in touch if you would like us to clarify anything.\n\nBest wishes,\nThe Northfield Studio team"
+    }
+  },
+  "de": {
+    "workspace": "Werkstatt Lindenhof",
+    "documentTitle": "Ihr Projekt · November 2026.pdf",
+    "messageSubject": "Ihr Projekt nimmt Gestalt an",
+    "message": "Guten Tag,\n\nwir haben die neuesten Einzelheiten Ihres Projekts zusammengestellt. Als Nächstes wählen wir gemeinsam die Ausführung und stimmen den Zeitplan ab.\n\nAntworten Sie gern auf diese Nachricht und nennen Sie uns einen passenden Gesprächstermin.\n\nBis bald,\nIhr Team der Werkstatt Lindenhof",
+    "documents": {
+      "my_documents": "Guten Tag,\n\nanbei erhalten Sie Ihre Projektübersicht für November. Sie enthält die vereinbarten Schritte und die Punkte, die wir vor unserem nächsten Gespräch abstimmen möchten.\n\nVielen Dank für Ihr Vertrauen,\nIhr Team der Werkstatt Lindenhof",
+      "protected_link": "Guten Tag,\n\ndie Zusammenfassung unseres letzten Gesprächs liegt für Sie bereit. Sie enthält die getroffenen Entscheidungen und die nächsten Schritte Ihres Projekts.\n\nMit freundlichen Grüßen\nIhr Team der Werkstatt Lindenhof",
+      "attachment": "Guten Tag,\n\nim Anhang finden Sie Ihre Projektübersicht für November. Bei Fragen sind wir gern für Sie da.\n\nMit freundlichen Grüßen\nIhr Team der Werkstatt Lindenhof"
+    }
+  },
+  "lb": {
+    "workspace": "Atelier Bei der Bréck",
+    "documentTitle": "Äre Projet · November 2026.pdf",
+    "messageSubject": "Äre Projet hëlt Form un",
+    "message": "Gudde Moien,\n\nMir hunn déi lescht Detailer vun Ärem Projet zesummegestallt. Als nächste Schrëtt wiele mir zesummen d’Ausféierung aus a bestätegen den Zäitplang.\n\nDir kënnt op dës Noriicht äntweren an eis matdeelen, wéini Dir Zäit fir e Gespréich hutt.\n\nBis geschwënn,\nD’Ekipp vum Atelier Bei der Bréck",
+    "documents": {
+      "my_documents": "Gudde Moien,\n\nHei ass den Iwwerbléck vun Ärem Projet fir November. Dir fannt doran déi ofgemaachte Schrëtt an d’Punkten, déi mir virun eisem nächste Gespréich ofstëmme wëllen.\n\nMerci fir Äert Vertrauen,\nD’Ekipp vum Atelier Bei der Bréck",
+      "protected_link": "Gudde Moien,\n\nDe Resumé vun eisem leschte Gespréich ass fir Iech prett. En enthält déi ofgemaachte Choixen an déi nächst Schrëtt vun Ärem Projet.\n\nMat beschte Gréiss,\nD’Ekipp vum Atelier Bei der Bréck",
+      "attachment": "Gudde Moien,\n\nAm Unhang fannt Dir den Iwwerbléck vun Ärem Projet fir November. Wann Dir Froen hutt, si mir gär fir Iech do.\n\nMat beschte Gréiss,\nD’Ekipp vum Atelier Bei der Bréck"
+    }
+  }
+}

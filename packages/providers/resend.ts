@@ -14,6 +14,7 @@ import {
   type ProviderStatus,
 } from "./types";
 import { boundedText, request, requireOk } from "./transport";
+import { emailBrandAttachment, emailBrandingValid } from "./email-branding";
 
 const encoder = new TextEncoder();
 const domainPattern =
@@ -156,6 +157,8 @@ export class ResendEmailProvider {
       encoder.encode(input.html + input.text).length > 1_000_000
     )
       errors.push("invalid_email_content");
+    if (!emailBrandingValid(input.html))
+      errors.push("email_brand_image_invalid");
     if (!dispatchPattern.test(input.dispatchId))
       errors.push("invalid_dispatch_id");
     if (!["transactional", "marketing"].includes(input.purpose))
@@ -213,6 +216,16 @@ export class ResendEmailProvider {
     const errors = this.validate(input);
     if (errors.length)
       return { status: "rejected", errorCode: errors[0], retryable: false };
+    let brand: Awaited<ReturnType<typeof emailBrandAttachment>>;
+    try {
+      brand = await emailBrandAttachment(input.html);
+    } catch {
+      return {
+        status: "rejected",
+        errorCode: "EMAIL_BRAND_IMAGE_INTEGRITY",
+        retryable: false,
+      };
+    }
     try {
       const response = await request(
         this.fetcher,
@@ -242,13 +255,25 @@ export class ResendEmailProvider {
                   },
                 }
               : {}),
-            ...(input.attachments?.length
+            ...(input.attachments?.length || brand
               ? {
-                  attachments: input.attachments.map((attachment) => ({
-                    filename: attachment.filename,
-                    content_type: attachment.contentType,
-                    content: bytesBase64(attachment.bytes),
-                  })),
+                  attachments: [
+                    ...(input.attachments ?? []).map((attachment) => ({
+                      filename: attachment.filename,
+                      content_type: attachment.contentType,
+                      content: bytesBase64(attachment.bytes),
+                    })),
+                    ...(brand
+                      ? [
+                          {
+                            filename: brand.filename,
+                            content_type: brand.contentType,
+                            content: bytesBase64(brand.bytes),
+                            content_id: brand.contentId,
+                          },
+                        ]
+                      : []),
+                  ],
                 }
               : {}),
           }),

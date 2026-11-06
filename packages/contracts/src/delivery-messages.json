@@ -1,4 +1,14 @@
 {
+  "Mot de passe et expiration": [
+    "Password and expiry",
+    "Passwort und Ablaufdatum",
+    "Passwuert an Oflafdatum"
+  ],
+  "Accès à votre document": [
+    "Access to your document",
+    "Zugriff auf Ihr Dokument",
+    "Zougang zu Ärem Dokument"
+  ],
   "Votre atelier": ["Your workspace", "Ihr Arbeitsbereich", "Ären Atelier"],
   "Document envoyé par {0}": [
     "Document from {0}",

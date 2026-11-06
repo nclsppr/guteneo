@@ -1,3 +1,7 @@
+import {
+  EMAIL_BRAND_CID,
+  EMAIL_BRAND_CID_URL,
+} from "../../packages/contracts/src/email-branding";
 import { historicalRoleProjection } from "../helpers/historical-role-projection";
 import { readFileSync, readdirSync } from "node:fs";
 import {
@@ -455,6 +459,26 @@ describe("Resend domain, live bridge and populated migrations — synthetic tran
     expect(migrationProof.quickCheck).toEqual({ quick_check: "ok" });
   });
 
+  it("keeps the approved letter image-free on a live SES attachment-free quote", async () => {
+    await setupFixture("ses");
+    const row = await domain.prepareDispatch(
+      ctx,
+      email({ html: undefined }),
+      "ses_stationery",
+    );
+    const quote = await validateLiveDeliveryQuote(
+      db,
+      row,
+      identity.email,
+      stamp(),
+    );
+    expect(quote.provider).toBe("ses");
+    expect(quote.attachment_bytes).toBe(0);
+    expect(row.html).toContain(">guteneo</p>");
+    expect(row.html).toContain(row.subject);
+    expect(row.html).not.toMatch(/<img\b|cid:/);
+  });
+
   it.each(["none", "attachment", "protected_link"] as const)(
     "carries %s through real preparation, approval, credit reservation and the Resend bridge",
     async (mode) => {
@@ -743,7 +767,8 @@ describe("Resend domain, live bridge and populated migrations — synthetic tran
         expect(row.html).toContain(">guteneo</p>");
         expect(row.html).toContain("Atelier Rivage");
         expect(row.html).toContain("background-color:#f6f5ef");
-        expect(row.html).not.toMatch(/<img|<script|<style/);
+        expect(row.html).toContain(`src="${EMAIL_BRAND_CID_URL}"`);
+        expect(row.html).not.toMatch(/<img[^>]+src="https?:|<script|<style/);
         if (mode === "protected_link") {
           expect(row.text).toContain(`?lang=${locale}`);
           expect(row.html!.match(/href="[^"]*\/share\//g) ?? []).toHaveLength(
@@ -801,6 +826,67 @@ describe("Resend domain, live bridge and populated migrations — synthetic tran
       '<h1 style="color:#2450db">Customer-authored body</h1>',
     );
     expect(custom.html).not.toContain(">guteneo</p>");
+  });
+
+  it("freezes the branded message-only presentation while preserving the exact supplied subject and text", async () => {
+    const input = email({
+      html: undefined,
+      subject: 'Exact supplied subject & "details"',
+      text: "Exact supplied content & <literal markup>.\nSecond line.",
+    });
+    const prepared = await domain.prepareDispatch(
+      ctx,
+      input,
+      "message_snapshot",
+    );
+    expect(prepared.subject).toBe(input.subject);
+    expect(prepared.text).toBe(input.text);
+    expect(prepared.document_id).toBeNull();
+    expect(prepared.html).toContain("border-top:3px solid #2450db");
+    expect(prepared.html).toContain("&lt;literal markup&gt;");
+    expect(prepared.html).not.toMatch(
+      /Your document is ready|\/share\/|my-documents|<img[^>]+src="https?:|<script|<style/,
+    );
+    await db
+      .prepare("UPDATE organizations SET name='Renamed workspace' WHERE id=?")
+      .bind(ctx.organizationId)
+      .run();
+    const replay = await domain.prepareDispatch(ctx, input, "message_snapshot");
+    expect(replay).toMatchObject({
+      id: prepared.id,
+      subject: prepared.subject,
+      html: prepared.html,
+      text: prepared.text,
+      fingerprint: prepared.fingerprint,
+    });
+    await domain.approveDispatch(ctx, prepared.id, prepared.fingerprint, {
+      recipientRequested: true,
+    });
+    await domain.confirmDispatch(
+      ctx,
+      prepared.id,
+      "message_snapshot_confirmed",
+    );
+    const fetcher = vi
+      .fn<Fetcher>()
+      .mockResolvedValue(Response.json({ id: crypto.randomUUID() }));
+    await domain.processDispatch(
+      prepared.id,
+      createLiveProviderHook(env, "email", { fetcher, now: () => clock }),
+    );
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    const payload = JSON.parse(String(fetcher.mock.calls[0][1]?.body));
+    expect(payload).toMatchObject({
+      subject: input.subject,
+      text: input.text,
+      html: prepared.html,
+    });
+    expect(payload.attachments).toEqual([
+      expect.objectContaining({
+        content_id: EMAIL_BRAND_CID,
+        content_type: "image/png",
+      }),
+    ]);
   });
 
   it.each(["attachment", "protected_link"] as const)(
@@ -863,11 +949,23 @@ describe("Resend domain, live bridge and populated migrations — synthetic tran
         text: prepared.text,
       });
       expect(body.html).not.toContain("Renamed workspace");
-      if (mode === "attachment")
-        expect(Buffer.from(body.attachments[0].content, "base64")).toEqual(
+      const inline = body.attachments.filter(
+        (part: { content_id?: string }) => part.content_id,
+      );
+      expect(inline).toEqual([
+        expect.objectContaining({
+          content_id: EMAIL_BRAND_CID,
+          content_type: "image/png",
+        }),
+      ]);
+      const documents = body.attachments.filter(
+        (part: { content_id?: string }) => !part.content_id,
+      );
+      expect(documents).toHaveLength(mode === "attachment" ? 1 : 0);
+      if (documents.length)
+        expect(Buffer.from(documents[0].content, "base64")).toEqual(
           Buffer.from(pdfBytes),
         );
-      else expect(body).not.toHaveProperty("attachments");
     },
   );
 
@@ -1006,7 +1104,8 @@ describe("Resend domain, live bridge and populated migrations — synthetic tran
     );
     expect(literal.subject).toBe("Literal {{amount}}");
     expect(literal.text).toBe("Text {{amount}} and }}");
-    expect(literal.html).toBe("<p>Text {{amount}} and }}</p>");
+    expect(literal.html).toContain(">Literal {{amount}}</h1>");
+    expect(literal.html).toContain(">Text {{amount}} and }}</p>");
     await db
       .prepare(
         "UPDATE documents SET status='quarantined' WHERE id=? AND organization_id=?",

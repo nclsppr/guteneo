@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 import { Liquid } from "liquidjs";
+import { EMAIL_BRAND_FILENAME } from "../../packages/contracts/src/email-branding.ts";
 import {
   EMAIL_COPY,
   EMAIL_FROM,
@@ -123,7 +124,15 @@ for (const name of TEMPLATE_NAMES) {
         EMAIL_COPY[expected][name].subject,
       );
       assert.ok(body.includes(EMAIL_LOGO));
-      assert.ok(body.includes('color:#181b22">guteneo</td>'));
+      assert.match(
+        body,
+        /color:#181b22;font-family:Georgia,serif[^>]*>guteneo<\/p>/,
+      );
+      assert.match(body, /max-width:620px/);
+      assert.match(body, /border-top:3px solid #2450db/);
+      assert.match(body, /\[if mso\]><table [^>]*width="620"/);
+      assert.equal((body.match(/<img /g) ?? []).length, 1);
+      assert.match(body, /width="128" height="70"/);
       assert.doesNotMatch(body, /\{%|\{\{|<private>|<a[^>]*b="/);
       if (name !== "welcome_email")
         assert.match(body, /&amp;b=(?:&quot;|&#34;)&lt;private&gt;&#39;/);
@@ -201,7 +210,7 @@ test("refuses unsafe scope, unreadable templates and edited or legacy managed wr
   const scoped = scopeTemplate("verify_email", ["x"], prior("verify_email"));
   for (const body of [
     scoped.body.slice(0, -3),
-    scoped.body.replace("guteneo</td>", "changed</td>"),
+    scoped.body.replace("guteneo</p>", "changed</p>"),
     scoped.body + "extra",
     "{% comment %}guteneo-email-brand-v1:verify_email{% endcomment %}old",
     scoped.body.replace("guteneo-email-brand-v2", "guteneo-email-brand-v3"),
@@ -478,7 +487,7 @@ test("generated candidates are current and previews render offline without live 
           "utf8",
         );
         assert.doesNotMatch(html, /\{%|\{\{|src="https:/);
-        assert.match(html, /src="\.\/guteneo-stamp\.png"/);
+        assert.ok(html.includes(`src="./${EMAIL_BRAND_FILENAME}"`));
       }
   } finally {
     await rm(temp, { recursive: true, force: true });

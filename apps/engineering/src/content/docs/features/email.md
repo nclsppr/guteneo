@@ -1,6 +1,6 @@
 ---
 title: "Email and protected links"
-description: "14 capabilities in the deliver branch of Guteneo."
+description: "16 capabilities in the deliver branch of Guteneo."
 sidebar:
   order: 9
 ---
@@ -19,7 +19,7 @@ Implemented email candidate; dated operator qualification is separate from deplo
 
 <ol>
 <li id="feature-4c2f1c01efe4">Individual web/MCP PDF email defaults to My documents: one verified recipient account, no separate password; optional subject/body, localized workspace V2 template and custom HTML href={{document_url}}; final message is frozen before browser approval; account text/HTML limits are exposed in capabilities and preparation descriptions with field-specific overflow errors before rendering</li>
-<li id="feature-ef24144fdff0">Text/HTML email without a file, with a PDF attachment or with a protected link</li>
+<li id="feature-2166aeb52162">Text/HTML email without a file, with a PDF attachment or with a protected link; message-only default HTML uses the exact supplied subject/text in the shared letter, retains the supplied plain-text alternative and adds no document-ready copy or action; supplied custom HTML stays unwrapped</li>
 <li id="feature-1be24126eeaa">Recipient-request attestation and transactional requirements</li>
 <li id="feature-4184f692aa5c">Explicit quote and per-document hosting charge</li>
 <li id="feature-394a796c5588">Protected-link footer and expiration date use the authenticated sender account language (French fallback), with four-language catalog, UTC date formatting and declared Luxembourgish months independent of runtime Intl support; recipient link locale freezes before fingerprinting; no translation of entered content or rewrite of approved/sent messages</li>
@@ -27,6 +27,8 @@ Implemented email candidate; dated operator qualification is separate from deplo
 <li id="feature-7da992808c43">Accessible ready document emails can omit subject/body independently for localized authenticated-workspace defaults (body only when both text and HTML are absent; HTML otherwise derives text); message-only email still requires content and caller HTML cannot select workspace identity</li>
 <li id="feature-235a4741628e">Web individual/campaign forms omit blank document-message fields; individual account-button helpers use the notification locale and preserve authored HTML; the shared draft preview retains directly loaded or uploaded document titles outside the first list page without invented access URLs</li>
 <li id="feature-98da0eaf5980">Branded default document-email template or custom HTML with safe inline email styles; exact account-invitation or explicit legacy protected-link anchor href={{document_url}} resolves server-side without a duplicate CTA; markerless custom HTML gets a styled fallback and both retain access instructions before quote/fingerprint, with malformed/unsupported markers rejected and private URL/password summary masking retained</li>
+<li id="feature-b8a67dba031e">The revised 6 November email candidate uses a compact postal letter on ivory with a thin cobalt edge, live ink wordmark, approved original stamp with an overlapping founding-edition seal and four cancellation waves (a fixed decorative issue date, never the send timestamp), one quoted document-name heading, a primary pill and separate access note; a trusted immutable hash-bound CID artwork is included only by a qualified single-send Resend policy covering its reviewed inline bytes, with no price change; SES/other/unqualified policies and membership batch invitations send no inline PNG, offline previews use trusted local bytes and Auth0 retains one fixed brand HTTPS fallback. Supplied content/custom HTML, notification locale and immutable approved history remain preserved; the local gallery includes 32 fictional correspondence/Auth0 HTML and self-contained EML samples across four locales; the previous portrait CID remains exact-byte compatible; current stamp/cancellation qualification covers 160 Chromium/WebKit viewport checks and 32 MIME messages with no overflow, external requests, client errors or parser defects; earlier native Mail proof remains historical and no provider delivery is claimed</li>
+<li id="feature-4f8ffb1f2eb6">Sender-logo preparation is separate from the message body: a local inbox-identity asset or read-only domain diagnostic grants no DNS publication, certificate purchase, mailbox verification, provider activation or promised Gmail display</li>
 <li id="feature-4c66fb41a3ae">Private link, expiry and browser-only password entry</li>
 <li id="feature-0300dfeb9845">Download without a recipient account under access controls</li>
 <li id="feature-55e615792e90">Preparation, approval, tracking and provider policy</li>

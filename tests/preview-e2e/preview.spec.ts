@@ -114,13 +114,21 @@ test("email can be prepared, reviewed and simulated in the tab only", async ({
   await expect(
     page.getByRole("heading", { name: "Le bon à envoyer." }),
   ).toBeVisible();
+  const email = page.frameLocator("iframe.email-preview");
+  await expect(email.getByRole("heading", { level: 1 })).toHaveText(
+    "Courrier de démonstration",
+  );
   await expect(
-    page.frameLocator("iframe.email-preview").locator("body"),
+    email.locator("p").filter({ hasText: "Bonjour depuis l’atelier." }),
   ).toHaveText("Bonjour depuis l’atelier.");
-  await page.getByRole("checkbox").check();
-  await page
-    .getByRole("button", { name: "Approuver et simuler l’envoi" })
-    .click();
+  const consent = page.getByRole("checkbox");
+  const send = page.getByRole("button", {
+    name: "Approuver et simuler l’envoi",
+  });
+  await expect(consent).not.toBeChecked();
+  await expect(send).toBeDisabled();
+  await consent.check();
+  await send.click();
   await expect(page.locator(".simulation-banner")).toContainText(
     "Aucun fax, e-mail ou courrier réel",
   );

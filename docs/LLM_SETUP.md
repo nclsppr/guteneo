@@ -148,6 +148,22 @@ tools, scopes, schemas, annotation semantics, approval and provider gates.
 No host instruction changes are needed for the implementation-only scheduling
 change. Package parity proves neither host import nor runtime publication.
 
+### Transactional email source synchronization — 6 November 2026
+
+The revised 1.1.33 email candidate changes shared content/domain imports covered
+by the MCP fingerprint, so application, portable, Claude and Cursor versions
+advance together and the downloadable archives are rebuilt from the same reviewed
+sources. The package review retains the existing tool schemas, scopes, annotation
+semantics, host confirmations and human/provider gates. The built-in portrait is
+not a new caller image, attachment option or assistant permission: only the server's
+qualified single-send Resend policy can include its immutable inline bytes.
+
+Local package/synchronization/Claude guards pass 31/31 for the 1.1.33 record.
+This establishes package consistency, not host import, marketplace submission,
+production publication or recipient delivery. The
+[email contract](PROTECTED_EMAIL.md#revised-portrait-and-transport-boundary--6-november-2026-candidate)
+owns source, quote, preview and transport qualification.
+
 ## Connecting hosts
 
 ### Secure source-copy recovery — 5 November 2026 candidate

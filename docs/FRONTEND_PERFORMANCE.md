@@ -1,5 +1,129 @@
 # Frontend loading and table controls
 
+## Stamp cancellation artwork — 6 November 2026 local measurement
+
+The wider stamp/cancellation asset preserves the exact legacy portrait for frozen
+HTML. Known CIDs load separate static byte modules on demand; displaying the new
+art does not eagerly load the old payload or add a recipient-side image request.
+The quote, data-only preview CSP and authorization/loading fences are unchanged.
+
+Using the same optimized local Vite build and Node gzip level 9 method:
+
+| Module | Main raw / gzip 9 (bytes) | Current raw / gzip 9 (bytes) |
+| --- | ---: | ---: |
+| Dispatch pages | 61,353 / 17,752 | 61,456 / 17,793 |
+| Shared components | 47,732 / 14,905 | 50,022 / 15,894 |
+| Secure-distribution pages | 21,502 / 5,953 | 21,547 / 5,971 |
+| Current artwork, on demand | Absent | 39,899 / 30,047 |
+| Legacy portrait, on demand | Absent | 23,067 / 17,395 |
+
+The emitted catalog is 52 chunks on main, 53 in the preceding portrait iteration
+and 54 now; these are file counts rather than requested-chunk counts. The current
+PNG is 29,888 bytes. `reports/email-preview/postmark-performance.json` records
+main, prior and current sizes; compression sizes are not HTTP transfer or latency
+measurements, and no performance gain is claimed.
+
+All 32 current gallery cases pass 160 Chromium/WebKit viewport checks with exact
+384 × 210 intrinsic / 128 × 70 rendered artwork, zero overflow, external requests
+or client errors. `reports/email-preview/postmark-visual-checks.json` records the
+local samples. The tracked French [mobile](evidence/transactional-email-mobile-fr-2026-11-06.png),
+[desktop](evidence/transactional-email-desktop-fr-2026-11-06.png) and
+[letterhead detail](evidence/transactional-email-postmark-fr-2026-11-06.png) show this
+source; they establish no native-client, inbox-logo or provider-delivery proof.
+
+## Revised postal email preview — 6 November 2026 local measurement
+
+These measurements describe the portrait-only iteration at `657c2dae`, before
+the wider founding-edition stamp/cancellation artwork. Its local proof files are
+preserved under `reports/email-preview/portrait-657c2dae/`; a changed asset needs
+separate measurements rather than inheriting these sizes or rendering results.
+
+The revised 1.1.33 composer keeps the shared template import and resolves only the
+canonical generated portrait. A separate static JavaScript module loads the exact
+PNG bytes on demand, only when a trusted portrait reference is displayed. The
+preview reconstructs that image as local data behind `img-src data:`; custom
+content cannot select an image source. The image creates no per-recipient HTTP
+request. Ordinary unillustrated previews do not eagerly load the payload. Current
+account, tenant, locale, late-response and approval boundaries remain unchanged.
+
+Local optimized Vite builds and Node `gzipSync` level 9 measured:
+
+| Module | Main raw / gzip 9 (bytes) | Revised raw / gzip 9 (bytes) | Change raw / gzip 9 (bytes) |
+| --- | ---: | ---: | ---: |
+| Dispatch pages | 61,353 / 17,752 | 61,456 / 17,789 | +103 / +37 |
+| Shared components | 47,732 / 14,905 | 49,040 / 15,521 | +1,308 / +616 |
+| Secure-distribution pages | 21,502 / 5,953 | 21,547 / 5,967 | +45 / +14 |
+| On-demand portrait module | Absent | 23,067 / 17,395 | New optional module |
+
+The build catalog grows from 52 to 53 JavaScript chunks. This is an emitted-file
+count, not a claim that all chunks are requested. The underlying PNG is 17,264
+bytes; base64/module framing accounts for its JavaScript representation. Sizes
+are local file/compression measurements, not measured HTTP transfer totals or a
+performance improvement. `reports/email-preview/portrait-657c2dae/refined-performance.json`
+records that earlier comparison. The additional module is a bounded static asset,
+not another API/authentication request or a caller-controlled resource fetch.
+
+The final 32 fictional correspondence/Auth0 variants pass 160 local gallery
+checks: Chromium at 320/390/900 px and WebKit at 320/390 px, with zero horizontal
+overflow, external resource requests or client errors. Sixteen additional
+long-string/portrait-blocked checks also pass. The local heading-ready probe
+ranges from 7.4 to 209 ms under concurrent builds; this is a generated-gallery
+fixture observation, not authenticated application navigation, physical paint or
+production latency.
+`reports/email-preview/portrait-657c2dae/refined-visual-checks.json` records those
+historical viewport samples.
+
+Eight affected real-composer cases pass across desktop Chromium and emulated
+iPhone WebKit, including a rendered portrait with natural width 144 pixels.
+These local fixture cases establish the current loading/rendering path, not
+physical-device, native-mail or provider delivery behavior. The revised
+French captures for that source remain under the same historical proof folder;
+the tracked mobile/desktop images follow the separately qualified current design. The [email contract](PROTECTED_EMAIL.md#revised-portrait-and-transport-boundary--6-november-2026-candidate)
+owns quote eligibility, MIME and client qualification.
+
+## Transactional email preview — 6 November 2026 local measurement
+
+The measurements in this section describe the initial 1.1.32 letter iteration,
+before the subsequent portrait/CID presentation revision. They remain historical
+local observations; changed renderer assets, typography and provider transport
+require their own measurements and qualification.
+
+The message-only composer and isolated fictional preview reuse
+`renderMessageEmail` through their existing `email-template` import. This adds no
+frontend fetch, asynchronous loading stage or heavyweight dependency. Caller
+subject/text, custom-HTML bypass, document modes and current authority remain
+unchanged. The shared letter is also used by the final generated mail; the draft
+preview grants no approval or sending authority.
+
+Optimized local builds from baseline main and the 1.1.32 candidate measured:
+
+| Build | Dispatch chunk (bytes) | gzip level 9 (bytes) | JavaScript chunks |
+| --- | ---: | ---: | ---: |
+| Main | 61,353 | 17,752 | 52 |
+| Candidate | 61,420 | 17,773 | 52 |
+| Change | +67 | +21 | 0 |
+
+These file/gzip measurements record a small size increase, not a loading-speed
+gain. They are encoded asset sizes rather than measured HTTP transfer totals.
+`reports/email-preview/initial-1.1.32/performance.json` records both chunk names,
+compression level and the unchanged chunk count.
+
+The final sixteen sanitized, fictional mail variants were opened at 320, 390 and
+900 px in local headless Chromium: 48 checks, zero horizontal overflow, remote
+resource requests or page errors, and 16 px computed body text. First visible
+heading ranged from 15.11 to 30.27 ms in these offline generated-HTML fixtures.
+This measures the local letter fixture, not application authentication, composer
+navigation, network transfer, physical paint or deployed latency. The measurements
+and PNGs are retained under `reports/email-preview/initial-1.1.32/`;
+`visual-checks.json` records the viewport checks. No baseline browser timing or production gain is claimed.
+
+The affected real application-composer browser specification passes 16/16
+selected cases across desktop and mobile Chromium, including defaults, supplied
+custom HTML, document modes and notification languages. This remains local
+fixture evidence, separate from hosted Auth0, physical devices, provider delivery
+and inbox rendering. The [email contract](PROTECTED_EMAIL.md#transactional-letter--6-november-2026-candidate)
+owns the visual checks, native macOS Mail observation and broader test limits.
+
 ## Secure source-copy recovery — 5 November 2026 local measurement
 
 Both composers reuse one small recovery hook/notice inside their existing lazy

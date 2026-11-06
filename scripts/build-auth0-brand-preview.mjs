@@ -1,4 +1,4 @@
-import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Liquid } from "liquidjs";
@@ -8,6 +8,8 @@ import {
   TEMPLATE_NAMES,
   localizedEmail,
 } from "./auth0-email-templates.mjs";
+import { EMAIL_BRAND_FILENAME } from "../packages/contracts/src/email-branding.ts";
+import { EMAIL_BRAND_IMAGE_BASE64 } from "../packages/contracts/src/email-branding-image.ts";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const directory = join(root, "integrations/auth0/emails");
@@ -50,9 +52,9 @@ export async function buildBrandPreview(
   output = join(root, "reports/auth0-email-preview"),
 ) {
   await mkdir(output, { recursive: true });
-  await copyFile(
-    join(root, "apps/web/public/brand/guteneo-stamp.png"),
-    join(output, "guteneo-stamp.png"),
+  await writeFile(
+    join(output, EMAIL_BRAND_FILENAME),
+    Buffer.from(EMAIL_BRAND_IMAGE_BASE64, "base64"),
   );
   const pages = [];
   for (const name of TEMPLATE_NAMES)
@@ -64,7 +66,7 @@ export async function buildBrandPreview(
       };
       const html = (
         await engine.parseAndRender(template.body, context)
-      ).replaceAll(EMAIL_LOGO, "./guteneo-stamp.png");
+      ).replaceAll(EMAIL_LOGO, `./${EMAIL_BRAND_FILENAME}`);
       const filename = `${name}-${language}.html`;
       await writeFile(join(output, filename), html);
       pages.push(filename);

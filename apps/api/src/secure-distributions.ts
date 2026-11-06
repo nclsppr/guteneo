@@ -1112,6 +1112,7 @@ export class SecureDistributionService {
       `secure_${row.id}`,
       descriptor,
       locale,
+      !customHtml,
     );
     const quote = secureDistributionQuote(
       descriptor.policy,

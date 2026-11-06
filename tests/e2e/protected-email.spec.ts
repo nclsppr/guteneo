@@ -512,6 +512,16 @@ test("email without attachment requires its message and leaves automatic HTML to
   await expect(
     page.frameLocator(".email-preview").locator("body"),
   ).toContainText("Bonjour <Camille>");
+  await expect(
+    page.frameLocator(".email-preview").getByRole("heading", { level: 1 }),
+  ).toHaveText("Votre document");
+  const portrait = page.frameLocator(".email-preview").locator("img");
+  await expect(portrait).toHaveCount(1);
+  await expect(portrait).toHaveAttribute("src", /^data:image\/png;base64,/);
+  await expect(portrait).toHaveJSProperty("naturalWidth", 384);
+  await expect(portrait).toHaveJSProperty("naturalHeight", 210);
+  await expect(portrait).toHaveAttribute("width", "128");
+  await expect(portrait).toHaveAttribute("height", "70");
   await page.getByRole("button", { name: "Vérifier et préparer" }).click();
   await expect(
     page.getByRole("heading", { name: "Le bon à envoyer." }),
@@ -917,6 +927,15 @@ test("custom HTML remains optional and uses the message as its accessible text v
   await page
     .getByLabel("Version HTML", { exact: true })
     .fill("<h1>Votre document</h1>");
+  await expect(
+    page.frameLocator(".email-preview").getByRole("heading", { level: 1 }),
+  ).toHaveText("Votre document");
+  await expect(page.frameLocator(".email-preview").locator("img")).toHaveCount(
+    0,
+  );
+  await expect(
+    page.frameLocator(".email-preview").getByText("guteneo", { exact: true }),
+  ).toHaveCount(0);
   await page.getByRole("button", { name: "Vérifier et préparer" }).click();
   await expect(
     page.getByRole("heading", { name: "Le bon à envoyer." }),

@@ -1,7 +1,17 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
+import {
+  renderEmailAction,
+  renderEmailFooter,
+  renderEmailSheet,
+} from "../packages/contracts/src/email-presentation.ts";
+import {
+  EMAIL_BRAND_ASSET_URL,
+  renderEmailBrandImage,
+  resolveEmailBrandImage,
+} from "../packages/contracts/src/email-branding.ts";
 
-export const EMAIL_LOGO = "https://guteneo.com/brand/guteneo-stamp.png";
+export const EMAIL_LOGO = EMAIL_BRAND_ASSET_URL;
 export const EMAIL_FROM = "guteneo <no-reply@guteneo.com>";
 export const TEMPLATE_NAMES = [
   "verify_email",
@@ -40,27 +50,21 @@ export function renderEmail(name, language) {
     name === "welcome_email"
       ? "https://guteneo.com/auth/login"
       : "{{ url | escape }}";
+  const sheet = renderEmailSheet({
+    title: copy.title,
+    headerArtworkHtml: resolveEmailBrandImage(renderEmailBrandImage()),
+    bodyHtml: `<p style="margin:0 0 20px">${escape(copy.intro)}</p>${renderEmailAction(url, copy.action)}<p style="margin:26px 0 0;color:#545761;font-size:14px;line-height:22px">${escape(copy.note)}</p>`,
+  });
+  const footer = renderEmailFooter(
+    `<p style="margin:0 0 8px">${escape(messages.linkHint)}</p><p style="margin:0 0 16px;word-break:break-all;overflow-wrap:anywhere">${url}</p>${name === "welcome_email" ? "" : `<p style="margin:0 0 8px">${escape(messages.privateLink)}</p>`}<p style="margin:0">${escape(messages.footer)}</p>`,
+  );
   return `<!doctype html>
 <html lang="${language}">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>${escape(copy.subject)}</title>
-<style>@media only screen and (max-width:480px){.email-outer{padding:16px 8px!important}.email-content,.email-footer{padding:24px 20px!important}h1{font-size:28px!important;line-height:34px!important}}</style></head>
-<body style="margin:0;padding:0;width:100%;background:#f6f5ef;color:#181b22;-webkit-text-size-adjust:100%">
+<style>@media only screen and (max-width:480px){.email-outer{padding:12px 8px 0!important}.email-header{padding-top:16px!important;padding-bottom:16px!important}.email-content{padding-top:26px!important;padding-bottom:28px!important}h1{font-size:28px!important;line-height:34px!important}}</style></head>
+<body style="margin:0;padding:0;width:100%;background-color:#f6f5ef;color:#181b22;-webkit-text-size-adjust:100%">
 <div style="display:none;font-size:1px;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all">${escape(copy.intro)}</div>
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;table-layout:fixed;background:#f6f5ef"><tr><td align="center" class="email-outer" style="padding:40px 16px">
-<!--[if mso]><table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0"><tr><td><![endif]-->
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:600px;table-layout:fixed;background:#fffefa;border:1px solid #dedfdc;border-top:4px solid #2450db">
-<tr><td class="email-content" style="padding:32px 40px;font-family:Arial,Helvetica,sans-serif">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td style="font-family:Georgia,'Times New Roman',serif;font-size:30px;line-height:36px;color:#181b22">guteneo</td><td align="right" width="72"><img src="${EMAIL_LOGO}" width="72" height="72" alt="" style="display:block;width:72px;height:72px;border:0"></td></tr></table>
-<h1 style="margin:32px 0 20px;font-family:Georgia,'Times New Roman',serif;font-size:32px;line-height:38px;font-weight:normal;overflow-wrap:break-word">${escape(copy.title)}</h1>
-<p style="margin:0 0 28px;font-size:16px;line-height:26px">${escape(copy.intro)}</p>
-<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="max-width:100%"><tr><td align="center" bgcolor="#2450db" style="background:#2450db;border-radius:4px;mso-padding-alt:14px 18px"><a href="${url}" style="display:inline-block;padding:14px 18px;border:1px solid #2450db;border-radius:4px;font-size:16px;line-height:22px;font-weight:bold;color:#ffffff;text-decoration:none;overflow-wrap:break-word">${escape(copy.action)}</a></td></tr></table>
-<p style="margin:28px 0 0;font-size:16px;line-height:26px">${escape(copy.note)}</p></td></tr>
-<tr><td class="email-footer" style="padding:24px 40px;border-top:1px solid #dedfdc;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:21px;color:#545961">
-<p style="margin:0 0 8px">${escape(messages.linkHint)}</p><p style="margin:0 0 16px;color:#2450db;word-break:break-all;overflow-wrap:anywhere">${url}</p>
-${name === "welcome_email" ? "" : `<p style="margin:0 0 8px">${escape(messages.privateLink)}</p>`}
-<p style="margin:0">${escape(messages.footer)}</p></td></tr></table>
-<!--[if mso]></td></tr></table><![endif]-->
-</td></tr></table></body></html>`;
+${sheet}${footer}</body></html>`;
 }
 
 export function localizedEmail(name) {
