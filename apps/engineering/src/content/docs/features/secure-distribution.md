@@ -1,6 +1,6 @@
 ---
 title: "Sensitive distribution and personal documents"
-description: "36 capabilities in the deliver branch of Guteneo."
+description: "37 capabilities in the deliver branch of Guteneo."
 sidebar:
   order: 10
 ---
@@ -22,6 +22,7 @@ Implemented candidate with migrations 0055–0059 and separate deterministic str
 <li id="feature-331c5a3d7bdb">Prepare a verified PDF for one named recipient; immutable permissions, term, tax-exclusive price and notification language; legacy protected links, postal derivations, ordinary sends, postal preflights and provider drafts prevent reuse of the same source</li>
 <li id="feature-409d30d3c27b">Both browser composers offer an explicit source copy after a legacy-source refusal: new creator-private document and independent exact-byte R2 object, reserved for secure sharing immediately; preserve form input and retry the same key without another copy or quota debit, with no automatic preparation, approval, sending or recall of prior copies</li>
 <li id="feature-f5e6d1d8fb7f">Bounded durable private rendering serves authorized page images and accessible text; the reader never delivers the original PDF</li>
+<li id="feature-1e6ec2e6eee8">The 6 November renderer candidate permits only strictly validated nonvisual PDF links without activating navigation, fetching targets or rewriting source bytes; forms, layers, visible annotations and unsupported action shapes still refuse preparation, and a failed preparation is never replayed automatically</li>
 <li id="feature-8b90be060e64">Shared terms of 7/30/90/365 days and personal-copy terms of 365/1095 days; personal-copy options are funded at activation even when unused</li>
 <li id="feature-5ffc6245e7d3">Versioned prices and separate invitation transport; activated retention commitments are nonrefundable even after revocation</li>
 <li id="feature-c06b89090e7a">Review final pages/text, recipient, message, permissions and quote before browser approval under the active policy; email-request attestation remains separate; the fifteen-minute expiry cap uses the recorded approval creation time across asynchronous validation, with all stricter session/quote/review limits retained</li>

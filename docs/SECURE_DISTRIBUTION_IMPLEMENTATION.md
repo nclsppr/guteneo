@@ -83,6 +83,67 @@ to both secure-sharing entry points. It creates an independent creator-private
 exact-byte source rather than converting the original; the linked journey owns
 permissions, quota/idempotency, runtime-first migration order and local proof.
 
+## Nonvisual PDF links — 6 November 2026 candidate
+
+The shared private renderer accepts only strictly validated nonvisual PDF link
+annotations. These links have no rendered border or appearance; their navigation
+is omitted from the page-image/text view. The source PDF is never rewritten and
+any separately authorized original export retains its exact bytes. Link targets
+are never fetched, executed, returned as annotation metadata or added to logs.
+Forms, optional layers, visible annotations and unsupported annotation/action
+shapes still fail closed. Existing scan/hash, image/text, deadline and isolated
+browser/network limits remain mandatory.
+
+The accepted shape is a `Link` annotation with an exact zero border, no appearance
+or other extension, finite bounded rectangle and absent, zero or print-only flags.
+Its sole action is a bounded `URI` string using HTTP, HTTPS or mailto; an
+optional action `Type` must be `Action`. Scripts, chained/additional actions,
+internal destinations and ambiguous visual defaults remain unsupported. At most 1,000 such annotations are accepted across the PDF.
+The structural gate covers every page before browser launch, and the browser
+rechecks its parsed annotation view before rendering. The source checks live in
+`apps/documents/src/expert-review.ts` and
+`apps/documents/src/expert-review-browser.ts`.
+
+This applies to the private renderer shared by secure-distribution preparation
+and authorized expert page review. It changes no role, scope, page permission,
+source-copy authority, human approval or provider gate. Web, REST and MCP
+preparation keep following the same immutable distribution; native clients retain
+their existing browser-opening boundary. A failed preparation remains failed:
+publication does not automatically replay it, approve it or send an invitation.
+Inspect the same identifier before an explicit new preparation and human review.
+
+Read-only production diagnosis on 6 November found two `SECURE_RENDER_FAILED`
+preparations using the same exact source bytes, with stored originals, no
+prepared page manifest and no invitation dispatch. A private renderer request
+for the existing verified source returned
+HTTP 422 `REVIEW_UNSUPPORTED_CONTENT`; its two annotations were borderless
+`Link`/`URI` entries with no appearance, forms or optional layers. This identifies
+a renderer refusal before provider submission, not a Resend delivery failure.
+No production record, configuration, approval or communication was changed.
+
+The exact failed source then rendered successfully through the local corrective
+candidate: HTTP 200 with one complete page. The source was fetched through
+read-only D1/R2 access and held in memory; no source file, document content or link
+target was persisted or logged. This qualifies that source against the local
+candidate, separately from the earlier hosted HTTP 422 diagnosis. It establishes
+neither publication of the corrective private renderer nor an authenticated
+preparation, approval, provider call or recipient delivery.
+
+The candidate's synthetic renderer regressions are owned by
+`tests/integration/expert-review-renderer.test.ts`; the secure bridge remains
+covered by `tests/integration/secure-resend-journey.test.ts`. Local qualification,
+exact-head CI, publication of the private renderer and actual recipient/provider
+behavior remain separate evidence. The deployed-source probe above establishes
+the diagnosis only; it does not qualify the corrective candidate in production.
+
+Final local qualification on 6 November passes all 3,838 unit/integration tests
+in 194 files and all 682 repository security checks, with no skipped cases.
+Typecheck, lint, application build/Worker dry run, generated documentation and
+engineering build/checks pass. The 56 focused renderer/boundary cases include
+nineteen new annotation regressions; independent source review found no remaining
+security issue. These results do not publish the private renderer or qualify a
+real invitation, recipient or provider delivery.
+
 ## Objects and retention
 
 Each distribution binds an immutable PDF, recipient, rendering, policy, pricing version and invitation dispatch. The analyzed PDF remains private; viewing never returns the source PDF. The private renderer prepares at most three pages per job, with an opaque watermark burned into pixels and separate accessible text. Unsupported content/budgets fail closed rather than opening the original as fallback.

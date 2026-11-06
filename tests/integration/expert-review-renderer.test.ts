@@ -8,7 +8,13 @@ import { createServer } from "node:http";
 import { createHash } from "node:crypto";
 import { chromium } from "@playwright/test";
 import puppeteer from "@cloudflare/puppeteer/internal/puppeteer-core.js";
-import { PDFDocument, PDFName, StandardFonts } from "pdf-lib";
+import {
+  PDFDocument,
+  PDFHexString,
+  PDFName,
+  PDFString,
+  StandardFonts,
+} from "pdf-lib";
 import {
   EXPERT_REVIEW_LIMITS,
   handleExpertReviewPages,
@@ -25,6 +31,39 @@ const launch = () =>
 let fixtureBrowser: Awaited<ReturnType<typeof launch>>;
 let source: Uint8Array<ArrayBuffer>;
 let dense: Uint8Array<ArrayBuffer>;
+const privateLink =
+  "https://uri-hotspot.example.invalid/private-destination?token=NEVER-EXPORT";
+
+function nonvisualLink(document: PDFDocument, index = 0) {
+  return document.context.obj({
+    Type: "Annot",
+    Subtype: "Link",
+    F: 4,
+    Border: [0, 0, 0],
+    Rect: [40, 700 - index * 30, 200, 720 - index * 30],
+    A: {
+      ...(index === 0 ? { Type: "Action" } : {}),
+      S: "URI",
+      URI:
+        index === 0
+          ? PDFString.of(privateLink)
+          : PDFHexString.fromText("mailto:private-hotspot@example.invalid"),
+    },
+    StructParent: index,
+  });
+}
+function addNonvisualLinks(document: PDFDocument) {
+  document
+    .getPage(0)
+    .node.set(
+      PDFName.of("Annots"),
+      document.context.obj(
+        [0, 1].map((index) =>
+          document.context.register(nonvisualLink(document, index)),
+        ),
+      ),
+    );
+}
 
 async function fixture(content: string) {
   const page = await fixtureBrowser.newPage();
@@ -95,11 +134,12 @@ async function run(
   engine = launch,
   deadlineMs?: number,
   resources: Pick<typeof scripts, "pdf" | "worker" | "fonts"> = scripts,
+  secureWatermark?: string,
 ) {
-  const hash = (await validatePdf(bytes)).sha256;
+  const hash = createHash("sha256").update(bytes).digest("hex");
   const response = await handleExpertReviewPages(
     new Request(
-      `https://documents.internal/review-pages?startPage=${startPage}&pageCount=${pageCount}`,
+      `https://documents.internal/${secureWatermark ? "secure-pages" : "review-pages"}?startPage=${startPage}&pageCount=${pageCount}`,
       {
         method: "POST",
         body: bytes,
@@ -107,6 +147,9 @@ async function run(
           "Content-Type": "application/pdf",
           "X-Guteneo-Source-Sha256": hash,
           "X-Guteneo-Scan-Sha256": hash,
+          ...(secureWatermark
+            ? { "X-Guteneo-Watermark": secureWatermark }
+            : {}),
         },
       },
     ),
@@ -116,7 +159,7 @@ async function run(
 }
 
 describe("Exact paginated PDF review with actual local Chromium and pinned PDF.js", () => {
-  it("executes the real Wrangler browser callbacks with their bundled standard-font assets", async () => {
+  it("executes the real Wrangler callbacks with bundled fonts and inert URI links", async () => {
     const output = "test-results/standard-fonts/worker";
     execFileSync(
       process.execPath,
@@ -181,6 +224,7 @@ describe("Exact paginated PDF review with actual local Chromium and pinned PDF.j
         size: 18,
       });
     }
+    addNonvisualLinks(pdf);
     const original = new Uint8Array(await pdf.save());
     const requests: string[] = [];
     const evaluated: string[] = [];
@@ -214,6 +258,7 @@ describe("Exact paginated PDF review with actual local Chromium and pinned PDF.j
       engine,
       undefined,
       resources,
+      "sd_bundled_secure_fixture",
     );
     expect(response.status).toBe(200);
     const report = reviewPagesSchema.parse(body);
@@ -491,6 +536,183 @@ describe("Exact paginated PDF review with actual local Chromium and pinned PDF.j
     expect(report.pages[0].imageBase64).toMatch(/^\/9j/);
     expect(report.rendering.complete).toBe(true);
   });
+  it("prepares borderless URI links on the secure route without changing page pixels, text or exact source bytes", async () => {
+    const original = source.slice();
+    const document = await PDFDocument.load(source, { updateMetadata: false });
+    addNonvisualLinks(document);
+    const linked = new Uint8Array(await document.save());
+    const linkedBefore = linked.slice();
+    const requests: string[] = [];
+    const engine = async () => {
+      const browser = await launch();
+      const newPage = browser.newPage.bind(browser);
+      vi.spyOn(browser, "newPage").mockImplementation(async () => {
+        const page = await newPage();
+        page.on("request", (request) => requests.push(request.url()));
+        return page;
+      });
+      return browser;
+    };
+    const watermark = "sd_inert_uri_secure_fixture";
+    const clean = await run(
+      source,
+      1,
+      3,
+      engine,
+      undefined,
+      scripts,
+      watermark,
+    );
+    const withLinks = await run(
+      linked,
+      1,
+      3,
+      engine,
+      undefined,
+      scripts,
+      watermark,
+    );
+    expect(clean.response.status).toBe(200);
+    expect(withLinks.response.status).toBe(200);
+    const cleanReport = reviewPagesSchema.parse(clean.body);
+    const linkedReport = reviewPagesSchema.parse(withLinks.body);
+    expect(linkedReport.pages).toEqual(cleanReport.pages);
+    expect(linkedReport.sha256).toBe(
+      createHash("sha256").update(linkedBefore).digest("hex"),
+    );
+    expect(linkedReport.sha256).not.toBe(cleanReport.sha256);
+    expect(source).toEqual(original);
+    expect(linked).toEqual(linkedBefore);
+    expect(JSON.stringify(withLinks.body)).not.toContain(privateLink);
+    expect(JSON.stringify(withLinks.body)).not.toContain("private-hotspot");
+    expect(requests).toEqual([
+      "https://guteneo-documents.invalid/review",
+      "https://guteneo-documents.invalid/review",
+    ]);
+  });
+  it.each([
+    "appearance",
+    "border-style",
+    "visible-border",
+    "missing-border",
+    "malformed-border",
+    "color",
+    "contents",
+    "unknown-key",
+    "non-link",
+    "invalid-flags",
+    "malformed-rectangle",
+    "invalid-structure-parent",
+    "chained-action",
+    "non-uri-action",
+    "invalid-action-type",
+    "malformed-uri",
+    "script-uri",
+    "script-action",
+  ])(
+    "rejects %s URI annotations on an unrequested page before browser launch",
+    async (kind) => {
+      const document = await PDFDocument.create();
+      for (let index = 0; index < 4; index++) document.addPage([595, 842]);
+      const annotation = nonvisualLink(document);
+      switch (kind) {
+        case "appearance":
+          annotation.set(PDFName.of("AP"), document.context.obj({}));
+          break;
+        case "border-style":
+          annotation.set(PDFName.of("BS"), document.context.obj({ W: 0 }));
+          break;
+        case "visible-border":
+          annotation.set(PDFName.of("Border"), document.context.obj([0, 0, 1]));
+          break;
+        case "missing-border":
+          annotation.delete(PDFName.of("Border"));
+          break;
+        case "malformed-border":
+          annotation.set(PDFName.of("Border"), document.context.obj([0, 0]));
+          break;
+        case "color":
+          annotation.set(PDFName.of("C"), document.context.obj([1, 0, 0]));
+          break;
+        case "contents":
+          annotation.set(PDFName.of("Contents"), PDFString.of("Private note"));
+          break;
+        case "unknown-key":
+          annotation.set(
+            PDFName.of("UnknownVisualExtension"),
+            document.context.obj(1),
+          );
+          break;
+        case "non-link":
+          annotation.set(PDFName.of("Subtype"), PDFName.of("Stamp"));
+          break;
+        case "invalid-flags":
+          annotation.set(PDFName.of("F"), document.context.obj(32));
+          break;
+        case "malformed-rectangle":
+          annotation.set(PDFName.of("Rect"), document.context.obj([1, 2, 3]));
+          break;
+        case "invalid-structure-parent":
+          annotation.set(PDFName.of("StructParent"), document.context.obj(-1));
+          break;
+        default: {
+          const action = document.context.obj({
+            S: "URI",
+            URI: PDFString.of(privateLink),
+          });
+          if (kind === "chained-action")
+            action.set(
+              PDFName.of("Next"),
+              document.context.obj({
+                S: "URI",
+                URI: PDFString.of(privateLink),
+              }),
+            );
+          if (kind === "non-uri-action")
+            action.set(PDFName.of("S"), PDFName.of("GoTo"));
+          if (kind === "invalid-action-type")
+            action.set(PDFName.of("Type"), PDFName.of("Annot"));
+          if (kind === "malformed-uri")
+            action.set(PDFName.of("URI"), PDFName.of("NotAString"));
+          if (kind === "script-uri")
+            action.set(PDFName.of("URI"), PDFString.of("javascript:alert(1)"));
+          if (kind === "script-action")
+            action.set(PDFName.of("S"), PDFName.of("JavaScript"));
+          annotation.set(PDFName.of("A"), action);
+        }
+      }
+      document
+        .getPage(3)
+        .node.set(
+          PDFName.of("Annots"),
+          document.context.obj([document.context.register(annotation)]),
+        );
+      const bytes = new Uint8Array(await document.save());
+      const original = bytes.slice();
+      const engine = vi.fn(launch);
+      const { response, body } = await run(
+        bytes,
+        1,
+        3,
+        engine,
+        undefined,
+        scripts,
+        "sd_rejected_uri_fixture",
+      );
+      expect(response.status).toBe(422);
+      expect(body).toEqual({
+        error: {
+          code:
+            kind === "script-action"
+              ? "REVIEW_PDF_INVALID"
+              : "REVIEW_UNSUPPORTED_CONTENT",
+        },
+      });
+      expect(engine).not.toHaveBeenCalled();
+      expect(bytes).toEqual(original);
+      expect(JSON.stringify(body)).not.toContain(privateLink);
+    },
+  );
   it("rejects annotation content even outside the requested page batch", async () => {
     const document = await PDFDocument.load(source);
     document.getPage(3).node.set(
