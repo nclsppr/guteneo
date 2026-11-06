@@ -10,10 +10,11 @@ real delivery is implied.
 
 The visual candidate aligns the four account-email bodies with Guteneo's
 [transactional letter direction](BRAND_IDENTITY.md#transactional-email-identity--6-november-2026-candidate):
-white paper, ivory surroundings, a blue accent and primary action, ink lowercase
-wordmark, readable body copy and a quiet footer. The existing original stamp,
-local font fallbacks and blocked-image behavior retain their separate email
-compatibility checks. The content catalog, request-language fallback, escaped
+a compact white postal letter on ivory, a thin blue edge, live lowercase ink
+wordmark, the approved text-free halftone portrait, a primary pill action and a
+quiet footer. Its image uses the fixed Guteneo brand-asset HTTPS fallback rather
+than the business-mail CID transport. Local font fallbacks and blocked-image
+behavior retain their separate email compatibility checks. The content catalog, request-language fallback, escaped
 action URLs and application-scoped preservation guards below stay authoritative.
 
 Auth0 account actions remain identity-provider operations, separately from a
@@ -24,14 +25,24 @@ the [inbox sender-logo qualification](EMAIL_SENDER_IDENTITY.md). Exact generated
 artifacts, scoped provider application and actual client delivery still need
 their respective evidence.
 
-The 6 November focused qualification passes sixteen local mobile browser cases
+The initial 1.1.32 iteration's 6 November focused qualification passed sixteen
+local mobile browser cases
 for the four generated template types and four languages, including their
 available/blocked-image behavior and synthetic long links. Targeted Node checks
 cover Liquid scoping/fallback preservation alongside the native-runtime business
 sanitizer. These results do not establish a provider-side template update, actual
 Auth0 rendering, sender authentication or a received identity email. The
 [business-email proof](PROTECTED_EMAIL.md#transactional-letter--6-november-2026-candidate)
-records its separate composer, EML and full-security scopes.
+records its separate composer, EML and full-security scopes. Later typography or
+portrait revisions need fresh generated artifacts and rendering checks.
+
+The revised 1.1.33 generator/gallery uses the final backed 60 px portrait. The
+32-example correspondence/account gallery passes 160 viewport checks across
+Chromium and WebKit, including its sixteen rendered Auth0 examples. Independent
+MIME parsing verifies 32 self-contained local EMLs against the exact final inline
+image with zero defects; Auth0's actual provider candidate retains the fixed HTTPS
+URL. These are local generated-artifact checks, not Auth0 application, native
+mail-client or received-message proof.
 
 ## Content and local generation
 
@@ -42,8 +53,10 @@ with `default: 'en'`, `downcase` and `slice: 0, 2`; unknown or missing language
 uses English. This email localization does not change Universal Login locale
 support or the browser's locale handoff.
 
-The generator uses lowercase ink `guteneo`, the original public stamp PNG,
-system email fonts, presentation tables, inline styles and responsive padding.
+The generator uses lowercase live ink `guteneo`, the approved public halftone
+portrait, system email fonts, presentation tables, inline styles and responsive
+padding. The image URL is fixed by the source, never selected from recipient
+content or supplied HTML.
 The verification, password-reset and unblock links use `{{ url | escape }}`;
 the welcome link is the fixed public sign-in entry. No name, address or other
 recipient content is interpolated. The welcome message grants no document-send

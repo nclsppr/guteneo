@@ -38,6 +38,12 @@ import {
   type PublicEmailRateEvidence,
 } from "../../packages/domain/src/live-delivery-quotes";
 import type { Fetcher } from "../../packages/providers";
+import {
+  EMAIL_BRAND_CID,
+  EMAIL_BRAND_FILENAME,
+  EMAIL_BRAND_IMAGE_BYTES,
+  EMAIL_BRAND_IMAGE_SHA256,
+} from "../../packages/contracts/src/email-branding";
 import type {
   SecureDistributionInput,
   SecureDistributionView,
@@ -723,17 +729,43 @@ describe("Secure distribution through the real Resend bridge with intercepted tr
         string,
         unknown
       >;
+      const attachments = (
+        Array.isArray(submitted.attachments) ? submitted.attachments : []
+      ) as {
+        filename?: string;
+        content_type?: string;
+        content_id?: string;
+        content?: string;
+      }[];
+      const brand = attachments[0];
+      const image = new Uint8Array(Buffer.from(brand?.content ?? "", "base64"));
       // On failure, report booleans rather than invitation-bearing email bodies.
       expect({
         subjectMatches: submitted.subject === frozen.subject,
         htmlMatches: submitted.html === frozen.html,
         textMatches: submitted.text === frozen.text,
-        hasAttachments: Object.hasOwn(submitted, "attachments"),
+        fingerprintMatches: result.dispatch.fingerprint === frozen.fingerprint,
+        attachmentCount: attachments.length,
+        customerDocumentAttachments: attachments.filter(
+          (attachment) =>
+            attachment.content_id !== EMAIL_BRAND_CID ||
+            attachment.content_type !== "image/png",
+        ).length,
+        brandFilenameMatches: brand?.filename === EMAIL_BRAND_FILENAME,
+        brandCidMatches: brand?.content_id === EMAIL_BRAND_CID,
+        brandSizeMatches: image.byteLength === EMAIL_BRAND_IMAGE_BYTES,
+        brandHashMatches: (await sha256(image)) === EMAIL_BRAND_IMAGE_SHA256,
       }).toEqual({
         subjectMatches: true,
         htmlMatches: true,
         textMatches: true,
-        hasAttachments: false,
+        fingerprintMatches: true,
+        attachmentCount: 1,
+        customerDocumentAttachments: 0,
+        brandFilenameMatches: true,
+        brandCidMatches: true,
+        brandSizeMatches: true,
+        brandHashMatches: true,
       });
       const before = await commitments(f, dispatchId);
       expect(before).toEqual({

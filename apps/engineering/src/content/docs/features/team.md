@@ -22,7 +22,7 @@ Implemented; invitations require separately configured delivery.
 <li id="feature-d3e8fa6389a3">Member management, permission changes and atomic access revocation</li>
 <li id="feature-1e10287283cf">Last-administrator protection</li>
 <li id="feature-40903b2fb1a6">Individual/CSV invitations with batch preview and confirmation</li>
-<li id="feature-3ca50d658194">The 6 November membership-invitation presentation candidate reuses the transactional letter and primary action while preserving English subject/text, seven-day token lifetime, current administrator permission, verified-address acceptance and separate invitation-delivery activation</li>
+<li id="feature-7395a5121ac6">The revised 6 November membership-invitation presentation candidate reuses the postal letter typography and primary pill without portrait/CID on the Resend batch path, preserving English subject/text, seven-day token lifetime, current administrator permission, verified-address acceptance and separate invitation-delivery activation</li>
 <li id="feature-6790e1b431ec">Verified-email acceptance, expiry and invitation revocation</li>
 <li id="feature-8fa1f89008dd">Bounded browser-only responsible contacts filtered by current workshop membership</li>
 <li id="feature-8de991823011">Login email distinguishes members with the same name; effective permissions stay readable</li>

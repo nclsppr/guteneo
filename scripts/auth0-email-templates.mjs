@@ -5,8 +5,13 @@ import {
   renderEmailFooter,
   renderEmailSheet,
 } from "../packages/contracts/src/email-presentation.ts";
+import {
+  EMAIL_BRAND_ASSET_URL,
+  renderEmailBrandImage,
+  resolveEmailBrandImage,
+} from "../packages/contracts/src/email-branding.ts";
 
-export const EMAIL_LOGO = "https://guteneo.com/brand/guteneo-stamp.png";
+export const EMAIL_LOGO = EMAIL_BRAND_ASSET_URL;
 export const EMAIL_FROM = "guteneo <no-reply@guteneo.com>";
 export const TEMPLATE_NAMES = [
   "verify_email",
@@ -47,8 +52,8 @@ export function renderEmail(name, language) {
       : "{{ url | escape }}";
   const sheet = renderEmailSheet({
     title: copy.title,
-    headerArtworkHtml: `<img src="${EMAIL_LOGO}" width="72" height="72" alt="" style="display:block;width:72px;height:72px;border:0">`,
-    bodyHtml: `<p style="margin:0 0 20px">${escape(copy.intro)}</p>${renderEmailAction(url, copy.action)}<p style="margin:28px 0 0">${escape(copy.note)}</p>`,
+    headerArtworkHtml: resolveEmailBrandImage(renderEmailBrandImage()),
+    bodyHtml: `<p style="margin:0 0 20px">${escape(copy.intro)}</p>${renderEmailAction(url, copy.action)}<p style="margin:26px 0 0;color:#545761;font-size:14px;line-height:22px">${escape(copy.note)}</p>`,
   });
   const footer = renderEmailFooter(
     `<p style="margin:0 0 8px">${escape(messages.linkHint)}</p><p style="margin:0 0 16px;word-break:break-all;overflow-wrap:anywhere">${url}</p>${name === "welcome_email" ? "" : `<p style="margin:0 0 8px">${escape(messages.privateLink)}</p>`}<p style="margin:0">${escape(messages.footer)}</p>`,
@@ -56,7 +61,7 @@ export function renderEmail(name, language) {
   return `<!doctype html>
 <html lang="${language}">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>${escape(copy.subject)}</title>
-<style>@media only screen and (max-width:480px){.email-outer{padding:20px 8px 16px!important}.email-header{padding:24px 20px 20px!important}.email-content{padding:12px 20px 28px!important}.email-footer{padding:0 20px!important}h1{font-size:28px!important;line-height:34px!important}}</style></head>
+<style>@media only screen and (max-width:480px){.email-outer{padding:12px 8px 0!important}.email-header{padding-top:16px!important;padding-bottom:16px!important}.email-content{padding-top:26px!important;padding-bottom:28px!important}h1{font-size:28px!important;line-height:34px!important}}</style></head>
 <body style="margin:0;padding:0;width:100%;background-color:#f6f5ef;color:#181b22;-webkit-text-size-adjust:100%">
 <div style="display:none;font-size:1px;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all">${escape(copy.intro)}</div>
 ${sheet}${footer}</body></html>`;

@@ -1,6 +1,10 @@
 import sanitizeHtml from "sanitize-html";
 import Papa from "papaparse";
 import { z } from "zod";
+import {
+  EMAIL_BRAND_CID_URL,
+  emailBrandImageAttributes,
+} from "./email-branding";
 import { faxNumberProblem, normalizeFaxNumber } from "./fax-number";
 import {
   isPostalAddressBlockRecipient,
@@ -155,7 +159,12 @@ export function assertNoDocumentUrlPlaceholder(value: string): void {
 /** Email-only CSS allowlist. Document rendering keeps the stricter cleanHtml. */
 export function cleanEmailHtml(
   input: string,
-  options: { allowDocumentUrlPlaceholder?: boolean; documentUrl?: string } = {},
+  options: {
+    allowDocumentUrlPlaceholder?: boolean;
+    documentUrl?: string;
+    /** Server-generated presentation only; never pass this for customer HTML. */
+    allowBrandImage?: boolean;
+  } = {},
 ): { html: string; hasDocumentUrlPlaceholder: boolean } {
   boundedText(input, LIMITS.htmlBytes);
   const markerCount = input.split(DOCUMENT_URL_PLACEHOLDER).length - 1;
@@ -196,6 +205,7 @@ export function cleanEmailHtml(
       "a",
       "span",
       "div",
+      ...(options.allowBrandImage ? ["img"] : []),
     ],
     allowedAttributes: {
       "*": ["style"],
@@ -211,13 +221,23 @@ export function cleanEmailHtml(
       ],
       td: ["colspan", "rowspan", "align", "valign", "width", "style"],
       th: ["colspan", "rowspan", "align", "valign", "width", "style"],
+      img: ["src", "alt", "width", "height", "style"],
     },
     allowedStyles: { "*": emailStyles },
     allowedSchemes: ["https", "mailto"],
-    allowedSchemesAppliedToAttributes: ["href"],
+    allowedSchemesByTag: { img: ["cid"] },
+    allowedSchemesAppliedToAttributes: ["href", "src"],
     allowProtocolRelative: false,
     transformTags: {
       "*": (tagName, attributes) => {
+        if (tagName === "img")
+          return {
+            tagName,
+            attribs:
+              options.allowBrandImage && attributes.src === EMAIL_BRAND_CID_URL
+                ? emailBrandImageAttributes()
+                : {},
+          };
         const attribs = { ...attributes };
         for (const [name, value] of Object.entries(attribs)) {
           if (
@@ -251,6 +271,10 @@ export function cleanEmailHtml(
       return text;
     },
     exclusiveFilter: (frame) => {
+      if (frame.tag === "img")
+        return (
+          !options.allowBrandImage || frame.attribs.src !== EMAIL_BRAND_CID_URL
+        );
       if (
         frame.tag === "a" &&
         (frame.attribs.href === DOCUMENT_URL_PLACEHOLDER ||

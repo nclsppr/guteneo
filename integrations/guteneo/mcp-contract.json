@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "pluginVersion": "1.1.32",
-  "mcpSourceSha256": "3ca7c1108287c800f11afd9ef6287953367f8916721b1e52dfa958e753df6234",
-  "packageSha256": "8471aef4589fd81a15a4cd6eaebe5cb3164b8d26a053524b804287f6c58d563c",
+  "pluginVersion": "1.1.33",
+  "mcpSourceSha256": "a5624151e299d26a9d325b7427243cae9968e03d7e521901f193c95596cfe33d",
+  "packageSha256": "7c4f9741c4f15b347349874ab6fc7ac72bae14a90bb29351f7fbf556b831d1c7",
   "sources": {
     "apps/api/src/auth.ts": "eb725dc6bcef3e937534c5c85ada45275b0bbb416b2d14c65dd17592f84ca484",
     "apps/api/src/connection-observations.ts": "40278b9fab339e05949a04c2d2718348236e9362e944f95a4d2a3466c186fa24",
@@ -19,7 +19,7 @@
     "apps/api/src/postal-authority.ts": "69dc7155a56311b7927416b90acf3577417b30f0ca410e3f815530c1b29b7e98",
     "apps/api/src/template-workflow.ts": "aef102c068ae262df239956f2feaf5be9a7095c98519450ec40e7ea40a256d04",
     "packages/contracts/src/assistant-recovery.ts": "cd0762f569d232597e58426240a2e9316eccac70d08f4c3e753e31ff6ec69f09",
-    "packages/contracts/src/content.ts": "ac570f2a20af9881de4b3c90dd3abe5fecc8c2db6b34d093bbc04543c7bb8433",
+    "packages/contracts/src/content.ts": "987ff5816e25239f0518b6d8755777e1bb468fabc747129fb4fc74ec04652fc3",
     "packages/contracts/src/datasets.ts": "7344834c6109d99a663fb32ce90e597a4f7841183d178bde1f8712250b16c34f",
     "packages/contracts/src/dispatch-groups.ts": "c57550f9751722b5097ad7ebfea792910c2dc484d952c29df84903a55456cb65",
     "packages/contracts/src/dispatch-validation.ts": "64c3864fb31f3874a15ba0504ee04d2449dd02e43c2d1dac356905258d85d91c",
@@ -37,7 +37,7 @@
     "packages/contracts/src/release.ts": "4edd274e1c5e5bbb97e8004ca81b9bf87ff81f0ba8bab4315f9c2b583ef323c1",
     "packages/contracts/src/secure-distribution.ts": "5393fb5c0813c8346a0def96e0c0016d931d3bcb22407fac86b7d92ed5f4e64e",
     "packages/contracts/src/template-workflow.ts": "5a2c345b307bd33b583b8ccca81daac167025980fa0baf5090b1e4957d6aed7a",
-    "packages/domain/src/index.ts": "7d027073e27a4186393aa886b5387b7575e4b910a0e87ce73cfe30590fc6a059",
+    "packages/domain/src/index.ts": "ebfc29c3a069389a058f8b8d69709a5ad95cb874ac9add218620b52a6bc07820",
     "packages/observability/src/index.ts": "2a1d5ae55d424ca6795e6987cd54b26a66e79f8413cbd5e10029aebaadd66dea"
   }
 }

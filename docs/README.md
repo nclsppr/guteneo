@@ -29,7 +29,9 @@ The [3 November Cloudflare alert diagnosis](CLOUDFLARE_ALERT_DIAGNOSIS_2026-11-0
 records a fresh read-only production investigation and proposed pilot-authority
 correction. It changes no runtime, provider or monitoring configuration.
 
-The [document email contract](PROTECTED_EMAIL.md) links the account invitation, V2 template and [recipient feedback lifecycle](EMAIL_RECIPIENT_FEEDBACK.md).
+The [document email contract](PROTECTED_EMAIL.md) links the account invitation,
+shared postal letter, qualified inline portrait and
+[recipient feedback lifecycle](EMAIL_RECIPIENT_FEEDBACK.md).
 The [Auth0 account email contract](AUTH0_EMAIL_BRANDING.md) owns the four-language
 template candidates, application scope, preserved fallback and offline validation.
 The [email sender identity contract](EMAIL_SENDER_IDENTITY.md) distinguishes the

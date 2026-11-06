@@ -748,6 +748,7 @@ export class DomainService {
     idempotencyKey: string,
     descriptor: SecureDistributionDescriptor,
     notificationLocale: SupportedLocale = defaultLocale,
+    generatedSecureEmail = false,
   ): Promise<Dispatch> {
     const recipient = validateRecipient("email", input.recipient);
     if (
@@ -773,6 +774,7 @@ export class DomainService {
       undefined,
       descriptor,
       notificationLocale,
+      generatedSecureEmail,
     );
   }
   async renewFaxQuote(
@@ -887,6 +889,7 @@ export class DomainService {
     renewal?: Dispatch,
     secureDistribution?: SecureDistributionDescriptor,
     notificationLocale?: SupportedLocale,
+    generatedSecureEmail = false,
   ): Promise<Dispatch> {
     writable(ctx);
     const organization = await this.organization(ctx);
@@ -1044,6 +1047,7 @@ export class DomainService {
           "Enter a subject of 1 to 250 characters.",
         );
       const sanitized = cleanEmailHtml(input.html ?? "", {
+        allowBrandImage: generatedSecureEmail,
         allowDocumentUrlPlaceholder:
           options.emailDeliveryMode === "protected_link",
       });
@@ -1123,6 +1127,7 @@ export class DomainService {
       // Resolve only a parsed anchor href, then freeze the complete safe message.
       if (customEmailHtml) {
         html = cleanEmailHtml(input.html!, {
+          allowBrandImage: generatedSecureEmail,
           documentUrl: protectedEmailDocument?.url,
         }).html;
         if (protectedEmailDocument)
@@ -1164,8 +1169,6 @@ export class DomainService {
         html += renderEmailServiceFooter(emailLocale, preferencesUrl);
         text += `\n\n${deliveryText("Discover guteneo", emailLocale)}: https://guteneo.com/?lang=${emailLocale}\n${deliveryText("Unsubscribe or report this email", emailLocale)}: ${preferencesUrl}`;
       }
-      html = cleanEmailHtml(html).html;
-      boundedText(html, LIMITS.htmlBytes);
       boundedText(text!, LIMITS.htmlBytes, "INVALID_EMAIL_CONTENT");
     }
     const selectedSenderId = input.senderId ?? defaultEmailSenderId;
@@ -1238,6 +1241,21 @@ export class DomainService {
             now: this.time(),
           })
         : undefined;
+    if (input.channel === "email") {
+      // Freeze the portrait only when its inline part is covered by the actual
+      // quote. SES and byte-priced routes keep the same letter without artwork.
+      const artworkIncluded =
+        this.config.mode === "simulation" ||
+        (deliveryPrice?.policy.provider === "resend" &&
+          JSON.parse(deliveryPrice.policy.rate_json).attachmentBasis ===
+            "included_pdf" &&
+          deliveryPrice.policy.byte_numerator === 0);
+      html = cleanEmailHtml(html!, {
+        allowBrandImage:
+          (!customEmailHtml || generatedSecureEmail) && artworkIncluded,
+      }).html;
+      boundedText(html, LIMITS.htmlBytes);
+    }
     const transportMinor = tariff
       ? tariff.customer_minor
       : deliveryPrice

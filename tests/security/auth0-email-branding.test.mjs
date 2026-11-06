@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 import { Liquid } from "liquidjs";
+import { EMAIL_BRAND_FILENAME } from "../../packages/contracts/src/email-branding.ts";
 import {
   EMAIL_COPY,
   EMAIL_FROM,
@@ -127,9 +128,11 @@ for (const name of TEMPLATE_NAMES) {
         body,
         /color:#181b22;font-family:Georgia,serif[^>]*>guteneo<\/p>/,
       );
-      assert.match(body, /max-width:650px/);
-      assert.match(body, /border-top:10px solid #2450db/);
-      assert.match(body, /\[if mso\]><table role="presentation" width="650"/);
+      assert.match(body, /max-width:620px/);
+      assert.match(body, /border-top:3px solid #2450db/);
+      assert.match(body, /\[if mso\]><table [^>]*width="620"/);
+      assert.equal((body.match(/<img /g) ?? []).length, 1);
+      assert.match(body, /width="60" height="60"/);
       assert.doesNotMatch(body, /\{%|\{\{|<private>|<a[^>]*b="/);
       if (name !== "welcome_email")
         assert.match(body, /&amp;b=(?:&quot;|&#34;)&lt;private&gt;&#39;/);
@@ -484,7 +487,7 @@ test("generated candidates are current and previews render offline without live 
           "utf8",
         );
         assert.doesNotMatch(html, /\{%|\{\{|src="https:/);
-        assert.match(html, /src="\.\/guteneo-stamp\.png"/);
+        assert.ok(html.includes(`src="./${EMAIL_BRAND_FILENAME}"`));
       }
   } finally {
     await rm(temp, { recursive: true, force: true });

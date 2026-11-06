@@ -24,18 +24,52 @@ export function renderEmailParagraphs(text: string): string {
     .join("");
 }
 
-export function renderEmailAction(url: string, label: string): string {
-  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="max-width:100%;margin:28px 0;border-collapse:separate;border-spacing:0"><tbody><tr><td align="center" style="background-color:#2450db;border-radius:6px"><a href="${escapeEmailText(url)}" style="display:inline-block;max-width:100%;background-color:#2450db;padding:14px 22px;border:1px solid #2450db;border-radius:6px;color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:600;line-height:24px;text-align:center;text-decoration:none;overflow-wrap:break-word">${escapeEmailText(label)}</a></td></tr></tbody></table>`;
+const sans = "Arial,Helvetica,sans-serif";
+const ink = "#181b22";
+const blue = "#2450db";
+const paper = "#f6f5ef";
+const table = 'role="presentation" cellpadding="0" cellspacing="0" border="0"';
+const full = `${table} width="100%" style="width:100%;border-collapse:collapse"`;
+const gutter = "padding-left:7%;padding-right:7%";
+
+export function renderEmailAction(
+  url: string,
+  label: string,
+  placement: "after-message" | "before-message" = "after-message",
+): string {
+  const margin = placement === "before-message" ? "0 0 26px" : "24px 0 2px";
+  return `<table ${table} style="max-width:100%;margin:${margin};border-collapse:separate;border-spacing:0"><tbody><tr><td align="center" style="background-color:${blue};border-radius:28px"><a href="${escapeEmailText(url)}" style="display:inline-block;background-color:${blue};padding:12px 22px;border:1px solid ${blue};border-radius:28px;color:#ffffff;font-family:${sans};font-size:16px;font-weight:700;line-height:24px;text-align:center;text-decoration:none;overflow-wrap:anywhere">${escapeEmailText(label)}</a></td></tr></tbody></table>`;
+}
+
+// Three short cancellation lines lead the eye to the engraved portrait. Empty
+// cells paint the lines without introducing spoken characters or dependencies.
+function postmark(): string {
+  return `<table ${table} align="right" width="32" style="width:32px;border-collapse:collapse"><tbody>${[0, 1, 2].map(() => '<tr><td style="border-top:1px solid #7186be;padding:2px 0;font-size:1px;line-height:1px"></td></tr>').join("")}</tbody></table>`;
 }
 
 export function renderEmailSheet(input: {
   title: string;
   bodyHtml: string;
   headerArtworkHtml?: string;
+  quoteTitle?: boolean;
 }): string {
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background-color:#f6f5ef"><tbody><tr><td align="center" class="email-outer" style="padding:32px 12px 20px"><!--[if mso]><table role="presentation" width="650" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]--><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:650px;border-collapse:collapse;background-color:#ffffff;border:1px solid #deddd7;border-top:10px solid #2450db"><tbody><tr><td class="email-header" style="padding:28px 28px 24px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse"><tbody><tr><td valign="middle"><p style="margin:0;color:#181b22;font-family:Georgia,serif;font-size:38px;font-weight:400;line-height:1.2">guteneo</p></td>${input.headerArtworkHtml ? `<td align="right" valign="middle" width="72">${input.headerArtworkHtml}</td>` : ""}</tr></tbody></table></td></tr><tr><td class="email-content" style="padding:12px 28px 36px;color:#181b22;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:26px;overflow-wrap:anywhere"><h1 style="margin:0 0 28px;color:#181b22;font-family:Georgia,serif;font-size:32px;font-weight:400;line-height:1.2;overflow-wrap:break-word">${escapeEmailText(input.title)}</h1>${input.bodyHtml}</td></tr></tbody></table><!--[if mso]></td></tr></table><![endif]--></td></tr></tbody></table>`;
+  // Long filenames and customer subjects must stay complete on phone-width paper.
+  const titleSize =
+    input.title.length > 72
+      ? 28
+      : input.title.length > 32
+        ? 32
+        : input.quoteTitle
+          ? 34
+          : 36;
+  const heading = `<h1 style="margin:0;color:${ink};font-family:Georgia,serif;font-size:${titleSize}px;font-weight:400;line-height:1.15;overflow-wrap:anywhere">${escapeEmailText(input.title)}</h1>`;
+  return `<table ${table} width="100%" style="width:100%;border-collapse:collapse;background-color:${paper}"><tbody><tr><td align="center" class="email-outer" style="padding:18px 8px 0"><!--[if mso]><table ${table} width="620"><tr><td><![endif]--><table ${table} width="100%" style="width:100%;max-width:620px;border-collapse:collapse;background-color:#ffffff;border:1px solid #dadad3;border-top:3px solid ${blue}"><tbody><tr><td class="email-header" style="padding:18px 0;${gutter};background-color:#faf9f4;border-bottom:1px solid #dadad3"><table ${full}><tbody><tr><td valign="middle"><p style="margin:0;color:${ink};font-family:Georgia,serif;font-size:32px;font-weight:400;line-height:1">guteneo</p></td><td width="32" valign="middle">${postmark()}</td>${input.headerArtworkHtml ? `<td align="right" valign="middle" style="width:1%">${input.headerArtworkHtml}</td>` : ""}</tr></tbody></table></td></tr><tr><td class="email-content" style="padding:30px 0 32px;${gutter};color:${ink};font-family:${sans};font-size:16px;line-height:26px;overflow-wrap:anywhere">${input.quoteTitle ? `<blockquote style="margin:0 0 20px">${heading}</blockquote>` : `<div style="margin:0 0 20px">${heading}</div>`}${input.bodyHtml}</td></tr></tbody></table><!--[if mso]></td></tr></table><![endif]--></td></tr></tbody></table>`;
+}
+
+export function renderEmailNote(heading: string, text: string): string {
+  return `<table ${table} width="100%" style="width:100%;border-collapse:collapse;margin:26px 0 0"><tbody><tr><td style="padding:16px 18px;background-color:#f1f4fb;color:#424857;font-family:${sans};font-size:14px;line-height:21px"><h2 style="margin:0 0 5px;color:${ink};font-family:${sans};font-size:15px;font-weight:700;line-height:21px">${escapeEmailText(heading)}</h2><p style="margin:0">${escapeEmailText(text).replace(/\n/g, "<br>")}</p></td></tr></tbody></table>`;
 }
 
 export function renderEmailFooter(bodyHtml: string): string {
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background-color:#f6f5ef"><tbody><tr><td align="center" style="padding:0 12px 32px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:650px;border-collapse:collapse"><tbody><tr><td class="email-footer" style="padding:0 28px;color:#555963;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:21px;overflow-wrap:anywhere">${bodyHtml}</td></tr></tbody></table></td></tr></tbody></table>`;
+  return `<table ${table} width="100%" style="width:100%;border-collapse:collapse;background-color:${paper}"><tbody><tr><td align="center" style="padding:0 8px 24px"><!--[if mso]><table ${table} width="620"><tr><td><![endif]--><table ${table} width="100%" style="width:100%;max-width:620px;border-collapse:collapse"><tbody><tr><td class="email-footer" style="padding:16px 0 0;${gutter};color:#545761;font-family:${sans};font-size:13px;line-height:21px;overflow-wrap:anywhere">${bodyHtml}</td></tr></tbody></table><!--[if mso]></td></tr></table><![endif]--></td></tr></tbody></table>`;
 }

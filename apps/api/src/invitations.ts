@@ -292,6 +292,8 @@ function mail(
     html:
       renderEmailSheet({
         title: subject,
+        // Resend's batch endpoint cannot carry inline image attachments.
+        headerArtworkHtml: "",
         bodyHtml: `<p style="margin:0 0 20px">${escape(lead)} <strong>${escape(organization)}</strong>.</p>${renderEmailAction(url, action)}`,
       }) + renderEmailFooter(`<p style="margin:0">${escape(note)}</p>`),
   };

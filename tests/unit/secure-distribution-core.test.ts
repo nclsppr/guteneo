@@ -2138,7 +2138,7 @@ describe("account document invitations", () => {
     expect(d.html).toContain('<h2 style="color:#2450db">Custom content</h2>');
     expect(d.html?.match(/href="[^"]*#\/app\/my-documents/g)).toHaveLength(1);
     expect(d.html).toContain("Open in My documents");
-    expect(d.html).toContain("border-radius:6px");
+    expect(d.html).toContain("border-radius:28px");
     expect(d.html).not.toContain("Your document is ready.");
   });
 
@@ -2247,7 +2247,7 @@ describe("account document invitations", () => {
       );
       const d = (await f.domain.getDispatch(f.ctx, p.view.dispatchId!))
         .dispatch;
-      expect(d.html).toContain("border-top:10px solid #2450db");
+      expect(d.html).toContain("border-top:3px solid #2450db");
       expect(d.html).toContain("font-family:Georgia,serif");
       expect(d.html).toContain(`?lang=${locale}#/app/my-documents`);
       expect(d.html?.match(/href="[^"]*#\/app\/my-documents/g)).toHaveLength(1);

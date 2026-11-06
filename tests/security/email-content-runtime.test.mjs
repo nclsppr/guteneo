@@ -23,11 +23,11 @@ test("workerd preserves safe email buttons and localized document templates with
       const custom = cleanEmailHtml('<p>Message</p><a href="{{document_url}}" style="background-color:#2450db;color:#ffffff;padding:12px;position:fixed;background-image:url(https://tracker.invalid/pixel)">Open</a><img src="https://tracker.invalid/pixel"><script>alert(1)</script>', { documentUrl: document.url }).html;
       const templates = Object.fromEntries(["fr", "en", "de", "lb"].map(locale => {
         const defaults = documentEmailDefaults("Fixture & Workspace", "protected_link", locale);
-        return [locale, cleanEmailHtml(renderTransactionalEmail({ text: defaults.text, workspaceName: "Fixture & Workspace", locale, protectedDocument: document })).html];
+        return [locale, cleanEmailHtml(renderTransactionalEmail({ text: defaults.text, workspaceName: "Fixture & Workspace", locale, protectedDocument: document }), { allowBrandImage: true }).html];
       }));
       const accountTemplates = Object.fromEntries(["fr", "en", "de", "lb"].map(locale => {
         const defaults = documentEmailDefaults("Fixture & Workspace", "my_documents", locale);
-        return [locale, cleanEmailHtml(renderTransactionalEmail({ text: defaults.text, workspaceName: "Fixture & Workspace", locale, accountDocument: { url: "https://guteneo.example/?lang=" + locale + "#/app/my-documents?invitation=synthetic", retentionDays: 7 } })).html];
+        return [locale, cleanEmailHtml(renderTransactionalEmail({ text: defaults.text, workspaceName: "Fixture & Workspace", locale, accountDocument: { url: "https://guteneo.example/?lang=" + locale + "#/app/my-documents?invitation=synthetic", retentionDays: 7 } }), { allowBrandImage: true }).html];
       }));
       return Response.json({ custom, templates, accountTemplates });
     }};
@@ -78,18 +78,26 @@ test("workerd preserves safe email buttons and localized document templates with
       accountTemplates[locale],
       /#\/app\/my-documents\?invitation=synthetic/,
     );
-    assert.match(accountTemplates[locale], /border-top:10px solid #2450db/);
+    assert.equal((accountTemplates[locale].match(/<img /g) ?? []).length, 1);
+    assert.match(
+      accountTemplates[locale],
+      /src="cid:guteneo-portrait\.[a-f0-9]{64}@guteneo\.com"/,
+    );
+    assert.match(accountTemplates[locale], /border-top:3px solid #2450db/);
     assert.match(accountTemplates[locale], /background-color:#2450db/);
     assert.equal((accountTemplates[locale].match(/<a /g) ?? []).length, 1);
     assert.doesNotMatch(
       accountTemplates[locale],
-      /<img|<script|<style|<iframe|password|\/share\//,
+      /<img[^>]+src="https?:|<script|<style|<iframe|password|\/share\//,
     );
     assert.ok(templates[locale].includes(expiry), locale);
     assert.match(templates[locale], /Fixture &amp; Workspace/);
     assert.match(templates[locale], />guteneo<\/p>/);
     assert.match(templates[locale], /background-color:#2450db/);
     assert.equal((templates[locale].match(/<a /g) ?? []).length, 1);
-    assert.doesNotMatch(templates[locale], /<img|<script|<style|<iframe/);
+    assert.doesNotMatch(
+      templates[locale],
+      /<img[^>]+src="https?:|<script|<style|<iframe/,
+    );
   }
 });

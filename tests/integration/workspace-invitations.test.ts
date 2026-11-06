@@ -831,8 +831,8 @@ describe("workspace invitations — actual D1, synthetic delivery only", () => {
     expect(payload[0].text).toContain(
       "You are invited to join Atelier fictif.",
     );
-    expect(payload[0].html).toContain("border-top:10px solid #2450db");
-    expect(payload[0].html).toContain("max-width:650px");
+    expect(payload[0].html).toContain("border-top:3px solid #2450db");
+    expect(payload[0].html).toContain("max-width:620px");
     expect(payload[0].html).toContain("Accept invitation</a>");
     expect(payload[0].html).not.toMatch(/<img|<script|<style|src=|url\(/);
     const row = await db

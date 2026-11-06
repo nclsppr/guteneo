@@ -254,14 +254,29 @@ remain illustrations.
 
 ## Transactional email identity — 6 November 2026 candidate
 
-Guteneo-authored email uses a restrained paper letter: white reading surface,
-ivory surroundings, one blue accent and primary action, and lowercase ink-black
-`guteneo`. The email wordmark and display heading use Georgia as the local
-fallback for the brand's serif lettering; body and supporting text use
-Arial/Helvetica/sans-serif. No remote font is needed. Keep one clear heading,
-readable body copy, generous spacing and quiet service links rather than repeating
-identity, titles or instructions. Preserve the recipient's actual message and
-document quotation, language and required access/expiry information.
+Guteneo-authored email uses a compact postal letter: white reading surface,
+ivory surroundings, a thin blue edge and primary pill action, a live lowercase
+ink-black `guteneo` wordmark, the approved text-free halftone portrait and three
+small decorative cancellation lines. The email wordmark and display heading use
+Georgia as the local fallback for the brand's serif lettering; body and supporting
+text use Arial/Helvetica/sans-serif. No remote font is needed. The actual quoted
+document name is the sole display heading when available. Keep readable body
+copy, a differentiated access note and quiet underlined service links, preserving
+the recipient's actual message, language and required access/expiry information.
+
+Only a qualified single-send Resend policy that includes the inline bytes may
+carry the approved portrait as a small immutable business-mail asset. Other
+policies, including SES, retain the typographic treatment and send no inline PNG;
+branding introduces no unpriced attachment. It grants no customer image embedding
+or remote fetch. Membership batch invitations also remain artwork-free; Auth0
+uses its separate fixed brand-asset HTTPS path. The original portrait is
+preserved. Its deterministic small email derivative and source/output hashes
+are recorded in `assets/brand/source/guteneo-email-portrait-proof.json`;
+`packages/contracts/src/email-branding.ts` binds that exact asset to the CID.
+White paper stays inside the portrait's actual blue frame using its approved
+10.5% inset/79% geometry; the exterior and perforations remain transparent,
+without a white outline. Image blocking leaves the live wordmark, heading and
+action readable.
 
 [Email preparation](PROTECTED_EMAIL.md) owns the business-mail template,
 sanitization, immutable approval and client-proof boundary.

@@ -1,6 +1,6 @@
-import { readFile } from "node:fs/promises";
 import { test, expect } from "@playwright/test";
 import { Liquid } from "liquidjs";
+import { EMAIL_BRAND_IMAGE_BASE64 } from "../../packages/contracts/src/email-branding-image";
 // @ts-expect-error JavaScript authoring module is covered by its Node contract tests.
 import * as email from "../../scripts/auth0-email-templates.mjs";
 
@@ -12,11 +12,11 @@ for (const name of TEMPLATE_NAMES as string[])
     test(`${name} / ${language}: readable at 320px with images available or blocked`, async ({
       page,
     }, testInfo) => {
-      const stamp = await readFile("apps/web/public/brand/guteneo-stamp.png");
+      const portrait = Buffer.from(EMAIL_BRAND_IMAGE_BASE64, "base64");
       let images = true;
       await page.route("**/*", async (route) => {
         if (images && route.request().url() === EMAIL_LOGO)
-          await route.fulfill({ contentType: "image/png", body: stamp });
+          await route.fulfill({ contentType: "image/png", body: portrait });
         else await route.abort();
       });
       const url =
@@ -44,6 +44,8 @@ for (const name of TEMPLATE_NAMES as string[])
               (element) => (element as HTMLImageElement).naturalWidth > 0,
             ),
         ).toBe(available);
+        await expect(page.locator("img")).toHaveAttribute("width", "60");
+        await expect(page.locator("img")).toHaveAttribute("height", "60");
         expect(await page.locator("html").getAttribute("lang")).toBe(language);
         await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
         await expect(page.getByRole("link")).toHaveAttribute(

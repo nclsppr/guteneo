@@ -1664,6 +1664,7 @@ export function PrepareDispatch({
             <>
               <h2>{t.dispatch.htmlPreview}</h2>
               <EmailPreview
+                allowBrandImage={!html.trim()}
                 html={
                   documentId && !html.trim()
                     ? renderTransactionalEmail({
@@ -2454,7 +2455,7 @@ export function DispatchDetailPage({
           {d.html && (
             <>
               <h2>{t.dispatch.htmlPreview}</h2>
-              <EmailPreview html={d.html} />
+              <EmailPreview html={d.html} allowBrandImage />
               <details className="text-version">
                 <summary>{t.dispatch.textPreview}</summary>
                 <pre>{d.text}</pre>

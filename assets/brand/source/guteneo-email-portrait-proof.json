@@ -1,0 +1,20 @@
+{
+  "source": "apps/web/public/brand/guteneo-portrait.png",
+  "sourceSha256": "df22d2f73f7e281ece61a2c99b5331d30be344e647dc97c738d09f9df122fb9a",
+  "output": "apps/web/public/brand/guteneo-email-portrait-b8587959f2e236c3.png",
+  "sha256": "b8587959f2e236c39663508b01ef2eb29d9669a0c8f6ac298351358a8668c07b",
+  "bytes": 17264,
+  "width": 144,
+  "height": 144,
+  "displayWidth": 60,
+  "displayHeight": 60,
+  "paper": {
+    "insetPercent": 10.5,
+    "left": 15.12,
+    "top": 15.12,
+    "width": 113.76,
+    "height": 113.76,
+    "color": "#ffffff"
+  },
+  "conversion": "Sharp Lanczos3 resize of the existing approved wordless portrait; white paper follows the approved web portrait geometry (10.5% inset,79% width/height), composited underneath the original alpha; indexed PNG256; exterior/perforations remain transparent; source unchanged."
+}

@@ -214,8 +214,9 @@ locale metadata does not change this authority or delivery boundary.
 
 The 6 November presentation candidate uses the shared
 [transactional letter](PROTECTED_EMAIL.md#transactional-letter--6-november-2026-candidate)
-for membership invitations, with a primary acceptance link and a quiet expiry/
-context footer. The existing English subject, text, invitation token, verified
+for membership invitations, with a primary pill acceptance link and a quiet
+expiry/context footer. The Resend batch invitation path keeps the typographic
+header without the portrait or a CID attachment. The existing English subject, text, invitation token, verified
 address, seven-day lifetime, administrator permissions and explicit acceptance
 remain unchanged. Branded rendering grants no membership or sending authority;
 local document-email previews do not qualify invitation delivery.

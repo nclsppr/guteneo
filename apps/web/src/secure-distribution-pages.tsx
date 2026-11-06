@@ -494,6 +494,7 @@ function SecureDistributionComposer({ session }: { session: Session }) {
                 </select>
               </Field>
               <EmailPreview
+                allowBrandImage={!html.trim()}
                 html={
                   html.trim()
                     ? emailDraftHtml(message, html)
@@ -841,7 +842,10 @@ function SecureDistributionDetail({
                 </Definition>
               </dl>
               {publication.invitation.html ? (
-                <EmailPreview html={publication.invitation.html} />
+                <EmailPreview
+                  html={publication.invitation.html}
+                  allowBrandImage
+                />
               ) : (
                 <p className="secure-document-invitation-message">
                   {publication.invitation.message}

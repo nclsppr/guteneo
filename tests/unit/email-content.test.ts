@@ -1,3 +1,4 @@
+import { EMAIL_BRAND_CID_URL } from "../../packages/contracts/src/email-branding";
 import { describe, expect, it } from "vitest";
 import {
   assertNoDocumentUrlPlaceholder,
@@ -98,7 +99,7 @@ describe("email-specific content boundary", () => {
 
 describe("branded document email", () => {
   it.each(["fr", "en", "de", "lb"] as const)(
-    "keeps the resource-free letter and primary action intact after sanitization in %s",
+    "keeps the offline letter and primary action intact after sanitization in %s",
     (locale) => {
       const href = `https://guteneo.example/?lang=${locale}#/app/my-documents?invitation=private&mode=shared`;
       const html = cleanEmailHtml(
@@ -110,17 +111,20 @@ describe("branded document email", () => {
           preferencesUrl:
             "https://guteneo.example/email-preferences?token=private",
         }),
+        { allowBrandImage: true },
       ).html;
-      expect(cleanEmailHtml(html).html).toBe(html);
-      expect(html).toContain("max-width:650px");
-      expect(html).toContain("border-top:10px solid #2450db");
+      expect(cleanEmailHtml(html, { allowBrandImage: true }).html).toBe(html);
+      expect(html.match(/<img\b/g)).toHaveLength(1);
+      expect(html).toContain(`src="${EMAIL_BRAND_CID_URL}"`);
+      expect(html).toContain("max-width:620px");
+      expect(html).toContain("border-top:3px solid #2450db");
       expect(html).toContain("font-size:16px;line-height:26px");
-      expect(html).toContain("border-radius:6px");
+      expect(html).toContain("border-radius:28px");
       expect(html).toContain("Exact message &amp; literal &lt;markup&gt;");
       expect(html.match(/href="[^"]*invitation=/g)).toHaveLength(1);
       expect(html.match(/href="[^"]*email-preferences/g)).toHaveLength(1);
       expect(html).not.toMatch(
-        /<img|<style|<script|<iframe|<form|src=|url\(|<!--/,
+        /<style|<script|<iframe|<form|src="(?:https?:|data:)|url\(|<!--/,
       );
       expect(html.replace(/href="[^"]*"/g, "")).not.toContain(
         "invitation=private",
@@ -138,13 +142,15 @@ describe("branded document email", () => {
       workspaceName: "Atelier",
       locale: "en" as const,
     };
-    const html = cleanEmailHtml(renderMessageEmail(input)).html;
+    const html = cleanEmailHtml(renderMessageEmail(input), {
+      allowBrandImage: true,
+    }).html;
     expect(html).toContain('&lt;Original &amp; "subject"&gt;</h1>');
     expect(html).toContain("Exact supplied message<br />Second line</p>");
     expect(html).toContain("Final paragraph</p>");
     expect(html).toContain(">guteneo</p>");
     expect(html).not.toMatch(
-      /Your document is ready|password|My documents|<a\b|<img|<script/,
+      /Your document is ready|password|My documents|<a\b|<script|src="https?:/,
     );
   });
   it.each([
@@ -171,12 +177,14 @@ describe("branded document email", () => {
       locale: "fr" as const,
       protectedDocument: document,
     };
-    const html = cleanEmailHtml(renderTransactionalEmail(input)).html;
+    const html = cleanEmailHtml(renderTransactionalEmail(input), {
+      allowBrandImage: true,
+    }).html;
     expect(html).toContain(
       "&lt;script&gt;literal&lt;/script&gt;<br />Second line",
     );
     expect(html).toContain("&lt;img src=");
-    expect(html).not.toMatch(/<img|<script|<style|<iframe/);
+    expect(html).not.toMatch(/<img[^>]+src="https?:|<script|<style|<iframe/);
     expect(html).toContain("color:#181b22;font-family:Georgia,serif");
     expect(html).toContain(">guteneo</p>");
     expect(html).toContain("Demandez le mot de passe");
@@ -207,8 +215,11 @@ describe("branded document email", () => {
           : `“${input.documentTitle}”`;
       const text = transactionalEmailText(input);
       expect(text).toBe(`guteneo · Atelier\n\n${quoted}\n\n${input.text}`);
-      const html = cleanEmailHtml(renderTransactionalEmail(input)).html;
-      expect(html).toContain("<blockquote");
+      const html = cleanEmailHtml(renderTransactionalEmail(input), {
+        allowBrandImage: true,
+      }).html;
+      expect(html).toMatch(/<blockquote[^>]*><h1[^>]*>/);
+      expect(html).not.toContain("Your document is ready.");
       expect(html).toContain("&lt;Original &amp;");
       expect(html).not.toContain(input.documentTitle);
     },
