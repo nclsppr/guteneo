@@ -821,10 +821,20 @@ describe("workspace invitations — actual D1, synthetic delivery only", () => {
     expect(url).toBe("https://api.resend.com/emails/batch");
     const payload = JSON.parse(String(init!.body)) as {
       to: string[];
+      subject: string;
+      text: string;
       html: string;
     }[];
     expect(payload[0].to).toEqual(["new@example.invalid"]);
     expect(payload[0].html).toContain("/invitation/#token=");
+    expect(payload[0].subject).toBe("guteneo · Invitation to join a workspace");
+    expect(payload[0].text).toContain(
+      "You are invited to join Atelier fictif.",
+    );
+    expect(payload[0].html).toContain("border-top:10px solid #2450db");
+    expect(payload[0].html).toContain("max-width:650px");
+    expect(payload[0].html).toContain("Accept invitation</a>");
+    expect(payload[0].html).not.toMatch(/<img|<script|<style|src=|url\(/);
     const row = await db
       .prepare(
         "SELECT delivery_status,provider_id,token_hash FROM workspace_invitations WHERE id=?",

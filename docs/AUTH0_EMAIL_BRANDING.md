@@ -6,6 +6,33 @@ It can change only `body`, `subject` and `from` on `pieper.eu.auth0.com`. The
 recovered implementation is an offline candidate; no provider application or
 real delivery is implied.
 
+## Coherent letter — 6 November 2026 candidate
+
+The visual candidate aligns the four account-email bodies with Guteneo's
+[transactional letter direction](BRAND_IDENTITY.md#transactional-email-identity--6-november-2026-candidate):
+white paper, ivory surroundings, a blue accent and primary action, ink lowercase
+wordmark, readable body copy and a quiet footer. The existing original stamp,
+local font fallbacks and blocked-image behavior retain their separate email
+compatibility checks. The content catalog, request-language fallback, escaped
+action URLs and application-scoped preservation guards below stay authoritative.
+
+Auth0 account actions remain identity-provider operations, separately from a
+business document invitation, approval or communication. Building the candidate
+and its synthetic previews changes no Auth0 template, client, email provider,
+DNS record or sender identity. A visible logo inside a body does not establish
+the [inbox sender-logo qualification](EMAIL_SENDER_IDENTITY.md). Exact generated
+artifacts, scoped provider application and actual client delivery still need
+their respective evidence.
+
+The 6 November focused qualification passes sixteen local mobile browser cases
+for the four generated template types and four languages, including their
+available/blocked-image behavior and synthetic long links. Targeted Node checks
+cover Liquid scoping/fallback preservation alongside the native-runtime business
+sanitizer. These results do not establish a provider-side template update, actual
+Auth0 rendering, sender authentication or a received identity email. The
+[business-email proof](PROTECTED_EMAIL.md#transactional-letter--6-november-2026-candidate)
+records its separate composer, EML and full-security scopes.
+
 ## Content and local generation
 
 The declared recipient-copy source is

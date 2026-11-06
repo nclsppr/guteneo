@@ -7,7 +7,8 @@
         "rule": "overused-font",
         "value": "arial",
         "files": [
-          "packages/contracts/src/email-template.ts"
+          "packages/contracts/src/email-template.ts",
+          "packages/contracts/src/email-presentation.ts"
         ],
         "createdAt": "2026-10-26T00:53:59.422Z",
         "reason": "Agent review: the transactional email intentionally uses Arial/Helvetica/sans-serif with Georgia headings, inline styles and no remote font requests; the email renderer is separate from application typography."

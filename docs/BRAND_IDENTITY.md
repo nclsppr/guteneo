@@ -252,6 +252,29 @@ remain illustrations.
   `test-results/brand/first-pass/` predates this correction and no longer
   describes the current identity.
 
+## Transactional email identity — 6 November 2026 candidate
+
+Guteneo-authored email uses a restrained paper letter: white reading surface,
+ivory surroundings, one blue accent and primary action, and lowercase ink-black
+`guteneo`. The email wordmark and display heading use Georgia as the local
+fallback for the brand's serif lettering; body and supporting text use
+Arial/Helvetica/sans-serif. No remote font is needed. Keep one clear heading,
+readable body copy, generous spacing and quiet service links rather than repeating
+identity, titles or instructions. Preserve the recipient's actual message and
+document quotation, language and required access/expiry information.
+
+[Email preparation](PROTECTED_EMAIL.md) owns the business-mail template,
+sanitization, immutable approval and client-proof boundary.
+[Auth0 account email](AUTH0_EMAIL_BRANDING.md) owns its separate generated Liquid
+templates, scope and provider application. Supplied custom HTML retains its
+existing contract instead of being silently redesigned. Local preview proves no
+real delivery or mailbox-client compatibility.
+
+A logo inside an HTML email and the identity icon beside a Gmail sender are
+separate surfaces. [Email sender identity](EMAIL_SENDER_IDENTITY.md) owns the
+inbox-logo candidate, domain prerequisites and independent qualification; a
+branded body grants no sender verification or displayed-avatar guarantee.
+
 ## External services
 
 Auth0 scripts prepare the **transparent portrait** for login and the

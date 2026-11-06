@@ -3,6 +3,74 @@
 21 September 2026 candidate. [RESEND_PROOF.md](RESEND_PROOF.md) records publication
 and real tests; local tests do not prove actual delivery.
 
+## Transactional letter — 6 November 2026 candidate
+
+Guteneo-authored default messages share one email-safe letter treatment: white
+paper on ivory, a blue top accent, lowercase ink wordmark, a clear heading,
+readable body copy, one primary document action when applicable and quiet service
+links. `packages/contracts/src/email-presentation.ts` owns the shared table
+letter, action and service footer; `email-template.ts` owns default document and
+message composition. Preserve supplied subject/text and the independently supplied
+custom-HTML contract below; a visual refresh never translates customer content,
+changes the selected delivery mode or rewrites an approved or sent email.
+
+HTML-body branding is separate from the sender icon beside a message in Gmail.
+[Email sender identity](EMAIL_SENDER_IDENTITY.md) owns that candidate and its
+independent domain/provider/display qualification. Changing HTML grants no inbox
+logo, provider activation or sending authority. Auth0's separately generated,
+application-scoped templates retain the
+[account-email contract](AUTH0_EMAIL_BRANDING.md).
+
+Generate the synthetic local review artifacts with:
+
+```sh
+npm run preview:emails
+```
+
+`reports/email-preview/index.html` links sixteen sanitized HTML/EML variants:
+account documents, explicit protected links, attachments and message-only email,
+each in French, English, German and Luxembourgish. `manifest.json` records their
+HTML sizes and zero performed sends. URLs and addresses are fictional; no real
+capability, password, customer content or provider credential belongs in these
+artifacts. Browser HTML and opening a local EML file qualify their inspected
+local rendering only. They establish neither delivery nor Gmail/Outlook behavior,
+sender authentication, an inbox avatar or publication. Auth0 previews retain
+their own generator and evidence.
+
+Local visual qualification on 6 November exercised all sixteen sanitized variants
+at 320, 390 and 900 px in Chromium after the final shared-shell change: 48 checks,
+zero horizontal overflow, remote resource requests or page errors, with computed
+16 px body text. Desktop French, 320 px
+French and 390 px Luxembourgish screenshots were inspected for hierarchy,
+wrapping, action and footer placement. `reports/email-preview/visual-checks.json`
+and adjacent PNGs record this synthetic browser evidence.
+
+The synthetic `my_documents-fr.eml` was also opened and visually checked in the
+current native macOS Apple Mail renderer: letter, ink wordmark, action, body,
+access instructions and footer. This was a local-file observation, with no send,
+provider call or inbox receipt. It does not qualify Gmail, Outlook, mobile Mail,
+every client setting, sender authentication or inbox-logo display.
+
+[Frontend measurements](FRONTEND_PERFORMANCE.md#transactional-email-preview--6-november-2026-local-measurement)
+record the existing-import reuse, no added fetch/loading stage, 52 unchanged
+JavaScript chunks and dispatch-chunk increase of 67 raw / 21 gzip-level-9 bytes.
+The fixture's 15.11–30.27 ms first-visible-heading samples are local offline HTML
+timings, not deployed application performance.
+
+Focused qualification passes 182 Vitest unit/integration/fictional-preview cases,
+19 targeted Node security checks, 16 desktop/mobile Chromium composer cases and
+16 Auth0 mobile rendering cases. The complete current Node security suite passes
+684/684. These are separate scopes, with overlapping targeted and complete Node
+checks; they are not added together as an end-to-end delivery count. Typecheck,
+full lint, application build/Worker dry run and the 83-tool MCP annotation audit
+also pass. The full current Vitest suite, exact-head CI and publication retain
+their independent evidence requirements.
+
+Candidate 1.1.32 synchronizes the integration metadata and downloadable archive
+because the shared mail source is covered by the direct-MCP import source guard.
+It adds no tool, scope or permission and performs no marketplace submission,
+provider template application, real communication or production release.
+
 ## Document email contract — 26 October 2026 candidate
 
 The individual web email composer and MCP `prepare_dispatch` with a PDF now default
@@ -44,13 +112,25 @@ values count as absent. The server derives the authenticated workspace name and
 sender's saved locale (French fallback); an explicit supported notification locale
 is allowed by the dedicated contract. A supplied subject/message is preserved.
 Custom HTML supplies derived plain text when no message alternative is provided.
+Message-only email still requires the caller's subject and readable content.
+Without custom HTML, its HTML alternative uses that exact supplied subject and
+text in the shared letter, with no document-ready heading or invented document
+action; the plain-text alternative remains the supplied message. Supplied custom
+HTML remains unwrapped under its existing sanitizer contract. The message-only
+browser draft and isolated fictional preview use the same shared renderer through
+the existing email-template import, with no added network request or loading stage.
 
-Without custom HTML, `packages/contracts/src/email-template.ts` renders warm
-ivory paper, an ink-black lowercase wordmark, a serif document heading, a white
-10 px panel and a blue 7 px access button. Email-safe Georgia/Arial fallbacks and
-inline table layout need no remote fonts, images or tracking resources. All four
-languages come from `delivery-messages.json`. The button opens **My documents**;
-copy explains sign-in/signup with the receiving address and the funded term. The frozen document name is displayed as a quotation. Small service links explain guteneo and open [recipient feedback controls](EMAIL_RECIPIENT_FEEDBACK.md), whose confirmation and lifecycle contract is maintained separately.
+Without custom HTML, the 6 November source candidate uses a responsive white
+letter with an ivory surround, blue top rule, ink-black lowercase wordmark and a
+blue access action. A 650 px maximum reading surface, email-safe Georgia display
+lettering, Arial/Helvetica body text and inline presentation tables need no remote
+fonts, images or tracking resources. The layout preserves wrapping and readable
+spacing on narrow screens. All four languages come from `delivery-messages.json`.
+The button opens **My documents**; copy explains sign-in/signup with the receiving
+address and the funded term. The frozen document name is displayed as a quotation.
+Small service links explain guteneo and open
+[recipient feedback controls](EMAIL_RECIPIENT_FEEDBACK.md), whose confirmation and
+lifecycle contract is maintained separately.
 
 For custom HTML, use an anchor such as:
 

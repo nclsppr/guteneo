@@ -41,6 +41,7 @@ import {
 import {
   documentEmailDefaults,
   renderTransactionalEmail,
+  renderMessageEmail,
   transactionalEmailText,
 } from "../../../packages/contracts/src/email-template";
 import type { DeliveryRecipient } from "../../../packages/contracts/src/content";
@@ -1156,7 +1157,12 @@ export function createPreviewApi(options: { advancedLocal?: boolean } = {}) {
                 workspaceName: name,
                 locale: "fr",
               })
-            : `<p>${emailText.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\n", "<br>")}</p>`;
+            : renderMessageEmail({
+                subject: emailSubject,
+                text: emailText,
+                workspaceName: name,
+                locale: "fr",
+              });
         if (documentId && !customHtml.trim())
           emailText = transactionalEmailText({
             text: emailText,

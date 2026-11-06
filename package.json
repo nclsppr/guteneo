@@ -1,6 +1,6 @@
 {
   "name": "guteneo",
-  "version": "1.1.31",
+  "version": "1.1.32",
   "private": true,
   "type": "module",
   "engines": {
@@ -46,6 +46,7 @@
     "test:videos:narration": "npm --prefix videos/guteneo-film run test:narration",
     "deploy:pdf-validator": "node scripts/deploy-pdf-validator.mjs",
     "preview:belvedere": "npm run build:web && node --import tsx scripts/belvedere-preview.mjs",
+    "preview:emails": "node --import tsx scripts/build-email-preview.ts",
     "test:belvedere": "playwright test --config playwright.belvedere.config.ts",
     "status:prod": "node scripts/production-status.mjs",
     "monitor:prod": "node scripts/production-monitor.mjs",

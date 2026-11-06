@@ -123,7 +123,13 @@ for (const name of TEMPLATE_NAMES) {
         EMAIL_COPY[expected][name].subject,
       );
       assert.ok(body.includes(EMAIL_LOGO));
-      assert.ok(body.includes('color:#181b22">guteneo</td>'));
+      assert.match(
+        body,
+        /color:#181b22;font-family:Georgia,serif[^>]*>guteneo<\/p>/,
+      );
+      assert.match(body, /max-width:650px/);
+      assert.match(body, /border-top:10px solid #2450db/);
+      assert.match(body, /\[if mso\]><table role="presentation" width="650"/);
       assert.doesNotMatch(body, /\{%|\{\{|<private>|<a[^>]*b="/);
       if (name !== "welcome_email")
         assert.match(body, /&amp;b=(?:&quot;|&#34;)&lt;private&gt;&#39;/);
@@ -201,7 +207,7 @@ test("refuses unsafe scope, unreadable templates and edited or legacy managed wr
   const scoped = scopeTemplate("verify_email", ["x"], prior("verify_email"));
   for (const body of [
     scoped.body.slice(0, -3),
-    scoped.body.replace("guteneo</td>", "changed</td>"),
+    scoped.body.replace("guteneo</p>", "changed</p>"),
     scoped.body + "extra",
     "{% comment %}guteneo-email-brand-v1:verify_email{% endcomment %}old",
     scoped.body.replace("guteneo-email-brand-v2", "guteneo-email-brand-v3"),

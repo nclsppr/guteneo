@@ -803,6 +803,62 @@ describe("Resend domain, live bridge and populated migrations — synthetic tran
     expect(custom.html).not.toContain(">guteneo</p>");
   });
 
+  it("freezes the branded message-only presentation while preserving the exact supplied subject and text", async () => {
+    const input = email({
+      html: undefined,
+      subject: 'Exact supplied subject & "details"',
+      text: "Exact supplied content & <literal markup>.\nSecond line.",
+    });
+    const prepared = await domain.prepareDispatch(
+      ctx,
+      input,
+      "message_snapshot",
+    );
+    expect(prepared.subject).toBe(input.subject);
+    expect(prepared.text).toBe(input.text);
+    expect(prepared.document_id).toBeNull();
+    expect(prepared.html).toContain("border-top:10px solid #2450db");
+    expect(prepared.html).toContain("&lt;literal markup&gt;");
+    expect(prepared.html).not.toMatch(
+      /Your document is ready|\/share\/|my-documents|<img|<script|<style/,
+    );
+    await db
+      .prepare("UPDATE organizations SET name='Renamed workspace' WHERE id=?")
+      .bind(ctx.organizationId)
+      .run();
+    const replay = await domain.prepareDispatch(ctx, input, "message_snapshot");
+    expect(replay).toMatchObject({
+      id: prepared.id,
+      subject: prepared.subject,
+      html: prepared.html,
+      text: prepared.text,
+      fingerprint: prepared.fingerprint,
+    });
+    await domain.approveDispatch(ctx, prepared.id, prepared.fingerprint, {
+      recipientRequested: true,
+    });
+    await domain.confirmDispatch(
+      ctx,
+      prepared.id,
+      "message_snapshot_confirmed",
+    );
+    const fetcher = vi
+      .fn<Fetcher>()
+      .mockResolvedValue(Response.json({ id: crypto.randomUUID() }));
+    await domain.processDispatch(
+      prepared.id,
+      createLiveProviderHook(env, "email", { fetcher, now: () => clock }),
+    );
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    const payload = JSON.parse(String(fetcher.mock.calls[0][1]?.body));
+    expect(payload).toMatchObject({
+      subject: input.subject,
+      text: input.text,
+      html: prepared.html,
+    });
+    expect(payload).not.toHaveProperty("attachments");
+  });
+
   it.each(["attachment", "protected_link"] as const)(
     "freezes generated %s defaults before workspace/locale changes and sends that exact snapshot",
     async (mode) => {
@@ -1006,7 +1062,8 @@ describe("Resend domain, live bridge and populated migrations — synthetic tran
     );
     expect(literal.subject).toBe("Literal {{amount}}");
     expect(literal.text).toBe("Text {{amount}} and }}");
-    expect(literal.html).toBe("<p>Text {{amount}} and }}</p>");
+    expect(literal.html).toContain(">Literal {{amount}}</h1>");
+    expect(literal.html).toContain(">Text {{amount}} and }}</p>");
     await db
       .prepare(
         "UPDATE documents SET status='quarantined' WHERE id=? AND organization_id=?",

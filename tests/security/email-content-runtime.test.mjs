@@ -78,7 +78,7 @@ test("workerd preserves safe email buttons and localized document templates with
       accountTemplates[locale],
       /#\/app\/my-documents\?invitation=synthetic/,
     );
-    assert.match(accountTemplates[locale], /border-radius:10px/);
+    assert.match(accountTemplates[locale], /border-top:10px solid #2450db/);
     assert.match(accountTemplates[locale], /background-color:#2450db/);
     assert.equal((accountTemplates[locale].match(/<a /g) ?? []).length, 1);
     assert.doesNotMatch(

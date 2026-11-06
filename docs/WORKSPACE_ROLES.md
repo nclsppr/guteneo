@@ -212,6 +212,14 @@ closed until dedicated activation. Provider acceptance proves neither inbox rece
 nor invitation acceptance. Authored invitation emails use English; stored recipient
 locale metadata does not change this authority or delivery boundary.
 
+The 6 November presentation candidate uses the shared
+[transactional letter](PROTECTED_EMAIL.md#transactional-letter--6-november-2026-candidate)
+for membership invitations, with a primary acceptance link and a quiet expiry/
+context footer. The existing English subject, text, invitation token, verified
+address, seven-day lifetime, administrator permissions and explicit acceptance
+remain unchanged. Branded rendering grants no membership or sending authority;
+local document-email previews do not qualify invitation delivery.
+
 ## Scope and limits
 
 Ordinary documents, recipients and history are shared within a workspace. Studio

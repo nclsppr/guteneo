@@ -17,6 +17,12 @@ import {
 } from "./auth";
 import type { Env } from "./env";
 import { resendIdentity } from "./resend-environment";
+import {
+  escapeEmailText as escape,
+  renderEmailAction,
+  renderEmailFooter,
+  renderEmailSheet,
+} from "../../../packages/contracts/src/email-presentation";
 
 type InvitationEnv = AuthEnv &
   Partial<
@@ -263,12 +269,6 @@ function deliveryReady(env: InvitationEnv) {
     /^[^<>\s@]+@guteneo\.com$/i.test(env.INVITATION_EMAIL_FROM ?? "")
   );
 }
-const escape = (text: string) =>
-  text
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
 function mail(
   env: InvitationEnv,
   organization: string,
@@ -289,7 +289,11 @@ function mail(
     to: [email],
     subject: `guteneo · ${subject}`,
     text: `${lead} ${organization}.\n\n${action} : ${url}\n\n${note}`,
-    html: `<p>${escape(lead)} <strong>${escape(organization)}</strong>.</p><p><a href="${escape(url)}">${escape(action)}</a></p><p>${escape(note)}</p>`,
+    html:
+      renderEmailSheet({
+        title: subject,
+        bodyHtml: `<p style="margin:0 0 20px">${escape(lead)} <strong>${escape(organization)}</strong>.</p>${renderEmailAction(url, action)}`,
+      }) + renderEmailFooter(`<p style="margin:0">${escape(note)}</p>`),
   };
 }
 async function deliver(
@@ -415,11 +419,7 @@ export async function handleInvitationRoute(
     request.method !== "GET",
   );
   if (session.context.role !== "admin")
-    fail(
-      "FORBIDDEN",
-      "Only an administrator can invite collaborators.",
-      403,
-    );
+    fail("FORBIDDEN", "Only an administrator can invite collaborators.", 403);
   const org = session.context.organizationId;
   if (list && request.method === "GET") {
     const query = parse(

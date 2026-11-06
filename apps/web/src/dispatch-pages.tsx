@@ -10,6 +10,7 @@ import type { SupportedLocale } from "../../../packages/contracts/src/locale";
 import {
   documentEmailDefaults,
   renderTransactionalEmail,
+  renderMessageEmail,
 } from "../../../packages/contracts/src/email-template";
 import { FAX_OPERATOR_TEST_NOTICE } from "../../../packages/contracts/src/fax-pricing";
 import {
@@ -1681,7 +1682,14 @@ export function PrepareDispatch({
                           ? { accountDocument: { url: "#", retentionDays } }
                           : {}),
                       })
-                    : emailDraftHtml(text, html)
+                    : !html.trim()
+                      ? renderMessageEmail({
+                          subject,
+                          text,
+                          workspaceName,
+                          locale: emailLocale,
+                        })
+                      : emailDraftHtml(text, html)
                 }
               />
               {!!documentId && emailDeliveryMode === "my_documents" && (

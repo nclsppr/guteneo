@@ -1,0 +1,13 @@
+{
+  "status": "local_vector_candidate_not_certified",
+  "source": "apps/web/public/brand/guteneo-mark.png",
+  "sourceSha256": "d6a83bbe53abb6ffac19d66a66d02b5992887a4796d909fb86043c356580e8c9",
+  "output": "apps/web/public/brand/guteneo-bimi.svg",
+  "outputSha256": "499b598ffd501718d41856f3199a9f37c551daea8fa0f26010110286c1c4c89c",
+  "outputBytes": 28300,
+  "conversion": "Deterministic blue-mask boundary trace; closed-contour RDP at 0.45 then 0.6 source pixels; original preserved.",
+  "color": "#0149e9, the source's most frequent blue; background normalized to solid white.",
+  "contours": 16,
+  "points": 3583,
+  "limits": "Technical derivative only; not a new logo, trademark proof, CA approval, certificate or Gmail display qualification."
+}

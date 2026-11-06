@@ -512,6 +512,14 @@ test("email without attachment requires its message and leaves automatic HTML to
   await expect(
     page.frameLocator(".email-preview").locator("body"),
   ).toContainText("Bonjour <Camille>");
+  await expect(
+    page.frameLocator(".email-preview").getByRole("heading", { level: 1 }),
+  ).toHaveText("Votre document");
+  await expect(
+    page
+      .frameLocator(".email-preview")
+      .locator('table[style*="border-top:10px solid #2450db"]'),
+  ).toHaveCount(1);
   await page.getByRole("button", { name: "Vérifier et préparer" }).click();
   await expect(
     page.getByRole("heading", { name: "Le bon à envoyer." }),
@@ -917,6 +925,14 @@ test("custom HTML remains optional and uses the message as its accessible text v
   await page
     .getByLabel("Version HTML", { exact: true })
     .fill("<h1>Votre document</h1>");
+  await expect(
+    page.frameLocator(".email-preview").getByRole("heading", { level: 1 }),
+  ).toHaveText("Votre document");
+  await expect(
+    page
+      .frameLocator(".email-preview")
+      .locator('table[style*="border-top:10px solid #2450db"]'),
+  ).toHaveCount(0);
   await page.getByRole("button", { name: "Vérifier et préparer" }).click();
   await expect(
     page.getByRole("heading", { name: "Le bon à envoyer." }),

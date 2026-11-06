@@ -16,6 +16,7 @@ import {
   renderProtectedEmailFooter,
   renderEmailServiceFooter,
   renderTransactionalEmail,
+  renderMessageEmail,
   transactionalEmailText,
   type ProtectedEmailDocument,
 } from "../../contracts/src/email-template";
@@ -1145,7 +1146,12 @@ export class DomainService {
           documentTitle: document.name,
         });
       } else {
-        html = `<p>${text!.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>")}</p>`;
+        html = renderMessageEmail({
+          subject: subject!,
+          text: text!,
+          workspaceName: organization.name,
+          locale: emailLocale,
+        });
       }
       if (protectedEmailDocument)
         text += `\n\n${deliveryText("View the protected document", emailLocale)}: ${protectedEmailDocument.url}\n${protectedEmailInstructions(protectedEmailDocument.expiresAt, emailLocale)}`;

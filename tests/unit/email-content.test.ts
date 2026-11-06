@@ -8,6 +8,8 @@ import {
   documentEmailDefaults,
   renderProtectedEmailFooter,
   renderTransactionalEmail,
+  renderMessageEmail,
+  renderEmailServiceFooter,
   transactionalEmailText,
 } from "../../packages/contracts/src/email-template";
 
@@ -95,6 +97,56 @@ describe("email-specific content boundary", () => {
 });
 
 describe("branded document email", () => {
+  it.each(["fr", "en", "de", "lb"] as const)(
+    "keeps the resource-free letter and primary action intact after sanitization in %s",
+    (locale) => {
+      const href = `https://guteneo.example/?lang=${locale}#/app/my-documents?invitation=private&mode=shared`;
+      const html = cleanEmailHtml(
+        renderTransactionalEmail({
+          text: "Exact message & literal <markup>",
+          workspaceName: "Atelier",
+          locale,
+          accountDocument: { url: href, retentionDays: 7 },
+          preferencesUrl:
+            "https://guteneo.example/email-preferences?token=private",
+        }),
+      ).html;
+      expect(cleanEmailHtml(html).html).toBe(html);
+      expect(html).toContain("max-width:650px");
+      expect(html).toContain("border-top:10px solid #2450db");
+      expect(html).toContain("font-size:16px;line-height:26px");
+      expect(html).toContain("border-radius:6px");
+      expect(html).toContain("Exact message &amp; literal &lt;markup&gt;");
+      expect(html.match(/href="[^"]*invitation=/g)).toHaveLength(1);
+      expect(html.match(/href="[^"]*email-preferences/g)).toHaveLength(1);
+      expect(html).not.toMatch(
+        /<img|<style|<script|<iframe|<form|src=|url\(|<!--/,
+      );
+      expect(html.replace(/href="[^"]*"/g, "")).not.toContain(
+        "invitation=private",
+      );
+      expect(
+        renderEmailServiceFooter(locale, "https://guteneo.example/preferences"),
+      ).toContain(`?lang=${locale}`);
+    },
+  );
+
+  it("uses the exact subject and message for branded message-only email without document instructions", () => {
+    const input = {
+      subject: '<Original & "subject">',
+      text: "Exact supplied message\nSecond line\n\nFinal paragraph",
+      workspaceName: "Atelier",
+      locale: "en" as const,
+    };
+    const html = cleanEmailHtml(renderMessageEmail(input)).html;
+    expect(html).toContain('&lt;Original &amp; "subject"&gt;</h1>');
+    expect(html).toContain("Exact supplied message<br />Second line</p>");
+    expect(html).toContain("Final paragraph</p>");
+    expect(html).toContain(">guteneo</p>");
+    expect(html).not.toMatch(
+      /Your document is ready|password|My documents|<a\b|<img|<script/,
+    );
+  });
   it.each([
     ["fr", "Document envoyé par Atelier", "Atelier vous a envoyé un document."],
     ["en", "Document from Atelier", "Atelier has sent you a document."],

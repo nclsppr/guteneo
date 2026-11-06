@@ -1,5 +1,43 @@
 # Frontend loading and table controls
 
+## Transactional email preview — 6 November 2026 local measurement
+
+The message-only composer and isolated fictional preview reuse
+`renderMessageEmail` through their existing `email-template` import. This adds no
+frontend fetch, asynchronous loading stage or heavyweight dependency. Caller
+subject/text, custom-HTML bypass, document modes and current authority remain
+unchanged. The shared letter is also used by the final generated mail; the draft
+preview grants no approval or sending authority.
+
+Optimized local builds from baseline main and the 1.1.32 candidate measured:
+
+| Build | Dispatch chunk (bytes) | gzip level 9 (bytes) | JavaScript chunks |
+| --- | ---: | ---: | ---: |
+| Main | 61,353 | 17,752 | 52 |
+| Candidate | 61,420 | 17,773 | 52 |
+| Change | +67 | +21 | 0 |
+
+These file/gzip measurements record a small size increase, not a loading-speed
+gain. They are encoded asset sizes rather than measured HTTP transfer totals.
+`reports/email-preview/performance.json` records both chunk names, compression
+level and the unchanged chunk count.
+
+The final sixteen sanitized, fictional mail variants were opened at 320, 390 and
+900 px in local headless Chromium: 48 checks, zero horizontal overflow, remote
+resource requests or page errors, and 16 px computed body text. First visible
+heading ranged from 15.11 to 30.27 ms in these offline generated-HTML fixtures.
+This measures the local letter fixture, not application authentication, composer
+navigation, network transfer, physical paint or deployed latency. The measurements
+and PNGs are retained under `reports/email-preview/`; `visual-checks.json` records
+the viewport checks. No baseline browser timing or production gain is claimed.
+
+The affected real application-composer browser specification passes 16/16
+selected cases across desktop and mobile Chromium, including defaults, supplied
+custom HTML, document modes and notification languages. This remains local
+fixture evidence, separate from hosted Auth0, physical devices, provider delivery
+and inbox rendering. The [email contract](PROTECTED_EMAIL.md#transactional-letter--6-november-2026-candidate)
+owns the visual checks, native macOS Mail observation and broader test limits.
+
 ## Secure source-copy recovery — 5 November 2026 local measurement
 
 Both composers reuse one small recovery hook/notice inside their existing lazy

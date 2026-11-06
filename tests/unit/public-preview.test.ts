@@ -45,9 +45,11 @@ describe("public browser design preview", () => {
         text: "Bonjour <Camille> & compagnie.\nÀ bientôt.",
       },
     })) as Dispatch;
-    expect(dispatch.html).toBe(
-      "<p>Bonjour &lt;Camille&gt; &amp; compagnie.<br>À bientôt.</p>",
+    expect(dispatch.html).toContain("border-top:10px solid #2450db");
+    expect(dispatch.html).toContain(
+      ">Bonjour &lt;Camille&gt; &amp; compagnie.<br>À bientôt.</p>",
     );
+    expect(dispatch.html).not.toContain("Your document is ready");
     expect(dispatch.subject).toBe(email.subject);
     for (const missing of ["subject", "text"])
       await expect(
