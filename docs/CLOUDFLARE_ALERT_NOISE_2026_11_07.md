@@ -1,6 +1,6 @@
 # Cloudflare alert noise — 7 November 2026
 
-## Subsequent prevention implementation — not activated
+## Subsequent prevention implementation — authorized, execution pending
 
 The native change recorded below reduces repeated reminders; it does not prevent
 an authority from expiring. The subsequent local implementation adds an early
@@ -13,9 +13,27 @@ The [authoritative preventive contract](FRESHNESS_ALERTING.md#preventive-deadlin
 owns the exact schema, actions, strict reconciliation, private CLI, caps and
 provider-outcome handling. The operator notification gate defaults off; no
 customer dispatch, consent, quota, provider authority or pilot deadline is
-changed. Additive migration 0074 and the dependent runtime are not deployed;
-operational email activation and genuine receipt remain unqualified. The
+changed. Merge, production release and operational notification activation were
+explicitly authorized on 7 November, together with understandable French email
+names and explanations. Additive migration 0074, the dependent runtime and
+operational-email activation remain pending verified execution; genuine receipt
+is separate proof. The
 Luxembourg extension remains its separate draft PR and operator decision.
+
+The approved notification activation selects French copy through
+`PROVIDER_PREVENTION_EMAIL_LOCALE=fr`. Subjects and body explain the condition,
+affected scope, action and human deadline in Paris time, with no CLI instruction
+in recipient messages. English remains the default when no locale is selected;
+invalid locale settings refuse a claim. The owner also selected three distinct,
+readable French native names for technical problems, a date limit and an absent
+service check. Their [exact labels and count interpretation](FRESHNESS_ALERTING.md#readable-recipient-names-and-copy)
+are documented. Deployed French operational copy and actual recipient receipt remain pending proof.
+The three native names and French problem/consequence/action descriptions were
+subsequently saved and reread on **7 November 2026**. All three remain enabled
+with email delivery configured, five-minute technical/deadline execution and
+one-minute missing-check execution. Hourly technical and weekly deadline
+reminders remain unchanged. This establishes the native rename; runtime release,
+French operational-email activation and actual receipt still need separate proof.
 
 Local validation exercises D1 milestones and fences in Miniflare, operational
 claims/caps/terminal outcomes, twelve scheduled-flow cases and three private
@@ -23,7 +41,9 @@ CLI/RPC security cases. The additional native Workerd regression bundles the
 actual sender with every external request intercepted. Its acknowledgement and
 307-redirect phases verify no repeat submission or foreign forwarding. That
 regression exposed the initial native incompatibility with `redirect:"error"`;
-manual redirect handling corrected it. These are local deterministic results,
+manual redirect handling corrected it. The later French copy passed 47 notifier
+integration cases and one native Workerd case, including its French subject and
+Paris-time deadline. These are local deterministic results,
 not hosted runtime or real operational-email receipt. The [authoritative contract](FRESHNESS_ALERTING.md#preventive-deadline-lifecycle-and-operational-notices)
 links the exact tests and release gates.
 

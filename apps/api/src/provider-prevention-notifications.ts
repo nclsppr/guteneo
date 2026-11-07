@@ -1,4 +1,5 @@
 import type { Env } from "./env";
+import emailCopy from "./locales/provider-prevention-emails.json";
 
 type NotificationEnv = Pick<
   Env,
@@ -12,6 +13,7 @@ type NotificationEnv = Pick<
   | "PROVIDER_PREVENTION_EMAIL_FROM"
   | "PROVIDER_PREVENTION_EMAIL_TO"
   | "PROVIDER_PREVENTION_EMAIL_DAILY_LIMIT"
+  | "PROVIDER_PREVENTION_EMAIL_LOCALE"
 >;
 export interface PreventionNotificationCounts {
   providerPreventionNotificationsSent: number;
@@ -35,21 +37,70 @@ const zero = (): PreventionNotificationCounts => ({
   providerPreventionNotificationsFailed: 0,
   providerPreventionNotificationsUnknown: 0,
 });
-const families: Record<string, string> = {
-  fax_authority: "Fax operator authorization",
-  fax_tariff: "Fax reference",
-  delivery_policy: "Delivery policy",
-  resend_tariff: "Email reference",
-  resend_send_limits: "Email sending limits",
-};
-const stages: Record<string, string> = {
-  operator_7d: "Action needed within seven days",
-  operator_3d: "Action needed within three days",
-  operator_1d: "Action needed within one day",
-  automatic_48h: "Repair technical renewal within two days",
-  automatic_24h: "Repair technical renewal within one day",
-  expired: "Deadline expired",
-};
+type EmailLocale = keyof typeof emailCopy;
+type Mechanism = keyof (typeof emailCopy)["en"]["mechanisms"];
+const stages = new Set([
+  "operator_7d",
+  "operator_3d",
+  "operator_1d",
+  "automatic_48h",
+  "automatic_24h",
+  "expired",
+]);
+function renderNotice(notice: Notice, locale: EmailLocale) {
+  const copy = emailCopy[locale];
+  const mechanism = copy.mechanisms[notice.family as Mechanism];
+  const deadline = new Date(notice.deadline_at);
+  const day = new Intl.DateTimeFormat(copy.dateLocale, {
+    timeZone: "Europe/Paris",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(deadline);
+  const dateTime = new Intl.DateTimeFormat(copy.dateLocale, {
+    timeZone: "Europe/Paris",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(deadline);
+  const subjectTemplate =
+    notice.stage === "expired"
+      ? mechanism.expiredSubject
+      : notice.renewal_mode === "automatic" && "automaticSubject" in mechanism
+        ? mechanism.automaticSubject
+        : mechanism.upcomingSubject;
+  const subject = `guteneo · ${subjectTemplate.replace("{date}", day)}`;
+  const what = (
+    notice.stage === "expired" ? mechanism.expiredWhat : mechanism.upcomingWhat
+  ).replace("{deadline}", `${dateTime} (${copy.parisTime})`);
+  const action =
+    notice.renewal_mode === "operator"
+      ? mechanism.operatorAction
+      : mechanism.automaticAction;
+  const sections = [
+    [copy.whatLabel, what],
+    [copy.impactLabel, mechanism.impact],
+    [copy.actionLabel, action],
+  ];
+  const text = `${mechanism.title}\n\n${sections.map(([label, value]) => `${label}\n${value}`).join("\n\n")}\n\n${copy.footer}`;
+  const escape = (value: string) =>
+    value.replace(
+      /[&<>"']/g,
+      (character) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[character]!,
+    );
+  const html = `<!doctype html><html lang="${locale}"><body style="margin:0;background:#ffffff;color:#181b22;font-family:Arial,sans-serif"><main style="max-width:600px;margin:auto;padding:32px 24px"><p style="font-size:20px;color:#181b22">guteneo</p><h1 style="font-size:26px;line-height:1.3">${escape(mechanism.title)}</h1>${sections.map(([label, value]) => `<section style="margin-top:24px"><h2 style="font-size:16px;margin-bottom:8px">${escape(label)}</h2><p style="font-size:16px;line-height:1.6;margin-top:0">${escape(value)}</p></section>`).join("")}<p style="margin-top:32px;font-size:13px;line-height:1.5;color:#535a50">${escape(copy.footer)}</p></main></body></html>`;
+  return { subject, text, html };
+}
 const mailbox = (value: string | undefined): value is string =>
   typeof value === "string" &&
   value.length <= 320 &&
@@ -119,6 +170,7 @@ export async function processPreventionNotifications(
   const to = env.PROVIDER_PREVENTION_EMAIL_TO;
   const limitText = env.PROVIDER_PREVENTION_EMAIL_DAILY_LIMIT ?? "4";
   const limit = Number(limitText);
+  const locale = env.PROVIDER_PREVENTION_EMAIL_LOCALE ?? "en";
   const clock = (dependencies.now ?? (() => new Date()))();
   if (
     env.RESEND_SENDS_ENABLED !== "true" ||
@@ -129,6 +181,7 @@ export async function processPreventionNotifications(
     from.split("@")[1].toLowerCase() !==
       env.RESEND_VERIFIED_DOMAIN.toLowerCase() ||
     !/^(?:[1-9]|1[0-9]|20)$/.test(limitText) ||
+    (locale !== "en" && locale !== "fr") ||
     !Number.isFinite(clock.getTime())
   )
     return { ...zero(), providerPreventionNotificationsFailed: 1 };
@@ -136,7 +189,9 @@ export async function processPreventionNotifications(
   const hourAgo = new Date(clock.getTime() - 3_600_000).toISOString();
   const leaseUntil = new Date(clock.getTime() + 120_000).toISOString();
   const day = now.slice(0, 10) + "T00:00:00.000Z";
-  const envelope = await sha256(JSON.stringify([from, to, "prevention-v1"]));
+  const envelope = await sha256(
+    JSON.stringify([from, to, "prevention-v2", locale]),
+  );
   await env.DB.prepare(
     "UPDATE provider_freshness_prevention_notifications SET status='unknown',updated_at=?,finished_at=?,error_code='ATTEMPT_INTERRUPTED' WHERE status='sending' AND lease_until<=?",
   )
@@ -182,28 +237,15 @@ export async function processPreventionNotifications(
     let status: "sent" | "failed" | "unknown" = "unknown";
     let reference: string | null = null;
     let errorCode: string | null = "PROVIDER_OUTCOME_UNKNOWN";
-    if (!notice || !families[notice.family] || !stages[notice.stage]) {
+    if (
+      !notice ||
+      !Object.hasOwn(emailCopy.en.mechanisms, notice.family) ||
+      !stages.has(notice.stage)
+    ) {
       status = "failed";
       errorCode = "TASK_CHANGED";
     } else {
-      const action =
-        notice.renewal_mode === "operator"
-          ? "Review and explicitly renew the authorization or retire the affected route. Technical source refresh cannot extend human authority."
-          : "Inspect and repair the registered technical renewal. Recheck its genuine sources, lease and active commitments. Do not extend a deadline without qualified evidence.";
-      const subject = `guteneo · ${stages[notice.stage]} · ${families[notice.family]}`;
-      const text = `${families[notice.family]}\n${stages[notice.stage]}\nDeadline (UTC): ${notice.deadline_at}\n\n${action}\n\nInspect the private operator report with: node scripts/provider-readiness.mjs freshness-prevention\n\nThis operational notice does not authorize a communication, change a price or prove customer delivery.`;
-      const escape = (value: string) =>
-        value.replace(
-          /[&<>"']/g,
-          (character) =>
-            ({
-              "&": "&amp;",
-              "<": "&lt;",
-              ">": "&gt;",
-              '"': "&quot;",
-              "'": "&#39;",
-            })[character]!,
-        );
+      const rendered = renderNotice(notice, locale);
       const fetcher = dependencies.fetch ?? fetch;
       try {
         const response = await fetcher("https://api.resend.com/emails", {
@@ -220,9 +262,7 @@ export async function processPreventionNotifications(
           body: JSON.stringify({
             from,
             to: [to],
-            subject,
-            text,
-            html: `<p>${escape(families[notice.family])}</p><h1>${escape(stages[notice.stage])}</h1><p>Deadline (UTC): ${escape(notice.deadline_at)}</p><p>${escape(action)}</p><p>Inspect the private provider prevention report.</p>`,
+            ...rendered,
           }),
         });
         if (response.ok) {

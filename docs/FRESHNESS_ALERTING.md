@@ -10,7 +10,9 @@ native results and new freshness/resolution email receipts remain unobserved.
 The older rollout and receipt statements below retain their dated scope.
 
 The subsequent preventive lifecycle and dedicated operational-notification outbox
-are **local implementation candidates**, not deployed or activated. They add
+are **not yet deployed or activated**. Their merge, production release and
+operational notification activation were explicitly authorized on 7 November;
+execution and readback remain pending. They add
 early operator action and durable milestone deduplication; the native cadence
 change alone does not prevent an expiry. See [prevention and activation](#preventive-deadline-lifecycle-and-operational-notices).
 
@@ -209,11 +211,58 @@ and cost exposure without claiming free email or a fixed bill. No new Worker,
 paid infrastructure or provider account is provisioned.
 
 The fixed provider endpoint receives only the configured operator envelope and
-a closed family/stage/deadline message with a concrete recovery instruction.
+a localized family/stage/deadline message with a concrete recovery instruction.
 No customer content, recipient, tenant/source identifier, document, credential
-or private URL enters the operational body or logs. The existing service-binding
-inspection command is the recovery entry point; a notice is not business-send
-approval or evidence that a customer communication failed.
+or private URL enters the operational body or logs. Recipient copy explains what
+needs attention, its practical impact, the next action and the deadline in plain
+language. It contains no CLI command, internal stage code or SQL terminology.
+The private service-binding inspection command stays in the operator runbook;
+a notice is not business-send approval or evidence that a customer communication
+failed. The locale configuration and selected French copy are specified below.
+
+### Readable recipient names and copy
+
+`apps/api/src/locales/provider-prevention-emails.json` owns the recipient copy.
+`PROVIDER_PREVENTION_EMAIL_LOCALE` accepts `en` or `fr` and defaults to `en`.
+An invalid configured value fails closed before a notification claim. The
+authorized activation selects **`fr`**; this choice is independent of customer
+profile languages or business message content.
+
+An operational email answers three ordinary questions: what needs attention,
+what it affects and what action to take. Upcoming-authority subjects include the
+deadline; an expired-authority subject states that a decision is needed, rather
+than implying a new delivery failure. For example, the French fax-authority
+templates use `guteneo · Fax : autorisation à renouveler avant le {date}` and
+`guteneo · Fax : autorisation expirée, décision nécessaire`. The English catalog
+has corresponding plain-language subjects and explanations. A technical renewal
+problem and an operator decision have different actions; impact stays scoped to
+the affected route or configuration.
+
+Displayed deadlines use a full human date and time in `Europe/Paris`, with an
+explicit Paris-time label and the selected English or French formatting. The
+deadline instant and all escalation/expiry comparisons remain UTC. The
+`prevention-v2` envelope digest binds the selected locale as well as sender and
+recipient. Copy does not invent a queue-management page, link or product action
+that does not exist. Private CLI instructions remain in this runbook.
+
+The native Cloudflare labels saved and reread on 7 November 2026 are owned by
+`packages/observability/locales/native-alerts.fr.json`:
+
+| Condition | Recipient-facing name |
+| --- | --- |
+| Technical application/provider-check or delivery condition requiring inspection | `guteneo — Problème technique : application ou envoi à vérifier` |
+| Required authority or price-reference deadline | `guteneo — Date limite : autorisation ou tarif d’envoi à vérifier` |
+| Missing scheduled maintenance completion | `guteneo — Contrôle du service absent depuis 5 minutes` |
+
+All three remain enabled with email delivery configured. The technical and
+deadline monitors retain five-minute execution, and the missing-check monitor
+retains one-minute execution. Their French descriptions explain the problem,
+consequence and action; hourly technical and weekly deadline reminders are
+unchanged. This rename preserves monitor identity, query and destination.
+Cloudflare still supplies its own notification wrapper and evaluated
+condition. A value such as `5 >= 1` counts matching log observations in the
+monitor's window; it does **not** establish five customer communications or five
+failed deliveries. Repeated reminders can describe one lasting condition.
 
 A committed claim permits exactly one application submission attempt for that
 notification. The stable provider idempotency key supplements that constraint.
@@ -272,6 +321,11 @@ then separately authorize and configure the exact operational envelope and caps.
 Observe a genuine scheduled claim and provider acknowledgement, then qualify
 actual receipt separately. No deployment, migration, operational email, pilot
 extension or business send follows from the local implementation/tests.
+
+The current release and activation are explicitly authorized; this general
+ordering still applies. A prepared setting or authorized step is not proof of a
+published runtime, configured envelope, scheduled provider acknowledgement or
+recipient receipt.
 
 The Luxembourg February extension remains a distinct draft PR and operator
 activation. A preventive task can request that decision but cannot make it.
@@ -427,7 +481,7 @@ coverage and additionally matches `FRESHNESS_CHECK_FAILED`, positive
 `resendPolicyRefreshFailed`. A lasting operator deadline therefore cannot mask
 a new collector or source-refresh failure. Ordinary expiry/risk and deferred
 refresh counters alone do not trigger this technical monitor. A second
-monitor named `[Guteneo] Provider freshness and operational deadlines` uses
+monitor named `guteneo — Date limite : autorisation ou tarif d’envoi à vérifier` uses
 `nativeSeparatedFreshnessMonitorQuery`:
 
 ```sql

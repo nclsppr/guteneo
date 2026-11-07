@@ -13,6 +13,7 @@ import {
 } from "vitest";
 import type { Env } from "../../apps/api/src/env";
 import { processPreventionNotifications } from "../../apps/api/src/provider-prevention-notifications";
+import emailCopy from "../../apps/api/src/locales/provider-prevention-emails.json";
 
 const NOW = Date.parse("2026-11-07T10:00:00.000Z");
 const DAY = 86_400_000;
@@ -25,11 +26,20 @@ const ZERO = {
   providerPreventionNotificationsFailed: 0,
   providerPreventionNotificationsUnknown: 0,
 };
+const stageRanks = {
+  operator_7d: 1,
+  operator_3d: 2,
+  operator_1d: 3,
+  automatic_48h: 2,
+  automatic_24h: 3,
+  expired: 4,
+};
 type PreventionEnv = Env & {
   PROVIDER_PREVENTION_EMAILS_ENABLED?: string;
   PROVIDER_PREVENTION_EMAIL_FROM?: string;
   PROVIDER_PREVENTION_EMAIL_TO?: string;
   PROVIDER_PREVENTION_EMAIL_DAILY_LIMIT?: string;
+  PROVIDER_PREVENTION_EMAIL_LOCALE?: string;
 };
 type Notification = {
   organization_id: string;
@@ -71,7 +81,15 @@ async function pending(
   options: {
     id?: number;
     organizationId?: string;
-    stage?: "operator_7d" | "operator_3d";
+    stage?: keyof typeof stageRanks;
+    family?:
+      | "fax_authority"
+      | "fax_tariff"
+      | "delivery_policy"
+      | "resend_tariff"
+      | "resend_send_limits";
+    mode?: "operator" | "automatic";
+    deadline?: string;
     at?: number;
   } = {},
 ) {
@@ -79,6 +97,8 @@ async function pending(
   const org = options.organizationId ?? `org_notice_${id}`;
   const stage = options.stage ?? "operator_3d";
   const at = options.at ?? NOW;
+  const family = options.family ?? "fax_authority";
+  const mode = options.mode ?? "operator";
   const binding = hash(id * 10 + 1);
   const task = hash(id * 10 + 2);
   const notification = hash(id * 10 + 3);
@@ -90,21 +110,23 @@ async function pending(
       .bind(org),
     db
       .prepare(
-        "INSERT INTO provider_freshness_bindings(organization_id,family,binding_sha256,active,evaluated_at,evaluation_sha256) VALUES(?,'fax_authority',?,1,?,?)",
+        "INSERT INTO provider_freshness_bindings(organization_id,family,binding_sha256,active,evaluated_at,evaluation_sha256) VALUES(?,?,?,1,?,?)",
       )
-      .bind(org, binding, stamp(at), hash(id * 10 + 4)),
+      .bind(org, family, binding, stamp(at), hash(id * 10 + 4)),
     db
       .prepare(
-        "INSERT INTO provider_freshness_prevention_tasks(organization_id,task_sha256,family,binding_sha256,revision_sha256,deadline_at,renewal_mode,stage,stage_rank,state,occurrence,opened_at,last_evaluated_at) VALUES(?,?,'fax_authority',?,?,?,'operator',?,?,'active',1,?,?)",
+        "INSERT INTO provider_freshness_prevention_tasks(organization_id,task_sha256,family,binding_sha256,revision_sha256,deadline_at,renewal_mode,stage,stage_rank,state,occurrence,opened_at,last_evaluated_at) VALUES(?,?,?,?,?,?,?,?,?,'active',1,?,?)",
       )
       .bind(
         org,
         task,
+        family,
         binding,
         hash(id * 10 + 5),
-        stamp(at + (stage === "operator_7d" ? 7 : 3) * DAY),
+        options.deadline ?? stamp(at + (stage === "operator_7d" ? 7 : 3) * DAY),
+        mode,
         stage,
-        stage === "operator_7d" ? 1 : 2,
+        stageRanks[stage],
         stamp(at - 60_000),
         stamp(at),
       ),
@@ -242,6 +264,7 @@ describe("bounded operational prevention notifications", () => {
     { PROVIDER_PREVENTION_EMAIL_DAILY_LIMIT: "21" },
     { PROVIDER_PREVENTION_EMAIL_DAILY_LIMIT: "1.5" },
     { PROVIDER_PREVENTION_EMAIL_DAILY_LIMIT: "unlimited" },
+    { PROVIDER_PREVENTION_EMAIL_LOCALE: "fr-FR" },
   ])(
     "refuses incomplete or unsafe enabled configuration without a provider attempt: %j",
     async (changes) => {
@@ -655,7 +678,7 @@ describe("bounded operational prevention notifications", () => {
       first.body.html,
     ].join("\n");
     expect(metadata).toMatch(/fax/i);
-    expect(metadata).toMatch(/2026-11-10/);
+    expect(metadata).toMatch(/10 November 2026/);
     for (const privateValue of [
       item.org,
       item.binding,
@@ -690,5 +713,135 @@ describe("bounded operational prevention notifications", () => {
     expect(second.headers.get("Idempotency-Key")).not.toBe(
       first.headers.get("Idempotency-Key"),
     );
+  });
+
+  it("uses readable English by default and omits internal operational commands", async () => {
+    await pending();
+    const fetcher = successfulFetch();
+    await processPreventionNotifications(environment(), dependencies(fetcher));
+    const { body } = await outgoing(fetcher.mock.calls[0]);
+    expect(body.subject).toBe(
+      "guteneo · Fax: renew authorization before 10 November 2026",
+    );
+    expect(body.text).toContain(emailCopy.en.whatLabel);
+    expect(body.text).toContain(emailCopy.en.impactLabel);
+    expect(body.text).toContain(emailCopy.en.actionLabel);
+    expect(body.text).toContain(
+      emailCopy.en.mechanisms.fax_authority.operatorAction,
+    );
+    expect(body.text).toContain("11:00 (Paris time)");
+    expect(body.text).toContain(emailCopy.en.footer);
+    expect(body.html).toContain('lang="en"');
+    expect(JSON.stringify(body)).not.toMatch(
+      /node scripts|provider-readiness|freshness-prevention|lease|binding|SQL|D1/,
+    );
+  });
+
+  it("uses the configured French authorization copy and the actual Paris calendar date across summer midnight", async () => {
+    const summerNow = Date.parse("2027-06-28T10:00:00.000Z");
+    await pending({ deadline: "2027-06-30T22:30:00.000Z", at: summerNow });
+    const fetcher = successfulFetch();
+    await processPreventionNotifications(
+      environment({ PROVIDER_PREVENTION_EMAIL_LOCALE: "fr" }),
+      dependencies(fetcher, summerNow),
+    );
+    const { body } = await outgoing(fetcher.mock.calls[0]);
+    expect(body.subject).toBe(
+      `guteneo · ${emailCopy.fr.mechanisms.fax_authority.upcomingSubject.replace("{date}", "1 juillet 2027")}`,
+    );
+    for (const label of [
+      emailCopy.fr.whatLabel,
+      emailCopy.fr.impactLabel,
+      emailCopy.fr.actionLabel,
+    ])
+      expect(body.text).toContain(label);
+    expect(body.text).toContain("1 juillet 2027");
+    expect(body.text).toContain("00:30");
+    expect(body.text).toContain(emailCopy.fr.parisTime);
+    expect(body.text).toContain(
+      emailCopy.fr.mechanisms.fax_authority.operatorAction,
+    );
+    expect(body.text).toContain(emailCopy.fr.footer);
+    expect(body.html).toContain('lang="fr"');
+    expect(JSON.stringify(body)).not.toMatch(
+      /node scripts|provider-readiness|freshness-prevention|UTC|lease|binding|SQL|D1/,
+    );
+  });
+
+  it("explains an expired authorization in French without claiming a failed customer delivery", async () => {
+    await pending({ deadline: "2026-11-03T14:43:37.427Z", stage: "expired" });
+    const fetcher = successfulFetch();
+    await processPreventionNotifications(
+      environment({ PROVIDER_PREVENTION_EMAIL_LOCALE: "fr" }),
+      dependencies(fetcher),
+    );
+    const { body } = await outgoing(fetcher.mock.calls[0]);
+    expect(body.subject).toBe(
+      `guteneo · ${emailCopy.fr.mechanisms.fax_authority.expiredSubject}`,
+    );
+    expect(body.text).toContain("3 novembre 2026");
+    expect(body.text).toContain("15:43");
+    expect(body.text).toContain(
+      emailCopy.fr.mechanisms.fax_authority.expiredWhat.split("{deadline}")[0],
+    );
+    expect(body.text).toContain(emailCopy.fr.mechanisms.fax_authority.impact);
+    expect(body.text).toContain(emailCopy.fr.footer);
+  });
+
+  it("binds locale into the immutable envelope and never resends an unknown outcome after a locale change", async () => {
+    const first = await pending();
+    const fetcher = vi.fn<typeof fetch>(
+      async () => new Response(null, { status: 503 }),
+    );
+    await processPreventionNotifications(environment(), dependencies(fetcher));
+    const before = (await notices())[0];
+    await processPreventionNotifications(
+      environment({ PROVIDER_PREVENTION_EMAIL_LOCALE: "fr" }),
+      dependencies(fetcher, NOW + 2 * DAY),
+    );
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect((await notices())[0]).toEqual(before);
+    const next = await pending({ at: NOW + 2 * DAY + HOUR });
+    await processPreventionNotifications(
+      environment({ PROVIDER_PREVENTION_EMAIL_LOCALE: "fr" }),
+      dependencies(fetcher, NOW + 2 * DAY + HOUR),
+    );
+    const rows = await notices();
+    expect(
+      rows.find((row) => row.notification_sha256 === next.notification)
+        ?.envelope_sha256,
+    ).not.toBe(
+      rows.find((row) => row.notification_sha256 === first.notification)
+        ?.envelope_sha256,
+    );
+    const { body } = await outgoing(fetcher.mock.calls[1]);
+    expect(body.subject).toContain(
+      emailCopy.fr.mechanisms.fax_authority.upcomingSubject.split("{date}")[0],
+    );
+  });
+
+  it("distinguishes automatic fax pricing maintenance from a human authorization decision", async () => {
+    await pending({
+      family: "fax_tariff",
+      mode: "automatic",
+      stage: "automatic_48h",
+      deadline: stamp(NOW + 2 * DAY),
+    });
+    const fetcher = successfulFetch();
+    await processPreventionNotifications(
+      environment({ PROVIDER_PREVENTION_EMAIL_LOCALE: "fr" }),
+      dependencies(fetcher),
+    );
+    const { body } = await outgoing(fetcher.mock.calls[0]);
+    expect(body.subject).toBe(
+      `guteneo · ${emailCopy.fr.mechanisms.fax_tariff.automaticSubject.replace("{date}", "9 novembre 2026")}`,
+    );
+    expect(body.text).toContain(
+      emailCopy.fr.mechanisms.fax_tariff.automaticAction,
+    );
+    expect(body.text).not.toContain(
+      emailCopy.fr.mechanisms.fax_authority.operatorAction,
+    );
+    expect(body.text).toContain(emailCopy.fr.mechanisms.fax_tariff.impact);
   });
 });

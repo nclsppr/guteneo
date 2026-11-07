@@ -4,7 +4,7 @@ This locally tested instrumentation is not deployment proof. Verify Cloudflare
 version/published settings after each release. These tools send nothing, make no
 payment, activate no channel and provision no infrastructure.
 
-## Preventive deadline actions — local candidate, 7 November 2026
+## Preventive deadline actions — authorized release pending, 7 November 2026
 
 The [preventive lifecycle](FRESHNESS_ALERTING.md#preventive-deadline-lifecycle-and-operational-notices)
 adds early decisions before independent operator authority expires, plus durable
@@ -14,7 +14,9 @@ their existing daily renewals and safety gates. Repeated minute checks queue no
 duplicate, obsolete pending stages are superseded and unknown provider outcomes
 never auto-retry.
 
-This implementation is **not deployed or activated**. Additive migration 0074
+Merge, production release and operational notification activation are now
+explicitly authorized. Verified deployment and activation remain pending.
+Additive migration 0074
 precedes its runtime. The existing private service-binding CLI will expose
 `node scripts/provider-readiness.mjs freshness-prevention`; it has no public HTTP,
 REST, MCP or native maintenance surface. Operational emails remain off until an
@@ -23,6 +25,21 @@ The default cap is four attempts per UTC day, configurable from one to twenty,
 with a hard account-wide maximum of one new attempt per rolling hour.
 Provider acknowledgement is not recipient delivery. The applied native change
 below is a separate fallback/alert-noise mitigation, not this preventive engine.
+
+Recipient-facing names and copy must explain the condition, practical impact,
+next action and deadline in plain French. Technical commands belong in this
+operator runbook, not in an email to the recipient. Native log-condition counts
+are repeated observations of a condition, not a count of customer sends or failed
+deliveries.
+The authorized activation selects `PROVIDER_PREVENTION_EMAIL_LOCALE=fr`; the
+catalog supports `en` and `fr`, defaults to English and refuses an invalid locale
+before claiming a notice. Human deadline formatting uses explicit Paris time.
+The [copy and native-name contract](FRESHNESS_ALERTING.md#readable-recipient-names-and-copy)
+owns the exact labels; saved native rename and deployed French copy each need
+their own readback. The three native French names and descriptions were saved
+and reread on 7 November: all enabled with email configured, technical/deadline
+execution every five minutes, missing-check execution every minute. The separate
+runtime release and French operational-email activation remain pending.
 
 ## 7 November 2026 recurring-alert correction
 

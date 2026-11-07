@@ -32,8 +32,10 @@ readback is verified; actual scheduled results and new email receipts remain
 separate observations.
 The [preventive deadline lifecycle](FRESHNESS_ALERTING.md#preventive-deadline-lifecycle-and-operational-notices)
 adds early operator actions, durable milestone deduplication, bounded operational
-notices and private read-only inspection. This subsequent local implementation
-requires migration/runtime deployment and separate notification activation.
+notices and private read-only inspection. Its merge, production release and
+French operational notification activation are explicitly authorized; verified
+execution remains pending. The recipient-copy contract owns readable subjects,
+condition/impact/action wording and human Paris-time deadlines without CLI text.
 The [3 November Cloudflare alert diagnosis](CLOUDFLARE_ALERT_DIAGNOSIS_2026-11-03.md)
 records a fresh read-only production investigation and proposed pilot-authority
 correction. It changes no runtime, provider or monitoring configuration.

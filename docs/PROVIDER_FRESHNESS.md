@@ -8,8 +8,15 @@ recent production sends. Native technical/freshness monitoring was separated
 and its saved configuration reread; scheduled native results and new receipts
 remain separate evidence. See the [dated investigation](CLOUDFLARE_ALERT_NOISE_2026_11_07.md).
 
-The subsequent preventive lifecycle is implemented locally, **not deployed or
-activated**. It anticipates operator decisions at seven/three/one days and
+The subsequent preventive lifecycle is implemented and its merge, production
+release and operational notification activation were explicitly authorized on
+7 November. **Deployment and activation remain pending verified execution.**
+This activation selects French operational copy: understandable subject names,
+plain-language condition/impact/action and human deadlines in Paris time. The
+[recipient-copy contract](FRESHNESS_ALERTING.md#readable-recipient-names-and-copy)
+owns its catalog, locale setting and exact reviewed native labels. Cloudflare
+condition counts remain log observations, not a number of customer sends.
+It anticipates operator decisions at seven/three/one days and
 automatic-renewal loss of runway at 48/24 hours, retaining a unique operational
 notice per task occurrence and current stage. The dedicated bounded notification
 outbox and aggregate private operator report are separate from customer sends,

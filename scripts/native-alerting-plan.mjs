@@ -4,6 +4,7 @@ import { writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import nativeAlertSignals from "../packages/observability/native-alert-signals.json" with { type: "json" };
+import nativeAlertNames from "../packages/observability/locales/native-alerts.fr.json" with { type: "json" };
 import {
   privateOperatorPath,
   readPrivateOperatorJson,
@@ -290,7 +291,7 @@ export function planNativeAlertSeparation(
     freshnessMonitor: {
       target: { accountId: account, monitorId: null },
       binding: "unbound_requires_current_native_inventory_and_readback",
-      proposedName: "[Guteneo] Provider freshness and operational deadlines",
+      proposedName: nativeAlertNames.deadline,
       patch: freshnessPatch,
       expectedConfigurationSha256: sha({
         ...configuration,

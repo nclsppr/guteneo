@@ -65,6 +65,8 @@ export interface Env {
   PROVIDER_PREVENTION_EMAIL_FROM?: string;
   PROVIDER_PREVENTION_EMAIL_TO?: string;
   PROVIDER_PREVENTION_EMAIL_DAILY_LIMIT?: string;
+  /** Recipient-facing operational copy: en by default, or explicitly fr. */
+  PROVIDER_PREVENTION_EMAIL_LOCALE?: string;
   PROTECTED_DOCUMENTS_KEY?: string;
   /** Versioned envelope key for secure distribution and personal objects. */
   SECURE_DOCUMENTS_KEY?: string;

@@ -1,0 +1,130 @@
+{
+  "en": {
+    "dateLocale": "en-GB",
+    "parisTime": "Paris time",
+    "whatLabel": "What is happening",
+    "impactLabel": "What this affects",
+    "actionLabel": "What to do",
+    "footer": "This notice concerns readiness to send. It does not report a failed delivery.",
+    "mechanisms": {
+      "fax_authority": {
+        "title": "Fax: authorization",
+        "upcomingSubject": "Fax: renew authorization before {date}",
+        "expiredSubject": "Fax: authorization expired, decision required",
+        "upcomingWhat": "An authorization for an affected fax route expires on {deadline}.",
+        "expiredWhat": "This fax route authorization has not been valid since {deadline}.",
+        "impact": "New faxes that depend on this authorization may be blocked.",
+        "operatorAction": "Decide whether the test should continue: arrange an explicit renewal of the authorization or retire the affected route. Updating prices does not renew this authorization.",
+        "automaticAction": "An authorization needs an explicit decision. Arrange its renewal or retire the affected route; a price update cannot renew it."
+      },
+      "fax_tariff": {
+        "title": "Fax: pricing",
+        "upcomingSubject": "Fax: check pricing before {date}",
+        "automaticSubject": "Fax: restore automatic price checks before {date}",
+        "expiredSubject": "Fax: price verification expired, action required",
+        "upcomingWhat": "The price verification used for an affected fax route expires on {deadline}.",
+        "expiredWhat": "The price verification for the affected fax route expired on {deadline}.",
+        "impact": "New faxes that rely on this pricing may be blocked.",
+        "operatorAction": "Have the current price checked with the provider, then have a new verified price approved for the affected fax route.",
+        "automaticAction": "Have the automatic price check with the provider inspected and restarted."
+      },
+      "delivery_policy": {
+        "title": "Sending: provider conditions",
+        "upcomingSubject": "Sending: check provider conditions before {date}",
+        "automaticSubject": "Sending: restore automatic provider checks before {date}",
+        "expiredSubject": "Sending: provider verification expired, action required",
+        "upcomingWhat": "Verification of the provider conditions used for the affected sending configuration expires on {deadline}.",
+        "expiredWhat": "Verification of the provider conditions for the affected sending configuration expired on {deadline}.",
+        "impact": "New sends using these conditions may be blocked.",
+        "operatorAction": "Have the current provider conditions checked, then have their update approved for the affected sending configuration.",
+        "automaticAction": "Have the automatic check of the provider conditions inspected and restarted."
+      },
+      "resend_tariff": {
+        "title": "Email: pricing",
+        "upcomingSubject": "Email: check pricing before {date}",
+        "automaticSubject": "Email: restore automatic price checks before {date}",
+        "expiredSubject": "Email: price verification expired, action required",
+        "upcomingWhat": "The provider price verification used for the affected email configuration expires on {deadline}.",
+        "expiredWhat": "The provider price verification for the affected email configuration expired on {deadline}.",
+        "impact": "New emails using this pricing may be blocked.",
+        "operatorAction": "Have the current email price checked with the provider, then have the updated price approved.",
+        "automaticAction": "Have the automatic email price check with the provider inspected and restarted."
+      },
+      "resend_send_limits": {
+        "title": "Email: sending limits",
+        "upcomingSubject": "Email: check sending limits before {date}",
+        "automaticSubject": "Email: restore automatic limit checks before {date}",
+        "expiredSubject": "Email: sending-limit verification expired, action required",
+        "upcomingWhat": "Verification of the provider sending limits for the affected email configuration expires on {deadline}.",
+        "expiredWhat": "Verification of the provider sending limits for the affected email configuration expired on {deadline}.",
+        "impact": "New emails using this configuration may be blocked.",
+        "operatorAction": "Have the current account sending limits checked with the email provider, then have their update approved.",
+        "automaticAction": "Have the account sending limits checked again with the email provider and their automatic update restored."
+      }
+    }
+  },
+  "fr": {
+    "dateLocale": "fr-FR",
+    "parisTime": "heure de Paris",
+    "whatLabel": "Ce qui se passe",
+    "impactLabel": "Conséquence",
+    "actionLabel": "Action à faire",
+    "footer": "Cette alerte concerne les conditions d’envoi. Elle ne signale pas un échec de livraison.",
+    "mechanisms": {
+      "fax_authority": {
+        "title": "Fax : autorisation",
+        "upcomingSubject": "Fax : autorisation à renouveler avant le {date}",
+        "expiredSubject": "Fax : autorisation expirée, décision nécessaire",
+        "upcomingWhat": "Une autorisation utilisée pour une route fax arrive à échéance le {deadline}.",
+        "expiredWhat": "Cette autorisation de route fax n’est plus valide depuis le {deadline}.",
+        "impact": "Les nouveaux fax qui dépendent de cette autorisation peuvent être bloqués.",
+        "operatorAction": "Décidez si le test doit continuer : faites renouveler explicitement l’autorisation ou arrêtez la route concernée. Une mise à jour du tarif ne renouvelle pas cette autorisation.",
+        "automaticAction": "Une autorisation nécessite une décision explicite. Faites-la renouveler ou arrêtez la route concernée ; une mise à jour du tarif ne peut pas la prolonger."
+      },
+      "fax_tariff": {
+        "title": "Fax : tarif",
+        "upcomingSubject": "Fax : tarif à vérifier avant le {date}",
+        "automaticSubject": "Fax : renouvellement du tarif à rétablir avant le {date}",
+        "expiredSubject": "Fax : vérification du tarif expirée, action nécessaire",
+        "upcomingWhat": "La vérification du tarif utilisé pour une route fax arrive à échéance le {deadline}.",
+        "expiredWhat": "La vérification du tarif de la route fax concernée a expiré le {deadline}.",
+        "impact": "Les nouveaux fax qui reposent sur ce tarif peuvent être bloqués.",
+        "operatorAction": "Faites vérifier le tarif actuel auprès du fournisseur, puis faites valider un nouveau tarif pour la route fax concernée.",
+        "automaticAction": "Faites vérifier et relancer le renouvellement automatique du tarif auprès du fournisseur."
+      },
+      "delivery_policy": {
+        "title": "Envois : conditions du fournisseur",
+        "upcomingSubject": "Envois : conditions du fournisseur à vérifier avant le {date}",
+        "automaticSubject": "Envois : contrôle automatique du fournisseur à rétablir avant le {date}",
+        "expiredSubject": "Envois : vérification du fournisseur expirée, action nécessaire",
+        "upcomingWhat": "La vérification des conditions du fournisseur pour les envois concernés arrive à échéance le {deadline}.",
+        "expiredWhat": "La vérification des conditions du fournisseur pour les envois concernés a expiré le {deadline}.",
+        "impact": "Les nouveaux envois qui utilisent ces conditions peuvent être bloqués.",
+        "operatorAction": "Faites vérifier les conditions en vigueur auprès du fournisseur, puis faites valider leur mise à jour pour les envois concernés.",
+        "automaticAction": "Faites vérifier et relancer le contrôle automatique des conditions du fournisseur."
+      },
+      "resend_tariff": {
+        "title": "E-mail : tarif",
+        "upcomingSubject": "E-mail : tarif à vérifier avant le {date}",
+        "automaticSubject": "E-mail : renouvellement du tarif à rétablir avant le {date}",
+        "expiredSubject": "E-mail : vérification du tarif expirée, action nécessaire",
+        "upcomingWhat": "La vérification du tarif du fournisseur d’e-mail pour la configuration concernée arrive à échéance le {deadline}.",
+        "expiredWhat": "La vérification du tarif du fournisseur d’e-mail pour la configuration concernée a expiré le {deadline}.",
+        "impact": "Les nouveaux e-mails qui utilisent ce tarif peuvent être bloqués.",
+        "operatorAction": "Faites vérifier le tarif actuel auprès du fournisseur d’e-mail, puis faites valider sa mise à jour.",
+        "automaticAction": "Faites vérifier et relancer le renouvellement automatique du tarif auprès du fournisseur d’e-mail."
+      },
+      "resend_send_limits": {
+        "title": "E-mail : limites d’envoi",
+        "upcomingSubject": "E-mail : limites d’envoi à vérifier avant le {date}",
+        "automaticSubject": "E-mail : contrôle automatique des limites à rétablir avant le {date}",
+        "expiredSubject": "E-mail : vérification des limites expirée, action nécessaire",
+        "upcomingWhat": "La vérification des limites d’envoi du fournisseur d’e-mail pour la configuration concernée arrive à échéance le {deadline}.",
+        "expiredWhat": "La vérification des limites d’envoi du fournisseur d’e-mail pour la configuration concernée a expiré le {deadline}.",
+        "impact": "Les nouveaux e-mails qui utilisent cette configuration peuvent être bloqués.",
+        "operatorAction": "Faites vérifier les limites actuelles du compte auprès du fournisseur d’e-mail, puis faites valider leur mise à jour.",
+        "automaticAction": "Faites vérifier à nouveau les limites du compte auprès du fournisseur d’e-mail, puis rétablir leur mise à jour automatique."
+      }
+    }
+  }
+}

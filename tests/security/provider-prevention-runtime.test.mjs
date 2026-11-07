@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { unstable_splitSqlQuery } from "wrangler";
+import emailCopy from "../../apps/api/src/locales/provider-prevention-emails.json" with { type: "json" };
 
 test(
   "the prevention notifier uses native workerd global fetch once without receiver errors or real network",
@@ -54,6 +55,7 @@ test(
           PROVIDER_PREVENTION_EMAILS_ENABLED: "true",
           PROVIDER_PREVENTION_EMAIL_FROM: "operations@guteneo.com",
           PROVIDER_PREVENTION_EMAIL_TO: "private-operator@example.invalid",
+          PROVIDER_PREVENTION_EMAIL_LOCALE: "fr",
         },
         // This service receives every outbound fetch. No provider connection or
         // credential lookup is possible in this deterministic runtime regression.
@@ -133,6 +135,21 @@ test(
     assert.ok(calls[0].idempotency.includes(notification));
     assert.deepEqual(calls[0].body.to, ["private-operator@example.invalid"]);
     assert.equal(calls[0].body.from, "operations@guteneo.com");
+    assert.equal(
+      calls[0].body.subject,
+      `guteneo · ${emailCopy.fr.mechanisms.fax_authority.upcomingSubject.replace("{date}", "10 novembre 2026")}`,
+    );
+    assert.ok(calls[0].body.text.includes("11:00"));
+    assert.ok(calls[0].body.text.includes(emailCopy.fr.parisTime));
+    assert.ok(
+      calls[0].body.text.includes(
+        emailCopy.fr.mechanisms.fax_authority.operatorAction,
+      ),
+    );
+    assert.doesNotMatch(
+      JSON.stringify(calls[0].body),
+      /node scripts|provider-readiness|freshness-prevention|UTC/,
+    );
     assert.deepEqual(
       await db
         .prepare(

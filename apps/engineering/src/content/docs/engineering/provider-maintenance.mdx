@@ -247,7 +247,9 @@ current marker coverage.
 
 The subsequent 7 November local candidate adds preventive tasks and a dedicated
 operational-notification outbox to the existing Cron. It is **not deployed or
-activated**. Registered technical renewal already runs daily; it cannot renew an
+activated**; its merge, release and operational notification activation are now
+explicitly authorized, with execution proof pending. Registered technical renewal
+already runs daily; it cannot renew an
 independent operator authority. Keep those two responsibilities separate:
 
 | Deadline owner | Preventive milestones | Required response |
@@ -287,6 +289,23 @@ Current-task notification failures and unknown outcomes remain technical alarm
 signals while unrelated safe Cron work continues. No customer content,
 recipients, tenant/source identifiers, secrets or private URLs enter notice bodies
 or logs; the operator envelope stays in explicitly authorized settings.
+
+Recipient copy lives in the dedicated `provider-prevention-emails.json` catalog.
+The optional operational locale accepts English or French, defaults to English
+and refuses an invalid value before claiming a notice. This authorized activation
+selects French. The subject and body explain what requires attention, its
+practical impact, the next decision and the deadline in ordinary language; they
+do not include CLI commands, SQL or internal stage codes. Deadlines display full
+dates and times with an explicit Paris-time label, while eligibility and stage
+comparisons keep their UTC instants. The immutable envelope binds the selected
+locale and copy version. Operator instructions remain in the private runbook.
+
+Native alert names likewise distinguish a technical problem, an authority/tariff
+date limit and a missing five-minute service check. Their native save and
+readback were verified on 7 November, separately from runtime release, with all
+three enabled and email configured. Their evaluated log counts are
+observations, not a number of customer sends or failed deliveries. Cloudflare's
+own notification wrapper remains distinct from the localized operational email.
 
 The existing private same-account service binding exposes a bounded aggregate
 prevention report: family, owner mode, stage, deadline, count and recovery action,
