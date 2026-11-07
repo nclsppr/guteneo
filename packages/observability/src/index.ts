@@ -153,6 +153,14 @@ const metrics = [
   "freshnessOpened",
   "freshnessResolved",
   "freshnessChecksFailed",
+  "preventionActive",
+  "preventionOpened",
+  "preventionResolved",
+  "preventionNotificationsQueued",
+  "preventionChecksFailed",
+  "providerPreventionNotificationsSent",
+  "providerPreventionNotificationsFailed",
+  "providerPreventionNotificationsUnknown",
 ] as const;
 export type Metrics = Partial<Record<(typeof metrics)[number], number>>;
 const uuid =

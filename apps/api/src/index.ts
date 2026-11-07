@@ -134,6 +134,8 @@ import { refreshPostalPolicies } from "./postal-policy-refresh";
 import { refreshResendPolicies } from "./resend-policy-refresh";
 import { collectProviderFreshness } from "./provider-freshness";
 import { reconcileFreshnessAlerts } from "./freshness-alerts";
+import { reconcileFreshnessPrevention } from "./freshness-prevention";
+import { processPreventionNotifications } from "./provider-prevention-notifications";
 
 import {
   startObservation,
@@ -1688,30 +1690,62 @@ export default {
           "freshness",
           "maintenance",
         );
+        const metrics: Metrics = { freshnessChecksFailed: 0 };
         try {
-          const selected = await collectProviderFreshness(env);
+          const evaluatedAt = new Date().toISOString();
+          const selected = await collectProviderFreshness(env, {
+            now: () => Date.parse(evaluatedAt),
+          });
+          metrics.freshnessChecksFailed = selected.freshnessChecksFailed;
           const reconciled = await reconcileFreshnessAlerts(
             env.DB,
             selected.evaluations,
+            evaluatedAt,
           );
-          const metrics = {
+          Object.assign(metrics, {
             ...reconciled,
             freshnessChecksFailed:
               reconciled.freshnessChecksFailed + selected.freshnessChecksFailed,
-          };
-          if (metrics.freshnessChecksFailed)
-            freshness.setCode("FRESHNESS_CHECK_FAILED");
-          else if (metrics.freshnessAtRisk || metrics.freshnessExpired)
-            freshness.setCode("FRESHNESS_AT_RISK");
-          freshness.finish(undefined, metrics, "freshness");
+          });
+          try {
+            const prevention = await reconcileFreshnessPrevention(
+              env.DB,
+              selected.evaluations,
+              evaluatedAt,
+            );
+            Object.assign(metrics, prevention);
+            metrics.freshnessChecksFailed =
+              (metrics.freshnessChecksFailed ?? 0) +
+              prevention.preventionChecksFailed;
+          } catch {
+            metrics.preventionChecksFailed = 1;
+            throw new Error("FRESHNESS_PREVENTION_UNAVAILABLE");
+          }
         } catch {
-          freshness.setCode("FRESHNESS_CHECK_FAILED");
-          freshness.finish(
-            undefined,
-            { freshnessChecksFailed: 1 },
-            "freshness",
-          );
+          metrics.freshnessChecksFailed =
+            (metrics.freshnessChecksFailed ?? 0) + 1;
         }
+        // A partial or stale inspection cannot authorize an obsolete notice.
+        // Leave pending notices untouched until all current checks complete.
+        if (metrics.freshnessChecksFailed === 0) {
+          try {
+            const notified = await processPreventionNotifications(env);
+            Object.assign(metrics, notified);
+            metrics.freshnessChecksFailed =
+              (metrics.freshnessChecksFailed ?? 0) +
+              notified.providerPreventionNotificationsFailed +
+              notified.providerPreventionNotificationsUnknown;
+          } catch {
+            metrics.providerPreventionNotificationsFailed = 1;
+            metrics.freshnessChecksFailed =
+              (metrics.freshnessChecksFailed ?? 0) + 1;
+          }
+        }
+        if (metrics.freshnessChecksFailed)
+          freshness.setCode("FRESHNESS_CHECK_FAILED");
+        else if (metrics.freshnessAtRisk || metrics.freshnessExpired)
+          freshness.setCode("FRESHNESS_AT_RISK");
+        freshness.finish(undefined, metrics, "freshness");
       }
       stage = "identity";
       if (env.ENVIRONMENT !== "local" && !identityConfigured(env)) {

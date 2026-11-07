@@ -3,6 +3,15 @@ flowchart TD
   Selected -->|No| Ignore[No freshness incident]
   Selected -->|Yes| Deadline[Real consumed deadline]
   Deadline --> Due{Renewal due?}
+  Deadline --> Prevent{Preventive milestone reached?}
+  Prevent -->|Operator 7d / 3d / 1d or automatic 48h / 24h| Task[Durable current-stage task]
+  Task --> Notice[Unique operational notice per occurrence and stage]
+  Notice --> Gate{Explicit operational email activation?}
+  Gate -->|No| Report[Private aggregate action report]
+  Gate -->|Yes| Claim[One claim within hourly and daily caps]
+  Claim --> Outcome{Provider acknowledgement?}
+  Outcome -->|Known and persisted| Accepted[Accepted notice; delivery unproven]
+  Outcome -->|Refused or uncertain| Hold[Retain failed or unknown; no automatic retry]
   Due -->|Yes| Technical{Technical renewal allowed?}
   Technical -->|Yes| Inspect[Bounded real source inspection]
   Technical -->|No| Authority[Preserve the independent authority deadline]

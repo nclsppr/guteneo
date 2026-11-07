@@ -83,12 +83,13 @@ export const mermaidDiagrams: Record<DiagramId, {
   text: string[];
 }> = {
   freshness: {
-    title: 'Active inputs, renewal and the final twenty-four hours',
-    caption: 'The maintenance loop follows only data consumed by an active operation. Successful renewal and early operational warning support the existing expiry gate; they do not replace it.',
+    title: 'Active inputs, technical renewal and preventive action',
+    caption: 'The maintenance loop follows only data consumed by an active operation. The additive prevention branch anticipates operator decisions and lost technical runway; its dedicated operational notices remain explicitly gated. Neither renewal nor warning replaces the expiry gate. The diagram is not activation proof.',
     width: 900,
     text: [
       'Start with the operation’s actual selected provider/account/route or current policy generation. Exclude inactive and informational references before evaluating deadlines.',
       'A bounded source read and exact binding validation can produce a new immutable technical revision. Preserve usable commitments and independent human authority; a failure leaves the earlier evidence unchanged.',
+      'The local preventive candidate queues one current-stage task at operator deadlines minus seven, three and one days, or automatic-reference deadlines minus forty-eight and twenty-four hours. Durable notice keys deduplicate repeated observations; the private report remains read-only. Only explicit operational activation can claim one bounded provider attempt, and failed or unknown outcomes never automatically retry.',
       'At deadline minus twenty-four hours, an active binding without a valid replacement opens a durable incident. Emit a distinct freshness signal to the existing operational alert channel. Resolve only from a current valid replacement or proven deactivation.',
       'At the real expiry, the affected operation continues to fail closed if its required data is invalid. Short-lived quotes, ordinary login expiry and intentionally bounded human mandates are not automatically renewed by this loop.',
     ],

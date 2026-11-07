@@ -25,6 +25,15 @@ publication at `engineering.guteneo.com`: readable guides, generated feature pag
 and brand-aligned diagrams. `docs.guteneo.com` is reserved for customer documentation.
 Run `npm run docs:build` and `npm run docs:check` to synchronize both views.
 
+The [7 November Cloudflare alert-noise correction](CLOUDFLARE_ALERT_NOISE_2026_11_07.md)
+records current production diagnosis and the applied native separation of
+technical failure alerts from repeated operator-deadline reminders. Saved-state
+readback is verified; actual scheduled results and new email receipts remain
+separate observations.
+The [preventive deadline lifecycle](FRESHNESS_ALERTING.md#preventive-deadline-lifecycle-and-operational-notices)
+adds early operator actions, durable milestone deduplication, bounded operational
+notices and private read-only inspection. This subsequent local implementation
+requires migration/runtime deployment and separate notification activation.
 The [3 November Cloudflare alert diagnosis](CLOUDFLARE_ALERT_DIAGNOSIS_2026-11-03.md)
 records a fresh read-only production investigation and proposed pilot-authority
 correction. It changes no runtime, provider or monitoring configuration.

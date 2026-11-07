@@ -4,6 +4,46 @@ This locally tested instrumentation is not deployment proof. Verify Cloudflare
 version/published settings after each release. These tools send nothing, make no
 payment, activate no channel and provision no infrastructure.
 
+## Preventive deadline actions — local candidate, 7 November 2026
+
+The [preventive lifecycle](FRESHNESS_ALERTING.md#preventive-deadline-lifecycle-and-operational-notices)
+adds early decisions before independent operator authority expires, plus durable
+per-stage operational notification records. Operator stages are J-7/J-3/J-1 and
+expiry; automatic technical references use 48/24 hours and expiry, retaining
+their existing daily renewals and safety gates. Repeated minute checks queue no
+duplicate, obsolete pending stages are superseded and unknown provider outcomes
+never auto-retry.
+
+This implementation is **not deployed or activated**. Additive migration 0074
+precedes its runtime. The existing private service-binding CLI will expose
+`node scripts/provider-readiness.mjs freshness-prevention`; it has no public HTTP,
+REST, MCP or native maintenance surface. Operational emails remain off until an
+explicit production gate, approved envelope and provider configuration are set.
+The default cap is four attempts per UTC day, configurable from one to twenty,
+with a hard account-wide maximum of one new attempt per rolling hour.
+Provider acknowledgement is not recipient delivery. The applied native change
+below is a separate fallback/alert-noise mitigation, not this preventive engine.
+
+## 7 November 2026 recurring-alert correction
+
+The [current investigation and applied native correction](CLOUDFLARE_ALERT_NOISE_2026_11_07.md)
+confirm one expired Luxembourg operator authority on production 1.1.31, healthy
+Cron execution and no recent production attempts. Around 23:51 UTC on 6 November
+(7 November in Paris), both separated queries and their intervals were saved and
+reread. The original technical monitor retains hourly reminders; freshness uses
+168-hour reminders. All three native monitors are enabled, the existing single
+email destination is preserved, and the heartbeat monitor is unchanged.
+
+The applied native design keeps application failures and actual collector/refresher
+failures on the original monitor with hourly reminders, and moves freshness/deadline
+conditions to the separate freshness monitor with 168-hour reminders.
+Weekly reminders remain possible; the expired authority remains visible and
+closed to sending. See the [authoritative separation procedure](FRESHNESS_ALERTING.md#separate-technical-failures-from-operational-deadlines).
+This requires no application deployment, provider-authority change or new paid
+infrastructure. Configured queries, evaluated recovery and mail receipt remain
+separate evidence. Both SQL previews validated; actual scheduled native results
+and new freshness/resolution email receipts remain unobserved.
+
 ## 9 October 2026 review and monitor
 
 [Production review](PRODUCTION_REVIEW_2026_10_09.md) records actual observations,
@@ -31,7 +71,7 @@ CPU/requests and Deployments for version:
 
 Public summary grants no internal data/incident history access. No third-party
 alerting, log export or additional permanent monitor was configured in that review.
-The current native Cloudflare monitor inventory is recorded below.
+The current native change is recorded above; the inventories below retain their dated scope.
 
 ## Reading signals
 

@@ -10,11 +10,15 @@ import nativeAlertSignals from "../../packages/observability/native-alert-signal
 import {
   nativeFailureMonitorQuery,
   nativeFreshnessMonitorQuery,
+  nativeSeparatedFreshnessMonitorQuery,
+  nativeSeparatedTechnicalMonitorQuery,
   legacyNativeFreshnessMonitorQuery,
   nativeUiFailureMonitorQuery,
   nativeUiLegacyFreshnessMonitorQuery,
+  nativeUiCurrentFreshnessMonitorQuery,
   nativeAlertingPlanDigest,
   planNativeFreshnessAlerting,
+  planNativeAlertSeparation,
 } from "../../scripts/native-alerting-plan.mjs";
 
 const at = "2026-10-30T10:00:00.000Z";
@@ -42,6 +46,133 @@ const snapshot = () => ({
     },
     unchangedNativeSetting: { nested: "retained synthetic setting" },
   },
+});
+test("separation plans retain technical sensitivity and bind identical private destinations", () => {
+  const input = snapshot();
+  input.configuration.query = nativeFreshnessMonitorQuery;
+  input.configuration.evaluation.intervalSeconds = 300;
+  const before = structuredClone(input);
+  const plan = planNativeAlertSeparation(input, at);
+  assert.deepEqual(input, before);
+  assert.equal(plan.status, "plan_only");
+  assert.equal(
+    plan.technicalMonitor.patch.query,
+    nativeSeparatedTechnicalMonitorQuery,
+  );
+  assert.equal(
+    plan.freshnessMonitor.patch.query,
+    nativeSeparatedFreshnessMonitorQuery,
+  );
+  for (const policy of [plan.technicalMonitor, plan.freshnessMonitor]) {
+    assert.deepEqual(policy.patch.evaluation, input.configuration.evaluation);
+    assert.equal(policy.patch.timeRangeMode, "automatic");
+    assert.equal(
+      policy.destinationSha256,
+      planNativeFreshnessAlerting(input, at).destinationSha256,
+    );
+  }
+  assert.equal(plan.technicalMonitor.repeatSeconds, 3600);
+  assert.equal(plan.freshnessMonitor.reminder.repeatSeconds, 604800);
+  assert.equal(plan.freshnessMonitor.reminder.disabled, false);
+  assert.deepEqual(plan.freshnessMonitor.patch.notifications, {
+    repeatSeconds: 604800,
+  });
+  assert.equal(plan.preserved.enabled, true);
+  assert.equal(plan.preserved.destinationsChanged, false);
+  assert.equal(plan.preserved.heartbeatMonitorChanged, false);
+  assert.equal(plan.preserved.runtimeChanged, false);
+  assert.equal(plan.preserved.providerAuthorityChanged, false);
+  assert.doesNotMatch(
+    JSON.stringify(plan),
+    /synthetic@example\.invalid|retained synthetic setting/,
+  );
+  const otherDestination = structuredClone(input);
+  otherDestination.configuration.notifications.destinations[0].recipients = [
+    "other-synthetic@example.invalid",
+  ];
+  const changed = planNativeAlertSeparation(otherDestination, at);
+  assert.notEqual(plan.destinationSha256, changed.destinationSha256);
+  assert.notEqual(
+    plan.technicalMonitor.destinationSha256,
+    changed.technicalMonitor.destinationSha256,
+  );
+  assert.notEqual(
+    plan.freshnessMonitor.expectedConfigurationSha256,
+    changed.freshnessMonitor.expectedConfigurationSha256,
+  );
+  assert.notEqual(
+    nativeAlertingPlanDigest(plan),
+    nativeAlertingPlanDigest(changed),
+  );
+});
+test("separation requires inventory and verified independent freshness coverage before changing the aggregate", () => {
+  const plan = planNativeAlertSeparation(snapshot(), at);
+  assert.equal(plan.freshnessMonitor.target.monitorId, null);
+  const [inventory, freshness, technical, readback] = plan.steps;
+  assert.equal(inventory.reuse, "exactly_one_matching_freshness_monitor_only");
+  assert.equal(inventory.create, "only_after_verified_zero_matching_monitors");
+  assert.match(inventory.refuse, /incomplete_inventory_multiple_matches/);
+  assert.deepEqual(freshness.requires, [inventory.id]);
+  assert.equal(freshness.existingAggregateMonitorChanged, false);
+  assert.equal(freshness.requireEnabled, true);
+  assert.equal(freshness.requireCompleteEvaluationLookbackSeconds, 300);
+  assert.equal(freshness.requireExpectedAlarmAndHealthyCoverageSemantics, true);
+  assert.equal(freshness.recordActualMonitorIdFromNativeReadback, true);
+  assert.deepEqual(technical.requires, [freshness.id]);
+  assert.equal(technical.refuseIfSeparateFreshnessMonitorUnverified, true);
+  assert.equal(
+    technical.requireConfigurationSha256,
+    plan.originalConfigurationSha256,
+  );
+  assert.deepEqual(readback.requires, [technical.id]);
+  assert.equal(readback.requireIndependentTechnicalFailureSignal, true);
+  assert.equal(plan.signal.missingQualifiedFreshness, "alarm");
+  assert.equal(plan.signal.freshnessLookbackSeconds, 300);
+  assert.equal(plan.signal.technicalFailureLookbackSeconds, 300);
+});
+test("separation refuses stale, foreign, weakened or unexpected native configurations", () => {
+  for (const alter of [
+    (input) => {
+      input.observedAt = "2026-10-30T09:44:59.999Z";
+    },
+    (input) => {
+      input.observedAt = "2026-10-30T10:00:00.001Z";
+    },
+    (input) => {
+      input.accountId = "foreign";
+    },
+    (input) => {
+      input.monitorId = "foreign";
+    },
+    (input) => {
+      input.configuration.enabled = false;
+    },
+    (input) => {
+      input.configuration.evaluation.threshold = 2;
+    },
+    (input) => {
+      input.configuration.notifications.repeatSeconds = 604800;
+    },
+    (input) => {
+      input.configuration.timeRangeMode = "manual";
+    },
+    (input) => {
+      input.configuration.query += " OR 1=1";
+    },
+    (input) => {
+      input.configuration.query = nativeSeparatedFreshnessMonitorQuery;
+    },
+  ]) {
+    const input = snapshot();
+    alter(input);
+    assert.throws(() => planNativeAlertSeparation(input, at), /NATIVE_ALERT_/);
+  }
+  const implicitScope = snapshot();
+  implicitScope.configuration.query = nativeUiFailureMonitorQuery;
+  assert.throws(
+    () => planNativeAlertSeparation(implicitScope, at),
+    /NATIVE_ALERT_DATASET_SCOPE_UNVERIFIED/,
+  );
 });
 test("uses the native automatic five-minute interval while preserving other controls", () => {
   const original = snapshot();
@@ -139,6 +270,33 @@ test("accepts exactly both observed UI queries only with current authenticated a
       canonicalPlan.unchangedConfigurationSha256,
     );
   }
+});
+test("accepts the freshly observed stabilized native editor form only with authenticated dataset scope", () => {
+  const input = nativeUiSnapshot(nativeUiCurrentFreshnessMonitorQuery);
+  assert.throws(
+    () => planNativeAlertSeparation(input, at),
+    /NATIVE_ALERT_QUERY_OR_TIME_RANGE_UNEXPECTED/,
+  );
+  input.configuration.evaluation.intervalSeconds = 300;
+  assert.equal(planNativeFreshnessAlerting(input, at).changed, false);
+  assert.equal(
+    planNativeAlertSeparation(input, at).technicalMonitor.patch.query,
+    nativeSeparatedTechnicalMonitorQuery,
+  );
+  delete input.configuration.datasetScope;
+  assert.throws(
+    () => planNativeAlertSeparation(input, at),
+    /NATIVE_ALERT_DATASET_SCOPE_UNVERIFIED/,
+  );
+  input.configuration.datasetScope = {
+    accountId: "foreign",
+    dataset: "logs.workersLogs",
+    evidence: "authenticated_monitor_edit_route",
+  };
+  assert.throws(
+    () => planNativeAlertSeparation(input, at),
+    /NATIVE_ALERT_DATASET_SCOPE_UNVERIFIED/,
+  );
 });
 test("refuses implicit native scope without exact fresh evidence, matching monitor and automatic mode", () => {
   for (const [query] of observedNativeForms) {
@@ -345,6 +503,30 @@ test("CLI keeps material outside Git, refuses apply and never prints recipients"
       plan.qualification,
       "local_plan_requires_native_sql_validation_current_readback_and_authorized_apply",
     );
+    const separatedOutput = join(directory, "separated-plan.json");
+    const separated = spawnSync(
+      process.execPath,
+      [cli.pathname, "--separate", path, separatedOutput],
+      { encoding: "utf8" },
+    );
+    assert.equal(separated.status, 0, separated.stderr);
+    const separatedMetadata = JSON.parse(separated.stdout);
+    assert.equal(separatedMetadata.status, "plan_only");
+    assert.equal(
+      separatedMetadata.kind,
+      "native_monitor_technical_freshness_separation",
+    );
+    const separatedPlan = JSON.parse(await readFile(separatedOutput, "utf8"));
+    assert.equal(
+      separatedMetadata.planSha256,
+      nativeAlertingPlanDigest(separatedPlan),
+    );
+    assert.equal(separatedPlan.freshnessMonitor.target.monitorId, null);
+    assert.equal(separatedPlan.freshnessMonitor.reminder.repeatSeconds, 604800);
+    assert.doesNotMatch(
+      separated.stdout + separated.stderr + JSON.stringify(separatedPlan),
+      /synthetic@example\.invalid/,
+    );
     const denied = spawnSync(
       process.execPath,
       [cli.pathname, "apply", path, output],
@@ -424,10 +606,14 @@ function queryValue(rows, sql = nativeFreshnessMonitorQuery) {
         JSON.stringify(row.attributes),
       );
     // Automatic native execution supplies this inclusive range outside SQL.
-    const rangedSql =
-      sql === nativeFreshnessMonitorQuery
-        ? `${sql}\n AND timestamp >= ${nowMs - 300_000} AND timestamp <= ${nowMs}`
-        : sql;
+    const rangedSql = [
+      nativeFreshnessMonitorQuery,
+      nativeSeparatedFreshnessMonitorQuery,
+      nativeSeparatedTechnicalMonitorQuery,
+      nativeFailureMonitorQuery,
+    ].includes(sql)
+      ? `${sql}\n AND timestamp >= ${nowMs - 300_000} AND timestamp <= ${nowMs}`
+      : sql;
     const executable = rangedSql
       .replace("FROM logs.workersLogs", "FROM worker_logs")
       .replace(
@@ -444,6 +630,150 @@ function queryValue(rows, sql = nativeFreshnessMonitorQuery) {
     db.close();
   }
 }
+
+test("separated technical failures remain independent of a persistent operational deadline", () => {
+  const deadline = freshnessRecord(0, {
+    code: "FRESHNESS_AT_RISK",
+    freshnessExpired: 1,
+  });
+  assert.equal(queryValue([deadline], nativeSeparatedTechnicalMonitorQuery), 0);
+  assert.equal(queryValue([deadline], nativeSeparatedFreshnessMonitorQuery), 1);
+  for (const attributes of [
+    ...nativeAlertSignals.codes.map((code) => ({ code })),
+    ...nativeAlertSignals.counters.map((counter) => ({ [counter]: 1 })),
+  ]) {
+    const failure = freshnessRecord(0, {
+      event: "http",
+      stage: undefined,
+      code: "OK",
+      ...attributes,
+    });
+    assert.equal(
+      queryValue([deadline, failure], nativeSeparatedTechnicalMonitorQuery),
+      1,
+    );
+    assert.equal(
+      queryValue([deadline, failure], nativeSeparatedFreshnessMonitorQuery),
+      1,
+    );
+    assert.equal(
+      queryValue(
+        [freshnessRecord(), failure],
+        nativeSeparatedTechnicalMonitorQuery,
+      ),
+      1,
+    );
+    assert.equal(
+      queryValue(
+        [freshnessRecord(), failure],
+        nativeSeparatedFreshnessMonitorQuery,
+      ),
+      0,
+    );
+  }
+});
+test("technical collector and provider refresh failures are independent of persistent deadline alarms", () => {
+  const sql = nativeSeparatedTechnicalMonitorQuery;
+  const deadline = freshnessRecord(0, {
+    code: "FRESHNESS_AT_RISK",
+    freshnessExpired: 1,
+  });
+  const failures = [
+    { event: "freshness", code: "FRESHNESS_CHECK_FAILED" },
+    { event: "freshness", freshnessChecksFailed: 1 },
+    ...[
+      "tariffRefreshFailed",
+      "postalPolicyRefreshFailed",
+      "resendPolicyRefreshFailed",
+    ].map((counter) => ({ event: "cron", stage: "complete", [counter]: 1 })),
+  ];
+  for (const attributes of failures) {
+    for (const age of [0, 60, 300, 300.001, -0.001]) {
+      const failure = freshnessRecord(age, attributes);
+      assert.equal(
+        queryValue([deadline, failure], sql),
+        age >= 0 && age <= 300 ? 1 : 0,
+        JSON.stringify({ attributes, age }),
+      );
+    }
+    for (const scope of [{ accountTag: "foreign" }, { scriptName: "foreign" }])
+      assert.equal(
+        queryValue(
+          [deadline, { ...freshnessRecord(0, attributes), ...scope }],
+          sql,
+        ),
+        0,
+      );
+  }
+  assert.equal(queryValue([], sql), 0);
+  for (const attributes of [
+    { code: "FRESHNESS_AT_RISK", freshnessExpired: 1 },
+    { code: "FRESHNESS_AT_RISK", freshnessAtRisk: 1 },
+    { event: "cron", stage: "complete", tariffRefreshDeferred: 1 },
+    { event: "cron", stage: "complete", postalPolicyRefreshDeferred: 1 },
+    { event: "cron", stage: "complete", resendPolicyRefreshDeferred: 1 },
+    { event: "cron", stage: "complete", tariffsRefreshed: 1 },
+  ])
+    assert.equal(queryValue([freshnessRecord(0, attributes)], sql), 0);
+});
+test("separate freshness coverage alarms on missing data and recovers only after its failures age out", () => {
+  const sql = nativeSeparatedFreshnessMonitorQuery;
+  assert.equal(queryValue([], sql), 1);
+  for (const attributes of [
+    { event: "cron", stage: "complete" },
+    { event: "http", code: "HTTP_SERVER_ERROR" },
+    { code: "FRESHNESS_CHECK_FAILED", freshnessChecksFailed: 1 },
+    { stage: undefined },
+    { freshnessExpired: undefined },
+    { alertClass: undefined, alertFailure: undefined },
+  ]) {
+    assert.ok(queryValue([freshnessRecord(0, attributes)], sql) >= 1);
+  }
+  assert.equal(queryValue([freshnessRecord(300)], sql), 0);
+  assert.equal(queryValue([freshnessRecord(300.001)], sql), 1);
+  for (const age of [0, 60, 300])
+    assert.ok(
+      queryValue(
+        [
+          freshnessRecord(age, {
+            code: "FRESHNESS_AT_RISK",
+            freshnessExpired: 1,
+          }),
+          freshnessRecord(),
+        ],
+        sql,
+      ) >= 1,
+    );
+  assert.equal(
+    queryValue(
+      [
+        freshnessRecord(300.001, {
+          code: "FRESHNESS_AT_RISK",
+          freshnessExpired: 1,
+        }),
+        freshnessRecord(),
+      ],
+      sql,
+    ),
+    0,
+  );
+  for (const scope of [{ accountTag: "foreign" }, { scriptName: "foreign" }]) {
+    assert.equal(queryValue([{ ...freshnessRecord(), ...scope }], sql), 1);
+    assert.equal(
+      queryValue(
+        [
+          freshnessRecord(),
+          {
+            ...freshnessRecord(0, { code: "FRESHNESS_CHECK_FAILED" }),
+            ...scope,
+          },
+        ],
+        sql,
+      ),
+      0,
+    );
+  }
+});
 
 test("all historic codes and counters use the explicitly extended inclusive five-minute window", () => {
   const codes = [

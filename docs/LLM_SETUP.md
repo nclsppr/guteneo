@@ -128,6 +128,17 @@ Indirect business/provider changes still require review of their MCP effects;
 a fingerprint does not establish semantic correctness. Package generation and
 CI create no marketplace submission, merge, deployment or human consent.
 
+### Preventive maintenance source synchronization — 7 November 2026
+
+Candidate 1.1.32 synchronizes the application and portable/Claude/Cursor package
+versions after the shared observation allowlist changed. The private prevention
+report and operational notification outbox add no public MCP tool, OAuth scope,
+assistant permission or customer sending authority. Existing plugin identity,
+instructions, tool schemas and annotations retain their contracts. Rebuild and
+validate the archive from this exact source; production activation and mailbox
+receipt remain separate from package proof. See
+[the preventive maintenance contract](FRESHNESS_ALERTING.md#preventive-deadline-lifecycle-and-operational-notices).
+
 ### Browser-continuity source synchronization — 29 October 2026
 
 The local 1.1.18 candidate changes browser-only session/platform navigation and

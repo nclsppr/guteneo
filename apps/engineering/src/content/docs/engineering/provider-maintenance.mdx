@@ -175,40 +175,148 @@ ordinary failure classification. Callers cannot override the markers. Healthy
 freshness requires the exact application/maintenance/freshness envelope, OK code,
 explicit zero risk/expiry/check-failure counters and no original failure.
 
-The shallow SQL selects `alertClass >= 1`, aggregates the failure field directly
-and uses only `if(COUNT(*) = 0, 1.0, SUM(...))`. An empty selection alarms, and
-malformed freshness cannot become healthy. The fallback keeps Automatic range
-mode and changes native execution from every minute to every 300 seconds, making
-Cloudflare supply a five-minute range without SQL timestamps.
+The 1 November deployed combined query selects `alertClass >= 1`, aggregates
+`alertFailure` directly and uses `if(COUNT(*) = 0, 1.0, SUM(...))`. Empty coverage
+alarms; malformed freshness cannot become healthy. Automatic mode supplies the
+five-minute execution range without an SQL timestamp predicate. That combined
+state was reread before the 7 November separation; it is historical after the
+separately verified native change below.
 
-All original failures and freshness failures now remain in that range, extending
-the original one-minute failure lookback conservatively. This reduces evaluation
-frequency: nominal detection waits for the next five-minute cycle, and provider
-ingestion/scheduling/delivery delay can add more. It is not a five-minute SLA.
-The sixty-second average, threshold, hourly reminders, destination and independent
-minute heartbeat remain unchanged. Authentication, approval, provider, sending
-and other application safety gates are unaffected.
+### Separate actionable failures from lasting deadlines
 
-Native editor attempts on 1 November rejected conditional JSON aggregates,
-expressions deeper than ten and explicit timestamps under its request-bound
-range; the inspected editor exposed no Manual selector. None saved a replacement. A subsequent existing-counter probe was accepted with
-floating-point `1.0`, whose type matches the native numeric JSON SUM; integer
-`1` had caused incompatible conditional branches. This validates the aggregate
-type shape only. Subsequent 1.1.24 runtime publication and the final saved
-Automatic/300-second native configuration were independently verified on
-1 November. Neither that readback nor the probe qualifies every provider renewal
-or a new notification receipt. Deploy and verify marker runtime first, retain the old query
-during five minutes of coverage, then apply only the reviewed SQL and interval.
-Legacy logs cannot prove marker coverage. Recovery requires failure-free current
-freshness evidence and a successful scheduled evaluation; ordinary HTTP success
-or Cron completion cannot establish it. Local timelines prove neither native
-activation nor notification receipt.
+The 7 November native configuration separates technical failures from operational deadlines.
+A genuine expired authority can remain blocked for days; an hourly reminder for
+that same condition is not another failed customer delivery. Retain all original
+ten technical codes and four counters on the existing application/delivery
+monitor, and independently include collector and tariff/postal/Resend refresh
+failures. Its hourly reminders must remain capable of reporting a new technical
+problem while an operator deadline persists elsewhere.
 
-The Resend inspection currently refuses its domain read. A private setup profile
-accepts an existing independently authorized inspection credential without
-replacing the sending key or changing send gates; no key or permission is
-created. Recheck all required sources after installation. A successful domain
-read alone still cannot qualify the complete renewal.
+The separate provider-freshness/deadline monitor selects `alertClass >= 2` and
+keeps the same strict aggregate health rule, five-minute Automatic range,
+one-minute average and threshold. Technical class 1 records cannot supply
+freshness coverage. Its repeat interval is 168 hours, Cloudflare's documented
+maximum, not a no-reminders setting. An initial alarm notification and weekly
+reminders remain possible. Additional deadlines while the aggregate is active
+need not generate separate immediate emails; this does not implement per-incident
+notification deduplication.
+
+Both native queries retain five-minute lookback to avoid the earlier empty
+one-minute windows causing false recoveries. Freshness clears only with qualified
+healthy observations after failed records age out. Ordinary Cron completion or
+HTTP success supplies no freshness health. Technical recovery independently
+means its own recent failure query is clear. The separate minute heartbeat and
+all business authorization, quote, scan, provider and send gates remain intact.
+
+Use the private review-only planner's explicit `--separate` command. An authorized
+platform operator reads the complete native inventory and a fresh exact combined
+configuration, stores its complete normalized snapshot outside Git in private
+files, and generates a digest-bound plan. Reuse exactly one matching freshness
+monitor or create only after proving there are zero; stop on ambiguous inventory.
+Validate, save and reread the enabled freshness configuration and actual monitor
+ID before changing the existing combined query. Then reread the unchanged original
+snapshot, apply only the reviewed technical patch and verify both saved settings,
+unchanged destination and heartbeat. The CLI provides no apply command, native
+API substitute, extra credential or general browser/MCP maintenance authority.
+
+The 26 focused local planner tests cover technical sensitivity, strict freshness
+coverage, persistent deadlines, ingestion gaps, private files and drift refusal.
+They do not establish native activation or notification receipt. On 7 November,
+read-only production 1.1.31 observations found one expired Luxembourg operator
+authority, a completed Cron with no freshness-check failures and healthy
+France/Germany and Resend refresh state. No recent production send or older
+in-flight/unknown commitment was observed. The original combined configuration
+was reread through native Safari after the policy API refused access. Both separated
+queries and intervals are now saved and reread, all three monitors are enabled,
+and the existing single destination and heartbeat are unchanged. Native SQL
+previews validated, but actual scheduled evaluation results and new notification
+receipts remain unobserved. No
+application deployment or authority extension is part of this notification
+change. The private dated report owns exact versions and evidence.
+
+Native validation on 1 November rejected conditional JSON aggregates, excessive
+expression depth and explicit timestamps in Automatic mode. No failed attempt
+saved a replacement. A numeric-counter probe accepted Float64-compatible `1.0`
+after integer `1` failed conditional type checking. Those observations qualify
+only their dated parser/type shape; every revised query still requires actual
+native validation and saved-state readback. Deploy and verify marker-producing
+runtime before any plan depends on new markers. Legacy records cannot establish
+current marker coverage.
+
+### Anticipate decisions before expiry
+
+The subsequent 7 November local candidate adds preventive tasks and a dedicated
+operational-notification outbox to the existing Cron. It is **not deployed or
+activated**. Registered technical renewal already runs daily; it cannot renew an
+independent operator authority. Keep those two responsibilities separate:
+
+| Deadline owner | Preventive milestones | Required response |
+| --- | --- | --- |
+| Operator authority or manual policy | Seven days, three days, one day, then expiry | Explicitly renew or retire an authority, or qualify the manual replacement |
+| Registered automatic evidence | 48 hours, 24 hours, then expiry | Repair genuine source renewal, inspect the lease/binding and preserve commitments |
+
+Automatic references last at most seven days, so alerting immediately at J-7
+would create a permanent warning after every successful refresh. A two-day
+remaining window instead detects lost renewal runway. If first inspection is
+late, queue only the current urgent stage, rather than backfilling every earlier
+warning into a burst.
+
+Collection, existing J-1 incident reconciliation and preventive reconciliation
+share one explicit evaluation time. Current tenant/binding/revision evidence
+fences each write. A real replacement or proved deactivation resolves a task;
+missing pages, failed reads and stale evidence do not. Existing J-1 incident
+identity and fail-closed deadline consumers remain unchanged.
+Partial or failed collection/reconciliation defers pending notices. Atomic claim
+and post-claim reads both require a current active binding with the task's latest
+evaluation time, rather than trusting an old active task after selection changes.
+
+The operational outbox is distinct from customer dispatches, approval, credit
+and provider delivery receipts. A unique task-occurrence/stage key deduplicates
+repeated minute observations and concurrent ticks. Escalation supersedes obsolete
+unclaimed stages. An explicit production email gate, approved sender/recipient,
+existing verified Resend configuration and bounded claim are required before any
+notice leaves the application. The default cap is four attempts per UTC day,
+configurable from one to twenty, with at most one new attempt per rolling hour
+across the account. These are volume guards, not a claim of free operation.
+
+One committed claim permits one provider attempt. Failed or unknown attempts
+never return to pending; an interrupted two-minute sending lease becomes unknown.
+Persisted provider acceptance is labelled `sent` and does not prove recipient
+delivery. A later stage is a distinct notice under the same volume guards.
+Current-task notification failures and unknown outcomes remain technical alarm
+signals while unrelated safe Cron work continues. No customer content,
+recipients, tenant/source identifiers, secrets or private URLs enter notice bodies
+or logs; the operator envelope stays in explicitly authorized settings.
+
+The existing private same-account service binding exposes a bounded aggregate
+prevention report: family, owner mode, stage, deadline, count and recovery action,
+with at most 25 action groups, a truncation flag and six notification-status
+counts. Its CLI is `node scripts/provider-readiness.mjs freshness-prevention`.
+The inspection entrypoint still refuses HTTP; ordinary web, native, REST, MCP,
+workspace roles and expert mandates gain no maintenance or activation authority.
+
+Apply additive migration 0074 before its dependent runtime, initially keeping the
+notification gate off. A missing migration is a visible technical failure, not
+an empty healthy report. Verify real selected tasks and the private report, then
+separately authorize the exact notification envelope/caps and qualify provider
+acknowledgement and actual receipt. This local implementation does not activate
+the Luxembourg extension, deploy production or send a business communication.
+The private [preventive contract](https://github.com/nclsppr/guteneo/blob/main/docs/FRESHNESS_ALERTING.md#preventive-deadline-lifecycle-and-operational-notices)
+owns the exact schema, status transitions, release order and dated proof.
+Local D1 tests exercise durable milestones and claims; a separate native Workerd
+test bundles the actual sender without injected fetch and intercepts every
+external request. Its acknowledgement and redirect phases verify no repeated
+attempt or forwarding to a foreign redirect location. This caught a native
+`redirect:"error"` incompatibility in the initial draft; manual redirect handling
+corrected it. These local results qualify neither hosted runtime nor real email
+receipt, and a Node-only mock would not establish the native transport behavior.
+
+The historical Resend domain-read refusal remains failure evidence. A private
+setup profile accepts an existing independently authorized inspection credential
+without replacing the sending key or changing send gates; no key or permission
+is created. Fresh D1 maintenance success on 6 November is distinct from that
+earlier refusal. Recheck all required sources after credential or provider drift;
+a successful domain read alone cannot qualify the complete renewal.
 
 Automatic mode supplies the native evaluation range externally; the reviewed
 SQL contains no timestamp predicate or claimed mode override.
@@ -218,9 +326,9 @@ private plan. Unknown query or scope variants remain refused. The public guide
 does not disclose operator identities or private destinations.
 
 The five-minute lookback is five times the old time span, with one native
-execution per five minutes and unchanged resource count. The classifier adds two numeric fields to existing events and creates no
-additional application events, but this does not establish unchanged ingestion
-or query cost. As of 31 October 2026, Cloudflare lists Workers
+execution per five minutes for each separated monitor. The additional native
+monitor uses the existing account and adds no application log events or Worker;
+this does not establish unchanged ingestion, query cost or available allowance. As of 31 October 2026, Cloudflare lists Workers
 Paid Logs at 20 million written events included per month, then $0.60 per extra
 million, shared at account level; its announced pricing changes on 1 December.
 See [Workers Logs pricing](https://developers.cloudflare.com/workers/observability/logs/workers-logs/).
