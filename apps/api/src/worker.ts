@@ -21,6 +21,7 @@ import site from "../../../packages/contracts/src/public-site.json" with { type:
 import { startObservation } from "../../../packages/observability/src/index";
 import { inspectTelnyxFaxTariffCatalog } from "./fax-tariff-refresh";
 import { inspectResendPolicySources } from "./resend-policy-refresh";
+import { readPrivatePreventionReport } from "./freshness-prevention";
 
 export default {
   ...application,
@@ -60,6 +61,11 @@ export default {
 
 /** Available only through an authenticated same-account service binding. */
 export class ProviderInspection extends WorkerEntrypoint<Env> {
+  /** Aggregate operational actions only; no customer or notification mutation. */
+  async inspectProviderPrevention() {
+    return readPrivatePreventionReport(this.env.DB);
+  }
+
   /** Read-only catalog qualification before any tariff registration. */
   async inspectTelnyxFaxTariffCatalog() {
     return inspectTelnyxFaxTariffCatalog(this.env);

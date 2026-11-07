@@ -1,6 +1,31 @@
 # Provider freshness and consumed deadlines
 
-## Current evidence — 1 November 2026
+## Current implementation and evidence — 7 November 2026
+
+Production 1.1.31 and the existing collector were freshly observed with one
+expired Luxembourg operator authority, healthy technical refresh state and no
+recent production sends. Native technical/freshness monitoring was separated
+and its saved configuration reread; scheduled native results and new receipts
+remain separate evidence. See the [dated investigation](CLOUDFLARE_ALERT_NOISE_2026_11_07.md).
+
+The subsequent preventive lifecycle is implemented and its merge, production
+release and operational notification activation were explicitly authorized on
+7 November. **Deployment and activation remain pending verified execution.**
+This activation selects French operational copy: understandable subject names,
+plain-language condition/impact/action and human deadlines in Paris time. The
+[recipient-copy contract](FRESHNESS_ALERTING.md#readable-recipient-names-and-copy)
+owns its catalog, locale setting and exact reviewed native labels. Cloudflare
+condition counts remain log observations, not a number of customer sends.
+It anticipates operator decisions at seven/three/one days and
+automatic-renewal loss of runway at 48/24 hours, retaining a unique operational
+notice per task occurrence and current stage. The dedicated bounded notification
+outbox and aggregate private operator report are separate from customer sends,
+quotas, approvals and OAuth authority. Migration 0074, the dependent runtime and
+explicit operator-email activation each need their own production proof. The
+[preventive lifecycle contract](FRESHNESS_ALERTING.md#preventive-deadline-lifecycle-and-operational-notices)
+owns its boundaries, release order, recovery and notification semantics.
+
+## Historical evidence — 1 November 2026
 
 Production **1.1.20** includes the continuous restricted-reviewer access and the
 registered Luxembourg fax refresher from migrations **0066–0067**. The first

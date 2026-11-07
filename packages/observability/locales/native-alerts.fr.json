@@ -1,0 +1,5 @@
+{
+  "technical": "guteneo — Problème technique : application ou envoi à vérifier",
+  "deadline": "guteneo — Date limite : autorisation ou tarif d’envoi à vérifier",
+  "heartbeat": "guteneo — Contrôle du service absent depuis 5 minutes"
+}
