@@ -4,6 +4,7 @@ import { FileInput } from "./file-input";
 import { DataTable, type DataTableColumn } from "./data-table";
 import { useStudioAiPolicy, StudioAiNotice } from "./studio-ai";
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useCurrentClientView } from "./client-write-recovery";
 import { ArrowRight, UploadSimple } from "@phosphor-icons/react";
 import type {
   DatasetProfile,
@@ -61,6 +62,13 @@ function withDatasetContext(path: string, context: URLSearchParams) {
 }
 
 export function DatasetLibrary({ session }: { session: Session }) {
+  const currentView = useCurrentClientView(
+    JSON.stringify([
+      session.organization.id,
+      session.user.id,
+      session.csrfToken,
+    ]),
+  );
   const context = datasetContext(useRoute());
   const canPrepare = permissionsFor(session).prepareDispatches;
   const resource = useResource<Page<DatasetView>>("/datasets");
@@ -71,6 +79,7 @@ export function DatasetLibrary({ session }: { session: Session }) {
   const [xmlRecordPath, setXmlRecordPath] = useState("");
   async function upload(event: FormEvent) {
     event.preventDefault();
+    const isCurrent = currentView();
     await action.run(async () => {
       const selected = file.current?.files?.[0];
       if (!selected)
@@ -96,6 +105,7 @@ export function DatasetLibrary({ session }: { session: Session }) {
         method: "POST",
         body: form,
       });
+      if (!isCurrent()) return;
       go(withDatasetContext(studioRoutes.dataset(dataset.id), context));
     });
   }
@@ -570,9 +580,11 @@ function parseExcludedRows(text: string): number[] {
 export function DatasetMapper({
   id,
   canPrepare,
+  identity,
 }: {
   id: string;
   canPrepare: boolean;
+  identity: string;
 }) {
   const resource = useResource<PagedProfileView>(
     "/datasets/" + id + "/profile",
@@ -591,6 +603,7 @@ export function DatasetMapper({
         {resource.error && (
           <DatasetRecovery
             id={id}
+            identity={identity}
             onReady={resource.refresh}
             canPrepare={canPrepare}
           />
@@ -611,17 +624,20 @@ export function DatasetMapper({
         />
       </>
     );
-  return <MappingEditor key={id} value={resource.data} />;
+  return <MappingEditor key={id} value={resource.data} identity={identity} />;
 }
 function DatasetRecovery({
   id,
   onReady,
   canPrepare,
+  identity,
 }: {
   id: string;
   onReady: () => void;
   canPrepare: boolean;
+  identity: string;
 }) {
+  const currentView = useCurrentClientView(`${identity}:${id}`);
   const status = useResource<DatasetView>(`/datasets/${id}`);
   const action = useAction();
   const [waitSeconds, setWaitSeconds] = useState(0);
@@ -673,10 +689,12 @@ function DatasetRecovery({
               }
               onClick={() =>
                 void action.run(async () => {
+                  const isCurrent = currentView();
                   const next = await api<DatasetView>(
                     `/datasets/${id}/retry-analysis`,
                     { method: "POST", body: {} },
                   );
+                  if (!isCurrent()) return;
                   status.setData(next);
                   if (next.status === "ready") onReady();
                 })
@@ -714,9 +732,16 @@ type ValidationResult = {
   documentCount: number;
   examples: MappingValidation["records"];
 };
-function MappingEditor({ value }: { value: PagedProfileView }) {
+function MappingEditor({
+  value,
+  identity,
+}: {
+  value: PagedProfileView;
+  identity: string;
+}) {
   const aiPolicy = useStudioAiPolicy();
   const { dataset, profile } = value;
+  const currentView = useCurrentClientView(`${identity}:${dataset.id}`);
   const context = datasetContext(useRoute());
   const templates = useResource<Page<TemplateView>>("/templates"),
     mappings = useResource<Page<MappingView>>("/mappings"),
@@ -754,10 +779,11 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
   const [schemaGoal, setSchemaGoal] = useState("");
   const [schemaProposal, setSchemaProposal] = useState<DatasetSchemaResponse>();
   const [schemaReviewed, setSchemaReviewed] = useState(false);
-  const schemaAdoption = useRef<{
-    mapping?: MappingView;
-    template?: TemplateView;
-  }>({});
+  const schemaAdoption = useRef<
+    | { phase: "offered" }
+    | { phase: "mapping_saved"; mapping: MappingView }
+    | { phase: "draft_saved"; mapping: MappingView; template: TemplateView }
+  >({ phase: "offered" });
   const template = chosenTemplate.data;
   const headerRows = useMappingHeaders(dataset.id, profile, plan);
   const headers = headerRows.headers(plan.sourceSheet, plan.headerRow);
@@ -931,6 +957,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
   }
   async function validate(event: FormEvent) {
     event.preventDefault();
+    const isCurrent = currentView();
     await action.run(async () => {
       if (!rowsReviewed)
         throw new Error(
@@ -965,21 +992,27 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
         },
         ...mappingRevision(),
       };
+      const attemptKey = generationKey.current;
       const mapping = await api<MappingView>("/mappings", {
         method: "POST",
         body,
       });
+      if (!isCurrent() || generationKey.current !== attemptKey) return;
       setSaved(mapping);
-      setValidation(
-        await api<ValidationResult>("/mappings/" + mapping.id + "/validate", {
+      const result = await api<ValidationResult>(
+        "/mappings/" + mapping.id + "/validate",
+        {
           method: "POST",
           body: { datasetId: dataset.id, version: mapping.version },
-        }),
+        },
       );
+      if (!isCurrent() || generationKey.current !== attemptKey) return;
+      setValidation(result);
       mappings.refresh();
     });
   }
   async function replaceFile() {
+    const isCurrent = currentView();
     await action.run(async () => {
       const file = replacement.current?.files?.[0];
       if (!file) throw new Error(msg("Choose a CSV, XLSX, XML or JSON file."));
@@ -1002,9 +1035,11 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
         method: "POST",
         body: form,
       });
+      if (!isCurrent()) return;
       const replacementProfile = await api<PagedProfileView>(
         `/datasets/${next.id}/profile`,
       );
+      if (!isCurrent()) return;
       const keepRows = (sheetName: string, rows: number[]) =>
         retainUnchangedRowExclusions({
           before: resolveDatasetSheet(profile, sheetName),
@@ -1041,6 +1076,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
           ...mappingRevision(),
         },
       });
+      if (!isCurrent()) return;
       const nextContext = new URLSearchParams(context);
       if (needsReview) nextContext.set("reviewRows", "1");
       else nextContext.delete("reviewRows");
@@ -1553,6 +1589,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
           disabled={action.pending || !aiPolicy.available}
           onClick={() =>
             void action.run(async () => {
+              const isCurrent = currentView();
               const result = await api<{
                 mapping: MappingPlan;
                 ambiguities: string[];
@@ -1580,6 +1617,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                     : "Propose a verifiable interpretation of the data; every target path will be reviewed before generation.",
                 },
               });
+              if (!isCurrent()) return;
               edit(result.mapping);
               setAiMessage(
                 msg(
@@ -1613,7 +1651,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
               setSchemaGoal(event.target.value);
               setSchemaProposal(undefined);
               setSchemaReviewed(false);
-              schemaAdoption.current = {};
+              schemaAdoption.current = { phase: "offered" };
             }}
           />
         </Field>
@@ -1623,6 +1661,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
           disabled={action.pending || !aiPolicy.available}
           onClick={() =>
             void action.run(async () => {
+              const isCurrent = currentView();
               const result = await api<DatasetSchemaResponse>(
                 "/datasets/" + dataset.id + "/analyze",
                 {
@@ -1635,9 +1674,10 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                   },
                 },
               );
+              if (!isCurrent()) return;
               setSchemaProposal(result);
               setSchemaReviewed(false);
-              schemaAdoption.current = {};
+              schemaAdoption.current = { phase: "offered" };
             })
           }
         >
@@ -1732,27 +1772,38 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
               disabled={action.pending || !schemaReviewed}
               onClick={() =>
                 void action.run(async () => {
+                  const isCurrent = currentView();
                   // Keep successful partial adoption on retry; neither resource is published.
-                  schemaAdoption.current.mapping ??= await api<MappingView>(
-                    "/mappings",
-                    {
+                  let adoption = schemaAdoption.current;
+                  if (adoption.phase === "offered") {
+                    const mapping = await api<MappingView>("/mappings", {
                       method: "POST",
                       body: {
                         datasetId: dataset.id,
                         plan: schemaProposal.mapping,
                       },
-                    },
-                  );
-                  schemaAdoption.current.template ??= await api<TemplateView>(
-                    "/templates",
-                    {
+                    });
+                    if (!isCurrent()) return;
+                    adoption = { phase: "mapping_saved", mapping };
+                    schemaAdoption.current = adoption;
+                  }
+                  if (adoption.phase === "mapping_saved") {
+                    const template = await api<TemplateView>("/templates", {
                       method: "POST",
                       body: {
                         envelope: schemaProposal.schemaSuggestion.envelope,
                       },
-                    },
-                  );
-                  go(studioRoutes.template(schemaAdoption.current.template.id));
+                    });
+                    if (!isCurrent()) return;
+                    adoption = {
+                      phase: "draft_saved",
+                      mapping: adoption.mapping,
+                      template,
+                    };
+                    schemaAdoption.current = adoption;
+                  }
+                  if (adoption.phase === "draft_saved")
+                    go(studioRoutes.template(adoption.template.id));
                 })
               }
             >
@@ -1833,6 +1884,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
             }
             onClick={() =>
               void action.run(async () => {
+                const isCurrent = currentView();
                 const job = await api<GenerationJobView>("/generation-jobs", {
                   method: "POST",
                   key: generationKey.current,
@@ -1845,6 +1897,7 @@ function MappingEditor({ value }: { value: PagedProfileView }) {
                     mappingVersion: validation.mapping.version,
                   },
                 });
+                if (!isCurrent()) return;
                 go(studioRoutes.generation(job.id));
               })
             }

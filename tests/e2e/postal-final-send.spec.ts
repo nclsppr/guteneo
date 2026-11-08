@@ -1,6 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
 
-async function fixture(page: Page, expiresIn = 900_000) {
+async function fixture(
+  page: Page,
+  expiresIn = 900_000,
+  approvalReady?: Promise<void>,
+  confirmReady?: Promise<void>,
+) {
   const now = Date.parse("2026-09-21T12:00:00.000Z");
   await page.clock.install({ time: new Date(now - 60_000) });
   const writes: { path: string; body: unknown; key: string | undefined }[] = [];
@@ -56,7 +61,10 @@ async function fixture(page: Page, expiresIn = 900_000) {
       await route.abort("failed");
       return;
     }
-    if (path.endsWith("/approve")) approved = true;
+    if (path.endsWith("/approve")) {
+      approved = true;
+      await approvalReady;
+    }
     if (path.endsWith("/confirm")) {
       if (control.result === "invalid") {
         await route.fulfill({
@@ -78,6 +86,7 @@ async function fixture(page: Page, expiresIn = 900_000) {
         await route.abort("failed");
         return;
       }
+      await confirmReady;
     }
     const result =
       path === "/api/session"
@@ -183,6 +192,72 @@ test("one explicit postal click approves the immutable version and sends at its 
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
+});
+
+test("returning to the same letter cannot continue a delayed approval into sending", async ({
+  page,
+}) => {
+  let release!: () => void;
+  const approvalReady = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const f = await fixture(page, 900_000, approvalReady);
+  await f.open();
+  const send = page.getByRole("button", { name: /Envoyer pour/ });
+  await send.click();
+  await expect.poll(() => f.writes.length).toBe(1);
+  await page.evaluate(() => {
+    const original = location.hash;
+    location.hash = "#/app/dispatches";
+    location.hash = original;
+  });
+  release();
+  const read = page.getByRole("button", {
+    name: "Vérifier le suivi",
+    exact: true,
+  });
+  await expect(read).toBeVisible();
+  await expect(send).toBeDisabled();
+  expect(f.writes.map((write) => write.path)).toEqual([
+    "/api/dispatches/postal_final/approve",
+  ]);
+  await read.click();
+  await expect(send).toBeEnabled();
+  expect(f.writes.map((write) => write.path)).toEqual([
+    "/api/dispatches/postal_final/approve",
+  ]);
+});
+
+test("a confirmation reply after leaving and returning requires tracking before any further action", async ({
+  page,
+}) => {
+  let release!: () => void;
+  const confirmReady = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const f = await fixture(page, 900_000, undefined, confirmReady);
+  await f.open();
+  const send = page.getByRole("button", { name: /Envoyer pour/ });
+  await send.click();
+  await expect.poll(() => f.writes.length).toBe(2);
+  await page.evaluate(() => {
+    const original = location.hash;
+    location.hash = "#/app/dispatches";
+    location.hash = original;
+  });
+  release();
+  const read = page.getByRole("button", {
+    name: "Vérifier le suivi",
+    exact: true,
+  });
+  await expect(read).toBeVisible();
+  await expect(send).toBeDisabled();
+  await read.click();
+  await expect(page.locator(".dispatch-reference")).toContainText("En file");
+  expect(f.writes.map((write) => write.path)).toEqual([
+    "/api/dispatches/postal_final/approve",
+    "/api/dispatches/postal_final/confirm",
+  ]);
 });
 
 test("postal quote expiry disables sending and offers preparation without calling fax renewal", async ({

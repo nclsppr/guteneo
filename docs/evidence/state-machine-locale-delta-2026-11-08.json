@@ -1,0 +1,573 @@
+{
+  "date": "2026-11-08",
+  "scope": "Three catalog rows only; temporary intercepted error-envelope QA through the built UI, existing locale/Administration suites, local build and dry-run. No real Auth0 deletion, incident operation, provider communication or deployment.",
+  "catalogs": [
+    {
+      "path": "apps/web/src/locales/messages-identity.json",
+      "key": "Ce compte est en cours de suppression ou a été supprimé.",
+      "english": "This account is being deleted or has been deleted.",
+      "translations": {
+        "fr": "Ce compte est en cours de suppression ou a été supprimé.",
+        "de": "Dieses Konto wird gelöscht oder wurde gelöscht.",
+        "lb": "Dëse Kont gëtt geläscht oder gouf geläscht."
+      },
+      "beforeSha256": "42ff9840f45b8024604948b82c95a013bcbcc7ef906286087266b320ae021456",
+      "afterSha256": "f257144d0e9c9c6b2ec22762d67ce2dbcdf454396d50c824390e1090ccfbd885"
+    },
+    {
+      "path": "apps/web/src/locales/messages-administration.json",
+      "key": "Référence d’incident non valide.",
+      "english": "Invalid incident reference.",
+      "translations": {
+        "fr": "Référence d’incident non valide.",
+        "de": "Ungültige Vorfallsreferenz.",
+        "lb": "Ongëlteg Referenz vum Virfall."
+      },
+      "beforeSha256": "04a1deab8808ec0e88f348b9d1f46babdb0114f953b71703346935d65b2de517",
+      "afterSha256": "3a7e65db329c3bb97ba6d1fc313b0bc86376c710196083ac9993d29e404ddd1a"
+    },
+    {
+      "path": "apps/web/src/locales/messages-operations.json",
+      "key": "Les droits de préparation ont changé.",
+      "english": "Preparation authority changed.",
+      "translations": {
+        "fr": "Les droits de préparation ont changé.",
+        "de": "Die Berechtigungen für die Vorbereitung haben sich geändert.",
+        "lb": "D’Rechter fir d’Virbereedung hu geännert."
+      },
+      "beforeSha256": "ab6f267a2e42556832e6fc6a6c7f58f078be88d67255f260683ba0fd93183928",
+      "afterSha256": "8788d3b72c42c296770fb0a0da831a3333e76aa2b7d848a874974da544f04bcd"
+    }
+  ],
+  "sourceProof": {
+    "approvedDelta": "Exactly three reviewed catalog rows; API/runtime/SQL and every other scoped source byte unchanged",
+    "originalFullRunSourceSnapshotSha256": "62eec33ae26978f2b3c427df7bcbe619f77baca8008a0779dcfdbd6ec6dd96d0",
+    "reconstructedWithoutThreeRowsSha256": "62eec33ae26978f2b3c427df7bcbe619f77baca8008a0779dcfdbd6ec6dd96d0",
+    "currentSourceSnapshotSha256": "ec5caa56a9829605d3620a52082a673192696fb0d4d76ae4fb696383d1425f02",
+    "sourceDiffIsExactlyThreeCatalogRows": true,
+    "catalogs": [
+      {
+        "path": "apps/web/src/locales/messages-identity.json",
+        "key": "Ce compte est en cours de suppression ou a été supprimé.",
+        "english": "This account is being deleted or has been deleted.",
+        "translations": {
+          "fr": "Ce compte est en cours de suppression ou a été supprimé.",
+          "de": "Dieses Konto wird gelöscht oder wurde gelöscht.",
+          "lb": "Dëse Kont gëtt geläscht oder gouf geläscht."
+        },
+        "beforeSha256": "42ff9840f45b8024604948b82c95a013bcbcc7ef906286087266b320ae021456",
+        "afterSha256": "f257144d0e9c9c6b2ec22762d67ce2dbcdf454396d50c824390e1090ccfbd885"
+      },
+      {
+        "path": "apps/web/src/locales/messages-administration.json",
+        "key": "Référence d’incident non valide.",
+        "english": "Invalid incident reference.",
+        "translations": {
+          "fr": "Référence d’incident non valide.",
+          "de": "Ungültige Vorfallsreferenz.",
+          "lb": "Ongëlteg Referenz vum Virfall."
+        },
+        "beforeSha256": "04a1deab8808ec0e88f348b9d1f46babdb0114f953b71703346935d65b2de517",
+        "afterSha256": "3a7e65db329c3bb97ba6d1fc313b0bc86376c710196083ac9993d29e404ddd1a"
+      },
+      {
+        "path": "apps/web/src/locales/messages-operations.json",
+        "key": "Les droits de préparation ont changé.",
+        "english": "Preparation authority changed.",
+        "translations": {
+          "fr": "Les droits de préparation ont changé.",
+          "de": "Die Berechtigungen für die Vorbereitung haben sich geändert.",
+          "lb": "D’Rechter fir d’Virbereedung hu geännert."
+        },
+        "beforeSha256": "ab6f267a2e42556832e6fc6a6c7f58f078be88d67255f260683ba0fd93183928",
+        "afterSha256": "8788d3b72c42c296770fb0a0da831a3333e76aa2b7d848a874974da544f04bcd"
+      }
+    ]
+  },
+  "completeLiveScopeProof": {
+    "scope": "Complete live-profile source fingerprint includes all application API/web, packages, migrations, integrations and shared build inputs. Fingerprint only; no deployment.",
+    "originalSourceSha256": "6737329bf7cfe47328d16892c1ca64d8893e31fb6238021863a85a58dcfa27dc",
+    "reconstructedWithoutThreeCatalogRowsSha256": "6737329bf7cfe47328d16892c1ca64d8893e31fb6238021863a85a58dcfa27dc",
+    "finalSourceSha256": "f7731f69962e64c640c9d436e614c0ae0d44fe98971d37bcb3524f35cb2df550",
+    "runtimeAndSchemaUnchangedBeyondCatalogs": true
+  },
+  "build": {
+    "command": "npm run build",
+    "passed": true,
+    "log": "/tmp/guteneo-final-locale-build.log",
+    "logSha256": "1cb8db2830001bc407ea57b50e4d644d8ebff62c9f441d3a162f9ce9a4929362"
+  },
+  "unit": {
+    "command": "npx vitest run tests/unit/server-message-translations.test.ts",
+    "passed": 4,
+    "log": "/tmp/guteneo-final-server-message-translations.log",
+    "logSha256": "1f245c8b3031667b5e8edb74982cab92fad3728c95c225a98a2ee49c261a5c64"
+  },
+  "translatedFailurePaths": {
+    "startTime": "2026-11-08T01:42:17.372Z",
+    "duration": 17058.067,
+    "expected": 27,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0,
+    "globalErrors": [],
+    "profiles": [
+      "chromium",
+      "mobile-chromium",
+      "iphone-webkit"
+    ],
+    "locales": [
+      "fr",
+      "de",
+      "lb"
+    ],
+    "displayContract": "ACCOUNT_DELETION_IN_PROGRESS falls back to the new translated message; INVALID_INPUT and FORBIDDEN intentionally retain existing generic localized code labels before message fallback.",
+    "effects": [
+      "one explicit rejected sign-in action; no automatic retry",
+      "incident confirmation sends nothing on first gesture; one confirmed rejected POST retains incident",
+      "campaign preparation refusal prevents dependent dispatch writes"
+    ],
+    "initialHarnessCorrection": "Initial temporary assertions expected message fallback for INVALID_INPUT/FORBIDDEN. Existing ErrorNotice priority was verified and assertions corrected; no application source change. Initial log/traces retained separately.",
+    "reportSha256": "47cee91f53ade7939f5526257ec6c3400bb360c47e3cce58146aa796105a5ef7",
+    "harness": "/tmp/guteneo-locale-delta-qa-20261108/specs/server-message-delta.spec.ts",
+    "harnessSha256": "f432b7269f3ca32d6c7c2d84b9abf304f643a3ed39886b49beae37920f7c4da0"
+  },
+  "affectedLocaleAndAdministration": {
+    "startTime": "2026-11-08T01:42:43.404Z",
+    "duration": 97278.14499999999,
+    "expected": 102,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0,
+    "globalErrors": [],
+    "tests": [
+      "tests/e2e/locale.spec.ts",
+      "tests/e2e/locale-boundaries.spec.ts",
+      "tests/e2e/workspace-administration.spec.ts"
+    ],
+    "reportSha256": "35097f85e04c4de89d44bb4b326d7a138358e9ec46be1e8f877cb601666ca299"
+  },
+  "assetComparison": {
+    "comparedAt": "2026-11-08T01:43:29.534Z",
+    "originalFullRunAssetsSha256": "d77e1ead6b9c46513b0f38a414d20944fe246c57560a42dcca00286be005eea6",
+    "finalAssetsSha256": "9f34af81a6ce26cd9746dbaaa6fec196c4e7dff714847188468fa216bc218054",
+    "beforeCount": 239,
+    "afterCount": 239,
+    "logicalAssetChanges": [
+      {
+        "logicalPath": "/assets/account-page-*.js",
+        "before": {
+          "path": "/assets/account-page-B7Hskym5.js",
+          "bytes": 18193,
+          "sha256": "b7588f0bda7199585befa2d99dd90f6a89034c3998f008e480880409cf7d0bb2"
+        },
+        "after": {
+          "path": "/assets/account-page-D6NQwiM5.js",
+          "bytes": 18193,
+          "sha256": "0a906c1dc27030cbdf0f640ced37b7b8b62902488ddc95aef5f423eeac29b4a1"
+        }
+      },
+      {
+        "logicalPath": "/assets/administration-*.js",
+        "before": {
+          "path": "/assets/administration-AHNRd0un.js",
+          "bytes": 82906,
+          "sha256": "fb5401f2264cd9311b802b72adce15914c69a70c1e80443277697d724f0fae4f"
+        },
+        "after": {
+          "path": "/assets/administration-DjHSpjAD.js",
+          "bytes": 82906,
+          "sha256": "c843efa17ac66d9f3755645bae0ff323b5a020e5865b823514b0e181a81ee843"
+        }
+      },
+      {
+        "logicalPath": "/assets/api-*.js",
+        "before": {
+          "path": "/assets/api-Bxma0gBJ.js",
+          "bytes": 854227,
+          "sha256": "b5547c202fe6e5bf65084b9d2fb133c2eeb3201c7aa9749b0fb5701dd14e73ab"
+        },
+        "after": {
+          "path": "/assets/api-B2U3IV20.js",
+          "bytes": 854773,
+          "sha256": "b29e40b75b0234057dec7f8b3642f83b338b7dbce6954bc7693d93dc85d93169"
+        }
+      },
+      {
+        "logicalPath": "/assets/appearance-preferences-*.js",
+        "before": {
+          "path": "/assets/appearance-preferences-DZVnbzzH.js",
+          "bytes": 1080,
+          "sha256": "11600e307aa454225e245e81f41dde503eb68340327c650cc714ce53dad37626"
+        },
+        "after": {
+          "path": "/assets/appearance-preferences-kj2B159W.js",
+          "bytes": 1080,
+          "sha256": "f7f77fe9c6c7c7ef621ec3743f263cb8cf695d053b87a8aa4e75defb4ed17386"
+        }
+      },
+      {
+        "logicalPath": "/assets/assistant-workspace-*.js",
+        "before": {
+          "path": "/assets/assistant-workspace-Cu50bMtM.js",
+          "bytes": 9268,
+          "sha256": "f5db171878648598111ab1a114ffd45224ac02701c3dfb3652ca6e6149bf9a37"
+        },
+        "after": {
+          "path": "/assets/assistant-workspace-DA_dB_u_.js",
+          "bytes": 9268,
+          "sha256": "c2c6392f488a8f5abdfa40b84cb033939363323f4734d9515161f5711150e0c3"
+        }
+      },
+      {
+        "logicalPath": "/assets/belvedere-*.js",
+        "before": {
+          "path": "/assets/belvedere-CHt0sqED.js",
+          "bytes": 143786,
+          "sha256": "91738892d33d8ad5c72881b6d6f0c927c40dd917808489fac6e308e67841947d"
+        },
+        "after": {
+          "path": "/assets/belvedere-D-vS-STu.js",
+          "bytes": 143786,
+          "sha256": "465b2996f122f1274e291a562dbbc9b07073184d36a0abef08bb13a724264a6d"
+        }
+      },
+      {
+        "logicalPath": "/assets/belvedere-globe-*.js",
+        "before": {
+          "path": "/assets/belvedere-globe-Dkv-grxu.js",
+          "bytes": 155349,
+          "sha256": "c3f00926368d0e4628840b506f86d2d8be73958626ea68384fb152d29bf266a1"
+        },
+        "after": {
+          "path": "/assets/belvedere-globe-DglYarNj.js",
+          "bytes": 155349,
+          "sha256": "153198f3cec8bca25dde3f1d8a243a1e83bdace5cab77aae4729318d16dd516c"
+        }
+      },
+      {
+        "logicalPath": "/assets/client-write-recovery-*.js",
+        "before": {
+          "path": "/assets/client-write-recovery-pVPCdW6G.js",
+          "bytes": 1612,
+          "sha256": "fe9a7e3c6ad6a802534a6dbe0284672d5894668e7b40220b50fd5e27c26b6fee"
+        },
+        "after": {
+          "path": "/assets/client-write-recovery-C55JBalN.js",
+          "bytes": 1612,
+          "sha256": "4360957faec35f80c22ea2f056bf93ff4283879b8fed9b6bbf40d55b8916ec08"
+        }
+      },
+      {
+        "logicalPath": "/assets/components-*.js",
+        "before": {
+          "path": "/assets/components-C9n7HA_u.js",
+          "bytes": 47732,
+          "sha256": "4156396c8702b38d10828b6070a4cd7e6746ba806ff1b515e96f3a7059d42572"
+        },
+        "after": {
+          "path": "/assets/components-btxWcQRT.js",
+          "bytes": 47732,
+          "sha256": "78ea2050de33f9b346fb3da2595d04309e3de6fbbab9ded405e1e446cda7eba3"
+        }
+      },
+      {
+        "logicalPath": "/assets/dispatch-pages-*.js",
+        "before": {
+          "path": "/assets/dispatch-pages-DFrRk7Ku.js",
+          "bytes": 61726,
+          "sha256": "8da0bd1e168a68314285e06109b23d90baa1b469e263383dfbf368461a9f9e51"
+        },
+        "after": {
+          "path": "/assets/dispatch-pages-D4Rxhfyq.js",
+          "bytes": 61726,
+          "sha256": "f0c907f1a05b037137afe71f7a83770ff7b79b7f37f36126e2c70cfb368bd10b"
+        }
+      },
+      {
+        "logicalPath": "/assets/distribution-pages-*.js",
+        "before": {
+          "path": "/assets/distribution-pages-Cq_pVtnq.js",
+          "bytes": 24544,
+          "sha256": "55a67ace17ab788fad20dc64a422cd517ff889790547c4448e2e6cb58310865d"
+        },
+        "after": {
+          "path": "/assets/distribution-pages-DzIMyUdf.js",
+          "bytes": 24544,
+          "sha256": "2eceb095035beb90f0ea783718f00e7b90f19135975a4efb746866577182d808"
+        }
+      },
+      {
+        "logicalPath": "/assets/document-studio-*.js",
+        "before": {
+          "path": "/assets/document-studio-DstQ7q7w.js",
+          "bytes": 126217,
+          "sha256": "7e9b6de4ca766636cfdb35b1e3917b4c81595e058d37f2528af104d48d76c61a"
+        },
+        "after": {
+          "path": "/assets/document-studio-6bhJ1YSt.js",
+          "bytes": 126217,
+          "sha256": "acba0568570cbfd19b61aad4612a8c534e24b4dceff0c2de7068974cb064df3a"
+        }
+      },
+      {
+        "logicalPath": "/assets/email-preferences-*.js",
+        "before": {
+          "path": "/assets/email-preferences-zmPAlgCr.js",
+          "bytes": 2140,
+          "sha256": "0b80607a7d52068b7984a17237183c96723b63c597103425806e1d7b6936e048"
+        },
+        "after": {
+          "path": "/assets/email-preferences-Cz6MP7Dv.js",
+          "bytes": 2140,
+          "sha256": "57692dbfa90f4c514c8f802e62d8de57b2e1d1de1c9b9758f155210421e5d5e7"
+        }
+      },
+      {
+        "logicalPath": "/assets/index-*.js",
+        "before": {
+          "path": "/assets/index-D5tEoW3w.js",
+          "bytes": 649883,
+          "sha256": "ada1b9845644fc10c8394dc44529d01d8bfe38aa73b6864e90e18f50d34f2fbe"
+        },
+        "after": {
+          "path": "/assets/index-C7q6cRbM.js",
+          "bytes": 649883,
+          "sha256": "8b0c656198f350b6163f20b27c43acb394718fa079353e80583fbed9081a29cc"
+        }
+      },
+      {
+        "logicalPath": "/assets/pdf-viewer-*.js",
+        "before": {
+          "path": "/assets/pdf-viewer-CwkSTeiX.js",
+          "bytes": 710505,
+          "sha256": "ce072b6b8c1e1c635a3e21de1fb79c6d51c283be72a52da4d2fd7c9aee7d545b"
+        },
+        "after": {
+          "path": "/assets/pdf-viewer-Cnf3Se1V.js",
+          "bytes": 710505,
+          "sha256": "d37f7dd7bba8dc636f3664a3dd9f1c64d049362c7cd4f57625d9e506f4f833a2"
+        }
+      },
+      {
+        "logicalPath": "/assets/personal-area-*.js",
+        "before": {
+          "path": "/assets/personal-area-CzzwUlrB.js",
+          "bytes": 39479,
+          "sha256": "dee3bf7b88add79c182e64f7b3e31f27b2ccf79d7d73974431756cc2216d2305"
+        },
+        "after": {
+          "path": "/assets/personal-area-DsNouw6s.js",
+          "bytes": 39479,
+          "sha256": "b41a22f908ae5dc0c2385b16493e5dc4eefa191aa62f86cb4f22cc8ce140a8c0"
+        }
+      },
+      {
+        "logicalPath": "/assets/postal-cutoff-notice-*.js",
+        "before": {
+          "path": "/assets/postal-cutoff-notice-cpJXxeeC.js",
+          "bytes": 3786,
+          "sha256": "f1279c0b320a68369941cc3956aa12384231af8a36dd5cf5566e59ee0978927b"
+        },
+        "after": {
+          "path": "/assets/postal-cutoff-notice-BgrHI8T3.js",
+          "bytes": 3786,
+          "sha256": "d447687957f621cf83cead2873985abc4da3849520971869937424d769dc03b3"
+        }
+      },
+      {
+        "logicalPath": "/assets/postal-recipient-editor-*.js",
+        "before": {
+          "path": "/assets/postal-recipient-editor-v_NOfliu.js",
+          "bytes": 30555,
+          "sha256": "d5489d35696fafb736b1d0dcb25b6f223df069186d0ee13c8832cbd722a44251"
+        },
+        "after": {
+          "path": "/assets/postal-recipient-editor-DR3nbizb.js",
+          "bytes": 30555,
+          "sha256": "00d1cdea7c852aabbbc587e444246f5deb166971bc0cf9f3a565f07b8009008a"
+        }
+      },
+      {
+        "logicalPath": "/assets/postal-review-page-*.js",
+        "before": {
+          "path": "/assets/postal-review-page-C-2yFspE.js",
+          "bytes": 12885,
+          "sha256": "04218b3ec0d6ce60739df95586be2ce3b59b24e265a4f41e06418bf912d68ea5"
+        },
+        "after": {
+          "path": "/assets/postal-review-page-sRr-NnBS.js",
+          "bytes": 12885,
+          "sha256": "107c24cd97cdd9b0eaf6e7227c095684ba31563dae931286bf59df2f2e67d1bc"
+        }
+      },
+      {
+        "logicalPath": "/assets/postal-setup-panel-*.js",
+        "before": {
+          "path": "/assets/postal-setup-panel-CP8jRS1E.js",
+          "bytes": 9199,
+          "sha256": "f2e8208fc7229c629cd837246f44ecb91c335d96617575dcbfd1b34f37616e33"
+        },
+        "after": {
+          "path": "/assets/postal-setup-panel-XOi7LVia.js",
+          "bytes": 9199,
+          "sha256": "d9fe234b05752bf0507164afb429aff64f3a62789958b1d3114badbeb22e6620"
+        }
+      },
+      {
+        "logicalPath": "/assets/secure-audit-history-*.js",
+        "before": {
+          "path": "/assets/secure-audit-history-YmYJOBvv.js",
+          "bytes": 3473,
+          "sha256": "875cce96b56467b01208f7ac11ade429a64a413b8b8d6578a38cbf86faddc425"
+        },
+        "after": {
+          "path": "/assets/secure-audit-history-BzzTvPV4.js",
+          "bytes": 3473,
+          "sha256": "26193680c57f359f1db16d08959f18c52dda9fa7ab1b90597fe768af8a5b81ae"
+        }
+      },
+      {
+        "logicalPath": "/assets/secure-distribution-pages-*.js",
+        "before": {
+          "path": "/assets/secure-distribution-pages-DSkf2rQ6.js",
+          "bytes": 22175,
+          "sha256": "8dc3627829936ed82b67e042becef16291275f896444bfbc0731ce4139843f17"
+        },
+        "after": {
+          "path": "/assets/secure-distribution-pages-CWuL-JRg.js",
+          "bytes": 22175,
+          "sha256": "040a30d46eb0fe128e3f4f28b5b66b652255e500b87198d6f5b49c1052319018"
+        }
+      },
+      {
+        "logicalPath": "/assets/secure-source-copy-*.js",
+        "before": {
+          "path": "/assets/secure-source-copy-Dr4AjerI.js",
+          "bytes": 3250,
+          "sha256": "188883aac559fdd7215127f388a703d325de06c72a87980f81a729308f3b0588"
+        },
+        "after": {
+          "path": "/assets/secure-source-copy-D9T28rou.js",
+          "bytes": 3250,
+          "sha256": "70af9d7b3be94c02f38392235b21d5fd6da495d5f0b585385af818b334f7f76e"
+        }
+      },
+      {
+        "logicalPath": "/assets/template-designer-*.js",
+        "before": {
+          "path": "/assets/template-designer-TpFlRWRq.js",
+          "bytes": 6536789,
+          "sha256": "797c26437f78a90eb6532272dcface1119156806c6c9db7b0d4fa59446306d26"
+        },
+        "after": {
+          "path": "/assets/template-designer-BgiE3kgn.js",
+          "bytes": 6536789,
+          "sha256": "6ab893a81f53426f08dd1793e6bc9146bdfa712f0edcfe22701b82649698c589"
+        }
+      },
+      {
+        "logicalPath": "/assets/theme-toggle-*.js",
+        "before": {
+          "path": "/assets/theme-toggle-1sYJBUWp.js",
+          "bytes": 1644,
+          "sha256": "8012134fb4806ac105aa3c5e977ff914979ebc0b8e0eea8ca0c2000038082e34"
+        },
+        "after": {
+          "path": "/assets/theme-toggle-Z_Wv1ovE.js",
+          "bytes": 1644,
+          "sha256": "3be2f804aa8361e452a8f2a3db4c3e9ec98a48a76b3d6e24760028995cf7f8c9"
+        }
+      },
+      {
+        "logicalPath": "/assets/workspace-contacts-*.js",
+        "before": {
+          "path": "/assets/workspace-contacts-DVPAEoWA.js",
+          "bytes": 3313,
+          "sha256": "0e788770a59a6d8d315dcac3002f43798ee3cdcdba5e2a800e0349810a7e707c"
+        },
+        "after": {
+          "path": "/assets/workspace-contacts-gV3wq8zu.js",
+          "bytes": 3313,
+          "sha256": "a1b8a0ca7af1b887171bab48476bce35bd730568f8a4dc05cffc862f8e946a5f"
+        }
+      },
+      {
+        "logicalPath": "/assets/workspace-pages-*.js",
+        "before": {
+          "path": "/assets/workspace-pages-CMeS_O31.js",
+          "bytes": 10460,
+          "sha256": "eb2578d07f57b0b601501988471c44613a0b00796253fb11f57288c41530d0c5"
+        },
+        "after": {
+          "path": "/assets/workspace-pages-lhOQfszl.js",
+          "bytes": 10460,
+          "sha256": "f7ac880a8774a3a3b9a04b19e3951c3800e90e441421a7f0edd29a6b60decb73"
+        }
+      },
+      {
+        "logicalPath": "/index.html",
+        "before": {
+          "path": "/index.html",
+          "bytes": 3227,
+          "sha256": "092c638900902d4abf78b7e513adc98af87b521edcd5a43ce138477b9d40b073"
+        },
+        "after": {
+          "path": "/index.html",
+          "bytes": 3227,
+          "sha256": "558f9dcf089c63030d3d2c0e659e2e49ab7ea38d80d83f03374a914934fff759"
+        }
+      }
+    ],
+    "ownedChunks": {
+      "main": [
+        {
+          "file": "document-studio-D0X9fxeI.js",
+          "bytes": 125030,
+          "gzipBytes": 34872,
+          "sha256": "b5acfef6c4d63d9e17e7869cca8f9bbffb56010f84fe41d6192ab7dc9184df5a"
+        },
+        {
+          "file": "distribution-pages-DykloYLK.js",
+          "bytes": 25164,
+          "gzipBytes": 7791,
+          "sha256": "aa479ed50d586a128c897a7e8f7b850a4ac94009e7a94ec0d5b0d67886c10bdf"
+        }
+      ],
+      "final": [
+        {
+          "file": "document-studio-6bhJ1YSt.js",
+          "bytes": 126217,
+          "gzipBytes": 35260,
+          "sha256": "acba0568570cbfd19b61aad4612a8c534e24b4dceff0c2de7068974cb064df3a"
+        },
+        {
+          "file": "distribution-pages-DzIMyUdf.js",
+          "bytes": 24544,
+          "gzipBytes": 7624,
+          "sha256": "2eceb095035beb90f0ea783718f00e7b90f19135975a4efb746866577182d808"
+        },
+        {
+          "file": "client-write-recovery-C55JBalN.js",
+          "bytes": 1612,
+          "gzipBytes": 642,
+          "sha256": "4360957faec35f80c22ea2f056bf93ff4283879b8fed9b6bbf40d55b8916ec08"
+        }
+      ]
+    },
+    "ownedChunkGzipDelta": 863
+  },
+  "serialRestore": {
+    "restoredAt": "2026-11-08T01:52:45.433Z",
+    "webAssetsMatchQualifiedCatalogBuild": true,
+    "assetCount": 239,
+    "assetsSha256": "9f34af81a6ce26cd9746dbaaa6fec196c4e7dff714847188468fa216bc218054",
+    "liveScopeSourceSha256": "f7731f69962e64c640c9d436e614c0ae0d44fe98971d37bcb3524f35cb2df550",
+    "previewSourceMatches": true,
+    "previewAssetsMatch": true,
+    "previewSource": "ec5caa56a9829605d3620a52082a673192696fb0d4d76ae4fb696383d1425f02",
+    "previewAssets": "56ecf07e6992d0e751d92099b212cb045c59dc8d6b9f443f6ab828d1e11287f3",
+    "previewBuiltAt": "2026-11-08T01:52:31.684Z",
+    "buildLog": "/tmp/guteneo-final-serial-restore-build.log"
+  }
+}

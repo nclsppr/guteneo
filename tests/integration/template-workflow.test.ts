@@ -4546,3 +4546,151 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
     );
   });
 });
+
+describe("workflow final-write authority races", () => {
+  async function connectionActor(kind: "membership" | "oauth") {
+    if (kind === "membership")
+      return {
+        ctx: member as WorkflowActor,
+        revoke: () => setRole({ ...member, role: "viewer" }),
+      };
+    const connectionId = `write-race-${crypto.randomUUID()}`,
+      time = new Date().toISOString();
+    await db
+      .prepare(
+        "INSERT INTO authorized_connections(id,issuer,user_id,client_id,organization_id,status,created_at,updated_at) VALUES(?,?,?,?,?,'active',?,?)",
+      )
+      .bind(
+        connectionId,
+        "https://synthetic.invalid",
+        member.userId,
+        connectionId,
+        member.organizationId,
+        time,
+        time,
+      )
+      .run();
+    return {
+      ctx: {
+        ...member,
+        actor: "mcp",
+        authority: { connectionId, authorizationRevision: 0 },
+      } as WorkflowActor,
+      revoke: () =>
+        db
+          .prepare(
+            "UPDATE authorized_connections SET not_before=not_before+1 WHERE id=?",
+          )
+          .bind(connectionId)
+          .run(),
+    };
+  }
+  function beforeWrite(prefix: string, interleave: () => Promise<unknown>) {
+    const original = db.prepare.bind(db);
+    let armed = true;
+    const wrap = (statement: D1PreparedStatement): D1PreparedStatement =>
+      new Proxy(statement, {
+        get(target, property) {
+          if (property === "bind")
+            return (...values: unknown[]) => wrap(target.bind(...values));
+          if (property === "run")
+            return async () => {
+              if (armed) {
+                armed = false;
+                await interleave();
+              }
+              return target.run();
+            };
+          const value = Reflect.get(target, property);
+          return typeof value === "function" ? value.bind(target) : value;
+        },
+      });
+    const database = env.DB;
+    env.DB = new Proxy(database, {
+      get(target, property) {
+        if (property === "prepare")
+          return (query: string) =>
+            query.startsWith(prefix) ? wrap(original(query)) : original(query);
+        const value = Reflect.get(target, property);
+        return typeof value === "function" ? value.bind(target) : value;
+      },
+    });
+    return {
+      mockRestore: () => {
+        env.DB = database;
+      },
+    };
+  }
+  it.each(["membership", "oauth"] as const)(
+    "fences dataset promotion against %s revocation at the final D1 write",
+    async (kind) => {
+      const { ctx, revoke } = await connectionActor(kind);
+      const source = await service.importDataset(ctx, {
+        name: "synthetic.csv",
+        format: "csv",
+        bytes: new TextEncoder().encode(
+          "id,nom,email\n01,Example,one@example.invalid",
+        ),
+      });
+      await db
+        .prepare(
+          "UPDATE workflow_datasets SET status='quarantined',profile_key=NULL,structure_hash=NULL,analysis_attempts=0 WHERE id=?",
+        )
+        .bind(source.id)
+        .run();
+      const spy = beforeWrite(
+        "UPDATE workflow_datasets SET profile_key",
+        revoke,
+      );
+      try {
+        await expect(
+          service.retryDatasetAnalysis(ctx, source.id),
+        ).rejects.toMatchObject({
+          code: kind === "membership" ? "FORBIDDEN" : "CONNECTION_REVOKED",
+        });
+        expect(
+          await db
+            .prepare(
+              "SELECT status,profile_key FROM workflow_datasets WHERE id=?",
+            )
+            .bind(source.id)
+            .first(),
+        ).toEqual({ status: "quarantined", profile_key: null });
+        expect(await count("dispatches")).toBe(0);
+      } finally {
+        spy.mockRestore();
+        await setRole(member);
+      }
+    },
+  );
+  it.each(["membership", "oauth"] as const)(
+    "fences mapping insertion against %s revocation at the final D1 write",
+    async (kind) => {
+      const { ctx, revoke } = await connectionActor(kind);
+      const source = await service.importDataset(ctx, {
+        name: "synthetic.csv",
+        format: "csv",
+        bytes: new TextEncoder().encode(
+          "id,nom,email\n01,Example,one@example.invalid",
+        ),
+      });
+      const { profile } = await service.getDatasetProfile(ctx, source.id);
+      const spy = beforeWrite("INSERT INTO workflow_mappings", revoke);
+      try {
+        await expect(
+          service.createMapping(ctx, {
+            datasetId: source.id,
+            plan: { ...mapping, sourceSheet: profile.sheets[0].name },
+          }),
+        ).rejects.toMatchObject({
+          code: kind === "membership" ? "FORBIDDEN" : "CONNECTION_REVOKED",
+        });
+        expect(await count("workflow_mappings")).toBe(0);
+        expect(await count("generation_jobs")).toBe(0);
+      } finally {
+        spy.mockRestore();
+        await setRole(member);
+      }
+    },
+  );
+});

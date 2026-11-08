@@ -1,5 +1,110 @@
 # Frontend loading and table controls
 
+## Queue incident action — 8 November 2026 local candidate
+
+The existing lazy Administration module adds deliberate incident resolution and
+its timestamp, without a new dependency or request on render. Four-language
+fixture checks pass 12/12 across desktop Chromium, Pixel 7 Chromium and iPhone
+WebKit: the first confirmation gesture sends nothing; the final gesture makes
+one CSRF-bound POST, then refreshes status. The
+[dated evidence](evidence/dead-letter-resolution-2026-11-08.json) binds source and
+asset hashes. Compared with audited main, the optimized Administration chunk
+changes from 82,080 to 82,906 raw bytes and 22,535 to 22,761 deterministic gzip
+bytes (+226). This measures that lazy chunk, not an initial-page aggregate or a
+latency improvement. Provider and production behavior are unqualified by these
+intercepted browser fixtures.
+
+## Explicit workflow recovery — 8 November 2026 local candidate
+
+Postal review, secure-share activation and source-copy recovery now use narrow
+explicit controllers. Unknown write results enter `read_required`; only a
+successful explicit status read can reopen the existing action. A failed read
+stays closed, while an invalid quote requires replacement and fresh review.
+Postal quote follow-up retries only the known still-analysing response, at most
+20 times. Source-copy retries preserve the original key. Account/session changes
+and accepted navigation invalidate pending continuations, including leaving and
+returning to the same address; a vetoed dirty-form navigation retains the action.
+
+These controllers add no API request or heavyweight dependency. The existing
+lazy application modules retain their loading boundaries. The
+[local evidence](evidence/client-workflows-2026-11-08.json) binds owned source
+hashes, built controller assets and browser observations. Each row below is one
+fresh-context sample against an optimized local Vite build with intercepted
+fictional APIs, no network/CPU throttle and concurrent shared-host activity.
+First useful form means the asserted visible source selector after navigation;
+it is not a paint measurement or a claimed improvement over a clean baseline.
+
+| Browser / form | First useful form (ms) | Encoded JS / transferred JS (bytes) | Bootstrap GETs / additional recovery GETs |
+| --- | ---: | ---: | ---: |
+| Desktop Chromium / secure share | 184.5 | 562,082 / 569,582 | 4 / 0 |
+| Desktop Chromium / email | 437.5 | 592,178 / 601,778 | 4 / 0 |
+| Pixel 7 Chromium / secure share | 174.8 | 562,082 / 569,582 | 4 / 0 |
+| Pixel 7 Chromium / email | 426.9 | 592,178 / 601,778 | 4 / 0 |
+| iPhone 13 WebKit / secure share | 265.0 | 562,864 / 570,364 | 4 / 0 |
+| iPhone 13 WebKit / email | 958.0 | 593,087 / 602,687 | 4 / 0 |
+
+The priced secure-send action retains one initial detail read and two writes
+after the explicit human action, with no intermediate read: approval then
+activation. Observed first useful review was 162.8 / 154.8 / 233.0 ms on desktop
+Chromium / Pixel 7 Chromium / iPhone 13 WebKit. Recovery does not issue another
+write until the person successfully checks status and explicitly resumes.
+
+The broad affected browser run passed 132/132 across those three projects in
+111.63 seconds. After wiring the complete session identity into both source-copy
+entry points, the final affected secure-send/source-copy run passed 60/60 in
+45.96 seconds. Both runs had zero skips, flaky cases or unexpected failures.
+New regressions cover failed status reads, a delayed approval after A → B → A,
+and vetoed navigation; existing cases cover stable keys, quote expiry, crop
+recovery, unknown outcomes, duplicate clicks, preserved drafts and four locales.
+The transition and existing secure-render tests pass 53/53; typecheck, affected
+ESLint and application ownership checks pass. The
+[desktop](evidence/client-workflow-desktop-2026-11-08.png) and
+[mobile](evidence/client-workflow-mobile-2026-11-08.png) captures were inspected.
+Final continuation checks pass 27/27 across those browsers in 17.14 seconds,
+including delayed approval and confirmation replies after A → B → A. The final
+catalog build was measured again in nine passing fixture cases (12.10 seconds); the table
+above reflects that build. These fixtures do not qualify hosted Auth0, real recipients, provider delivery,
+production latency or physical devices.
+
+## Studio continuation ownership — 8 November 2026 local candidate
+
+Studio and distribution now reuse the same current-view receipt. Complete
+workspace/user/session identity is passed into the route owners. Template
+save/publish/generate and data import/replace/validate/analyse follow-ups reject
+obsolete replies before updating the current editor, starting a dependent write
+or navigating. Editing a mapping also invalidates an in-flight validation.
+AI proposal adoption records `offered`, `mapping_saved` and `draft_saved`
+explicitly: a known successful mapping is reused after draft creation fails,
+and leaving the view after the mapping response cannot start template creation.
+These client receipts do not recover an unknown server write or replace server
+idempotency, immutable versions, generation freeze or human sending approval.
+
+The [artifact comparison](evidence/studio-client-workflows-2026-11-08.json) uses
+the pinned main commit and separately built candidate. The Studio lazy chunk
+changes from 34,872 to 35,260 gzip bytes; distribution changes from 7,791 to
+7,624 after removing its duplicate navigation guard. The shared guard is 642
+gzip bytes. Those three owned chunks total 863 additional gzip bytes; this is
+a deterministic module comparison, not a whole-page payload or latency gain.
+The final catalog additions change import hashes; both sides use the same Node
+gzip method, and the earlier 865-byte comparison is retained in the evidence.
+No new heavyweight library, eager application import or API read was added.
+
+Local intercepted browser checks pass 48/48 across desktop Chromium, Pixel 7
+Chromium and iPhone 13 WebKit in 27.0 seconds, including existing dirty-navigation
+vetoes, account changes, selection preservation and coalesced A → B → A events.
+The final three regression cases pass 9/9 across those engines in 10.64 seconds:
+partial adoption retry, obsolete mapping response and obsolete template-generation
+navigation. These synthetic UI fixtures do not qualify the HTTP services,
+renderer, real inference, deployed host or physical devices; broader integrated
+validation is recorded separately. The real local Worker/D1/renderer run of
+`template-data`, `studio-continuity` and `generation-analysis` passes 43 cases
+across the same three browsers, with two existing declared skips for the
+desktop-only graphical-editor scenario on mobile. Chromium takes 55.43 seconds;
+the two mobile projects together take 118.73 seconds. The temporary harness
+copies change localhost ports and isolated configuration only; repository test
+fixtures stay unchanged. These are deterministic local services and synthetic
+inference responses, with no provider or production delivery evidence.
+
 ## Secure source-copy recovery — 5 November 2026 local measurement
 
 Both composers reuse one small recovery hook/notice inside their existing lazy

@@ -26,7 +26,6 @@ Unified personal account and optional workspace implementation; migrations, alig
 <li id="feature-0d705f70130f">Workshop switching with current membership rights</li>
 <li id="feature-e45c48c38807">OAuth connection binding, revocation and consented scopes</li>
 <li id="feature-0902d179dfda">Exact resource-metadata discovery issuer, including its trailing slash; official MCP SDK contract tests without external network</li>
-<li id="feature-550f7a5eac9d">Account deletion request; complete erasure processing remains unqualified</li>
 <li id="feature-26942d4a7630">Visible signed-in name and login email on desktop/mobile, with the email heading the V2 account menu; current role and permissions belong on My account</li>
 <li id="feature-a27bec3f16f6">Explicit Auth0 account switching without disabling ordinary SSO</li>
 <li id="feature-91f1d79cca79">Tab-focus reconciliation of identity, workshop and saved language</li>
@@ -57,4 +56,5 @@ Unified personal account and optional workspace implementation; migrations, alig
 <li id="feature-34f94846ae01">Workspace and personal browser sessions project only canAccessBelvedere for navigation; signed privileged browser evidence and current membership remain mandatory, with no authority derived from mutable profile email or workspace role</li>
 <li id="feature-b7ae2b094300">Authenticated account reads and independent login/callback digests overlap while retaining saved appearance, canonical invitation validation, transaction-bound issuer, nonce and subject checks before session writes</li>
 <li id="feature-f217b1fa8d8c">Four-language Auth0 account email candidates with normalized request language and English fallback; current owned application IDs scope body, subject and sender while exact prior Liquid fields preserve other or missing clients. Offline Liquid/browser proof, remote application and real delivery remain separate; enabled flags, redirect and expiry are unchanged</li>
+<li id="feature-5c41e6d90ab0">Account deletion request and separate default-off private operator processing: a frozen reviewed plan blocks unsafe workspace closure and unresolved liabilities, revokes all authentication, verifies exact storage/identity erasure and delivered completion-notice evidence, minimizes the retained historical skeleton, and never calls a disabled profile completed deletion; no public or MCP processor authority</li>
 </ol>

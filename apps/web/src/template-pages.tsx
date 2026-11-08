@@ -51,6 +51,7 @@ import {
 import { BusinessDataForm } from "./template-data-form";
 import { reconcileDesignerChange } from "../../../packages/templates/designer";
 import { TemplateSettings, TemplateAi } from "./template-settings";
+import { useCurrentClientView } from "./client-write-recovery";
 
 const Designer = lazy(() => import("./template-designer"));
 const stateLabel = {
@@ -103,10 +104,13 @@ function DeleteTemplateAction({
 export function TemplateLibrary({
   startBlank,
   canPrepare,
+  identity,
 }: {
   startBlank: boolean;
   canPrepare: boolean;
+  identity: string;
 }) {
+  const currentView = useCurrentClientView(identity);
   const templates = useResource<Page<TemplateView>>("/templates");
   const action = useAction();
   const [name, setName] = useState(msg("My document"));
@@ -119,20 +123,24 @@ export function TemplateLibrary({
   >([]);
   const [importedTemplateId, setImportedTemplateId] = useState<string>();
   async function create(envelope: TemplateEnvelope) {
+    const isCurrent = currentView();
     await action.run(async () => {
       const result = await api<TemplateView>("/templates", {
         method: "POST",
         body: { envelope },
       });
+      if (!isCurrent()) return;
       go(studioRoutes.template(result.id));
     });
   }
   async function remove(model: TemplateView) {
+    const isCurrent = currentView();
     await action.run(async () => {
       await api<{ id: string; deleted: true }>(`/templates/${model.id}`, {
         method: "DELETE",
         body: { expectedRevision: model.revision },
       });
+      if (!isCurrent()) return;
       templates.setData((current) =>
         current
           ? {
@@ -148,6 +156,7 @@ export function TemplateLibrary({
   }
   async function importWord(event: FormEvent) {
     event.preventDefault();
+    const isCurrent = currentView();
     await action.run(async () => {
       const source = file.current?.files?.[0];
       if (!source) throw new Error(msg("Choose a Word .docx file."));
@@ -159,6 +168,7 @@ export function TemplateLibrary({
         template: TemplateView;
         warnings: DocxImportResult["warnings"];
       }>("/templates/import-docx", { method: "POST", body: form });
+      if (!isCurrent()) return;
       setImportWarnings(result.warnings);
       setImportedTemplateId(result.template.id);
       if (result.warnings.length) templates.refresh();
@@ -422,6 +432,11 @@ export function TemplateEditor({
     return (
       <GenerationDataCorrection
         key={generationScope}
+        identity={JSON.stringify([
+          session.organization.id,
+          session.user.id,
+          session.csrfToken,
+        ])}
         source={sourceGeneration.data}
         template={sourceTemplate.data}
         record={correction.data}
@@ -454,12 +469,15 @@ function GenerationDataCorrection({
   template,
   record,
   canPrepare,
+  identity,
 }: {
   source: GenerationJobView;
   template: TemplateView;
   record: GenerationCorrectionInput;
   canPrepare: boolean;
+  identity: string;
 }) {
+  const currentView = useCurrentClientView(identity);
   const [data, setData] = useState(() => structuredClone(record.data));
   const key = useRef(crypto.randomUUID());
   const previousInput = useRef("");
@@ -507,6 +525,7 @@ function GenerationDataCorrection({
           className="studio-section"
           onSubmit={(event) => {
             event.preventDefault();
+            const isCurrent = currentView();
             void action.run(async () => {
               const body = {
                 templateId: source.templateId,
@@ -522,6 +541,7 @@ function GenerationDataCorrection({
                 "/generation-jobs",
                 { method: "POST", key: key.current, body },
               );
+              if (!isCurrent()) return;
               generated.current = true;
               go(studioRoutes.generation(generation.id));
             });
@@ -588,6 +608,15 @@ function EditorBody({
   generationData?: Record<string, unknown>;
   onGenerationData: (data: Record<string, unknown>) => void;
 }) {
+  const currentView = useCurrentClientView(
+    JSON.stringify([
+      session.organization.id,
+      session.user.id,
+      session.csrfToken,
+      model.id,
+      model.revision,
+    ]),
+  );
   const [envelope, setEnvelope] = useState<TemplateEnvelope>(
     structuredClone(model.envelope),
   );
@@ -638,31 +667,32 @@ function EditorBody({
   }
   async function save() {
     if (designerPending) return;
+    const isCurrent = currentView();
     await action.run(async () => {
       validateTemplateEnvelope(envelope);
-      onSaved(
-        await api<TemplateView>(`/templates/${model.id}`, {
-          method: "PATCH",
-          body: { expectedRevision: model.revision, envelope },
-        }),
-      );
+      const next = await api<TemplateView>(`/templates/${model.id}`, {
+        method: "PATCH",
+        body: { expectedRevision: model.revision, envelope },
+      });
+      if (isCurrent()) onSaved(next);
     });
   }
   async function publish() {
     if (designerPending) return;
+    const isCurrent = currentView();
     await action.run(async () => {
       if (dirty)
         throw new Error(msg("Save the draft before publishing this version."));
-      onSaved(
-        await api<TemplateView>(`/templates/${model.id}/publish`, {
-          method: "POST",
-          body: { expectedRevision: model.revision },
-        }),
-      );
+      const next = await api<TemplateView>(`/templates/${model.id}/publish`, {
+        method: "POST",
+        body: { expectedRevision: model.revision },
+      });
+      if (isCurrent()) onSaved(next);
     });
   }
   async function generate(event: FormEvent) {
     event.preventDefault();
+    const isCurrent = currentView();
     await action.run(async () => {
       if (dirty || !model.currentVersion || model.state !== "published")
         throw new Error(
@@ -683,6 +713,7 @@ function EditorBody({
         key: generationKey.current,
         body: payload,
       });
+      if (!isCurrent()) return;
       go(studioRoutes.generation(job.id));
     });
   }

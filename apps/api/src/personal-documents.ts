@@ -37,6 +37,7 @@ import {
   personalSessionFence as sessionFence,
   sensitiveSessionPolicy,
 } from "./sensitive-session";
+import { personalDepositNextStep } from "./secure-document-lifecycle";
 
 type PersonalRow = {
   id: string;
@@ -959,9 +960,9 @@ export class PersonalDocumentsService {
       }>();
     if (!session) {
       await this.env.DB.prepare(
-        "UPDATE secure_deposit_operations SET lease_expires_at=? WHERE id=? AND lease_token=?",
+        "UPDATE secure_deposit_operations SET auth_session_hash=NULL,lease_token='',lease_expires_at=?,updated_at=? WHERE id=? AND status='preparing' AND lease_token=?",
       )
-        .bind(time, operation.id, lease)
+        .bind(time, time, operation.id, lease)
         .run();
       return;
     }
@@ -1011,7 +1012,9 @@ export class PersonalDocumentsService {
       policy: SecureDistributionPolicy = JSON.parse(row.policy_json);
     const targetId = operation.personal_document_id,
       prefix = `secure/personal/${principal.userId}/${targetId}`;
-    if (!operation.original_ready) {
+    if (
+      personalDepositNextStep(operation, row.source_pages) === "copy_original"
+    ) {
       const original = await getSecureObject(
         this.env,
         row.original_key!,
@@ -1078,7 +1081,12 @@ export class PersonalDocumentsService {
     }
     const nextPage =
       (pages.results.at(-1)?.page_number ?? operation.next_page - 1) + 1;
-    if (nextPage <= row.source_pages) {
+    if (
+      personalDepositNextStep(
+        { original_ready: 1, next_page: nextPage },
+        row.source_pages,
+      ) === "copy_pages"
+    ) {
       await this.env.DB.prepare(
         "UPDATE secure_deposit_operations SET next_page=?,lease_expires_at=?,updated_at=? WHERE id=? AND lease_token=?",
       )

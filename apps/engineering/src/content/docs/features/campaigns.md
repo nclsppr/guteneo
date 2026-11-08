@@ -1,6 +1,6 @@
 ---
 title: "Campaigns and tracking"
-description: "8 capabilities in the operate branch of Guteneo."
+description: "9 capabilities in the operate branch of Guteneo."
 sidebar:
   order: 12
 ---
@@ -26,6 +26,7 @@ Implemented; role, exact-document and channel gates apply.
 <li id="feature-aa5ee8227f81">Eligible cancellation and review of uncertain operations</li>
 <li id="feature-9aa518acad32">Channel/ceiling administration without blind retries</li>
 <li id="feature-fc01d17a7ef2">Path-scoped browser refresh prevents stale resources or cancelled 401s from replacing a newer session</li>
+<li id="feature-fce7b153ae66">Frozen nonempty campaigns complete automatically only after every immutable member is operationally closed with no execution lease, unresolved invocation or reserved quota/credit; postal handover is execution closure, never recipient receipt, and late ranked facts remain projectable</li>
 </ol>
 
 ## REST operations

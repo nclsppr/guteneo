@@ -1,6 +1,6 @@
 ---
 title: "Template studio"
-description: "14 capabilities in the create branch of Guteneo."
+description: "15 capabilities in the create branch of Guteneo."
 sidebar:
   order: 4
 ---
@@ -32,6 +32,7 @@ Implemented; AI suggestions require configuration and organisation consent.
 <li id="feature-d893b0099d2f">Owner-only removal preserving historical PDFs and provenance</li>
 <li id="feature-7ad6848682c7">Document-studio exclusions cover DOCX, text, existing templates and business data; stop known excluded content and request a person-redacted copy without web bypass</li>
 <li id="feature-7da1eb053f33">AI suggestions revalidate edit rights, membership, OAuth connection, revision and transfer consent before inference and before returning; reject stale proposals without automatic application/publication</li>
+<li id="feature-8be5610e9f78">Template writes and chained browser continuations require current identity, view, membership, connection and exact revision after asynchronous work; an obsolete response cannot generate or navigate</li>
 </ol>
 
 ## REST operations

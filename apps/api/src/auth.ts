@@ -622,7 +622,7 @@ export async function memberships(
   const result = await env.DB.prepare(
     `SELECT m.organization_id, o.name organization_name, m.user_id, u.name user_name,u.email user_email, u.preferred_locale,u.preferred_dashboard_appearance, m.role,m.supervisor_can_approve,m.supervisor_can_report
     FROM memberships m JOIN organizations o ON o.id=m.organization_id JOIN users u ON u.id=m.user_id
-    WHERE m.user_id=? ORDER BY m.organization_id LIMIT 101`,
+    WHERE m.user_id=? AND NOT EXISTS(SELECT 1 FROM account_deletion_requests deletion WHERE deletion.user_id=m.user_id AND deletion.status IN('processing','completed')) ORDER BY m.organization_id LIMIT 101`,
   )
     .bind(userId)
     .all<Membership>();
@@ -853,7 +853,7 @@ export async function authenticatePersonalBrowser(
   const row = await env.DB.prepare(
     `SELECT p.user_id,p.csrf_token,p.verified_email,p.mfa,p.verified_account,p.authenticated_at,p.amr_json,p.acr,p.strong_authentication,p.authentication_policy_version,p.is_development,u.name,u.preferred_locale,u.preferred_dashboard_appearance,
      EXISTS(SELECT 1 FROM auth_identities ai WHERE ai.user_id=p.user_id AND ai.issuer=p.identity_issuer AND ai.subject=p.identity_subject AND u.email=p.verified_email) identity_verified
-     FROM personal_sessions p JOIN users u ON u.id=p.user_id WHERE p.token_hash=? AND p.expires_at>?`,
+     FROM personal_sessions p JOIN users u ON u.id=p.user_id WHERE p.token_hash=? AND p.expires_at>? AND NOT EXISTS(SELECT 1 FROM account_deletion_requests deletion WHERE deletion.user_id=p.user_id AND deletion.status IN('processing','completed'))`,
   )
     .bind(tokenHash, nowISO())
     .first<{
@@ -1104,7 +1104,7 @@ export async function authenticateBrowser(
     FROM browser_sessions s JOIN memberships m ON m.organization_id=s.organization_id AND m.user_id=s.user_id
     JOIN organizations o ON o.id=m.organization_id JOIN users u ON u.id=m.user_id
     LEFT JOIN browser_identity_evidence e ON e.token_hash=s.token_hash
-    WHERE s.token_hash=? AND s.expires_at>?`,
+    WHERE s.token_hash=? AND s.expires_at>? AND NOT EXISTS(SELECT 1 FROM account_deletion_requests deletion WHERE deletion.user_id=s.user_id AND deletion.status IN('processing','completed'))`,
   )
     .bind(tokenHash, nowISO())
     .first<
@@ -1163,6 +1163,26 @@ export function requireScope(
       403,
     );
 }
+/** Deletion tombstones close both old tokens and callbacks that would re-create an identity. */
+export async function assertIdentityCanSignIn(
+  env: Pick<AuthEnv, "DB">,
+  issuer: string,
+  subject: string,
+): Promise<void> {
+  const closed = await env.DB.prepare(
+    `SELECT 1 FROM account_deletion_identity_tombstones WHERE issuer=? AND subject=?
+     UNION ALL SELECT 1 FROM auth_identities i JOIN account_deletion_requests d ON d.user_id=i.user_id WHERE i.issuer=? AND i.subject=? AND d.status IN('processing','completed') LIMIT 1`,
+  )
+    .bind(issuer, subject, issuer, subject)
+    .first();
+  if (closed)
+    throw new AuthError(
+      "ACCOUNT_DELETION_IN_PROGRESS",
+      "This account is being deleted or has been deleted.",
+      403,
+    );
+}
+
 export async function authenticateMcp(
   request: Request,
   env: AuthEnv,
@@ -1183,7 +1203,7 @@ export async function authenticateMcp(
       );
     const row = await env.DB.prepare(
       `SELECT t.organization_id,t.user_id,m.role,m.supervisor_can_approve,m.supervisor_can_report,t.expires_at FROM development_mcp_tokens t
-      JOIN memberships m ON m.organization_id=t.organization_id AND m.user_id=t.user_id WHERE t.token_hash=? AND t.expires_at>?`,
+      JOIN memberships m ON m.organization_id=t.organization_id AND m.user_id=t.user_id WHERE t.token_hash=? AND t.expires_at>? AND NOT EXISTS(SELECT 1 FROM account_deletion_requests deletion WHERE deletion.user_id=t.user_id AND deletion.status IN('processing','completed'))`,
     )
       .bind(await hashSecret(token), nowISO())
       .first<{
@@ -1230,6 +1250,7 @@ export async function authenticateMcp(
         : "";
   if (!clientId || !payload.sub || !payload.iat || !payload.exp)
     throw new AuthError("TOKEN_INVALID", "Jeton OAuth incomplet.");
+  await assertIdentityCanSignIn(env, issuer, payload.sub);
   const identity = await env.DB.prepare(
     "SELECT user_id FROM auth_identities WHERE issuer=? AND subject=?",
   )
@@ -1686,6 +1707,7 @@ async function handleAuthRouteOperation(
     }
     const verifiedAccount =
       hasVerifiedAccount(claims) && hasVerifiedAccount(accessClaims);
+    await assertIdentityCanSignIn(env, config.issuer, claims.sub!);
     let identity = await env.DB.prepare(
       "SELECT user_id FROM auth_identities WHERE issuer=? AND subject=?",
     )

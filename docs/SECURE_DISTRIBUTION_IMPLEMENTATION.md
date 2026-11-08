@@ -2,6 +2,50 @@
 
 24 October 2026 candidate. This record describes local code and the requested publication configuration; it establishes no remote migration, plugin publication or production deployment. The user authorizes publication with the `verified_account` document policy. Earlier decisions and studies are dated in the [unified account plan](UNIFIED_ACCOUNT_AND_VAULT_PLAN.md); their mandatory-strong-authentication assumption does not supersede the explicit decision below.
 
+## Explicit secure and upload decisions — 8 November 2026 local candidate
+
+The services now use small lifecycle decisions in
+[`secure-document-lifecycle.ts`](../apps/api/src/secure-document-lifecycle.ts)
+and [`private-upload-lifecycle.ts`](../apps/api/src/private-upload-lifecycle.ts).
+They describe the existing persisted state rather than introducing a second state
+store, a generic framework or new public status values.
+
+| Decision | Service use | Authority retained by persistence |
+| --- | --- | --- |
+| Secure preparation visibility | A rendered manifest without an attached dispatch still projects `preparing`; active expiry is evaluated when returning the view | Exact source, immutable manifest, current preparation authority and guarded dispatch attachment |
+| Personal copy progress | Copy the original, continue bounded page batches, then attempt publication | Lease token, owner, paid grant, selected authentication policy and final transactional activation |
+| Private upload recovery | Expire an unused capability, fence an expired writer, then inspect the same durable receipt | Current OAuth revision/membership, immutable upload metadata and exact retained document |
+| MCP App receipt convergence | Translate the shared upload receipt into complete/rejected/unknown without importing again | Core document receipt, writer lease, per-part hash/size and current host/account authority |
+| Upload next action | Compute wait, receipt retrieval or stop from the same transfer state and budget | A response hint never authorizes a new write or provider operation |
+
+A confirmed race in unknown-upload recovery is corrected: a document could be
+selected as retained and then purged before the completion write. That write now
+rechecks the selected document's tenant, identity, exact hash/size, creator owner,
+nonpurged status and exclusion from dedicated secure-source copies in the same
+SQL statement as recovery. A lost race leaves the upload unknown with
+`do_not_retry`; it neither reruns the import nor consumes quota again.
+
+A personal-deposit worker that finds no eligible session now clears its hashed
+session reference and releases its lease, matching the existing pause behavior
+at final publication. Progress and the paid operation remain `preparing`; an
+explicit deposit request supplies current eligible authentication and resumes the
+same copy. Share revocation/expiry still aborts unpublished work, while a
+published personal copy retains its independent lifetime. Authentication policy,
+strong-mode freshness limits, final SQL authorization and existing errors remain
+in force.
+
+Local qualification used isolated Miniflare D1/R2 with all repository migrations
+and synthetic identities/services; no Auth0 tenant, provider or real recipient was
+contacted. The private-upload, MCP multipart and secure-core suites passed
+147/147 cases. Three subsequently added secure cases passed separately: view
+projection while dispatch attachment is suspended, plus early session-loss
+pause/resumption under each document policy. The purge regression verifies that
+the document was purged before the final write: it fails against the unchanged
+`main` service and passes with the correction. Full TypeScript and scoped ESLint
+also passed. These results do not replace the whole-repository validation gate or
+establish hosted runtime, native-device, live host, real delivery or publication
+qualification. This slice requires no migration.
+
 ## Quote and sign-in recovery — 27 October 2026 candidate
 
 The [recovery contract](SECURE_DISTRIBUTION_JOURNEYS.md#recover-an-expired-invitation-quote)

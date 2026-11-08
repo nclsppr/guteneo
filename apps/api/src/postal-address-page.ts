@@ -1,3 +1,4 @@
+import { addressPageRecovery } from "./postal-lifecycle";
 import {
   ContentError,
   validateRecipient,
@@ -280,9 +281,10 @@ export class PostalAddressPageService {
     }
     if (row.generated_document_id) return this.result(authority, row);
     if (row.lease_token !== leaseToken) {
-      if (row.expires_at <= timestamp) fail("POSTAL_ADDRESS_PAGE_EXPIRED");
-      if (row.lease_until > timestamp) fail("POSTAL_ADDRESS_PAGE_PROCESSING");
-      if (row.attempts >= 3) fail("POSTAL_ADDRESS_PAGE_RETRY_EXHAUSTED");
+      const recovery = addressPageRecovery(row, timestamp);
+      if (recovery === "expired") fail("POSTAL_ADDRESS_PAGE_EXPIRED");
+      if (recovery === "busy") fail("POSTAL_ADDRESS_PAGE_PROCESSING");
+      if (recovery === "exhausted") fail("POSTAL_ADDRESS_PAGE_RETRY_EXHAUSTED");
       const claimed = await this.env.DB.prepare(
         `UPDATE postal_address_pages SET lease_token=?,lease_until=?,attempts=attempts+1 WHERE organization_id=? AND id=? AND generated_document_id IS NULL AND lease_until<=? AND expires_at>? AND attempts<3 AND ${fence.condition}`,
       )

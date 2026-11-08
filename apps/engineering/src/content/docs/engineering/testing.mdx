@@ -27,6 +27,43 @@ would violate the contract: a cross-workspace identifier, a changed review hash,
 a stale membership, a duplicate callback or a timeout after a provider may have
 accepted work.
 
+## Validate transitions through the persistence boundary
+
+Keep build-output ownership exclusive during local qualification. The complete
+Node security stage includes release-asset tests that rebuild both application
+and public-preview output directories. Run those tests before browser checks in
+the same checkout, then rebuild the intended target and verify its asset hashes.
+Separate checkouts can run independently; two processes sharing an output tree
+cannot establish a stable browser result while one is rebuilding it.
+
+The [state-machine map](/architecture/state-machines/) identifies coupled
+lifecycles and their explicit transition contracts. A model
+must describe the existing services, SQL guards and derived validity together.
+Adding an enum or testing a transition helper alone does not establish that the
+application follows that model.
+
+When introducing or changing a model:
+
+1. Define observable invariants from the owning contract: exact approval,
+   tenant isolation, one acceptance, conserved reservations and no resubmission
+   after an unknown provider outcome.
+2. Run command sequences through the real service with canonical D1 migrations
+   and synthetic records. Assert durable rows, balances, outbox entries and
+   provider-call counts after each step, including refused commands.
+3. Exercise alternative paths: concurrent confirmations, duplicate and reordered
+   callbacks, lease expiry, lost responses, revoked authority and month rollover.
+   Vary time and event order; do not derive expected results by calling the same
+   transition function being tested.
+4. Check recovery independently. A lease retry must fence the previous writer;
+   an uncertain send must retain its reference and liability; a delayed client
+   response must not overwrite a newer account, workspace or request.
+
+Keep visible delivery status, approval validity, attempt ownership and financial
+finality as separate assertions. A delivered fax can still await usage
+settlement, and a projected callback receipt can still contain an orphan event.
+These path checks qualify the exercised local persistence boundary; real
+provider delivery and hosted runtime behavior require separate evidence.
+
 ## Run the repository checks
 
 From the repository root after [local setup](/getting-started/local-development/):

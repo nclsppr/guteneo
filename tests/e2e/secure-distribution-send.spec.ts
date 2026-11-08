@@ -12,7 +12,12 @@ type Mode =
   | "activation_uncommitted"
   | "DOCUMENT_AUTHENTICATION_REQUIRED"
   | "STRONG_BROWSER_APPROVAL_REQUIRED";
-async function fixture(page: Page, mode: Mode = "normal", simulation = false) {
+async function fixture(
+  page: Page,
+  mode: Mode = "normal",
+  simulation = false,
+  options: { approvalReady?: Promise<void>; failedStatusReads?: number } = {},
+) {
   const preview = await readFile(
     new URL("../fixtures/secure-review.png", import.meta.url),
   );
@@ -24,6 +29,7 @@ async function fixture(page: Page, mode: Mode = "normal", simulation = false) {
   let approved = mode === "approved",
     active = false,
     reads = 0;
+  let failedStatusReads = options.failedStatusReads ?? 0;
   const policy = {
     retentionDays: 30 as const,
     allowOriginalDownload: false,
@@ -73,6 +79,14 @@ async function fixture(page: Page, mode: Mode = "normal", simulation = false) {
       request.method() === "GET"
     ) {
       reads++;
+      if (reads > 1 && failedStatusReads > 0) {
+        failedStatusReads--;
+        await route.fulfill({
+          status: 503,
+          json: { error: { code: "INTERNAL_ERROR" } },
+        });
+        return;
+      }
       await route.fulfill({ json: publication() });
       return;
     }
@@ -97,6 +111,7 @@ async function fixture(page: Page, mode: Mode = "normal", simulation = false) {
           return;
         }
         approved = true;
+        await options.approvalReady;
         if (mode === "approval_lost" && writes.length === 1) {
           await route.abort("failed");
           return;
@@ -294,6 +309,79 @@ test("an uncertain approval requires a status read and never records approval tw
   await send(page).click();
   await expect(activeShare(page)).toBeVisible();
   await expect(send(page)).toHaveCount(0);
+  expect(f.writes.map((write) => write.operation)).toEqual([
+    "approve",
+    "activate",
+  ]);
+});
+
+test("a failed status read keeps an uncertain approval closed until a successful explicit read", async ({
+  page,
+}) => {
+  const f = await fixture(page, "approval_lost", false, {
+    failedStatusReads: 1,
+  });
+  await page.goto("/#/app/secure-distribution/sd_single_action");
+  await review(page);
+  await send(page).click();
+  await checkStatus(page).click();
+  await expect(checkStatus(page)).toBeEnabled();
+  await expect(send(page)).toBeDisabled();
+  expect(f.writes.map((write) => write.operation)).toEqual(["approve"]);
+  await checkStatus(page).click();
+  await expect(checkStatus(page)).toHaveCount(0);
+  await expect(send(page)).toBeEnabled();
+  expect(f.writes.map((write) => write.operation)).toEqual(["approve"]);
+});
+
+test("leaving and returning to the same share cannot continue a delayed approval into activation", async ({
+  page,
+}) => {
+  let release!: () => void;
+  const approvalReady = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const f = await fixture(page, "normal", false, { approvalReady });
+  await page.goto("/#/app/secure-distribution/sd_single_action");
+  await review(page);
+  await send(page).click();
+  await expect.poll(() => f.writes.length).toBe(1);
+  await page.evaluate(() => {
+    const original = location.hash;
+    location.hash = "#/app/secure-distributions";
+    location.hash = original;
+  });
+  release();
+  await expect(checkStatus(page)).toBeVisible();
+  await expect(send(page)).toBeDisabled();
+  expect(f.writes.map((write) => write.operation)).toEqual(["approve"]);
+  await checkStatus(page).click();
+  await expect(send(page)).toBeEnabled();
+  expect(f.writes.map((write) => write.operation)).toEqual(["approve"]);
+});
+
+test("a vetoed navigation retains the current explicit approval action", async ({
+  page,
+}) => {
+  let release!: () => void;
+  const approvalReady = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const f = await fixture(page, "normal", false, { approvalReady });
+  await page.goto("/#/app/secure-distribution/sd_single_action");
+  await review(page);
+  await send(page).click();
+  await expect.poll(() => f.writes.length).toBe(1);
+  const accepted = await page.evaluate(() => {
+    const name = "guteneo:before-workspace-navigation";
+    window.addEventListener(name, (event) => event.preventDefault(), {
+      once: true,
+    });
+    return window.dispatchEvent(new Event(name, { cancelable: true }));
+  });
+  expect(accepted).toBe(false);
+  release();
+  await expect(activeShare(page)).toBeVisible();
   expect(f.writes.map((write) => write.operation)).toEqual([
     "approve",
     "activate",

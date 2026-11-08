@@ -1,5 +1,6 @@
 import { DataTable, tableTimestamp } from "./data-table";
 import { msg } from "./messages";
+import { useCurrentClientView } from "./client-write-recovery";
 export { RememberDirectChoice } from "./assistant-state";
 import { studioRoutes } from "./app-routes";
 import { FileInput } from "./file-input";
@@ -837,12 +838,15 @@ export function PrepareDispatch({
   simulation,
   workspaceName,
   emailLocale,
+  identity,
 }: {
   initialDocument: string;
   simulation: boolean;
   workspaceName: string;
   emailLocale: SupportedLocale;
+  identity: string;
 }) {
+  const currentView = useCurrentClientView(identity);
   const documents = useResource<Page<DocumentRecord>>("/documents");
   const initial = useResource<DocumentRecord>(
     initialDocument && !isPublicPreview
@@ -877,6 +881,7 @@ export function PrepareDispatch({
       action.clear();
     },
     channel === "email" && emailDeliveryMode === "my_documents",
+    identity,
   );
   const uploadFollowup = useDocumentFollowup(uploaded?.id ?? null);
   const uploadedDocument = uploadFollowup.document ?? uploaded;
@@ -978,6 +983,7 @@ export function PrepareDispatch({
   };
   async function importForDispatch(file: File | undefined) {
     if (!file) return;
+    const isCurrent = currentView();
     await action.run(async () => {
       const form = new FormData();
       form.append("file", file);
@@ -985,6 +991,7 @@ export function PrepareDispatch({
         method: "POST",
         body: form,
       });
+      if (!isCurrent()) return;
       setUploaded(imported);
       setDocumentId(imported.id);
       documents.refresh();
@@ -992,6 +999,7 @@ export function PrepareDispatch({
   }
   async function prepare() {
     if (submitting.current || sourceCopy.pending) return;
+    const isCurrent = currentView();
     submitting.current = true;
     await action.run(async () => {
       if (documentUnavailable)
@@ -1035,6 +1043,7 @@ export function PrepareDispatch({
               },
             },
           );
+          if (!isCurrent()) return;
           setGenerated(result);
           setContinueGenerated(true);
           return;
@@ -1061,6 +1070,7 @@ export function PrepareDispatch({
             ceilingMinor,
           },
         });
+        if (!isCurrent()) return;
         go(`/app/postal/${encodeURIComponent(review.id)}`);
         return;
       }
@@ -1092,9 +1102,11 @@ export function PrepareDispatch({
             },
           );
         } catch (error) {
+          if (!isCurrent()) return;
           if (sourceCopy.offer(error, documentId)) return;
           throw error;
         }
+        if (!isCurrent()) return;
         go(`/app/secure-distribution/${encodeURIComponent(distribution.id)}`);
         return;
       }
@@ -1116,6 +1128,7 @@ export function PrepareDispatch({
           ceilingMinor,
         },
       });
+      if (!isCurrent()) return;
       go(`/app/dispatch/${dispatch.id}`);
     });
     submitting.current = false;
@@ -1823,11 +1836,13 @@ function DispatchListResults({
 
 export function DispatchDetailPage({
   id,
+  identity,
   simulation,
   canApprove = true,
   canPrepare = true,
 }: {
   id: string;
+  identity: string;
   simulation: boolean;
   canApprove?: boolean;
   canPrepare?: boolean;
@@ -1847,6 +1862,9 @@ export function DispatchDetailPage({
   const postalViewRevision = useRef(0);
   const clearAction = action.clear;
   const fingerprint = d?.fingerprint;
+  const currentView = useCurrentClientView(
+    JSON.stringify([identity, id, fingerprint]),
+  );
   useEffect(() => {
     setConsent(false);
     setRecipientRequested(false);
@@ -2003,10 +2021,11 @@ export function DispatchDetailPage({
       !Number.isFinite(Date.parse(d.quote_expires_at ?? "")));
   const postalSendLabel = `${d.mode === "simulation" ? msg("Simulate sending for") : msg("Send for")} ${quotedMoney(d)}${d.quote_pricing_basis === "public_list_price_ex_tax" ? msg(" excl. tax") : ""}`;
   async function readPostalOutcome(revision: number) {
+    const isCurrent = currentView();
     const current = await api<DispatchDetail>(
       `/dispatches/${encodeURIComponent(id)}`,
     );
-    if (postalViewRevision.current !== revision) return;
+    if (!isCurrent() || postalViewRevision.current !== revision) return;
     if (current?.dispatch?.id !== id)
       throw new Error(
         msg(
@@ -2032,6 +2051,7 @@ export function DispatchDetailPage({
     )
       return;
     postalSending.current = true;
+    const isCurrent = currentView();
     const revision = postalViewRevision.current;
     await action.run(async () => {
       try {
@@ -2040,7 +2060,10 @@ export function DispatchDetailPage({
             method: "POST",
             body: { fingerprint: d.fingerprint },
           });
-        if (postalViewRevision.current !== revision) return;
+        if (!isCurrent() || postalViewRevision.current !== revision) {
+          setPostalReadRequired(true);
+          return;
+        }
         // The same human click approves this immutable version and requests
         // acceptance. This stable key also protects an explicit later retry.
         await api(`/dispatches/${encodeURIComponent(id)}/confirm`, {
@@ -2048,11 +2071,17 @@ export function DispatchDetailPage({
           key: `web-confirm:${id}`,
           body: {},
         });
-        if (postalViewRevision.current !== revision) return;
+        if (!isCurrent() || postalViewRevision.current !== revision) {
+          setPostalReadRequired(true);
+          return;
+        }
         setPostalReadRequired(true);
         await readPostalOutcome(revision);
       } catch (error) {
-        if (postalViewRevision.current !== revision) return;
+        if (!isCurrent() || postalViewRevision.current !== revision) {
+          setPostalReadRequired(true);
+          return;
+        }
         if (error instanceof ApiError && error.code === "LIVE_QUOTE_INVALID")
           setInvalidQuoteId(id);
         // A lost response can follow committed acceptance. Only read status;
@@ -2081,6 +2110,7 @@ export function DispatchDetailPage({
     });
   }
   async function approve() {
+    const isCurrent = currentView();
     await action.run(async () => {
       try {
         await api(`/dispatches/${encodeURIComponent(id)}/approve`, {
@@ -2090,6 +2120,7 @@ export function DispatchDetailPage({
             ...(emailAttestationRequired ? { recipientRequested } : {}),
           },
         });
+        if (!isCurrent()) return;
         if (d?.channel === "email") {
           try {
             await api(`/dispatches/${encodeURIComponent(id)}/confirm`, {
@@ -2100,10 +2131,11 @@ export function DispatchDetailPage({
           } finally {
             // If acceptance is interrupted, read the same dispatch and expose
             // its approved state for an idempotent retry; never prepare again.
-            resource.refresh();
+            if (isCurrent()) resource.refresh();
           }
         } else resource.refresh();
       } catch (error) {
+        if (!isCurrent()) return;
         if (error instanceof ApiError && error.code === "LIVE_QUOTE_INVALID") {
           setInvalidQuoteId(id);
           setConsent(false);
@@ -2114,6 +2146,7 @@ export function DispatchDetailPage({
     });
   }
   async function confirm() {
+    const isCurrent = currentView();
     await action.run(async () => {
       try {
         await api(`/dispatches/${encodeURIComponent(id)}/confirm`, {
@@ -2121,8 +2154,9 @@ export function DispatchDetailPage({
           key: `web-confirm:${id}`,
           body: {},
         });
-        resource.refresh();
+        if (isCurrent()) resource.refresh();
       } catch (error) {
+        if (!isCurrent()) return;
         if (error instanceof ApiError && error.code === "LIVE_QUOTE_INVALID") {
           setInvalidQuoteId(id);
           setConsent(false);
@@ -2133,11 +2167,13 @@ export function DispatchDetailPage({
     });
   }
   async function renewQuote() {
+    const isCurrent = currentView();
     await action.run(async () => {
       const replacement = await api<Dispatch>(
         `/dispatches/${encodeURIComponent(id)}/renew-quote`,
         { method: "POST", key: `web-renew:${id}`, body: {} },
       );
+      if (!isCurrent()) return;
       setConsent(false);
       setRecipientRequested(false);
       go(`/app/dispatch/${encodeURIComponent(replacement.id)}`);

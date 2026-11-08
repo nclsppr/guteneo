@@ -1,0 +1,183 @@
+{
+  "date": "2026-11-08",
+  "scope": "Local public design preview; fictional browser-only model; no deployment, business backend, provider communication, production authentication, or native device qualification.",
+  "commands": [
+    "npm run build:preview",
+    "npm run test:preview"
+  ],
+  "build": {
+    "sourceCommit": "e0df725a2d791ef9a629d7ea91f11674d4138575",
+    "sourceDirty": true,
+    "builtAt": "2026-11-08T01:52:31.684Z",
+    "sourceSnapshotSha256": "ec5caa56a9829605d3620a52082a673192696fb0d4d76ae4fb696383d1425f02",
+    "assetsSha256": "56ecf07e6992d0e751d92099b212cb045c59dc8d6b9f443f6ab828d1e11287f3",
+    "assetCount": 340,
+    "releaseSha256": "74df7ce2ed3633979a8431f651d00de3575a1c3e2961ad98aa42969bc500fe3c",
+    "allDiskAssetsMatch": true,
+    "currentSourceMatches": true,
+    "command": "npm run build:preview",
+    "log": "/tmp/guteneo-final-serial-preview-build.log"
+  },
+  "browser": {
+    "profiles": [
+      "Desktop Chrome",
+      "iPhone 13 WebKit"
+    ],
+    "startTime": "2026-11-08T01:52:46.415Z",
+    "duration": 106003.457,
+    "expected": 295,
+    "skipped": 5,
+    "unexpected": 0,
+    "flaky": 0,
+    "globalErrors": [],
+    "declaredSkips": [
+      {
+        "file": "homepage-film.spec.ts",
+        "title": "a phone opened in landscape still receives the portrait movie and poster",
+        "project": "desktop",
+        "reason": "Requires a touch phone profile"
+      },
+      {
+        "file": "mobile-workspace.spec.ts",
+        "title": "mobile navigation preserves restored summary focus after deferred route frames",
+        "project": "desktop",
+        "reason": "iPhone WebKit keyboard and route-focus ordering coverage"
+      },
+      {
+        "file": "mobile-workspace.spec.ts",
+        "title": "mobile tables retain all fields without horizontal scrolling at 320px and in landscape",
+        "project": "desktop",
+        "reason": "iPhone WebKit reflow coverage"
+      },
+      {
+        "file": "mobile-workspace.spec.ts",
+        "title": "mobile PDF selection, download control and close retain their focus and page bounds",
+        "project": "desktop",
+        "reason": "iPhone WebKit PDF interaction coverage"
+      },
+      {
+        "file": "mobile-workspace.spec.ts",
+        "title": "mobile forms expose native validation, review and errors without a provider request",
+        "project": "desktop",
+        "reason": "iPhone WebKit form interaction coverage"
+      }
+    ],
+    "report": "reports/preview-playwright.json",
+    "reportSha256": "872fb5ca0d24c24a7eaec8402d8824b317863f1353fb43b52a8165467dce7649",
+    "log": "/tmp/guteneo-final-serial-preview-browser.log",
+    "archivedReport": "/tmp/guteneo-final-serial-preview-browser-20261108.json"
+  },
+  "logs": [
+    "/tmp/guteneo-final-serial-restore-build.log",
+    "/tmp/guteneo-final-serial-preview-build.log",
+    "/tmp/guteneo-final-serial-preview-browser.log"
+  ],
+  "preCatalogQualification": {
+    "build": {
+      "sourceCommit": "e0df725a2d791ef9a629d7ea91f11674d4138575",
+      "sourceDirty": true,
+      "builtAt": "2026-11-08T01:06:16.304Z",
+      "sourceSnapshotSha256": "0895adbb707dfa5a5344c3ae9ec5920d9785924f5db049dfeba1033389165ece",
+      "assetsSha256": "d8ef402e79ea16bfdc05e033805a2894b4d1f9dd96f980419edfe6b7981a38c7",
+      "assetCount": 340,
+      "releaseSha256": "89c1af6b3e98e7428eec8a4d197f4688db71c6d83f65cd6112b159d88bc1d0b3",
+      "viteDurationSeconds": 2.23
+    },
+    "browser": {
+      "profiles": [
+        "Desktop Chrome",
+        "iPhone 13 WebKit"
+      ],
+      "startTime": "2026-11-08T01:06:16.809Z",
+      "duration": 109207.582,
+      "expected": 295,
+      "skipped": 5,
+      "unexpected": 0,
+      "flaky": 0,
+      "globalErrors": [],
+      "declaredSkips": [
+        {
+          "file": "homepage-film.spec.ts",
+          "title": "a phone opened in landscape still receives the portrait movie and poster",
+          "project": "desktop",
+          "reason": "Requires a touch phone profile"
+        },
+        {
+          "file": "mobile-workspace.spec.ts",
+          "title": "mobile navigation preserves restored summary focus after deferred route frames",
+          "project": "desktop",
+          "reason": "iPhone WebKit keyboard and route-focus ordering coverage"
+        },
+        {
+          "file": "mobile-workspace.spec.ts",
+          "title": "mobile tables retain all fields without horizontal scrolling at 320px and in landscape",
+          "project": "desktop",
+          "reason": "iPhone WebKit reflow coverage"
+        },
+        {
+          "file": "mobile-workspace.spec.ts",
+          "title": "mobile PDF selection, download control and close retain their focus and page bounds",
+          "project": "desktop",
+          "reason": "iPhone WebKit PDF interaction coverage"
+        },
+        {
+          "file": "mobile-workspace.spec.ts",
+          "title": "mobile forms expose native validation, review and errors without a provider request",
+          "project": "desktop",
+          "reason": "iPhone WebKit form interaction coverage"
+        }
+      ],
+      "report": "reports/preview-playwright.json",
+      "reportSha256": "9586cd126496a456827dc73445d27b20915fde1fcd35a423b3c3fb9bae04a180"
+    }
+  },
+  "concurrentOutputFailureAttempt": {
+    "startTime": "2026-11-08T01:45:39.341Z",
+    "duration": 128716.145,
+    "expected": 290,
+    "skipped": 5,
+    "unexpected": 5,
+    "flaky": 0,
+    "reason": "tests/security/preview-release-assets.test.mjs:67-77 builds the actual repository dist/preview and dist/web while the browser was serving those directories. Failed trace documents show empty HTTP500 responses, e.g. /journal/?lang=en at2026-11-08T01:46:27.593Z. After security finished, exclusive restored builds and a complete unchanged-source browser run passed.",
+    "report": "/tmp/guteneo-preview-concurrent-build-failures-20261108.json",
+    "reportSha256": "33e9f1c29056b1b9e1e0272f3458e38aae5e36e53657d2833d9e6f4b18e49c29",
+    "artifactArchive": "/tmp/guteneo-preview-concurrent-build-failures-20261108.tar",
+    "artifactArchiveSha256": "7f7cf4661063f714b90ab2dc44ccbc60d0d4909c48651c66b497403604e1ae2c",
+    "log": "/tmp/guteneo-final-catalog-preview-browser.log"
+  },
+  "serialRestore": {
+    "restoredAt": "2026-11-08T01:52:45.433Z",
+    "webAssetsMatchQualifiedCatalogBuild": true,
+    "assetCount": 239,
+    "assetsSha256": "9f34af81a6ce26cd9746dbaaa6fec196c4e7dff714847188468fa216bc218054",
+    "liveScopeSourceSha256": "f7731f69962e64c640c9d436e614c0ae0d44fe98971d37bcb3524f35cb2df550",
+    "previewSourceMatches": true,
+    "previewAssetsMatch": true,
+    "previewSource": "ec5caa56a9829605d3620a52082a673192696fb0d4d76ae4fb696383d1425f02",
+    "previewAssets": "56ecf07e6992d0e751d92099b212cb045c59dc8d6b9f443f6ab828d1e11287f3",
+    "previewBuiltAt": "2026-11-08T01:52:31.684Z"
+  },
+  "preCatalogFrozenRebuild": {
+    "command": "npm run build:preview",
+    "passed": true,
+    "viteDurationSeconds": 2.33,
+    "comparedAt": "2026-11-08T01:15:02.475Z",
+    "before": {
+      "sourceSnapshotSha256": "0895adbb707dfa5a5344c3ae9ec5920d9785924f5db049dfeba1033389165ece",
+      "assetsSha256": "d8ef402e79ea16bfdc05e033805a2894b4d1f9dd96f980419edfe6b7981a38c7",
+      "count": 340
+    },
+    "after": {
+      "sourceSnapshotSha256": "62eec33ae26978f2b3c427df7bcbe619f77baca8008a0779dcfdbd6ec6dd96d0",
+      "assetsSha256": "d8ef402e79ea16bfdc05e033805a2894b4d1f9dd96f980419edfe6b7981a38c7",
+      "count": 340,
+      "releaseSha256": "8e260b11bba4f07f1cbb82556cd8778400443c60d5c52ed96eebcbbf921bb500"
+    },
+    "changes": [],
+    "conclusion": "All 340 non-release assets are byte-identical to the 295-pass tested build; only source/release metadata changed. No duplicate browser rerun was performed."
+  },
+  "preCatalogLogs": [
+    "/tmp/guteneo-final-preview-build.log",
+    "/tmp/guteneo-final-preview-browser.log"
+  ]
+}

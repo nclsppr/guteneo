@@ -1,9 +1,12 @@
 # Account deletion: implementation boundary and required operating process
 
-Status: design and read-only repository audit, 22 September 2026. This document
-applies the existing published retention criteria; it does not create a new
-policy or certify a completed erasure. No account, identity, communication,
-document or provider resource was deleted for this audit.
+Status: executable bounded operator workflow, local qualification candidate,
+8 November 2026. This document applies the existing published retention criteria;
+it does not create a new policy or certify a real completed erasure. The earlier
+22 September audit established the policy and schema constraints below. The new
+implementation has only been exercised with disposable local D1/R2 data and
+synthetic processor responses. No production account, identity, communication,
+document or provider resource was changed.
 
 ## Existing published commitments
 
@@ -47,179 +50,199 @@ These criteria are already selected; a new arbitrary retention period or a fresh
 approval of all legal bases is not needed to start implementing them. Publication
 does not prove a working erasure process, provider qualification or backup handling.
 
-## What exists
+## Implemented boundary
 
-The native API accepts an authenticated, explicit deletion request at
+The native API accepts an authenticated, explicit request at
 `POST /api/mobile/v1/account/deletion-request` with `{ "confirmed": true }`.
-It persists a unique receipt for the user in `account_deletion_requests`, returns
-HTTP 202 and exposes the receipt to that user. The iOS interface calls this a
-request. It must not describe acceptance of the request as completed deletion.
+It persists a unique receipt per user, returns HTTP 202 and exposes that receipt
+to the owner. Acceptance remains a request, not completed deletion. There is no
+separate browser account-deletion request interface in this change.
 
-Migration `0037_native_sessions.sql` includes `requested`, `processing` and
-`completed` states, timestamps and an operator processing reference. Those fields
-are storage for a future process; they do not perform erasure. There is currently
-no deletion processor, provider erasure integration, completion workflow or
-qualified operator runbook implemented in the repository.
+`AccountDeletionOperator` in `apps/api/src/worker.ts` is a separate private
+same-account service-binding entrypoint. Its HTTP handler returns 404. It is not
+an MCP tool, public API, Belvedere read authority or an assistant grant. The
+operator can inspect a bounded plan; mutations additionally require
+`ACCOUNT_DELETION_ENABLED=true`, a configured secret of at least 32 characters,
+an exact reviewed plan hash and an HMAC capability expiring within 15 minutes.
+An operator name or evidence-reference string is not authority. Production
+processing remains disabled unless an authorized operator configures that gate
+and the private binding. This work did not enable it.
 
-The `completed` exclusion in native authentication does not by itself revoke
-browser or MCP authority. Existing browser authentication, Auth0 callback and MCP
-authentication must all be considered in a real deletion implementation. In
-particular, deleting a local `auth_identities` mapping while leaving the Auth0
-identity active can cause the next callback to provision a new user and workspace.
-Deleting a row or blocking one client is not evidence of account deletion.
+Migration `0077_account_deletion.sql` adds frozen plans, exact snapshot assertions,
+four durable checkpoints, identity tombstones and unique notification receipts.
+The existing public request states stay `requested → processing → completed`.
+The implementation is in `apps/api/src/account-deletion.ts`; fixed-origin bounded
+Auth0 and receipt reads are in `account-deletion-auth0.ts`.
 
-## Schema and ownership constraints
+| Phase        | Required evidence and effect                                                                                                                                                                                                                                                                                         |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plan         | Enumerate all memberships and user references, including every direct foreign key to `users` and known semantic actor columns. Classify each resource; unknown tables default to blocked. Record each retention decision separately. Return opaque references, counts and safe blocker codes.                        |
+| Begin        | Rebuild the exact plan, compare every resource row and scope count again in the status-changing D1 transaction, freeze the plan and encrypted notice recipient, write issuer/subject tombstones, revoke browser/personal/native credentials and OAuth connections. Any failed assertion rolls the entire batch back. |
+| Objects      | Delete the exact reviewed R2 keys, including bounded remnants in the account-exclusive personal namespace, and verify absence. Shared-workspace storage is never swept by account prefix.                                                                                                                            |
+| Auth0        | Inspect the exact issuer/subject, revoke its listed grants and legacy refresh-token device credentials, delete that user, then verify user 404 and empty grant/device lists. Enterprise user-session endpoints are not used. An unknown response leaves processing; resume inspects the same target.                 |
+| Local        | Remove reviewed temporary/active identity records and all memberships; purge eligible owned document metadata and bytes; replace the profile name/email/preferences with a minimal historical skeleton. Preserve only individually reviewed historical evidence and other members' resources.                        |
+| Verification | Recheck D1 absence/minimization, foreign keys and scoped integrity, R2 keys and personal namespace, and Auth0 absence. Only then record data verification and allow the canonical completion notice to be prepared.                                                                                                  |
+| Complete     | Independently repeat checks and inspect a separately authorized Resend delivery receipt for the exact recipient, subject, plain text, request and plan. The final D1 batch asserts the current resource snapshot again, stores a unique receipt and changes status to completed.                                     |
 
-The account is a person; its workspaces and communications are tenant resources.
-`account_deletion_requests` records the workspace from which the request began,
-but its uniqueness is per user. Processing must enumerate every current membership
-for that user. It must not limit erasure to the first recorded workspace or erase
-a shared workspace merely because one member requests account deletion.
+The profile skeleton and issuer/subject tombstones are pseudonymous retained
+records with their own reviewed necessity, not anonymization or universal
+erasure. Keeping an unchanged disabled profile does not satisfy this workflow.
+No foreign key or immutable delivery/financial evidence protection is disabled.
+A document's `purged` metadata remains distinct from physical storage proof.
 
-The existing schema prevents a broad `DELETE users` operation:
+## Bounded eligibility and honest blockers
 
-- `0001_core.sql` links memberships and approvals to users. Dispatch payloads,
-  recipients, sender snapshots and fingerprints are immutable.
-- `0002_auth.sql` links browser sessions, identity mappings and authorized
-  connections to users and memberships.
-- `0011_account.sql` prevents removal or demotion of the last administrator.
-- `0020_postal_preflights.sql` links immutable postal reviews and transfer
-  consents to their user.
-- `0024_expert_approvals.sql` links expert policies and reviews to users.
-  Immutable expert acceptance evidence retains its policy reference and has an
-  unconditional delete protection.
-- Financial reservations, entries, frozen quotes and settlement proofs have
-  their own retention and immutability constraints. Removing these to make a
-  foreign-key check pass would destroy business evidence.
-- `0037_native_sessions.sql` makes native credentials depend on the browser
-  session and membership. Its deletion receipt itself still references the user.
+The account is a person; a workspace and its communications are tenant resources.
+The request's original workspace does not limit the plan to that membership.
+Shared workspaces and their remaining members are preserved. A last
+administrator, sole-member workspace or unsupported authored-resource ownership
+blocks processing until a human arranges a live successor or a separate safe
+workspace closure. There is no automatic ownership transfer or workspace erasure.
+An administrator already processing deletion cannot count as a successor, and
+ordinary membership changes cannot leave a workspace supported only by a closing
+account's retained administrator row.
 
-The current document maintenance code implements the published 90-day PDF
-eligibility criterion while retaining document metadata. It avoids purging
-content attached to dispatches with unresolved outcomes. That bounded file
-maintenance is not a full account erasure process or proof that every provider
-copy and backup is gone. A request still requires the published necessity review;
-the routine maintenance cutoff alone does not decide its outcome.
+The current executable scope deliberately blocks unsupported Studio ownership,
+secure-distribution authorship, unsupported provider-content retention, unresolved
+funding or delivery liability, accepted delegated evidence dependencies, active
+copy preparation, in-flight uploads and unresolved multipart storage debt. A
+cancelled/expired/rejected multipart label alone is insufficient: its outstanding
+R2 writes must have drained and canonical cleanup must have settled storage debt.
+Unsupported schema references, oversized plans or missing processor proof remain
+blockers. These outcomes preserve a real pending request; they do not invent a
+completed state.
 
-## Operating responsibilities and decisions still required
+Limits are explicit: at most 300 inventoried rows/2 MiB of transient snapshots;
+execution requires at most 60 resources, 20 exact R2 keys and two Auth0 identities.
+An identity with more than 20 listed grants or refresh credentials also refuses
+processing rather than applying a partial unbounded plan. Provider reads have
+fixed origins, ten-second request deadlines and bounded response bodies. Redirects
+are refused with native Worker-compatible manual handling.
 
-The remaining work applies the existing policy to real requests. The service
-owner must establish these responsibilities and resolve actual ownership or
-retention exceptions before claiming a completed erasure service. This audit
-does not invent legal bases, durations or exceptions.
+Each retained resource needs its own opaque `resourceRef`, recorded `basis`,
+`evidenceReference` and ending `reviewCriterion`. The plan also requires reviewed
+treatment for profile evidence, the rights-request record, identity tombstones,
+backups/Time Travel and the completion-notice processor. A generic policy label
+is not proof that a particular obligation exists. The operator must establish
+those actual grounds, periods or review criteria in the referenced private case.
+The code cannot independently establish legal necessity or processor backup
+expiry. Missing or unsupported evidence must not be represented as reviewed.
 
-1. Apply the published necessity review to each category in a request: erase what
-   is no longer needed, distinguish resources belonging to other members, and
-   document the actual obligation, operation or dispute for retained items.
-   Record how each exception ends, with a date where established or a review
-   criterion where the outcome is unresolved. Financial evidence does not
-   automatically justify retaining full message bodies, recipients or PDFs.
-2. Define the treatment of shared workspaces, a sole administrator, a workspace
-   with only the requesting user, outstanding liabilities and unused balances.
-   Choosing a successor administrator requires an explicit authorized human
-   decision. Closing a workspace and deleting a personal account are distinct.
-3. Establish the required handling of Auth0 identity and grants, document
-   storage, Cloudflare backups and D1 Time Travel, technical logs, and relevant
-   Telnyx, Pingen and email-provider copies. Record each actual provider's erasure
-   or retention capabilities and evidence requirements.
-4. Appoint a monitored operator and escalation path able to meet the existing
-   response commitment. Establish a completion-notification channel and give a
-   truthful account of progress and justified exceptions. Do not substitute an
-   invented global completion period for the published response deadline.
-5. Reconcile the public description with the actual iOS request route and the
-   completion process when implemented. The existing statement that complete
-   account deletion is not self-service remains accurate for a receipt-only
-   endpoint. Describe any added device-specific handling truthfully; the public
-   policy already covers the real authenticated service.
+Historical transport/provider records, recipient copies, backups and logs are
+not claimed universally erased. The supported plan either retains an individually
+reviewed necessary record or blocks an unsupported resource. A historical private
+document already submitted to a provider is blocked by the current scope; an
+ordinary PDF with an unresolved dispatch is also blocked. File eligibility under
+the published 90-day maintenance policy is a separate lifecycle, not an erasure
+exception invented by this operator.
 
-## Proposed implementation, not yet present
+## Race and interruption handling
 
-Apple accepts a manual deletion process; full automation across the database and
-every provider is not required. The in-app request must nevertheless reach a real
-operating process, disclose its expected completion time and confirm completion.
-The user must not be required to contact support to complete the request.
-See [Apple's account deletion guidance](https://developer.apple.com/support/offering-account-deletion-in-your-app/).
+During processing and after completion, browser, personal, native, development
+MCP and signed OAuth access are refused. Exact issuer/subject tombstones prevent
+an already-issued Auth0 callback or old OAuth token from silently creating a new
+account after local identity removal. D1 insertion guards cover identities,
+sessions, memberships, private uploads and other supported owned-resource writes;
+domain and Studio mutations also recheck current closing-account authority.
+Existing secure preparation refuses a closing actor. An unfinished personal
+copy or upload blocks beginning erasure until its writes are settled.
 
-One implementation option is a dedicated deletion service, the schema changes
-required for safe erasure, an operator tool and tests. Suggested locations are
-`apps/api/src/account-deletion.ts`, `scripts/process-account-deletion.mjs` and a
-subsequent numbered migration. These are design suggestions, not an architecture
-mandated by Apple. A qualified manual procedure may use existing administrative
-tools, but must actually remove the account and eligible personal data, preserve
-only justified evidence, handle interruptions safely and verify completion. No
-such complete procedure is currently qualified in this repository.
+An advance claim has a 60-second lease. Each bounded storage/identity operation
+checks the current capability and lease; every checkpoint and final proof write
+has an exact token/deadline SQL guard. The local mutation batch establishes its
+live lease in its first atomic assertion. A stale worker cannot publish progress,
+minimize a profile or clear a replacement worker's lease. Verified checkpoints
+are retained across interrupted calls, and final verification still repeats.
+Repeated exact object deletes and exact-target identity verification are bounded
+recovery steps; this service has no communication send or blind replay operation.
 
-If that operator tool is implemented, it should build an idempotent plan for the
-complete user, record a hash of that plan, classify every workspace and retained
-category, and persist progress
-for each database, object-storage and external-provider step. A read-only dry run
-should print opaque request references, counts and safe reason codes, never names,
-recipients, content, credentials or signed URLs. Applying a plan should require
-its exact hash and authorized operator identity. There must be no command that
-simply marks a request completed without verifying the deletion steps.
+The notification recipient is encrypted before profile minimization and is never
+printed by the CLI. No notice is available before all required erasure checkpoints
+are verified. A separately authorized operator sends the exact exported plain-text
+notice, then supplies its provider receipt. The service only performs a GET:
+`last_event=delivered`, exact singleton `to`, empty/null `cc` and `bcc`, exact
+subject/text, no alternative HTML body, and creation after data verification are
+mandatory. Accepted/sent, missing, malformed, redirected or unknown evidence
+leaves the request processing. A receipt cannot be reused for another request.
+After completion the encrypted recipient is cleared; necessary receipt and
+processor-retention evidence remains. A final-write interruption can resume
+against the same receipt without sending another notice.
 
-Schema changes need to separate active personal identity from historical evidence
-that genuinely must be retained. An appropriate design can remove the profile,
-login identity and personal authentication data while retaining only justified,
-minimized historical evidence with no active membership or login capability.
-Keeping a disabled profile unchanged and calling it deleted is insufficient.
-An opaque historical identifier that can still be linked to a person is
-pseudonymized evidence, not proof of anonymization; the retained data and its
-linkability must be considered together.
-Do not disable foreign keys or drop immutability protections as an erasure shortcut.
+## Private operator runbook
 
-## Proposed operator runbook, not an available procedure
+Apple permits a manual process but requires a real path from the in-app request,
+a truthful expected duration and completion confirmation. The ordinary user must
+not be required to contact support to finish the request. See
+[Apple's account deletion guidance](https://developer.apple.com/support/offering-account-deletion-in-your-app/).
+Track the published one-month response commitment and any justified extension
+separately from an actual completion estimate. The monitored operator and case
+handling must be qualified before enabling production processing.
 
-1. Retrieve the authenticated request, establish operator authority and enumerate
-   all memberships. Produce the read-only plan and identify shared-workspace,
-   last-administrator, retention, provider and unresolved-delivery blockers.
-   Track the published response deadline and any justified extension separately
-   from completion; request extra identity evidence only on the published basis.
-2. Resolve the ownership choices with the appropriate human. Preserve shared
-   workspace resources and other members' access. A dedicated closure lifecycle
-   is required for a sole-member workspace; no such lifecycle is implemented by
-   the current request endpoint.
-3. Record the approved plan and enter processing. Revoke every relevant browser
-   session, native session/code, MCP connection and delegated mandate. Ensure
-   that browser, native and MCP authentication and callbacks fail closed during
-   the required closure state. Handle simultaneous token exchange, callback and
-   ongoing operations with transactional guards.
-4. Stop new work for a workspace authorized for closure. Cancel only dispatches
-   whose current state permits cancellation through existing domain operations.
-   Do not force an unknown provider outcome to failure, release its reservation
-   speculatively, or retry its send. Reconcile outstanding outcomes before
-   removing necessary delivery and accounting evidence.
-5. Perform the approved erasure and minimization across D1, R2, Auth0 and relevant
-   processors. Preserve only approved retained categories. Persist a checkpoint
-   and safe evidence reference for each completed step; an external failure
-   leaves the request processing and resumable, not completed.
-6. Independently verify that the identity cannot authenticate or silently
-   reappear, eligible private content is absent, shared tenants remain intact,
-   financial totals and evidence are coherent, and database integrity holds.
-   Check each provider's evidence and the applicable backup/retention treatment.
-7. Mark completion only after these checks and the approved exceptions are
-   accounted for. Send the truthful completion notification through the
-   authorized operating process and retain its minimal evidence. Neither the
-   current native request endpoint nor this document sends a message.
+1. Retrieve the authenticated request and establish the private operator
+   authority. Use a directory outside every Git checkout with mode 0700; every
+   JSON input/output is mode 0600 and must not be a symlink. Keep secrets, profile
+   details and provider receipts out of logs, shell arguments and repository files.
+2. Run `node scripts/process-account-deletion.mjs plan /absolute/private/plan.json`
+   with `{ "requestId": "<receipt>" }`. The result contains only opaque references,
+   classifications, counts and blocker codes. Resolve ownership, liabilities and
+   each actual retention/processor exception in the private case. Supply the
+   resulting `retentions` array to a second plan call and review its exact hash.
+3. Prepare a private authorization input containing `requestId`, `planHash`,
+   integer millisecond `expiresAt`, the configured `operatorSecret` and, for
+   begin, the reviewed `retentions`. Run the CLI's offline `authorize` action with
+   a new private output path. It creates the HMAC command without contacting a
+   service or copying the secret into its output. A new bounded capability is
+   required when the prior one expires.
+4. Run `begin` with that command file. Resource changes require a new review;
+   transactional mismatch leaves the request requested, with no tombstone or
+   partial session revocation. For subsequent commands use the same exact plan
+   and a capability command without the begin-only `retentions` field.
+5. Run `advance` until it returns `nextAction: verify_completion_notice`. Failures
+   remain processing; inspect private safe-code/checkpoint evidence. Do not force
+   a checkpoint or unknown provider outcome to completed. Shared-workspace
+   closure, unsupported ownership and provider retention require their own safe
+   process, not SQL bypasses of this workflow.
+6. Run `notice` with a fresh private output path. It writes the canonical
+   recipient/subject/plain text only to that file. Obtain separate real-send
+   authorization and send exactly once through the authorized operating process.
+   This CLI and service do not send. Inspect the original receipt if the send
+   outcome is unknown; do not resend speculatively.
+7. Add the original `notificationReceiptId` to a fresh command file and run
+   `complete`. Only verified delivery and repeated erasure checks can close the
+   request. Retain the minimal case proof and apply each retained resource's
+   actual ending date or review criterion. Securely dispose of temporary secret
+   and notice files according to the reviewed operating policy.
 
-## Required qualification before App Store submission
+All remote actions use the explicitly configured same-account private binding;
+the included JSONC helper has no routes or public preview. The ability to create
+a private binding is not itself a legal retention determination. This runbook
+must not be executed against production without the user's separate authorization.
 
-Exercise a dedicated test account through the complete process. Tests must cover
-multiple memberships, a shared tenant, last-administrator handling, simultaneous
-authentication and revocation, expired and replayed credentials, Auth0 callback
-recreation, an unknown provider result, and a failure after only one of D1/R2/Auth0
-has completed. The interrupted case must resume safely and remain visibly pending
-until the remaining required steps succeed.
+## Qualification and remaining proof
 
-Record database foreign-key and integrity checks, preserved financial totals,
-absence of the targeted personal data and eligible content, independent provider
-evidence, the actual notification and compliance with the published response
-commitment. Describe the actual completed work and remaining justified retention
-without promising an unqualified universal erasure deadline.
-Deterministic tests establish code behavior; they do not prove live provider
-erasure, a legal retention basis or operational readiness.
+`tests/integration/account-deletion.test.ts` exercises the complete eligible path
+on all migrated disposable D1/R2 data with synthetic Auth0/Resend responses. It
+covers all memberships/shared workspaces, invalid authority, exact plan and
+retention requirements, interrupted identity erasure, current authentication and
+callback recreation denial, final-read races, stale lease ownership, multipart
+storage debt, active-successor preservation and receipt timing. It also runs the
+processor adapter in actual local workerd to verify redirect handling.
+`tests/security/account-deletion-operator.test.mjs` covers private capability files,
+bounded expiry and refusal to print a completion notice to the terminal.
+These tests establish implementation behavior, not live erasure or a legal basis.
 
-An authenticated request button is useful preparation but is not sufficient
-evidence of a complete account deletion service. Until the real completion path
-is implemented and qualified, account deletion readiness remains a submission
-blocker, and the application must not be described as ready for publication.
+Before production enablement, qualify a dedicated real account end to end with
+reviewed actual provider scopes/capabilities, delivery evidence, backup/Time Travel
+and log retention, preserved accounting evidence, monitored response timing and a
+truthful completion notification. Auth0 grant/device credential and user deletion
+must use the exact supported tenant; see the official
+[refresh-token revocation guidance](https://auth0.com/docs/secure/tokens/refresh-tokens/revoke-refresh-tokens).
+Resend receipt inspection follows its
+[retrieve-email API](https://resend.com/docs/api-reference/emails/retrieve-email),
+including the official SDK's
+[nullable empty-recipient fields](https://github.com/resend/resend-node/blob/main/src/emails/interfaces/get-email-options.interface.ts).
+
+No production processor, real notice delivery, native device or App Store
+qualification was performed here. Local synthetic evidence does not establish
+publication readiness. Unsupported or unresolved real cases remain legitimate
+blockers until their required safe process and evidence exist.

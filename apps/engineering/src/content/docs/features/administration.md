@@ -1,6 +1,6 @@
 ---
 title: "Workspace administration and reports"
-description: "13 capabilities in the access branch of Guteneo."
+description: "14 capabilities in the access branch of Guteneo."
 sidebar:
   order: 28
 ---
@@ -31,4 +31,11 @@ sidebar:
 <li id="feature-ce8625432366">My documents and Use Guteneo offer Administration from a server-computed per-membership report right in the personal session; selecting it from an already open workspace form applies the new URL destination and eligible membership filter; removal hides it and the API refuses meanwhile</li>
 <li id="feature-bd7353f7e9ae">PDF exports embed the pinned Roboto font only when a drawn string is outside WinAnsi, size columns from content, wrap headers, share the 500-row budget across tables and localize header dates; the Excel summary stores typed numbers, money and date-time</li>
 <li id="feature-b351544c99cb">The public preview renders Administration over its fictional workspace with the server's permission split, validates date and pagination bounds, and groups consumption by confirmation day and month; sign-in history follows the selected range and exports stay disabled</li>
+<li id="feature-efdb36128f77">Browser administrators explicitly resolve an already operationally and financially closed dead-letter incident through a current-session and current-membership fenced transaction; one retained resolution audit/timestamp survives replay, with no dispatch mutation, credit release, queue replay or provider invocation</li>
 </ol>
+
+## REST operations
+
+- `POST /api/admin/dead-letters/{id}/resolution`
+
+Read the [REST integration guide](/integrations/rest-api/) for authentication, errors and contract discovery.

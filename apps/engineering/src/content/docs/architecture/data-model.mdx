@@ -128,10 +128,13 @@ fingerprint, approver and session. The durable policy singleton and environment
 must agree; an ordinary receipt cannot become strong evidence on policy rollback.
 
 Recipient association links a stable personal account to the intended recipient
-only after an address-verified request and independent browser confirmation by
-the workspace. Possessing an invitation token creates neither membership nor
-content authority. Personal lists project eligible grants for their owner; each
-content response still checks the current share and session.
+under the distribution's frozen binding policy. `verified_email` binds the account
+when its authenticated, verified email matches the exact recipient; `independent`
+requires a separate workspace approver's browser confirmation after the request.
+Historical policies without a binding choice retain independent confirmation.
+Possessing an invitation token creates neither membership nor content authority.
+Personal lists project eligible grants for their owner; each content response
+still checks the current share and session.
 
 A deposit operation bridges an authorized share to a separate personal document.
 Encrypted copy objects remain invisible until conditional activation rechecks
@@ -139,14 +142,25 @@ owner, grant, policy, freshness and funding. D1 and R2 are not a distributed
 transaction; that activation is the acquisition point. Revocation before it blocks
 acquisition, while later workspace revocation cannot remove an acquired copy.
 Deleted/expired personal copies cannot be recreated through the same invitation.
+Lost session authority pauses an unpublished copy until an explicit deposit action
+supplies an eligible session. Loss of the shared grant instead aborts that
+operation; publication also rechecks its frozen deposit permission.
 
 This model uses independent shared/personal retention and separate immutable
 approval, association, charge and acquisition evidence. Detailed access activity
 has its own ninety-day purge. The [secure workflow](/workflows/secure-distribution/)
 owns the complete contract; [background jobs](/engineering/background-jobs/)
-explains bounded recovery and cleanup.
+explains bounded recovery and cleanup. The [state-machine map](/architecture/state-machines/)
+explains how these records, deadlines and authority checks form separate lifecycles.
 
 ## Retention removes eligible bytes without rewriting history
+
+Account deletion has a separate reviewed plan and verified checkpoints; ordinary
+retention maintenance cannot mark a person's deletion request complete. Its
+private records bind the exact snapshot, retained exceptions, identity tombstones
+and completion-notice evidence. Shared workspace and financial history cannot be
+removed through an unreviewed tenant cascade. See
+[authority and tenancy](/architecture/authority-and-tenancy/#account-deletion-is-separate-from-workspace-administration).
 
 Retention is bounded maintenance, not an immediate deletion timer. Current
 policies make these objects eligible for cleanup:
@@ -166,6 +180,19 @@ purge targets its own key and cannot delete the newer import.
 These policies do not claim that every related ledger or audit field is erased,
 or that a hosted backup has been purged. Operational backup/restoration controls
 require separate qualification. Missing bytes never authorize retransmission.
+
+## Completion records retain their precise meaning
+
+A frozen nonempty campaign completes only after every member has operational and
+financial closure, with no execution lease, unresolved invocation or reserved
+hold. This transition neither settles funds nor asserts universal delivery.
+Postal handover closes the execution boundary; later verified delivery facts
+remain independently projectable.
+
+A dead-letter resolution retains the original incident identity, one audit
+receipt and the first timestamp. It follows the same closed-command prerequisite
+and changes no dispatch, attempt, credit or outbox. A resolved diagnostic cannot
+turn uncertain work into permission to send.
 
 ## Implementation boundaries
 

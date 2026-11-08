@@ -292,6 +292,77 @@ describe("fax v3 — real local D1, synthetic provider and operator evidence", (
       settleFaxUsage(db, { ...p, supplierNanoUsd: 30_000_000 }, stamp()),
     ).rejects.toMatchObject({ code: "FAX_USAGE_PROOF_CONFLICT" });
   });
+  it("completes a campaign only after final evidence and actual usage settle an unknown attempt", async () => {
+    const campaign = await f.domain.createCampaign(f.ctx, {
+      name: "Synthetic settled campaign",
+    });
+    const campaignId = campaign.id as string;
+    const state = async () =>
+      (await f.domain.getCampaign(f.ctx, campaignId)).campaign.status;
+    const d = await f.domain.prepareDispatch(
+      f.ctx,
+      { ...f.input, ceilingMinor: 100, campaignId },
+      crypto.randomUUID(),
+    );
+    await f.domain.approveDispatch(f.ctx, d.id, d.fingerprint);
+    await f.domain.confirmDispatch(f.ctx, d.id, crypto.randomUUID());
+    const { hook } = await submit(d, "submission_unknown");
+    expect(await state()).toBe("frozen");
+    await event(d, "delivered");
+    expect((await f.domain.getDispatch(f.ctx, d.id)).dispatch.status).toBe(
+      "delivered",
+    );
+    expect(await state()).toBe("frozen");
+    expect(
+      await db
+        .prepare(
+          "SELECT 1 FROM operationally_closed_dispatches WHERE organization_id=? AND dispatch_id=?",
+        )
+        .bind(f.ctx.organizationId, d.id)
+        .first(),
+    ).toBeNull();
+    expect(await balance()).toMatchObject({
+      reserved_minor: 100,
+      spent_minor: 0,
+    });
+    const evidence = await proof(d);
+    await Promise.all([
+      settleFaxUsage(db, evidence, stamp()),
+      settleFaxUsage(db, evidence, stamp()),
+    ]);
+    expect(await state()).toBe("completed");
+    expect(await balance()).toMatchObject({
+      reserved_minor: 0,
+      spent_minor: 4,
+    });
+    expect(
+      await db
+        .prepare(
+          "SELECT status FROM attempts WHERE organization_id=? AND dispatch_id=?",
+        )
+        .bind(f.ctx.organizationId, d.id)
+        .first(),
+    ).toEqual({ status: "unknown" });
+    expect(
+      await db
+        .prepare(
+          "SELECT 1 FROM operationally_closed_dispatches WHERE organization_id=? AND dispatch_id=?",
+        )
+        .bind(f.ctx.organizationId, d.id)
+        .first(),
+    ).not.toBeNull();
+    await f.domain.processDispatch(d.id, {
+      name: "telnyx",
+      liveFaxIdentity: f.identity,
+      submit: hook,
+    });
+    expect(hook).toHaveBeenCalledTimes(1);
+    await event(d, "failed");
+    expect((await f.domain.getDispatch(f.ctx, d.id)).dispatch.status).toBe(
+      "delivered",
+    );
+    expect(await state()).toBe("completed");
+  });
   it("never bills above the approved ceiling and records Guteneo's actual uncovered cost", async () => {
     const d = await readyToSettle();
     const s = await settleFaxUsage(db, await proof(d, 2_000_000_000), stamp());

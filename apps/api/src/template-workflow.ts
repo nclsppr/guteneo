@@ -1,3 +1,11 @@
+import {
+  datasetAnalysisDecision,
+  distributionEntryDecision,
+  generationCommand,
+  generationRecordRecovery,
+  generationSettlementSql,
+  mayValidateMapping,
+} from "./workflow-lifecycle";
 import { z } from "zod";
 import {
   DomainService,
@@ -377,8 +385,9 @@ export class TemplateWorkflowService {
       onlyIf: { etagDoesNotMatch: "*" },
       customMetadata: { sha256: result.provenance.sourceSha256 },
     });
-    await this.env.DB.prepare(
-      "INSERT INTO workflow_template_sources(id,organization_id,owner_id,template_id,format,sha256,storage_key,created_at,expires_at) VALUES(?,?,?,?,'docx',?,?,?,?)",
+    const authority = this.authorizationFence(ctx);
+    const retained = await this.env.DB.prepare(
+      `INSERT INTO workflow_template_sources(id,organization_id,owner_id,template_id,format,sha256,storage_key,created_at,expires_at) SELECT ?,?,?,?,'docx',?,?,?,? WHERE ${authority.condition}`,
     )
       .bind(
         id,
@@ -389,8 +398,10 @@ export class TemplateWorkflowService {
         key,
         time,
         new Date(Date.now() + 30 * 86400000).toISOString(),
+        ...authority.values,
       )
       .run();
+    if (!retained.meta.changes) await this.authorize(ctx, true);
     return {
       template,
       warnings: result.warnings,
@@ -426,7 +437,7 @@ export class TemplateWorkflowService {
   }
   private async authorize(ctx: WorkflowActor, write = false) {
     const row = await this.env.DB.prepare(
-      "SELECT m.role,m.supervisor_can_approve,m.supervisor_can_report,o.mode FROM memberships m JOIN organizations o ON o.id=m.organization_id WHERE m.organization_id=? AND m.user_id=?",
+      "SELECT m.role,m.supervisor_can_approve,m.supervisor_can_report,o.mode FROM memberships m JOIN organizations o ON o.id=m.organization_id WHERE m.organization_id=? AND m.user_id=? AND NOT EXISTS(SELECT 1 FROM account_deletion_requests deletion WHERE deletion.user_id=m.user_id AND deletion.status IN ('processing','completed'))",
     )
       .bind(ctx.organizationId, ctx.userId)
       .first<{
@@ -486,7 +497,8 @@ export class TemplateWorkflowService {
         Number(Boolean(ctx.supervisorCanReport)),
       );
     }
-    condition += ")";
+    condition +=
+      " AND NOT EXISTS(SELECT 1 FROM account_deletion_requests deletion WHERE deletion.user_id=m.user_id AND deletion.status IN ('processing','completed')))";
     if (ctx.authority) {
       condition +=
         " AND EXISTS(SELECT 1 FROM authorized_connections c JOIN connection_tool_observations o ON o.connection_id=c.id WHERE c.id=? AND c.organization_id=? AND c.user_id=? AND c.status='active' AND o.authorization_revision=?)";
@@ -728,8 +740,9 @@ export class TemplateWorkflowService {
     const json = boundedJson(envelope, 512 * 1024);
     const id = uid("tpl"),
       time = now();
+    const authority = this.authorizationFence(ctx);
     const result = await this.env.DB.prepare(
-      "INSERT INTO document_templates(id,organization_id,owner_id,name,state,draft_json,created_at,updated_at) SELECT ?,?,?,?,'draft',?,?,? WHERE (SELECT count(*) FROM document_templates WHERE organization_id=? AND deleted_at IS NULL)<?",
+      `INSERT INTO document_templates(id,organization_id,owner_id,name,state,draft_json,created_at,updated_at) SELECT ?,?,?,?,'draft',?,?,? WHERE (SELECT count(*) FROM document_templates WHERE organization_id=? AND deleted_at IS NULL)<? AND ${authority.condition}`,
     )
       .bind(
         id,
@@ -741,10 +754,13 @@ export class TemplateWorkflowService {
         time,
         ctx.organizationId,
         WORKFLOW_LIMITS.templatesPerOrganization,
+        ...authority.values,
       )
       .run();
-    if (!result.meta.changes)
+    if (!result.meta.changes) {
+      await this.authorize(ctx, true);
       fail("TEMPLATE_QUOTA", "Template limit reached.", 429);
+    }
     return this.getTemplate(ctx, id);
   }
   async updateTemplate(ctx: WorkflowActor, id: string, input: unknown) {
@@ -1082,8 +1098,9 @@ export class TemplateWorkflowService {
       onlyIf: { etagDoesNotMatch: "*" },
       customMetadata: { sha256: hash },
     });
+    const authority = this.authorizationFence(ctx);
     const inserted = await this.env.DB.prepare(
-      "INSERT INTO workflow_datasets(id,organization_id,owner_id,name,format,sha256,size,storage_key,status,created_at,expires_at,parsing_options_json,analysis_attempts) SELECT ?,?,?,?,?,?,?,?,'quarantined',?,?,?,0 WHERE (SELECT count(*) FROM workflow_datasets WHERE organization_id=? AND status<>'purged')<?",
+      `INSERT INTO workflow_datasets(id,organization_id,owner_id,name,format,sha256,size,storage_key,status,created_at,expires_at,parsing_options_json,analysis_attempts) SELECT ?,?,?,?,?,?,?,?,'quarantined',?,?,?,0 WHERE (SELECT count(*) FROM workflow_datasets WHERE organization_id=? AND status<>'purged')<? AND ${authority.condition}`,
     )
       .bind(
         id,
@@ -1105,10 +1122,12 @@ export class TemplateWorkflowService {
         }),
         ctx.organizationId,
         WORKFLOW_LIMITS.datasetsPerOrganization,
+        ...authority.values,
       )
       .run();
     if (!inserted.meta.changes) {
       await this.env.DOCUMENTS.delete(storageKey);
+      await this.authorize(ctx, true);
       fail("DATASET_QUOTA", "Retained source limit reached.", 429);
     }
     return this.retryDatasetAnalysis(ctx, id);
@@ -1116,16 +1135,16 @@ export class TemplateWorkflowService {
   async retryDatasetAnalysis(ctx: WorkflowActor, id: string) {
     await this.authorize(ctx, true);
     const source = await this.datasetRow(ctx, id);
-    if (source.status === "ready") return this.datasetView(source);
-    if (source.status !== "quarantined" || source.expires_at <= now())
+    const decision = datasetAnalysisDecision(source, now());
+    if (decision === "complete") return this.datasetView(source);
+    if (decision === "unavailable")
       fail(
         "DATASET_RETRY_UNAVAILABLE",
         "This source is no longer available for analysis. Import a corrected file.",
         409,
       );
-    if (source.analysis_lease_until && source.analysis_lease_until > now())
-      return this.datasetView(source);
-    if (source.analysis_attempts >= 3)
+    if (decision === "busy") return this.datasetView(source);
+    if (decision === "exhausted")
       fail(
         "DATASET_RETRY_EXHAUSTED",
         "All three attempts failed. Correct the cause, then import the file again.",
@@ -1133,10 +1152,20 @@ export class TemplateWorkflowService {
       );
     const token = uid("analysis"),
       until = new Date(Date.now() + 90_000).toISOString();
+    const claimFence = this.authorizationFence(ctx);
     const claim = await this.env.DB.prepare(
-      "UPDATE workflow_datasets SET analysis_attempts=analysis_attempts+1,analysis_lease_token=?,analysis_lease_until=? WHERE organization_id=? AND owner_id=? AND id=? AND status='quarantined' AND expires_at>? AND analysis_attempts<3 AND (analysis_lease_until IS NULL OR analysis_lease_until<=?)",
+      `UPDATE workflow_datasets SET analysis_attempts=analysis_attempts+1,analysis_lease_token=?,analysis_lease_until=? WHERE organization_id=? AND owner_id=? AND id=? AND status='quarantined' AND expires_at>? AND analysis_attempts<3 AND (analysis_lease_until IS NULL OR analysis_lease_until<=?) AND ${claimFence.condition}`,
     )
-      .bind(token, until, ctx.organizationId, ctx.userId, id, now(), now())
+      .bind(
+        token,
+        until,
+        ctx.organizationId,
+        ctx.userId,
+        id,
+        now(),
+        now(),
+        ...claimFence.values,
+      )
       .run();
     if (!claim.meta.changes) return this.getDataset(ctx, id);
     try {
@@ -1174,8 +1203,9 @@ export class TemplateWorkflowService {
         httpMetadata: { contentType: "application/json" },
       });
       await this.authorize(ctx, true);
+      const promotionFence = this.authorizationFence(ctx);
       await this.env.DB.prepare(
-        "UPDATE workflow_datasets SET profile_key=?,structure_hash=?,status='ready',error_code=NULL,analysis_lease_token=NULL,analysis_lease_until=NULL WHERE organization_id=? AND owner_id=? AND id=? AND status='quarantined' AND expires_at>? AND analysis_lease_token=? AND analysis_lease_until>?",
+        `UPDATE workflow_datasets SET profile_key=?,structure_hash=?,status='ready',error_code=NULL,analysis_lease_token=NULL,analysis_lease_until=NULL WHERE organization_id=? AND owner_id=? AND id=? AND status='quarantined' AND expires_at>? AND analysis_lease_token=? AND analysis_lease_until>? AND ${promotionFence.condition}`,
       )
         .bind(
           profileKey,
@@ -1186,6 +1216,7 @@ export class TemplateWorkflowService {
           now(),
           token,
           now(),
+          ...promotionFence.values,
         )
         .run();
     } catch (error) {
@@ -1426,8 +1457,9 @@ export class TemplateWorkflowService {
       })
       .strict()
       .parse(input);
+    const authority = this.authorizationFence(ctx);
     await this.env.DB.prepare(
-      "INSERT INTO workflow_ai_policy(organization_id,enabled,transfer_approved,daily_limit,updated_by,updated_at) VALUES(?,?,?,?,?,?) ON CONFLICT(organization_id) DO UPDATE SET enabled=excluded.enabled,transfer_approved=excluded.transfer_approved,daily_limit=excluded.daily_limit,updated_by=excluded.updated_by,updated_at=excluded.updated_at",
+      `INSERT INTO workflow_ai_policy(organization_id,enabled,transfer_approved,daily_limit,updated_by,updated_at) SELECT ?,?,?,?,?,? WHERE ${authority.condition} ON CONFLICT(organization_id) DO UPDATE SET enabled=excluded.enabled,transfer_approved=excluded.transfer_approved,daily_limit=excluded.daily_limit,updated_by=excluded.updated_by,updated_at=excluded.updated_at`,
     )
       .bind(
         ctx.organizationId,
@@ -1436,6 +1468,7 @@ export class TemplateWorkflowService {
         value.dailyLimit,
         ctx.userId,
         now(),
+        ...authority.values,
       )
       .run();
     return this.getAiPolicy(ctx);
@@ -1458,10 +1491,17 @@ export class TemplateWorkflowService {
       );
     const { profile } = await this.getDatasetProfile(ctx, id);
     const day = now().slice(0, 10);
+    const callAuthority = this.authorizationFence(ctx);
     const result = await this.env.DB.prepare(
-      "INSERT INTO workflow_ai_usage(organization_id,day,calls) SELECT ?,?,1 WHERE EXISTS(SELECT 1 FROM workflow_ai_policy WHERE organization_id=? AND enabled=1 AND transfer_approved=1 AND daily_limit>0) ON CONFLICT(organization_id,day) DO UPDATE SET calls=calls+1 WHERE calls<(SELECT daily_limit FROM workflow_ai_policy WHERE organization_id=? AND enabled=1 AND transfer_approved=1)",
+      `INSERT INTO workflow_ai_usage(organization_id,day,calls) SELECT ?,?,1 WHERE EXISTS(SELECT 1 FROM workflow_ai_policy WHERE organization_id=? AND enabled=1 AND transfer_approved=1 AND daily_limit>0) AND ${callAuthority.condition} ON CONFLICT(organization_id,day) DO UPDATE SET calls=calls+1 WHERE calls<(SELECT daily_limit FROM workflow_ai_policy WHERE organization_id=? AND enabled=1 AND transfer_approved=1)`,
     )
-      .bind(ctx.organizationId, day, ctx.organizationId, ctx.organizationId)
+      .bind(
+        ctx.organizationId,
+        day,
+        ctx.organizationId,
+        ...callAuthority.values,
+        ctx.organizationId,
+      )
       .run();
     if (!result.meta.changes)
       fail(
@@ -1540,10 +1580,17 @@ export class TemplateWorkflowService {
         );
     };
     const day = now().slice(0, 10);
+    const callAuthority = this.authorizationFence(ctx);
     const reserved = await this.env.DB.prepare(
-      "INSERT INTO workflow_ai_usage(organization_id,day,calls) SELECT ?,?,1 WHERE EXISTS(SELECT 1 FROM workflow_ai_policy WHERE organization_id=? AND enabled=1 AND transfer_approved=1 AND daily_limit>0) ON CONFLICT(organization_id,day) DO UPDATE SET calls=calls+1 WHERE calls<(SELECT daily_limit FROM workflow_ai_policy WHERE organization_id=? AND enabled=1 AND transfer_approved=1)",
+      `INSERT INTO workflow_ai_usage(organization_id,day,calls) SELECT ?,?,1 WHERE EXISTS(SELECT 1 FROM workflow_ai_policy WHERE organization_id=? AND enabled=1 AND transfer_approved=1 AND daily_limit>0) AND ${callAuthority.condition} ON CONFLICT(organization_id,day) DO UPDATE SET calls=calls+1 WHERE calls<(SELECT daily_limit FROM workflow_ai_policy WHERE organization_id=? AND enabled=1 AND transfer_approved=1)`,
     )
-      .bind(ctx.organizationId, day, ctx.organizationId, ctx.organizationId)
+      .bind(
+        ctx.organizationId,
+        day,
+        ctx.organizationId,
+        ...callAuthority.values,
+        ctx.organizationId,
+      )
       .run();
     if (!reserved.meta.changes)
       fail(
@@ -1580,8 +1627,9 @@ export class TemplateWorkflowService {
     }
     const id = value.mappingId ?? uid("map"),
       time = now();
+    const authority = this.authorizationFence(ctx);
     const created = await this.env.DB.prepare(
-      "INSERT INTO workflow_mappings(id,organization_id,owner_id,version,name,source_dataset_id,structure_hash,plan_json,state,created_at) VALUES(?,?,?,?,?,?,?,?,'draft',?) ON CONFLICT(organization_id,id,version) DO NOTHING",
+      `INSERT INTO workflow_mappings(id,organization_id,owner_id,version,name,source_dataset_id,structure_hash,plan_json,state,created_at) SELECT ?,?,?,?,?,?,?,?,'draft',? WHERE ${authority.condition} AND EXISTS(SELECT 1 FROM workflow_datasets d WHERE d.organization_id=? AND d.owner_id=? AND d.id=? AND d.status='ready' AND d.structure_hash=?) AND (? IS NULL OR (SELECT max(m.version) FROM workflow_mappings m WHERE m.organization_id=? AND m.owner_id=? AND m.id=?)=?) ON CONFLICT(organization_id,id,version) DO NOTHING`,
     )
       .bind(
         id,
@@ -1593,10 +1641,22 @@ export class TemplateWorkflowService {
         dataset.structure_hash,
         boundedJson(value.plan),
         time,
+        ...authority.values,
+        ctx.organizationId,
+        ctx.userId,
+        value.datasetId,
+        dataset.structure_hash,
+        value.mappingId ?? null,
+        ctx.organizationId,
+        ctx.userId,
+        id,
+        value.expectedVersion ?? null,
       )
       .run();
-    if (!created.meta.changes)
+    if (!created.meta.changes) {
+      await this.authorize(ctx, true);
       fail("REVISION_CONFLICT", "The mapping version has changed.");
+    }
     return this.getMapping(ctx, id, version);
   }
   async validateMapping(ctx: WorkflowActor, id: string, input: unknown) {
@@ -1613,12 +1673,21 @@ export class TemplateWorkflowService {
       issues: result.issues,
       documentCount: result.documentCount,
     };
-    if (mapping.state === "draft" && result.status === "ready")
+    if (mayValidateMapping(mapping.state, result.status)) {
+      const authority = this.authorizationFence(ctx);
       await this.env.DB.prepare(
-        "UPDATE workflow_mappings SET validation_json=?,state='validated' WHERE organization_id=? AND id=? AND version=? AND state='draft'",
+        `UPDATE workflow_mappings SET validation_json=?,state='validated' WHERE organization_id=? AND id=? AND owner_id=? AND version=? AND state='draft' AND ${authority.condition}`,
       )
-        .bind(boundedJson(summary), ctx.organizationId, id, value.version)
+        .bind(
+          boundedJson(summary),
+          ctx.organizationId,
+          id,
+          ctx.userId,
+          value.version,
+          ...authority.values,
+        )
         .run();
+    }
     return {
       mapping: await this.getMapping(ctx, id, value.version),
       ...summary,
@@ -1709,9 +1778,10 @@ export class TemplateWorkflowService {
         };
       }),
     );
+    const authority = this.templateUseFence(ctx, value.templateId);
     const inserts = [
       this.env.DB.prepare(
-        "INSERT INTO generation_jobs(id,organization_id,owner_id,request_role,request_actor,authority_json,template_id,template_version,dataset_id,mapping_id,mapping_version,state,total,idempotency_key,request_hash,created_at,updated_at) SELECT ?,?,?,?,?,?,?,?,?,?,?,'queued',?,?,?,?,? WHERE (SELECT count(*) FROM generation_jobs WHERE organization_id=? AND state IN ('queued','running'))<? ON CONFLICT(organization_id,idempotency_key) DO NOTHING",
+        `INSERT INTO generation_jobs(id,organization_id,owner_id,request_role,request_actor,authority_json,template_id,template_version,dataset_id,mapping_id,mapping_version,state,total,idempotency_key,request_hash,created_at,updated_at) SELECT ?,?,?,?,?,?,?,?,?,?,?,'queued',?,?,?,?,? WHERE (SELECT count(*) FROM generation_jobs WHERE organization_id=? AND state IN ('queued','running'))<? AND ${authority.condition} ON CONFLICT(organization_id,idempotency_key) DO NOTHING`,
       ).bind(
         id,
         ctx.organizationId,
@@ -1731,6 +1801,7 @@ export class TemplateWorkflowService {
         time,
         ctx.organizationId,
         WORKFLOW_LIMITS.activeJobsPerOrganization,
+        ...authority.values,
       ),
       this.env.DB.prepare(
         "INSERT INTO generation_records(organization_id,job_id,record_id,ordinal,input_json,input_hash,state,created_at,updated_at) SELECT ?,?,json_extract(value,'$.recordId'),json_extract(value,'$.ordinal'),json_extract(value,'$.json'),json_extract(value,'$.hash'),'queued',?,? FROM json_each(?) WHERE EXISTS(SELECT 1 FROM generation_jobs WHERE organization_id=? AND id=?)",
@@ -1774,12 +1845,14 @@ export class TemplateWorkflowService {
     )
       .bind(ctx.organizationId, key)
       .first<JobRow>();
-    if (!created)
+    if (!created) {
+      await this.authorize(ctx, true);
       fail(
         "GENERATION_QUOTA",
         "A maximum of three simultaneous batches is allowed per organization.",
         429,
       );
+    }
     if (
       created!.request_hash !== requestHash ||
       created!.owner_id !== ctx.userId
@@ -1926,23 +1999,30 @@ export class TemplateWorkflowService {
   }
   async cancelGeneration(ctx: WorkflowActor, id: string) {
     await this.authorize(ctx, true);
-    await this.jobRow(ctx, id);
+    const job = await this.jobRow(ctx, id);
+    if (generationCommand(job.state, { type: "cancel" }).action === "observe")
+      return this.getGeneration(ctx, id);
+    const authority = this.authorizationFence(ctx);
     const time = now();
     await this.env.DB.batch([
       this.env.DB.prepare(
-        "UPDATE generation_jobs SET state='cancelled',updated_at=? WHERE organization_id=? AND id=? AND state IN ('queued','running','partial','failed')",
-      ).bind(time, ctx.organizationId, id),
+        `UPDATE generation_jobs SET state='cancelled',updated_at=? WHERE organization_id=? AND id=? AND state IN ('queued','running','partial','failed') AND ${authority.condition}`,
+      ).bind(time, ctx.organizationId, id, ...authority.values),
       this.env.DB.prepare(
-        "UPDATE generation_records SET state='cancelled',lease_token=NULL,lease_until=NULL,updated_at=? WHERE organization_id=? AND job_id=? AND state IN ('queued','running')",
-      ).bind(time, ctx.organizationId, id),
+        `UPDATE generation_records SET state='cancelled',lease_token=NULL,lease_until=NULL,updated_at=? WHERE organization_id=? AND job_id=? AND state IN ('queued','running') AND ${authority.condition}`,
+      ).bind(time, ctx.organizationId, id, ...authority.values),
     ]);
     return this.getGeneration(ctx, id);
   }
   async retryGeneration(ctx: WorkflowActor, id: string, recordIds: string[]) {
     await this.authorize(ctx, true);
     const job = await this.jobRow(ctx, id);
-    if (job.state === "cancelled")
-      fail("GENERATION_CANCELLED", "A cancelled batch cannot be resumed.");
+    const retry = generationCommand(job.state, {
+      type: "retry",
+      frozen: false,
+    });
+    if (retry.action === "refuse")
+      fail(retry.code, "A cancelled batch cannot be resumed.");
     if (
       await this.env.DB.prepare(
         "SELECT 1 FROM distribution_plans WHERE organization_id=? AND job_id=?",
@@ -1955,19 +2035,35 @@ export class TemplateWorkflowService {
         "A distribution freezes this batch; create a new batch for excluded records.",
       );
     z.array(keySchema).min(1).max(500).parse(recordIds);
+    const authority = this.authorizationFence(ctx);
     const time = now();
     // A cancellation committed after the read above must also fence each record write.
     await this.env.DB.batch(
       recordIds.map((recordId) =>
         this.env.DB.prepare(
-          "UPDATE generation_records SET state='queued',error_code=NULL,updated_at=? WHERE organization_id=? AND job_id=? AND record_id=? AND state='failed' AND attempts<3 AND EXISTS(SELECT 1 FROM generation_jobs j WHERE j.organization_id=generation_records.organization_id AND j.id=generation_records.job_id AND j.state IN ('queued','running','partial','failed')) AND NOT EXISTS(SELECT 1 FROM distribution_plans WHERE organization_id=? AND job_id=?)",
-        ).bind(time, ctx.organizationId, id, recordId, ctx.organizationId, id),
+          `UPDATE generation_records SET state='queued',error_code=NULL,updated_at=? WHERE organization_id=? AND job_id=? AND record_id=? AND state='failed' AND attempts<3 AND EXISTS(SELECT 1 FROM generation_jobs j WHERE j.organization_id=generation_records.organization_id AND j.id=generation_records.job_id AND j.state IN ('queued','running','partial','failed')) AND NOT EXISTS(SELECT 1 FROM distribution_plans WHERE organization_id=? AND job_id=?) AND ${authority.condition}`,
+        ).bind(
+          time,
+          ctx.organizationId,
+          id,
+          recordId,
+          ctx.organizationId,
+          id,
+          ...authority.values,
+        ),
       ),
     );
     await this.env.DB.prepare(
-      "UPDATE generation_jobs SET state='queued',updated_at=? WHERE organization_id=? AND id=? AND state IN ('partial','failed') AND EXISTS(SELECT 1 FROM generation_records WHERE organization_id=? AND job_id=? AND state='queued')",
+      `UPDATE generation_jobs SET state='queued',updated_at=? WHERE organization_id=? AND id=? AND state IN ('partial','failed') AND EXISTS(SELECT 1 FROM generation_records WHERE organization_id=? AND job_id=? AND state='queued') AND ${authority.condition}`,
     )
-      .bind(time, ctx.organizationId, id, ctx.organizationId, id)
+      .bind(
+        time,
+        ctx.organizationId,
+        id,
+        ctx.organizationId,
+        id,
+        ...authority.values,
+      )
       .run();
     return this.getGeneration(ctx, id);
   }
@@ -1994,6 +2090,8 @@ export class TemplateWorkflowService {
     return { processed };
   }
   private async processRecord(record: RecordRow) {
+    const recovery = generationRecordRecovery(record, now());
+    if (recovery === "observe" || recovery === "exhausted") return;
     const token = crypto.randomUUID(),
       time = now(),
       lease = new Date(Date.now() + 120000).toISOString();
@@ -2060,10 +2158,16 @@ export class TemplateWorkflowService {
         job.template_version,
       );
       phase = "job_start";
+      const startFence = this.generationClaimFence(
+        ctx,
+        job,
+        claimed.record_id,
+        token,
+      );
       await this.env.DB.prepare(
-        "UPDATE generation_jobs SET state='running',updated_at=? WHERE organization_id=? AND id=? AND state='queued'",
+        `UPDATE generation_jobs SET state='running',updated_at=? WHERE organization_id=? AND id=? AND state='queued' AND ${startFence.condition}`,
       )
-        .bind(now(), ctx.organizationId, job.id)
+        .bind(now(), ctx.organizationId, job.id, ...startFence.values)
         .run();
       let artifactKey = claimed.artifact_key,
         artifactHash = claimed.artifact_hash,
@@ -2136,8 +2240,14 @@ export class TemplateWorkflowService {
         phase = "artifact_fence";
         await this.assertClaim(ctx, job.id, claimed.record_id, token);
         phase = "artifact_commit";
+        const artifactFence = this.generationClaimFence(
+          ctx,
+          job,
+          claimed.record_id,
+          token,
+        );
         const saved = await this.env.DB.prepare(
-          "UPDATE generation_records SET artifact_key=?,artifact_hash=?,updated_at=? WHERE organization_id=? AND job_id=? AND record_id=? AND lease_token=? AND state='running'",
+          `UPDATE generation_records SET artifact_key=?,artifact_hash=?,updated_at=? WHERE organization_id=? AND job_id=? AND record_id=? AND lease_token=? AND state='running' AND ${artifactFence.condition}`,
         )
           .bind(
             artifactKey,
@@ -2147,6 +2257,7 @@ export class TemplateWorkflowService {
             job.id,
             claimed.record_id,
             token,
+            ...artifactFence.values,
           )
           .run();
         if (!saved.meta.changes)
@@ -2168,26 +2279,21 @@ export class TemplateWorkflowService {
           authority: {
             assertCurrent: () =>
               this.assertClaim(ctx, job.id, claimed.record_id, token),
-            sql: () => {
-              const fence = this.templateUseFence(ctx, job.template_id);
-              return {
-                condition: `(${fence.condition}) AND EXISTS(SELECT 1 FROM generation_records r JOIN generation_jobs j ON j.organization_id=r.organization_id AND j.id=r.job_id WHERE r.organization_id=? AND r.job_id=? AND r.record_id=? AND r.lease_token=? AND r.lease_until>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND r.state='running' AND j.state IN ('queued','running'))`,
-                values: [
-                  ...fence.values,
-                  ctx.organizationId,
-                  job.id,
-                  claimed.record_id,
-                  token,
-                ],
-              };
-            },
+            sql: () =>
+              this.generationClaimFence(ctx, job, claimed.record_id, token),
           },
         },
       );
       phase = "document_commit";
       await this.assertClaim(ctx, job.id, claimed.record_id, token);
+      const completionFence = this.generationClaimFence(
+        ctx,
+        job,
+        claimed.record_id,
+        token,
+      );
       await this.env.DB.prepare(
-        "UPDATE generation_records SET state='generated',document_id=?,error_code=NULL,lease_token=NULL,lease_until=NULL,updated_at=? WHERE organization_id=? AND job_id=? AND record_id=? AND lease_token=? AND state='running'",
+        `UPDATE generation_records SET state='generated',document_id=?,error_code=NULL,lease_token=NULL,lease_until=NULL,updated_at=? WHERE organization_id=? AND job_id=? AND record_id=? AND lease_token=? AND state='running' AND ${completionFence.condition}`,
       )
         .bind(
           document.id,
@@ -2196,6 +2302,7 @@ export class TemplateWorkflowService {
           job.id,
           claimed.record_id,
           token,
+          ...completionFence.values,
         )
         .run();
     } catch (error) {
@@ -2219,6 +2326,18 @@ export class TemplateWorkflowService {
     }
     await this.settleJob(record.organization_id, record.job_id);
   }
+  private generationClaimFence(
+    ctx: WorkflowActor,
+    job: Pick<JobRow, "id" | "template_id">,
+    recordId: string,
+    token: string,
+  ) {
+    const fence = this.templateUseFence(ctx, job.template_id);
+    return {
+      condition: `(${fence.condition}) AND EXISTS(SELECT 1 FROM generation_records r JOIN generation_jobs j ON j.organization_id=r.organization_id AND j.id=r.job_id WHERE r.organization_id=? AND r.job_id=? AND r.record_id=? AND r.lease_token=? AND r.lease_until>strftime('%Y-%m-%dT%H:%M:%fZ','now') AND r.state='running' AND j.state IN ('queued','running'))`,
+      values: [...fence.values, ctx.organizationId, job.id, recordId, token],
+    };
+  }
   private async assertClaim(
     ctx: WorkflowActor,
     jobId: string,
@@ -2238,7 +2357,7 @@ export class TemplateWorkflowService {
   }
   private async settleJob(org: string, id: string) {
     await this.env.DB.prepare(
-      "UPDATE generation_jobs SET state=CASE WHEN EXISTS(SELECT 1 FROM generation_records WHERE organization_id=? AND job_id=? AND state IN ('queued','running')) THEN 'running' WHEN NOT EXISTS(SELECT 1 FROM generation_records WHERE organization_id=? AND job_id=? AND state<>'generated') THEN 'completed' WHEN EXISTS(SELECT 1 FROM generation_records WHERE organization_id=? AND job_id=? AND state='generated') THEN 'partial' ELSE 'failed' END,updated_at=? WHERE organization_id=? AND id=? AND state IN ('queued','running')",
+      `UPDATE generation_jobs SET state=${generationSettlementSql},updated_at=? WHERE organization_id=? AND id=? AND state IN ('queued','running')`,
     )
       .bind(org, id, org, id, org, id, now(), org, id)
       .run();
@@ -2401,9 +2520,10 @@ export class TemplateWorkflowService {
       );
     const manifestJson = boundedJson(manifest),
       manifestHash = await sha256(manifestJson);
+    const authority = this.authorizationFence(ctx);
     await this.env.DB.batch([
       this.env.DB.prepare(
-        "INSERT INTO distribution_plans(id,organization_id,owner_id,job_id,idempotency_key,request_hash,manifest_hash,manifest_json,created_at) VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(organization_id,idempotency_key) DO NOTHING",
+        `INSERT INTO distribution_plans(id,organization_id,owner_id,job_id,idempotency_key,request_hash,manifest_hash,manifest_json,created_at) SELECT ?,?,?,?,?,?,?,?,? WHERE ${authority.condition} AND EXISTS(SELECT 1 FROM generation_jobs j WHERE j.organization_id=? AND j.owner_id=? AND j.id=? AND j.state IN ('completed','partial','cancelled')) ON CONFLICT(organization_id,idempotency_key) DO NOTHING`,
       ).bind(
         id,
         ctx.organizationId,
@@ -2414,6 +2534,10 @@ export class TemplateWorkflowService {
         manifestHash,
         manifestJson,
         time,
+        ...authority.values,
+        ctx.organizationId,
+        ctx.userId,
+        job.id,
       ),
       this.env.DB.prepare(
         "INSERT INTO distribution_entries(organization_id,plan_id,entry_id) SELECT ?,?,json_extract(value,'$.entryId') FROM json_each(?) WHERE EXISTS(SELECT 1 FROM distribution_plans WHERE organization_id=? AND id=?)",
@@ -2430,6 +2554,13 @@ export class TemplateWorkflowService {
     )
       .bind(ctx.organizationId, key)
       .first<{ id: string; request_hash: string }>();
+    if (!stored) {
+      await this.authorize(ctx, true);
+      fail(
+        "GENERATION_NOT_FINISHED",
+        "Wait for completion or cancel the batch before distribution.",
+      );
+    }
     if (stored!.request_hash !== requestHash)
       fail("IDEMPOTENCY_CONFLICT", "This key belongs to another distribution.");
     return this.resumeDistribution(ctx, stored!.id);
@@ -2442,13 +2573,11 @@ export class TemplateWorkflowService {
   ) {
     await this.authorize(ctx, true);
     const plan = await this.getDistribution(ctx, id);
+    const authority = this.authorizationFence(ctx);
     // Existing preparation alone: no approval, reservation, postal transfer, outbox or provider call.
     for (const entry of plan.entries
       .filter(
-        (entry) =>
-          !entry.dispatchId &&
-          !entry.postalReviewId &&
-          (!entry.errorCode || retryFailed),
+        (entry) => distributionEntryDecision(entry, retryFailed) === "prepare",
       )
       .sort(
         (a, b) => Number(Boolean(a.errorCode)) - Number(Boolean(b.errorCode)),
@@ -2472,13 +2601,20 @@ export class TemplateWorkflowService {
           `${id}:${entry.entryId}`,
         );
         await this.env.DB.prepare(
-          "UPDATE distribution_entries SET dispatch_id=?,error_code=NULL WHERE organization_id=? AND plan_id=? AND entry_id=?",
+          `UPDATE distribution_entries SET dispatch_id=?,error_code=NULL WHERE organization_id=? AND plan_id=? AND entry_id=? AND (dispatch_id IS NULL OR dispatch_id=?) AND ${authority.condition}`,
         )
-          .bind(dispatch.id, ctx.organizationId, id, entry.entryId)
+          .bind(
+            dispatch.id,
+            ctx.organizationId,
+            id,
+            entry.entryId,
+            dispatch.id,
+            ...authority.values,
+          )
           .run();
       } catch (error) {
         await this.env.DB.prepare(
-          "UPDATE distribution_entries SET error_code=? WHERE organization_id=? AND plan_id=? AND entry_id=?",
+          `UPDATE distribution_entries SET error_code=? WHERE organization_id=? AND plan_id=? AND entry_id=? AND dispatch_id IS NULL AND ${authority.condition}`,
         )
           .bind(
             error instanceof Error && "code" in error
@@ -2487,6 +2623,7 @@ export class TemplateWorkflowService {
             ctx.organizationId,
             id,
             entry.entryId,
+            ...authority.values,
           )
           .run();
       }

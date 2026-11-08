@@ -1,8 +1,8 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**28 domains · 455 features · 45 journeys · 77 documented REST operations · 83 MCP tools**
-Updated 2026-11-07.
+**28 domains · 464 features · 46 journeys · 78 documented REST operations · 83 MCP tools**
+Updated 2026-11-08.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
 
@@ -16,20 +16,20 @@ mindmap
     Access
       Access and identity (39)
       Team and responsibilities (10)
-      Workspace administration and reports (13)
+      Workspace administration and reports (14)
     Create
-      Documents and protection (21)
-      Template studio (14)
-      Data and mappings (11)
-      PDF generation and distribution (15)
+      Documents and protection (22)
+      Template studio (15)
+      Data and mappings (12)
+      PDF generation and distribution (16)
     Deliver
       Fax (10)
-      Postal mail (10)
+      Postal mail (11)
       Email and protected links (14)
-      Sensitive distribution and personal documents (36)
+      Sensitive distribution and personal documents (37)
       Dispatch dry run (7)
     Operate
-      Campaigns and tracking (8)
+      Campaigns and tracking (9)
       Credits and billing (9)
       Workspace layout and browser appearance (37)
       PDF verification (10)
@@ -42,7 +42,7 @@ mindmap
       Operations and reliability (32)
       Belvédère platform oversight (14)
       Public service status (16)
-      Engineering documentation (12)
+      Engineering documentation (13)
       Codex Cloud development (8)
       Continuous reviewer preparation (6)
       Automatic fax tariff maintenance (13)
@@ -53,26 +53,26 @@ mindmap
 
 - [Access and identity](#identity) — 39 features; browser-session.
 - [Team and responsibilities](#team) — 10 features; browser-session.
-- [Workspace administration and reports](#administration) — 13 features; browser-session.
+- [Workspace administration and reports](#administration) — 14 features; browser-session.
 
 ### Create
 
-- [Documents and protection](#documents) — 21 features; capability-gated.
-- [Template studio](#templates) — 14 features; capability-gated.
-- [Data and mappings](#datasets) — 11 features; capability-gated.
-- [PDF generation and distribution](#generation) — 15 features; capability-gated.
+- [Documents and protection](#documents) — 22 features; capability-gated.
+- [Template studio](#templates) — 15 features; capability-gated.
+- [Data and mappings](#datasets) — 12 features; capability-gated.
+- [PDF generation and distribution](#generation) — 16 features; capability-gated.
 
 ### Deliver
 
 - [Fax](#fax) — 10 features; capability-gated.
-- [Postal mail](#postal) — 10 features; capability-gated.
+- [Postal mail](#postal) — 11 features; capability-gated.
 - [Email and protected links](#email) — 14 features; capability-gated.
-- [Sensitive distribution and personal documents](#secure-distribution) — 36 features; capability-gated.
+- [Sensitive distribution and personal documents](#secure-distribution) — 37 features; capability-gated.
 - [Dispatch dry run](#dry-run) — 7 features; read-only.
 
 ### Operate
 
-- [Campaigns and tracking](#campaigns) — 8 features; capability-gated.
+- [Campaigns and tracking](#campaigns) — 9 features; capability-gated.
 - [Credits and billing](#billing) — 9 features; partial.
 - [Workspace layout and browser appearance](#dashboard) — 37 features; browser-session.
 - [PDF verification](#pdf-verification) — 10 features; capability-gated.
@@ -89,7 +89,7 @@ mindmap
 - [Operations and reliability](#operations) — 32 features; operator-gated.
 - [Belvédère platform oversight](#belvedere) — 14 features; operator-gated.
 - [Public service status](#status) — 16 features; public.
-- [Engineering documentation](#engineering-docs) — 12 features; public.
+- [Engineering documentation](#engineering-docs) — 13 features; public.
 - [Codex Cloud development](#cloud-development) — 8 features; local-candidate.
 - [Continuous reviewer preparation](#continuous-review) — 6 features; operator-gated.
 - [Automatic fax tariff maintenance](#fax-tariff-maintenance) — 13 features; operator-gated.
@@ -162,6 +162,9 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Search, filter, sort and page authorized browser table rows | Only rows already visible under current page authority | Only rows already visible under current page authority and independent reporting options | Only rows already visible under current page authority | Only rows already visible under current page authority | No new REST/MCP/native tool or authority; browser controls never fetch inaccessible rows or grant approval, sending, paid operations or a mandate |
 | Use loopback fictional role/volume controls | No production authority; local fixture only | No production authority; local fixture only | No production authority; local fixture only | No production authority; local fixture only | No REST/MCP/native authority or real platform capability; DEV + preview + loopback only |
 | Configure provider freshness and inspect preventive actions | No authority from workspace role; distinct explicit platform authorization | No authority from workspace role | No authority from workspace role | No authority from workspace role | No ordinary business REST/MCP/native authority. An authenticated same-account operator service binding may read the bounded aggregate prevention report; separately authorized repository/operator workflows may qualify exact sources and prepare digest-bound registrations or native monitor plans. Production migration/runtime changes and operational-email gate, envelope and caps require explicit platform authority and current validation. No workspace role or expert mandate enables operational notifications, grants credentials, extends authority/consent or authorizes a customer send. |
+| Resolve a durably closed queue incident | Browser, current session and CSRF | No | No | No | No |
+| Request deletion of own account | Own authenticated native account or published support channel | Own authenticated native account or published support channel | Own authenticated native account or published support channel | Own authenticated native account or published support channel | No |
+| Process a reviewed account-deletion plan | No workspace-role authority; separate private operator RPC | No | No | No | No |
 
 Supervisor approval/reporting options are independent and off by default. Resource ownership/context checks still apply. See [workspace roles](WORKSPACE_ROLES.md), [expert approval](EXPERT_APPROVAL.md) and [studio access](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -182,7 +185,6 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Workshop switching with current membership rights
 - OAuth connection binding, revocation and consented scopes
 - Exact resource-metadata discovery issuer, including its trailing slash; official MCP SDK contract tests without external network
-- Account deletion request; complete erasure processing remains unqualified
 - Visible signed-in name and login email on desktop/mobile, with the email heading the V2 account menu; current role and permissions belong on My account
 - Explicit Auth0 account switching without disabling ordinary SSO
 - Tab-focus reconciliation of identity, workshop and saved language
@@ -213,10 +215,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Workspace and personal browser sessions project only canAccessBelvedere for navigation; signed privileged browser evidence and current membership remain mandatory, with no authority derived from mutable profile email or workspace role
 - Authenticated account reads and independent login/callback digests overlap while retaining saved appearance, canonical invitation validation, transaction-bound issuer, nonce and subject checks before session writes
 - Four-language Auth0 account email candidates with normalized request language and English fallback; current owned application IDs scope body, subject and sender while exact prior Liquid fields preserve other or missing clients. Offline Liquid/browser proof, remote application and real delivery remain separate; enabled flags, redirect and expiry are unchanged
+- Account deletion request and separate default-off private operator processing: a frozen reviewed plan blocks unsafe workspace closure and unresolved liabilities, revokes all authentication, verifies exact storage/identity erasure and delivered completion-notice evidence, minimizes the retained historical skeleton, and never calls a disabled profile completed deletion; no public or MCP processor authority
 
 **Contract:** [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · **Implementation:** [apps/api/src/auth.ts](../apps/api/src/auth.ts)
 
-**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/mcp-auth0-domain.test.ts](../tests/unit/mcp-auth0-domain.test.ts), [tests/unit/postal-authority.test.ts](../tests/unit/postal-authority.test.ts), [tests/integration/expert-status.test.ts](../tests/integration/expert-status.test.ts), [tests/unit/workspace-entry.test.ts](../tests/unit/workspace-entry.test.ts), [tests/integration/workspace-invitations.test.ts](../tests/integration/workspace-invitations.test.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/unit/api-async.test.ts](../tests/unit/api-async.test.ts), [tests/security/auth0-email-branding.test.mjs](../tests/security/auth0-email-branding.test.mjs), [tests/auth0-email-e2e/email.spec.ts](../tests/auth0-email-e2e/email.spec.ts)
+**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/mcp-auth0-domain.test.ts](../tests/unit/mcp-auth0-domain.test.ts), [tests/unit/postal-authority.test.ts](../tests/unit/postal-authority.test.ts), [tests/integration/expert-status.test.ts](../tests/integration/expert-status.test.ts), [tests/unit/workspace-entry.test.ts](../tests/unit/workspace-entry.test.ts), [tests/integration/workspace-invitations.test.ts](../tests/integration/workspace-invitations.test.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/unit/api-async.test.ts](../tests/unit/api-async.test.ts), [tests/security/auth0-email-branding.test.mjs](../tests/security/auth0-email-branding.test.mjs), [tests/auth0-email-e2e/email.spec.ts](../tests/auth0-email-e2e/email.spec.ts), [tests/integration/account-deletion.test.ts](../tests/integration/account-deletion.test.ts), [tests/security/account-deletion-operator.test.mjs](../tests/security/account-deletion-operator.test.mjs)
 
 
 
@@ -272,6 +275,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Authenticated documents.originalFilePicker exposes explicit_local_original and conversationAttachmentAccess:false; SDK context updates contain only registered document ID/status and bound original size/SHA, never content/base64/filename/token. Actual 1.1.6 Desktop registered-ID delivery to the model failed; the 1.1.8 source candidate adds standard text alongside structured context plus explicit Use in conversation for the same four-key receipt, with native retests pending and no automatic chat message on import
 - MCP_DOCUMENT_UPLOAD_APP is off by default: strict existing-connection/revision JSON supports at most one hour of qualification, while explicit enabled mode supports a separately reviewed general production rollout after actual qualification and authorized delivery; both retain current writer/OAuth guards, observer denial and no browser fetch, Origin/network permission, new scope, approval, paid check, mandate or infrastructure
 - Bounded document-analysis reads and PDF canvas/text extraction overlap; both renderer tasks settle before completion or cleanup, with stale-response and sensitive-source fences retained
+- Typed private/MCP upload receipt and lease decisions preserve the same operation through uncertain results; final completion requires the exact nonpurged document in SQL, closing purge-between-read-and-write races
 
 **Contract:** [SCANNER_RESCAN.md](SCANNER_RESCAN.md) · **Implementation:** [apps/api/src/documents.ts](../apps/api/src/documents.ts)
 
@@ -326,10 +330,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Owner-only removal preserving historical PDFs and provenance
 - Document-studio exclusions cover DOCX, text, existing templates and business data; stop known excluded content and request a person-redacted copy without web bypass
 - AI suggestions revalidate edit rights, membership, OAuth connection, revision and transfer consent before inference and before returning; reject stale proposals without automatic application/publication
+- Template writes and chained browser continuations require current identity, view, membership, connection and exact revision after asynchronous work; an obsolete response cannot generate or navigate
 
 **Contract:** [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md) · **Implementation:** [apps/api/src/template-workflow.ts](../apps/api/src/template-workflow.ts)
 
-**Tests:** [tests/unit/template-authoring.test.ts](../tests/unit/template-authoring.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/templates-images.test.ts](../tests/unit/templates-images.test.ts), [tests/e2e/template-images.spec.ts](../tests/e2e/template-images.spec.ts)
+**Tests:** [tests/unit/template-authoring.test.ts](../tests/unit/template-authoring.test.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/templates-images.test.ts](../tests/unit/templates-images.test.ts), [tests/e2e/template-images.spec.ts](../tests/e2e/template-images.spec.ts), [tests/e2e/studio-client-lifecycle.spec.ts](../tests/e2e/studio-client-lifecycle.spec.ts)
 
 **Documented REST operations**
 
@@ -389,10 +394,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Optional AI analysis under browser-administrator policy and transfer consent
 - Document-studio exclusions also cover datasets, direct records and AI functions; stop reading/profiling/mapping/generation on known excluded content without collecting its values
 - Compatible replacement imports retain the current template/version, field correspondence and valid record selection; cell/person/field errors remain actionable without mutating prior generated content
+- Dataset promotion, mapping insertion and validation fence current source and membership/OAuth authority in the final D1 write; Studio AI adoption retains mapping/draft partial receipts and retries only the unfinished step
 
 **Contract:** [DATA_IMPORT.md](DATA_IMPORT.md) · **Implementation:** [apps/api/src/template-workflow.ts](../apps/api/src/template-workflow.ts)
 
-**Tests:** [tests/unit/datasets.test.ts](../tests/unit/datasets.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/e2e/dataset-mapping-alias.spec.ts](../tests/e2e/dataset-mapping-alias.spec.ts), [tests/e2e/template-xml-multichannel.spec.ts](../tests/e2e/template-xml-multichannel.spec.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts)
+**Tests:** [tests/unit/datasets.test.ts](../tests/unit/datasets.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/e2e/dataset-mapping-alias.spec.ts](../tests/e2e/dataset-mapping-alias.spec.ts), [tests/e2e/template-xml-multichannel.spec.ts](../tests/e2e/template-xml-multichannel.spec.ts), [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/e2e/studio-client-lifecycle.spec.ts](../tests/e2e/studio-client-lifecycle.spec.ts)
 
 **Documented REST operations**
 
@@ -444,6 +450,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Browser results show bounded name/subject/reference labels without changing record identifiers; the browser-only owner-authorized record-context read supplies labels or one explicit correction input, with current tenant/creator guards and no MCP/native authority. Its optional current template name requires current template read permission and becomes null after sharing revocation
 - Import/replacement retain the selected template/version and compatible field mapping/record exclusions; correcting data or a template creates a new generation/version while prior PDFs and prepared manifests retain their exact hashes
 - Every new destination starts with zero documents even for one PDF; unsaved preparation may veto departure and late preparation/postal replies cannot navigate obsolete visits; the pre-preparation summary lists exact associations and explains that the first plan freezes the full generation, including excluded failed records
+- Integrated typed record/job/distribution decisions retain bounded artifact recovery and immutable entry keys; final record and association writes fence live authority and source predecessors
 
 **Contract:** [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md) · **Implementation:** [apps/api/src/template-workflow-routes.ts](../apps/api/src/template-workflow-routes.ts)
 
@@ -524,10 +531,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Version selected by frozen recipient shape, with schema-first 0072 preserving old objects while binding new block/page versions to the exact tenant, consent, PDF, recipient, profile, quote and approval
 - Confirmation, calendar cutoffs and provider tracking
 - Status projection and reconciliation of unknown outcomes
+- Typed preflight, address-page and transfer recovery preserves the exact reviewed operation; the browser uses explicit write/read-required states and abandons stale identity/view continuations
 
 **Contract:** [POSTAL_WORLDWIDE.md](POSTAL_WORLDWIDE.md) · **Implementation:** [apps/api/src/postal.ts](../apps/api/src/postal.ts)
 
-**Tests:** [tests/unit/pingen-destination-availability.test.ts](../tests/unit/pingen-destination-availability.test.ts), [tests/unit/pingen-destination-runtime.test.ts](../tests/unit/pingen-destination-runtime.test.ts), [tests/unit/ses-runtime.test.ts](../tests/unit/ses-runtime.test.ts), [tests/unit/postal-worldwide-contracts.test.ts](../tests/unit/postal-worldwide-contracts.test.ts), [tests/unit/postal.test.ts](../tests/unit/postal.test.ts), [tests/unit/providers.test.ts](../tests/unit/providers.test.ts), [tests/integration/live-delivery-quotes.test.ts](../tests/integration/live-delivery-quotes.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/e2e/postal-final-send.spec.ts](../tests/e2e/postal-final-send.spec.ts)
+**Tests:** [tests/unit/pingen-destination-availability.test.ts](../tests/unit/pingen-destination-availability.test.ts), [tests/unit/pingen-destination-runtime.test.ts](../tests/unit/pingen-destination-runtime.test.ts), [tests/unit/ses-runtime.test.ts](../tests/unit/ses-runtime.test.ts), [tests/unit/postal-worldwide-contracts.test.ts](../tests/unit/postal-worldwide-contracts.test.ts), [tests/unit/postal.test.ts](../tests/unit/postal.test.ts), [tests/unit/providers.test.ts](../tests/unit/providers.test.ts), [tests/integration/live-delivery-quotes.test.ts](../tests/integration/live-delivery-quotes.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/e2e/postal-final-send.spec.ts](../tests/e2e/postal-final-send.spec.ts), [tests/unit/client-write-recovery.test.ts](../tests/unit/client-write-recovery.test.ts)
 
 **Documented REST operations**
 
@@ -622,10 +630,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - A parallel summary provides category counts and at most 100 sender choices; summary failure does not delay the list, filter changes discard old page cursors and authority refusals clear all loaded metadata
 - Page-by-page My documents navigation and a generic prompt to create a workspace for accounts without one
 - Returning from a document by link or browser Back restores the same page, scroll position and focus without a new read; deleting or saving a copy rereads the page and counts, and deleting the final copy on a page returns to a valid page; ended rows show their end date
+- Typed preparation/deposit and browser write states preserve paid progress across eligible reauthentication, clear stale lease ownership and refuse revoked source authority; late responses cannot activate, copy or navigate from an obsolete account/workspace/view
 
 **Contract:** [SECURE_DISTRIBUTION_JOURNEYS.md](SECURE_DISTRIBUTION_JOURNEYS.md) · **Implementation:** [apps/api/src/secure-distributions.ts](../apps/api/src/secure-distributions.ts)
 
-**Tests:** [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/integration/secure-source-copy.test.ts](../tests/integration/secure-source-copy.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/distribution-e2e/distribution-pricing.e2e.ts](../tests/distribution-e2e/distribution-pricing.e2e.ts), [tests/distribution-e2e/distribution-lifecycle.e2e.ts](../tests/distribution-e2e/distribution-lifecycle.e2e.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/distribution-verified-e2e/lifecycle.e2e.ts](../tests/distribution-verified-e2e/lifecycle.e2e.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/auth-navigation-recovery.test.ts](../tests/unit/auth-navigation-recovery.test.ts), [tests/e2e/secure-distribution-recovery.spec.ts](../tests/e2e/secure-distribution-recovery.spec.ts), [tests/integration/secure-resend-journey.test.ts](../tests/integration/secure-resend-journey.test.ts), [tests/e2e/secure-distribution-send.spec.ts](../tests/e2e/secure-distribution-send.spec.ts), [tests/e2e/secure-source-copy.spec.ts](../tests/e2e/secure-source-copy.spec.ts), [tests/unit/personal-document-list.test.ts](../tests/unit/personal-document-list.test.ts), [tests/e2e/personal-document-list.spec.ts](../tests/e2e/personal-document-list.spec.ts)
+**Tests:** [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/integration/secure-source-copy.test.ts](../tests/integration/secure-source-copy.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/distribution-e2e/distribution-pricing.e2e.ts](../tests/distribution-e2e/distribution-pricing.e2e.ts), [tests/distribution-e2e/distribution-lifecycle.e2e.ts](../tests/distribution-e2e/distribution-lifecycle.e2e.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/distribution-verified-e2e/lifecycle.e2e.ts](../tests/distribution-verified-e2e/lifecycle.e2e.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/auth-navigation-recovery.test.ts](../tests/unit/auth-navigation-recovery.test.ts), [tests/e2e/secure-distribution-recovery.spec.ts](../tests/e2e/secure-distribution-recovery.spec.ts), [tests/integration/secure-resend-journey.test.ts](../tests/integration/secure-resend-journey.test.ts), [tests/e2e/secure-distribution-send.spec.ts](../tests/e2e/secure-distribution-send.spec.ts), [tests/e2e/secure-source-copy.spec.ts](../tests/e2e/secure-source-copy.spec.ts), [tests/unit/personal-document-list.test.ts](../tests/unit/personal-document-list.test.ts), [tests/e2e/personal-document-list.spec.ts](../tests/e2e/personal-document-list.spec.ts), [tests/unit/client-write-recovery.test.ts](../tests/unit/client-write-recovery.test.ts)
 
 **Documented REST operations**
 
@@ -686,10 +695,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Eligible cancellation and review of uncertain operations
 - Channel/ceiling administration without blind retries
 - Path-scoped browser refresh prevents stale resources or cancelled 401s from replacing a newer session
+- Frozen nonempty campaigns complete automatically only after every immutable member is operationally closed with no execution lease, unresolved invocation or reserved quota/credit; postal handover is execution closure, never recipient receipt, and late ranked facts remain projectable
 
 **Contract:** [API_CONTRACT.md](API_CONTRACT.md) · **Implementation:** [apps/api/src/index.ts](../apps/api/src/index.ts)
 
-**Tests:** [tests/integration/domain-invariants.test.ts](../tests/integration/domain-invariants.test.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts)
+**Tests:** [tests/integration/domain-invariants.test.ts](../tests/integration/domain-invariants.test.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/integration/campaign-lifecycle.test.ts](../tests/integration/campaign-lifecycle.test.ts)
 
 **Documented REST operations**
 
@@ -1080,11 +1090,12 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 - Dedicated engineering.guteneo.com reading surface built with Cloudflare Nimbus; customer documentation retains docs.guteneo.com; the shared four-language public footer links to the exact English-site URL under Resources after Developers without inventing localized engineering routes
 - Curated English architecture, workflow and integration guides with local search, Markdown copies and assistant-readable indexes
+- Curated state-machine guide maps coupled authority, approval, dispatch, financial, document, upload, postal, Studio, maintenance and client lifecycles; explains integrated small transition models and retained existing simple mechanisms with persistence-boundary testing and keeps SQL commitment boundaries and uncertain outcomes authoritative
 - Single-source feature tree with role permissions and customer journeys; feature changes update the registry and developer guide together
 - Brand-colored Mermaid and isometric architecture diagrams with textual equivalents and explicit external provider boundaries
 - Approved video Gutenberg character identity in small explanatory notes and three wide scenes: doctor for PDF diagnostics, architect for diagrams and archivist for the feature tree; no city panoramas or miniature stamp notes; header branding preserves original portrait alpha and its existing approved five-percent StampPaper white interior without an outer contour; other assets follow their actual inner blue frames rather than copying that inset, with ink-black light-mode and approved ivory dark-mode lettering, with reduced-motion support
 - Asset-only publication from clean main matching fresh origin/main and the reviewed commit, with source snapshots and complete output hashes revalidated after browser checks; no business bindings or delivery authority; static no-transform responses preserve reviewed HTML/artwork bytes while hash-named Astro assets retain immutable caching; engineering checks all five public and built browser-icon files against the approved product family, with its helper/source paths bound to the release snapshot and unchanged matching Nimbus SVG plus ICO/PNG/Apple fallbacks
-- Discoverable architecture diagram gallery with three brand-colored Mermaid flows, source downloads and accessible textual explanations
+- Discoverable architecture diagram gallery with brand-colored Mermaid flows, source downloads and accessible textual explanations
 - Curated Belvédère administration, data-model, release and troubleshooting guides that preserve authority, evidence and recovery boundaries
 - Maintained GitHub job/artifact/release explanation, fresh dependency boundaries and separate application/native/engineering evidence; every Ubuntu package installation, including engineering browsers, first prefers the runner's recognized official HTTPS archives while retaining signed package verification and the Azure fallback, and an unexpected mirror configuration fails closed
 - Curated Cloudflare/Auth0/transport dependencies, background jobs, tariff maintenance, design/i18n/accessibility, AI contribution and reproducible video/voice production guides
@@ -1217,10 +1228,15 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - My documents and Use Guteneo offer Administration from a server-computed per-membership report right in the personal session; selecting it from an already open workspace form applies the new URL destination and eligible membership filter; removal hides it and the API refuses meanwhile
 - PDF exports embed the pinned Roboto font only when a drawn string is outside WinAnsi, size columns from content, wrap headers, share the 500-row budget across tables and localize header dates; the Excel summary stores typed numbers, money and date-time
 - The public preview renders Administration over its fictional workspace with the server's permission split, validates date and pagination bounds, and groups consumption by confirmation day and month; sign-in history follows the selected range and exports stay disabled
+- Browser administrators explicitly resolve an already operationally and financially closed dead-letter incident through a current-session and current-membership fenced transaction; one retained resolution audit/timestamp survives replay, with no dispatch mutation, credit release, queue replay or provider invocation
 
 **Contract:** [WORKSPACE_ADMINISTRATION.md](WORKSPACE_ADMINISTRATION.md) · **Implementation:** [apps/api/src/administration.ts](../apps/api/src/administration.ts)
 
-**Tests:** [tests/unit/administration.test.ts](../tests/unit/administration.test.ts), [tests/e2e/account-billing.spec.ts](../tests/e2e/account-billing.spec.ts), [tests/e2e/workspace-roles.spec.ts](../tests/e2e/workspace-roles.spec.ts), [tests/e2e/team-invitations.spec.ts](../tests/e2e/team-invitations.spec.ts), [tests/e2e/usage-history.spec.ts](../tests/e2e/usage-history.spec.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/workspace-administration-client.test.ts](../tests/unit/workspace-administration-client.test.ts), [tests/e2e/workspace-administration.spec.ts](../tests/e2e/workspace-administration.spec.ts), [tests/unit/administration-exports.test.ts](../tests/unit/administration-exports.test.ts), [tests/unit/preview-administration.test.ts](../tests/unit/preview-administration.test.ts), [tests/unit/workspace-entry.test.ts](../tests/unit/workspace-entry.test.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts)
+**Tests:** [tests/unit/administration.test.ts](../tests/unit/administration.test.ts), [tests/e2e/account-billing.spec.ts](../tests/e2e/account-billing.spec.ts), [tests/e2e/workspace-roles.spec.ts](../tests/e2e/workspace-roles.spec.ts), [tests/e2e/team-invitations.spec.ts](../tests/e2e/team-invitations.spec.ts), [tests/e2e/usage-history.spec.ts](../tests/e2e/usage-history.spec.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/workspace-administration-client.test.ts](../tests/unit/workspace-administration-client.test.ts), [tests/e2e/workspace-administration.spec.ts](../tests/e2e/workspace-administration.spec.ts), [tests/unit/administration-exports.test.ts](../tests/unit/administration-exports.test.ts), [tests/unit/preview-administration.test.ts](../tests/unit/preview-administration.test.ts), [tests/unit/workspace-entry.test.ts](../tests/unit/workspace-entry.test.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/integration/dead-letter-resolution.test.ts](../tests/integration/dead-letter-resolution.test.ts)
+
+**Documented REST operations**
+
+- `POST /api/admin/dead-letters/{id}/resolution`
 
 
 
@@ -1292,7 +1308,7 @@ Read authoring guide or a synthetic example → create/private-copy or import DO
 
 Choose a published template → import CSV/XLSX/XML/JSON while preserving that choice → verify/profile exact original → define versioned field mapping → wait for the exact selected template payload before browser validation → validate each row/cell → generate distinct PDFs → inspect business name/subject/reference and provenance. In the browser, replace compatible source data without losing the mapping; preserve only verifiable exclusions and explicitly review unmatched rows. Correct one result with its exact historical template version, or explicitly create a new template version; each correction creates a new generation and leaves prior PDF bytes/hashes and prepared manifests intact.
 
-**Failure/recovery:** Resume the same original after transient analysis failure. Keep browser validation unavailable while the selected template payload is loading or failed; selecting an identifier grants no readiness or new authority. Resolve mapping/type/join issues explicitly. Generation completion does not establish PDF readiness; follow the bounded security-analysis refresh and review retryable or blocked results explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation. An accepted cold-route transition temporarily fences the old editor against new input until commit; existing unsaved-work vetoes still run before acceptance. Private correction input is browser-owner-only under current membership; template sharing and dispatch review do not expose it. Query changes and Back/Forward cannot reuse another record’s unsaved data; leaving an unsaved correction requires explicit review.
+**Failure/recovery:** Resume the same original after transient analysis failure. Keep browser validation unavailable while the selected template payload is loading or failed; selecting an identifier grants no readiness or new authority. Resolve mapping/type/join issues explicitly. Generation completion does not establish PDF readiness; follow the bounded security-analysis refresh and review retryable or blocked results explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation. An accepted cold-route transition temporarily fences the old editor against new input until commit; existing unsaved-work vetoes still run before acceptance. Private correction input is browser-owner-only under current membership; template sharing and dispatch review do not expose it. Query changes and Back/Forward cannot reuse another record’s unsaved data; leaving an unsaved correction requires explicit review. Final dataset/mapping writes recheck current membership or OAuth authority after analysis. AI adoption preserves a successful mapping receipt after draft failure and retries only the unfinished draft. Leaving and returning to the same view invalidates prior chained writes.
 
 [Detailed contract](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -1502,7 +1518,7 @@ Open Secure distribution after Documents, keeping Overview/Assistants first and 
 
 In an active share allowing deposit, read independent retention/export terms → explicitly Keep a copy → follow the same bounded persistent operation → wait for active copy → open Saved copies → export with five-minute authentication freshness → view personal history or explicitly confirm deletion. The same account also opens Guteneo services.
 
-**Failure/recovery:** Revocation before acquisition prevents acquisition; later revocation cannot delete the copy. After timeout/tab closure, resume the same operation without a second copy/charge. No success before activation. Personal deletion removes neither workspace source nor exported files; later private reads are not reported to the workspace. Deletion/expiry prevents redeposit through the same invitation, including direct calls, without fake preparation, recreation or debit.
+**Failure/recovery:** Revocation before acquisition prevents acquisition; later revocation cannot delete the copy. After timeout/tab closure, resume the same operation without a second copy/charge. No success before activation. Personal deletion removes neither workspace source nor exported files; later private reads are not reported to the workspace. Deletion/expiry prevents redeposit through the same invitation, including direct calls, without fake preparation, recreation or debit. Session loss pauses unfinished paid copy progress and releases its lease; recover under the same eligible account. Source revocation or expiry before acquisition aborts it.
 
 [Detailed contract](SECURE_DISTRIBUTION_JOURNEYS.md).
 
@@ -1530,7 +1546,7 @@ Scheduled/manual main workflow → twenty-eight fixed public checks with Node id
 
 **Actor:** Reader → contributor. **Branch:** Engineering.
 
-Open the engineering site → find a feature in the generated tree → read its architecture and workflow guide → reproduce the behavior locally → update the authoritative feature source and developer guide together → run documentation and relevant behavior checks.
+Open the engineering site → find a feature in the generated tree → read its architecture, state-machine and workflow guides → identify events, guards, atomic effects and safe recovery → reproduce the behavior locally → update the authoritative feature source and developer guide together → run documentation and relevant behavior checks.
 
 **Failure/recovery:** Stale generated pages and broken internal links fail validation. Restricted runbooks and dated private evidence remain in the repository. Publication needs explicit authorization and separate hosted verification.
 
@@ -1670,11 +1686,21 @@ Identify the exact selected production mechanism and real deadline → preserve 
 
 **Actor:** Workspace administrator; supervisor with report permission for report views. **Branch:** Correspondence keeps preparation and tracking; the personal profile keeps the person's own settings; Belvédère stays platform-only.
 
-Open Administration from the application switcher, including from My documents or Use Guteneo when the current membership allows reports → choose a period preset or a custom UTC range → read the overview, activity, consumption and access → manage members, invitations, billing and workspace settings → download the complete report as Excel or PDF, or one dataset as CSV → find the export recorded in the audit log
+Open Administration from the application switcher, including from My documents or Use Guteneo when the current membership allows reports → choose a period preset or a custom UTC range → read the overview, activity, consumption and access → manage members, invitations, billing and workspace settings → download the complete report as Excel or PDF, or one dataset as CSV → find the export recorded in the audit log. In Settings, inspect the original dispatch before explicitly resolving an operationally and financially closed queue incident; the server retains one resolution receipt without replaying a communication.
 
-**Failure/recovery:** Changed membership refuses with MEMBERSHIP_CHANGED; assistants and native clients receive BROWSER_REQUIRED. Invalid dates recover in the browser and are refused by the API; periods over 366 days and export row/text bounds fail explicitly. PDFs disclose global row omissions. Changing a period or identity cancels obsolete downloads.
+**Failure/recovery:** Changed membership refuses with MEMBERSHIP_CHANGED; assistants and native clients receive BROWSER_REQUIRED. Invalid dates recover in the browser and are refused by the API; periods over 366 days and export row/text bounds fail explicitly. PDFs disclose global row omissions. Changing a period or identity cancels obsolete downloads. An unresolved dispatch, hold, revoked administrator/session or cross-workspace incident refuses resolution; after an unknown response reread the same diagnostic.
 
 [Detailed contract](WORKSPACE_ADMINISTRATION.md).
+
+### J46 · Request and verify eligible account erasure
+
+**Actor:** Authenticated native account owner; separate private operator for processing. **Branch:** Private default-off operator RPC and offline private-file CLI; no new browser, MCP, native processor or Belvédère authority.
+
+Request deletion explicitly in native Account, or use the published support channel → retain the request receipt → private operator inventories every membership, identity, personal object and attributed reference → resolve workspace/liability blockers and review each retained resource → bind the exact frozen plan and bounded operator capability → begin processing and revoke authentication → advance resumable verified object, identity and local-minimization checkpoints → prepare the exact completion notice privately after data verification → under separate communication authorization obtain its delivered provider evidence → independently verify that receipt and mark completed.
+
+**Failure/recovery:** Request acceptance is not erasure. Last-administrator/unsupported ownership, unresolved execution/storage debt, missing individual retention review or changed snapshot blocks beginning. Expired/lost leases cannot publish checkpoints. Unknown storage or Auth0 effects remain processing and recover only against the same exact targets. Completion requires fresh no-auth/no-content checks, preserved shared/financial integrity and delivered request/plan-bound notice evidence; the processor sends no message. Retained backup/processor evidence has reviewed exceptions and no global anonymity claim. Local tests do not establish real Auth0 deletion, real email receipt or production activation.
+
+[Detailed contract](ACCOUNT_DELETION.md).
 
 ## Required maintenance
 

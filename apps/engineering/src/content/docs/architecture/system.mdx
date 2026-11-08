@@ -32,6 +32,13 @@ The application can run production rules against synthetic local data for tests.
 That execution mode is distinct from contacting a hosted provider. The independent
 browser-only preview has no business bindings at all.
 
+## Trace the lifecycle behind a status
+
+The [state-machine map](/architecture/state-machines/) connects authority,
+approval, attempts, financial settlement, document readiness and client recovery.
+It explains the integrated transition contracts and retained simple mechanisms
+while keeping the database commitment boundary authoritative.
+
 ## Why D1 is the commitment boundary
 
 A communication must not be queued without a matching approval and reservation.

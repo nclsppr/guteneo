@@ -43,7 +43,7 @@ Authored navigation:
 | --- | --- | --- |
 | Home | Engineering overview | Find the architecture, implementation inventory and first development steps |
 | Getting started | Overview; local development; repository map | Run the actual local application and locate the right implementation boundary |
-| Architecture | System; data model; dispatch lifecycle; authority and tenancy; diagrams | Understand persistence, ownership, asynchronous work and the distinction between identity, permission and approval |
+| Architecture | System; data model; dispatch lifecycle; authority and tenancy; diagrams; state machines | Understand persistence, ownership, asynchronous work and the distinction between identity, permission and approval |
 | Workflows | Documents; Studio and data; delivery channels; PDF diagnostics; secure distribution | Follow original bytes, generated versions, mapping provenance and gated provider transitions |
 | Integrations | REST API; MCP | Discover the real contracts and integrate without bypassing human/delegated authority |
 | Administration | Belvédère | Understand restricted platform oversight, its seven views and the boundary with workspace administration |
@@ -170,6 +170,32 @@ into public content.
 The homepage links these subjects directly; Architecture and Engineering
 navigation expose the corresponding pages. Repository decision records remain
 internal. They are excluded from the public site at the user's request.
+
+## State-machine guide and implemented contracts
+
+`/architecture/state-machines/` curates the coupled lifecycles identified by the
+[repository audit](IMPLICIT_STATE_MACHINES.md). The detailed inventory, exact
+source/test anchors, local paths and dated audit proof remain repository-only.
+The public guide explains state/event/guard/effect/recovery ownership, a compact
+cross-workflow map and the separate dispatch, approval, attempt, outbox and money
+axes. It links the existing workflow contracts rather than publishing the raw
+inventory or maintaining a second feature tree.
+
+The guide explains the small integrated dispatch, secure/upload, postal, Studio
+and browser-continuation models while preserving SQL commitment boundaries.
+Campaign closure, browser-only dead-letter resolution and private account deletion
+have their own product semantics and authority. The repository-only
+[execution ledger](STATE_MACHINE_EXECUTION.md) records changed and retained
+mechanisms across all 113 groups, tests and qualification limits. There is no
+parallel runtime state store or new statechart dependency.
+The testing/background-work guides explain validation and different recovery
+classes. Session-policy, association and approval-record wording is corrected
+against current code in the owning guides and shared diagram text.
+
+The new route participates in normal generated navigation, local search,
+Markdown and assistant-readable publication. Local build/check evidence belongs
+with the execution record; engineering deployment and served-route verification
+remain separate from this candidate.
 
 ## Character scenes and notes
 

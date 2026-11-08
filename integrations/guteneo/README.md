@@ -8,7 +8,7 @@ connector picker displays these fields; if a manual logo field is available,
 use [this canonical PNG](https://guteneo.com/brand/guteneo-mark.png). Installing a
 logo or package grants no account access or approval.
 
-This directory prepares candidate **1.1.29**. Package version, application
+This directory prepares candidate **1.1.33**. Package version, application
 capabilities and MCP server identity follow the same source version; the release
 fingerprint identifies actually served code. Building an archive updates neither
 the server nor a directory. The builder also emits the dedicated
@@ -25,6 +25,14 @@ end-to-end qualification, OpenAI approval nor directory publication. Installatio
 runs no code or local hook, and the package contains no credentials. Its optional
 exact-file helper runs only with explicit host and file permission; installation
 grants no filesystem access or network authority.
+
+This candidate tightens state and recovery guards across private uploads, secure
+preparation, Studio and dispatch workflows. A lost response is not evidence that
+a write failed: read the same receipt and preserve its key before any explicitly
+permitted continuation. Revoked or expired authority requires a fresh eligible
+connection, not another key. Browser incident resolution and private operator
+account deletion are outside MCP authority. Building this package activates
+neither workflow and establishes no new hosted-client qualification.
 
 Server: **https://guteneo.com/mcp**; OAuth is required. Account/server access must
 already work. A valid archive proves neither connection nor successful sending.

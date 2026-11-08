@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useReducer, useRef, useState, type FormEvent } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -41,6 +41,10 @@ import "./secure-documents.css";
 import { SecureAuditHistory } from "./secure-audit-history";
 import type { SecureDistributionView } from "../../../packages/contracts/src/secure-distribution";
 import { personalApi, personalBlob } from "./personal-api";
+import {
+  useCurrentClientView,
+  writeRecoveryTransition,
+} from "./client-write-recovery";
 import { emailDraftHtml, EmailComposer } from "./email-composer";
 import {
   SecureSourceCopyNotice,
@@ -79,7 +83,7 @@ export function SecureDistributionPage({
   if (page?.startsWith("/app/secure-distribution/"))
     return (
       <SecureDistributionDetail
-        key={page}
+        key={`${page}:${session.organization.id}:${session.user.id}:${session.csrfToken}`}
         id={page.slice("/app/secure-distribution/".length)}
         session={session}
       />
@@ -208,11 +212,20 @@ function SecureDistributionComposer({ session }: { session: Session }) {
   const action = useAction();
   const submitting = useRef(false);
   const [copiedDocument, setCopiedDocument] = useState<DocumentRecord>();
-  const sourceCopy = useSecureSourceCopy(documentId, (document) => {
-    setCopiedDocument(document);
-    setDocumentId(document.id);
-    changed();
-  });
+  const sourceCopy = useSecureSourceCopy(
+    documentId,
+    (document) => {
+      setCopiedDocument(document);
+      setDocumentId(document.id);
+      changed();
+    },
+    true,
+    JSON.stringify([
+      session.organization.id,
+      session.user.id,
+      session.csrfToken,
+    ]),
+  );
   const readyDocuments =
     documents.data?.items.filter((document) => document.status === "ready") ??
     [];
@@ -564,9 +577,18 @@ function SecureDistributionDetail({
   const action = useAction();
   const [reviewed, setReviewed] = useState(false);
   const [recipientRequested, setRecipientRequested] = useState(false);
-  const [needsStatusCheck, setNeedsStatusCheck] = useState(false);
+  const [recovery, recover] = useReducer(writeRecoveryTransition, "ready");
+  const currentView = useCurrentClientView(
+    JSON.stringify([
+      id,
+      session.organization.id,
+      session.user.id,
+      session.csrfToken,
+    ]),
+  );
+  const needsStatusCheck =
+    recovery === "read_required" || recovery === "reading";
   const sending = useRef(false);
-  const [quoteRejected, setQuoteRejected] = useState(false);
   const [auditVersion, setAuditVersion] = useState(0);
   const [reviewedClaim, setReviewedClaim] = useState<string | null>(null);
   const [verificationMethod, setVerificationMethod] = useState(
@@ -575,7 +597,7 @@ function SecureDistributionDetail({
   const permissions = permissionsFor(session);
   const publication = resource.data;
   const needsQuoteRefresh =
-    quoteRejected ||
+    recovery === "quote_invalid" ||
     (publication?.status === "prepared" &&
       Boolean(
         publication.renewal?.replacementId ||
@@ -616,6 +638,9 @@ function SecureDistributionDetail({
   async function send() {
     if (
       !publication ||
+      publication.status !== "prepared" ||
+      !permissions.approveDispatches ||
+      recovery !== "ready" ||
       sending.current ||
       action.pending ||
       resource.loading ||
@@ -626,6 +651,8 @@ function SecureDistributionDetail({
     )
       return;
     sending.current = true;
+    const isCurrent = currentView();
+    recover("write");
     await action.run(async () => {
       try {
         let current = publication;
@@ -638,6 +665,10 @@ function SecureDistributionDetail({
               body: { reviewed: true, recipientRequested },
             },
           );
+          if (!isCurrent()) {
+            recover("uncertain");
+            return;
+          }
           resource.setData(current);
         }
         if (current.status === "prepared") {
@@ -649,18 +680,31 @@ function SecureDistributionDetail({
               body: {},
             },
           );
+          if (!isCurrent()) {
+            recover("uncertain");
+            return;
+          }
           resource.setData(activated);
         }
+        if (!isCurrent()) {
+          recover("uncertain");
+          return;
+        }
+        recover("written");
         setAuditVersion((value) => value + 1);
       } catch (error) {
+        if (!isCurrent()) {
+          recover("uncertain");
+          return;
+        }
         if (error instanceof ApiError && error.code === "LIVE_QUOTE_INVALID") {
-          setQuoteRejected(true);
+          recover("invalidate_quote");
           setReviewed(false);
           setRecipientRequested(false);
         } else {
           // Approval or acceptance may have committed despite a lost reply.
           // Only an explicit status read can reopen the existing action.
-          setNeedsStatusCheck(true);
+          recover("uncertain");
         }
         throw error;
       } finally {
@@ -669,12 +713,22 @@ function SecureDistributionDetail({
     });
   }
   async function checkStatus() {
+    if (!needsStatusCheck || action.pending) return;
+    const isCurrent = currentView();
+    recover("read");
     await action.run(async () => {
-      const current = await api<SecurePublication>(
-        `/secure-distributions/${encodeURIComponent(id)}`,
-      );
-      resource.setData(current);
-      setNeedsStatusCheck(false);
+      try {
+        const current = await api<SecurePublication>(
+          `/secure-distributions/${encodeURIComponent(id)}`,
+        );
+        if (!isCurrent()) return;
+        resource.setData(current);
+        recover("reconciled");
+      } catch (error) {
+        if (!isCurrent()) return;
+        recover("read_failed");
+        throw error;
+      }
     });
   }
   async function revoke() {
@@ -688,11 +742,13 @@ function SecureDistributionDetail({
     });
   }
   async function renewQuote() {
+    const isCurrent = currentView();
     await action.run(async () => {
       const renewed = await api<SecurePublication>(
         `/secure-distributions/${encodeURIComponent(id)}/renew`,
         { method: "POST", key: `${id}:renew`, body: {} },
       );
+      if (!isCurrent()) return;
       go(`/app/secure-distribution/${encodeURIComponent(renewed.id)}`);
     });
   }

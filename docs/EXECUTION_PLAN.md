@@ -1,5 +1,19 @@
 # Execution plan and handoff
 
+## Explicit transition contracts — 8 November 2026 implementation
+
+The [static state-machine inventory](IMPLICIT_STATE_MACHINES.md) and
+[curated engineering guide](../apps/engineering/src/content/docs/architecture/state-machines.mdx)
+map the audited lifecycles and integrated transition models. The
+[execution and acceptance record](STATE_MACHINE_EXECUTION.md) distinguishes new
+models from retained simple mechanisms and owns current validation. Dispatch,
+secure sharing, uploads, postal, Studio and client continuation guards preserve
+the SQL acceptance, financial and unknown-outcome boundaries. Migrations 0075–0077
+add specified campaign closure, browser-only diagnostic resolution and private
+verified account-deletion processing; apply them before the candidate runtime.
+This is a local implementation candidate, not a production or provider release.
+No merge, deployment, real communication or external account deletion is implied.
+
 ## Secure source copy — 5 November 2026 candidate
 
 Both secure-sharing browser entry points recover from legacy-source isolation

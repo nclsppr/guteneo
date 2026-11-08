@@ -173,7 +173,7 @@ export async function authenticateNative(
     JOIN memberships m ON m.organization_id=s.organization_id AND m.user_id=s.user_id
     JOIN organizations o ON o.id=m.organization_id JOIN users u ON u.id=m.user_id
     WHERE s.token_hash=? AND s.expires_at>? AND b.expires_at>?
-    AND NOT EXISTS(SELECT 1 FROM account_deletion_requests d WHERE d.user_id=s.user_id AND d.status='completed')`,
+    AND NOT EXISTS(SELECT 1 FROM account_deletion_requests d WHERE d.user_id=s.user_id AND d.status IN('processing','completed'))`,
   )
     .bind(tokenHash, timestamp, timestamp)
     .first<SessionRow>();
@@ -585,7 +585,7 @@ export async function handleMobileRoute(
         WHERE n.token_hash=? AND n.organization_id=? AND n.user_id=? AND n.expires_at>? AND b.expires_at>?
         AND o.mode=? AND (b.is_development=0 OR ?=1)
         AND (b.is_development=1 OR (${authenticationPolicy(env) === "verified_email" ? "b.verified_account=1" : "(m.role!='admin' OR b.mfa=1)"}))
-        AND NOT EXISTS(SELECT 1 FROM account_deletion_requests d WHERE d.user_id=n.user_id AND d.status='completed')`,
+        AND NOT EXISTS(SELECT 1 FROM account_deletion_requests d WHERE d.user_id=n.user_id AND d.status IN('processing','completed'))`,
       ).bind(
         auditId,
         JSON.stringify({ fields: ["preferredLocale"], actor: "native" }),

@@ -22,6 +22,7 @@ import { startObservation } from "../../../packages/observability/src/index";
 import { inspectTelnyxFaxTariffCatalog } from "./fax-tariff-refresh";
 import { inspectResendPolicySources } from "./resend-policy-refresh";
 import { readPrivatePreventionReport } from "./freshness-prevention";
+import { AccountDeletionService } from "./account-deletion";
 
 export default {
   ...application,
@@ -58,6 +59,28 @@ export default {
     return asset ?? application.fetch(request, env, ctx);
   },
 };
+
+/** Separate private operator capability; never a public route or Belvedere grant. */
+export class AccountDeletionOperator extends WorkerEntrypoint<Env> {
+  async plan(input: unknown) {
+    return new AccountDeletionService(this.env).plan(input);
+  }
+  async begin(input: unknown) {
+    return new AccountDeletionService(this.env).begin(input);
+  }
+  async advance(input: unknown) {
+    return new AccountDeletionService(this.env).advance(input);
+  }
+  async notice(input: unknown) {
+    return new AccountDeletionService(this.env).notice(input);
+  }
+  async complete(input: unknown) {
+    return new AccountDeletionService(this.env).complete(input);
+  }
+  fetch() {
+    return new Response("Not found", { status: 404 });
+  }
+}
 
 /** Available only through an authenticated same-account service binding. */
 export class ProviderInspection extends WorkerEntrypoint<Env> {

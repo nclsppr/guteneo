@@ -13,6 +13,17 @@ qualifies an existing complete proof for identical merged content or executes th
 complete suite again. Feature-branch push runs remain disabled so an open PR does
 not start two copies. No path filter removes application test coverage.
 
+## Local build-output ownership
+
+Run the full Node security stage before browser qualification in the same
+checkout. `tests/security/preview-release-assets.test.mjs` intentionally invokes
+both real release builders and rewrites `dist/preview` and `dist/web`. It must
+not overlap a browser run or another build using those directories. After that
+stage, rebuild the intended local application/preview, capture its asset manifest,
+run browsers and recheck the bytes. Parallel jobs need isolated checkouts/output
+trees. An HTTP 500 from a tree being rebuilt is failed qualification, not evidence
+that a different artifact passed; preserve it and rerun with exclusive ownership.
+
 ## Validate once and qualify an identical main merge
 
 `scripts/ci/validation-proof.mjs` owns this optimization. A full run has 24 jobs:

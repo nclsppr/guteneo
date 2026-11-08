@@ -69,6 +69,11 @@ beforeAll(async () => {
     .filter((file) => file.endsWith(".sql") && file < "0027_")
     .sort())
     await sql(readFileSync(new URL(name, directory), "utf8"));
+  // Add only independent empty native/request tables needed by current
+  // membership checks; retain the historical tariff/quote/financial schema.
+  await sql(
+    readFileSync(new URL("0037_native_sessions.sql", directory), "utf8"),
+  );
   // Exercise migration 0027 against its historical schema. The current runtime
   // additionally projects/checks the scope introduced by 0035; all historical
   // rows were live. Adapt only those reads, keeping every real D1 write/guard.

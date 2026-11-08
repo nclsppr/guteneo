@@ -1,0 +1,202 @@
+---
+title: State machines and transition contracts
+description: Locate coupled lifecycles, preserve their authority and recovery rules, and make transitions explicit in small verified changes.
+sidebar:
+  label: State machines
+  order: 5
+---
+
+Guteneo's workflows combine persisted states with clocks, leases, current
+permissions and immutable receipts. A dispatch can remain `prepared` while its
+approval expires. An upload can be `complete` while its PDF remains quarantined.
+A delivered fax can still hold credit until qualified usage evidence settles it.
+Reading only a `status` enum misses these distinctions.
+
+The November 2026 implementation makes the highest-risk transition decisions
+explicit in small TypeScript modules, while keeping D1 conditional writes and
+constraints authoritative. The repository inventory records 113 app-owned
+lifecycle groups. Its execution ledger distinguishes changed code from existing
+simple mechanisms retained after review. That count does not represent 113 new
+classes, reducers or minimal mathematical state machines.
+
+Local tests establish the stated service and browser behavior. They do not
+establish hosted-provider delivery, native-device behavior or production
+activation. The repository's dated execution record owns the exact validation
+results and limits.
+
+## Read a machine as state, events, guards and effects
+
+For each lifecycle, identify:
+
+- **State:** persisted status and the fields that refine it, including lease
+  ownership, progress, revision, row presence and expiry.
+- **Events:** an explicit human command, a verified provider fact, a scheduled
+  recovery step, a clock boundary or an asynchronous response.
+- **Guards:** current actor and workspace authority, immutable content/price,
+  source readiness, available budget and exact predecessor or lease.
+- **Effects:** the atomic records to write and any storage, queue or provider
+  operation that follows. Give an irreversible invocation its own boundary.
+- **Recovery:** which same-operation reads or resumptions are allowed, which
+  command needs fresh authority, and which uncertain outcome must stop sending.
+
+A state name and a complete transition contract are different levels of
+explicitness. Existing SQL constraints, conditional writes and event ranks
+already express parts of these machines. The remaining work is to make their
+composition reviewable and verify that code, persistence and clients agree.
+
+## Map the coupled lifecycles
+
+The following is a conceptual map. Rows group related machines; they do not
+introduce additional product statuses or a second feature registry.
+
+| Area | Independently meaningful state | Owning explanation |
+| --- | --- | --- |
+| Dispatch and approval | Prepared/queued/submitting/delivery facts; separately absent, current or expired exact approval | [Dispatch lifecycle](/architecture/dispatch-lifecycle/) |
+| Queue and invocation | Outbox pending/published, attempt started/accepted/rejected/unknown, and durable provider-invocation claim | [Background work](/engineering/background-jobs/) |
+| Money and provider capacity | Monthly quota hold, lifetime customer credit, usage settlement and account transport reservations | [Data model](/architecture/data-model/) and [delivery channels](/workflows/delivery-channels/) |
+| Sessions and delegation | One-use login/code exchange, active/expired session, current membership, client revision and separately expiring mandate | [Authority and tenancy](/architecture/authority-and-tenancy/) |
+| Workspace and invitations | Membership mutation, invitation pending/accepted/revoked/expired, and independent delivery sent/failed/unknown | [Authority and tenancy](/architecture/authority-and-tenancy/) |
+| Original PDF | Private upload receipt, quarantine, bounded analysis, verified readiness and later erasure | [Document workflows](/workflows/documents/) |
+| Multipart original transfer | Receiving/finalizing/complete, writer ownership, each staged part's settlement and uncertain final registration | [MCP integration](/integrations/mcp/) and [background work](/engineering/background-jobs/) |
+| Protected and secure documents | Preparation, approval/activation, recipient association, grant lifetime and physical cleanup | [Secure distribution](/workflows/secure-distribution/) |
+| Personal retained copy | Copy progress under eligible authentication, independent publication, owner deletion/expiry and object purge | [Secure distribution](/workflows/secure-distribution/) |
+| Studio authoring | Draft/published/archived version, soft deletion, ready source and validated mapping version | [Studio and data](/workflows/studio-and-data/) |
+| Generation and distribution | Record lease/artifact/document receipt, aggregate job outcome, frozen manifest and per-entry preparation | [Studio and data](/workflows/studio-and-data/) |
+| Optional AI assistance | Explicit transfer eligibility, call budget, inference, current-policy/revision check and explicit proposal adoption | [Studio and data](/workflows/studio-and-data/) |
+| Postal | Derived address page, scanned final PDF, preflight evidence, reviewed crop, transfer consent, provider draft and quote | [Delivery channels](/workflows/delivery-channels/) |
+| Provider maintenance | Selected binding, due/leased renewal, immutable replacement, incident, prevention stage and one-attempt notice | [Provider maintenance](/engineering/provider-maintenance/) |
+| Purchased PDF diagnostics | Approved exact check, processing, complete/error and its separate credit effect | [PDF diagnostics](/workflows/pdf-diagnostics/) |
+| Billing projections | Local customer binding and synchronization lease; external invoice/payment/subscription facts | [System architecture](/architecture/system/) |
+| Client controllers | Identity-bound loading, stale-response rejection, review/confirmation, same-key recovery and resource cleanup | [Design and interface engineering](/engineering/design-system/) |
+| Native and MCP Apps | Authorization-attempt ownership, session generations, transfer pause/resume and host handoff acknowledgement | [MCP integration](/integrations/mcp/) and [authority](/architecture/authority-and-tenancy/) |
+| Status and release evidence | Missing/fresh/stale observations, tested-release identity and separately verified publication | [Testing and evidence](/engineering/testing/) and [releases](/engineering/releases/) |
+
+Browser-only preview fixtures have their own fictional state and idempotency
+receipts. Their transitions qualify the preview model, separately from local
+D1/Queue simulation or a real provider. Provider/Auth0 internals and Stripe's
+external business transitions are not locally implemented state graphs.
+
+## Treat dispatch as several coordinated machines
+
+| Axis | Why it needs its own contract |
+| --- | --- |
+| Dispatch status | Describes preparation, queue ownership and projected provider facts |
+| Approval validity | Can change with time, permissions or policy while the dispatch status stays prepared |
+| Attempt ownership | A conditional claim and durable invocation marker determine whether a provider call is permitted |
+| Queue publication | A lost acknowledgement permits duplicate publication, which must not duplicate the provider operation |
+| Financial finality | Delivery and accepted transport do not by themselves settle actual-usage fax cost |
+| Receipt projection | Durable callback ingestion can succeed before its event is linked to a dispatch |
+
+The [dispatch figure](/architecture/dispatch-lifecycle/) shows the atomic acceptance
+boundary. Its drawers correspond to one commitment: queue eligibility, reservation
+and outbox insertion. The acceptance transaction remains authoritative even when
+clients or workers use explicit transition helpers.
+
+Email delivery can later acquire bounce or complaint facts. A callback can skip
+intermediate visible statuses; a late verified delivery can supersede failure
+under the existing channel-specific rank rules. A diagram must therefore avoid
+treating every displayed success or failure as an absorbing state.
+
+## Preserve the different recovery contracts
+
+A lease expiration grants permission to inspect the same operation under its
+current rules. It does not prove that an earlier effect failed.
+
+| Interrupted operation | Recovery that preserves its contract |
+| --- | --- |
+| Dispatch after possible provider invocation | Read/reconcile the same attempt; an expired submitting lease becomes unknown, never a fresh send |
+| Generation record below its attempt bound | Reclaim the expired lease, verify/reuse a retained artifact, recheck authority and finish the same record |
+| Multipart part or final registration | Establish an exact stored receipt before advancing; unknown storage or pipeline outcome does not permit blind retransmission |
+| Personal deposit with expired authentication | Leave unfinished work preparing, release ownership and require a fresh eligible session; revoked/expired source grant or failed frozen deposit eligibility aborts it |
+| Client response from an old workspace or view | Discard it using the current identity/path/revision; cancellation alone does not grant publication authority |
+| Provider-reference refresh | Recheck binding and exact predecessor; reconcile a retained applying plan before replacing immutable revisions |
+| Logical document revocation | Deny future access immediately under current guards; physical erasure and an independent acquired copy follow their own lifecycles |
+
+Strong document authentication has operation-specific freshness limits. The
+verified-account policy uses the current eligible unexpired session under its own
+rules. Recipient association likewise follows the configured independent or
+verified-email policy. Preserve both branches when modeling access; see the
+[secure workflow](/workflows/secure-distribution/) for their contract.
+
+## Keep decision models small and integrated
+
+The dispatch module names review and recovery decisions, bounded approval
+deadlines, callback ranks, attempt outcomes and lease expiration. DomainService
+uses those decisions inside its existing transaction and provider boundaries.
+Quote, approval, membership and money remain independently checked axes.
+
+Upload models distinguish writer ownership, exact stored receipts, finalization
+and observation of an unknown result. Final private-upload completion checks the
+same nonpurged document in SQL; a successful earlier read cannot authorize a
+later completion after purge. Secure preparation and personal deposit models
+preserve paid progress across an expired session while releasing ownership.
+Revoked source authority still aborts unfinished copying.
+
+Studio models cover dataset recovery, mapping validation, record command and
+lease decisions, aggregate job settlement and per-entry distribution association.
+Writes recheck the live membership or OAuth binding and exact source/predecessor,
+including after analysis or rendering. Postal models preserve exact reviewed
+preflight and transfer identities; an uncertain transfer remains observation of
+the same operation, never a new provider submission.
+
+These modules have no parallel persisted state store and introduce no statechart
+dependency. Existing one-use capabilities, provider refresh plans, process locks
+and bounded caches retain their existing mechanisms where those are already
+simple and explicit.
+
+## Give browser responses current-view authority
+
+A shared current-view guard binds a mounted controller to its complete identity,
+exact location and navigation generation. Check it after every asynchronous
+boundary before another write, state publication or navigation. Leaving and
+returning to the same URL still invalidates an old continuation; a cancelled
+navigation blocked by an unsaved-changes guard does not invalidate the view.
+
+Postal and secure-write controllers use explicit ready/writing/read-required/
+reading states and stable same-operation keys. Source-copy recovery retains its
+receipt without automatically preparing or approving a communication. Studio AI
+adoption retains the completed mapping step if draft creation fails, so recovery
+performs only the unfinished step. These guards complement current server
+authority and cannot establish human consent.
+
+## Define durable completion before writing it
+
+Campaign completion is operational and financial closure of frozen, nonempty,
+immutable membership. Migration 0075 derives eligible campaigns from closed
+dispatches, finished invocation evidence and settled reservations. Postal
+handover closes postal execution; it does not prove recipient receipt. Late
+verified provider facts can still advance the existing delivery projection.
+
+Dead-letter resolution is a separate diagnostic transition. A current browser
+administrator deliberately resolves one tenant-scoped incident only after its
+original dispatch is durably closed. Migration 0076 requires the matching audit
+receipt and preserves the incident identity and first resolution timestamp.
+Resolution has no dispatch, quota, credit, outbox or provider effect.
+
+Account deletion is a separate, private operator workflow with a frozen reviewed
+plan and verified checkpoints. It must block unsafe workspace closure and
+unresolved liabilities, revoke authentication before erasure, and retain only
+reviewed necessary evidence. Processing remains processing through uncertain
+storage, identity or notification evidence. A disabled account is not completed
+deletion. The account-deletion contract documents eligibility, external
+verification and the default-off production gate.
+
+## Verify the effect boundary
+
+The [testing guide](/engineering/testing/#validate-transitions-through-the-persistence-boundary)
+explains how to compare a transition contract with actual migrated D1 and service
+behavior. A test that repeats a transition table does not establish persistence,
+concurrency or provider effects. Characterize concurrent confirmation, duplicate
+queue delivery, interrupted invocation, callback order, revoked authority during
+awaits, expiry and delivered-but-unsettled usage through the real service.
+
+## Maintain the contract with its implementation
+
+Keep the detailed inventory, source/test anchors and dated audit evidence in the
+repository. This page is the curated architectural explanation. Update the owning
+topic guide, feature registry, transition contract and relevant tests together
+when behavior changes; follow the [contribution workflow](/engineering/contributing/).
+
+An explicit transition model improves reviewability only when its effects and
+failure paths still agree with persistence. Report local, hosted, authenticated
+and real-delivery proof separately after each implementation step.

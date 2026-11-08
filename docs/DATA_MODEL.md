@@ -63,6 +63,23 @@ The initial ledger conservatively confirms the reserved ceiling after provider a
 
 The implemented workflow is bounded preparation of up to 500 dispatches with a shared document, then explicit approval/confirmation **per dispatch**. A frozen campaign cannot acquire another recipient, and every dispatch has an independent status. SQL enforces the size bound under concurrency. List endpoints use a stable `(created_at,id)` cursor and maximum page size 100; they never return document bytes.
 
+Candidate migration 0075 adds `operationally_closed_dispatches` and
+`completable_campaigns`. A frozen nonempty manifest becomes completed only after
+each immutable member has closed execution, no active execution lease, no
+reserved quota/customer credit and no unresolved invocation without matching
+final evidence. Executed work retains its funding receipts. Postal handover is
+execution closure, not recipient receipt. Completion never releases money,
+changes a dispatch or blocks later ranked delivery facts. See
+[the dispatch contract](DISPATCH_STATE_MACHINE.md).
+
+Migration 0076 retains dead-letter identity and its first resolution timestamp;
+the update requires the original closed command and matching tenant audit receipt.
+Migration 0077 adds private deletion plans, exact snapshot checks, bounded step
+checkpoints, issuer/subject recreation tombstones and verified notice receipts.
+The reviewed immutable manifest distinguishes erased objects from necessary
+retained evidence; no broad tenant cascade is an account-deletion shortcut. See
+[account deletion](ACCOUNT_DELETION.md) and [incident resolution](DEAD_LETTER_RESOLUTION.md).
+
 Bulk manifest acceptance and asynchronous materialization of campaigns above 500 recipients are deliberately **not implemented**. The UI/API reject larger CSV input instead of pretending to support an unbounded batch or weakening approval. A future extension must reserve the manifest durably, materialize idempotent chunks and bind a single campaign authorization to its exact manifest and total ceiling.
 
 ## Tests and measured scope

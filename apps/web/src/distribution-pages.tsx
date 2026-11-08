@@ -46,64 +46,7 @@ import {
   useResource,
 } from "./components";
 import "./distribution-pages.css";
-
-/** Capture each operation separately: leaving and returning never revives a reply. */
-function useCurrentVisit() {
-  const mounted = useRef(true);
-  const href = useRef(window.location.href);
-  const revision = useRef(0);
-  const navigationGuards = useRef(new Map<string, Event>());
-  useEffect(() => {
-    mounted.current = true;
-    const acceptedNavigation = (event: Event) => {
-      navigationGuards.current.set(window.location.href, event);
-      // Navigation guards finish synchronously, including a possible veto.
-      queueMicrotask(() => {
-        if (!event.defaultPrevented) revision.current += 1;
-      });
-    };
-    const changedLocation = (event?: Event) => {
-      const observed = event as HashChangeEvent | undefined;
-      queueMicrotask(() => {
-        const guard = observed?.newURL
-          ? navigationGuards.current.get(observed.newURL)
-          : undefined;
-        if (observed?.newURL) navigationGuards.current.delete(observed.newURL);
-        if (guard?.defaultPrevented) return;
-        // WebKit can deliver both events after A→B→A already ended at A.
-        // Preserve the observed transition even if reading location sees A.
-        if (
-          (observed?.oldURL && observed.oldURL !== observed.newURL) ||
-          window.location.href !== href.current
-        )
-          revision.current += 1;
-      });
-    };
-    // Hash navigation dispatches the guarded event. Popstate also invalidates
-    // external history changes after the hash guard has had a chance to veto.
-    const historyChanged = () => setTimeout(changedLocation, 0);
-    window.addEventListener(BEFORE_WORKSPACE_NAVIGATION, acceptedNavigation);
-    window.addEventListener("hashchange", changedLocation);
-    window.addEventListener("popstate", historyChanged);
-    return () => {
-      mounted.current = false;
-      revision.current += 1;
-      window.removeEventListener(
-        BEFORE_WORKSPACE_NAVIGATION,
-        acceptedNavigation,
-      );
-      window.removeEventListener("hashchange", changedLocation);
-      window.removeEventListener("popstate", historyChanged);
-    };
-  }, []);
-  return () => {
-    const startedAt = revision.current;
-    return () =>
-      mounted.current &&
-      revision.current === startedAt &&
-      window.location.href === href.current;
-  };
-}
+import { useCurrentClientView } from "./client-write-recovery";
 
 export default function DistributionPage({
   route,
@@ -121,12 +64,18 @@ export default function DistributionPage({
       </p>
     );
   const permissions = permissionsFor(session);
+  const identity = JSON.stringify([
+    session.organization.id,
+    session.user.id,
+    session.csrfToken,
+  ]);
   const [path, search = ""] = route.split("?");
   if (path === "/app/distribution/new") {
     if (!permissions.prepareDispatches) return <RolePermissionNotice />;
     return (
       <DistributionPreparation
         route={route}
+        identity={identity}
         jobId={new URLSearchParams(search).get("generation") ?? ""}
         simulation={session.simulation}
       />
@@ -134,6 +83,7 @@ export default function DistributionPage({
   }
   return (
     <DistributionDetail
+      identity={identity}
       id={path.slice("/app/distribution/".length)}
       canPrepare={permissions.prepareDispatches}
       canApprove={permissions.approveDispatches}
@@ -243,11 +193,13 @@ function usePreparationSelection(
 }
 
 function DistributionPreparation({
+  identity,
   route,
   jobId,
   simulation,
 }: {
   route: string;
+  identity: string;
   jobId: string;
   simulation: boolean;
 }) {
@@ -302,6 +254,7 @@ function DistributionPreparation({
           <>
             <DateTimezone />
             <DistributionForm
+              identity={identity}
               jobId={jobId}
               simulation={simulation}
               recordIds={selection.recordIds}
@@ -450,6 +403,7 @@ function newDestination(): Destination {
   };
 }
 function DistributionForm({
+  identity,
   jobId,
   simulation,
   recordIds,
@@ -457,6 +411,7 @@ function DistributionForm({
   recordLabels,
   onClose,
 }: {
+  identity: string;
   jobId: string;
   simulation: boolean;
   recordIds: string[];
@@ -464,7 +419,7 @@ function DistributionForm({
   recordLabels: Record<string, string>;
   onClose: () => void;
 }) {
-  const currentVisit = useCurrentVisit();
+  const currentVisit = useCurrentClientView(`${identity}:${jobId}`);
   const [destinations, setDestinations] = useState<Destination[]>(() => [
     newDestination(),
   ]);
@@ -1378,15 +1333,17 @@ function DistributionForm({
 }
 
 export function DistributionDetail({
+  identity,
   id,
   canPrepare,
   canApprove,
 }: {
+  identity: string;
   id: string;
   canPrepare: boolean;
   canApprove: boolean;
 }) {
-  const currentVisit = useCurrentVisit();
+  const currentVisit = useCurrentClientView(`${identity}:${id}`);
   const resource = useResource<DistributionView>("/distribution-plans/" + id);
   const action = useAction();
   const keys = useRef<Record<string, string>>({});
@@ -1417,14 +1374,14 @@ export function DistributionDetail({
                 className="button"
                 disabled={action.pending}
                 onClick={() =>
-                  void action.run(async () =>
-                    resource.setData(
-                      await api<DistributionView>(
-                        `/distribution-plans/${id}/resume`,
-                        { method: "POST", body: { retryFailed: false } },
-                      ),
-                    ),
-                  )
+                  void action.run(async () => {
+                    const isCurrent = currentVisit();
+                    const next = await api<DistributionView>(
+                      `/distribution-plans/${id}/resume`,
+                      { method: "POST", body: { retryFailed: false } },
+                    );
+                    if (isCurrent()) resource.setData(next);
+                  })
                 }
               >
                 {msg("Prepare the next 3 pairs ( ")}
@@ -1436,14 +1393,14 @@ export function DistributionDetail({
                 className="button small"
                 disabled={action.pending}
                 onClick={() =>
-                  void action.run(async () =>
-                    resource.setData(
-                      await api<DistributionView>(
-                        `/distribution-plans/${id}/resume`,
-                        { method: "POST", body: { retryFailed: true } },
-                      ),
-                    ),
-                  )
+                  void action.run(async () => {
+                    const isCurrent = currentVisit();
+                    const next = await api<DistributionView>(
+                      `/distribution-plans/${id}/resume`,
+                      { method: "POST", body: { retryFailed: true } },
+                    );
+                    if (isCurrent()) resource.setData(next);
+                  })
                 }
               >
                 {msg("Retry failed preparations ")}

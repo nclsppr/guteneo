@@ -1,5 +1,20 @@
 # Signed-in account and workspace contacts
 
+## Account deletion — 8 November 2026 candidate
+
+The native Account screen records an explicit authenticated deletion request;
+the published support channel remains available. Acceptance is a request receipt,
+not erasure. The browser does not gain a new self-service deletion action.
+
+The [private account-deletion contract](ACCOUNT_DELETION.md) now specifies the
+operator plan, per-resource necessity review, workspace/financial blockers,
+authentication revocation and recreation protection, verified erasure checkpoints
+and completion-notice evidence. It preserves shared workspace and necessary
+historical integrity while minimizing the active profile. Processing remains
+processing through uncertainty. No assistant or workspace role can execute the
+private processor, and production execution starts disabled. Local fixtures
+establish neither real Auth0 erasure nor external/backup retention completion.
+
 ## Shared account menu — 29 October 2026 local candidate
 
 Studio, Correspondence and My documents reuse `WorkspaceIdentity` for identity,

@@ -146,7 +146,21 @@ beforeEach(async () => {
     "organizations",
   ])
     if (table === "memberships") await resetFixtureMemberships(db);
-    else await db.prepare(`DELETE FROM ${table}`).run();
+    else if (table === "dispatches") {
+      const guard = await db
+        .prepare(
+          "SELECT sql FROM sqlite_master WHERE type='trigger' AND name='frozen_campaign_member_retained'",
+        )
+        .first<{ sql: string }>();
+      if (!guard?.sql) throw new Error("Missing frozen-member fixture guard");
+      // Dispose the prior synthetic campaign while restoring its exact guard
+      // atomically before the next provider test starts.
+      await db.batch([
+        db.prepare("DROP TRIGGER frozen_campaign_member_retained"),
+        db.prepare("DELETE FROM dispatches"),
+        db.prepare(guard.sql),
+      ]);
+    } else await db.prepare(`DELETE FROM ${table}`).run();
   const now = new Date().toISOString();
   await db
     .prepare("INSERT INTO organizations VALUES(?,'Fixture','production',?)")

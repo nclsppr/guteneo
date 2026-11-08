@@ -144,6 +144,31 @@ transfer. The final exact quote and final send approval remain additional gates.
 Cancellation is provider/state-specific; a cancellation request is not proof that
 printing or handover was stopped.
 
+## Postal recovery follows the original operation
+
+The local candidate uses explicit decisions for preflight timeout/expiry,
+transfer eligibility and address-page lease recovery. A read may project an
+interrupted analysis as failed or an old preparing transfer as unknown; it does
+not itself retry analysis or upload the PDF again.
+
+An address-page retry keeps the same source, profile, recipient, derived-document
+identity and attempt bound. A stored artifact is verified and reused before the
+current authority/lease permits registration. Its PDF still needs its independent
+scan/readiness checks.
+
+A transfer starts only from the exact review-required evidence with matching
+address and complete rendering, under the existing browser or separately
+bounded delegated consent. Current source, destination and provider-profile
+checks remain necessary. Preparing, prepared and unknown transfers return the
+same operation for observation; a timeout is not proof that Pingen received no
+upload. Exact provider draft, exclusive dispatch claim, quote and final-send
+approval retain their own persistence guards.
+
+The [state-machine map](/architecture/state-machines/) and
+[background recovery guide](/engineering/background-jobs/#choose-recovery-from-durable-state)
+explain the different recovery classes. Local postal fixtures exercise these
+transitions without establishing a real draft upload, printed letter or receipt.
+
 ## Current capabilities are the integration contract
 
 Read capabilities and the returned operation state at runtime. Disabled channels,

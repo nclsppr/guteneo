@@ -1,6 +1,6 @@
 ---
 title: "Documents and protection"
-description: "21 capabilities in the create branch of Guteneo."
+description: "22 capabilities in the create branch of Guteneo."
 sidebar:
   order: 3
 ---
@@ -39,6 +39,7 @@ Private App transport is published in 1.1.6 at source 147ada, with two actual Cl
 <li id="feature-3a2d9015293f">Authenticated documents.originalFilePicker exposes explicit_local_original and conversationAttachmentAccess:false; SDK context updates contain only registered document ID/status and bound original size/SHA, never content/base64/filename/token. Actual 1.1.6 Desktop registered-ID delivery to the model failed; the 1.1.8 source candidate adds standard text alongside structured context plus explicit Use in conversation for the same four-key receipt, with native retests pending and no automatic chat message on import</li>
 <li id="feature-b5349f7299ec">MCP_DOCUMENT_UPLOAD_APP is off by default: strict existing-connection/revision JSON supports at most one hour of qualification, while explicit enabled mode supports a separately reviewed general production rollout after actual qualification and authorized delivery; both retain current writer/OAuth guards, observer denial and no browser fetch, Origin/network permission, new scope, approval, paid check, mandate or infrastructure</li>
 <li id="feature-1821000f65b7">Bounded document-analysis reads and PDF canvas/text extraction overlap; both renderer tasks settle before completion or cleanup, with stale-response and sensitive-source fences retained</li>
+<li id="feature-d080c748c55a">Typed private/MCP upload receipt and lease decisions preserve the same operation through uncertain results; final completion requires the exact nonpurged document in SQL, closing purge-between-read-and-write races</li>
 </ol>
 
 ## REST operations

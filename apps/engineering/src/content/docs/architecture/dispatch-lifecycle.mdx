@@ -6,9 +6,14 @@ sidebar:
 ---
 
 A dispatch is one communication with an immutable preparation fingerprint. Its
-state is persisted by the shared domain service, while approval is a separate
+state is persisted by the shared domain service and SQL guards, while approval is a separate
 record. There is no general `approved` dispatch status to substitute for checking
 that approval record and its current authority.
+
+The [state-machine guide](/architecture/state-machines/#treat-dispatch-as-several-coordinated-machines)
+explains the independent approval, attempt, queue and settlement axes. The local
+candidate now names the dispatch decisions in a typed module while retaining the
+existing SQL authority; other workflows remain separately staged.
 
 <DispatchLifecycle />
 
@@ -55,16 +60,16 @@ still hold. In the same atomic commitment it reserves quota/credit and inserts
 outbox work. A response lost after acceptance must not lead the client to create
 a second dispatch with a new key: first reread the original operation.
 
-| State or record | Meaning |
-| --- | --- |
-| `prepared` | Exact communication is available for review; an approval may be recorded separately |
-| Approval record | Human or delegated authority bound to the immutable version and current policy |
-| `queued` | Acceptance and reservation committed; asynchronous work is eligible |
-| `submitting` | A consumer has conditionally claimed one attempt |
-| `submission_unknown` | The provider outcome cannot safely be classified; do not automatically resend |
-| `accepted` | The provider accepted submission; delivery is not yet established |
-| `delivered` | A verified delivery fact has been applied |
-| `failed`, `cancelled` | Failure/cancellation under the documented state constraints |
+| State or record                                      | Meaning                                                                                                           |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `prepared`                                           | Exact communication is available for review; an approval may be recorded separately                               |
+| Approval record                                      | Human or delegated authority bound to the immutable version and current policy                                    |
+| `queued`                                             | Acceptance and reservation committed; asynchronous work is eligible                                               |
+| `submitting`                                         | A consumer has conditionally claimed one attempt                                                                  |
+| `submission_unknown`                                 | The provider outcome cannot safely be classified; do not automatically resend                                     |
+| `accepted`                                           | The provider accepted submission; delivery is not yet established                                                 |
+| `delivered`                                          | A verified delivery fact has been applied                                                                         |
+| `failed`, `cancelled`                                | Failure/cancellation under the documented state constraints                                                       |
 | `printed`, `handed_to_post`, `bounced`, `complained` | Channel-specific later facts, interpreted without pretending that all channels share identical delivery semantics |
 
 ## Queue delivery can repeat; provider attempts cannot be blind
@@ -78,6 +83,22 @@ unknown rather than returning to the queue. Cancellation can stop eligible
 prepared/queued work, but cannot promise to retract an external transmission.
 Provider-specific reconciliation is needed once submission may have happened.
 
+## Named decisions preserve the persistence boundary
+
+The shared domain service uses typed decisions for command eligibility, bounded
+approval expiry, recovery classification, attempt outcomes and channel-specific
+provider projection. They describe whether an operation can proceed; current
+membership, exact approval, immutable content and funding are still fenced by
+the conditional D1 write. The candidate changes no dispatch API, preparation hash
+or provider gate.
+
+A missing remote reference cannot become accepted merely because a provider
+returned a success label. An expired submitting lease becomes unknown, and
+read-only validation cannot manufacture approval or financial acceptance. Tests
+exercise these paths through the real domain service and migrated local D1,
+including concurrency and reordered callbacks; see
+[transition validation](/engineering/testing/#validate-transitions-through-the-persistence-boundary).
+
 ## Delivery and settlement are different facts
 
 Provider callbacks are authenticated, stored durably and projected idempotently.
@@ -89,7 +110,29 @@ settlement. Qualified usage evidence must match the tenant, attempt, quote and
 provider reference before the bounded customer debit and reserve release. A
 customer estimate or supplier diagnostic field is not that proof.
 
-For implementation entry points, read `packages/domain/src/index.ts`, the related
-migrations and provider event adapters. Integrations should follow the
+## Campaign completion closes work and liability
+
+A frozen campaign completes only when its manifest is recorded, membership is
+nonempty and every member is operationally and financially closed. Delivered,
+failed, cancelled, bounced and complained members can close; postal handover can
+also close operational work without proving recipient receipt. Accepted or
+printed work remains open.
+
+An execution lease, reserved quota/credit or unresolved attempt blocks closure.
+A final applied provider fact can resolve the original attempt's uncertainty,
+but financial settlement remains independent: a delivered usage-priced fax keeps
+the campaign frozen until qualified usage evidence closes its holds. Missing
+funding evidence for executed work cannot establish closure.
+
+The additive campaign migration projects completion when the last prerequisite
+arrives and protects the frozen membership and manifest. Later verified provider
+facts can still advance member outcomes. Completion can include failed or
+cancelled members; it grants no approval, refund or repeat invocation. This is a
+local implementation candidate, with production migration and qualification
+remaining separate.
+
+For implementation entry points, read `packages/domain/src/dispatch-lifecycle.ts`,
+`packages/domain/src/index.ts`, the campaign-closure migration and provider event
+adapters. Integrations should follow the
 [REST sequence](/integrations/rest-api/) or [MCP authority model](/integrations/mcp/)
 without building another acceptance path.

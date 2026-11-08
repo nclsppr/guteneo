@@ -49,6 +49,18 @@ inline and the default-off App selected-original transport; the
 storage/readiness proof and its failed model-ID handoff. Mobile and other hosts
 require independent qualification.
 
+The [state-machine inventory](IMPLICIT_STATE_MACHINES.md) maps the pinned source
+and implementation gaps; the [authored engineering guide](../apps/engineering/src/content/docs/architecture/state-machines.mdx)
+curates the coupled lifecycles, integrated transition contracts and retained
+simple mechanisms. The [execution ledger](STATE_MACHINE_EXECUTION.md) and
+[qualification record](STATE_MACHINE_VALIDATION.md) own the final disposition
+and evidence.
+
+The [queue incident resolution contract](DEAD_LETTER_RESOLUTION.md) defines the
+browser administrator action and its no-replay financial/execution closure gate.
+The [execution ledger](STATE_MACHINE_EXECUTION.md) tracks implementation of the
+state-machine work and its local proof separately from deployment.
+
 ## Current sources of truth
 
 | Need                                                   | Start here                                                                                                                                                                                                                                                                                                                                                |
@@ -56,7 +68,7 @@ require independent qualification.
 | Engineering publication and visual documentation       | [Site plan and contract](ENGINEERING_SITE.md), [authored guides](../apps/engineering/src/content/docs/index.mdx)                                                                                                                                                                                                                                          |
 | Scope, behavior and accepted journeys                  | [Product](PRODUCT.md), [feature atlas](FEATURE_MAP.md)                                                                                                                                                                                                                                                                                                    |
 | Current work, evidence and open gates                  | [Execution plan](EXECUTION_PLAN.md), [verification](VERIFICATION.md), [24 October harmonization review](HARMONIZATION.md)                                                                                                                                                                                                                                 |
-| System and data boundaries                             | [Architecture](ARCHITECTURE.md), [data model](DATA_MODEL.md), [ADR](adr/0001-reliable-modular-monolith.md)                                                                                                                                                                                                                                                |
+| System and data boundaries                             | [Architecture](ARCHITECTURE.md), [data model](DATA_MODEL.md), [state-machine inventory](IMPLICIT_STATE_MACHINES.md), [ADR](adr/0001-reliable-modular-monolith.md)                                                                                                                                                                                                                                                |
 | Language, routes, terminology and content ownership    | [Repository standards](REPOSITORY_STANDARDS.md)                                                                                                                                                                                                                                                                                                           |
 | Brand and localization                                 | [Brand identity](BRAND_IDENTITY.md), [multilingual behavior](MULTILINGUAL.md), [video narration](VIDEO_NARRATION.md)                                                                                                                                                                                                                                      |
 | Public navigation, themes and loading                  | [Homepage and detail pages](HOMEPAGE_REDESIGN.md), [appearance](THEMES.md), [frontend loading](FRONTEND_PERFORMANCE.md), [workspace presentation](DASHBOARD_V2.md), [Studio space and switcher plan](STUDIO_SPACE_PLAN.md), [local reprise acceptance](STUDIO_SPACE_REPRISE.md), [web applications](WEB_APPLICATIONS.md)                                  |
