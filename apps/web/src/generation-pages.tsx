@@ -11,6 +11,7 @@ import {
 } from "./app-routes";
 import { DataTable } from "./data-table";
 import { useEffect, useRef, useState } from "react";
+import { useCurrentClientView } from "./client-write-recovery";
 import type {
   GenerationJobView,
   GenerationResultView,
@@ -136,10 +137,13 @@ export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
 export function GenerationDetail({
   id,
   canPrepare,
+  identity,
 }: {
   id: string;
   canPrepare: boolean;
+  identity: string;
 }) {
+  const currentView = useCurrentClientView(`${identity}:${id}`);
   const job = useResource<GenerationJobView>("/generation-jobs/" + id);
   const results = useResource<Page<GenerationResultView>>(
     "/generation-jobs/" + id + "/results",
@@ -364,10 +368,12 @@ export function GenerationDetail({
               disabled={action.pending}
               onClick={() =>
                 void action.run(async () => {
+                  const isCurrent = currentView();
                   await api("/generation-jobs/" + id + "/cancel", {
                     method: "POST",
                     body: {},
                   });
+                  if (!isCurrent()) return;
                   job.refresh();
                   results.refresh();
                 })
@@ -382,6 +388,7 @@ export function GenerationDetail({
               disabled={action.pending || active}
               onClick={() =>
                 void action.run(async () => {
+                  const isCurrent = currentView();
                   const recordIds =
                     results.data?.items
                       .filter((r) => r.state === "failed")
@@ -390,6 +397,7 @@ export function GenerationDetail({
                     method: "POST",
                     body: { recordIds },
                   });
+                  if (!isCurrent()) return;
                   job.refresh();
                   results.refresh();
                 })

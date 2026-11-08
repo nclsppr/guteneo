@@ -1,5 +1,5 @@
 import { useAdministrationResource } from "./administration-data";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ShieldCheck, WarningCircle } from "@phosphor-icons/react";
 import { DataTable, tableTimestamp } from "./data-table";
 import { msg } from "./messages";
@@ -188,10 +188,28 @@ export function WorkspaceOperations() {
         dispatch_id: string;
         queue: string;
         received_at: string;
+        resolved_at: string | null;
       }[];
     }
   >("/admin");
   const controlAction = useAction();
+  const resolutionAction = useAction();
+  const resolvingIncident = useRef(false);
+  async function resolveIncident(id: string) {
+    if (resolvingIncident.current) return;
+    resolvingIncident.current = true;
+    try {
+      await resolutionAction.run(async () => {
+        await api(`/admin/dead-letters/${encodeURIComponent(id)}/resolution`, {
+          method: "POST",
+          body: { confirmed: true },
+        });
+        diagnostics.refresh();
+      });
+    } finally {
+      resolvingIncident.current = false;
+    }
+  }
   async function setChannel(channel: Channel, enabled: boolean) {
     await controlAction.run(async () => {
       await api(`/admin/channels/${channel}`, {
@@ -218,7 +236,12 @@ export function WorkspaceOperations() {
       </div>
       <p className="field-hint">{t.admin.intro}</p>
       <ErrorNotice
-        error={diagnostics.error ?? dispatches.error ?? controlAction.error}
+        error={
+          diagnostics.error ??
+          dispatches.error ??
+          controlAction.error ??
+          resolutionAction.error
+        }
         retry={diagnostics.refresh}
       />
       {diagnostics.data?.controls && (
@@ -323,18 +346,46 @@ export function WorkspaceOperations() {
                 className: "date-cell",
               },
               {
+                id: "resolution",
+                label: t.status,
+                value: (receipt) =>
+                  receipt.resolved_at ? msg("Resolved") : msg("Unresolved"),
+                render: (receipt) =>
+                  receipt.resolved_at ? (
+                    <time dateTime={receipt.resolved_at}>
+                      {msg("Resolved")} · {date(receipt.resolved_at)}
+                    </time>
+                  ) : (
+                    msg("Unresolved")
+                  ),
+              },
+              {
                 id: "actions",
                 label: t.actions,
                 value: () => "",
                 sortable: false,
                 render: (receipt) => (
-                  <a
-                    className="text-link"
-                    href={`#/app/dispatch/${receipt.dispatch_id}`}
-                  >
-                    {t.admin.inspectJob}
-                    <ArrowRight size={17} />
-                  </a>
+                  <div className="row-actions">
+                    <a
+                      className="text-link"
+                      href={`#/app/dispatch/${receipt.dispatch_id}`}
+                    >
+                      {t.admin.inspectJob}
+                      <ArrowRight size={17} />
+                    </a>
+                    {!receipt.resolved_at && (
+                      <ConfirmAction
+                        disabled={resolutionAction.pending || isPublicPreview}
+                        label={msg("Resolve incident")}
+                        ariaLabel={`${msg("Resolve incident")} · ${receipt.id}`}
+                        question={msg(
+                          "Resolve this queue incident after reviewing the original dispatch? No communication will be sent.",
+                        )}
+                        confirmLabel={msg("Resolve incident")}
+                        onConfirm={() => void resolveIncident(receipt.id)}
+                      />
+                    )}
+                  </div>
                 ),
               },
             ]}

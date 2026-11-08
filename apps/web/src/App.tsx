@@ -793,6 +793,11 @@ function WorkspaceApplication({
           <RememberDirectChoice session={session} />
         )}
         <PrepareDispatch
+          identity={JSON.stringify([
+            session.organization.id,
+            session.user.id,
+            session.csrfToken,
+          ])}
           simulation={session.simulation}
           workspaceName={session.organization.name}
           emailLocale={session.user.preferredLocale ?? "fr"}
@@ -816,6 +821,12 @@ function WorkspaceApplication({
   else if (page.startsWith("/app/dispatch/"))
     content = (
       <DispatchDetailPage
+        key={`${route}:${session.organization.id}:${session.user.id}:${session.csrfToken}`}
+        identity={JSON.stringify([
+          session.organization.id,
+          session.user.id,
+          session.csrfToken,
+        ])}
         id={page.slice("/app/dispatch/".length)}
         simulation={session.simulation}
         canApprove={permissions.approveDispatches}

@@ -36,6 +36,11 @@ export interface Env {
   AUTH0_CLIENT_SECRET?: string;
   AUTH0_AUDIENCE?: string;
   AUTH0_AUTH_POLICY?: "verified_email" | "verified_email_and_mfa";
+  /** Private, plan-bound deletion processing; no public or assistant capability. */
+  ACCOUNT_DELETION_ENABLED?: string;
+  ACCOUNT_DELETION_OPERATOR_SECRET?: string;
+  /** Dedicated delete/read user authority; never used for ordinary sign-in. */
+  AUTH0_DELETION_MANAGEMENT_TOKEN?: string;
   SENSITIVE_DOCUMENT_AUTHENTICATION?: string;
   STRIPE_API_KEY?: string;
   STRIPE_WEBHOOK_SECRET?: string;

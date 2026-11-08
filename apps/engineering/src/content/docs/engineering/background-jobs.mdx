@@ -12,7 +12,9 @@ cleans bounded records; it does not grant authority to repeat a provider call.
 
 The [dispatch lifecycle](/architecture/dispatch-lifecycle/) owns ordinary sending
 states. [Secure distribution](/workflows/secure-distribution/) owns independent
-render/deposit commitments. This page explains how their background work differs.
+render/deposit commitments. The [state-machine map](/architecture/state-machines/)
+connects these lifecycles and their explicit transition contracts. This page
+explains how their background work differs.
 
 ## Overlap reads only after the durable gate
 
@@ -43,12 +45,41 @@ queue as authority.
 | Dispatch consumer | Recheck current eligible command, approval, funding and fenced attempt | Unknown provider outcome requires reconciliation, never blind resubmission |
 | Secure rendering | Produce a bounded batch for the recorded immutable source/policy | Resume the same preparation and validate results; no original fallback |
 | Personal deposit | Build an independent encrypted copy before final activation | Same operation, no second acquisition/charge; recheck grant and fresh session at activation |
-| Dead-letter handling | Record/reconcile exhausted or invalid work under its actual domain | Dead-letter presence is not permission to send again |
+| Dead-letter handling | Persist ordinary dead-letter records or invoke the secure job's existing failure path | Dead-letter presence is not permission to send again |
 
 A lease bounds a worker's claim. Expiry means another worker may inspect/reconcile
 that durable operation; it does not prove the previous external effect never
 happened. Read/recovery retries and submission retries therefore have different
 rules. Keep attempt identifiers and fingerprints through recovery.
+
+## Choose recovery from durable state
+
+An explicit transition model must preserve the different recovery classes
+already enforced by the services and database:
+
+- **Leased local work:** resume the same operation only when its lifecycle allows
+  reclamation. Fence the previous writer, retain exact source and artifact
+  bindings, and respect attempt and deadline limits.
+- **Irreversible provider work:** retain the original attempt and reference after
+  a lost response or expired send lease. Reconcile verified provider facts; the
+  absence of a response does not authorize another invocation or release a hold.
+- **Delayed client work:** discard a response whose account, workspace, session
+  or request is obsolete. Retry a read under current authority; a stale response
+  cannot authorize a replacement command.
+
+Ordinary dead-letter records have a bounded diagnostic lifecycle. A current
+browser administrator explicitly resolves an incident only after its original
+command is operationally and financially closed. The service fences the live
+credential, membership and shared closure view in one audit/status transaction;
+SQL retains the first resolution timestamp and the original diagnostic identity.
+Replays return that receipt without changing a dispatch, outbox, hold or provider
+attempt. An unknown or unsettled command cannot be resolved. Secure render and
+deposit messages retain their own failure/recovery paths.
+
+Use [transition validation](/engineering/testing/#validate-transitions-through-the-persistence-boundary)
+to exercise recovery against actual services and canonical D1 migrations before
+moving a lifecycle into an explicit model. The diagnostic resolution adds no
+submission retry, approval or provider call.
 
 ## Scheduled recovery preserves the commitment order
 

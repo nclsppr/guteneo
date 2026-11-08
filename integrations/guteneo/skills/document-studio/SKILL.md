@@ -74,7 +74,13 @@ malware scan does not prove their absence. See the
    host confirmations. Present the manifest, errors and existing quotes.
 7. Preparation grants no approval, sending or reservation. Reuse established
    approval journeys and bounded mandates; never assert human consent. An
-   unknown provider outcome never authorizes a retry.
+   unknown provider outcome never authorizes a retry. After an interrupted
+   preparation, read the existing frozen manifest and continue only unfinished
+   eligible entries with their established keys. Completed entries remain
+   receipts, not permission to prepare another copy. A membership, connection or
+   source-authority refusal requires a fresh eligible read; changing a key does
+   not recover authority. Campaign `completed` means operational and financial
+   closure of its frozen commands, not successful delivery to every recipient.
 8. On the owner's request, `delete_template({id,expectedRevision})` removes a
    saved template, including a demonstration copy. Read `canDelete`; edit rights
    or administrator role do not automatically confer ownership of another

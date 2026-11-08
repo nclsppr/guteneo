@@ -17,6 +17,11 @@ export default function DocumentStudio({
 }) {
   const [path, query] = route.split("?");
   const permissions = permissionsFor(session);
+  const identity = JSON.stringify([
+    session.organization.id,
+    session.user.id,
+    session.csrfToken,
+  ]);
   if (isPublicPreview && !isAdvancedLocalPreview)
     return (
       <p className="notice info">
@@ -28,7 +33,7 @@ export default function DocumentStudio({
   if (path.startsWith(studioRoutes.template("")))
     return (
       <TemplateEditor
-        key={route}
+        key={`${identity}:${route}`}
         id={path.slice(studioRoutes.template("").length)}
         session={session}
       />
@@ -36,7 +41,8 @@ export default function DocumentStudio({
   if (path.startsWith(studioRoutes.dataset("")))
     return (
       <DatasetMapper
-        key={route}
+        key={`${identity}:${route}`}
+        identity={identity}
         id={path.slice(studioRoutes.dataset("").length)}
         canPrepare={permissions.prepareDispatches}
       />
@@ -44,7 +50,8 @@ export default function DocumentStudio({
   if (path.startsWith(studioRoutes.generation("")))
     return (
       <GenerationDetail
-        key={route}
+        key={`${identity}:${route}`}
+        identity={identity}
         id={path.slice(studioRoutes.generation("").length)}
         canPrepare={permissions.prepareDispatches}
       />
@@ -55,6 +62,7 @@ export default function DocumentStudio({
     return <GenerationList canPrepare={permissions.prepareDispatches} />;
   return (
     <TemplateLibrary
+      identity={identity}
       canPrepare={permissions.prepareDispatches}
       startBlank={new URLSearchParams(query).get("new") === "blank"}
     />

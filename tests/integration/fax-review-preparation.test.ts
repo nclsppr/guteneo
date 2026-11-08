@@ -63,6 +63,9 @@ beforeAll(async () => {
     .sort();
   for (const file of migrations.filter((n) => n < "0035"))
     await applyMigration(file);
+  // Current membership checks require the independent request table. These
+  // empty native/request tables do not alter the historical 0035 quote proof.
+  await applyMigration("0037_native_sessions.sql");
   // Populate real historical domain records before migration; hashes must not change.
   const old = await createFaxUsageFixture(
     historicalRoleProjection(db),
@@ -115,7 +118,9 @@ beforeAll(async () => {
   // Historical preservation has been proven. Exercise the current runtime only
   // with the complete current schema in every following test.
   for (const file of migrations.filter(
-    (name) => name > "0035_review_fax_preparation.sql",
+    (name) =>
+      name > "0035_review_fax_preparation.sql" &&
+      name !== "0037_native_sessions.sql",
   ))
     await applyMigration(file);
 });

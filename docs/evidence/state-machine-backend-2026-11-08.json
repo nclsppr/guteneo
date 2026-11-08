@@ -1,0 +1,171 @@
+{
+  "date": "2026-11-08",
+  "scope": "Final local runtime/schema/catalog qualification; no hosted CI, real communication, external erasure or production activation. Complete test stages are composed with an exact source-reconstruction proof after two security-fixture-only changes.",
+  "baseCommit": "e0df725a2d791ef9a629d7ea91f11674d4138575",
+  "version": "1.1.33",
+  "vitest": {
+    "command": "npm test (complete Vitest stage)",
+    "files": 202,
+    "passed": 3945,
+    "failed": 0,
+    "skipped": 0,
+    "durationSeconds": 872.73
+  },
+  "security": {
+    "command": "node --test tests/security/*.test.mjs",
+    "passed": 696,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0,
+    "durationSeconds": 36.365275375
+  },
+  "sourceComposition": {
+    "scope": "The full 3945-case Vitest run used the final runtime/catalog/schema source. Subsequent changes affect only two Node security fixture files; reconstructing their original bytes exactly reproduces the captured all-test source snapshot.",
+    "runtimeSourceSha256": "f7731f69962e64c640c9d436e614c0ae0d44fe98971d37bcb3524f35cb2df550",
+    "vitestEraAllTestsSha256": "42d939f1e337c41babd846ebf925cace2cdd68447f81272ae18d562b6a676d32",
+    "reconstructedEraAllTestsSha256": "42d939f1e337c41babd846ebf925cace2cdd68447f81272ae18d562b6a676d32",
+    "finalAllTestsSha256": "663e3470b7748947139a51895ee62c32f21b63f560ac27a87c91605d4db7a935",
+    "changedOnlyNodeSecurityFiles": [
+      "tests/security/openapi.test.mjs",
+      "tests/security/provider-prevention-inspection.test.mjs"
+    ],
+    "unitIntegrationRuntimeInputsUnchanged": true
+  },
+  "schemaReplay": {
+    "scope": "Offline full canonical schema replay; separate from real D1 service tests and production integrity",
+    "migrations": 77,
+    "applicationTables": 139,
+    "views": 21,
+    "triggers": 321,
+    "foreignKeyViolations": 0,
+    "sqliteVersion": "3.54.0",
+    "migrationSha256": {
+      "0001_core.sql": "2639699a3e0f1f55f531b58e45db602ff758b9c70510df38e4dd39e0a7d4d37a",
+      "0002_auth.sql": "9f49d5c037cdcfb37805eae05e82af5511cc3fb48574fcc996bf5fc639fefd17",
+      "0003_operations.sql": "c9e957f562a898e38cea7e67c195222d072acbf1ece516b579f6aaa313dff3ac",
+      "0004_core_hardening.sql": "2adad5fc48a79c72f017a38de41c50154217504240ab05e01d6cd7e7fe5aec76",
+      "0005_content_limits.sql": "5cf3b0123118c8ed7ea2235b1d3da1a5bdf18512ad5f1b90dace81a805e9068e",
+      "0006_maintenance.sql": "ba8f1a4206613a774eec8d8a0eaa9ef265f43a12b40b8cc669393dbe17faacaf",
+      "0007_live_drafts.sql": "963575c74d23bcd9e30aeaca65103c55b345d7cab1d4cc438fb057252ea31182",
+      "0008_document_versions.sql": "097ecca3dde8d4d88ffd9d5bd08742ee8657d0bdafd37f6165b2cc0f49655844",
+      "0009_billing.sql": "522c4fe012028056cc727020ca1848e6d38420fc37bd67df54c78e3aaf3783e6",
+      "0010_onboarding_limits.sql": "47bf848dd51b61f28ce9f5d7e8555268f36eb48925bacc6b5662c022cc9730dc",
+      "0011_account.sql": "82350f896e3f2a55cca32f979dd441c762f94866dd4a208eb61b76322edbee2d",
+      "0012_document_rescan.sql": "cbf1eba3b0e525cffb9bc6b6d873e349cc79240d8fedb49eb33e6bb53d484597",
+      "0013_trusted_fax_quotes.sql": "1b8a360f9e16de40b43fdc9391e729bb5c76bcb89a7d28c048e2e834d358b46e",
+      "0014_welcome_credit.sql": "c6574aa104662386e2f30b96627771e4f9231c805fe59e2e1b564bcffc6f6b0b",
+      "0015_exact_supplier_fax_pricing.sql": "d25c5cfa1c3f01f17a294c0890dfba1430ad06dbeaebd107dbfa2b9a607e8bd1",
+      "0016_live_delivery_quotes.sql": "ff6cb71c2ee7bbb869d6b37c84481ff3308a075e13cccc68af55cc71e9cbaa14",
+      "0017_ses_send_limits.sql": "224d49155f9d656e539e21034034871f8d920bc0533933af328702de68400208",
+      "0018_email_recipient_attestation.sql": "0e02d2d3e334b2fe0368d189c9fe72a293d58b0d55f9b5671cbfe3c8138c3f2b",
+      "0019_verified_account_sessions.sql": "ee02af225e4ddc92867e5faa5eaffb7921a12082565dea6b51fdf77a816669f6",
+      "0020_postal_preflights.sql": "5867ea67e48812e8772db893ce3b6c8198662767140797c58b22d986cbc7ccb7",
+      "0021_ses_text_only_quotes.sql": "80f73b855fa5353c9992afa3113baeff02019f6f9fb0caa1fa30158b5a54651a",
+      "0022_ses_public_list_prices.sql": "4562d478eec03c25cfa2f7ee4b39261c2f4a8cd51ed5063d8f2251c0b4b70c11",
+      "0023_fax_usage_pricing.sql": "e506b0a18db23ce70296ef73d508932d1f69c6c3fd5a41f67b95abc7b78a1f27",
+      "0024_expert_approvals.sql": "72f1736b233a9d9a849c4ef46605850f9c0112cd4e47769e6aa5e680db16c4c0",
+      "0025_luxembourg_operator_fax_test.sql": "c58bbe8a76e41754dcd8cf90347f2d1748a8d117a59d5e89c5cfca67aecab012",
+      "0026_postal_address_rules_v2.sql": "02cfa98494805f295e3852f7c01162ebd4fa1ddad13603d782d35082fc9707e6",
+      "0027_luxembourg_fax_coverage.sql": "7c1796c3b2301f7ba7132efa34223e2d3c3b89526979e62e884217a9d0823073",
+      "0028_document_analysis.sql": "e4993f8a5c802451ae628c05f965187757f6b95ede9124837f9f106c1ba7f3f9",
+      "0029_expert_review_pages.sql": "ded9a4a07701d7b4c94797ea0b9ac9297c4e9760b68e940054987a75d885c8b2",
+      "0030_postal_public_pricing.sql": "a3fbc07ca2e3fadcc3c99ae84d01f811d930935cabe724e714ab022f56d9ff42",
+      "0031_postal_sender_declarations.sql": "72396fc0114986eddfb11b9323aecf9f9f89633fb3095c6b9123f908d950e8cc",
+      "0032_connection_tool_observations.sql": "11c6a17f74c917ef8cbedab16c004a1418850285c0c4dbaa95d50bcc16b6f00d",
+      "0033_postal_address_pages.sql": "7639dc2f6f1f254423a71cdf1c35f77e571dd7134bf45a153b6079ae7df721b5",
+      "0034_postal_sender_submission.sql": "e7b9587bde4585aeccbda76521647685b3fc8147db4bdb8a40f8262680470b67",
+      "0035_review_fax_preparation.sql": "67f825bdc866b9d4583f718841eff0915762de8eda745327374908c0ec225796",
+      "0036_postal_window_options.sql": "de5f48e7f3cbeec058b3b6f6f2a700f2d9346f15b037e93ae2181e69bea9b0a0",
+      "0037_native_sessions.sql": "6b6516aa23612f01463d69f645af705e9b70aaf1d1228cacf60d0814a28ef580",
+      "0038_user_locale.sql": "f4849544013608a3fbb6c0996c458d853b88cdbece2d2c8bf43b9f415cb82596",
+      "0039_resend_email_transport.sql": "63d32eb7d41697175f753287e0e5d41f80ed70c89c8a864f502e15935087922b",
+      "0040_protected_documents.sql": "86c2be8b9bea5e0daecc0b1db3afc42c4c3af40408c4eff9f131430968b4bc4a",
+      "0041_prepare_only_accounts.sql": "6cd13b8b88a709c19d534e81a0027f15fb9d639663ef279ffef82a3dde8cfd5c",
+      "0042_workspace_roles.sql": "89a4deae7aa282724aef6479fe7efd254a6dcc5732d73e56758ee9067bb3fb85",
+      "0043_workspace_invitations.sql": "4b846ad93ebc51e17e84b867c3ac7bd793249fdcf55e98312f293837028c289f",
+      "0044_template_workflow.sql": "0ea90040eeb22e492061ed1710e2833cb91c6068d6ad77e89f9cd46c390246c4",
+      "0045_private_generated_documents.sql": "fc84d73be8bbe68dd61e0af9ad93cafa479a9a0dea55f28c49c7411d6dac4ecd",
+      "0046_generation_provenance.sql": "d2805dc448bd4fa3662ec8db7a19cd6d350844006b6cc03839372ca532cca8f5",
+      "0047_distribution_postal_reviews.sql": "14a501bdb7ab475b70677aa58a704ea3f74f3ffbce4d3ef3e78aaf770867dcc8",
+      "0048_dataset_analysis_recovery.sql": "6c2d5ccbbfc0da18fc4e5657acb32b599393906ac9bcde25142120928c8ed352",
+      "0049_template_soft_deletion.sql": "bec6590ab6c160b2d4e1413963bd4d3c9e505da46e7ee5becd9e71359186871b",
+      "0050_monthly_plan.sql": "091e6cdb67cff26b3337dd6a892672975bb76708690f18bf1bfe4049723af076",
+      "0051_pdf_validation.sql": "b72db03fde4dce9bcda976092bca43cdc050f4d6175b7e74f512643d303f22f8",
+      "0052_belvedere.sql": "629d47147d6ec23a89a881dc94f44965e8fc428439ffa1485505ff73988fc763",
+      "0053_user_dashboard_appearance.sql": "a5e59e6d928c1f5546ae48c8b07229223a89f225c818e5246aa27667bc7e2532",
+      "0054_auth_transaction_issuers.sql": "d4e4aff5e76a36d403eb7b41d76dbfaa59e96e72996bfb77d94ab6e97c7fde7d",
+      "0055_personal_accounts.sql": "2f43f01baecc6cfe93b7499aaa8b5811b274b6013f7269014d45f1680956d918",
+      "0056_secure_distributions.sql": "9f21561d34355257bb8c006d622e6d3e336e4903b3a08ab51b83a03aa4729d6c",
+      "0057_secure_approval_evidence.sql": "c36e6013e9b4cc1aa0b1530de5a0320012ae7a1573122576922e1c0c60f687e0",
+      "0058_secure_copy_jobs.sql": "23015192e4d0218b783a6a2af9d9fc0c609a740dd65ebe32c5790de73b692f51",
+      "0059_document_authentication_policy.sql": "5352c38bb6cfd2f3a8fda18e94ba403d588495bea234413d6ba7455b4b8f0b6b",
+      "0060_pdf_validation_per_check.sql": "b95de15a76a779c7cb77b687f11db2dfe97cc607daf787cf8917d8380af0b4a1",
+      "0061_private_document_uploads.sql": "66fa82841ceffb51045e461cd498bdc0b332e80f456c0964a24ff2cac3f08861",
+      "0062_email_recipient_feedback.sql": "300d616cedfe49d259c47ce2e21782144b0af90f6d621a0461a2d1866ff70658",
+      "0063_mcp_app_document_uploads.sql": "cafa198c43be673146b3902aaaa79d9c890db1e260d14367905e9b8d02f3cc6c",
+      "0064_luxembourg_fax_pilot_extension.sql": "ba8af070f5dfdf82525adfd9601c46076d79198d573d6ac81aad905f3af5f322",
+      "0065_verified_account_session_policy.sql": "a54e83d15440a69b5c8583e6d912d40691b34bb5a99c83ff3dd27595baa5c970",
+      "0066_continuous_review_preparation.sql": "924427d0735267778d4f3dffbe0f5bb8c47439f041b6700dfc55338c16a08273",
+      "0067_automatic_fax_tariffs.sql": "63776866a89370ea8298b19be5dcae16007a4578137ebe1e8de17b0a781fca4a",
+      "0068_provider_freshness_alerts.sql": "b8bc2759412c3b42c75fe21548e6e3b74f18adb856b023bd2bc96fb217de9952",
+      "0069_postal_policy_refresh.sql": "0c1a2b0006f675bee640f214e677681a0cfac5bae111f0bdf779ac5fb77f5827",
+      "0070_resend_policy_maintenance.sql": "b4b26b2771d7d8cf98275dfdf6b3e429d83171741ae97bdf48cac39addab8ba6",
+      "0071_verified_fax_reference_maintenance.sql": "442d6b973effeadaa392aa20dd41de38ddaede9d8799a3ed618cc594f4e230ca",
+      "0072_worldwide_postal_addresses.sql": "165ba47d1d05483b22760a34ca7124be8374f34ed41af863f8db8a907c492cfc",
+      "0073_secure_document_source_copies.sql": "43fbae20e0afaccc58c913e78c998bea2b13b9af5e6bc91201e9c0460da8a13f",
+      "0074_provider_freshness_prevention.sql": "cea3449b645e100d69901852a67155543f61dd16ea627f019d5dc71b2863b9e8",
+      "0075_campaign_completion.sql": "bdb1789c19e2b0243965140ef563d98876ca1e21419b2520113797b66d8de48c",
+      "0076_dead_letter_resolution.sql": "76d69bb2a49e0208e80f193577f5185d4f846b27fe3702408e74c559c08238fd",
+      "0077_account_deletion.sql": "04e37d9a36daadc2778cedd6d65be5a3da6692f769cc68288e1d48608f597a4f"
+    }
+  },
+  "earlierFailedAttempt": {
+    "reportType": "Summary parsed from preserved first full-run stdout",
+    "scope": "Failed local qualification attempt before fixture and translation corrections; security stage did not run",
+    "vitest": {
+      "files": 201,
+      "passedFiles": 195,
+      "failedFiles": 6,
+      "total": 3944,
+      "passed": 3817,
+      "failed": 59,
+      "skipped": 68,
+      "durationSeconds": 871.18
+    },
+    "failedFiles": [
+      "tests/unit/live-providers.test.ts",
+      "tests/integration/live-delivery-quotes.test.ts",
+      "tests/integration/trusted-fax-quotes.test.ts",
+      "tests/integration/fax-review-preparation.test.ts",
+      "tests/integration/luxembourg-coverage-migration.test.ts",
+      "tests/unit/server-message-translations.test.ts"
+    ],
+    "logSha256": "a547e3a8c0fcafa43d74f0364d99e7d3a85ad607aff77b762678e0383385300b"
+  },
+  "securityFixtureCorrection": {
+    "priorStage": {
+      "passed": 692,
+      "failed": 3,
+      "total": 695
+    },
+    "files": [
+      "tests/security/openapi.test.mjs",
+      "tests/security/provider-prevention-inspection.test.mjs"
+    ],
+    "effects": [
+      "Preserve exact 78-route inventory and add browser/CSRF/same-origin/no-OAuth contract coverage",
+      "Mock the unrelated deletion service while proving the inspection entrypoint has no deletion methods"
+    ],
+    "runtimeChanged": false
+  },
+  "logSha256": {
+    "guteneo-state-final-test.log": "a547e3a8c0fcafa43d74f0364d99e7d3a85ad607aff77b762678e0383385300b",
+    "guteneo-state-final-test-rerun.log": "2ba36aca7eef829a498de385872ed369e883b302cfce0e5f0a88f0a42ac9deb3",
+    "guteneo-state-final-security-rerun.log": "e0a2f733bf9805c30af15780aa659041ed46fcbd345d40384031ebbc5a08a752"
+  },
+  "qualificationLimits": [
+    "Offline SQLite replay is separate from actual migrated D1 service tests and production physical integrity",
+    "Synthetic processors and actual local workerd tests do not establish hosted Auth0 erasure or real notice delivery",
+    "Unit/integration source is byte-identical to the green full run; final full security suite covers the only subsequent test changes"
+  ]
+}

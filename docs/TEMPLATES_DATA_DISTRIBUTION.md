@@ -1,5 +1,52 @@
 # Templates, data and distribution
 
+## Explicit lifecycle decisions and final authority — 8 November 2026 candidate
+
+The API now uses `apps/api/src/workflow-lifecycle.ts` to name dataset analysis
+claim/recovery, mapping validation, generation cancellation/retry, record lease
+recovery, atomic job aggregation and per-entry distribution preparation decisions.
+These decisions run in the existing services; they add no parallel state store,
+provider call, automatic approval or retry after an unknown transfer/send.
+
+The job aggregation expression still executes inside its conditional D1 update.
+Successful records, failed records, active records and cancellation remain
+independent; creating a frozen distribution manifest still closes retries for
+all excluded/failed generation records. Explicit resume considers only entries
+without a dispatch or postal-review association, uses the original stable key
+and does not repeat successful associations.
+
+Current membership, role, OAuth revision and global account-deletion state are
+also checked in the final resource writes. Deterministic local D1 regressions
+confirmed that reauthorization immediately before a write was insufficient:
+revocation between that read and dataset promotion/mapping insertion could leave
+a ready profile or new mapping even though the final response refused access.
+Those writes now contain the authority fence themselves. The same fence covers
+new template/source/job/plan persistence, mapping validation, cancellation/retry
+and association updates; artifact, PDF registration and generated-record commit
+share the current template/lease/predecessor fence.
+
+Leases, maximum attempts, exact original hashes, published versions, manifest
+hashes, API/MCP request formats and permission roles remain unchanged. Failed
+promotion keeps the source quarantined for its existing bounded recovery. A
+revoked caller cannot use a late response to commit a new state; retained
+historical metadata does not grant current access.
+
+`apps/api/src/postal-lifecycle.ts` separately names postal preflight timeout/expiry
+projection, transfer start versus observation/refusal and address-page recovery.
+The existing browser or distinct delegated postal consent remains mandatory.
+Preparing/unknown transfer is observation only, not permission to upload again.
+Provider-draft creation, exact quote and final dispatch approval remain separate.
+
+Evidence: `tests/integration/template-workflow.test.ts` exercises actual migrated
+D1/R2, including membership/OAuth revocation at the final promotion/insertion
+write, cancellation during rendering/scanning, exhausted leases, retained
+artifacts and stable distribution resumes. Postal service/address-page suites
+exercise the integrated decisions with synthetic renderer/provider responses.
+These are local candidates; hosted runtime, provider activation and real delivery
+remain separately unqualified. The [public state-machine map](../apps/engineering/src/content/docs/architecture/state-machines.mdx)
+explains the architectural composition, and [dispatch transitions](DISPATCH_STATE_MACHINE.md)
+own sending/financial closure.
+
 ## Correction and explicit preparation — 29 October 2026 local candidate
 
 Each destination explicitly selects its PDFs. Adding a destination selects no
@@ -306,27 +353,27 @@ Names below are server MCP names without host prefixes. The same service checks
 each resource. `get_capabilities` describes limits, no-send generation and local
 qualification status. REST paths are prefixed `/api`.
 
-| Operation | API | MCP | Web |
-| --- | --- | --- | --- |
-| Library/schema | `GET /templates`, `/:id`, `/:id/schema` | `list_templates`, `get_template`, `get_template_schema` | Templates, palette, business form |
-| Create/edit | `POST /templates`, `PATCH /templates/:id` | `create_template`, `update_template` | Gallery, blank page, Designer, variables, columns, logo, formatting, conditions, totals |
-| Word import | `POST /templates/import-docx` multipart | `import_docx_template` through supported file transport | .docx, warnings, studio |
-| Template suggestion | `POST /templates/:id/suggest` | `suggest_template` | Instruction, review, explicit local apply |
-| Publish/duplicate/archive | `POST /templates/:id/{publish,duplicate,archive}` | `publish_template`, `duplicate_template`, `archive_template` | Dedicated actions/expected revision |
-| Sharing | `GET /templates/:id/sharing`, `POST /templates/:id/share` | `get_template_sharing`, `share_template` | Private/workspace/members; four distinct rights |
-| Exact preview | `POST /templates/:id/preview` | `preview_template` | Server PDF/page navigation |
-| Original import | `POST /datasets` multipart/JSON | `import_dataset`, `import_json_dataset` | CSV/XLSX/XML/JSON |
-| Profile/read | `GET /datasets`, `/:id`, `/:id/profile` | `list_datasets`, `get_dataset`, `profile_dataset` | Sheets/rows/headers/anomalies/paged preview |
-| Analysis recovery | `POST /datasets/:id/retry-analysis` | `retry_dataset_analysis` | Explicit same-original retry after temporary failure |
-| AI proposal | `POST /datasets/:id/analyze` | `analyze_dataset` | Mapping or new schema/template; explicit review/adoption |
-| Mappings | `GET/POST /mappings`, `/:id`, `/:id/validate` | `list_mappings`, `get_mapping`, `create_mapping`, `validate_mapping` | Independent version, grouping/join/reuse/validation |
-| Generation | `POST /generation-jobs` | `generate_documents` | Single form or validated-mapping batch |
-| Tracking/provenance | `GET /generation-jobs`, `/:id`, `/:id/results`, `/:id/provenance` | `list_generation_jobs`, `get_generation_job`, `get_generation_results`, `get_generation_provenance` | Progress/PDF/errors/source cells |
-| Cancel/retry | `POST /generation-jobs/:id/{cancel,retry}` | `cancel_generation_job`, `retry_generation_records` | Cancel or retry designated failed records |
-| Distribution | `POST /distribution-plans`, `GET /distribution-plans/:id` | `prepare_distribution`, `get_distribution_plan` | Selection/common or frozen-field recipients/explicit multichannel |
-| Resume preparation | `POST /distribution-plans/:id/resume` | `resume_distribution` | Remaining entries or designated preparation errors |
-| Postal checks | `POST /distribution-plans/:id/entries/:entryId/postal-preflight` | `create_distribution_postal_preflight` | Existing postal review bound to frozen entry |
-| AI policy | `GET/PUT /dataset-ai-policy` | Read-only `get_dataset_ai_policy` | Browser administrator; human-only activation/transfer authority |
+| Operation                 | API                                                               | MCP                                                                                                 | Web                                                                                     |
+| ------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Library/schema            | `GET /templates`, `/:id`, `/:id/schema`                           | `list_templates`, `get_template`, `get_template_schema`                                             | Templates, palette, business form                                                       |
+| Create/edit               | `POST /templates`, `PATCH /templates/:id`                         | `create_template`, `update_template`                                                                | Gallery, blank page, Designer, variables, columns, logo, formatting, conditions, totals |
+| Word import               | `POST /templates/import-docx` multipart                           | `import_docx_template` through supported file transport                                             | .docx, warnings, studio                                                                 |
+| Template suggestion       | `POST /templates/:id/suggest`                                     | `suggest_template`                                                                                  | Instruction, review, explicit local apply                                               |
+| Publish/duplicate/archive | `POST /templates/:id/{publish,duplicate,archive}`                 | `publish_template`, `duplicate_template`, `archive_template`                                        | Dedicated actions/expected revision                                                     |
+| Sharing                   | `GET /templates/:id/sharing`, `POST /templates/:id/share`         | `get_template_sharing`, `share_template`                                                            | Private/workspace/members; four distinct rights                                         |
+| Exact preview             | `POST /templates/:id/preview`                                     | `preview_template`                                                                                  | Server PDF/page navigation                                                              |
+| Original import           | `POST /datasets` multipart/JSON                                   | `import_dataset`, `import_json_dataset`                                                             | CSV/XLSX/XML/JSON                                                                       |
+| Profile/read              | `GET /datasets`, `/:id`, `/:id/profile`                           | `list_datasets`, `get_dataset`, `profile_dataset`                                                   | Sheets/rows/headers/anomalies/paged preview                                             |
+| Analysis recovery         | `POST /datasets/:id/retry-analysis`                               | `retry_dataset_analysis`                                                                            | Explicit same-original retry after temporary failure                                    |
+| AI proposal               | `POST /datasets/:id/analyze`                                      | `analyze_dataset`                                                                                   | Mapping or new schema/template; explicit review/adoption                                |
+| Mappings                  | `GET/POST /mappings`, `/:id`, `/:id/validate`                     | `list_mappings`, `get_mapping`, `create_mapping`, `validate_mapping`                                | Independent version, grouping/join/reuse/validation                                     |
+| Generation                | `POST /generation-jobs`                                           | `generate_documents`                                                                                | Single form or validated-mapping batch                                                  |
+| Tracking/provenance       | `GET /generation-jobs`, `/:id`, `/:id/results`, `/:id/provenance` | `list_generation_jobs`, `get_generation_job`, `get_generation_results`, `get_generation_provenance` | Progress/PDF/errors/source cells                                                        |
+| Cancel/retry              | `POST /generation-jobs/:id/{cancel,retry}`                        | `cancel_generation_job`, `retry_generation_records`                                                 | Cancel or retry designated failed records                                               |
+| Distribution              | `POST /distribution-plans`, `GET /distribution-plans/:id`         | `prepare_distribution`, `get_distribution_plan`                                                     | Selection/common or frozen-field recipients/explicit multichannel                       |
+| Resume preparation        | `POST /distribution-plans/:id/resume`                             | `resume_distribution`                                                                               | Remaining entries or designated preparation errors                                      |
+| Postal checks             | `POST /distribution-plans/:id/entries/:entryId/postal-preflight`  | `create_distribution_postal_preflight`                                                              | Existing postal review bound to frozen entry                                            |
+| AI policy                 | `GET/PUT /dataset-ai-policy`                                      | Read-only `get_dataset_ai_policy`                                                                   | Browser administrator; human-only activation/transfer authority                         |
 
 `apps/web/public/openapi.json` is generated for this module by
 `scripts/update-template-openapi.ts`. Distinct scopes are
@@ -449,21 +496,21 @@ Current external evidence:
 `verification.json`. September observations remain historical; subsets/reruns are
 not added to broad totals.
 
-| Local scope | Result/evidence |
-| --- | --- |
-| Non-AI unit/integration | **1,540 passed in 82 files**; two files failed initialization, leaving 31 unexecuted (`non-ai-tests.log`), from fixtures missing `documents.access_owner_id`. After correction LU **3/3** (`historical-fax-regressions.log`) and fax preparation **28/28** (`fax-review-final.log`) passed. Focused recovery is not a new full green run. |
-| Data/runtime | **29 data tests + one workerd test passed**, included above: CSV/XLSX/JSON/XML, lexical values, nested addresses, joined line-item tables, explicit paths and bounded XML refusal. |
-| Workflow | **27 non-AI focused cases passed**, including privacy/revocation/cancellation; subsets are not added. |
-| Templates/rendering | **20 passed**, included above. Five real-handler isolated-Chromium PDFs: 1/30/200-line invoices, long letter, Word import. Markers/page bounds/pagination/no external requests verified. |
-| Security/contract | **215 security checks passed** (`security-tests.log`), including **seven OpenAPI checks** for exact 60-operation inventory, scopes, browser approval and idempotency. |
-| Scanner | **29 JavaScript + 38 Python tests passed** on 2 October; terminal observation without exported log in that folder; no hosted-antivirus qualification. |
-| Browser studio | **22 passed, eight intentional skips** (`studio-browser.log`); mobile graphical editing skipped in both mobile projects. Mapping/distribution checked on desktop/mobile Chromium/iPhone WebKit. |
-| XML/language/keyboard | **6/6 passed** in three projects (`studio-table-a11y-final-browser.log`): per-record XML channel/recipient without sending; locale change retains customer title/unsaved edits; Tab/visible table focus, real arrow scroll and keyboard selection. This enriches the same six `xml-language-browser-final.log` cases, not additional cases. |
-| Workspace navigation | **21/21 passed** (`studio-navigation-regression.log`): private routes, focus, session, translated navigation/mobile. |
-| Public preview | **76 passed, six intentional skips** (`preview-tests.log`); separate fixtures without studio business capabilities. |
-| Migrations | **46 migrations, 296 schema objects**, equivalent source/transport, `quick_check=ok`, no foreign-key violation (`migration-transport.json`). |
-| Executable examples | REST/MCP/dataset scripts **exit 0** (`example-api.log`, `example-mcp.log`, `example-dataset-api.log`), each two ready PDFs. Dataset example reuses mapping and checks four associations across two plans: zero approval/provider attempts, unchanged credits/quotas. |
-| Build/dependencies | Full typecheck/lint after final keyboard fix; application/web/preview builds, API/document-Worker dry runs (`build.log`, `final-web-build.log`, `preview-build.log`, `documents-build.log`). Final web/focused lint reran (`studio-table-a11y-final-build.log`, `studio-table-a11y-final-lint.log`). `npm audit --omit=dev`: **zero production vulnerabilities** (`npm-audit.json`); three known development alerts excluded. `lint.log` retains an earlier failed attempt, not the successful rerun. |
+| Local scope             | Result/evidence                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Non-AI unit/integration | **1,540 passed in 82 files**; two files failed initialization, leaving 31 unexecuted (`non-ai-tests.log`), from fixtures missing `documents.access_owner_id`. After correction LU **3/3** (`historical-fax-regressions.log`) and fax preparation **28/28** (`fax-review-final.log`) passed. Focused recovery is not a new full green run.                                                                                                                                                             |
+| Data/runtime            | **29 data tests + one workerd test passed**, included above: CSV/XLSX/JSON/XML, lexical values, nested addresses, joined line-item tables, explicit paths and bounded XML refusal.                                                                                                                                                                                                                                                                                                                    |
+| Workflow                | **27 non-AI focused cases passed**, including privacy/revocation/cancellation; subsets are not added.                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Templates/rendering     | **20 passed**, included above. Five real-handler isolated-Chromium PDFs: 1/30/200-line invoices, long letter, Word import. Markers/page bounds/pagination/no external requests verified.                                                                                                                                                                                                                                                                                                              |
+| Security/contract       | **215 security checks passed** (`security-tests.log`), including **seven OpenAPI checks** for exact 60-operation inventory, scopes, browser approval and idempotency.                                                                                                                                                                                                                                                                                                                                 |
+| Scanner                 | **29 JavaScript + 38 Python tests passed** on 2 October; terminal observation without exported log in that folder; no hosted-antivirus qualification.                                                                                                                                                                                                                                                                                                                                                 |
+| Browser studio          | **22 passed, eight intentional skips** (`studio-browser.log`); mobile graphical editing skipped in both mobile projects. Mapping/distribution checked on desktop/mobile Chromium/iPhone WebKit.                                                                                                                                                                                                                                                                                                       |
+| XML/language/keyboard   | **6/6 passed** in three projects (`studio-table-a11y-final-browser.log`): per-record XML channel/recipient without sending; locale change retains customer title/unsaved edits; Tab/visible table focus, real arrow scroll and keyboard selection. This enriches the same six `xml-language-browser-final.log` cases, not additional cases.                                                                                                                                                           |
+| Workspace navigation    | **21/21 passed** (`studio-navigation-regression.log`): private routes, focus, session, translated navigation/mobile.                                                                                                                                                                                                                                                                                                                                                                                  |
+| Public preview          | **76 passed, six intentional skips** (`preview-tests.log`); separate fixtures without studio business capabilities.                                                                                                                                                                                                                                                                                                                                                                                   |
+| Migrations              | **46 migrations, 296 schema objects**, equivalent source/transport, `quick_check=ok`, no foreign-key violation (`migration-transport.json`).                                                                                                                                                                                                                                                                                                                                                          |
+| Executable examples     | REST/MCP/dataset scripts **exit 0** (`example-api.log`, `example-mcp.log`, `example-dataset-api.log`), each two ready PDFs. Dataset example reuses mapping and checks four associations across two plans: zero approval/provider attempts, unchanged credits/quotas.                                                                                                                                                                                                                                  |
+| Build/dependencies      | Full typecheck/lint after final keyboard fix; application/web/preview builds, API/document-Worker dry runs (`build.log`, `final-web-build.log`, `preview-build.log`, `documents-build.log`). Final web/focused lint reran (`studio-table-a11y-final-build.log`, `studio-table-a11y-final-lint.log`). `npm audit --omit=dev`: **zero production vulnerabilities** (`npm-audit.json`); three known development alerts excluded. `lint.log` retains an earlier failed attempt, not the successful rerun. |
 
 Focused Resend recovery also passed **8/8** with intercepted transport
 (`resend-regression.log`), no real delivery. Logs retain initial attempts/reruns

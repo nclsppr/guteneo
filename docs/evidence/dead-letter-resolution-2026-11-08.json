@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-08",
+  "scope": "Local candidate; synthetic intercepted browser API and separately real migrated D1. No provider, production or real account effect.",
+  "baseCommit": "e0df725a2d791ef9a629d7ea91f11674d4138575",
+  "sources": {
+    "apps/web/src/administration-operations.tsx": "3a9afe4797ec191119f2b9ed6b574e61a5480205f02cd953c5627056bfaf81bb",
+    "apps/web/src/locales/messages-administration.json": "3a7e65db329c3bb97ba6d1fc313b0bc86376c710196083ac9993d29e404ddd1a",
+    "apps/api/src/dead-letters.ts": "1b0f7dd4ec00de901ee590da6a379553136c7f2c5d0700effe067269e06ecdd2",
+    "apps/api/src/browser-administrator.ts": "4e2729926a026389a58be919376fb81cdec57f5548218698f653c6e3e75e0fd9",
+    "migrations/0076_dead_letter_resolution.sql": "76d69bb2a49e0208e80f193577f5185d4f846b27fe3702408e74c559c08238fd"
+  },
+  "browser": {
+    "test": "tests/e2e/workspace-administration.spec.ts",
+    "grep": "queue incident resolution",
+    "passed": 12,
+    "projects": [
+      "chromium",
+      "mobile-chromium",
+      "iphone-webkit"
+    ],
+    "locales": [
+      "en",
+      "fr",
+      "de",
+      "lb"
+    ],
+    "observations": [
+      "No resolution write on render or first confirmation gesture",
+      "One CSRF-bound confirmed POST after explicit final gesture",
+      "Status refresh displays resolution timestamp and removes action"
+    ]
+  },
+  "assets": [
+    {
+      "build": "main",
+      "file": "administration-t35jZfJZ.js",
+      "bytes": 82080,
+      "gzipBytes": 22535,
+      "sha256": "be7baf5dc39f6a4b25ef8c20e8dbb1a00bc04b714726f42524fb822ee56626d8"
+    },
+    {
+      "build": "candidate",
+      "file": "administration-DjHSpjAD.js",
+      "bytes": 82906,
+      "gzipBytes": 22761,
+      "sha256": "c843efa17ac66d9f3755645bae0ff323b5a020e5865b823514b0e181a81ee843"
+    }
+  ],
+  "performanceLimit": "Deterministic lazy administration chunk gzip comparison only; +226 bytes. No initial-page aggregate, server latency or speedup claim.",
+  "finalArtifactQualification": {
+    "passed": 102,
+    "suiteScope": "Affected locale, locale-boundary and Administration Playwright suites on final three-catalog-row build, including incident-resolution cases",
+    "projects": [
+      "chromium",
+      "mobile-chromium",
+      "iphone-webkit"
+    ],
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0,
+    "fullApplicationRun": "1,148 passed and 19 declared skips on the original complete artifact, whose bytes stayed stable. The final difference is three reviewed catalog entries, independently reconstructed across the complete runtime and migration source scope."
+  }
+}

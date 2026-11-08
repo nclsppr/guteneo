@@ -37,6 +37,7 @@ import {
 } from "./personal-auth";
 import { personalSessionFence } from "./sensitive-session";
 import type { PostalAuthority } from "./postal-authority";
+import { secureDistributionStatus } from "./secure-document-lifecycle";
 import {
   assertNoDocumentUrlPlaceholder,
   cleanEmailHtml,
@@ -268,7 +269,7 @@ export class SecureDistributionService {
         403,
       );
     const row = await this.env.DB.prepare(
-      "SELECT 1 FROM memberships m JOIN organizations o ON o.id=m.organization_id WHERE m.organization_id=? AND m.user_id=? AND m.role=? AND m.supervisor_can_approve=? AND m.supervisor_can_report=? AND o.mode=? AND (?=0 OR (m.role='admin' OR (m.role='supervisor' AND m.supervisor_can_approve=1)))",
+      "SELECT 1 FROM memberships m JOIN organizations o ON o.id=m.organization_id WHERE m.organization_id=? AND m.user_id=? AND m.role=? AND m.supervisor_can_approve=? AND m.supervisor_can_report=? AND o.mode=? AND NOT EXISTS(SELECT 1 FROM account_deletion_requests deletion WHERE deletion.user_id=m.user_id AND deletion.status IN('processing','completed')) AND (?=0 OR (m.role='admin' OR (m.role='supervisor' AND m.supervisor_can_approve=1)))",
     )
       .bind(
         ctx.organizationId,
@@ -318,7 +319,6 @@ export class SecureDistributionService {
             .bind(row.recipient_user_id)
             .first<{ name: string; email: string }>()
         : null;
-    const expired = row.status === "active" && row.expires_at! <= now();
     const [renewal, audit] = await Promise.all([
       includeAudit &&
       ctx.actor === "browser" &&
@@ -347,11 +347,7 @@ export class SecureDistributionService {
       id: row.id,
       dispatchId: row.dispatch_id,
       recipientFeedback: dispatch?.dispatch.recipient_feedback ?? null,
-      status: expired
-        ? "expired"
-        : row.status === "prepared" && !row.dispatch_id
-          ? "preparing"
-          : row.status,
+      status: secureDistributionStatus(row, now()),
       title: row.source_name,
       source: {
         id: row.source_id,
@@ -1150,6 +1146,18 @@ export class SecureDistributionService {
     observation.finish(undefined, { failed: 1 });
   }
   private async assertPreparationAuthority(row: SecureDistributionRow) {
+    if (
+      await this.env.DB.prepare(
+        "SELECT 1 FROM account_deletion_requests WHERE user_id=? AND status IN('processing','completed')",
+      )
+        .bind(row.created_by)
+        .first()
+    )
+      throw new DomainError(
+        "PREPARATION_ACCESS_REVOKED",
+        "The preparation has lost its authorization.",
+        403,
+      );
     const snapshot: SecurePreparationAuthority | null =
       row.preparation_authority_json
         ? JSON.parse(row.preparation_authority_json)

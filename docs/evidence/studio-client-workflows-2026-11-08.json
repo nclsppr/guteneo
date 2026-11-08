@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-08",
+  "base": "e0df725a2d791ef9a629d7ea91f11674d4138575",
+  "environment": "Optimized Vite main and candidate builds, separate outputs and dependency installs; candidate local intercepted browser fixtures; no real provider/account/network inference",
+  "limits": "Module byte comparison only, no latency gain or whole-application payload claim. HTTP/API/hosted CI/real account qualification separate.",
+  "sourceHashes": {
+    "apps/web/src/document-studio.tsx": "f7fbb8ca2972b6a99c783a3acd7191b9b5e11d0f89818d8980e7fbfb67b3e08b",
+    "apps/web/src/template-pages.tsx": "c4055038373184cdc67d1609191e75079855dc9f5537d97855e47e33eb116a2b",
+    "apps/web/src/dataset-pages.tsx": "0f12efa05af91c3c8ed935b9fa798ffb1583f43e78d6b938e3b7f0d7efdbe7ec",
+    "apps/web/src/generation-pages.tsx": "798f328a38363580604f69d5eac392d602311ff44d1dfdd945196af8d7b1f6af",
+    "apps/web/src/distribution-pages.tsx": "44fb06e3f94db53fa5c3e5cf5d24b516da6a83ab3aa52677b7a17c0d21e4327a",
+    "apps/web/src/client-write-recovery.ts": "84de946b4ef7e654b3e49a42146c2867ff5fa15756a0fec3ddbf84585dae76f7"
+  },
+  "assets": [
+    {
+      "name": "document-studio",
+      "main": {
+        "file": "document-studio-D0X9fxeI.js",
+        "bytes": 125030,
+        "gzipBytes": 34872,
+        "sha256": "b5acfef6c4d63d9e17e7869cca8f9bbffb56010f84fe41d6192ab7dc9184df5a"
+      },
+      "candidate": {
+        "file": "document-studio-6bhJ1YSt.js",
+        "bytes": 126217,
+        "gzipBytes": 35260,
+        "sha256": "acba0568570cbfd19b61aad4612a8c534e24b4dceff0c2de7068974cb064df3a"
+      }
+    },
+    {
+      "name": "distribution-pages",
+      "main": {
+        "file": "distribution-pages-DykloYLK.js",
+        "bytes": 25164,
+        "gzipBytes": 7791,
+        "sha256": "aa479ed50d586a128c897a7e8f7b850a4ac94009e7a94ec0d5b0d67886c10bdf"
+      },
+      "candidate": {
+        "file": "distribution-pages-DzIMyUdf.js",
+        "bytes": 24544,
+        "gzipBytes": 7624,
+        "sha256": "2eceb095035beb90f0ea783718f00e7b90f19135975a4efb746866577182d808"
+      }
+    },
+    {
+      "name": "client-write-recovery",
+      "main": null,
+      "candidate": {
+        "file": "client-write-recovery-C55JBalN.js",
+        "bytes": 1612,
+        "gzipBytes": 642,
+        "sha256": "4360957faec35f80c22ea2f056bf93ff4283879b8fed9b6bbf40d55b8916ec08"
+      }
+    }
+  ],
+  "threeBrowserHandoffAndAdoption": {
+    "passed": 48,
+    "skipped": 0,
+    "failed": 0,
+    "durationSeconds": 27
+  },
+  "finalThreeBrowserRegression": {
+    "startTime": "2026-11-08T00:45:20.581Z",
+    "duration": 10639.443,
+    "expected": 9,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "realLocalStudio": {
+    "isolation": "Temporary copied harness changed localhost ports only; isolated local D1, real Worker and separate renderer; original repository fixtures unchanged",
+    "chromium": {
+      "startTime": "2026-11-08T00:52:02.757Z",
+      "duration": 55433.94,
+      "expected": 15,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "mobile": {
+      "startTime": "2026-11-08T00:53:43.500Z",
+      "duration": 118732.22899999999,
+      "expected": 28,
+      "skipped": 2,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "declaredSkips": [
+      {
+        "projects": [
+          "mobile-chromium",
+          "iphone-webkit"
+        ],
+        "title": "API gallery template remains editable in the desktop studio and reusable by API",
+        "reason": "Graphical editing is qualified on desktop; mobile consultation has its own scenario."
+      }
+    ]
+  },
+  "preCatalogCandidateAssets": [
+    {
+      "name": "document-studio",
+      "candidate": {
+        "file": "document-studio-DstQ7q7w.js",
+        "bytes": 126217,
+        "gzipBytes": 35265,
+        "sha256": "7e9b6de4ca766636cfdb35b1e3917b4c81595e058d37f2528af104d48d76c61a"
+      }
+    },
+    {
+      "name": "distribution-pages",
+      "candidate": {
+        "file": "distribution-pages-Cq_pVtnq.js",
+        "bytes": 24544,
+        "gzipBytes": 7621,
+        "sha256": "55a67ace17ab788fad20dc64a422cd517ff889790547c4448e2e6cb58310865d"
+      }
+    },
+    {
+      "name": "client-write-recovery",
+      "candidate": {
+        "file": "client-write-recovery-pVPCdW6G.js",
+        "bytes": 1612,
+        "gzipBytes": 642,
+        "sha256": "fe9a7e3c6ad6a802534a6dbe0284672d5894668e7b40220b50fd5e27c26b6fee"
+      }
+    }
+  ],
+  "finalCatalogComparison": {
+    "gzipMethod": "Node zlib gzipSync default level6; both builds measured with the same runtime",
+    "ownedChunkGzipDelta": 863,
+    "reasonForHashChange": "Three catalog rows change shared message chunk/import hashes; owned controller source is unchanged",
+    "finalAssetsSha256": "9f34af81a6ce26cd9746dbaaa6fec196c4e7dff714847188468fa216bc218054"
+  }
+}

@@ -23,7 +23,11 @@ personal vault or claims to have verified their identity.
    later revocation of the share.
 4. Call `prepare_secure_distribution` with a stable key. Subject, message and HTML are optional: omitted content uses the V2 template and authenticated workspace name. A custom HTML anchor may use `href="{{document_url}}"` to position its own button. `recipientBinding` defaults to `verified_email`; choose `independent` only when separate workspace confirmation is intended. Preparation sends
    nothing. For `preparing`, query `get_secure_distribution` with the same
-   identifier; never create a second preparation. Present the exact EUR quote
+   identifier; never create a second preparation. A prepared share may still
+   lack its invitation dispatch; continue observing the same identifier rather
+   than assuming it was sent or creating a replacement. If current authority
+   expires or is revoked, stop and require eligible authentication before
+   continuing. Present the exact EUR quote
    excluding tax: shared retention, any personal retention, notification and
    total. Never invent a price.
    If preparation reports `SECURE_SOURCE_LEGACY_LINK`,

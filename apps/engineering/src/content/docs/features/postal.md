@@ -1,6 +1,6 @@
 ---
 title: "Postal mail"
-description: "10 capabilities in the deliver branch of Guteneo."
+description: "11 capabilities in the deliver branch of Guteneo."
 sidebar:
   order: 8
 ---
@@ -28,6 +28,7 @@ Worldwide input is an unpublished 1.1.27 candidate; production remains 1.1.26 at
 <li id="feature-8f19495bd3af">Version selected by frozen recipient shape, with schema-first 0072 preserving old objects while binding new block/page versions to the exact tenant, consent, PDF, recipient, profile, quote and approval</li>
 <li id="feature-7524bd8c17b6">Confirmation, calendar cutoffs and provider tracking</li>
 <li id="feature-0d001fa40eb7">Status projection and reconciliation of unknown outcomes</li>
+<li id="feature-1831aae43dab">Typed preflight, address-page and transfer recovery preserves the exact reviewed operation; the browser uses explicit write/read-required states and abandons stale identity/view continuations</li>
 </ol>
 
 ## REST operations

@@ -63,6 +63,16 @@ destinations (preparation, new share, Administration pages) are accepted as
 Choosing Administration while Use Guteneo is already open applies the new
 destination and its membership filter to the workspace form.
 
+### Queue incident resolution
+
+Administrators can inspect an original dispatch in Settings and explicitly
+resolve its retained queue diagnostic after operational and financial closure.
+The [resolution contract](DEAD_LETTER_RESOLUTION.md) owns the current browser/session
+and SQL fences, stable audit receipt, errors and same-ID recovery. Resolving a
+diagnostic never requeues, sends, changes delivery facts or releases credit;
+unknown original work remains blocked. Other roles and OAuth/native callers gain
+no resolution authority. This is a local candidate, not a production activation.
+
 ### Period and response lifetime
 
 Presets and custom UTC periods live in the address. Malformed, reversed or

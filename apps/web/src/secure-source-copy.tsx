@@ -3,6 +3,12 @@ import { Copy, WarningCircle } from "@phosphor-icons/react";
 import { api, ApiError, type DocumentRecord } from "./api";
 import { ErrorNotice, useAction } from "./components";
 import { msg } from "./messages";
+import { useCurrentClientView } from "./client-write-recovery";
+import {
+  offerSecureSourceCopy,
+  settleSecureSourceCopy,
+  type SecureSourceCopyState,
+} from "./secure-source-copy-state";
 
 const sourceConflictCodes = new Set([
   "SECURE_SOURCE_LEGACY_LINK",
@@ -20,20 +26,30 @@ export function useSecureSourceCopy(
   documentId: string,
   onCopied: (document: DocumentRecord) => void,
   enabled = true,
+  identity = "",
 ) {
-  const [recovery, setRecovery] = useState<{
-    documentId: string;
-    key: string;
-  }>();
-  const [copiedId, setCopiedId] = useState<string>();
+  const [state, setState] = useState<SecureSourceCopyState>({ phase: "idle" });
+  const recovery =
+    state.phase === "offered" || state.phase === "copying" ? state : undefined;
   const action = useAction();
   const clearError = action.clear;
   const current = useRef({ documentId, enabled, onCopied });
   current.current = { documentId, enabled, onCopied };
   const copying = useRef(false);
+  const currentView = useCurrentClientView(
+    JSON.stringify([identity, documentId, enabled]),
+  );
   useEffect(() => {
-    setRecovery((value) =>
-      enabled && value?.documentId === documentId ? value : undefined,
+    setState((value) => (value.phase === "idle" ? value : { phase: "idle" }));
+    clearError();
+  }, [identity, clearError]);
+  useEffect(() => {
+    setState((value) =>
+      enabled && "documentId" in value && value.documentId === documentId
+        ? value
+        : value.phase === "idle"
+          ? value
+          : { phase: "idle" },
     );
     clearError();
   }, [documentId, enabled, clearError]);
@@ -43,18 +59,17 @@ export function useSecureSourceCopy(
       return false;
     if (!current.current.enabled || sourceId !== current.current.documentId)
       return true;
-    setRecovery((value) =>
-      value?.documentId === sourceId
-        ? value
-        : { documentId: sourceId, key: crypto.randomUUID() },
+    setState((value) =>
+      offerSecureSourceCopy(value, sourceId, () => crypto.randomUUID()),
     );
-    setCopiedId(undefined);
     return true;
   }
 
   async function createCopy() {
-    if (!recovery || copying.current) return;
+    if (!recovery || recovery.phase !== "offered" || copying.current) return;
+    const isCurrent = currentView();
     copying.current = true;
+    setState({ ...recovery, phase: "copying" });
     await action.run(async () => {
       try {
         const document = await api<DocumentRecord>(
@@ -62,19 +77,26 @@ export function useSecureSourceCopy(
           { method: "POST", key: recovery.key, body: {} },
         );
         if (
+          !isCurrent() ||
           !current.current.enabled ||
           current.current.documentId !== recovery.documentId
-        )
+        ) {
+          setState((value) => settleSecureSourceCopy(value, recovery));
           return;
+        }
         current.current.onCopied(document);
-        setRecovery(undefined);
-        setCopiedId(document.id);
+        setState((value) =>
+          settleSecureSourceCopy(value, recovery, document.id),
+        );
       } catch (error) {
+        setState((value) => settleSecureSourceCopy(value, recovery));
         if (
+          isCurrent() &&
           current.current.enabled &&
           current.current.documentId === recovery.documentId
-        )
+        ) {
           throw error;
+        }
       }
     });
     copying.current = false;
@@ -85,8 +107,9 @@ export function useSecureSourceCopy(
     createCopy,
     recovery:
       enabled && recovery?.documentId === documentId ? recovery : undefined,
-    copied: enabled && copiedId === documentId,
-    pending: action.pending,
+    copied:
+      enabled && state.phase === "copied" && state.documentId === documentId,
+    pending: state.phase === "copying",
     error: action.error,
   };
 }

@@ -1,4 +1,8 @@
 import {
+  postalReviewProjection,
+  postalTransferDecision,
+} from "./postal-lifecycle";
+import {
   actorPermissions,
   membershipPermissionFence,
 } from "../../../packages/domain/src/index";
@@ -506,9 +510,8 @@ export class PostalService {
     ]);
     const report = this.report(row);
     const superseded = this.superseded(row, report);
-    const timedOut =
-      row.status === "processing" && row.processing_until <= now();
-    const expired = row.expires_at <= now();
+    const projection = postalReviewProjection(row, now(), superseded);
+    const { timedOut, expired } = projection;
     const matches = addressMatches(row, report);
     const complete = Boolean(
       report?.rendering.complete &&
@@ -529,7 +532,7 @@ export class PostalService {
       ...(addressPage?.generated_document_id
         ? { addressPage: addressPageProvenance(addressPage) }
         : {}),
-      status: superseded ? "blocked" : timedOut ? "failed" : row.status,
+      status: projection.status,
       document: {
         id: document.id,
         name: document.name,
@@ -583,18 +586,15 @@ export class PostalService {
         authority.context.actor === "browser" &&
         actorPermissions(authority.context).approveDispatches &&
         transferConfigured(this.env) &&
-        !superseded &&
-        !expired &&
-        row.status === "review_required" &&
-        complete &&
-        matches &&
-        row.transfer_status === "not_started",
-      transferStatus:
-        row.transfer_status === "preparing" &&
-        row.transfer_started_at !== null &&
-        Date.parse(row.transfer_started_at) + 120_000 <= Date.now()
-          ? "unknown"
-          : row.transfer_status,
+        postalTransferDecision({
+          status: row.status,
+          transferStatus: row.transfer_status,
+          complete,
+          addressMatches: matches,
+          expired,
+          superseded,
+        }) === "start",
+      transferStatus: projection.transferStatus,
       draftId: row.provider_draft_id,
       canSend: false,
     };
@@ -882,14 +882,15 @@ export class PostalService {
     await this.domain.authorizeApproval(authority.context);
     if (!transferConfigured(this.env)) error("POSTAL_DRAFT_TRANSFER_DISABLED");
     const row = await this.row(authority, id);
-    if (row.transfer_status !== "not_started") return this.get(authority, id);
     const report = this.report(row);
-    if (
-      row.status !== "review_required" ||
-      !report?.rendering.complete ||
-      !addressMatches(row, report)
-    )
-      error("POSTAL_PREFLIGHT_REQUIRED");
+    const decision = postalTransferDecision({
+      status: row.status,
+      transferStatus: row.transfer_status,
+      complete: Boolean(report?.rendering.complete),
+      addressMatches: addressMatches(row, report),
+    });
+    if (decision === "observe") return this.get(authority, id);
+    if (decision === "refuse") error("POSTAL_PREFLIGHT_REQUIRED");
     await this.current(authority, row, true);
     await assertPostalDestinationAvailable(
       JSON.parse(row.recipient_json).country,

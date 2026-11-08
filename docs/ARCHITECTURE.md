@@ -1,5 +1,23 @@
 # Architecture
 
+## Explicit transition boundaries — 8 November 2026 candidate
+
+The [state-machine execution record](STATE_MACHINE_EXECUTION.md) tracks all 113
+audited app-owned lifecycle groups. Small integrated TypeScript models clarify
+dispatch projection/recovery, upload receipts, secure preparation/deposits,
+postal operations, Studio generation/distribution and browser continuations.
+Current authority, exact predecessors and immutable receipts remain conditions
+of the final D1 writes. There is no second runtime state store.
+
+Migrations 0075–0077 precede this runtime: operational/financial campaign closure;
+audited browser-only dead-letter resolution with no replay effect; and private
+operator account deletion with reviewed retention, authentication tombstones and
+verified erasure checkpoints. Deletion processing is default-off and is separate
+from customer workspace administration, MCP and read-only Belvédère access.
+The [deletion contract](ACCOUNT_DELETION.md) owns eligibility and remaining
+external/backup retention limits; disabling a profile cannot count as erasure.
+These local changes imply no production, provider or external-account mutation.
+
 ## Secure source-copy boundary — 5 November 2026 candidate
 
 The browser-only source-copy service creates one creator-private document per

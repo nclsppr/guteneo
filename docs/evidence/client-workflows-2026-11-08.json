@@ -1,0 +1,522 @@
+{
+  "date": "2026-11-08",
+  "base": "e0df725a2d791ef9a629d7ea91f11674d4138575",
+  "environment": "Optimized Vite build served locally; intercepted fictional API; fresh browser context per test; no CPU/network throttle; one sample per journey/browser; concurrent shared-host activity",
+  "limits": "No comparative performance gain, hosted Auth0, provider delivery, production latency or physical-device qualification is claimed",
+  "sourceHashes": {
+    "apps/web/src/client-write-recovery.ts": "84de946b4ef7e654b3e49a42146c2867ff5fa15756a0fec3ddbf84585dae76f7",
+    "apps/web/src/postal-quote-state.ts": "82cf9ce3b7951108c4061626b7c2d744f30ce51ebfad21bd2c9daf47dfc5584e",
+    "apps/web/src/secure-source-copy-state.ts": "3cd7cd372d7156737fb735fe6b6f36691e5f94fa6fefd42dfc12e16e1a056e26",
+    "apps/web/src/postal-review-page.tsx": "cee2c7e33da8bb08e0bbc43451abe679b3fe2b01b6f14a7704ef6c2fb03bd2a6",
+    "apps/web/src/postal-quote-followup.ts": "29ca13cbb1fd6c97a342b2963655fc61f298a66e2a5d75a3e3c23fd857cf176b",
+    "apps/web/src/secure-distribution-pages.tsx": "1a9792f31672d380e710f4b36ecf9f0f1405269a57bd579282021d4a8624a9c5",
+    "apps/web/src/secure-source-copy.tsx": "d8a4ea71e088d7618f70cfdb4ec8cd10b29fbf42f1b7627629fa844904754726",
+    "apps/web/src/App.tsx": "d0e78d56c8e27df73ee9f936c031b34c843626593417d26eafbd51208d960fbf",
+    "apps/web/src/dispatch-pages.tsx": "5c7b6dd2f276a573b0c1085e3a092e01a28af698fa7eea2419b786a885a6d903",
+    "apps/web/src/locales/messages-identity.json": "f257144d0e9c9c6b2ec22762d67ce2dbcdf454396d50c824390e1090ccfbd885",
+    "apps/web/src/locales/messages-administration.json": "3a7e65db329c3bb97ba6d1fc313b0bc86376c710196083ac9993d29e404ddd1a",
+    "apps/web/src/locales/messages-operations.json": "8788d3b72c42c296770fb0a0da831a3333e76aa2b7d848a874974da544f04bcd"
+  },
+  "assets": [
+    {
+      "file": "client-write-recovery-C55JBalN.js",
+      "bytes": 1612,
+      "sha256": "4360957faec35f80c22ea2f056bf93ff4283879b8fed9b6bbf40d55b8916ec08"
+    },
+    {
+      "file": "dispatch-pages-D4Rxhfyq.js",
+      "bytes": 61726,
+      "sha256": "f0c907f1a05b037137afe71f7a83770ff7b79b7f37f36126e2c70cfb368bd10b"
+    },
+    {
+      "file": "index-C7q6cRbM.js",
+      "bytes": 649883,
+      "sha256": "8b0c656198f350b6163f20b27c43acb394718fa079353e80583fbed9081a29cc"
+    },
+    {
+      "file": "postal-review-page-sRr-NnBS.js",
+      "bytes": 12885,
+      "sha256": "107c24cd97cdd9b0eaf6e7227c095684ba31563dae931286bf59df2f2e67d1bc"
+    },
+    {
+      "file": "secure-distribution-pages-CWuL-JRg.js",
+      "bytes": 22175,
+      "sha256": "040a30d46eb0fe128e3f4f28b5b66b652255e500b87198d6f5b49c1052319018"
+    },
+    {
+      "file": "secure-source-copy-D9T28rou.js",
+      "bytes": 3250,
+      "sha256": "70af9d7b3be94c02f38392235b21d5fd6da495d5f0b585385af818b334f7f76e"
+    }
+  ],
+  "broadBrowser": {
+    "expected": 132,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0,
+    "durationMs": 111629.467
+  },
+  "finalBrowser": {
+    "startTime": "2026-11-08T00:35:55.199Z",
+    "duration": 45963.743,
+    "expected": 60,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "measurements": [
+    {
+      "project": "chromium",
+      "test": "one priced action records review and sends without an intermediate refresh or modal",
+      "environment": "local intercepted API; real built web application",
+      "firstUsefulContentMs": 162.79999995231628,
+      "requests": 39,
+      "transferredBytes": 729118,
+      "mutations": 2,
+      "detailReads": 1
+    },
+    {
+      "project": "mobile-chromium",
+      "test": "one priced action records review and sends without an intermediate refresh or modal",
+      "environment": "local intercepted API; real built web application",
+      "firstUsefulContentMs": 154.79999995231628,
+      "requests": 39,
+      "transferredBytes": 729118,
+      "mutations": 2,
+      "detailReads": 1
+    },
+    {
+      "project": "iphone-webkit",
+      "test": "one priced action records review and sends without an intermediate refresh or modal",
+      "environment": "local intercepted API; real built web application",
+      "firstUsefulContentMs": 233,
+      "requests": 43,
+      "transferredBytes": 807660,
+      "mutations": 2,
+      "detailReads": 1
+    },
+    {
+      "project": "chromium",
+      "test": "secure creates a separate source only on request and preserves the complete share draft",
+      "resourceCount": 40,
+      "javascriptEncodedBytes": 562082,
+      "javascriptTransferredBytes": 569582,
+      "firstContentfulPaintMs": 104,
+      "firstUsefulFormMs": 184.5,
+      "readsBeforeRecovery": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/secure-distributions/catalog",
+        "/api/documents"
+      ],
+      "readsAfterCopy": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/secure-distributions/catalog",
+        "/api/documents"
+      ],
+      "writesBeforeExplicitPreparation": [
+        "/api/secure-distributions",
+        "/api/documents/doc_original/secure-copy"
+      ]
+    },
+    {
+      "project": "chromium",
+      "test": "email creates a separate source only on request and preserves the complete share draft",
+      "resourceCount": 49,
+      "javascriptEncodedBytes": 592178,
+      "javascriptTransferredBytes": 601778,
+      "firstContentfulPaintMs": 104,
+      "firstUsefulFormMs": 437.5,
+      "readsBeforeRecovery": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/documents",
+        "/api/senders"
+      ],
+      "readsAfterCopy": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/documents",
+        "/api/senders"
+      ],
+      "writesBeforeExplicitPreparation": [
+        "/api/secure-distributions",
+        "/api/documents/doc_original/secure-copy"
+      ]
+    },
+    {
+      "project": "mobile-chromium",
+      "test": "secure creates a separate source only on request and preserves the complete share draft",
+      "resourceCount": 40,
+      "javascriptEncodedBytes": 562082,
+      "javascriptTransferredBytes": 569582,
+      "firstContentfulPaintMs": 104,
+      "firstUsefulFormMs": 174.79999995231628,
+      "readsBeforeRecovery": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/secure-distributions/catalog",
+        "/api/documents"
+      ],
+      "readsAfterCopy": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/secure-distributions/catalog",
+        "/api/documents"
+      ],
+      "writesBeforeExplicitPreparation": [
+        "/api/secure-distributions",
+        "/api/documents/doc_original/secure-copy"
+      ]
+    },
+    {
+      "project": "mobile-chromium",
+      "test": "email creates a separate source only on request and preserves the complete share draft",
+      "resourceCount": 49,
+      "javascriptEncodedBytes": 592178,
+      "javascriptTransferredBytes": 601778,
+      "firstContentfulPaintMs": 96,
+      "firstUsefulFormMs": 426.89999997615814,
+      "readsBeforeRecovery": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/documents",
+        "/api/senders"
+      ],
+      "readsAfterCopy": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/documents",
+        "/api/senders"
+      ],
+      "writesBeforeExplicitPreparation": [
+        "/api/secure-distributions",
+        "/api/documents/doc_original/secure-copy"
+      ]
+    },
+    {
+      "project": "iphone-webkit",
+      "test": "secure creates a separate source only on request and preserves the complete share draft",
+      "resourceCount": 44,
+      "javascriptEncodedBytes": 562864,
+      "javascriptTransferredBytes": 570364,
+      "firstContentfulPaintMs": 158,
+      "firstUsefulFormMs": 265,
+      "readsBeforeRecovery": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/secure-distributions/catalog",
+        "/api/documents"
+      ],
+      "readsAfterCopy": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/secure-distributions/catalog",
+        "/api/documents"
+      ],
+      "writesBeforeExplicitPreparation": [
+        "/api/secure-distributions",
+        "/api/documents/doc_original/secure-copy"
+      ]
+    },
+    {
+      "project": "iphone-webkit",
+      "test": "email creates a separate source only on request and preserves the complete share draft",
+      "resourceCount": 53,
+      "javascriptEncodedBytes": 593087,
+      "javascriptTransferredBytes": 602687,
+      "firstContentfulPaintMs": 111,
+      "firstUsefulFormMs": 958,
+      "readsBeforeRecovery": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/documents",
+        "/api/senders"
+      ],
+      "readsAfterCopy": [
+        "/api/session",
+        "/api/capabilities",
+        "/api/documents",
+        "/api/senders"
+      ],
+      "writesBeforeExplicitPreparation": [
+        "/api/secure-distributions",
+        "/api/documents/doc_original/secure-copy"
+      ]
+    }
+  ],
+  "initialControllerSourceHashes": {
+    "apps/web/src/client-write-recovery.ts": "84de946b4ef7e654b3e49a42146c2867ff5fa15756a0fec3ddbf84585dae76f7",
+    "apps/web/src/postal-quote-state.ts": "82cf9ce3b7951108c4061626b7c2d744f30ce51ebfad21bd2c9daf47dfc5584e",
+    "apps/web/src/secure-source-copy-state.ts": "3cd7cd372d7156737fb735fe6b6f36691e5f94fa6fefd42dfc12e16e1a056e26",
+    "apps/web/src/postal-review-page.tsx": "cee2c7e33da8bb08e0bbc43451abe679b3fe2b01b6f14a7704ef6c2fb03bd2a6",
+    "apps/web/src/postal-quote-followup.ts": "29ca13cbb1fd6c97a342b2963655fc61f298a66e2a5d75a3e3c23fd857cf176b",
+    "apps/web/src/secure-distribution-pages.tsx": "1a9792f31672d380e710f4b36ecf9f0f1405269a57bd579282021d4a8624a9c5",
+    "apps/web/src/secure-source-copy.tsx": "d8a4ea71e088d7618f70cfdb4ec8cd10b29fbf42f1b7627629fa844904754726"
+  },
+  "finalMeasurementBrowser": {
+    "startTime": "2026-11-08T01:45:09.599Z",
+    "duration": 12101.567,
+    "expected": 9,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "continuationBrowser": {
+    "startTime": "2026-11-08T00:55:56.730Z",
+    "duration": 17138.504999999997,
+    "expected": 27,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "continuationQualification": "Final built web; explicit approval and confirmation replies after A to B to A require tracking; no automatic further write",
+  "preCatalogMeasurement": {
+    "assets": [
+      {
+        "file": "client-write-recovery-pVPCdW6G.js",
+        "bytes": 1612,
+        "sha256": "fe9a7e3c6ad6a802534a6dbe0284672d5894668e7b40220b50fd5e27c26b6fee"
+      },
+      {
+        "file": "dispatch-pages-DFrRk7Ku.js",
+        "bytes": 61726,
+        "sha256": "8da0bd1e168a68314285e06109b23d90baa1b469e263383dfbf368461a9f9e51"
+      },
+      {
+        "file": "index-D5tEoW3w.js",
+        "bytes": 649883,
+        "sha256": "ada1b9845644fc10c8394dc44529d01d8bfe38aa73b6864e90e18f50d34f2fbe"
+      },
+      {
+        "file": "postal-review-page-C-2yFspE.js",
+        "bytes": 12885,
+        "sha256": "04218b3ec0d6ce60739df95586be2ce3b59b24e265a4f41e06418bf912d68ea5"
+      },
+      {
+        "file": "secure-distribution-pages-DSkf2rQ6.js",
+        "bytes": 22175,
+        "sha256": "8dc3627829936ed82b67e042becef16291275f896444bfbc0731ce4139843f17"
+      },
+      {
+        "file": "secure-source-copy-Dr4AjerI.js",
+        "bytes": 3250,
+        "sha256": "188883aac559fdd7215127f388a703d325de06c72a87980f81a729308f3b0588"
+      }
+    ],
+    "measurements": [
+      {
+        "project": "chromium",
+        "test": "one priced action records review and sends without an intermediate refresh or modal",
+        "environment": "local intercepted API; real built web application",
+        "firstUsefulContentMs": 164.5,
+        "requests": 39,
+        "transferredBytes": 728948,
+        "mutations": 2,
+        "detailReads": 1
+      },
+      {
+        "project": "mobile-chromium",
+        "test": "one priced action records review and sends without an intermediate refresh or modal",
+        "environment": "local intercepted API; real built web application",
+        "firstUsefulContentMs": 146.79999995231628,
+        "requests": 39,
+        "transferredBytes": 728948,
+        "mutations": 2,
+        "detailReads": 1
+      },
+      {
+        "project": "iphone-webkit",
+        "test": "one priced action records review and sends without an intermediate refresh or modal",
+        "environment": "local intercepted API; real built web application",
+        "firstUsefulContentMs": 217,
+        "requests": 43,
+        "transferredBytes": 807490,
+        "mutations": 2,
+        "detailReads": 1
+      },
+      {
+        "project": "chromium",
+        "test": "secure creates a separate source only on request and preserves the complete share draft",
+        "resourceCount": 40,
+        "javascriptEncodedBytes": 561912,
+        "javascriptTransferredBytes": 569412,
+        "firstContentfulPaintMs": 116,
+        "firstUsefulFormMs": 188,
+        "readsBeforeRecovery": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/secure-distributions/catalog",
+          "/api/documents"
+        ],
+        "readsAfterCopy": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/secure-distributions/catalog",
+          "/api/documents"
+        ],
+        "writesBeforeExplicitPreparation": [
+          "/api/secure-distributions",
+          "/api/documents/doc_original/secure-copy"
+        ]
+      },
+      {
+        "project": "chromium",
+        "test": "email creates a separate source only on request and preserves the complete share draft",
+        "resourceCount": 49,
+        "javascriptEncodedBytes": 591998,
+        "javascriptTransferredBytes": 601598,
+        "firstContentfulPaintMs": 104,
+        "firstUsefulFormMs": 437.2000000476837,
+        "readsBeforeRecovery": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/documents",
+          "/api/senders"
+        ],
+        "readsAfterCopy": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/documents",
+          "/api/senders"
+        ],
+        "writesBeforeExplicitPreparation": [
+          "/api/secure-distributions",
+          "/api/documents/doc_original/secure-copy"
+        ]
+      },
+      {
+        "project": "mobile-chromium",
+        "test": "secure creates a separate source only on request and preserves the complete share draft",
+        "resourceCount": 40,
+        "javascriptEncodedBytes": 561912,
+        "javascriptTransferredBytes": 569412,
+        "firstContentfulPaintMs": 104,
+        "firstUsefulFormMs": 176.69999992847443,
+        "readsBeforeRecovery": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/secure-distributions/catalog",
+          "/api/documents"
+        ],
+        "readsAfterCopy": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/secure-distributions/catalog",
+          "/api/documents"
+        ],
+        "writesBeforeExplicitPreparation": [
+          "/api/secure-distributions",
+          "/api/documents/doc_original/secure-copy"
+        ]
+      },
+      {
+        "project": "mobile-chromium",
+        "test": "email creates a separate source only on request and preserves the complete share draft",
+        "resourceCount": 49,
+        "javascriptEncodedBytes": 591998,
+        "javascriptTransferredBytes": 601598,
+        "firstContentfulPaintMs": 100,
+        "firstUsefulFormMs": 435.7999999523163,
+        "readsBeforeRecovery": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/documents",
+          "/api/senders"
+        ],
+        "readsAfterCopy": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/documents",
+          "/api/senders"
+        ],
+        "writesBeforeExplicitPreparation": [
+          "/api/secure-distributions",
+          "/api/documents/doc_original/secure-copy"
+        ]
+      },
+      {
+        "project": "iphone-webkit",
+        "test": "secure creates a separate source only on request and preserves the complete share draft",
+        "resourceCount": 44,
+        "javascriptEncodedBytes": 562694,
+        "javascriptTransferredBytes": 570194,
+        "firstContentfulPaintMs": 156,
+        "firstUsefulFormMs": 252,
+        "readsBeforeRecovery": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/secure-distributions/catalog",
+          "/api/documents"
+        ],
+        "readsAfterCopy": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/secure-distributions/catalog",
+          "/api/documents"
+        ],
+        "writesBeforeExplicitPreparation": [
+          "/api/secure-distributions",
+          "/api/documents/doc_original/secure-copy"
+        ]
+      },
+      {
+        "project": "iphone-webkit",
+        "test": "email creates a separate source only on request and preserves the complete share draft",
+        "resourceCount": 53,
+        "javascriptEncodedBytes": 592907,
+        "javascriptTransferredBytes": 602507,
+        "firstContentfulPaintMs": 110,
+        "firstUsefulFormMs": 991,
+        "readsBeforeRecovery": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/documents",
+          "/api/senders"
+        ],
+        "readsAfterCopy": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/documents",
+          "/api/senders"
+        ],
+        "writesBeforeExplicitPreparation": [
+          "/api/secure-distributions",
+          "/api/documents/doc_original/secure-copy"
+        ]
+      }
+    ],
+    "browser": {
+      "startTime": "2026-11-08T00:56:14.560Z",
+      "duration": 11970.96,
+      "expected": 9,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  },
+  "postCatalogBuild": {
+    "passed": true,
+    "command": "npm run build",
+    "includes": [
+      "typecheck",
+      "web and synchronized archive build",
+      "local Worker dry-run"
+    ],
+    "sourceScopeProof": "docs/evidence/state-machine-full-application-2026-11-08.json",
+    "measurementsRefreshed": true
+  },
+  "finalScreenshots": [
+    {
+      "path": "docs/evidence/client-workflow-desktop-2026-11-08.png",
+      "sha256": "b82bd830568bebcea88dee49ca0fc3b40271296fccf2ae6a32c4609a7bce86aa",
+      "visuallyInspected": true
+    },
+    {
+      "path": "docs/evidence/client-workflow-mobile-2026-11-08.png",
+      "sha256": "343d5b43a95e21564a1cb226bae5335bc773684999510d7e1b9aded92509b03c",
+      "visuallyInspected": true
+    }
+  ]
+}

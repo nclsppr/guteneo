@@ -20,6 +20,10 @@ import {
   PRIVATE_UPLOAD_LEASE_MS,
   type UploadRow,
 } from "./document-upload";
+import {
+  mcpUploadNextAction,
+  mcpUploadReceiptState,
+} from "./private-upload-lifecycle";
 
 type Stage = {
   organization_id: string;
@@ -211,16 +215,11 @@ export class McpAppDocumentUploadService {
         );
     }
     const remainingCalls = MCP_APP_UPLOAD_MAX_CALLS - stage.call_count;
-    const nextAction =
-      stage.state === "complete"
-        ? "get_document"
-        : stage.state === "finalizing" || stage.writer_token
-          ? "wait"
-          : stage.state !== "receiving" || remainingCalls === 0
-            ? "stop"
-            : confirmed.length === stage.part_count
-              ? "finish"
-              : "append_part";
+    const nextAction = mcpUploadNextAction({
+      ...stage,
+      remainingCalls,
+      confirmedParts: confirmed.length,
+    });
     await this.core.appAuthority(row, false).assertCurrent();
     return mcpAppUploadView.parse({
       uploadId: row.id,
@@ -358,7 +357,8 @@ export class McpAppDocumentUploadService {
     }
     if (["finalizing", "unknown"].includes(stage.state)) {
       const receipt = await this.core.appGet(identity, row.id);
-      if (receipt.status === "complete") {
+      const transition = mcpUploadReceiptState(stage.state, receipt.status);
+      if (transition === "complete") {
         await this.env.DB.prepare(
           "UPDATE mcp_app_document_uploads SET state='complete',writer_token=NULL,writer_expires_at=NULL,writer_part_index=NULL,error_code=NULL,updated_at=?,next_cleanup_at=? WHERE organization_id=? AND upload_id=? AND state IN ('finalizing','unknown')",
         )
@@ -366,7 +366,7 @@ export class McpAppDocumentUploadService {
           .run();
         return;
       }
-      if (stage.state === "finalizing" && receipt.status === "unknown") {
+      if (transition === "unknown") {
         await this.env.DB.prepare(
           "UPDATE mcp_app_document_uploads SET state='unknown',writer_token=NULL,writer_expires_at=NULL,writer_part_index=NULL,error_code='APP_UPLOAD_UNCONFIRMED',updated_at=? WHERE organization_id=? AND upload_id=? AND state='finalizing'",
         )
@@ -374,7 +374,7 @@ export class McpAppDocumentUploadService {
           .run();
         return;
       }
-      if (receipt.status === "rejected") {
+      if (transition === "rejected") {
         await this.env.DB.prepare(
           "UPDATE mcp_app_document_uploads SET state='rejected',writer_token=NULL,writer_expires_at=NULL,writer_part_index=NULL,error_code=?,updated_at=?,next_cleanup_at=? WHERE organization_id=? AND upload_id=? AND state IN ('finalizing','unknown')",
         )
@@ -792,12 +792,7 @@ export class McpAppDocumentUploadService {
       /* The shared ledger determines rejection versus uncertain pipeline outcomes. */
     }
     const receipt = await this.core.appGet(identity, row.id);
-    const status =
-      receipt.status === "complete"
-        ? "complete"
-        : receipt.status === "rejected"
-          ? "rejected"
-          : "unknown";
+    const status = mcpUploadReceiptState("finalizing", receipt.status, true)!;
     await this.env.DB.prepare(
       "UPDATE mcp_app_document_uploads SET state=?,writer_token=NULL,writer_expires_at=NULL,writer_part_index=NULL,error_code=?,updated_at=?,next_cleanup_at=? WHERE organization_id=? AND upload_id=? AND state='finalizing' AND writer_token=?",
     )

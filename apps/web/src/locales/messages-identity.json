@@ -419,6 +419,11 @@
     "Nur in der lokalen Simulation verfügbar.",
     "Just an der lokaler Simulatioun disponibel."
   ],
+  "Ce compte est en cours de suppression ou a été supprimé.": [
+    "This account is being deleted or has been deleted.",
+    "Dieses Konto wird gelöscht oder wurde gelöscht.",
+    "Dëse Kont gëtt geläscht oder gouf geläscht."
+  ],
   "Identifiant OAuth non valide.": [
     "Invalid OAuth identifier.",
     "Ungültige OAuth-Kennung.",

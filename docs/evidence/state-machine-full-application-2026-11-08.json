@@ -1,0 +1,254 @@
+{
+  "date": "2026-11-08",
+  "scope": "Complete standard local application E2E suite using seeded local Worker/D1/renderer plus its declared intercepted fixtures. No deployment, production Auth0, provider delivery, paid operation or physical native device qualification.",
+  "command": "GUTENEO_E2E_PREBUILT=true npx playwright test --config playwright.config.ts",
+  "profiles": [
+    "Desktop Chrome",
+    "Pixel 7 Chromium",
+    "iPhone 13 WebKit"
+  ],
+  "stats": {
+    "startTime": "2026-11-08T01:14:49.016Z",
+    "duration": 1425128.995,
+    "expected": 1148,
+    "skipped": 19,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "projects": {
+    "chromium": {
+      "total": 389,
+      "passed": 386,
+      "skipped": 3,
+      "failed": 0
+    },
+    "mobile-chromium": {
+      "total": 389,
+      "passed": 381,
+      "skipped": 8,
+      "failed": 0
+    },
+    "iphone-webkit": {
+      "total": 389,
+      "passed": 381,
+      "skipped": 8,
+      "failed": 0
+    }
+  },
+  "independentDiscovery": {
+    "count": 1167,
+    "actualCount": 1167,
+    "stableIDsMatch": true,
+    "sha256": "14fa4296043551580ba5c54803fc3f0983ac44cf9559e52a8324b4f211854e55"
+  },
+  "declaredSkips": [
+    {
+      "project": "mobile-chromium",
+      "file": "dashboard-v2.spec.ts",
+      "title": "V2 keeps every destination in view and in place on common desktop screens",
+      "reason": "Desktop sidebar geometry; phones use the collapsed navigation.",
+      "valid": true
+    },
+    {
+      "project": "iphone-webkit",
+      "file": "dashboard-v2.spec.ts",
+      "title": "V2 keeps every destination in view and in place on common desktop screens",
+      "reason": "Desktop sidebar geometry; phones use the collapsed navigation.",
+      "valid": true
+    },
+    {
+      "project": "chromium",
+      "file": "mobile-account.spec.ts",
+      "title": "mobile private account links errors to fields and keeps every session and member action visible",
+      "reason": "Mobile account layout with intercepted API fixtures",
+      "valid": true
+    },
+    {
+      "project": "chromium",
+      "file": "mobile-account.spec.ts",
+      "title": "mobile billing preserves dates, references and all amounts while top-up remains disabled",
+      "reason": "Mobile billing layout with intercepted API fixtures",
+      "valid": true
+    },
+    {
+      "project": "chromium",
+      "file": "mobile-ses-errors.spec.ts",
+      "title": "mobile email refusals explain capacity and provider restrictions while uncertainty forbids a duplicate",
+      "reason": "Mobile status copy with local API fixtures",
+      "valid": true
+    },
+    {
+      "project": "mobile-chromium",
+      "file": "studio-space.spec.ts",
+      "title": "every Correspondence entry of an administrator stays in view at 1280 by 720",
+      "reason": "Desktop sidebar geometry; phones use the collapsed navigation.",
+      "valid": true
+    },
+    {
+      "project": "mobile-chromium",
+      "file": "studio-space.spec.ts",
+      "title": "the former member address keeps Administration navigation in view at 1280 by 720",
+      "reason": "Desktop sidebar geometry; phones use the collapsed navigation.",
+      "valid": true
+    },
+    {
+      "project": "iphone-webkit",
+      "file": "studio-space.spec.ts",
+      "title": "every Correspondence entry of an administrator stays in view at 1280 by 720",
+      "reason": "Desktop sidebar geometry; phones use the collapsed navigation.",
+      "valid": true
+    },
+    {
+      "project": "iphone-webkit",
+      "file": "studio-space.spec.ts",
+      "title": "the former member address keeps Administration navigation in view at 1280 by 720",
+      "reason": "Desktop sidebar geometry; phones use the collapsed navigation.",
+      "valid": true
+    },
+    {
+      "project": "mobile-chromium",
+      "file": "template-advanced-settings.spec.ts",
+      "title": "business rules edited in the studio persist and govern real PDF totals, defaults and visibility",
+      "reason": "Graphical template settings are qualified on desktop.",
+      "valid": true
+    },
+    {
+      "project": "iphone-webkit",
+      "file": "template-advanced-settings.spec.ts",
+      "title": "business rules edited in the studio persist and govern real PDF totals, defaults and visibility",
+      "reason": "Graphical template settings are qualified on desktop.",
+      "valid": true
+    },
+    {
+      "project": "mobile-chromium",
+      "file": "template-data.spec.ts",
+      "title": "API gallery template remains editable in the desktop studio and reusable by API",
+      "reason": "Graphical editing is qualified on desktop; mobile consultation has its own scenario.",
+      "valid": true
+    },
+    {
+      "project": "iphone-webkit",
+      "file": "template-data.spec.ts",
+      "title": "API gallery template remains editable in the desktop studio and reusable by API",
+      "reason": "Graphical editing is qualified on desktop; mobile consultation has its own scenario.",
+      "valid": true
+    },
+    {
+      "project": "mobile-chromium",
+      "file": "template-images.spec.ts",
+      "title": "the image tool inserts a movable logo, saves original bytes and renders it into a PDF",
+      "reason": "Native visual editing is qualified on desktop; the image importer remains available on mobile.",
+      "valid": true
+    },
+    {
+      "project": "iphone-webkit",
+      "file": "template-images.spec.ts",
+      "title": "the image tool inserts a movable logo, saves original bytes and renders it into a PDF",
+      "reason": "Native visual editing is qualified on desktop; the image importer remains available on mobile.",
+      "valid": true
+    },
+    {
+      "project": "mobile-chromium",
+      "file": "template-settings.spec.ts",
+      "title": "web table column creates an optional money field and renders missing values blank",
+      "reason": "Graphical template settings are qualified on desktop.",
+      "valid": true
+    },
+    {
+      "project": "iphone-webkit",
+      "file": "template-settings.spec.ts",
+      "title": "web table column creates an optional money field and renders missing values blank",
+      "reason": "Graphical template settings are qualified on desktop.",
+      "valid": true
+    },
+    {
+      "project": "mobile-chromium",
+      "file": "template-word.spec.ts",
+      "title": "Word import exposes conversion warnings, supports native visual editing and renders an actual PDF",
+      "reason": "Native graphical editing is qualified on desktop.",
+      "valid": true
+    },
+    {
+      "project": "iphone-webkit",
+      "file": "template-word.spec.ts",
+      "title": "Word import exposes conversion warnings, supports native visual editing and renders an actual PDF",
+      "reason": "Native graphical editing is qualified on desktop.",
+      "valid": true
+    }
+  ],
+  "artifacts": {
+    "assetCount": 239,
+    "beforeSha256": "d77e1ead6b9c46513b0f38a414d20944fe246c57560a42dcca00286be005eea6",
+    "afterSha256": "d77e1ead6b9c46513b0f38a414d20944fe246c57560a42dcca00286be005eea6",
+    "unchanged": true,
+    "sourceMatchesFinalFrozenSnapshot": false,
+    "reviewedCatalogDeltaOnly": true,
+    "approvedLocaleDelta": {
+      "approvedDelta": "Exactly three reviewed catalog rows; API/runtime/SQL and every other scoped source byte unchanged",
+      "originalFullRunSourceSnapshotSha256": "62eec33ae26978f2b3c427df7bcbe619f77baca8008a0779dcfdbd6ec6dd96d0",
+      "reconstructedWithoutThreeRowsSha256": "62eec33ae26978f2b3c427df7bcbe619f77baca8008a0779dcfdbd6ec6dd96d0",
+      "currentSourceSnapshotSha256": "ec5caa56a9829605d3620a52082a673192696fb0d4d76ae4fb696383d1425f02",
+      "sourceDiffIsExactlyThreeCatalogRows": true,
+      "catalogs": [
+        {
+          "path": "apps/web/src/locales/messages-identity.json",
+          "key": "Ce compte est en cours de suppression ou a été supprimé.",
+          "english": "This account is being deleted or has been deleted.",
+          "translations": {
+            "fr": "Ce compte est en cours de suppression ou a été supprimé.",
+            "de": "Dieses Konto wird gelöscht oder wurde gelöscht.",
+            "lb": "Dëse Kont gëtt geläscht oder gouf geläscht."
+          },
+          "beforeSha256": "42ff9840f45b8024604948b82c95a013bcbcc7ef906286087266b320ae021456",
+          "afterSha256": "f257144d0e9c9c6b2ec22762d67ce2dbcdf454396d50c824390e1090ccfbd885"
+        },
+        {
+          "path": "apps/web/src/locales/messages-administration.json",
+          "key": "Référence d’incident non valide.",
+          "english": "Invalid incident reference.",
+          "translations": {
+            "fr": "Référence d’incident non valide.",
+            "de": "Ungültige Vorfallsreferenz.",
+            "lb": "Ongëlteg Referenz vum Virfall."
+          },
+          "beforeSha256": "04a1deab8808ec0e88f348b9d1f46babdb0114f953b71703346935d65b2de517",
+          "afterSha256": "3a7e65db329c3bb97ba6d1fc313b0bc86376c710196083ac9993d29e404ddd1a"
+        },
+        {
+          "path": "apps/web/src/locales/messages-operations.json",
+          "key": "Les droits de préparation ont changé.",
+          "english": "Preparation authority changed.",
+          "translations": {
+            "fr": "Les droits de préparation ont changé.",
+            "de": "Die Berechtigungen für die Vorbereitung haben sich geändert.",
+            "lb": "D’Rechter fir d’Virbereedung hu geännert."
+          },
+          "beforeSha256": "ab6f267a2e42556832e6fc6a6c7f58f078be88d67255f260683ba0fd93183928",
+          "afterSha256": "8788d3b72c42c296770fb0a0da831a3333e76aa2b7d848a874974da544f04bcd"
+        }
+      ]
+    },
+    "testSourceScope": [
+      "tests/e2e",
+      "tests/fixtures",
+      "playwright.config.ts"
+    ],
+    "testSourceSnapshotSha256": "dcff17aa92a10b4a93dd0c13d1c91a6c9edd720098e0cdc5ed3384554e75719c",
+    "testSourceMatches": true,
+    "testedSourceSnapshotSha256": "62eec33ae26978f2b3c427df7bcbe619f77baca8008a0779dcfdbd6ec6dd96d0",
+    "currentSourceSnapshotSha256": "ec5caa56a9829605d3620a52082a673192696fb0d4d76ae4fb696383d1425f02",
+    "liveScopeApprovedCatalogDelta": {
+      "scope": "Complete live-profile source fingerprint includes all application API/web, packages, migrations, integrations and shared build inputs. Fingerprint only; no deployment.",
+      "originalSourceSha256": "6737329bf7cfe47328d16892c1ca64d8893e31fb6238021863a85a58dcfa27dc",
+      "reconstructedWithoutThreeCatalogRowsSha256": "6737329bf7cfe47328d16892c1ca64d8893e31fb6238021863a85a58dcfa27dc",
+      "finalSourceSha256": "f7731f69962e64c640c9d436e614c0ae0d44fe98971d37bcb3524f35cb2df550",
+      "runtimeAndSchemaUnchangedBeyondCatalogs": true
+    }
+  },
+  "problems": [],
+  "report": "reports/playwright.json",
+  "reportSha256": "2570150108395a6d684c25e7e2af7222c47d9b5a83797a1b5bd24bd68b52f379",
+  "log": "/tmp/guteneo-full-application-e2e-20261108.log",
+  "logSha256": "c7fe1f86ee01d33c916443bff68d2a9dd39b81f58925c9a624f0ffaf26e3d013",
+  "archivedReport": "/tmp/guteneo-full-application-e2e-20261108.json"
+}

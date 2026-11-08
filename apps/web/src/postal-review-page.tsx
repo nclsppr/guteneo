@@ -1,7 +1,7 @@
 import { msg } from "./messages";
 import { t } from "./locale";
 import { RolePermissionNotice } from "./role-guide";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useReducer, useRef, useState, type FormEvent } from "react";
 import { ArrowLeft, ArrowRight, ArrowClockwise } from "@phosphor-icons/react";
 import { api } from "./api";
 import {
@@ -17,6 +17,10 @@ import type { PostalReview } from "../../../packages/contracts/src/postal-review
 import site from "../../../packages/contracts/src/public-site.json";
 import { PostalAddressPageSummary } from "./postal-address-page";
 import { usePostalQuote } from "./postal-quote-followup";
+import {
+  useCurrentClientView,
+  writeRecoveryTransition,
+} from "./client-write-recovery";
 import { PostalCutoffNotice } from "./postal-cutoff-notice";
 
 const getIssueLabels = (): Record<string, string> => ({
@@ -29,9 +33,7 @@ const getIssueLabels = (): Record<string, string> => ({
   POSTAL_EDGE_CONTENT: msg(
     "Keep content away from the edges: a blank 5 mm margin is required.",
   ),
-  POSTAL_ADDRESS_EMPTY: msg(
-    "No address was detected in the envelope window.",
-  ),
+  POSTAL_ADDRESS_EMPTY: msg("No address was detected in the envelope window."),
   POSTAL_ADDRESS_LINE_COUNT: msg(
     "Rearrange the address to meet the allowed number of lines.",
   ),
@@ -41,41 +43,29 @@ const getIssueLabels = (): Record<string, string> => ({
   POSTAL_COUNTRY_LINE_REQUIRED: msg(
     "Add the country on the last line of the international address.",
   ),
-  POSTAL_CITY_UPPERCASE_REQUIRED: msg(
-    "Write the city name in capitals.",
-  ),
-  POSTAL_POSTCODE_LINE_INVALID: msg(
-    "Check the postcode and city line.",
-  ),
+  POSTAL_CITY_UPPERCASE_REQUIRED: msg("Write the city name in capitals."),
+  POSTAL_POSTCODE_LINE_INVALID: msg("Check the postcode and city line."),
   POSTAL_ANNOTATIONS_UNSUPPORTED: msg(
     "Remove or flatten annotations before exporting.",
   ),
-  POSTAL_ROTATION_UNSUPPORTED: msg(
-    "Export portrait pages without rotation.",
-  ),
+  POSTAL_ROTATION_UNSUPPORTED: msg("Export portrait pages without rotation."),
   POSTAL_A4_REQUIRED: msg("Use an A4 portrait page (210 × 297 mm)."),
   POSTAL_PDF_SIZE: msg("The PDF must be no larger than 8 MB."),
   POSTAL_PDF_INVALID: msg(
     "The PDF cannot be read completely. Export a new version.",
   ),
-  POSTAL_FONT_NOT_EMBEDDED: msg(
-    "Embed all fonts in the PDF when exporting.",
-  ),
+  POSTAL_FONT_NOT_EMBEDDED: msg("Embed all fonts in the PDF when exporting."),
   POSTAL_FONT_UNSUPPORTED: msg(
     "A font cannot be checked. Export the document again with embedded fonts.",
   ),
-  POSTAL_INTERACTIVE_FORM: msg(
-    "Flatten form fields before exporting the PDF.",
-  ),
+  POSTAL_INTERACTIVE_FORM: msg("Flatten form fields before exporting the PDF."),
   POSTAL_CROP_UNSUPPORTED: msg(
     "The PDF crop hides part of the page. Export the entire A4 page.",
   ),
   POSTAL_ADDRESS_TEXT_CLIPPED: msg(
     "Part of the address extends beyond the envelope window.",
   ),
-  POSTAL_ADDRESS_TEXT_OVERLAP: msg(
-    "Elements overlap in the address area.",
-  ),
+  POSTAL_ADDRESS_TEXT_OVERLAP: msg("Elements overlap in the address area."),
   POSTAL_ADDRESS_TEXT_GEOMETRY_REVIEW: msg(
     "The position of the address text requires a visual check.",
   ),
@@ -85,20 +75,18 @@ const getIssueLabels = (): Record<string, string> => ({
   POSTAL_RENDER_TIMEOUT: msg(
     "Rendering could not be completed within the time limit.",
   ),
-  POSTAL_IMAGE_BUDGET: msg(
-    "An image in the PDF is too large to check.",
-  ),
+  POSTAL_IMAGE_BUDGET: msg("An image in the PDF is too large to check."),
   POSTAL_OPTIONAL_CONTENT_UNSUPPORTED: msg(
     "Optional layers must be flattened before exporting.",
   ),
 });
 
 function statusLabel(review: PostalReview) {
-  if (review.transferStatus === "unknown") return msg("Transfer needs checking");
+  if (review.transferStatus === "unknown")
+    return msg("Transfer needs checking");
   if (review.transferStatus === "prepared")
     return msg("Calculating the delivery price…");
-  if (review.transferStatus === "preparing")
-    return msg("Preparing the draft…");
+  if (review.transferStatus === "preparing") return msg("Preparing the draft…");
   if (review.status === "processing") return msg("Checking the PDF…");
   if (review.status === "blocked") return msg("The PDF needs correction");
   if (review.status === "failed") return msg("The check did not complete");
@@ -121,7 +109,9 @@ export function PostalReviewPage({
   const [cropFailed, setCropFailed] = useState(false);
   const [cropLoaded, setCropLoaded] = useState(false);
   const [cropAttempt, setCropAttempt] = useState(0);
-  const [needsReconciliation, setNeedsReconciliation] = useState(false);
+  const [recovery, recover] = useReducer(writeRecoveryTransition, "ready");
+  const currentView = useCurrentClientView(path);
+  const needsReconciliation = recovery !== "ready";
   const refreshBaseline = useRef<{ previous: PostalReview | undefined } | null>(
     null,
   );
@@ -143,7 +133,7 @@ export function PostalReviewPage({
   function refreshReview() {
     if (action.pending || resource.loading || quote.pending) return;
     action.clear();
-    setNeedsReconciliation(true);
+    recover("read");
     refreshBaseline.current = { previous: resource.data };
     setCropFailed(false);
     setCropLoaded(false);
@@ -159,7 +149,11 @@ export function PostalReviewPage({
       !resource.error
     ) {
       refreshBaseline.current = null;
-      setNeedsReconciliation(false);
+      recover("reconciled");
+    }
+    if (refreshBaseline.current && resource.error && !resource.loading) {
+      refreshBaseline.current = null;
+      recover("read_failed");
     }
   }, [review, resource.loading, resource.error]);
 
@@ -204,17 +198,31 @@ export function PostalReviewPage({
   async function transfer(event: FormEvent) {
     event.preventDefault();
     if (!canTransfer || action.pending || transferring.current) return;
+    const isCurrent = currentView();
     transferring.current = true;
-    setNeedsReconciliation(true);
+    recover("write");
     await action.run(async () => {
-      const next = await api<PostalReview>(`${path}/transfer`, {
-        method: "POST",
-        body: { reviewed: true, consentToTransfer: true },
-      });
-      resource.setData(next);
-      setNeedsReconciliation(false);
-      polls.current = 0;
-      resultHeading.current?.focus();
+      try {
+        const next = await api<PostalReview>(`${path}/transfer`, {
+          method: "POST",
+          body: { reviewed: true, consentToTransfer: true },
+        });
+        if (!isCurrent()) {
+          recover("uncertain");
+          return;
+        }
+        resource.setData(next);
+        recover("written");
+        polls.current = 0;
+        resultHeading.current?.focus();
+      } catch (error) {
+        if (!isCurrent()) {
+          recover("uncertain");
+          return;
+        }
+        recover("uncertain");
+        throw error;
+      }
     });
     transferring.current = false;
   }
@@ -267,9 +275,7 @@ export function PostalReviewPage({
               </div>
               <p role="status">
                 {processing
-                  ? msg(
-                      "Analysis is in progress. No letter has been sent.",
-                    )
+                  ? msg("Analysis is in progress. No letter has been sent.")
                   : msg("This check does not authorise sending.")}
               </p>
               {needsReconciliation && (
@@ -342,15 +348,11 @@ export function PostalReviewPage({
                         review.checks.pages.length,
                         review.checks.dpi,
                       )
-                    : msg(
-                        "Rendering of all pages is not yet confirmed.",
-                      )}
+                    : msg("Rendering of all pages is not yet confirmed.")}
                 </p>
                 <details className="postal-integrity">
                   <summary>{msg("Identify this PDF version")}</summary>
-                  <p>
-                    {msg("This fingerprint identifies the checked file.")}
-                  </p>
+                  <p>{msg("This fingerprint identifies the checked file.")}</p>
                   <code>{review.document.sha256}</code>
                 </details>
               </section>
@@ -358,9 +360,7 @@ export function PostalReviewPage({
                 className="postal-review-address"
                 aria-labelledby="postal-address-title"
               >
-                <h2 id="postal-address-title">
-                  {msg("The envelope window")}
-                </h2>
+                <h2 id="postal-address-title">{msg("The envelope window")}</h2>
                 <p>
                   {review.addressPage
                     ? msg(

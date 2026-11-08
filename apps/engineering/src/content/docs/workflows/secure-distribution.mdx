@@ -75,13 +75,15 @@ Sensitive approval is always a human browser action under the active document
 policy. An expert mandate cannot replace it. REST/MCP can prepare, inspect and
 confirm an exactly approved distribution under current rights/scopes and host
 confirmation; it cannot supply sensitive approval or associate the recipient.
+Legacy password links follow ordinary dispatch approval, which can use explicitly
+granted expert authority; that exception does not extend to secure distribution.
 
 <GutenbergNote
   pose="review"
   title="A proof and a delivery are separate commitments"
 >
-  Approving exact pages does not identify the recipient's account. Independent
-  association is checked separately before any sensitive title or page is shown.
+  Approving exact pages does not itself bind the recipient's account. The frozen
+  recipient-binding policy must pass before any sensitive title or page is shown.
 </GutenbergNote>
 
 ## Renew an unsubmitted invitation quote
@@ -109,17 +111,21 @@ remain distinct from hosted recovery, production publication and delivery proof.
 
 The server defaults to `strong`; an operator can explicitly select
 `verified_account`. The requested launch configuration selects `verified_account`;
-that source configuration alone proves no live activation. Both require verified account/address, identity-linked session,
-signed recent primary authentication time, current permissions and confirmed
-association. Reading, association and approval require authentication within
-fifteen minutes; original export, deposit and deletion require five minutes.
+that source configuration alone proves no live activation. Both preserve current
+session, signed authentication-time, permission and recipient-binding checks.
 
-`verified_account` does not claim MFA or physical identity. `strong` additionally
-requires qualified signed evidence of the method actually used; a registered
-passkey or old MFA boolean is insufficient. Environment and durable D1 policy
-must agree or access fails closed. Session access hints explain the UI but do
-not grant server authority. Returning to strong mode cannot relabel an ordinary
-approval as strong evidence.
+`verified_account` requires an identity-linked verified account and address. It
+uses the current eligible, unexpired session without the separate fifteen-minute
+or five-minute authentication-age limits. It does not claim MFA or physical
+identity. `strong` requires qualified signed evidence of the method actually
+used; a registered passkey or old MFA boolean is insufficient. Under `strong`,
+reading, association and approval require authentication within fifteen minutes;
+original export, deposit and deletion require five minutes. The approval itself
+retains its own bounded expiry under either policy.
+
+Environment and durable D1 policy must agree or access fails closed. Session
+access hints explain the UI but do not grant server authority. Returning to strong
+mode cannot relabel an ordinary approval as strong evidence.
 
 A document-authentication or freshness refusal shows a localized sign-in notice
 with an explicit **Sign in again** action. Fresh login returns to the existing
@@ -136,11 +142,14 @@ navigation. Same-tab handoff lasts at most ten minutes; login return paths conta
 no invitation secret. With blocked storage, explicitly sign in and reopen the
 invitation rather than placing its token in a URL.
 
-The recipient verifies the expected address and requests association. A current
-workspace approver independently confirms that stable account against a known
-relationship, separate channel or qualified evidence. A self-entered name alone
-is insufficient. Pending association reveals no sensitive title or content, and
-a changed candidate requires a new verification attestation.
+The recipient signs in with the expected verified address and requests association.
+The frozen `verified_email` binding policy binds that matching stable account at
+the server. It does not prove physical identity. With `independent`, a current
+workspace approver separately confirms the account against a known relationship,
+separate channel or qualified evidence. Historical distributions without a binding
+choice retain this independent check. A self-entered name alone is insufficient.
+Pending association reveals no sensitive title or content, and a changed candidate
+requires a new verification attestation.
 
 ## Shared access and acquired copies have different lifetimes
 
@@ -155,6 +164,18 @@ policy, owner, funding and fresh session. Revocation before that transaction
 prevents acquisition; later revocation cannot remove the acquired copy. Closing
 a tab does not cancel accepted work. Resume the same operation without a second
 copy or charge.
+
+An expired or revoked personal session pauses an unpublished copy; it does not
+abort an otherwise valid paid operation. An explicit deposit action with a new
+eligible session resumes it. A revoked or expired source grant instead aborts the
+unpublished operation; publication also rechecks its frozen deposit permission.
+Published copies keep their independent lifetime.
+
+The implementation uses explicit decisions for original-copy, page-copy and
+publication phases. These describe progress; the guarded publication transaction
+still decides whether the copy becomes available. A worker that loses eligible
+authentication clears its session reference and releases ownership before
+pausing. Duplicate deliveries cannot use that paused job to publish unattended.
 
 Personal deletion is explicit. Cancelling retains the copy; confirming removes
 reading/export without deleting the workspace source or previous exports.
@@ -201,3 +222,12 @@ A missing summary leaves the page usable, while an authority refusal clears both
 page and summary. Current authentication policy, account changes and every
 reader/download/deposit authorization remain enforced independently. Local D1
 and intercepted-browser checks do not establish hosted-volume or delivery proof.
+
+Private original transfer likewise separates upload completion from PDF readiness.
+Recovery of an uncertain import rechecks its exact retained document in the same
+write that records completion. If the document is purged during that recovery,
+the import stays unknown and must be inspected under its existing recovery
+contract. MCP multipart receipt convergence does not restart the import after an
+uncertain storage or registration outcome. The
+[state-machine guide](/architecture/state-machines/) explains these separate
+progress, authority and recovery contracts.

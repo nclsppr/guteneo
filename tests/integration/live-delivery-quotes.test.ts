@@ -162,6 +162,7 @@ beforeAll(async () => {
           "0060_pdf_validation_per_check.sql",
           "0065_verified_account_session_policy.sql",
           "0073_secure_document_source_copies.sql",
+          "0077_account_deletion.sql",
         ].includes(f),
     )
     .sort())
@@ -337,6 +338,9 @@ beforeAll(async () => {
       "utf8",
     ),
   );
+  // Deletion guards reference personal/secure session tables, which this
+  // populated pricing-upgrade fixture intentionally installs in later phases.
+  await sql(readFileSync(new URL("0077_account_deletion.sql", dir), "utf8"));
 });
 afterAll(async () => {
   if (integrity && mf && db) await integrity.dispose(mf, db);

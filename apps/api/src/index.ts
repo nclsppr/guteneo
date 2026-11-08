@@ -73,6 +73,8 @@ import { WORKFLOW_LIMITS } from "../../../packages/contracts/src/template-workfl
 import { TemplateError } from "../../../packages/contracts/src/templates";
 import { DatasetError } from "../../../packages/data/index";
 import { maintainDocuments } from "./maintenance";
+import { DeadLetterService } from "./dead-letters";
+import { setBrowserChannelControl } from "./browser-administrator";
 import { handleWebhook, reconcileWebhookReceipts } from "./webhooks";
 import {
   authenticateBrowser,
@@ -1337,6 +1339,17 @@ app.get("/api/admin", async (c) =>
     capabilities: getCapabilities(c.env),
   }),
 );
+app.post("/api/admin/dead-letters/:id/resolution", async (c) => {
+  z.object({ confirmed: z.literal(true) })
+    .strict()
+    .parse(await c.req.json());
+  return c.json(
+    await new DeadLetterService(domain(c.env)).resolve(
+      c.get("actor"),
+      c.req.param("id"),
+    ),
+  );
+});
 app.post("/api/admin/channels/:channel", async (c) => {
   const actor = c.get("actor");
   if (actor.role !== "admin" || actor.actor !== "browser")
@@ -1352,23 +1365,15 @@ app.post("/api/admin/channels/:channel", async (c) => {
     .object({ enabled: z.boolean() })
     .strict()
     .parse(await c.req.json());
-  await c.env.DB.batch([
-    c.env.DB.prepare(
-      "UPDATE channel_controls SET enabled=? WHERE organization_id=? AND channel=?",
-    ).bind(Number(enabled), actor.organizationId, channel),
-    c.env.DB.prepare(
-      "INSERT INTO audit_log(id,organization_id,user_id,action,resource_id,details_json,created_at) VALUES(?,?,?,?,?,?,?)",
-    ).bind(
-      crypto.randomUUID(),
-      actor.organizationId,
-      actor.userId,
-      "channel.control",
+  return c.json(
+    await setBrowserChannelControl(
+      c.env.DB,
+      actor,
+      c.env.MODE,
       channel,
-      JSON.stringify({ enabled }),
-      new Date().toISOString(),
+      enabled,
     ),
-  ]);
-  return c.json({ channel, enabled });
+  );
 });
 app.all("/api/*", (c) =>
   c.json({ error: { code: "NOT_FOUND", message: "Route not found." } }, 404),

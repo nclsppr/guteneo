@@ -38,8 +38,8 @@ no storage, tenant-selection, billing, dispatch or network authority.
 
 A mapping selects sheets, header rows, field paths, types, exclusions, date/number
 conventions and optional grouping/joins. Headers and structural signatures detect
-changed source structure. A mapping update creates a new validated version; it
-does not silently reinterpret an already generated document.
+changed source structure. A mapping update creates a new draft version that must pass explicit validation;
+it does not silently reinterpret an already generated document.
 
 In the browser, validation waits for the exact selected template payload as well
 as its identifier. This derives readiness from the current loaded resource,
@@ -92,6 +92,31 @@ person's current keyboard focus.
   A published template is fixed, but every generated PDF has its own bytes and
   provenance. Reusing the design never reuses someone else's delivery approval.
 </GutenbergNote>
+
+## Persist decisions under the current authority
+
+The local candidate names dataset analysis, mapping validation, generation
+commands, record recovery and distribution-entry decisions in a shared lifecycle
+module. Job aggregation still runs atomically in D1; a preceding read cannot
+replace the current state, lease, template permission or connection fence.
+
+A dataset retry claims one bounded attempt before reading/scanning its exact
+source. Promotion to ready and mapping insertion now check current membership
+and OAuth authority in the final write. Local D1 characterization reproduced a
+revocation after the permission read; refusing only the response had still left
+a ready source or new mapping. The final write now refuses that mutation.
+
+Cancellation fences queued/running records. Retry remains explicit, below the
+existing attempt bound and unavailable after cancellation or distribution freeze.
+Artifact persistence, document registration and result commit share the exact
+current template/lease guard. Losing authority during storage or scanning cannot
+publish a generated result through an earlier cached decision.
+
+These are implementation decisions exercised with synthetic local records;
+provider delivery and hosted qualification are separate. The
+[state-machine map](/architecture/state-machines/) connects the surrounding
+lifecycles and the [testing guide](/engineering/testing/#validate-transitions-through-the-persistence-boundary)
+explains the persistence-boundary evidence.
 
 ## Distribution freezes a deliberate selection
 

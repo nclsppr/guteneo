@@ -1,5 +1,15 @@
 # API and MCP reference
 
+## Queue incident resolution — 8 November 2026 candidate
+
+The browser-only `POST /api/admin/dead-letters/:id/resolution` requires current
+administrator membership, its actual unexpired credential, Origin/CSRF and exact
+`{confirmed:true}`. The atomic resolution records one stable audit/timestamp only
+for an operationally and financially closed original dispatch. It never sends,
+requeues or releases a hold. No MCP/native authority is added; the
+[detailed contract](DEAD_LETTER_RESOLUTION.md) owns guards and recovery. Apply
+0075–0076 before runtime use; publication remains separate.
+
 ## Worldwide postal address contract — 1 November 2026 candidate 1.1.27
 
 The unpublished candidate adds authenticated `GET /api/postal/destinations` and

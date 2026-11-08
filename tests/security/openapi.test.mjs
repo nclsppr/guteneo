@@ -71,7 +71,7 @@ test("OpenAPI is valid, self-contained and never resolves a remote document", as
     for (const child of Object.values(value)) inspect(child);
   }
   inspect(spec);
-  assert.equal(operations.length, 77);
+  assert.equal(operations.length, 78);
   assert.equal(
     new Set(operations.map(({ operation }) => operation.operationId)).size,
     operations.length,
@@ -165,6 +165,7 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     "get /api/senders",
     "get /api/usage",
     "get /api/usage/activity",
+    "post /api/admin/dead-letters/{id}/resolution",
     "get /api/pdf-validation/pricing",
     "get /api/secure-distributions",
     "post /api/secure-distributions",
@@ -230,10 +231,13 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
       ).test(api),
       `${method} ${path} must exist in router`,
     );
-    assert.doesNotMatch(
-      path,
-      /approve|transfer|admin|billing|session|webhooks|documents\/import/,
-    );
+    const browserIncident =
+      path === "/api/admin/dead-letters/{id}/resolution" && method === "post";
+    if (!browserIncident)
+      assert.doesNotMatch(
+        path,
+        /approve|transfer|admin|billing|session|webhooks|documents\/import/,
+      );
     const publicRoute = ["/api/health", "/api/capabilities"].includes(path);
     const browserPurchase =
       path === "/api/pdf-validation/pricing" ||
@@ -273,7 +277,7 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
         ? []
         : uploadCapability
           ? [{ DocumentUploadCapability: [] }]
-          : browserPurchase
+          : browserPurchase || browserIncident
             ? [{ BrowserSession: [] }]
             : [
                 {
@@ -294,6 +298,55 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     spec.paths["/api/dispatches/{id}"].get.description,
     /Never automatically recreate/,
   );
+});
+
+test("queue incident resolution requires a browser administrator cookie, same origin and CSRF without OAuth authority", () => {
+  const path = spec.paths["/api/admin/dead-letters/{id}/resolution"];
+  assert.deepEqual(Object.keys(path), ["post"]);
+  const resolution = path.post;
+  assert.equal(resolution.operationId, "resolveDeadLetter");
+  assert.deepEqual(resolution.security, [{ BrowserSession: [] }]);
+  assert.ok(
+    resolution.security.every((entry) => !Object.hasOwn(entry, "GuteneoOAuth")),
+  );
+  assert.equal(spec.components.securitySchemes.BrowserSession.type, "apiKey");
+  assert.equal(spec.components.securitySchemes.BrowserSession.in, "cookie");
+  assert.deepEqual(
+    resolution.parameters.find(
+      (parameter) => parameter.name === "X-CSRF-Token",
+    ),
+    {
+      in: "header",
+      name: "X-CSRF-Token",
+      required: true,
+      schema: { type: "string" },
+    },
+  );
+  assert.match(resolution.description, /Browser administrator only/);
+  assert.match(resolution.description, /actual unexpired browser credential/);
+  assert.match(
+    resolution.description,
+    /Same origin and X-CSRF-Token are required/,
+  );
+  assert.match(
+    resolution.description,
+    /OAuth, MCP and native callers cannot resolve/,
+  );
+  assert.match(
+    resolution.description,
+    /never changes a dispatch, releases credit/,
+  );
+  const body = resolution.requestBody;
+  assert.equal(body.required, true);
+  assert.deepEqual(Object.keys(body.content), ["application/json"]);
+  assert.deepEqual(body.content["application/json"].schema, {
+    type: "object",
+    additionalProperties: false,
+    required: ["confirmed"],
+    properties: { confirmed: { type: "boolean", enum: [true] } },
+  });
+  assert.ok(resolution.responses["403"]);
+  assert.ok(resolution.responses["409"]);
 });
 
 test("secure distribution documents retention charges and no personal OAuth authority", () => {

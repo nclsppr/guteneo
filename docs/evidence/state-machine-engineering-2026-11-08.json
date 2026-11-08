@@ -1,0 +1,1043 @@
+{
+  "date": "2026-11-08",
+  "scope": "Local curated engineering static candidate with working-tree changes. No publication, hosted-origin verification, or business-runtime qualification.",
+  "commands": {
+    "npm run docs:build": "passed; 28 domains, 464 features, 46 journeys, 78 REST operations, 83 MCP tools",
+    "npm run docs:check": "passed",
+    "npm run check:engineering": "passed; 0 errors, 0 warnings, 4 hints; 29 authored MDX clean; 4 security tests",
+    "npm run build:engineering": "passed; guarded source/asset/config validation"
+  },
+  "browser": {
+    "config": "playwright.engineering.config.ts",
+    "localHarness": "Same existing Chromium/WebKit configuration using a single local4326 static server; original initial startup lock failure remains historical only",
+    "startTime": "2026-11-08T01:57:15.132Z",
+    "duration": 10254.007,
+    "expected": 30,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0,
+    "globalErrors": [],
+    "reportSha256": "b0fd5c2f3e1364152b442e01023281b52fec309922ef3e90bf88bd2b733c3454"
+  },
+  "guide": {
+    "route": "/architecture/state-machines/",
+    "cases": [
+      {
+        "engine": "chromium",
+        "width": 320,
+        "scheme": "light",
+        "errors": [],
+        "viewport": 320,
+        "documentWidth": 320,
+        "h1Count": 1,
+        "tableCount": 3,
+        "resources": [
+          {
+            "path": "/_astro/ibm-plex-sans-latin-400-normal.CDDApCn2.woff2",
+            "transferSize": 22888
+          },
+          {
+            "path": "/_nimbus/shiki.css",
+            "transferSize": 522
+          },
+          {
+            "path": "/_astro/WebMCP.astro_astro_type_script_index_0_lang.Bp_S51uM.js",
+            "transferSize": 476
+          },
+          {
+            "path": "/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CO1cjG9V.js",
+            "transferSize": 5060
+          },
+          {
+            "path": "/_astro/_..DSPkmoBR.css",
+            "transferSize": 3993
+          },
+          {
+            "path": "/_astro/Header.PABbG4dt.css",
+            "transferSize": 14038
+          },
+          {
+            "path": "/brand/guteneo-portrait-128.webp",
+            "transferSize": 15368
+          },
+          {
+            "path": "/_astro/page.Bx2KSkeL.js",
+            "transferSize": 367
+          },
+          {
+            "path": "/_astro/SearchTrigger.astro_astro_type_script_index_0_lang.joO8lps9.js",
+            "transferSize": 569
+          },
+          {
+            "path": "/_astro/Sidebar.astro_astro_type_script_index_0_lang.Cn30J1k_.js",
+            "transferSize": 1685
+          },
+          {
+            "path": "/_astro/PageActions.astro_astro_type_script_index_0_lang.DQqThdem.js",
+            "transferSize": 837
+          },
+          {
+            "path": "/_astro/MobileTOC.astro_astro_type_script_index_0_lang.DPAv9EaH.js",
+            "transferSize": 1043
+          },
+          {
+            "path": "/_astro/Pagination.astro_astro_type_script_index_0_lang.LutnvNBu.js",
+            "transferSize": 1110
+          },
+          {
+            "path": "/_astro/TOC.astro_astro_type_script_index_0_lang.DjKPcBvz.js",
+            "transferSize": 2068
+          },
+          {
+            "path": "/_astro/ImageZoom.astro_astro_type_script_index_0_lang.DamItJ_q.js",
+            "transferSize": 1364
+          },
+          {
+            "path": "/_astro/DocsLayout.astro_astro_type_script_index_0_lang.BqupYTlM.js",
+            "transferSize": 1100
+          },
+          {
+            "path": "/_astro/DialogClose.astro_astro_type_script_index_0_lang.DcsNUkEv.js",
+            "transferSize": 470
+          },
+          {
+            "path": "/_astro/Dialog.astro_astro_type_script_index_0_lang.CS5-hueK.js",
+            "transferSize": 610
+          },
+          {
+            "path": "/_astro/SearchDialog.astro_astro_type_script_index_0_lang.Ca_aulzP.js",
+            "transferSize": 2772
+          },
+          {
+            "path": "/_astro/BaseLayout.astro_astro_type_script_index_0_lang.DRsxXbKX.js",
+            "transferSize": 373
+          },
+          {
+            "path": "/_astro/nav-sidebar-u3DRjqA9.CpSvOf4J.js",
+            "transferSize": 545
+          },
+          {
+            "path": "/_astro/client.Bjhk1eBb.js",
+            "transferSize": 4686
+          },
+          {
+            "path": "/_astro/eb-garamond-latin-400-normal.BCNrxLz_.woff2",
+            "transferSize": 24120
+          },
+          {
+            "path": "/_astro/ibm-plex-sans-latin-500-normal.6ng42L7E.woff2",
+            "transferSize": 24484
+          },
+          {
+            "path": "/_astro/prefetch.GJhwodf8.js",
+            "transferSize": 1425
+          },
+          {
+            "path": "/_astro/ibm-plex-mono-latin-400-normal.DMJ8VG8y.woff2",
+            "transferSize": 15008
+          },
+          {
+            "path": "/_astro/ibm-plex-sans-latin-600-normal.CuJfVYMP.woff2",
+            "transferSize": 24552
+          }
+        ],
+        "testingGuide": {
+          "status": 200,
+          "explicitTransitionContracts": true,
+          "noOverflow": true
+        }
+      },
+      {
+        "engine": "chromium",
+        "width": 390,
+        "scheme": "dark",
+        "errors": [],
+        "viewport": 390,
+        "documentWidth": 390,
+        "h1Count": 1,
+        "tableCount": 3,
+        "resources": [
+          {
+            "path": "/_astro/ibm-plex-sans-latin-400-normal.CDDApCn2.woff2",
+            "transferSize": 22888
+          },
+          {
+            "path": "/_nimbus/shiki.css",
+            "transferSize": 522
+          },
+          {
+            "path": "/_astro/WebMCP.astro_astro_type_script_index_0_lang.Bp_S51uM.js",
+            "transferSize": 476
+          },
+          {
+            "path": "/_astro/Header.PABbG4dt.css",
+            "transferSize": 14038
+          },
+          {
+            "path": "/_astro/_..DSPkmoBR.css",
+            "transferSize": 3993
+          },
+          {
+            "path": "/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CO1cjG9V.js",
+            "transferSize": 5060
+          },
+          {
+            "path": "/_astro/page.Bx2KSkeL.js",
+            "transferSize": 367
+          },
+          {
+            "path": "/brand/guteneo-portrait-128.webp",
+            "transferSize": 15368
+          },
+          {
+            "path": "/_astro/SearchTrigger.astro_astro_type_script_index_0_lang.joO8lps9.js",
+            "transferSize": 569
+          },
+          {
+            "path": "/_astro/Sidebar.astro_astro_type_script_index_0_lang.Cn30J1k_.js",
+            "transferSize": 1685
+          },
+          {
+            "path": "/_astro/PageActions.astro_astro_type_script_index_0_lang.DQqThdem.js",
+            "transferSize": 837
+          },
+          {
+            "path": "/_astro/MobileTOC.astro_astro_type_script_index_0_lang.DPAv9EaH.js",
+            "transferSize": 1043
+          },
+          {
+            "path": "/_astro/Pagination.astro_astro_type_script_index_0_lang.LutnvNBu.js",
+            "transferSize": 1110
+          },
+          {
+            "path": "/_astro/TOC.astro_astro_type_script_index_0_lang.DjKPcBvz.js",
+            "transferSize": 2068
+          },
+          {
+            "path": "/_astro/ImageZoom.astro_astro_type_script_index_0_lang.DamItJ_q.js",
+            "transferSize": 1364
+          },
+          {
+            "path": "/_astro/DocsLayout.astro_astro_type_script_index_0_lang.BqupYTlM.js",
+            "transferSize": 1100
+          },
+          {
+            "path": "/_astro/DialogClose.astro_astro_type_script_index_0_lang.DcsNUkEv.js",
+            "transferSize": 470
+          },
+          {
+            "path": "/_astro/Dialog.astro_astro_type_script_index_0_lang.CS5-hueK.js",
+            "transferSize": 610
+          },
+          {
+            "path": "/_astro/SearchDialog.astro_astro_type_script_index_0_lang.Ca_aulzP.js",
+            "transferSize": 2772
+          },
+          {
+            "path": "/_astro/BaseLayout.astro_astro_type_script_index_0_lang.DRsxXbKX.js",
+            "transferSize": 373
+          },
+          {
+            "path": "/_astro/nav-sidebar-u3DRjqA9.CpSvOf4J.js",
+            "transferSize": 545
+          },
+          {
+            "path": "/_astro/client.Bjhk1eBb.js",
+            "transferSize": 4686
+          },
+          {
+            "path": "/_astro/eb-garamond-latin-400-normal.BCNrxLz_.woff2",
+            "transferSize": 24120
+          },
+          {
+            "path": "/_astro/ibm-plex-sans-latin-500-normal.6ng42L7E.woff2",
+            "transferSize": 24484
+          },
+          {
+            "path": "/_astro/prefetch.GJhwodf8.js",
+            "transferSize": 1425
+          },
+          {
+            "path": "/_astro/ibm-plex-mono-latin-400-normal.DMJ8VG8y.woff2",
+            "transferSize": 15008
+          },
+          {
+            "path": "/_astro/ibm-plex-sans-latin-600-normal.CuJfVYMP.woff2",
+            "transferSize": 24552
+          }
+        ],
+        "testingGuide": {
+          "status": 200,
+          "explicitTransitionContracts": true,
+          "noOverflow": true
+        }
+      },
+      {
+        "engine": "chromium",
+        "width": 1440,
+        "scheme": "light",
+        "errors": [],
+        "viewport": 1440,
+        "documentWidth": 1440,
+        "h1Count": 1,
+        "tableCount": 3,
+        "resources": [
+          {
+            "path": "/_astro/ibm-plex-sans-latin-400-normal.CDDApCn2.woff2",
+            "transferSize": 22888
+          },
+          {
+            "path": "/_astro/WebMCP.astro_astro_type_script_index_0_lang.Bp_S51uM.js",
+            "transferSize": 476
+          },
+          {
+            "path": "/_nimbus/shiki.css",
+            "transferSize": 522
+          },
+          {
+            "path": "/_astro/_..DSPkmoBR.css",
+            "transferSize": 3993
+          },
+          {
+            "path": "/_astro/Header.PABbG4dt.css",
+            "transferSize": 14038
+          },
+          {
+            "path": "/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CO1cjG9V.js",
+            "transferSize": 5060
+          },
+          {
+            "path": "/_astro/page.Bx2KSkeL.js",
+            "transferSize": 367
+          },
+          {
+            "path": "/_astro/SearchTrigger.astro_astro_type_script_index_0_lang.joO8lps9.js",
+            "transferSize": 569
+          },
+          {
+            "path": "/_astro/Sidebar.astro_astro_type_script_index_0_lang.Cn30J1k_.js",
+            "transferSize": 1685
+          },
+          {
+            "path": "/_astro/PageActions.astro_astro_type_script_index_0_lang.DQqThdem.js",
+            "transferSize": 837
+          },
+          {
+            "path": "/brand/guteneo-portrait-128.webp",
+            "transferSize": 15368
+          },
+          {
+            "path": "/_astro/MobileTOC.astro_astro_type_script_index_0_lang.DPAv9EaH.js",
+            "transferSize": 1043
+          },
+          {
+            "path": "/_astro/Pagination.astro_astro_type_script_index_0_lang.LutnvNBu.js",
+            "transferSize": 1110
+          },
+          {
+            "path": "/_astro/ImageZoom.astro_astro_type_script_index_0_lang.DamItJ_q.js",
+            "transferSize": 1364
+          },
+          {
+            "path": "/_astro/TOC.astro_astro_type_script_index_0_lang.DjKPcBvz.js",
+            "transferSize": 2068
+          },
+          {
+            "path": "/_astro/DocsLayout.astro_astro_type_script_index_0_lang.BqupYTlM.js",
+            "transferSize": 1100
+          },
+          {
+            "path": "/_astro/DialogClose.astro_astro_type_script_index_0_lang.DcsNUkEv.js",
+            "transferSize": 470
+          },
+          {
+            "path": "/_astro/Dialog.astro_astro_type_script_index_0_lang.CS5-hueK.js",
+            "transferSize": 610
+          },
+          {
+            "path": "/_astro/SearchDialog.astro_astro_type_script_index_0_lang.Ca_aulzP.js",
+            "transferSize": 2772
+          },
+          {
+            "path": "/_astro/BaseLayout.astro_astro_type_script_index_0_lang.DRsxXbKX.js",
+            "transferSize": 373
+          },
+          {
+            "path": "/_astro/eb-garamond-latin-400-normal.BCNrxLz_.woff2",
+            "transferSize": 24120
+          },
+          {
+            "path": "/_astro/ibm-plex-sans-latin-500-normal.6ng42L7E.woff2",
+            "transferSize": 24484
+          },
+          {
+            "path": "/_astro/ibm-plex-mono-latin-400-normal.DMJ8VG8y.woff2",
+            "transferSize": 15008
+          },
+          {
+            "path": "/_astro/nav-sidebar-u3DRjqA9.CpSvOf4J.js",
+            "transferSize": 545
+          },
+          {
+            "path": "/_astro/client.Bjhk1eBb.js",
+            "transferSize": 4686
+          },
+          {
+            "path": "/_astro/prefetch.GJhwodf8.js",
+            "transferSize": 1425
+          },
+          {
+            "path": "/_astro/ibm-plex-sans-latin-600-normal.CuJfVYMP.woff2",
+            "transferSize": 24552
+          }
+        ],
+        "testingGuide": {
+          "status": 200,
+          "explicitTransitionContracts": true,
+          "noOverflow": true
+        }
+      },
+      {
+        "engine": "webkit",
+        "width": 320,
+        "scheme": "light",
+        "errors": [],
+        "viewport": 320,
+        "documentWidth": 320,
+        "h1Count": 1,
+        "tableCount": 3,
+        "resources": [
+          {
+            "path": "/_astro/ibm-plex-sans-latin-400-normal.CDDApCn2.woff2",
+            "transferSize": 22888
+          },
+          {
+            "path": "/_astro/WebMCP.astro_astro_type_script_index_0_lang.Bp_S51uM.js",
+            "transferSize": 492
+          },
+          {
+            "path": "/_astro/page.Bx2KSkeL.js",
+            "transferSize": 383
+          },
+          {
+            "path": "/_nimbus/shiki.css",
+            "transferSize": 538
+          },
+          {
+            "path": "/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CO1cjG9V.js",
+            "transferSize": 5078
+          },
+          {
+            "path": "/_astro/Header.PABbG4dt.css",
+            "transferSize": 14056
+          },
+          {
+            "path": "/_astro/_..DSPkmoBR.css",
+            "transferSize": 4010
+          },
+          {
+            "path": "/brand/guteneo-portrait-128.webp",
+            "transferSize": 15368
+          },
+          {
+            "path": "/_astro/SearchTrigger.astro_astro_type_script_index_0_lang.joO8lps9.js",
+            "transferSize": 586
+          },
+          {
+            "path": "/_astro/Sidebar.astro_astro_type_script_index_0_lang.Cn30J1k_.js",
+            "transferSize": 1702
+          },
+          {
+            "path": "/_astro/PageActions.astro_astro_type_script_index_0_lang.DQqThdem.js",
+            "transferSize": 854
+          },
+          {
+            "path": "/_astro/MobileTOC.astro_astro_type_script_index_0_lang.DPAv9EaH.js",
+            "transferSize": 1060
+          },
+          {
+            "path": "/_astro/Pagination.astro_astro_type_script_index_0_lang.LutnvNBu.js",
+            "transferSize": 1127
+          },
+          {
+            "path": "/_astro/ImageZoom.astro_astro_type_script_index_0_lang.DamItJ_q.js",
+            "transferSize": 1381
+          },
+          {
+            "path": "/_astro/DocsLayout.astro_astro_type_script_index_0_lang.BqupYTlM.js",
+            "transferSize": 1117
+          },
+          {
+            "path": "/_astro/TOC.astro_astro_type_script_index_0_lang.DjKPcBvz.js",
+            "transferSize": 2085
+          },
+          {
+            "path": "/_astro/DialogClose.astro_astro_type_script_index_0_lang.DcsNUkEv.js",
+            "transferSize": 486
+          },
+          {
+            "path": "/_astro/Dialog.astro_astro_type_script_index_0_lang.CS5-hueK.js",
+            "transferSize": 627
+          },
+          {
+            "path": "/_astro/SearchDialog.astro_astro_type_script_index_0_lang.Ca_aulzP.js",
+            "transferSize": 2789
+          },
+          {
+            "path": "/_astro/BaseLayout.astro_astro_type_script_index_0_lang.DRsxXbKX.js",
+            "transferSize": 389
+          },
+          {
+            "path": "/_astro/nav-sidebar-u3DRjqA9.CpSvOf4J.js",
+            "transferSize": 561
+          },
+          {
+            "path": "/_astro/client.Bjhk1eBb.js",
+            "transferSize": 4704
+          },
+          {
+            "path": "/_astro/prefetch.GJhwodf8.js",
+            "transferSize": 1442
+          },
+          {
+            "path": "/_astro/eb-garamond-latin-400-normal.BCNrxLz_.woff2",
+            "transferSize": 24120
+          },
+          {
+            "path": "/_astro/ibm-plex-sans-latin-500-normal.6ng42L7E.woff2",
+            "transferSize": 24484
+          },
+          {
+            "path": "/_astro/ibm-plex-sans-latin-600-normal.CuJfVYMP.woff2",
+            "transferSize": 24552
+          },
+          {
+            "path": "/_astro/ibm-plex-mono-latin-400-normal.DMJ8VG8y.woff2",
+            "transferSize": 15008
+          }
+        ],
+        "testingGuide": {
+          "status": 200,
+          "explicitTransitionContracts": true,
+          "noOverflow": true
+        }
+      },
+      {
+        "engine": "webkit",
+        "width": 390,
+        "scheme": "dark",
+        "errors": [],
+        "viewport": 390,
+        "documentWidth": 390,
+        "h1Count": 1,
+        "tableCount": 3,
+        "resources": [
+          {
+            "path": "/_astro/ibm-plex-sans-latin-400-normal.CDDApCn2.woff2",
+            "transferSize": 22888
+          },
+          {
+            "path": "/_astro/WebMCP.astro_astro_type_script_index_0_lang.Bp_S51uM.js",
+            "transferSize": 492
+          },
+          {
+            "path": "/_nimbus/shiki.css",
+            "transferSize": 538
+          },
+          {
+            "path": "/_astro/page.Bx2KSkeL.js",
+            "transferSize": 383
+          },
+          {
+            "path": "/_astro/Header.PABbG4dt.css",
+            "transferSize": 14063
+          },
+          {
+            "path": "/_astro/_..DSPkmoBR.css",
+            "transferSize": 4010
+          },
+          {
+            "path": "/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CO1cjG9V.js",
+            "transferSize": 5078
+          },
+          {
+            "path": "/_astro/SearchTrigger.astro_astro_type_script_index_0_lang.joO8lps9.js",
+            "transferSize": 586
+          },
+          {
+            "path": "/brand/guteneo-portrait-128.webp",
+            "transferSize": 15368
+          },
+          {
+            "path": "/_astro/Sidebar.astro_astro_type_script_index_0_lang.Cn30J1k_.js",
+            "transferSize": 1702
+          },
+          {
+            "path": "/_astro/PageActions.astro_astro_type_script_index_0_lang.DQqThdem.js",
+            "transferSize": 854
+          },
+          {
+            "path": "/_astro/MobileTOC.astro_astro_type_script_index_0_lang.DPAv9EaH.js",
+            "transferSize": 1060
+          },
+          {
+            "path": "/_astro/Pagination.astro_astro_type_script_index_0_lang.LutnvNBu.js",
+            "transferSize": 1127
+          },
+          {
+            "path": "/_astro/TOC.astro_astro_type_script_index_0_lang.DjKPcBvz.js",
+            "transferSize": 2085
+          },
+          {
+            "path": "/_astro/ImageZoom.astro_astro_type_script_index_0_lang.DamItJ_q.js",
+            "transferSize": 1381
+          },
+          {
+            "path": "/_astro/DocsLayout.astro_astro_type_script_index_0_lang.BqupYTlM.js",
+            "transferSize": 1117
+          },
+          {
+            "path": "/_astro/DialogClose.astro_astro_type_script_index_0_lang.DcsNUkEv.js",
+            "transferSize": 486
+          },
+          {
+            "path": "/_astro/BaseLayout.astro_astro_type_script_index_0_lang.DRsxXbKX.js",
+            "transferSize": 389
+          },
+          {
+            "path": "/_astro/Dialog.astro_astro_type_script_index_0_lang.CS5-hueK.js",
+            "transferSize": 627
+          },
+          {
+            "path": "/_astro/SearchDialog.astro_astro_type_script_index_0_lang.Ca_aulzP.js",
+            "transferSize": 2789
+          },
+          {
+            "path": "/_astro/nav-sidebar-u3DRjqA9.CpSvOf4J.js",
+            "transferSize": 561
+          },
+          {
+            "path": "/_astro/client.Bjhk1eBb.js",
+            "transferSize": 4704
+          },
+          {
+            "path": "/_astro/prefetch.GJhwodf8.js",
+            "transferSize": 1442
+          },
+          {
+            "path": "/_astro/eb-garamond-latin-400-normal.BCNrxLz_.woff2",
+            "transferSize": 24120
+          },
+          {
+            "path": "/_astro/ibm-plex-sans-latin-500-normal.6ng42L7E.woff2",
+            "transferSize": 24484
+          },
+          {
+            "path": "/_astro/ibm-plex-sans-latin-600-normal.CuJfVYMP.woff2",
+            "transferSize": 24552
+          },
+          {
+            "path": "/_astro/ibm-plex-mono-latin-400-normal.DMJ8VG8y.woff2",
+            "transferSize": 15008
+          }
+        ],
+        "testingGuide": {
+          "status": 200,
+          "explicitTransitionContracts": true,
+          "noOverflow": true
+        }
+      },
+      {
+        "engine": "webkit",
+        "width": 1440,
+        "scheme": "light",
+        "errors": [],
+        "viewport": 1440,
+        "documentWidth": 1440,
+        "h1Count": 1,
+        "tableCount": 3,
+        "resources": [
+          {
+            "path": "/_astro/ibm-plex-sans-latin-400-normal.CDDApCn2.woff2",
+            "transferSize": 22888
+          },
+          {
+            "path": "/_astro/WebMCP.astro_astro_type_script_index_0_lang.Bp_S51uM.js",
+            "transferSize": 492
+          },
+          {
+            "path": "/_astro/page.Bx2KSkeL.js",
+            "transferSize": 383
+          },
+          {
+            "path": "/_nimbus/shiki.css",
+            "transferSize": 538
+          },
+          {
+            "path": "/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CO1cjG9V.js",
+            "transferSize": 5078
+          },
+          {
+            "path": "/_astro/_..DSPkmoBR.css",
+            "transferSize": 4010
+          },
+          {
+            "path": "/_astro/Header.PABbG4dt.css",
+            "transferSize": 14056
+          },
+          {
+            "path": "/_astro/SearchTrigger.astro_astro_type_script_index_0_lang.joO8lps9.js",
+            "transferSize": 586
+          },
+          {
+            "path": "/brand/guteneo-portrait-128.webp",
+            "transferSize": 15368
+          },
+          {
+            "path": "/_astro/Sidebar.astro_astro_type_script_index_0_lang.Cn30J1k_.js",
+            "transferSize": 1702
+          },
+          {
+            "path": "/_astro/PageActions.astro_astro_type_script_index_0_lang.DQqThdem.js",
+            "transferSize": 854
+          },
+          {
+            "path": "/_astro/MobileTOC.astro_astro_type_script_index_0_lang.DPAv9EaH.js",
+            "transferSize": 1060
+          },
+          {
+            "path": "/_astro/Pagination.astro_astro_type_script_index_0_lang.LutnvNBu.js",
+            "transferSize": 1127
+          },
+          {
+            "path": "/_astro/ImageZoom.astro_astro_type_script_index_0_lang.DamItJ_q.js",
+            "transferSize": 1381
+          },
+          {
+            "path": "/_astro/TOC.astro_astro_type_script_index_0_lang.DjKPcBvz.js",
+            "transferSize": 2085
+          },
+          {
+            "path": "/_astro/DocsLayout.astro_astro_type_script_index_0_lang.BqupYTlM.js",
+            "transferSize": 1117
+          },
+          {
+            "path": "/_astro/DialogClose.astro_astro_type_script_index_0_lang.DcsNUkEv.js",
+            "transferSize": 486
+          },
+          {
+            "path": "/_astro/Dialog.astro_astro_type_script_index_0_lang.CS5-hueK.js",
+            "transferSize": 627
+          },
+          {
+            "path": "/_astro/SearchDialog.astro_astro_type_script_index_0_lang.Ca_aulzP.js",
+            "transferSize": 2789
+          },
+          {
+            "path": "/_astro/BaseLayout.astro_astro_type_script_index_0_lang.DRsxXbKX.js",
+            "transferSize": 389
+          },
+          {
+            "path": "/_astro/nav-sidebar-u3DRjqA9.CpSvOf4J.js",
+            "transferSize": 561
+          },
+          {
+            "path": "/_astro/client.Bjhk1eBb.js",
+            "transferSize": 4704
+          },
+          {
+            "path": "/_astro/prefetch.GJhwodf8.js",
+            "transferSize": 1442
+          },
+          {
+            "path": "/_astro/ibm-plex-sans-latin-500-normal.6ng42L7E.woff2",
+            "transferSize": 24484
+          },
+          {
+            "path": "/_astro/eb-garamond-latin-400-normal.BCNrxLz_.woff2",
+            "transferSize": 24120
+          },
+          {
+            "path": "/_astro/ibm-plex-mono-latin-400-normal.DMJ8VG8y.woff2",
+            "transferSize": 15008
+          },
+          {
+            "path": "/_astro/ibm-plex-sans-latin-600-normal.CuJfVYMP.woff2",
+            "transferSize": 24552
+          }
+        ],
+        "testingGuide": {
+          "status": 200,
+          "explicitTransitionContracts": true,
+          "noOverflow": true
+        }
+      }
+    ],
+    "internal": [
+      {
+        "path": "/",
+        "status": 200
+      },
+      {
+        "path": "/architecture/state-machines/index.md",
+        "status": 200
+      },
+      {
+        "path": "/architecture/dispatch-lifecycle/",
+        "status": 200
+      },
+      {
+        "path": "/engineering/background-jobs/",
+        "status": 200
+      },
+      {
+        "path": "/architecture/data-model/",
+        "status": 200
+      },
+      {
+        "path": "/workflows/delivery-channels/",
+        "status": 200
+      },
+      {
+        "path": "/architecture/authority-and-tenancy/",
+        "status": 200
+      },
+      {
+        "path": "/workflows/documents/",
+        "status": 200
+      },
+      {
+        "path": "/integrations/mcp/",
+        "status": 200
+      },
+      {
+        "path": "/workflows/secure-distribution/",
+        "status": 200
+      },
+      {
+        "path": "/workflows/studio-and-data/",
+        "status": 200
+      },
+      {
+        "path": "/engineering/provider-maintenance/",
+        "status": 200
+      },
+      {
+        "path": "/workflows/pdf-diagnostics/",
+        "status": 200
+      },
+      {
+        "path": "/architecture/system/",
+        "status": 200
+      },
+      {
+        "path": "/engineering/design-system/",
+        "status": 200
+      },
+      {
+        "path": "/engineering/testing/",
+        "status": 200
+      },
+      {
+        "path": "/engineering/releases/",
+        "status": 200
+      },
+      {
+        "path": "/engineering/contributing/",
+        "status": 200
+      },
+      {
+        "path": "/architecture/diagrams/",
+        "status": 200
+      },
+      {
+        "path": "/administration/belvedere/",
+        "status": 200
+      }
+    ],
+    "testingGuideRoute": "/engineering/testing/",
+    "testingGuideCorrectedCopyAndOutputOwnershipVerifiedInAllSixCases": true,
+    "screenshots": [
+      {
+        "path": "docs/evidence/state-machine-engineering-chromium-1440-2026-11-08.png",
+        "sha256": "8e148f65e94318adbc9966af0d3309ab259a04785bb93c42ce9ad177a4a74da0",
+        "visuallyInspected": true
+      },
+      {
+        "path": "docs/evidence/state-machine-engineering-webkit-390-2026-11-08.png",
+        "sha256": "4294ba2f6962e267454cf91ab1284f80de05199d3f4ee0d7074eb7a44e7daa73",
+        "visuallyInspected": true
+      }
+    ]
+  },
+  "verification": {
+    "verifiedAt": "2026-11-08T01:58:09.483Z",
+    "scope": "Local dirty working-tree build; no publication or hosted proof",
+    "releaseSha256": "e309ce9ed8b4debeb2efcf566c5955c61216a6f697ef1474f479a6fb7d7eb08e",
+    "sourceSnapshotSha256": "785649e59a9f6b769a67ae56d5678d3773b8da4b3ba62a9f2204a898fb3ea23c",
+    "assetsSha256": "6a4ce34f3eb2226e123623fd785a02fcc6cec9d3c7775a72fac755b833f31d99",
+    "assetCount": 418,
+    "allDiskAssetHashesMatch": true,
+    "currentSourceMatches": true,
+    "configurationValid": true,
+    "servedManifestMatches": true,
+    "servedRepresentativeAssets": [
+      {
+        "path": "index.html",
+        "status": 200,
+        "sha256": "d4c3e5aa689249129a61f852ba17e2a7c7775f927b2ebc6d6d598504e5152dc9"
+      },
+      {
+        "path": "features/index.html",
+        "status": 200,
+        "sha256": "57f9f41d1f1052fb66527879a78f3aa4d0a93b8ddd500015d7f474243568e143"
+      },
+      {
+        "path": "features/permissions/index.html",
+        "status": 200,
+        "sha256": "cffec3f8b9a15407fcb977b13463a148cbdabc37aed0c8b2aa8beabbdbe8b16f"
+      },
+      {
+        "path": "features/journeys/index.html",
+        "status": 200,
+        "sha256": "aaeb4a3f370751f626eea858206d3c139921ae75674bb4ea8d1e0774eef664bb"
+      },
+      {
+        "path": "architecture/state-machines/index.html",
+        "status": 200,
+        "sha256": "9653586925ee560d50fea5f28ca99714c0044155acc18aa68539e2a8b22372d7"
+      },
+      {
+        "path": "architecture/state-machines/index.md",
+        "status": 200,
+        "sha256": "efdbc25c94d0c5515746456d856e812b2b303b4f5efdf88911441fb41c54cc49"
+      },
+      {
+        "path": "architecture/state-machines/index.mdx",
+        "status": 200,
+        "sha256": "64bf8f1309be6eb5f7775097e78c3fb48561127cb4061e99ae238599cd39a719"
+      },
+      {
+        "path": "engineering/testing/index.html",
+        "status": 200,
+        "sha256": "f3e3c47bcf16756572e73e60fde5df5f039c91253a1d09bcd97d015f42b847c2"
+      },
+      {
+        "path": "engineering/testing/index.mdx",
+        "status": 200,
+        "sha256": "fa5841ad39528bdc3117c789b785755e59226d39598508d54847bd162d94f343"
+      },
+      {
+        "path": "architecture/llms.txt",
+        "status": 200,
+        "sha256": "6150fb124359adb39b3e3478bb04b074d73dcdf7b64264152909aab22253123e"
+      },
+      {
+        "path": "llms-full.txt",
+        "status": 200,
+        "sha256": "8a39081afc31c2b418815ff0cd92cff4ce4f6cf95b6b4eb9e7da7b15695f64c7"
+      },
+      {
+        "path": "gutenberg/gutenberg-welcome.webp",
+        "status": 200,
+        "sha256": "7c46865d18aac902e9c2a67f50654a45585b72c5555a89850a62c84eec5b5ae2"
+      }
+    ],
+    "missingStatus": 404
+  },
+  "logs": [
+    "/tmp/guteneo-final-docs-build.log",
+    "/tmp/guteneo-final-docs-check.log",
+    "/tmp/guteneo-final-engineering-check.log",
+    "/tmp/guteneo-final-exclusive-engineering-build.log",
+    "/tmp/guteneo-final-engineering-browser-reused.log",
+    "/tmp/guteneo-engineering-state-route-check.log"
+  ],
+  "supersededQualification": {
+    "reason": "One authored testing-guide phrase changed after this verified build: proposed stages → explicit transition contracts. Final rebuild/verification scheduled after full application E2E.",
+    "verification": {
+      "verifiedAt": "2026-11-08T01:12:20.739Z",
+      "scope": "Local dirty working-tree build; no publication or hosted proof",
+      "releaseSha256": "eeff8507b89a8b0008a5ac12b2cdd3bc8098f79b03a363bf7484cf80f78305b3",
+      "sourceSnapshotSha256": "250054e8038524b9ad35e67c089ecf3cbe59cb30f2064513608f1a0dc2ac13b5",
+      "assetsSha256": "bd0f2a9eba4eacc4892774e029625b92919d9b1b1c2644c10a2be275ea7599bd",
+      "assetCount": 418,
+      "allDiskAssetHashesMatch": true,
+      "currentSourceMatches": true,
+      "configurationValid": true,
+      "servedManifestMatches": true,
+      "servedRepresentativeAssets": [
+        {
+          "path": "index.html",
+          "status": 200,
+          "sha256": "d4c3e5aa689249129a61f852ba17e2a7c7775f927b2ebc6d6d598504e5152dc9"
+        },
+        {
+          "path": "features/index.html",
+          "status": 200,
+          "sha256": "57f9f41d1f1052fb66527879a78f3aa4d0a93b8ddd500015d7f474243568e143"
+        },
+        {
+          "path": "features/permissions/index.html",
+          "status": 200,
+          "sha256": "cffec3f8b9a15407fcb977b13463a148cbdabc37aed0c8b2aa8beabbdbe8b16f"
+        },
+        {
+          "path": "features/journeys/index.html",
+          "status": 200,
+          "sha256": "aaeb4a3f370751f626eea858206d3c139921ae75674bb4ea8d1e0774eef664bb"
+        },
+        {
+          "path": "architecture/state-machines/index.html",
+          "status": 200,
+          "sha256": "9653586925ee560d50fea5f28ca99714c0044155acc18aa68539e2a8b22372d7"
+        },
+        {
+          "path": "architecture/state-machines/index.md",
+          "status": 200,
+          "sha256": "efdbc25c94d0c5515746456d856e812b2b303b4f5efdf88911441fb41c54cc49"
+        },
+        {
+          "path": "architecture/state-machines/index.mdx",
+          "status": 200,
+          "sha256": "64bf8f1309be6eb5f7775097e78c3fb48561127cb4061e99ae238599cd39a719"
+        },
+        {
+          "path": "architecture/llms.txt",
+          "status": 200,
+          "sha256": "6150fb124359adb39b3e3478bb04b074d73dcdf7b64264152909aab22253123e"
+        },
+        {
+          "path": "llms-full.txt",
+          "status": 200,
+          "sha256": "0d275ad48996fa2f0ab88d5a18f13dd3e9532d1a954c67483768e02e802b5ea1"
+        },
+        {
+          "path": "gutenberg/gutenberg-welcome.webp",
+          "status": 200,
+          "sha256": "7c46865d18aac902e9c2a67f50654a45585b72c5555a89850a62c84eec5b5ae2"
+        }
+      ],
+      "missingStatus": 404
+    },
+    "browser": {
+      "config": "playwright.engineering.config.ts",
+      "localHarness": "same existing Chromium/WebKit config using already-running local4326 static server; original startup had a same-persistence SQLite lock before tests, then reused one server",
+      "startTime": "2026-11-08T01:11:22.968Z",
+      "duration": 10296.806,
+      "expected": 30,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0,
+      "globalErrors": [],
+      "reportSha256": "9406aacc350141e8dbb82cf09c1b5fba469437ca629f3dd4bc39e8d6daa44cf9"
+    }
+  },
+  "finalBuild": {
+    "command": "npm run build:engineering",
+    "passed": true,
+    "log": "/tmp/guteneo-final-exclusive-engineering-build.log",
+    "logSha256": "567a5d2a83f1f03e1c8a8af572aec2eae83b4be76a766395d5d6b0b5cc00ab35",
+    "testingGuideSourceSha256": "88e77ea0bb00b5545b225ea94d513c3f3c012e2febe000176c636295409a5181"
+  }
+}

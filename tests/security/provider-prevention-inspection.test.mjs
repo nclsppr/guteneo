@@ -33,7 +33,9 @@ const report = {
 };
 
 async function runReadiness(failure = false) {
-  const directory = await mkdtemp(join(tmpdir(), "guteneo-prevention-cli-test-"));
+  const directory = await mkdtemp(
+    join(tmpdir(), "guteneo-prevention-cli-test-"),
+  );
   try {
     const source = await readFile(
       new URL("../../scripts/provider-readiness.mjs", import.meta.url),
@@ -106,7 +108,9 @@ test("prevention inspection is a private read-only RPC and its entrypoint has no
                   ? "runtime"
                   : args.path === "./freshness-prevention"
                     ? "report"
-                    : "unrelated",
+                    : args.path === "./account-deletion"
+                      ? "deletion"
+                      : "unrelated",
             };
           });
           builder.onLoad(
@@ -120,7 +124,11 @@ test("prevention inspection is a private read-only RPC and its entrypoint has no
                         db.inspections++;
                         return ${JSON.stringify(report)};
                       }`
-                    : `export default {};
+                    : path === "deletion"
+                      ? `export class AccountDeletionService {
+                          constructor() { throw new Error("Unexpected deletion service invocation"); }
+                        }`
+                      : `export default {};
                       export const inspectTelnyxReadiness = () => {};
                       export const telnyxAccountReference = () => {};
                       export const inspectPingenReadiness = () => {};
@@ -150,6 +158,8 @@ test("prevention inspection is a private read-only RPC and its entrypoint has no
   const db = { inspections: 0 };
   const entrypoint = Object.create(module.exports.ProviderInspection.prototype);
   entrypoint.env = { DB: db };
+  for (const operation of ["plan", "begin", "advance", "notice", "complete"])
+    assert.equal(entrypoint[operation], undefined);
   for (const method of ["GET", "POST"])
     assert.equal(
       entrypoint.fetch(

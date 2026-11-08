@@ -57,12 +57,13 @@ export function ensureCreditPeriod(
   organizationId: string,
   channel: string,
   period: string,
+  authority?: { condition: string; values: (string | number | null)[] },
 ): D1PreparedStatement {
   return db
     .prepare(
       `INSERT INTO usage(organization_id,channel,period,limit_count,limit_minor,currency)
 SELECT ?,?,?,COALESCE((SELECT limit_count FROM usage WHERE organization_id=? AND channel=? ORDER BY period DESC LIMIT 1),10000),COALESCE((SELECT limit_minor FROM usage WHERE organization_id=? AND channel=? ORDER BY period DESC LIMIT 1),5000),'EUR'
-WHERE EXISTS(SELECT 1 FROM welcome_credit_grants g JOIN organizations o ON o.id=g.organization_id WHERE g.organization_id=? AND o.mode='production')
+WHERE EXISTS(SELECT 1 FROM welcome_credit_grants g JOIN organizations o ON o.id=g.organization_id WHERE g.organization_id=? AND o.mode='production') AND (${authority?.condition ?? "1=1"})
 ON CONFLICT(organization_id,channel,period) DO NOTHING`,
     )
     .bind(
@@ -74,5 +75,6 @@ ON CONFLICT(organization_id,channel,period) DO NOTHING`,
       organizationId,
       channel,
       organizationId,
+      ...(authority?.values ?? []),
     );
 }

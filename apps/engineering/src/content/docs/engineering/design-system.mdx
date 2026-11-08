@@ -29,6 +29,24 @@ This guide is the implementation companion to `docs/BRAND_IDENTITY.md`,
 respective rules. Change them and this guide together when the rules evolve.
 For service boundaries, use the [system architecture](/architecture/system/).
 
+Async business actions belong to the view and authenticated identity that
+started them. Capture `useCurrentClientView` before an operation and check its
+receipt after each await before another write, navigation or selected-document
+update. Account/session changes and leaving then returning to the same address
+invalidate the receipt; a vetoed dirty-form navigation preserves it. These
+client guards complement the server's current-authority checks.
+
+Postal transfer and secure-share activation use explicit recovery phases. An
+unknown write outcome requires a successful explicit status read before the
+action can reopen; a failed read keeps it closed. An invalid quote requires its
+replacement and fresh review. Source-copy retries retain the original key, and
+only a known still-processing postal quote response follows the bounded retry
+edge. Keep these decisions in the narrow workflow modules instead of combining
+independent pending/error/retry flags. These refactors add no automatic approval,
+send, source-copy request or private read. The
+[frontend loading contract](https://github.com/nclsppr/guteneo/blob/main/docs/FRONTEND_PERFORMANCE.md)
+records the local browser measurements and qualification limits.
+
 ## Choose the right surface
 
 | Surface               | Reuse                                                                    | Preserve                                                                     |

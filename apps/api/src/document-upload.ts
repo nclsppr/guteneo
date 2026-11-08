@@ -33,6 +33,11 @@ import { DocumentService, readLimited } from "./documents";
 import type { Env } from "./env";
 import { postalMcpAuthority } from "./postal-authority";
 import privateUploadClient from "../../../packages/contracts/src/private-upload-client.json";
+import {
+  privateUploadNextAction,
+  privateUploadRecoveryAction,
+  type PrivateUploadState,
+} from "./private-upload-lifecycle";
 
 export const PRIVATE_UPLOAD_TTL_MS = 5 * 60_000;
 export const PRIVATE_UPLOAD_BODY_MS = 30_000;
@@ -63,7 +68,7 @@ export type UploadRow = {
   expected_size: number;
   expected_sha256: string;
   capability_hash: string | null;
-  state: "reserved" | "uploading" | "complete" | "rejected" | "unknown";
+  state: PrivateUploadState;
   planned_document_id: string;
   document_id: string | null;
   lease_token: string | null;
@@ -501,18 +506,20 @@ export class PrivateDocumentUploadService {
     return result;
   }
   private async reconcile(row: UploadRow): Promise<UploadRow> {
-    if (row.state === "reserved" && row.expires_at <= iso()) {
+    const observedAt = iso(),
+      recovery = privateUploadRecoveryAction(row, observedAt);
+    if (recovery === "expire_unused") {
       await this.env.DB.prepare(
         "UPDATE private_document_uploads SET state='rejected',capability_hash=NULL,error_code='UPLOAD_EXPIRED',updated_at=? WHERE organization_id=? AND id=? AND state='reserved' AND expires_at<=?",
       )
-        .bind(iso(), row.organization_id, row.id, iso())
+        .bind(observedAt, row.organization_id, row.id, observedAt)
         .run();
-    } else if (row.state === "uploading" && row.lease_expires_at! <= iso()) {
+    } else if (recovery === "fence_writer") {
       // Fence the dead writer before resolving any registration or owned object.
       await this.env.DB.prepare(
         "UPDATE private_document_uploads SET state='unknown',lease_token=NULL,lease_expires_at=NULL,error_code='UPLOAD_UNCONFIRMED',updated_at=? WHERE organization_id=? AND id=? AND state='uploading' AND lease_expires_at<=?",
       )
-        .bind(iso(), row.organization_id, row.id, iso())
+        .bind(observedAt, row.organization_id, row.id, observedAt)
         .run();
     }
     const current = await this.env.DB.prepare(
@@ -534,7 +541,8 @@ export class PrivateDocumentUploadService {
       if (document) {
         const authority = this.fence(current, false);
         const recovered = await this.env.DB.prepare(
-          `UPDATE private_document_uploads SET state='complete',document_id=?,error_code=NULL,updated_at=? WHERE organization_id=? AND id=? AND state='unknown' AND ${authority.condition} RETURNING *`,
+          `UPDATE private_document_uploads SET state='complete',document_id=?,error_code=NULL,updated_at=? WHERE organization_id=? AND id=? AND state='unknown' AND ${authority.condition}
+          AND EXISTS(SELECT 1 FROM documents recovered WHERE recovered.organization_id=private_document_uploads.organization_id AND recovered.id=? AND recovered.sha256=private_document_uploads.expected_sha256 AND recovered.size=private_document_uploads.expected_size AND recovered.access_owner_id=private_document_uploads.user_id AND recovered.status<>'purged' AND NOT EXISTS(SELECT 1 FROM audit_log copy_receipt WHERE copy_receipt.organization_id=recovered.organization_id AND copy_receipt.resource_id=recovered.id AND copy_receipt.action='document.secure_copy_created')) RETURNING *`,
         )
           .bind(
             document.id,
@@ -542,6 +550,7 @@ export class PrivateDocumentUploadService {
             current.organization_id,
             current.id,
             ...authority.values,
+            document.id,
           )
           .first<UploadRow>();
         if (recovered) return recovered;
@@ -564,14 +573,7 @@ export class PrivateDocumentUploadService {
       uploadId: row.id,
       status: row.state,
       expiresAt: row.expires_at,
-      nextAction:
-        row.state === "reserved"
-          ? "upload_exact_bytes"
-          : row.state === "uploading"
-            ? "wait"
-            : row.state === "complete"
-              ? "get_document"
-              : "do_not_retry",
+      nextAction: privateUploadNextAction(row.state),
       ...(row.state === "uploading" ? { retryAfterSeconds: 5 } : {}),
       ...(row.error_code ? { errorCode: row.error_code } : {}),
     };

@@ -861,6 +861,81 @@ describe("private original PDF transport with real D1/R2 and document pipeline",
     expect(upload).toHaveBeenCalledTimes(1);
     expect(await usage()).toEqual({ uploads: 1, bytes: bytes.length });
   });
+  it("keeps an unknown receipt stopped when its recovered document is purged before the final write", async () => {
+    const reservation = await begin(),
+      original = documents.upload.bind(documents);
+    const upload = vi
+      .spyOn(documents, "upload")
+      .mockImplementation(async (...args) => {
+        await original(...args);
+        throw Error("synthetic lost final receipt");
+      });
+    expect((await service.receive(put(reservation))).status).toBe(409);
+    const prepare = db.prepare.bind(db);
+    let purged = false;
+    const interceptPrepare = (sql: string) => {
+      const statement = prepare(sql);
+      if (
+        !sql.startsWith(
+          "UPDATE private_document_uploads SET state='complete',document_id=",
+        )
+      )
+        return statement;
+      return new Proxy(statement, {
+        get(target, name) {
+          if (name !== "bind") return Reflect.get(target, name);
+          return (...values: unknown[]) => {
+            const bound = target.bind(...values);
+            return new Proxy(bound, {
+              get(current, method) {
+                if (method !== "first") return Reflect.get(current, method);
+                return async () => {
+                  await prepare(
+                    "UPDATE documents SET status='purged' WHERE organization_id=? AND sha256=?",
+                  )
+                    .bind(identity.context.organizationId, sha256)
+                    .run();
+                  purged = true;
+                  return current.first();
+                };
+              },
+            });
+          };
+        },
+      });
+    };
+    const racedDatabase = new Proxy(db, {
+      get(target, name) {
+        if (name === "prepare") return interceptPrepare;
+        const value = Reflect.get(target, name);
+        return typeof value === "function" ? value.bind(target) : value;
+      },
+    });
+    const result = await new PrivateDocumentUploadService(
+      { ...env, DB: racedDatabase },
+      new DomainService(racedDatabase, { mode: "production" }),
+      documents,
+    ).get(identity, reservation.uploadId);
+    expect(purged).toBe(true);
+    expect(
+      await prepare("SELECT status FROM documents WHERE organization_id=?")
+        .bind(identity.context.organizationId)
+        .first(),
+    ).toEqual({ status: "purged" });
+    expect(result).toMatchObject({
+      status: "unknown",
+      nextAction: "do_not_retry",
+    });
+    expect(
+      await prepare(
+        "SELECT state,document_id FROM private_document_uploads WHERE id=?",
+      )
+        .bind(reservation.uploadId)
+        .first(),
+    ).toEqual({ state: "unknown", document_id: null });
+    expect(upload).toHaveBeenCalledTimes(1);
+    expect(await usage()).toEqual({ uploads: 1, bytes: bytes.length });
+  });
   it("does not recover an unknown ordinary upload to a reserved secure copy with the same private hash", async () => {
     const domain = new DomainService(db, { mode: "production" });
     const ctx = { ...identity.context, actor: "browser" as const };

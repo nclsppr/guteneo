@@ -712,6 +712,60 @@ describe("secure distribution — asynchronous preparation and paid acceptance",
         .first(),
     ).toEqual({ n: 0 });
   });
+  it("keeps rendered pages in preparing until their immutable dispatch is attached", async () => {
+    const f = await fixture("simulation", 1),
+      input = secureDistributionInputSchema.parse({
+        documentId: f.source.id,
+        recipient: { address: f.recipient.email! },
+        ...policy,
+      }),
+      initial = await f.service.prepare(f.ctx, input, id("prepare"));
+    let release!: () => void, reached!: () => void;
+    const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      }),
+      attaching = new Promise<void>((resolve) => {
+        reached = resolve;
+      }),
+      original = f.domain.prepareSecureDistributionDispatch.bind(f.domain);
+    const prepare = vi
+      .spyOn(f.domain, "prepareSecureDistributionDispatch")
+      .mockImplementation(async (...args) => {
+        reached();
+        await gate;
+        return original(...args);
+      });
+    const rendering = f.service.processRender(initial.id);
+    try {
+      await attaching;
+      expect(await f.service.get(f.ctx, initial.id)).toMatchObject({
+        status: "preparing",
+        dispatchId: null,
+        approvalUrl: null,
+        approved: false,
+      });
+      expect(
+        await db
+          .prepare(
+            "SELECT status,dispatch_id FROM secure_distributions WHERE id=?",
+          )
+          .bind(initial.id)
+          .first(),
+      ).toEqual({ status: "prepared", dispatch_id: null });
+    } finally {
+      release();
+      await rendering;
+      prepare.mockRestore();
+    }
+    expect(await f.service.get(f.ctx, initial.id)).toMatchObject({
+      status: "prepared",
+      dispatchId: expect.any(String),
+      approved: false,
+    });
+    expect(
+      await financials(f, (await f.service.get(f.ctx, initial.id)).dispatchId!),
+    ).toMatchObject({ charge: null, transport: null });
+  });
   it("fails closed on a renderer hash mismatch before creating a dispatch, charge or delivery outbox", async () => {
     const f = await fixture();
     f.renderer.mockImplementationOnce(async () =>
@@ -1260,6 +1314,82 @@ describe("secure distribution — explicit quote recovery", () => {
 });
 
 describe("personal copies — independent ownership and final authorization", () => {
+  it.each(["strong", "verified_account"] as const)(
+    "pauses a %s deposit before storage work after session loss and resumes only with an explicit current session",
+    async (accessMode) => {
+      const f = await fixture("simulation", 4, accessMode),
+        share = await bound(f),
+        before = await financials(f, share.view.dispatchId!),
+        first = await f.personal.deposit(f.recipient, share.view.id),
+        operation = (await db
+          .prepare(
+            "SELECT id FROM secure_deposit_operations WHERE personal_document_id=?",
+          )
+          .bind(first.id)
+          .first<{ id: string }>())!;
+      await db
+        .prepare("DELETE FROM personal_sessions WHERE token_hash=?")
+        .bind(f.recipient.tokenHash)
+        .run();
+      const get = vi.fn(bucket.get.bind(bucket)),
+        put = vi.fn(bucket.put.bind(bucket)),
+        worker = new PersonalDocumentsService({
+          ...f.env,
+          DOCUMENTS: proxyBucket({ get, put }),
+        });
+      f.queue.mockClear();
+      await worker.processDeposit(operation.id);
+      await worker.processDeposit(operation.id);
+      await worker.recoverPending();
+      expect(get).not.toHaveBeenCalled();
+      expect(put).not.toHaveBeenCalled();
+      expect(f.queue).not.toHaveBeenCalled();
+      expect(
+        await db
+          .prepare(
+            "SELECT status,auth_session_hash,lease_token,next_page,original_ready FROM secure_deposit_operations WHERE id=?",
+          )
+          .bind(operation.id)
+          .first(),
+      ).toEqual({
+        status: "preparing",
+        auth_session_hash: null,
+        lease_token: "",
+        next_page: 4,
+        original_ready: 1,
+      });
+      const signedIn = await createPersonalBrowserSession(f.env, {
+        userId: f.recipient.userId,
+        verifiedEmail: f.recipient.email!,
+        mfa: accessMode === "strong",
+        verifiedAccount: true,
+        authenticatedAt: Math.floor(Date.now() / 1000),
+        amr: accessMode === "strong" ? ["webauthn"] : ["pwd"],
+        strongAuthentication: accessMode === "strong",
+        authenticationPolicyVersion:
+          accessMode === "strong" ? "guteneo-sensitive-v1" : null,
+        identityIssuer: "https://fixture.invalid/",
+        identitySubject: f.recipient.userId,
+        development: false,
+      });
+      const principal = await authenticatePersonalBrowser(
+        new Request(`${origin}/api/personal/session`, {
+          headers: { Cookie: signedIn.cookie.split(";")[0] },
+        }),
+        f.env,
+      );
+      expect(await worker.deposit(principal, share.view.id)).toMatchObject({
+        id: first.id,
+        status: "active",
+      });
+      expect(await financials(f, share.view.dispatchId!)).toEqual(before);
+      expect(
+        new Uint8Array(
+          await (await worker.download(principal, first.id)).arrayBuffer(),
+        ),
+      ).toEqual(f.bytes);
+    },
+  );
   it.each(["strong", "verified_account"] as const)(
     "withdraws every shared reading form after revocation in %s while retaining the revocation receipt",
     async (accessMode) => {

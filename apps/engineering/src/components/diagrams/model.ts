@@ -49,7 +49,7 @@ export const diagrams: Record<DiagramId, DiagramModel> = {
     figure: '02',
     title: 'The acceptance interlock',
     asset: 'dispatch-lifecycle',
-    caption: 'The review clamp represents a separate immutable approval record. The coupled drawers represent one atomic acceptance transaction. The stopped rear tray represents submission_unknown: an uncertain provider outcome is reconciled, never automatically sent again. This is a synthetic walkthrough, not an approval or send control.',
+    caption: 'The review clamp represents a current approval record bound to immutable content. The coupled drawers represent one atomic acceptance transaction. The stopped rear tray represents submission_unknown: an uncertain provider outcome is reconciled, never automatically sent again. This is a synthetic walkthrough, not an approval or send control.',
     steps: [
       { label: 'Prepared', detail: 'A prepared dispatch binds a concrete recipient, document version, options and quote. Preparation alone does not authorize provider submission.' },
       { label: 'Approval record', detail: 'Approval captures immutable content, recipient, options and cost while the dispatch is still prepared. Human review and explicitly granted bounded expert delegation remain distinct records; an assistant cannot assert human consent.' },
@@ -106,11 +106,11 @@ export const mermaidDiagrams: Record<DiagramId, {
   },
   dispatch: {
     title: 'Approval, acceptance and uncertainty',
-    caption: 'Approval is a separate immutable record. The atomic D1 commitment leads to queued work and one claimed provider attempt; an unknown outcome stops automatic resubmission.',
+    caption: 'A separate current approval record binds the immutable commitment. The atomic D1 commitment leads to queued work and one claimed provider attempt; an unknown outcome stops automatic resubmission.',
     width: 640,
     text: [
       'A prepared dispatch identifies exact content, recipient, options and quote. A separate approval record binds that commitment and current authenticated authority.',
-      'One D1 acceptance transaction verifies approval, reserves quota and writes the outbox before the dispatch becomes queued. A conditional claim moves an eligible attempt to submitting.',
+      'One D1 acceptance transaction verifies approval, reserves quota and writes the outbox as the dispatch becomes queued. A conditional claim moves an eligible dispatch to submitting and records its started attempt.',
       'Known provider responses can establish accepted or failed. An uncertain response or expired lease leads to submission_unknown and provider-specific reconciliation, never automatic resubmission. Later channel events describe delivery separately from acceptance.',
     ],
   },

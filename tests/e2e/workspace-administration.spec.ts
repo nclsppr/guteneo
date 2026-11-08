@@ -754,3 +754,71 @@ test("Consumption has one refresh action for its summary and the embedded ledger
   await expect(refresh).toHaveCount(1);
   expect(state.writes).toEqual([]);
 });
+
+for (const [locale, resolveLabel, resolvedLabel] of [
+  ["en", "Resolve incident", "Resolved"],
+  ["fr", "Résoudre l’incident", "Résolu"],
+  ["de", "Vorfall abschließen", "Erledigt"],
+  ["lb", "Virfall léisen", "Geléist"],
+] as const)
+  test(`queue incident resolution requires a deliberate browser action in ${locale}`, async ({
+    page,
+  }) => {
+    await fixture(page, "admin", locale);
+    const id = "dead_synthetic_fixture";
+    let resolvedAt: string | null = null;
+    const requests: { body: unknown; csrf: string | undefined }[] = [];
+    await page.route("**/api/admin", (route) =>
+      route.fulfill({
+        json: {
+          controls: [],
+          states: [],
+          uncertain: [],
+          audit: [],
+          outbox: { pending: 0 },
+          deadLetters: [
+            {
+              id,
+              dispatch_id: "dispatch-synthetic",
+              queue: "interactive",
+              received_at: "2026-11-08T09:00:00.000Z",
+              resolved_at: resolvedAt,
+            },
+          ],
+        },
+      }),
+    );
+    await page.route(
+      `**/api/admin/dead-letters/${id}/resolution`,
+      async (route) => {
+        requests.push({
+          body: route.request().postDataJSON(),
+          csrf: route.request().headers()["x-csrf-token"],
+        });
+        resolvedAt = "2026-11-08T09:05:00.000Z";
+        await route.fulfill({
+          json: { id, dispatchId: "dispatch-synthetic", resolvedAt },
+        });
+      },
+    );
+    await page.goto("/#/app/administration/settings");
+    const incident = page.locator(".dead-letters");
+    await expect(incident.getByText(id, { exact: true })).toBeVisible();
+    expect(requests).toEqual([]);
+    await incident
+      .getByRole("button", { name: `${resolveLabel} · ${id}`, exact: true })
+      .click();
+    expect(requests).toEqual([]);
+    await incident
+      .getByRole("button", { name: resolveLabel, exact: true })
+      .click();
+    await expect(
+      incident.locator("time").filter({ hasText: resolvedLabel }),
+    ).toBeVisible();
+    await expect(
+      incident.getByRole("button", { name: resolveLabel, exact: true }),
+    ).toHaveCount(0);
+    expect(requests).toEqual([
+      { body: { confirmed: true }, csrf: "fixture-only" },
+    ]);
+  });

@@ -4,7 +4,11 @@
     "Aktivität des Arbeitsbereichs",
     "Aktivitéit vum Aarbechtsberäich"
   ],
-  "Consommation": ["Consumption", "Verbrauch", "Verbrauch"],
+  "Consommation": [
+    "Consumption",
+    "Verbrauch",
+    "Verbrauch"
+  ],
   "Rapports et exports": [
     "Reports and exports",
     "Berichte und Exporte",
@@ -25,7 +29,11 @@
     "Zugänge und Anmeldungen",
     "Zougäng an Umeldungen"
   ],
-  "Journal d’audit": ["Audit log", "Prüfprotokoll", "Auditprotokoll"],
+  "Journal d’audit": [
+    "Audit log",
+    "Prüfprotokoll",
+    "Auditprotokoll"
+  ],
   "Vue d’ensemble de l’espace de travail": [
     "Workspace overview",
     "Übersicht des Arbeitsbereichs",
@@ -36,16 +44,36 @@
     "Kanal nicht gespeichert",
     "Kanal net gespäichert"
   ],
-  "Navigateur": ["Browser", "Browser", "Browser"],
-  "Application mobile": ["Mobile app", "Mobile App", "Mobil App"],
+  "Navigateur": [
+    "Browser",
+    "Browser",
+    "Browser"
+  ],
+  "Application mobile": [
+    "Mobile app",
+    "Mobile App",
+    "Mobil App"
+  ],
   "Ancien abonnement": [
     "Former subscription",
     "Früheres Abonnement",
     "Fréiert Abonnement"
   ],
-  "Date de début": ["Start date", "Startdatum", "Startdatum"],
-  "Date de fin": ["End date", "Enddatum", "Enddatum"],
-  "Appliquer": ["Apply", "Anwenden", "Uwenden"],
+  "Date de début": [
+    "Start date",
+    "Startdatum",
+    "Startdatum"
+  ],
+  "Date de fin": [
+    "End date",
+    "Enddatum",
+    "Enddatum"
+  ],
+  "Appliquer": [
+    "Apply",
+    "Anwenden",
+    "Uwenden"
+  ],
   "Les dates sont en UTC. Une période couvre au plus 366 jours.": [
     "Dates are in UTC. A period covers at most 366 days.",
     "Die Daten sind in UTC. Ein Zeitraum umfasst höchstens 366 Tage.",
@@ -76,16 +104,36 @@
     "{0} Sendungen müssen geprüft werden.",
     "{0} Sendunge mussen iwwerpréift ginn."
   ],
-  "Les examiner": ["Review them", "Prüfen", "Iwwerpréiwen"],
-  "{0} remis": ["{0} delivered", "{0} zugestellt", "{0} zougestallt"],
-  "{0} réservés": ["{0} reserved", "{0} reserviert", "{0} reservéiert"],
-  "À vérifier": ["Needing attention", "Zu prüfen", "Ze iwwerpréiwen"],
+  "Les examiner": [
+    "Review them",
+    "Prüfen",
+    "Iwwerpréiwen"
+  ],
+  "{0} remis": [
+    "{0} delivered",
+    "{0} zugestellt",
+    "{0} zougestallt"
+  ],
+  "{0} réservés": [
+    "{0} reserved",
+    "{0} reserviert",
+    "{0} reservéiert"
+  ],
+  "À vérifier": [
+    "Needing attention",
+    "Zu prüfen",
+    "Ze iwwerpréiwen"
+  ],
   "Échoués, rejetés ou incertains": [
     "Failed, rejected or uncertain",
     "Fehlgeschlagen, abgelehnt oder ungewiss",
     "Feelgeschloen, refuséiert oder onsécher"
   ],
-  "Membres": ["Members", "Mitglieder", "Memberen"],
+  "Membres": [
+    "Members",
+    "Mitglieder",
+    "Memberen"
+  ],
   "{0} accès actifs": [
     "{0} active access",
     "{0} aktive Zugänge",
@@ -101,7 +149,11 @@
     "{0} gesendete Seiten",
     "{0} geschéckte Säiten"
   ],
-  "Partages sécurisés": ["Secure shares", "Sichere Freigaben", "Sécher Deelen"],
+  "Partages sécurisés": [
+    "Secure shares",
+    "Sichere Freigaben",
+    "Sécher Deelen"
+  ],
   "Activés sur cette période": [
     "Activated in this period",
     "In diesem Zeitraum aktiviert",
@@ -117,13 +169,21 @@
     "von {0} gewährt",
     "vun {0} accordéiert"
   ],
-  "Connexions": ["Sign-ins", "Anmeldungen", "Umeldungen"],
+  "Connexions": [
+    "Sign-ins",
+    "Anmeldungen",
+    "Umeldungen"
+  ],
   "Aucune activité sur cette période.": [
     "No activity in this period.",
     "Keine Aktivität in diesem Zeitraum.",
     "Keng Aktivitéit an dësem Zäitraum."
   ],
-  "Canaux": ["Channels", "Kanäle", "Kanäl"],
+  "Canaux": [
+    "Channels",
+    "Kanäle",
+    "Kanäl"
+  ],
   "Envois par canal": [
     "Dispatches by channel",
     "Sendungen nach Kanal",
@@ -134,7 +194,11 @@
     "Keine Sendung in diesem Zeitraum.",
     "Keng Sendung an dësem Zäitraum."
   ],
-  "États": ["States", "Status", "Statusen"],
+  "États": [
+    "States",
+    "Status",
+    "Statusen"
+  ],
   "Télécharger le rapport de cette période": [
     "Download this period's report",
     "Bericht dieses Zeitraums herunterladen",
@@ -145,17 +209,41 @@
     "Jede Sendung dieses Arbeitsbereichs mit Status und Beträgen. Empfänger und Inhalte bleiben in der Korrespondenz.",
     "All Sendung vun dësem Aarbechtsberäich mat hirem Status an de Montanten. Empfänger an Inhalter bleiwen an der Korrespondenz."
   ],
-  "Tous les canaux": ["All channels", "Alle Kanäle", "All Kanäl"],
-  "État": ["State", "Status", "Status"],
-  "Tous les états": ["All states", "Alle Status", "All Statusen"],
+  "Tous les canaux": [
+    "All channels",
+    "Alle Kanäle",
+    "All Kanäl"
+  ],
+  "État": [
+    "State",
+    "Status",
+    "Status"
+  ],
+  "Tous les états": [
+    "All states",
+    "Alle Status",
+    "All Statusen"
+  ],
   "Référence de l’envoi": [
     "Dispatch reference",
     "Sendungsreferenz",
     "Referenz vun der Sendung"
   ],
-  "{0} envois": ["{0} dispatches", "{0} Sendungen", "{0} Sendungen"],
-  "Créé": ["Created", "Erstellt", "Erstallt"],
-  "Approuvé par": ["Approved by", "Freigegeben von", "Fräigi vun"],
+  "{0} envois": [
+    "{0} dispatches",
+    "{0} Sendungen",
+    "{0} Sendungen"
+  ],
+  "Créé": [
+    "Created",
+    "Erstellt",
+    "Erstallt"
+  ],
+  "Approuvé par": [
+    "Approved by",
+    "Freigegeben von",
+    "Fräigi vun"
+  ],
   "Pages d’activité": [
     "Activity pages",
     "Aktivitätsseiten",
@@ -191,57 +279,101 @@
     "Derzeit reserviert",
     "Elo reservéiert"
   ],
-  "Par service": ["By service", "Nach Dienst", "No Service"],
+  "Par service": [
+    "By service",
+    "Nach Dienst",
+    "No Service"
+  ],
   "Consommation par service": [
     "Consumption by service",
     "Verbrauch nach Dienst",
     "Verbrauch no Service"
   ],
-  "{0} débits": ["{0} charges", "{0} Belastungen", "{0} Belaaschtungen"],
+  "{0} débits": [
+    "{0} charges",
+    "{0} Belastungen",
+    "{0} Belaaschtungen"
+  ],
   "Aucun débit sur cette période.": [
     "No charge in this period.",
     "Keine Belastung in diesem Zeitraum.",
     "Keng Belaaschtung an dësem Zäitraum."
   ],
-  "Par canal": ["By channel", "Nach Kanal", "No Kanal"],
+  "Par canal": [
+    "By channel",
+    "Nach Kanal",
+    "No Kanal"
+  ],
   "Consommation par canal": [
     "Consumption by channel",
     "Verbrauch nach Kanal",
     "Verbrauch no Kanal"
   ],
-  "Par mois": ["By month", "Nach Monat", "No Mount"],
+  "Par mois": [
+    "By month",
+    "Nach Monat",
+    "No Mount"
+  ],
   "Consommation par mois": [
     "Consumption by month",
     "Verbrauch nach Monat",
     "Verbrauch no Mount"
   ],
-  "Mois": ["Month", "Monat", "Mount"],
-  "Débits": ["Charges", "Belastungen", "Belaaschtungen"],
+  "Mois": [
+    "Month",
+    "Monat",
+    "Mount"
+  ],
+  "Débits": [
+    "Charges",
+    "Belastungen",
+    "Belaaschtungen"
+  ],
   "Activité des membres": [
     "Member activity",
     "Aktivität der Mitglieder",
     "Aktivitéit vun de Memberen"
   ],
-  "Dernière connexion": ["Last sign-in", "Letzte Anmeldung", "Lescht Umeldung"],
-  "Approbations": ["Approvals", "Freigaben", "Fräigaben"],
+  "Dernière connexion": [
+    "Last sign-in",
+    "Letzte Anmeldung",
+    "Lescht Umeldung"
+  ],
+  "Approbations": [
+    "Approvals",
+    "Freigaben",
+    "Fräigaben"
+  ],
   "Dernière action enregistrée": [
     "Last recorded action",
     "Letzte erfasste Aktion",
     "Lescht erfaasst Aktioun"
   ],
-  "Pages de membres": ["Member pages", "Mitgliederseiten", "Membersäiten"],
+  "Pages de membres": [
+    "Member pages",
+    "Mitgliederseiten",
+    "Membersäiten"
+  ],
   "Sessions ouvertes et autorisations d’assistants des membres, et leurs connexions enregistrées. Une autorisation ne prouve pas une présence.": [
     "Open sessions and assistant authorizations of members, and their recorded sign-ins. An authorization is not proof of presence.",
     "Offene Sitzungen und Assistenten-Autorisierungen der Mitglieder sowie ihre erfassten Anmeldungen. Eine Autorisierung belegt keine Anwesenheit.",
     "Oppe Sessiounen an Assistent-Autorisatioune vun de Memberen an hir erfaasst Umeldungen. Eng Autorisatioun beweist keng Presenz."
   ],
-  "Accès en cours": ["Current access", "Aktuelle Zugänge", "Aktuell Zougäng"],
+  "Accès en cours": [
+    "Current access",
+    "Aktuelle Zugänge",
+    "Aktuell Zougäng"
+  ],
   "Pour déconnecter l’accès d’un membre, utilisez Membres.": [
     "To disconnect a member's access, use Members.",
     "Um den Zugang eines Mitglieds zu trennen, verwenden Sie Mitglieder.",
     "Fir den Zougang vun engem Member ze trennen, benotzt Memberen."
   ],
-  "Type d’accès": ["Access type", "Zugangsart", "Zougangsaart"],
+  "Type d’accès": [
+    "Access type",
+    "Zugangsart",
+    "Zougangsaart"
+  ],
   "Jusqu’à révocation": [
     "Until revoked",
     "Bis zum Widerruf",
@@ -277,9 +409,21 @@
     "Erfasste Aktionen dieses Arbeitsbereichs: Freigaben, Mitgliederänderungen, Einstellungen und Exporte. Details, die Inhalte enthalten können, werden nicht angezeigt.",
     "Erfaasst Aktioune vun dësem Aarbechtsberäich: Fräigaben, Ännerunge bei Memberen, Astellungen an Exporter. Detailer, déi Inhalt kéinten enthalen, ginn net ugewisen."
   ],
-  "Par": ["By", "Von", "Vun"],
-  "Service Guteneo": ["Guteneo service", "Guteneo-Dienst", "Guteneo-Service"],
-  "Ressource": ["Resource", "Ressource", "Ressource"],
+  "Par": [
+    "By",
+    "Von",
+    "Vun"
+  ],
+  "Service Guteneo": [
+    "Guteneo service",
+    "Guteneo-Dienst",
+    "Guteneo-Service"
+  ],
+  "Ressource": [
+    "Resource",
+    "Ressource",
+    "Ressource"
+  ],
   "Pages du journal d’audit": [
     "Audit pages",
     "Seiten des Prüfprotokolls",
@@ -335,7 +479,11 @@
     ", Mitglieder, Zugänge und Prüfprotokoll",
     ", Memberen, Zougäng an Auditprotokoll"
   ],
-  "Activité": ["Activity", "Aktivität", "Aktivitéit"],
+  "Activité": [
+    "Activity",
+    "Aktivität",
+    "Aktivitéit"
+  ],
   "Chaque envoi créé sur la période avec son état et ses montants.": [
     "Every dispatch created in the period with its state and amounts.",
     "Jede im Zeitraum erstellte Sendung mit Status und Beträgen.",
@@ -381,13 +529,21 @@
     "Der Name des Arbeitsbereichs wurde gespeichert.",
     "Den Numm vum Aarbechtsberäich gouf gespäichert."
   ],
-  "Exploitation": ["Operations", "Betrieb", "Betrib"],
+  "Exploitation": [
+    "Operations",
+    "Betrieb",
+    "Betrib"
+  ],
   "Indicateur du graphique": [
     "Chart metric",
     "Diagrammkennzahl",
     "Kennzuel vum Diagramm"
   ],
-  "{0} le {1}": ["{0} on {1}", "{0} am {1}", "{0} de {1}"],
+  "{0} le {1}": [
+    "{0} on {1}",
+    "{0} am {1}",
+    "{0} de {1}"
+  ],
   "sur cette période": [
     "in this period",
     "in diesem Zeitraum",
@@ -408,8 +564,16 @@
     "Berichte des Arbeitsbereichs in der Verwaltung öffnen",
     "Berichter vum Aarbechtsberäich an der Verwaltung opmaachen"
   ],
-  "Rapports": ["Reports", "Berichte", "Berichter"],
-  "Paramètres": ["Settings", "Einstellungen", "Astellungen"],
+  "Rapports": [
+    "Reports",
+    "Berichte",
+    "Berichter"
+  ],
+  "Paramètres": [
+    "Settings",
+    "Einstellungen",
+    "Astellungen"
+  ],
   "Navigation de l’administration": [
     "Administration navigation",
     "Navigation der Verwaltung",
@@ -440,8 +604,16 @@
     "Eine CSV-Datei enthält eine Tabelle. Wählen Sie Excel oder PDF für den vollständigen Bericht.",
     "E CSV-Fichier enthält eng eenzeg Tabell. Wielt Excel oder PDF fir de komplette Bericht."
   ],
-  "Accès": ["Access", "Zugänge", "Zougäng"],
-  "Vue d’ensemble": ["Overview", "Übersicht", "Iwwersiicht"],
+  "Accès": [
+    "Access",
+    "Zugänge",
+    "Zougäng"
+  ],
+  "Vue d’ensemble": [
+    "Overview",
+    "Übersicht",
+    "Iwwersiicht"
+  ],
   "L’accès aux rapports est requis.": [
     "Report access is required.",
     "Berichtszugang ist erforderlich.",
@@ -496,5 +668,50 @@
     "Administration figures are simulated in the default fictional scenario. Choose it to explore reports.",
     "Die Zahlen der Verwaltung werden im fiktiven Standardszenario simuliert. Wählen Sie es, um Berichte zu erkunden.",
     "D’Zuele vun der Verwaltung ginn am fiktive Standardszenario simuléiert. Wielt et, fir d’Berichter ze entdecken."
+  ],
+  "Résolu": [
+    "Resolved",
+    "Erledigt",
+    "Geléist"
+  ],
+  "Non résolu": [
+    "Unresolved",
+    "Nicht erledigt",
+    "Net geléist"
+  ],
+  "Résoudre l’incident": [
+    "Resolve incident",
+    "Vorfall abschließen",
+    "Virfall léisen"
+  ],
+  "Résoudre cet incident de file après vérification de l’envoi initial ? Aucune communication ne sera envoyée.": [
+    "Resolve this queue incident after reviewing the original dispatch? No communication will be sent.",
+    "Diesen Warteschlangenvorfall nach Prüfung des ursprünglichen Versands abschließen? Es wird keine Nachricht versendet.",
+    "Dëse Virfall an der Waardeschlaang no der Kontroll vum urspréngleche Versand léisen? Et gëtt keng Noriicht geschéckt."
+  ],
+  "Vérifiez l’envoi initial et ses réservations financières avant de résoudre cet incident.": [
+    "Reconcile the original dispatch and its financial holds before resolving this incident.",
+    "Klären Sie den ursprünglichen Versand und seine finanziellen Reservierungen, bevor Sie diesen Vorfall abschließen.",
+    "Klärt den urspréngleche Versand a seng finanziell Reservatiounen, éier Dir dëse Virfall léist."
+  ],
+  "Les droits actuels ou l’état de l’incident ont changé. Actualisez l’incident initial.": [
+    "Current authority or incident state changed. Refresh the original incident.",
+    "Die aktuellen Berechtigungen oder der Vorfallsstatus haben sich geändert. Aktualisieren Sie den ursprünglichen Vorfall.",
+    "Déi aktuell Rechter oder den Zoustand vum Virfall hu geännert. Aktualiséiert den urspréngleche Virfall."
+  ],
+  "Référence d’incident non valide.": [
+    "Invalid incident reference.",
+    "Ungültige Vorfallsreferenz.",
+    "Ongëlteg Referenz vum Virfall."
+  ],
+  "Incident de file introuvable.": [
+    "Queue incident not found.",
+    "Warteschlangenvorfall nicht gefunden.",
+    "De Virfall an der Waardeschlaang gouf net fonnt."
+  ],
+  "Une session navigateur d’administrateur actuelle est requise.": [
+    "A current browser administrator session is required.",
+    "Eine aktuelle Administratorsitzung im Browser ist erforderlich.",
+    "Eng aktuell Administratorsëtzung am Browser ass néideg."
   ]
 }

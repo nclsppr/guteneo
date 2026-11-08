@@ -1,4 +1,17 @@
 import {
+  acceptsDispatchCommand,
+  approvalDeadline,
+  attemptOutcome,
+  dispatchRecovery,
+  expiredSubmission,
+  normalizeSubmissionResult,
+  providerEventProjection,
+  type DispatchChannel,
+  type DispatchStatus,
+  type ProviderEventKind,
+} from "./dispatch-lifecycle";
+export type { DispatchStatus } from "./dispatch-lifecycle";
+import {
   documentAccessMode,
   documentSessionTimeSql,
   documentAccessPolicySql,
@@ -84,7 +97,7 @@ import {
   LIMITS,
 } from "../../contracts/src/content";
 
-export type Channel = "fax" | "email" | "postal";
+export type Channel = DispatchChannel;
 export type Mode = "simulation" | "production";
 export type ActorContext = {
   organizationId: string;
@@ -120,19 +133,6 @@ export type DocumentRecord = {
   /** Independent source reserved for secure distribution. */
   secure_copy_source_id?: string | null;
 };
-export type DispatchStatus =
-  | "prepared"
-  | "queued"
-  | "submitting"
-  | "submission_unknown"
-  | "accepted"
-  | "delivered"
-  | "failed"
-  | "cancelled"
-  | "bounced"
-  | "complained"
-  | "printed"
-  | "handed_to_post";
 export type Dispatch = {
   recipient_feedback?: "unsubscribed" | "reported" | null;
   faxPricing?: FaxPricing;
@@ -186,14 +186,7 @@ export type ProviderEventInput = {
   eventId: string;
   providerId?: string;
   dispatchId?: string;
-  kind:
-    | "accepted"
-    | "delivered"
-    | "failed"
-    | "bounced"
-    | "complained"
-    | "printed"
-    | "handed_to_post";
+  kind: ProviderEventKind;
   occurredAt: string;
   payload?: Record<string, unknown>;
 };
@@ -271,7 +264,7 @@ export function membershipPermissionFence(
   permission: "approveDispatches" | "prepareDispatches",
 ) {
   return {
-    condition: `EXISTS(SELECT 1 FROM memberships access_member WHERE access_member.organization_id=? AND access_member.user_id=? AND access_member.role=? AND ${permission === "approveDispatches" ? "(access_member.role='admin' OR (access_member.role='supervisor' AND access_member.supervisor_can_approve=1))" : "access_member.role IN ('admin','supervisor','member')"})`,
+    condition: `EXISTS(SELECT 1 FROM memberships access_member WHERE access_member.organization_id=? AND access_member.user_id=? AND access_member.role=? AND ${permission === "approveDispatches" ? "(access_member.role='admin' OR (access_member.role='supervisor' AND access_member.supervisor_can_approve=1))" : "access_member.role IN ('admin','supervisor','member')"} AND NOT EXISTS(SELECT 1 FROM account_deletion_requests deletion WHERE deletion.user_id=access_member.user_id AND deletion.status IN ('processing','completed')))`,
     values: [ctx.organizationId, ctx.userId, ctx.role],
   };
 }
@@ -445,7 +438,7 @@ export class DomainService {
   private async organization(ctx: ActorContext) {
     const org = await this.db
       .prepare(
-        "SELECT o.*,m.role AS membership_role,m.supervisor_can_approve,m.supervisor_can_report FROM organizations o JOIN memberships m ON m.organization_id=o.id WHERE o.id=? AND m.user_id=?",
+        "SELECT o.*,m.role AS membership_role,m.supervisor_can_approve,m.supervisor_can_report FROM organizations o JOIN memberships m ON m.organization_id=o.id WHERE o.id=? AND m.user_id=? AND NOT EXISTS(SELECT 1 FROM account_deletion_requests deletion WHERE deletion.user_id=m.user_id AND deletion.status IN ('processing','completed'))",
       )
       .bind(ctx.organizationId, ctx.userId)
       .first<{
@@ -551,7 +544,12 @@ export class DomainService {
         409,
       );
     const id = input.id ?? uid("doc");
-    const fence = authority?.sql();
+    const membership = membershipPermissionFence(ctx, "prepareDispatches");
+    const sourceAuthority = authority?.sql();
+    const fence = {
+      condition: `(${membership.condition}) AND (${sourceAuthority?.condition ?? "1=1"})`,
+      values: [...membership.values, ...(sourceAuthority?.values ?? [])],
+    };
     const insert = this.db
       .prepare(
         `INSERT INTO documents(id,organization_id,name,sha256,size,pages,status,source,storage_key,created_at,access_owner_id) SELECT ?,?,?,?,?,?,?,?,?,?,? WHERE ${fence?.condition ?? "1=1"} ON CONFLICT DO UPDATE SET status=documents.status WHERE documents.status<>'purged' AND documents.organization_id=excluded.organization_id AND documents.sha256=excluded.sha256 AND documents.size=excluded.size AND documents.access_owner_id IS excluded.access_owner_id AND NOT EXISTS(SELECT 1 FROM audit_log copy_receipt WHERE copy_receipt.organization_id=documents.organization_id AND copy_receipt.resource_id=documents.id AND copy_receipt.action='document.secure_copy_created') RETURNING *`,
@@ -824,10 +822,8 @@ export class DomainService {
     if (!existing) {
       // The transaction below rechecks all submission and funding evidence.
       if (
-        source.status !== "prepared" ||
-        source.provider ||
-        source.provider_id ||
-        source.active_attempt_id
+        !acceptsDispatchCommand(source.status, "approve") ||
+        dispatchRecovery(source).submissionStarted
       )
         throw new DomainError(
           "FAX_QUOTE_RENEWAL_UNSAFE",
@@ -1316,10 +1312,14 @@ export class DomainService {
       }),
     );
     if (quote) quote.dispatch_fingerprint = fingerprint;
+    const preparationAuthority = membershipPermissionFence(
+      ctx,
+      "prepareDispatches",
+    );
     try {
       const insert = this.db
         .prepare(
-          "INSERT INTO dispatches(id,organization_id,campaign_id,channel,recipient_json,document_id,sender_id,sender_address,subject,html,text,options_json,status,mode,estimated_minor,ceiling_minor,currency,fingerprint,prepare_key,request_hash,created_at,updated_at,quote_fingerprint) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(organization_id,prepare_key) DO NOTHING",
+          `INSERT INTO dispatches(id,organization_id,campaign_id,channel,recipient_json,document_id,sender_id,sender_address,subject,html,text,options_json,status,mode,estimated_minor,ceiling_minor,currency,fingerprint,prepare_key,request_hash,created_at,updated_at,quote_fingerprint) SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? WHERE ${preparationAuthority.condition} ON CONFLICT(organization_id,prepare_key) DO NOTHING`,
         )
         .bind(
           id,
@@ -1345,6 +1345,7 @@ export class DomainService {
           now,
           now,
           quote?.fingerprint ?? null,
+          ...preparationAuthority.values,
         );
       const renewalFence = renewal
         ? [
@@ -1365,9 +1366,15 @@ export class DomainService {
               ),
             this.db
               .prepare(
-                "UPDATE dispatches SET status='cancelled',updated_at=? WHERE organization_id=? AND id=? AND status='prepared' AND fingerprint=?",
+                `UPDATE dispatches SET status='cancelled',updated_at=? WHERE organization_id=? AND id=? AND status='prepared' AND fingerprint=? AND ${preparationAuthority.condition}`,
               )
-              .bind(now, ctx.organizationId, renewal.id, renewal.fingerprint),
+              .bind(
+                now,
+                ctx.organizationId,
+                renewal.id,
+                renewal.fingerprint,
+                ...preparationAuthority.values,
+              ),
           ]
         : [];
       await this.db.batch([
@@ -1427,12 +1434,16 @@ export class DomainService {
         );
       sqlError(e);
     }
-    const saved = (await this.db
+    const saved = await this.db
       .prepare(
         "SELECT * FROM dispatches WHERE organization_id=? AND prepare_key=?",
       )
       .bind(ctx.organizationId, idempotencyKey)
-      .first<Dispatch>())!;
+      .first<Dispatch>();
+    if (!saved) {
+      await this.organization(ctx);
+      throw new DomainError("FORBIDDEN", "Preparation authority changed.", 403);
+    }
     if (saved.request_hash !== requestHash)
       throw new DomainError(
         "IDEMPOTENCY_CONFLICT",
@@ -1566,7 +1577,7 @@ export class DomainService {
         values: [...authority.values, ...strong.values],
       };
     }
-    if (row.status !== "prepared")
+    if (!acceptsDispatchCommand(row.status, "approve"))
       throw new DomainError(
         "INVALID_STATE",
         "This dispatch can no longer be approved.",
@@ -1627,20 +1638,19 @@ export class DomainService {
         "Expert review is no longer valid.",
         409,
       );
-    const approvalExpiresAt = new Date(
-      Math.min(
-        review ? Date.parse(review.expires_at) : Infinity,
-        Date.parse(now) + 15 * 60_000,
-        quote ? Date.parse(quote.expires_at) : Infinity,
+    const approvalExpiresAt = approvalDeadline({
+      createdAt: now,
+      reviewExpiresAt: review?.expires_at,
+      quoteExpiresAt: quote?.expires_at,
+      strongAuthenticatedAt:
         secureEvidence &&
-          documentAccessMode(this.config.sensitiveDocumentAuthentication) ===
-            "strong"
-          ? (secureEvidence.authenticatedAt + 900) * 1000
-          : Infinity,
-        secureEvidence ? Date.parse(secureEvidence.expiresAt) : Infinity,
-        secureEvidence ? Date.parse(secureEvidence.browserExpiresAt) : Infinity,
-      ),
-    ).toISOString();
+        documentAccessMode(this.config.sensitiveDocumentAuthentication) ===
+          "strong"
+          ? secureEvidence.authenticatedAt
+          : undefined,
+      secureSessionExpiresAt: secureEvidence?.expiresAt,
+      browserSessionExpiresAt: secureEvidence?.browserExpiresAt,
+    });
     const statements: D1PreparedStatement[] = [];
     if (row.campaign_id)
       statements.push(
@@ -1748,7 +1758,7 @@ export class DomainService {
     // The same tenant, membership and private-document visibility as getDispatch.
     const row = await this.dispatch(ctx, id);
     const checkedAt = this.time();
-    const prepared = row.status === "prepared";
+    const prepared = acceptsDispatchCommand(row.status, "approve");
     const checks: DispatchValidationCheck[] = [
       {
         id: "prepared_state",
@@ -1775,11 +1785,7 @@ export class DomainService {
         )
         .bind(ctx.organizationId, row.id)
         .first();
-      const started =
-        attempt !== null ||
-        row.provider !== null ||
-        row.provider_id !== null ||
-        row.active_attempt_id !== null;
+      const started = dispatchRecovery(row, attempt !== null).submissionStarted;
       checks.push({
         id: "submission_not_started",
         status: started ? "blocked" : "passed",
@@ -1865,6 +1871,7 @@ export class DomainService {
       );
     key(idempotencyKey);
     const row = await this.dispatch(ctx, id);
+    const prepared = acceptsDispatchCommand(row.status, "accept");
     await assertFaxDispatchSendable(this.db, row);
     const secure = !!JSON.parse(row.options_json).secureDistribution;
     if (secure && proof)
@@ -1873,12 +1880,7 @@ export class DomainService {
         "Expert delegation does not replace browser approval for this distribution.",
         403,
       );
-    if (
-      secure &&
-      row.status === "prepared" &&
-      ctx.actor === "mcp" &&
-      !acceptanceAuthority
-    )
+    if (secure && prepared && ctx.actor === "mcp" && !acceptanceAuthority)
       throw new DomainError(
         "FORBIDDEN",
         "The current OAuth connection must be verified before acceptance.",
@@ -1890,11 +1892,7 @@ export class DomainService {
         "Active expert delegation is required.",
         403,
       );
-    if (
-      row.mode === "production" &&
-      row.channel === "postal" &&
-      row.status === "prepared"
-    ) {
+    if (row.mode === "production" && row.channel === "postal" && prepared) {
       if (!this.config.assertPostalDestination)
         throw new DomainError(
           "POSTAL_DESTINATION_AVAILABILITY_UNAVAILABLE",
@@ -1913,9 +1911,9 @@ export class DomainService {
     // The current time follows any external destination read. Historical or
     // accepted idempotent replays above need no new country decision.
     const now = this.time();
-    if (row.status === "prepared") await this.validateDispatchQuote(row, now);
-    if (row.status === "prepared") await this.validateProtection(row);
-    if (row.channel === "email" && row.status === "prepared")
+    if (prepared) await this.validateDispatchQuote(row, now);
+    if (prepared) await this.validateProtection(row);
+    if (row.channel === "email" && prepared)
       await this.validateEmailRecipient(row);
     const hash = await sha256(
       canonicalJson({ id, fingerprint: row.fingerprint }),
@@ -1956,6 +1954,7 @@ export class DomainService {
           ctx.organizationId,
           row.channel,
           now.slice(0, 7),
+          { condition: approvalFence, values: approvalValues },
         ),
         this.db
           .prepare(
@@ -1994,7 +1993,7 @@ export class DomainService {
       )
       .bind(ctx.organizationId, idempotencyKey)
       .first<{ request_hash: string }>();
-    if (!idem && row.status === "prepared")
+    if (!idem && prepared)
       throw new DomainError(
         "APPROVAL_REQUIRED",
         "Valid approval or delegation is required.",
@@ -2165,9 +2164,10 @@ export class DomainService {
     await this.organization(ctx);
     const id = uid("cmp"),
       now = this.time();
-    await this.db
+    const authority = membershipPermissionFence(ctx, "prepareDispatches");
+    const inserted = await this.db
       .prepare(
-        "INSERT INTO campaigns(id,organization_id,name,status,created_at,updated_at) VALUES(?,?,?,?,?,?)",
+        `INSERT INTO campaigns(id,organization_id,name,status,created_at,updated_at) SELECT ?,?,?,?,?,? WHERE ${authority.condition}`,
       )
       .bind(
         id,
@@ -2176,8 +2176,13 @@ export class DomainService {
         "draft",
         now,
         now,
+        ...authority.values,
       )
       .run();
+    if (!inserted.meta.changes) {
+      await this.organization(ctx);
+      throw new DomainError("FORBIDDEN", "Preparation authority changed.", 403);
+    }
     return (await this.db
       .prepare("SELECT * FROM campaigns WHERE organization_id=? AND id=?")
       .bind(ctx.organizationId, id)
@@ -2596,11 +2601,7 @@ export class DomainService {
         errorCode: "TRANSPORT_OUTCOME_UNKNOWN",
       };
     }
-    if (result.status === "accepted" && !result.providerId)
-      result = {
-        status: "submission_unknown",
-        errorCode: "PROVIDER_REFERENCE_MISSING",
-      };
+    result = normalizeSubmissionResult(result);
     const bound = await this.db
       .prepare("SELECT provider_id FROM dispatches WHERE id=?")
       .bind(id)
@@ -2633,38 +2634,30 @@ export class DomainService {
         errorCode: "PROVIDER_REFERENCE_CONFLICT",
       };
     }
-    if (result.status === "rejected") {
-      await this.rejectAttempt(
-        row,
-        attemptId,
-        result.errorCode ?? "PROVIDER_REJECTED",
-      );
-    } else if (result.status === "submission_unknown") {
+    const outcome = attemptOutcome(result);
+    if (outcome.status === "rejected") {
+      await this.rejectAttempt(row, attemptId, outcome.errorCode);
+    } else if (outcome.status === "unknown") {
       await this.db.batch([
         this.db
           .prepare(
             "UPDATE dispatches SET status='submission_unknown',provider_id=COALESCE(provider_id,?),updated_at=?,lease_until=NULL WHERE id=? AND active_attempt_id=? AND status='submitting' AND (provider_id IS NULL OR provider_id=?)",
           )
           .bind(
-            result.providerId ?? null,
+            outcome.providerId,
             this.time(),
             id,
             attemptId,
-            result.providerId ?? null,
+            outcome.providerId,
           ),
         this.db
           .prepare(
             "UPDATE attempts SET status='unknown',provider_id=COALESCE(provider_id,?),error_code=?,updated_at=? WHERE id=? AND status='started'",
           )
-          .bind(
-            result.providerId ?? null,
-            result.errorCode ?? "SUBMISSION_UNKNOWN",
-            this.time(),
-            attemptId,
-          ),
+          .bind(outcome.providerId, outcome.errorCode, this.time(), attemptId),
       ]);
-      if (result.providerId)
-        await this.reconcileOrphans(provider.name, result.providerId);
+      if (outcome.providerId)
+        await this.reconcileOrphans(provider.name, outcome.providerId);
     } else {
       await this.db.batch([
         this.db
@@ -2672,22 +2665,22 @@ export class DomainService {
             "UPDATE dispatches SET provider_id=COALESCE(provider_id,?),status=CASE WHEN status IN ('submitting','submission_unknown') THEN 'accepted' ELSE status END,lease_until=NULL,updated_at=? WHERE id=? AND active_attempt_id=? AND (provider_id IS NULL OR provider_id=?)",
           )
           .bind(
-            result.providerId!,
+            outcome.providerId,
             this.time(),
             id,
             attemptId,
-            result.providerId!,
+            outcome.providerId,
           ),
         this.db
           .prepare(
             "UPDATE attempts SET status='accepted',provider_id=?,updated_at=? WHERE id=?",
           )
-          .bind(result.providerId!, this.time(), attemptId),
+          .bind(outcome.providerId, this.time(), attemptId),
       ]);
       await this.ingestEvent({
         provider: provider.name,
         eventId: `submission:${attemptId}`,
-        providerId: result.providerId,
+        providerId: outcome.providerId,
         dispatchId: id,
         kind: "accepted",
         occurredAt: this.time(),
@@ -2696,7 +2689,7 @@ export class DomainService {
           simulation: row.mode === "simulation",
         },
       });
-      await this.reconcileOrphans(provider.name, result.providerId!);
+      await this.reconcileOrphans(provider.name, outcome.providerId);
     }
     for (const event of result.events ?? []) await this.ingestEvent(event);
     const updated = await this.db
@@ -2814,32 +2807,10 @@ export class DomainService {
     providerId?: string,
     payload?: Record<string, unknown>,
   ) {
-    const allowed: Record<Channel, string[]> = {
-      fax: ["accepted", "delivered", "failed"],
-      email: ["accepted", "delivered", "failed", "bounced", "complained"],
-      postal: ["accepted", "printed", "handed_to_post", "delivered", "failed"],
-    };
-    if (!allowed[row.channel].includes(kind)) return false;
+    const projection = providerEventProjection(row.channel, kind);
+    if (!projection) return false;
     const now = this.time();
-    const ranks: Record<string, number> = {
-      prepared: 0,
-      queued: 0,
-      submitting: 10,
-      submission_unknown: 10,
-      accepted: 20,
-      printed: 30,
-      // Postal non-delivery can follow handover, but cannot erase proven delivery.
-      failed: row.channel === "postal" ? 45 : 35,
-      delivered: 50,
-      handed_to_post: 40,
-      bounced: 55,
-      complained: 60,
-      cancelled: 100,
-    };
-    // Monotonic fact projection is guarded in SQL, so reordered concurrent callbacks cannot regress.
-    const statuses = Object.entries(ranks)
-      .filter(([, rank]) => rank < (ranks[kind] ?? 0))
-      .map(([status]) => status);
+    const statuses = projection.predecessors;
     const statements: D1PreparedStatement[] = [
       this.db
         .prepare(
@@ -2930,11 +2901,17 @@ export class DomainService {
   async reconcileExpiredLeases(limit = 100) {
     const rows = await this.db
       .prepare(
-        "SELECT id,active_attempt_id FROM dispatches WHERE status='submitting' AND lease_until<? ORDER BY lease_until,id LIMIT ?",
+        "SELECT id,active_attempt_id,status,lease_until FROM dispatches WHERE status='submitting' AND lease_until<? ORDER BY lease_until,id LIMIT ?",
       )
       .bind(this.time(), Math.max(1, Math.min(limit, 100)))
-      .all<{ id: string; active_attempt_id: string }>();
-    for (const row of rows.results)
+      .all<{
+        id: string;
+        active_attempt_id: string;
+        status: DispatchStatus;
+        lease_until: string | null;
+      }>();
+    for (const row of rows.results) {
+      if (!expiredSubmission(row, this.time())) continue;
       await this.db.batch([
         this.db
           .prepare(
@@ -2947,6 +2924,7 @@ export class DomainService {
           )
           .bind(this.time(), row.active_attempt_id),
       ]);
+    }
     return { uncertain: rows.results.length };
   }
   async suppressRecipient(
@@ -2957,13 +2935,26 @@ export class DomainService {
     writable(ctx);
     await this.organization(ctx);
     const normalized = validateRecipient("email", { email }).email;
+    const authority = membershipPermissionFence(ctx, "prepareDispatches");
     await this.db.batch([
       this.db
         .prepare(
-          "INSERT INTO suppressions(organization_id,email,reason,created_at) VALUES(?,?,?,?) ON CONFLICT(organization_id,email) DO UPDATE SET reason=excluded.reason",
+          `INSERT INTO suppressions(organization_id,email,reason,created_at) SELECT ?,?,?,? WHERE ${authority.condition} ON CONFLICT(organization_id,email) DO UPDATE SET reason=excluded.reason`,
         )
-        .bind(ctx.organizationId, normalized, reason, this.time()),
-      this.audit(ctx, "recipient.suppressed", "redacted", { reason }),
+        .bind(
+          ctx.organizationId,
+          normalized,
+          reason,
+          this.time(),
+          ...authority.values,
+        ),
+      this.audit(
+        ctx,
+        "recipient.suppressed",
+        "redacted",
+        { reason },
+        authority,
+      ),
     ]);
   }
 }
