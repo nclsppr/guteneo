@@ -66,6 +66,9 @@ malware scan does not prove their absence. See the
    A concurrent retry/freeze has one persisted winner. After an uncertain retry,
    read that same job and its existing plans before choosing the next action;
    never create a replacement batch or change keys merely to bypass a freeze.
+   An explicit retry can also reopen unfrozen records already queued by an
+   interrupted earlier retry; it reuses those records rather than generating
+   replacements.
 6. Prepare distribution only on request. Supply explicit associations to
    `prepare_distribution`; one common recipient still produces separate
    dispatches. `recipientFields` resolve against the record's frozen data.

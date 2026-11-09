@@ -130,10 +130,12 @@ CI create no marketplace submission, merge, deployment or human consent.
 
 ### Atomic generation retry source synchronization — 9 November 2026
 
-Candidate 1.1.34 synchronizes the application and portable/Claude/Cursor package
+Candidate 1.1.35 synchronizes the application and portable/Claude/Cursor package
 versions after atomic failed-record retry closed a distribution-freeze race.
 The Studio instructions require reading the existing job/plans after uncertainty,
 preserving the original operation instead of bypassing a freeze with new keys.
+Explicit retry also retains recovery of unfrozen records left queued by older
+interrupted retries.
 The catalogue, schemas, annotation booleans, OAuth scopes and host confirmations
 are unchanged. Local archive validation grants no activation, host qualification,
 marketplace submission or production publication. See the

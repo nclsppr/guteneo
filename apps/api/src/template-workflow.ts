@@ -2039,7 +2039,7 @@ export class TemplateWorkflowService {
     const time = now();
     // Requeue records and reopen their job at one atomic authority instant.
     // Distribution freeze and cancellation cannot commit between these effects;
-    // changes() prevents job promotion when the guarded record write did nothing.
+    // promotion also recovers queued records from an interrupted legacy retry.
     await this.env.DB.batch([
       this.env.DB.prepare(
         `UPDATE generation_records SET state='queued',error_code=NULL,updated_at=? WHERE organization_id=? AND job_id=? AND record_id IN (SELECT value FROM json_each(?)) AND state='failed' AND attempts<3 AND EXISTS(SELECT 1 FROM generation_jobs j WHERE j.organization_id=generation_records.organization_id AND j.id=generation_records.job_id AND j.state IN ('queued','running','partial','failed')) AND NOT EXISTS(SELECT 1 FROM distribution_plans WHERE organization_id=? AND job_id=?) AND ${authority.condition}`,
@@ -2053,7 +2053,7 @@ export class TemplateWorkflowService {
         ...authority.values,
       ),
       this.env.DB.prepare(
-        "UPDATE generation_jobs SET state='queued',updated_at=? WHERE organization_id=? AND id=? AND state IN ('partial','failed') AND changes()>0 AND EXISTS(SELECT 1 FROM generation_records WHERE organization_id=? AND job_id=? AND state='queued') AND NOT EXISTS(SELECT 1 FROM distribution_plans WHERE organization_id=? AND job_id=?)",
+        `UPDATE generation_jobs SET state='queued',updated_at=? WHERE organization_id=? AND id=? AND state IN ('partial','failed') AND EXISTS(SELECT 1 FROM generation_records WHERE organization_id=? AND job_id=? AND state='queued') AND NOT EXISTS(SELECT 1 FROM distribution_plans WHERE organization_id=? AND job_id=?) AND ${authority.condition}`,
       ).bind(
         time,
         ctx.organizationId,
@@ -2062,6 +2062,7 @@ export class TemplateWorkflowService {
         id,
         ctx.organizationId,
         id,
+        ...authority.values,
       ),
     ]);
     return this.getGeneration(ctx, id);

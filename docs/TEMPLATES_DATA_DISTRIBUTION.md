@@ -3,8 +3,9 @@
 ## Atomic generation retry — 9 November 2026 follow-up
 
 Retrying failed records and promoting their partial/failed job now share one
-atomic D1 batch and one authorization instant. Job promotion depends on the
-requeue effect. If distribution freezes first, no record is requeued; if retry
+atomic D1 batch and one authorization instant. Both effects independently check current authority and exclude
+frozen plans. An explicit retry also reopens unfrozen records already queued by
+an older retry interrupted before job promotion. If distribution freezes first, no record is requeued; if retry
 commits first, distribution must wait for the active generation. Cancellation
 and revoked authority also prevent both effects. The existing 500-record bound,
 attempt limits and REST/MCP request contracts remain unchanged.
