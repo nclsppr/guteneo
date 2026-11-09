@@ -3009,6 +3009,144 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
       upload.mockRestore();
     }
   });
+  it.each(["before", "after"] as const)(
+    "serializes distribution freeze %s the atomic generation retry",
+    async (ordering) => {
+      const generation = await job();
+      vi.spyOn(service.documents, "upload").mockRejectedValueOnce(
+        new DomainError("SCAN_TEMPORARY", "Synthetic scan failure", 503),
+      );
+      await service.processPending(2);
+      expect(await service.getGeneration(owner, generation.id)).toMatchObject({
+        state: "partial",
+        generated: 1,
+        failed: 1,
+      });
+      const distributionInput = {
+        jobId: generation.id,
+        entries: [
+          {
+            entryId: "successful-only",
+            recordId: "b",
+            channel: "email",
+            recipientFields: { email: "email" },
+            subject: "Synthetic distribution",
+            text: "Requested synthetic message",
+          },
+        ],
+      };
+      const freeze = () =>
+        service.prepareDistribution(
+          owner,
+          distributionInput,
+          `freeze-retry-${ordering}`,
+        );
+      const database = env.DB;
+      let interleaved = false;
+      let armed = true;
+      env.DB = new Proxy(database, {
+        get(target, property) {
+          if (property === "batch")
+            return async (statements: D1PreparedStatement[]) => {
+              if (!armed) return target.batch(statements);
+              armed = false;
+              if (ordering === "before") await freeze();
+              const result = await target.batch(statements);
+              if (ordering === "after")
+                await expect(freeze()).rejects.toMatchObject({
+                  code: "GENERATION_NOT_FINISHED",
+                });
+              interleaved = true;
+              return result;
+            };
+          const value = Reflect.get(target, property);
+          return typeof value === "function" ? value.bind(target) : value;
+        },
+      });
+      try {
+        const retried = await service.retryGeneration(owner, generation.id, [
+          "a",
+        ]);
+        expect(interleaved).toBe(true);
+        if (ordering === "before") {
+          expect(retried).toMatchObject({
+            state: "partial",
+            generated: 1,
+            failed: 1,
+            pending: 0,
+          });
+          expect(await count("distribution_plans")).toBe(1);
+          expect(await service.processPending(1)).toEqual({ processed: 0 });
+        } else {
+          expect(retried).toMatchObject({
+            state: "queued",
+            generated: 1,
+            failed: 0,
+            pending: 1,
+          });
+          expect(await count("distribution_plans")).toBe(0);
+          await service.processPending(1);
+          expect(await service.getGeneration(owner, generation.id)).toMatchObject({
+            state: "completed",
+            generated: 2,
+            pending: 0,
+          });
+        }
+        for (const table of ["approvals", "reservations", "outbox", "attempts"])
+          expect(await count(table)).toBe(0);
+      } finally {
+        env.DB = database;
+      }
+    },
+  );
+  it("keeps both retry effects closed when current membership changes before the transaction", async () => {
+    const template = await published(member);
+    const generation = await service.createGeneration(
+      member,
+      {
+        templateId: template.id,
+        mode: "generate_only",
+        records: [{ recordId: "a", data: { name: "Authority retry fixture" } }],
+      },
+      "authority-retry",
+    );
+    vi.spyOn(service.documents, "upload").mockRejectedValueOnce(
+      new DomainError("SCAN_TEMPORARY", "Synthetic scan failure", 503),
+    );
+    await service.processPending(1);
+    const internals = service as unknown as {
+      jobRow(ctx: ActorContext, id: string): Promise<unknown>;
+    };
+    const originalJobRow = internals.jobRow.bind(service);
+    const read = vi.spyOn(internals, "jobRow").mockImplementationOnce(
+      async (...args) => {
+        const snapshot = await originalJobRow(...args);
+        await setRole({ ...member, role: "viewer" });
+        return snapshot;
+      },
+    );
+    try {
+      await expect(
+        service.retryGeneration(member, generation.id, ["a"]),
+      ).rejects.toBeInstanceOf(DomainError);
+      expect(
+        await db
+          .prepare("SELECT state FROM generation_jobs WHERE id=?")
+          .bind(generation.id)
+          .first(),
+      ).toEqual({ state: "failed" });
+      expect(
+        await db
+          .prepare("SELECT state,attempts FROM generation_records WHERE job_id=?")
+          .bind(generation.id)
+          .first(),
+      ).toEqual({ state: "failed", attempts: 1 });
+      expect(await service.processPending(1)).toEqual({ processed: 0 });
+    } finally {
+      read.mockRestore();
+      await setRole(member);
+    }
+  });
   it("purges normalized generation data and duplicate artefacts after retention while retaining historical hashes", async () => {
     const generation = await job([
       {

@@ -1,6 +1,6 @@
 ---
 title: "iPhone and iPad"
-description: "9 capabilities in the interfaces branch of Guteneo."
+description: "10 capabilities in the interfaces branch of Guteneo."
 sidebar:
   order: 16
 ---
@@ -27,4 +27,5 @@ Native candidate; physical-device, signing and distribution qualification remain
 <li id="feature-d6226616b6d5">Signing, physical-device, TestFlight and App Store qualification remain separate</li>
 <li id="feature-c830e7574c6e">Read preferredDashboardAppearance in account/session without a native setting/PATCH</li>
 <li id="feature-edfe469d3ddd">Swift opens canonical /auth/mobile/authorize; the server selects the configured browser domain and preserves mobile PKCE return, distinct from the native callback</li>
+<li id="feature-0bbfbd10c46b">Native dispatch preparation owns one immutable submitted draft and stable retry key, locks authoring while pending and rejects duplicate begin; terminal preparation never grants browser send approval</li>
 </ol>

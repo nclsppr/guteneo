@@ -13,6 +13,13 @@ delegation, administer channels or access billing.
 
 ## Authentication
 
+Native dispatch composition has one preparation owner. Beginning preparation
+captures the submitted draft and retry key before awaiting the API; a second
+begin is refused and authoring controls stay disabled until it finishes. An
+unchanged failed preparation retains its key. A prepared receipt opens tracking;
+human approval and final sending remain separate browser operations. See the
+[9 November follow-up](STATE_MACHINE_REAUDIT_2026_11_09.md) for qualification.
+
 1. Generate a cryptographically random PKCE verifier of 43–128 RFC 7636
    characters and an independent state of 32–128 base64url characters.
 2. Compute `BASE64URL(SHA256(verifier))` without padding.

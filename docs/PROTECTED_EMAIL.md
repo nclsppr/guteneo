@@ -190,6 +190,14 @@ credits fund these amounts; Stripe replenishment is separate work.
 
 ## Protection
 
+Sender password reveal and local clipboard/revocation feedback require the
+current reviewed dispatch and browser visit after every asynchronous boundary.
+A delayed reveal cannot restore a secret after leaving and returning; management
+authority changes clear transient credentials. These client guards complement
+the current server permissions and do not recall earlier downloads or clipboard
+contents. Local synthetic coverage and limits are recorded in the
+[9 November state-machine follow-up](STATE_MACHINE_REAUDIT_2026_11_09.md).
+
 The private original remains bound to its organization and approved SHA-256.
 A protected link replaces the attachment without removing that binding. A random
 256-bit token is stored as a hash; the password has 144 random bits and a salted

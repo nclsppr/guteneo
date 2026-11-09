@@ -1,6 +1,6 @@
 ---
 title: "PDF generation and distribution"
-description: "16 capabilities in the create branch of Guteneo."
+description: "17 capabilities in the create branch of Guteneo."
 sidebar:
   order: 6
 ---
@@ -34,6 +34,7 @@ Implemented; generation, preparation, approval and delivery remain separate.
 <li id="feature-5b165c326795">Import/replacement retain the selected template/version and compatible field mapping/record exclusions; correcting data or a template creates a new generation/version while prior PDFs and prepared manifests retain their exact hashes</li>
 <li id="feature-4966475eb55a">Every new destination starts with zero documents even for one PDF; unsaved preparation may veto departure and late preparation/postal replies cannot navigate obsolete visits; the pre-preparation summary lists exact associations and explains that the first plan freezes the full generation, including excluded failed records</li>
 <li id="feature-6bfd291d69bc">Integrated typed record/job/distribution decisions retain bounded artifact recovery and immutable entry keys; final record and association writes fence live authority and source predecessors</li>
+<li id="feature-a39dc68957df">Failed-record retry and job promotion commit in one current-authority D1 batch; a competing distribution freeze or cancellation cannot leave retryable work reopened behind a frozen manifest</li>
 </ol>
 
 ## REST operations

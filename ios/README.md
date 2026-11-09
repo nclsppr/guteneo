@@ -196,6 +196,30 @@ captures: [`QA/Screenshots/multilingual/`](QA/Screenshots/multilingual/README.md
 This proves neither production Auth0, physical-device use nor TestFlight/
 App Store submission.
 
+## Preparation ownership — 9 November 2026 candidate
+
+`Guteneo/Core/DispatchPreparation.swift` owns editing, preparing and the in-memory
+server-issued prepared-dispatch reference. The composer locks its authoring controls during a
+request, and a synchronous transition rejects a second queued tap. A failed or
+interrupted response returns to editing with the same idempotency key; an
+intentional edit then creates a new key. Success is terminal for that composer,
+including its cleanup path. `AppModel.perform` still rejects a response from an
+obsolete session before it can populate the composer or dispatch list. Preparing
+never approves or sends; human approval remains the separate secure-browser
+handoff.
+
+Local Xcode 27.2 qualification passes the Debug simulator application build and
+`build-for-testing`, including all unit/UI test targets. The two new preparation
+state tests also pass as unchanged XCTest methods in a temporary macOS Swift
+package containing the checked-in state source. The delayed preparation-after-
+sign-out regression compiles with the complete unit target. Simulator execution
+remains unqualified: the standard test script exits 69 on incomplete Xcode setup;
+direct `test-without-building` exits 70 because installed CoreSimulator 1174.9.2
+is older than Xcode's required 1174.21.0, leaving no available simulator device.
+No component, global developer-directory setting or system framework was changed.
+This is compilation and host-state evidence, separate from iOS runtime, physical
+device, production integration and App Store proof.
+
 ## Archive inspected on the initial native candidate
 
 On 22 September 2026, local archive

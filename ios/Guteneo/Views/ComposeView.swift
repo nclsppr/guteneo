@@ -12,10 +12,8 @@ struct ComposeView: View {
     @State private var subject = ""
     @State private var message = ""
     @State private var ceiling = ""
-    @State private var requestKey = UUID().uuidString
-    @State private var working = false
+    @State private var preparation = DispatchPreparationState()
     @State private var error: String?
-    @State private var preparedID: String?
     @State private var discard = false
     private var channels: [Channel] { model.capabilities?.preparableChannels ?? [] }
     private var senders: [SenderRecord] { model.senders.filter { $0.channel == channel && $0.status == "verified" } }
@@ -41,7 +39,7 @@ struct ComposeView: View {
     }
     var body: some View {
         Form {
-            if let preparedID {
+            if let preparedID = preparation.preparedID {
                 Section {
                     Label("Your dispatch is prepared", systemImage: "checkmark.circle").font(.headline)
                     Text("It has not been sent. Find the document, recipient and quote terms in its tracking view.")
@@ -104,23 +102,24 @@ struct ComposeView: View {
                             HStack {
                                 Text("Prepare quote").fontWeight(.semibold)
                                 Spacer()
-                                if working { ProgressView() } else { Image(systemName: "arrow.right") }
+                                if preparation.isPreparing { ProgressView() } else { Image(systemName: "arrow.right") }
                             }.padding(.vertical, 6)
-                        }.disabled(!valid || working || model.session?.canPrepare != true)
+                        }.disabled(!valid || preparation.isPreparing || model.session?.canPrepare != true)
                             .accessibilityIdentifier("prepareQuote")
                     }
                 }
             }
         }
+        .disabled(preparation.isPreparing)
         .paperList().navigationTitle("Prepare a dispatch").navigationBarTitleDisplayMode(.inline)
         .toolbar { ToolbarItem(placement: .cancellationAction) {
-            Button("Close") { if dirty && preparedID == nil { discard = true } else { dismiss() } }.disabled(working)
+            Button("Close") { if dirty && preparation.preparedID == nil { discard = true } else { dismiss() } }.disabled(preparation.isPreparing)
         } }
-        .interactiveDismissDisabled(working || dirty && preparedID == nil)
+        .interactiveDismissDisabled(preparation.isPreparing || dirty && preparation.preparedID == nil)
         .confirmationDialog("Close this draft?", isPresented: $discard, titleVisibility: .visible) {
             Button("Discard draft", role: .destructive) { dismiss() }
         } message: { Text("Unprepared information will not be saved.") }
-        .onChange(of: signature) { _, _ in requestKey = UUID().uuidString }
+        .onChange(of: signature) { _, _ in preparation.draftChanged() }
         .onChange(of: channel) { _, _ in selectedSender = senders.count == 1 ? senders[0].id : "" }
         .task {
             if ceiling.isEmpty { ceiling = Decimal(2).formatted(.number.precision(.fractionLength(2)).locale(locale)) }
@@ -130,9 +129,9 @@ struct ComposeView: View {
         }
     }
     private func prepare() async {
-        guard let ceilingMinor, valid else { return }
-        working = true; error = nil
-        defer { working = false }
+        guard let ceilingMinor, valid, let requestKey = preparation.begin() else { return }
+        error = nil
+        defer { preparation.finish() }
         var draft = DispatchDraft(channel: channel,
                                   recipient: [channel == .fax ? "phone" : "email": channel == .fax ? recipient.filter { !" ()-".contains($0) } : recipient.trimmingCharacters(in: .whitespacesAndNewlines)],
                                   documentId: channel == .fax ? selectedDocument : nil,
@@ -141,7 +140,7 @@ struct ComposeView: View {
                                   text: channel == .email ? message : nil,
                                   ceilingMinor: ceilingMinor)
         draft.idempotencyKey = requestKey
-        do { preparedID = try await model.prepareDispatch(draft).id }
+        do { preparation.finish(preparedID: try await model.prepareDispatch(draft).id) }
         catch is CancellationError { }
         catch { self.error = APIError.safeMessage(for: error) }
     }

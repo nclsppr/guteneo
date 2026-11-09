@@ -9,6 +9,7 @@ import {
   useAction,
   useResource,
 } from "./components";
+import { useCurrentClientView } from "./client-write-recovery";
 
 export type ProtectedDelivery = {
   hostingId: string;
@@ -105,6 +106,9 @@ export function ProtectedDocumentSummary({
 }) {
   const protection = protectedDelivery(dispatch);
   const action = useAction();
+  const captureView = useCurrentClientView(
+    `${dispatch.id}:${dispatch.fingerprint}:${canManage}:${canRevoke}`,
+  );
   const status = useResource<{
     status: "draft" | "active" | "expired" | "revoked";
     expiresAt: string;
@@ -123,28 +127,33 @@ export function ProtectedDocumentSummary({
     setCopied(false);
     setRevoked(false);
     setConfirmRevoke(false);
-  }, [dispatch.id]);
+  }, [dispatch.id, canManage, canRevoke]);
   if (!protection) return null;
   const expired =
     status.data?.status === "expired" ||
     Date.parse(protection.expiresAt) <= Date.now();
   const accessRevoked = revoked || status.data?.status === "revoked";
   async function reveal() {
+    const ownsView = captureView();
     await action.run(async () => {
       const response = await api<{ password: string }>(
         `/dispatches/${encodeURIComponent(dispatch.id)}/protected-document/password`,
         { method: "POST", body: {} },
       );
+      if (!ownsView()) return;
       setPassword(response.password);
     });
   }
   async function copy() {
+    const ownsView = captureView();
     await action.run(async () => {
       await navigator.clipboard.writeText(password);
+      if (!ownsView()) return;
       setCopied(true);
     });
   }
   async function revoke() {
+    const ownsView = captureView();
     await action.run(async () => {
       await api(
         `/dispatches/${encodeURIComponent(dispatch.id)}/protected-document/revoke`,
@@ -153,6 +162,7 @@ export function ProtectedDocumentSummary({
           body: {},
         },
       );
+      if (!ownsView()) return;
       setRevoked(true);
       setPassword("");
       setConfirmRevoke(false);

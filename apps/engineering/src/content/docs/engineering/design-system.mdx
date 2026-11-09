@@ -644,6 +644,16 @@ from navigation coverage.
 
 ## Independent applications and text revisions
 
+An asynchronous response must still own its session and view before publishing
+feedback, revealing a secret or navigating. The API binds session-expiry events
+to a request's session revision, so an old 401 cannot expire a replacement
+session. Billing portal replies and protected-link actions use the shared
+current-view guard, including leave-and-return visits. A native preparation
+captures one draft/key and disables authoring until completion; a duplicate begin
+cannot create a second owner. These guards add no data reads or polling and do
+not replace server authorization or human approval. Qualify delayed responses,
+same-key failure recovery and current-session failure separately.
+
 Application code loads on demand. My documents starts its personal session in
 parallel with the route module and invalidates entry results on visibility,
 identity or navigation changes. The shared account menu uses no speculative

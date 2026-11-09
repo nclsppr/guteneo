@@ -1,6 +1,6 @@
 ---
 title: "Access and identity"
-description: "39 capabilities in the access branch of Guteneo."
+description: "40 capabilities in the access branch of Guteneo."
 sidebar:
   order: 1
 ---
@@ -57,4 +57,5 @@ Unified personal account and optional workspace implementation; migrations, alig
 <li id="feature-b7ae2b094300">Authenticated account reads and independent login/callback digests overlap while retaining saved appearance, canonical invitation validation, transaction-bound issuer, nonce and subject checks before session writes</li>
 <li id="feature-f217b1fa8d8c">Four-language Auth0 account email candidates with normalized request language and English fallback; current owned application IDs scope body, subject and sender while exact prior Liquid fields preserve other or missing clients. Offline Liquid/browser proof, remote application and real delivery remain separate; enabled flags, redirect and expiry are unchanged</li>
 <li id="feature-5c41e6d90ab0">Account deletion request and separate default-off private operator processing: a frozen reviewed plan blocks unsafe workspace closure and unresolved liabilities, revokes all authentication, verifies exact storage/identity erasure and delivered completion-notice evidence, minimizes the retained historical skeleton, and never calls a disabled profile completed deletion; no public or MCP processor authority</li>
+<li id="feature-0cbf3f0e12f7">Browser session-expiry events carry their request session revision; a stale 401 after session replacement cannot expire the current account, while current-session failures still trigger recovery</li>
 </ol>

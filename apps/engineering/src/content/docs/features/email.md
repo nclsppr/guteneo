@@ -1,6 +1,6 @@
 ---
 title: "Email and protected links"
-description: "14 capabilities in the deliver branch of Guteneo."
+description: "15 capabilities in the deliver branch of Guteneo."
 sidebar:
   order: 9
 ---
@@ -32,4 +32,5 @@ Implemented email candidate; dated operator qualification is separate from deplo
 <li id="feature-55e615792e90">Preparation, approval, tracking and provider policy</li>
 <li id="feature-4b3aba9029e8">Resend/SES availability is gated separately from activation; public price references and operator account limits have dated qualification, while account-wide quota policy, webhook/secret and delivery require independent installation and verification</li>
 <li id="feature-c8a833b5f509">Default email quotes the frozen document title in HTML and plain text and includes Discover guteneo plus explicit unsubscribe/report controls; hashed mailbox capabilities suppress only their originating workspace through transaction-time eligibility fences, with separate recipientFeedback status, idempotent lifecycle receipts and stable satisfied-replay timestamps</li>
+<li id="feature-34c17068e415">Legacy password reveal, clipboard feedback and revoke completion require the current reviewed dispatch and view; transient credentials clear when management authority changes</li>
 </ol>

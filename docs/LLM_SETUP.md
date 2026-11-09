@@ -128,6 +128,17 @@ Indirect business/provider changes still require review of their MCP effects;
 a fingerprint does not establish semantic correctness. Package generation and
 CI create no marketplace submission, merge, deployment or human consent.
 
+### Atomic generation retry source synchronization — 9 November 2026
+
+Candidate 1.1.34 synchronizes the application and portable/Claude/Cursor package
+versions after atomic failed-record retry closed a distribution-freeze race.
+The Studio instructions require reading the existing job/plans after uncertainty,
+preserving the original operation instead of bypassing a freeze with new keys.
+The catalogue, schemas, annotation booleans, OAuth scopes and host confirmations
+are unchanged. Local archive validation grants no activation, host qualification,
+marketplace submission or production publication. See the
+[state-machine follow-up](STATE_MACHINE_REAUDIT_2026_11_09.md).
+
 ### Preventive maintenance source synchronization — 7 November 2026
 
 Candidate 1.1.32 synchronizes the application and portable/Claude/Cursor package

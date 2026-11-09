@@ -353,6 +353,12 @@ tool-only workflows usable in clients that do not render MCP Apps.
 
 ## Host confirmations and server authority both matter
 
+Studio retry recovery reads the same generation job and existing distribution
+plans after an uncertain response. Retry and distribution freeze have one
+persisted winner; new keys or a replacement batch cannot bypass that boundary.
+The packaged Studio instructions preserve this recovery rule without adding a
+tool, scope or host-confirmation exception.
+
 Honor the host's execution permissions. Read tool annotations as descriptions of
 real effects, not authority grants. Business reads declare read-only and idempotent
 annotations. Successful production calls may still refresh connection activity;

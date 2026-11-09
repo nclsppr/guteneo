@@ -1,5 +1,15 @@
 # Organization billing
 
+The 9 November browser follow-up binds customer-creation feedback and portal
+redirects to the requesting account, workspace and route visit. Leaving the view
+discards a delayed reply, including after returning to the same address. Portal
+recovery retains its stable key while that billing view remains mounted, until
+a current reply is consumed. The shared API
+also prevents an older request's 401 from expiring a replacement session. Existing
+administrator/CSRF checks and server-side portal URL validation remain mandatory.
+See the [state-machine follow-up](STATE_MACHINE_REAUDIT_2026_11_09.md) for local
+synthetic tests and qualification limits.
+
 25 October branch candidate: billing reads and actions require the current browser
 administrator and existing session/CSRF protections. An active PDF subscription
 is no longer required. New subscriptions and recurring renewals are retired;

@@ -25,6 +25,10 @@ publication at `engineering.guteneo.com`: readable guides, generated feature pag
 and brand-aligned diagrams. `docs.guteneo.com` is reserved for customer documentation.
 Run `npm run docs:build` and `npm run docs:check` to synchronize both views.
 
+The [9 November state-machine follow-up](STATE_MACHINE_REAUDIT_2026_11_09.md)
+rechecks the 113-group inventory from merged main and records reproduced browser,
+native preparation and Studio retry/freeze races with their qualification limits.
+
 The [7 November Cloudflare alert-noise correction](CLOUDFLARE_ALERT_NOISE_2026_11_07.md)
 records current production diagnosis and the applied native separation of
 technical failure alerts from repeated operator-deadline reminders. Saved-state

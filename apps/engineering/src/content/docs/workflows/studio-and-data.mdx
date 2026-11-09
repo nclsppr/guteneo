@@ -140,6 +140,12 @@ before creating that plan. Resuming distribution continues preparations in the
 frozen plan; it does not reopen generation, approve sends or retry unknown provider
 outcomes. A later regeneration requires a new batch.
 
+Failed-record requeue and job promotion use one atomic D1 batch and one
+current-authority instant. Promotion requires that requeue actually changed a
+record. A competing freeze or cancellation therefore cannot fit between those
+effects; if retry wins first, distribution sees active generation and waits.
+Exercise both interleavings through the real service and migrated database.
+
 ## Optional suggestions remain proposals
 
 AI-assisted template/schema/mapping suggestions require explicit configuration,

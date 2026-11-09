@@ -2037,34 +2037,33 @@ export class TemplateWorkflowService {
     z.array(keySchema).min(1).max(500).parse(recordIds);
     const authority = this.authorizationFence(ctx);
     const time = now();
-    // A cancellation committed after the read above must also fence each record write.
-    await this.env.DB.batch(
-      recordIds.map((recordId) =>
-        this.env.DB.prepare(
-          `UPDATE generation_records SET state='queued',error_code=NULL,updated_at=? WHERE organization_id=? AND job_id=? AND record_id=? AND state='failed' AND attempts<3 AND EXISTS(SELECT 1 FROM generation_jobs j WHERE j.organization_id=generation_records.organization_id AND j.id=generation_records.job_id AND j.state IN ('queued','running','partial','failed')) AND NOT EXISTS(SELECT 1 FROM distribution_plans WHERE organization_id=? AND job_id=?) AND ${authority.condition}`,
-        ).bind(
-          time,
-          ctx.organizationId,
-          id,
-          recordId,
-          ctx.organizationId,
-          id,
-          ...authority.values,
-        ),
+    // Requeue records and reopen their job at one atomic authority instant.
+    // Distribution freeze and cancellation cannot commit between these effects;
+    // changes() prevents job promotion when the guarded record write did nothing.
+    await this.env.DB.batch([
+      this.env.DB.prepare(
+        `UPDATE generation_records SET state='queued',error_code=NULL,updated_at=? WHERE organization_id=? AND job_id=? AND record_id IN (SELECT value FROM json_each(?)) AND state='failed' AND attempts<3 AND EXISTS(SELECT 1 FROM generation_jobs j WHERE j.organization_id=generation_records.organization_id AND j.id=generation_records.job_id AND j.state IN ('queued','running','partial','failed')) AND NOT EXISTS(SELECT 1 FROM distribution_plans WHERE organization_id=? AND job_id=?) AND ${authority.condition}`,
+      ).bind(
+        time,
+        ctx.organizationId,
+        id,
+        boundedJson(recordIds),
+        ctx.organizationId,
+        id,
+        ...authority.values,
       ),
-    );
-    await this.env.DB.prepare(
-      `UPDATE generation_jobs SET state='queued',updated_at=? WHERE organization_id=? AND id=? AND state IN ('partial','failed') AND EXISTS(SELECT 1 FROM generation_records WHERE organization_id=? AND job_id=? AND state='queued') AND ${authority.condition}`,
-    )
-      .bind(
+      this.env.DB.prepare(
+        "UPDATE generation_jobs SET state='queued',updated_at=? WHERE organization_id=? AND id=? AND state IN ('partial','failed') AND changes()>0 AND EXISTS(SELECT 1 FROM generation_records WHERE organization_id=? AND job_id=? AND state='queued') AND NOT EXISTS(SELECT 1 FROM distribution_plans WHERE organization_id=? AND job_id=?)",
+      ).bind(
         time,
         ctx.organizationId,
         id,
         ctx.organizationId,
         id,
-        ...authority.values,
-      )
-      .run();
+        ctx.organizationId,
+        id,
+      ),
+    ]);
     return this.getGeneration(ctx, id);
   }
   /** Cron and mutation-triggered execution; status methods never call this. */

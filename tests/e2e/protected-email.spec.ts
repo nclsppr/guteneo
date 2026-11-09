@@ -988,6 +988,78 @@ test("inline PDF import stays in the email workflow and waits for verification",
   await expect(page).toHaveURL(/#\/app\/prepare\?channel=email$/);
 });
 
+test("a delayed password reveal cannot restore a secret after A to B to A", async ({
+  page,
+}, testInfo) => {
+  await fixture(page);
+  const password = gate();
+  let requested = false;
+  await page.route(
+    "**/api/dispatches/dispatch_protected_ui/protected-document/password",
+    async (route) => {
+      requested = true;
+      await password.ready;
+      await route.fulfill({
+        json: { password: "fictional-obsolete-password" },
+      });
+    },
+  );
+  const started = Date.now();
+  await page.goto("/#/app/dispatch/dispatch_protected_ui");
+  const reveal = page.getByRole("button", { name: "Afficher le mot de passe" });
+  await expect(reveal).toBeEnabled();
+  await testInfo.attach("protected-link-loading", {
+    body: JSON.stringify(
+      {
+        firstUsefulContentMs: Date.now() - started,
+        ...(await page.evaluate(() => {
+          const resources = performance.getEntriesByType(
+            "resource",
+          ) as PerformanceResourceTiming[];
+          return {
+            requests: resources.length,
+            javascriptTransferredBytes: resources
+              .filter((entry) => new URL(entry.name).pathname.endsWith(".js"))
+              .reduce((sum, entry) => sum + entry.transferSize, 0),
+            apiRequests: resources
+              .filter((entry) =>
+                new URL(entry.name).pathname.startsWith("/api/"),
+              )
+              .map((entry) => new URL(entry.name).pathname),
+            firstContentfulPaintMs:
+              performance.getEntriesByName("first-contentful-paint")[0]
+                ?.startTime ?? null,
+          };
+        })),
+      },
+      null,
+      2,
+    ),
+    contentType: "application/json",
+  });
+  await reveal.click();
+  await expect.poll(() => requested).toBe(true);
+  await page.evaluate(() => {
+    const original = location.hash;
+    location.hash = "#/app/documents";
+    location.hash = original;
+  });
+  const response = page.waitForResponse((result) =>
+    result.url().endsWith("/protected-document/password"),
+  );
+  password.release();
+  await response;
+  await expect(reveal).toBeEnabled();
+  await expect(
+    page.getByText("fictional-obsolete-password", { exact: true }),
+  ).toHaveCount(0);
+  await page.screenshot({
+    path: testInfo.outputPath("protected-secret-withheld.png"),
+    fullPage: true,
+  });
+  await expect(page).toHaveURL(/\/app\/dispatch\/dispatch_protected_ui$/);
+});
+
 test("password reveal is deliberate and revocation describes and confirms its consequence", async ({
   page,
 }) => {
