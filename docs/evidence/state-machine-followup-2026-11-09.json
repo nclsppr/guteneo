@@ -1,0 +1,326 @@
+{
+  "date": "2026-11-09",
+  "baseCommit": "979f01a586c975c83372ee3dbcb60474f8e6895b",
+  "candidateVersion": "1.1.35",
+  "scope": "Local source, migrated D1/synthetic transports, browser fixtures and native compilation; no production/provider/marketplace qualification.",
+  "coverage": {
+    "appOwnedLifecycleGroups": 113,
+    "migrationsReplayed": 77,
+    "currentTables": 139,
+    "additionalIndependentGroupsIdentified": 0
+  },
+  "browser": {
+    "command": "GUTENEO_E2E_PREBUILT=true PLAYWRIGHT_JSON_OUTPUT_NAME=/tmp/guteneo-state-corrected-browser-20261109.json npx playwright test tests/e2e/account-billing.spec.ts tests/e2e/billing-client-lifecycle.spec.ts tests/e2e/protected-email.spec.ts tests/e2e/resource-navigation.spec.ts",
+    "stats": {
+      "startTime": "2026-11-09T02:46:57.229Z",
+      "duration": 126828.36,
+      "expected": 111,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "profiles": [
+      "chromium",
+      "mobile-chromium",
+      "iphone-webkit"
+    ]
+  },
+  "native": {
+    "debugSimulatorBuild": "passed",
+    "completeBuildForTesting": "passed",
+    "exactStateXCTestCasesOnMacOS": {
+      "passed": 2,
+      "failed": 0
+    },
+    "signOutPreparationRegression": "compiled, not executed",
+    "iOSExecution": "unqualified: standard script exit69 incomplete Xcode setup; direct run exit70 CoreSimulator1174.9.2 older than required1174.21.0",
+    "physicalDevice": "not tested"
+  },
+  "mcp": {
+    "tools": 83,
+    "explicitAnnotationBooleans": 332,
+    "sourceEvidenceReferences": 258,
+    "schemaPermissionChanges": false,
+    "archiveSha256": "dea8df57f8040e48fe3db9a2ac732c702daac9b4e53328b21a6c328eb9405382",
+    "portableArchiveFiles": 24
+  },
+  "loadingMeasurements": [
+    {
+      "test": "a delayed billing portal opens from the current view",
+      "project": "chromium",
+      "measurement": {
+        "firstUsefulContentMs": 490,
+        "requests": 38,
+        "javascriptTransferredBytes": 582337,
+        "apiRequests": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/billing",
+          "/api/billing/invoices",
+          "/api/billing/payments"
+        ],
+        "firstContentfulPaintMs": 152
+      }
+    },
+    {
+      "test": "a delayed billing portal does not navigate a departed view",
+      "project": "chromium",
+      "measurement": {
+        "firstUsefulContentMs": 467,
+        "requests": 38,
+        "javascriptTransferredBytes": 582337,
+        "apiRequests": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/billing",
+          "/api/billing/invoices",
+          "/api/billing/payments"
+        ],
+        "firstContentfulPaintMs": 136
+      }
+    },
+    {
+      "test": "a delayed billing portal opens from the current view",
+      "project": "mobile-chromium",
+      "measurement": {
+        "firstUsefulContentMs": 472,
+        "requests": 38,
+        "javascriptTransferredBytes": 582337,
+        "apiRequests": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/billing",
+          "/api/billing/invoices",
+          "/api/billing/payments"
+        ],
+        "firstContentfulPaintMs": 136
+      }
+    },
+    {
+      "test": "a delayed billing portal does not navigate a departed view",
+      "project": "mobile-chromium",
+      "measurement": {
+        "firstUsefulContentMs": 463,
+        "requests": 38,
+        "javascriptTransferredBytes": 582337,
+        "apiRequests": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/billing",
+          "/api/billing/invoices",
+          "/api/billing/payments"
+        ],
+        "firstContentfulPaintMs": 136
+      }
+    },
+    {
+      "test": "a delayed billing portal opens from the current view",
+      "project": "iphone-webkit",
+      "measurement": {
+        "firstUsefulContentMs": 1089,
+        "requests": 39,
+        "javascriptTransferredBytes": 583064,
+        "apiRequests": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/billing",
+          "/api/billing/invoices",
+          "/api/billing/payments"
+        ],
+        "firstContentfulPaintMs": 201
+      }
+    },
+    {
+      "test": "a delayed billing portal does not navigate a departed view",
+      "project": "iphone-webkit",
+      "measurement": {
+        "firstUsefulContentMs": 491,
+        "requests": 39,
+        "javascriptTransferredBytes": 583063,
+        "apiRequests": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/billing",
+          "/api/billing/invoices",
+          "/api/billing/payments"
+        ],
+        "firstContentfulPaintMs": 180
+      }
+    },
+    {
+      "test": "a delayed password reveal cannot restore a secret after A to B to A",
+      "project": "chromium",
+      "measurement": {
+        "firstUsefulContentMs": 289,
+        "requests": 49,
+        "javascriptTransferredBytes": 925286,
+        "apiRequests": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/dispatches/dispatch_protected_ui",
+          "/api/dispatches/dispatch_protected_ui/protected-document"
+        ],
+        "firstContentfulPaintMs": 140
+      }
+    },
+    {
+      "test": "a delayed password reveal cannot restore a secret after A to B to A",
+      "project": "mobile-chromium",
+      "measurement": {
+        "firstUsefulContentMs": 273,
+        "requests": 49,
+        "javascriptTransferredBytes": 925286,
+        "apiRequests": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/dispatches/dispatch_protected_ui",
+          "/api/dispatches/dispatch_protected_ui/protected-document"
+        ],
+        "firstContentfulPaintMs": 148
+      }
+    },
+    {
+      "test": "a delayed password reveal cannot restore a secret after A to B to A",
+      "project": "iphone-webkit",
+      "measurement": {
+        "firstUsefulContentMs": 999,
+        "requests": 53,
+        "javascriptTransferredBytes": 1115631,
+        "apiRequests": [
+          "/api/session",
+          "/api/capabilities",
+          "/api/dispatches/dispatch_protected_ui",
+          "/api/dispatches/dispatch_protected_ui/protected-document",
+          "/api/documents/document_protected_ui/content"
+        ],
+        "firstContentfulPaintMs": 133
+      }
+    }
+  ],
+  "reviewedSourceFilesSha256": {
+    "apps/api/src/template-workflow.ts": "322b14d9ae2d94f2bba458633134a511496b3e04a1e76e9c3a8a9e3c116765f3",
+    "apps/web/src/api.ts": "630045b704b2dcab8176ed99b19d4467ad970aa59a66865be88d597bf52f95b4",
+    "apps/web/src/billing-page.tsx": "a16309cb889ff46831a427a05616c4f20ae65d322b816ab44b7f4c67704516c3",
+    "apps/web/src/protected-document.tsx": "028f60c6c550f12dc0c118557fb9b54cd70dc7cf5b0438fa1a63138c6d796e14",
+    "integrations/claude/plugins/guteneo/.claude-plugin/plugin.json": "9c11097fcdcd94ae1ff41c5f1f5646115d9f0353963d69183cd34f4520cfc5cf",
+    "integrations/claude/plugins/guteneo/skills/document-studio/SKILL.md": "5e800395e614d2ae802d4f67643e27ae484c5451cdca9688bcd349d23ec98b08",
+    "integrations/guteneo/.claude-plugin/plugin.json": "d10b5c45c9b5f10ed465219bc89421750bf167045b2fd6c63b98cb0792f8b341",
+    "integrations/guteneo/.cursor-plugin/plugin.json": "2fce5019bd72aea5ad0728edc81b67d01e70e6b9e0f1576c2fb97b8e541599bb",
+    "integrations/guteneo/mcp-contract.json": "571a7d9fb566f183ee6ae6dcd21bb008f6e704b92976f66e9e1638a4bda0626b",
+    "integrations/guteneo/plugin.json": "222f11acc83d5c290cb31458353cbeb6f603a86a731f73bb21b322d6b52e3eb9",
+    "integrations/guteneo/skills/document-studio/SKILL.md": "3b0ea93e76af716472fc2938165200e83330944bcaf2e213c22025ed44ad34fd",
+    "ios/Guteneo/Core/DispatchPreparation.swift": "6ee05636f29b328ea4df97499d45305ce0d29dbd592f582e533b3db4e3b9780e",
+    "ios/Guteneo/Views/ComposeView.swift": "fc3a75d3f33e10563320facf72d03ec38d6aba293394206c36390e7b61b15c8e",
+    "ios/GuteneoTests/CoreTests.swift": "5d424c66d3a668b566f5aae50ee2f999e82cd8d1e68da7a4a50bbaff429e4e2c",
+    "package-lock.json": "5f57903e9b3646de9abbf292ca6091eefc0abe85cddcfcdeaf433850a20d661f",
+    "package.json": "863dbe8a74cd15de0b2f61ced08b5f86e7ab4b51e2375538e9ab060a2076f8fb",
+    "tests/e2e/billing-client-lifecycle.spec.ts": "36fa4a2357c37e76634324b9aec3f00eb7c2869b1f0f878a80bc2fc325200c4c",
+    "tests/e2e/protected-email.spec.ts": "1c7ffe1fe9b2f3a6e4ee75788bd0b662d7d247ee39b8f01996635e717317df1a",
+    "tests/integration/template-workflow.test.ts": "fbb53898ce069c8aa753ea377ad466866431317ca6ef53f6733309b48a95c533",
+    "tests/unit/web-api-cancellation.test.ts": "34843a80768dad8bb06713436e401b90ef64832892123be4dfa37095717a224f"
+  },
+  "reviewedSourceDigest": "f8d709279bb508aab83a1b1cbed8a6395fd6155e5464f9f7452e380dd46fa263",
+  "failedOrInterruptedAttempts": [
+    "Initial mixed-source npm test deliberately interrupted after implementation changed; no complete passing claim.",
+    "Backend freeze-after-requeue regression fails before atomic fix.",
+    "First focused browser attempt: three newly added billing tests used wrong heading; corrected locator, rerun12/12 passed.",
+    "Initial archive build refused stale MCP fingerprint; synchronized1.1.34 package and rebuilt.",
+    "Initial engineering check lacked local dependencies, then route inventory; installed locked dependencies, built site, rerun passed.",
+    "Two additional partial/failed-parent legacy interruption regressions fail against candidate673a2539; corrected by independently guarding both statements within the same atomic batch."
+  ],
+  "rawAtlasVisualCheck": {
+    "widths": [
+      390,
+      1440
+    ],
+    "search": "atomic",
+    "candidateVisibleDomains": 7,
+    "mainVisibleDomains": 7,
+    "candidateDocumentWidths": [
+      407,
+      1440
+    ],
+    "mainDocumentWidths": [
+      407,
+      1440
+    ],
+    "limit": "Existing 17px mobile document overflow is unchanged from main. No atlas layout change made."
+  },
+  "backendRegressionBeforeFix": {
+    "passed": 1,
+    "failed": 1,
+    "filteredOut": 86,
+    "failure": "freeze-after-record-requeue incorrectly succeeds on unmodified service"
+  },
+  "backendFocusedFinal": {
+    "passed": 5,
+    "failed": 0,
+    "filteredOut": 84,
+    "scope": "freeze before/after retry, revoked membership, existing cancellation interleaving and exact-byte retry"
+  },
+  "engineering": {
+    "assetCount": 418,
+    "browserPassed": 30,
+    "browserFailed": 0,
+    "browserSkipped": 0,
+    "browserDurationSeconds": 13.7,
+    "checks": "typecheck, authored docs/link lint and four security cases passed",
+    "qualification": "Local static build and Chromium/WebKit; not published"
+  },
+  "preliminaryUnitIntegrationSecurity": {
+    "command": "npm test",
+    "exitCode": 0,
+    "vitestFilesPassed": 202,
+    "vitestTestsPassed": 3950,
+    "vitestFailed": 0,
+    "vitestSkipped": 0,
+    "nodeSecurityPassed": 696,
+    "nodeSecurityFailed": 0,
+    "nodeSecuritySkipped": 0,
+    "nodeSecurityDurationMs": 38251.08,
+    "runtimeAndTestSourcesMatchReviewedDigest": true,
+    "qualification": "Before legacy interrupted-retry compatibility correction; not final-source proof",
+    "sourceDigest": "3624751d1955e740dbe45cb1cfc88721d8ff1faa0b753e102d1fe690aa5ddc60"
+  },
+  "preliminaryReviewedSourceFilesSha256": {
+    "apps/api/src/template-workflow.ts": "f79d1006d46d9789a634c327cfd34442982b79d26510d6deff1acda24452e2f1",
+    "apps/web/src/api.ts": "630045b704b2dcab8176ed99b19d4467ad970aa59a66865be88d597bf52f95b4",
+    "apps/web/src/billing-page.tsx": "a16309cb889ff46831a427a05616c4f20ae65d322b816ab44b7f4c67704516c3",
+    "apps/web/src/protected-document.tsx": "028f60c6c550f12dc0c118557fb9b54cd70dc7cf5b0438fa1a63138c6d796e14",
+    "integrations/claude/plugins/guteneo/.claude-plugin/plugin.json": "b7d893ab917bba0feac4a109b584fb02119dbd652af2dede0d08905d1869946a",
+    "integrations/claude/plugins/guteneo/skills/document-studio/SKILL.md": "1629f95ca7a5367f68cc3cf544aece267c756eaef4e4bf7a7eb4629fdc5522c1",
+    "integrations/guteneo/.claude-plugin/plugin.json": "04844c4adae3bbcc4e5e20a4ee595cac893ef4e3110805cd96a982ee49877bba",
+    "integrations/guteneo/.cursor-plugin/plugin.json": "b847da45633fae6a2a9e1b95a6c2bc1f32e471977c05c7f150cb48e85b7c15ea",
+    "integrations/guteneo/mcp-contract.json": "c0ff160b2cca1302a7c3de90d7826fb229c5f9910710ab766fc4a53de03e572d",
+    "integrations/guteneo/plugin.json": "2f86db4e8a6f716cfaca09d0640f850f73751edef84c140a5ddf38f16dd7f4c1",
+    "integrations/guteneo/skills/document-studio/SKILL.md": "a67eff82463d82eb36b1dc220c01d2ed4b009e0166886cdd838698d594a1e4f3",
+    "ios/Guteneo/Core/DispatchPreparation.swift": "6ee05636f29b328ea4df97499d45305ce0d29dbd592f582e533b3db4e3b9780e",
+    "ios/Guteneo/Views/ComposeView.swift": "fc3a75d3f33e10563320facf72d03ec38d6aba293394206c36390e7b61b15c8e",
+    "ios/GuteneoTests/CoreTests.swift": "5d424c66d3a668b566f5aae50ee2f999e82cd8d1e68da7a4a50bbaff429e4e2c",
+    "package-lock.json": "446f658285aa8f27cd23bb6af48a6520ff7d28f8312d854a7ef384c97877a319",
+    "package.json": "7e7124a7540c13698891e74e9cf537212997fde7289508942a4bb7a13f08827e",
+    "tests/e2e/billing-client-lifecycle.spec.ts": "36fa4a2357c37e76634324b9aec3f00eb7c2869b1f0f878a80bc2fc325200c4c",
+    "tests/e2e/protected-email.spec.ts": "1c7ffe1fe9b2f3a6e4ee75788bd0b662d7d247ee39b8f01996635e717317df1a",
+    "tests/integration/template-workflow.test.ts": "6c7a13e68942ed1f4e6e2923f1c5a14fe470ff87ddf8cf9230f3350ee939159b",
+    "tests/unit/web-api-cancellation.test.ts": "34843a80768dad8bb06713436e401b90ef64832892123be4dfa37095717a224f"
+  },
+  "correctedSourceDomainPackageTests": {
+    "numPassedTests": 128,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "success": true
+  },
+  "completeCorrectedSourceQualification": {
+    "authority": "Exact current-head PR checks and retained Actions artifacts",
+    "url": "https://github.com/nclsppr/guteneo/pull/156/checks",
+    "localScope": "This file records earlier complete local gates separately from the corrected-source focused gates."
+  },
+  "legacyRecoveryRegressionBeforeCorrection": {
+    "failed": 2,
+    "scope": "partial and failed job containing a queued record from an interrupted older retry"
+  },
+  "correctedLegacyAndInterleavingCases": {
+    "passed": 8,
+    "failed": 0
+  }
+}

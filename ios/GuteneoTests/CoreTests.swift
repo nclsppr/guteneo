@@ -184,6 +184,35 @@ final class CoreTests: XCTestCase, @unchecked Sendable {
         XCTAssertTrue(try decodeDispatch(recipient: #"{"phone":"+33123456789"}"#, status: "prepared").canCancel)
     }
 
+    func testPreparationOwnsOneImmutablePendingDraftAndReceipt() throws {
+        var preparation = DispatchPreparationState()
+        let key = try XCTUnwrap(preparation.begin())
+        XCTAssertTrue(preparation.isPreparing)
+        XCTAssertNil(preparation.begin(), "A second queued tap cannot submit the pending draft again")
+        preparation.draftChanged()
+        XCTAssertEqual(preparation.requestKey, key, "Pending authoring cannot replace the submitted draft's recovery key")
+        preparation.finish(preparedID: "dispatch-123")
+        XCTAssertFalse(preparation.isPreparing)
+        XCTAssertEqual(preparation.preparedID, "dispatch-123")
+        preparation.finish()
+        preparation.draftChanged()
+        XCTAssertEqual(preparation.preparedID, "dispatch-123", "Cleanup cannot discard the durable receipt")
+        XCTAssertNil(preparation.begin(), "A successful preparation remains terminal in this composer")
+    }
+
+    func testPreparationFailureRetriesTheSameKeyUntilTheDraftChanges() throws {
+        var preparation = DispatchPreparationState()
+        let key = try XCTUnwrap(preparation.begin())
+        preparation.finish()
+        XCTAssertFalse(preparation.isPreparing)
+        XCTAssertNil(preparation.preparedID)
+        XCTAssertEqual(preparation.begin(), key, "A lost response retries the same idempotent preparation")
+        preparation.finish()
+        preparation.draftChanged()
+        let changedKey = try XCTUnwrap(preparation.begin())
+        XCTAssertNotEqual(changedKey, key, "An intentionally edited draft needs its own immutable request")
+    }
+
     @MainActor
     func testReferencePreparationScopePreventsHumanApproval() throws {
         let legacy = try decodeDispatch(recipient: #"{"phone":"+33123456789"}"#)
@@ -395,6 +424,46 @@ final class CoreTests: XCTestCase, @unchecked Sendable {
         XCTAssertNil(model.session)
         XCTAssertTrue(model.documents.isEmpty)
         XCTAssertFalse(model.isLoading)
+    }
+
+    @MainActor
+    func testLatePreparationCannotPublishAReceiptAfterSignOut() async throws {
+        let configuration = APIClient.sessionConfiguration()
+        configuration.protocolClasses = [NativeURLProtocol.self]
+        let network = URLSession(configuration: configuration)
+        defer { network.invalidateAndCancel() }
+        let started = expectation(description: "Preparation has reached the server")
+        let dispatch = try JSONEncoder().encode(decodeDispatch(recipient: #"{"phone":"+33123456789"}"#))
+        NativeURLProtocol.stub.configureHandler { request in
+            if request.httpMethod == "DELETE" { return (204, Data(), 0) }
+            if request.httpMethod == "POST", request.url?.lastPathComponent == "dispatches" {
+                started.fulfill()
+                return (200, dispatch, 0.2)
+            }
+            switch request.url?.lastPathComponent {
+            case "session", "account": return (200, Self.validSession, 0)
+            case "capabilities": return (200, Data(#"{"version":"1","mode":"live","simulation":false,"humanApproval":"authenticated_browser","nativeApproval":false,"channels":[{"id":"fax","name":"Fax","liveSending":true}],"limits":{"pdfBytes":10485760}}"#.utf8), 0)
+            case "deletion-request": return (200, Data(#"{"request":null}"#.utf8), 0)
+            default: return (200, Data(#"{"items":[],"nextCursor":null}"#.utf8), 0)
+            }
+        }
+        let credentials = MemoryCredentials()
+        try credentials.save(StoredCredentials(token: "test-token", expiresAt: "2099-01-01T00:00:00Z"))
+        let model = AppModel(client: APIClient(session: network), credentials: credentials)
+        await model.restoreSession()
+        XCTAssertEqual(model.phase, .authenticated)
+        let draft = DispatchDraft(channel: .fax, recipient: ["phone": "+33123456789"], documentId: "document-123", senderId: "sender-123", ceilingMinor: 500)
+        let pending = Task { try await model.prepareDispatch(draft) }
+        await fulfillment(of: [started], timeout: 3)
+        await model.signOut()
+        do {
+            _ = try await pending.value
+            XCTFail("The obsolete preparation receipt must not reach its composer")
+        } catch is CancellationError { }
+        catch { XCTFail("Expected generation cancellation, received \(error)") }
+        XCTAssertEqual(model.phase, .signedOut)
+        XCTAssertTrue(model.dispatches.isEmpty)
+        XCTAssertNil(try credentials.load())
     }
 
     #if DEBUG

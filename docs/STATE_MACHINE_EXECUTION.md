@@ -1,5 +1,9 @@
 # State-machine execution and acceptance
 
+The [9 November follow-up](STATE_MACHINE_REAUDIT_2026_11_09.md) rechecks merged
+main and addresses additional browser/native continuation and Studio retry races.
+Its qualification is separate from the 8 November implementation results below.
+
 Base: main `e0df725a2d791ef9a629d7ea91f11674d4138575`. Candidate `1.1.33` lives on `codex/implicit-state-machines-20261108` in the isolated audit checkout, preserving the original checkout. The user authorized implementation, simplification and necessary rewrites on 8 November 2026. Merge, production deployment, real communications and paid provisioning still require separate explicit authorization.
 
 Implementation, independent review and scoped local qualification are complete

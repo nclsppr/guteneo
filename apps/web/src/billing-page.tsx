@@ -27,6 +27,7 @@ import {
 } from "./components";
 import { t } from "./locale";
 import { CreditBalance, type WelcomeCredit } from "./credit-balance";
+import { useCurrentClientView } from "./client-write-recovery";
 
 type Usage = {
   channel: Channel;
@@ -184,6 +185,9 @@ function BillingWorkspace({
   const invoices = useResource<Page<Invoice>>("/billing/invoices");
   const payments = useResource<Page<Payment>>("/billing/payments");
   const action = useAction();
+  const captureView = useCurrentClientView(
+    `${session.organization.id}:${session.user.id}:${session.csrfToken}:${session.user.role}`,
+  );
   const portalKey = useRef<string | null>(null);
   const [notice, setNotice] = useState("");
   const refresh = () => {
@@ -193,8 +197,10 @@ function BillingWorkspace({
   };
   const data = overview.data;
   async function createCustomer() {
+    const ownsView = captureView();
     await action.run(async () => {
       await api("/billing/customer", { method: "POST", body: {} });
+      if (!ownsView()) return;
       setNotice(
         "Your billing profile is ready. No payment has been initiated.",
       );
@@ -202,6 +208,7 @@ function BillingWorkspace({
     });
   }
   async function openPortal() {
+    const ownsView = captureView();
     await action.run(async () => {
       portalKey.current ??= crypto.randomUUID();
       const { url } = await api<{ url: string }>("/billing/portal", {
@@ -209,6 +216,7 @@ function BillingWorkspace({
         body: {},
         key: portalKey.current,
       });
+      if (!ownsView()) return;
       portalKey.current = null;
       window.location.assign(url);
     });

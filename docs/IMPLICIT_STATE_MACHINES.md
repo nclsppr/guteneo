@@ -13,6 +13,10 @@ retained mechanisms and current qualification belong to
 [State-machine execution and acceptance](STATE_MACHINE_EXECUTION.md). Historical
 line anchors below refer to the audited base rather than the changed candidate.
 
+The [9 November follow-up](STATE_MACHINE_REAUDIT_2026_11_09.md) starts from
+merged main, rechecks this coverage and records additional reproduced transition
+races without changing this historical discovery snapshot.
+
 ## Result and counting rule
 
 **113 app-owned lifecycle groups** are mapped below, plus one separately marked

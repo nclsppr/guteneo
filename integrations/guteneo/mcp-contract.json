@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "pluginVersion": "1.1.33",
-  "mcpSourceSha256": "53b54eaa34efaad74b4f10360152844481a13e32a90c79163bdd3b48d853974b",
-  "packageSha256": "332f78d4b2cef54670a9460efbf52675bc9cdd2e28a63a4d52ea0404450d02e4",
+  "pluginVersion": "1.1.35",
+  "mcpSourceSha256": "1d2cc6f6ccaf2a202da5a909167b3758ecaf8251dbb2edaa784dc476646c1e07",
+  "packageSha256": "bcb9976d96d181d94cb0373e014b36214b62937c34c61ec93dbc927c3f2afc50",
   "sources": {
     "apps/api/src/auth.ts": "ed445a4c666d89dd3a73200adf591143e1455f86df56049977f4485932d7aa52",
     "apps/api/src/connection-observations.ts": "40278b9fab339e05949a04c2d2718348236e9362e944f95a4d2a3466c186fa24",
@@ -17,7 +17,7 @@
     "apps/api/src/mcp.ts": "d207768a69d9e8c774854cc9c738d15d3a11441521a266445a445c104958dd9d",
     "apps/api/src/postal-address-page.ts": "0136e864e9f2611932a6540c1ac093add1a107a60e5b135b25c38be6c1bfd2e6",
     "apps/api/src/postal-authority.ts": "69dc7155a56311b7927416b90acf3577417b30f0ca410e3f815530c1b29b7e98",
-    "apps/api/src/template-workflow.ts": "f6d1f9eef2dcdc57861832d60f78a31aff769e69994a84758a2552c54acd4e76",
+    "apps/api/src/template-workflow.ts": "322b14d9ae2d94f2bba458633134a511496b3e04a1e76e9c3a8a9e3c116765f3",
     "packages/contracts/src/assistant-recovery.ts": "cd0762f569d232597e58426240a2e9316eccac70d08f4c3e753e31ff6ec69f09",
     "packages/contracts/src/content.ts": "ac570f2a20af9881de4b3c90dd3abe5fecc8c2db6b34d093bbc04543c7bb8433",
     "packages/contracts/src/datasets.ts": "7344834c6109d99a663fb32ce90e597a4f7841183d178bde1f8712250b16c34f",

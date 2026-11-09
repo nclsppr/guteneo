@@ -1,8 +1,8 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**28 domains · 464 features · 46 journeys · 78 documented REST operations · 83 MCP tools**
-Updated 2026-11-08.
+**28 domains · 469 features · 46 journeys · 78 documented REST operations · 83 MCP tools**
+Updated 2026-11-09.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
 
@@ -14,28 +14,28 @@ Start here to find a feature, its authority and its technical owner. Read [repos
 mindmap
   root((Guteneo))
     Access
-      Access and identity (39)
+      Access and identity (40)
       Team and responsibilities (10)
       Workspace administration and reports (14)
     Create
       Documents and protection (22)
       Template studio (15)
       Data and mappings (12)
-      PDF generation and distribution (16)
+      PDF generation and distribution (17)
     Deliver
       Fax (10)
       Postal mail (11)
-      Email and protected links (14)
+      Email and protected links (15)
       Sensitive distribution and personal documents (37)
       Dispatch dry run (7)
     Operate
       Campaigns and tracking (9)
-      Credits and billing (9)
+      Credits and billing (10)
       Workspace layout and browser appearance (37)
       PDF verification (10)
     Interfaces
       Assistants and API (31)
-      iPhone and iPad (9)
+      iPhone and iPad (10)
       Public pages, languages and appearance (24)
     Operations
       Reviewer OAuth qualification (9)
@@ -51,7 +51,7 @@ mindmap
 
 ### Access
 
-- [Access and identity](#identity) — 39 features; browser-session.
+- [Access and identity](#identity) — 40 features; browser-session.
 - [Team and responsibilities](#team) — 10 features; browser-session.
 - [Workspace administration and reports](#administration) — 14 features; browser-session.
 
@@ -60,27 +60,27 @@ mindmap
 - [Documents and protection](#documents) — 22 features; capability-gated.
 - [Template studio](#templates) — 15 features; capability-gated.
 - [Data and mappings](#datasets) — 12 features; capability-gated.
-- [PDF generation and distribution](#generation) — 16 features; capability-gated.
+- [PDF generation and distribution](#generation) — 17 features; capability-gated.
 
 ### Deliver
 
 - [Fax](#fax) — 10 features; capability-gated.
 - [Postal mail](#postal) — 11 features; capability-gated.
-- [Email and protected links](#email) — 14 features; capability-gated.
+- [Email and protected links](#email) — 15 features; capability-gated.
 - [Sensitive distribution and personal documents](#secure-distribution) — 37 features; capability-gated.
 - [Dispatch dry run](#dry-run) — 7 features; read-only.
 
 ### Operate
 
 - [Campaigns and tracking](#campaigns) — 9 features; capability-gated.
-- [Credits and billing](#billing) — 9 features; partial.
+- [Credits and billing](#billing) — 10 features; partial.
 - [Workspace layout and browser appearance](#dashboard) — 37 features; browser-session.
 - [PDF verification](#pdf-verification) — 10 features; capability-gated.
 
 ### Interfaces
 
 - [Assistants and API](#assistants) — 31 features; host-qualified.
-- [iPhone and iPad](#native) — 9 features; local-candidate.
+- [iPhone and iPad](#native) — 10 features; local-candidate.
 - [Public pages, languages and appearance](#public) — 24 features; public.
 
 ### Operations
@@ -216,6 +216,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Authenticated account reads and independent login/callback digests overlap while retaining saved appearance, canonical invitation validation, transaction-bound issuer, nonce and subject checks before session writes
 - Four-language Auth0 account email candidates with normalized request language and English fallback; current owned application IDs scope body, subject and sender while exact prior Liquid fields preserve other or missing clients. Offline Liquid/browser proof, remote application and real delivery remain separate; enabled flags, redirect and expiry are unchanged
 - Account deletion request and separate default-off private operator processing: a frozen reviewed plan blocks unsafe workspace closure and unresolved liabilities, revokes all authentication, verifies exact storage/identity erasure and delivered completion-notice evidence, minimizes the retained historical skeleton, and never calls a disabled profile completed deletion; no public or MCP processor authority
+- Browser session-expiry events carry their request session revision; a stale 401 after session replacement cannot expire the current account, while current-session failures still trigger recovery
 
 **Contract:** [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · **Implementation:** [apps/api/src/auth.ts](../apps/api/src/auth.ts)
 
@@ -451,6 +452,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Import/replacement retain the selected template/version and compatible field mapping/record exclusions; correcting data or a template creates a new generation/version while prior PDFs and prepared manifests retain their exact hashes
 - Every new destination starts with zero documents even for one PDF; unsaved preparation may veto departure and late preparation/postal replies cannot navigate obsolete visits; the pre-preparation summary lists exact associations and explains that the first plan freezes the full generation, including excluded failed records
 - Integrated typed record/job/distribution decisions retain bounded artifact recovery and immutable entry keys; final record and association writes fence live authority and source predecessors
+- Failed-record retry and job promotion commit in one current-authority D1 batch; a competing distribution freeze or cancellation cannot leave retryable work reopened behind a frozen manifest; explicit retry also recovers unfrozen records left queued by an older interrupted retry without replacing their artifacts
 
 **Contract:** [TEMPLATES_DATA_DISTRIBUTION.md](TEMPLATES_DATA_DISTRIBUTION.md) · **Implementation:** [apps/api/src/template-workflow-routes.ts](../apps/api/src/template-workflow-routes.ts)
 
@@ -580,6 +582,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Preparation, approval, tracking and provider policy
 - Resend/SES availability is gated separately from activation; public price references and operator account limits have dated qualification, while account-wide quota policy, webhook/secret and delivery require independent installation and verification
 - Default email quotes the frozen document title in HTML and plain text and includes Discover guteneo plus explicit unsubscribe/report controls; hashed mailbox capabilities suppress only their originating workspace through transaction-time eligibility fences, with separate recipientFeedback status, idempotent lifecycle receipts and stable satisfied-replay timestamps
+- Legacy password reveal, clipboard feedback and revoke completion require the current reviewed dispatch and view; transient credentials clear when management authority changes
 
 **Contract:** [PROTECTED_EMAIL.md](PROTECTED_EMAIL.md) · **Implementation:** [apps/api/src/protected-documents.ts](../apps/api/src/protected-documents.ts)
 
@@ -739,10 +742,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Read-only tenant-scoped monthly consumption history; current/latest/explicit UTC month selection preserves previous usage and simulation boundaries
 - GitHub-style annual daily activity grid from exact UTC posted debits, selectable years/day detail, keyboard navigation and contained phone scrolling; reservations and simulation remain distinct
 - Authorized overview and selected-period usage overlap independent reads while retaining explicit/latest period selection and current administrator/reporting authority
+- Billing customer feedback and portal redirects require the current account/workspace and route visit; late responses cannot navigate a later visit and the portal key remains stable for recovery while the view is mounted
 
 **Contract:** [WELCOME_CREDIT.md](WELCOME_CREDIT.md) · **Implementation:** [apps/api/src/billing.ts](../apps/api/src/billing.ts)
 
-**Tests:** [tests/unit/billing.test.ts](../tests/unit/billing.test.ts), [tests/integration/welcome-credit.test.ts](../tests/integration/welcome-credit.test.ts), [tests/e2e/usage-history.spec.ts](../tests/e2e/usage-history.spec.ts), [tests/e2e/usage-activity.spec.ts](../tests/e2e/usage-activity.spec.ts), [tests/integration/live-delivery-quotes.test.ts](../tests/integration/live-delivery-quotes.test.ts), [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts), [tests/unit/pdf-validation-pricing.test.ts](../tests/unit/pdf-validation-pricing.test.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/api-async.test.ts](../tests/unit/api-async.test.ts), [tests/unit/domain-async.test.ts](../tests/unit/domain-async.test.ts)
+**Tests:** [tests/unit/billing.test.ts](../tests/unit/billing.test.ts), [tests/integration/welcome-credit.test.ts](../tests/integration/welcome-credit.test.ts), [tests/e2e/usage-history.spec.ts](../tests/e2e/usage-history.spec.ts), [tests/e2e/usage-activity.spec.ts](../tests/e2e/usage-activity.spec.ts), [tests/integration/live-delivery-quotes.test.ts](../tests/integration/live-delivery-quotes.test.ts), [tests/integration/protected-documents.test.ts](../tests/integration/protected-documents.test.ts), [tests/unit/pdf-validation-pricing.test.ts](../tests/unit/pdf-validation-pricing.test.ts), [tests/unit/secure-distribution-core.test.ts](../tests/unit/secure-distribution-core.test.ts), [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/api-async.test.ts](../tests/unit/api-async.test.ts), [tests/unit/domain-async.test.ts](../tests/unit/domain-async.test.ts), [tests/e2e/account-billing.spec.ts](../tests/e2e/account-billing.spec.ts), [tests/e2e/billing-client-lifecycle.spec.ts](../tests/e2e/billing-client-lifecycle.spec.ts)
 
 **Documented REST operations**
 
@@ -844,10 +848,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Signing, physical-device, TestFlight and App Store qualification remain separate
 - Read preferredDashboardAppearance in account/session without a native setting/PATCH
 - Swift opens canonical /auth/mobile/authorize; the server selects the configured browser domain and preserves mobile PKCE return, distinct from the native callback
+- Native dispatch preparation owns one immutable submitted draft and stable retry key, locks authoring while pending and rejects duplicate begin; terminal preparation never grants browser send approval
 
 **Contract:** [IOS_API.md](IOS_API.md) · **Implementation:** [apps/api/src/mobile.ts](../apps/api/src/mobile.ts)
 
-**Tests:** [tests/e2e/mobile-account.spec.ts](../tests/e2e/mobile-account.spec.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts)
+**Tests:** [tests/e2e/mobile-account.spec.ts](../tests/e2e/mobile-account.spec.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [ios/GuteneoTests/CoreTests.swift](../ios/GuteneoTests/CoreTests.swift)
 
 
 
@@ -1248,7 +1253,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 Open the concise public homepage with its approved browser icon in its preselected URL/cookie/browser language, without a session probe or late translation → choose visitor language or the header appearance icon → read How it works, Getting started, Pricing or PDF checks and the complete Support FAQ through canonical shared navigation with initial styles and same-document page changes preserving language, metadata, focus and browser history → open Engineering documentation from the shared Resources footer for English technical guides → use the existing localized closing invitation and first-dispatch link above the home-only panorama → enter canonical Auth0 → register one personal account with V2 appearance → ordinary /app entry without membership opens Services with create/join workspace choice; explicit personal-document entry stays personal → create a workspace or review and accept an administrator invitation → verify current identity, saved account language and rights before useful private content. Return to the valid destination. Explicit logout opens the public home and restores the separate visitor choice. On workshop entry, download only the requested screen code alongside session verification; mount private content only after current authority resolves.
 
-**Failure/recovery:** Refuse invalid callback state, unknown issuer/subject or expired invitation. Recovery retries are explicit. Invalid/duplicate presentation hints fall back safely and grant no identity; explicit public language cannot be replaced by a conflicting late account read. Legacy storage migration excludes private/recovery URLs. Package download, optional Auth0 branding/domain and actual host sign-in each need separate proof. Public route presentation, a localized status link and the fictional example grant no approval or provider activation; failed detail loading retains complete styled static information. Modified/external/private/download links retain native behavior; unavailable initial JavaScript retains complete static HTML and native links without a blank loading page. Failed workshop code keeps the authenticated shell available and offers explicit page reload, with no automatic replay of writes. Public readiness cannot mount private sign-in before session resolution or create a duplicate hosted handoff.
+**Failure/recovery:** Refuse invalid callback state, unknown issuer/subject or expired invitation. Recovery retries are explicit. Invalid/duplicate presentation hints fall back safely and grant no identity; explicit public language cannot be replaced by a conflicting late account read. Legacy storage migration excludes private/recovery URLs. Package download, optional Auth0 branding/domain and actual host sign-in each need separate proof. Public route presentation, a localized status link and the fictional example grant no approval or provider activation; failed detail loading retains complete styled static information. Modified/external/private/download links retain native behavior; unavailable initial JavaScript retains complete static HTML and native links without a blank loading page. Failed workshop code keeps the authenticated shell available and offers explicit page reload, with no automatic replay of writes. Public readiness cannot mount private sign-in before session resolution or create a duplicate hosted handoff. A superseded request cannot expire a newly installed browser session; a current-session 401 still opens normal authentication recovery.
 
 [Detailed contract](ACCOUNT_IDENTITY.md).
 
@@ -1288,7 +1293,7 @@ Read postal setup and current destination restrictions independently from recogn
 
 Collect recipient and ready PDF → default to My documents, with an explicit attachment alternative → optionally supply subject/message/custom HTML with {{document_url}}, otherwise use localized workspace V2 defaults → prepare secure distribution → follow rendering on the same ID → browser review exact email, PDF, policy and quote → attest the email request → approve and confirm → track. Message-only and explicit legacy modes retain ordinary dispatch approval. → recipient may explicitly unsubscribe/report through the footer; track the response separately from delivery and access.
 
-**Failure/recovery:** Never infer recipient consent. Legacy-source refusals offer an explicit creator-private secure copy, including after historical cancellation/failure; preserve form input, select the copy and prepare separately. Copy recovery is browser-only, reuses the same key after an uncertain response and never cancels/recalls earlier deliveries. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later workspace/profile changes do not rewrite frozen content or resend existing mail. Missing/invalid documents do not permit defaults; malformed or wrong-mode button markers require corrected preparation. Account content overflow identifies the field and limit before rendering; generated buttons follow the notification locale even when interface and account language differ. For secure account invitations only, use explicit browser quote recovery from the original eligible unsubmitted share; review the replacement price again. Fresh sign-in preserves the existing safe share path and grants no approval.
+**Failure/recovery:** Never infer recipient consent. Legacy-source refusals offer an explicit creator-private secure copy, including after historical cancellation/failure; preserve form input, select the copy and prepare separately. Copy recovery is browser-only, reuses the same key after an uncertain response and never cancels/recalls earlier deliveries. Protected passwords stay in the sender browser and are shared separately. Provider acceptance/delivery/PDF reading are different facts; unknown outcomes require reconciliation. Later workspace/profile changes do not rewrite frozen content or resend existing mail. Missing/invalid documents do not permit defaults; malformed or wrong-mode button markers require corrected preparation. Account content overflow identifies the field and limit before rendering; generated buttons follow the notification locale even when interface and account language differ. For secure account invitations only, use explicit browser quote recovery from the original eligible unsubmitted share; review the replacement price again. Fresh sign-in preserves the existing safe share path and grants no approval. A legacy password response belongs to its exact reviewed dispatch and route visit; leaving and returning does not adopt an earlier response.
 
 [Detailed contract](PROTECTED_EMAIL.md).
 
@@ -1308,7 +1313,7 @@ Read authoring guide or a synthetic example → create/private-copy or import DO
 
 Choose a published template → import CSV/XLSX/XML/JSON while preserving that choice → verify/profile exact original → define versioned field mapping → wait for the exact selected template payload before browser validation → validate each row/cell → generate distinct PDFs → inspect business name/subject/reference and provenance. In the browser, replace compatible source data without losing the mapping; preserve only verifiable exclusions and explicitly review unmatched rows. Correct one result with its exact historical template version, or explicitly create a new template version; each correction creates a new generation and leaves prior PDF bytes/hashes and prepared manifests intact.
 
-**Failure/recovery:** Resume the same original after transient analysis failure. Keep browser validation unavailable while the selected template payload is loading or failed; selecting an identifier grants no readiness or new authority. Resolve mapping/type/join issues explicitly. Generation completion does not establish PDF readiness; follow the bounded security-analysis refresh and review retryable or blocked results explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation. An accepted cold-route transition temporarily fences the old editor against new input until commit; existing unsaved-work vetoes still run before acceptance. Private correction input is browser-owner-only under current membership; template sharing and dispatch review do not expose it. Query changes and Back/Forward cannot reuse another record’s unsaved data; leaving an unsaved correction requires explicit review. Final dataset/mapping writes recheck current membership or OAuth authority after analysis. AI adoption preserves a successful mapping receipt after draft failure and retries only the unfinished draft. Leaving and returning to the same view invalidates prior chained writes.
+**Failure/recovery:** Resume the same original after transient analysis failure. Keep browser validation unavailable while the selected template payload is loading or failed; selecting an identifier grants no readiness or new authority. Resolve mapping/type/join issues explicitly. Generation completion does not establish PDF readiness; follow the bounded security-analysis refresh and review retryable or blocked results explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation. An accepted cold-route transition temporarily fences the old editor against new input until commit; existing unsaved-work vetoes still run before acceptance. Private correction input is browser-owner-only under current membership; template sharing and dispatch review do not expose it. Query changes and Back/Forward cannot reuse another record’s unsaved data; leaving an unsaved correction requires explicit review. Final dataset/mapping writes recheck current membership or OAuth authority after analysis. AI adoption preserves a successful mapping receipt after draft failure and retries only the unfinished draft. Leaving and returning to the same view invalidates prior chained writes. Retrying failed records atomically requeues them and promotes the job under the same current authority. If distribution freezes first, generation stays frozen. After an older interrupted retry, explicitly resume the same already-queued records under current authority; retain exact artifacts and never bypass an existing frozen plan.
 
 [Detailed contract](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -1318,7 +1323,7 @@ Choose a published template → import CSV/XLSX/XML/JSON while preserving that c
 
 Select generated PDFs by their business labels in Studio → open Correspondence /app/distribution/new with generation and selected record IDs → revalidate every selected ready result in bounded 50-record pages → explicitly choose each document for each new destination, starting with zero documents even for one selected PDF → inspect exact associations and full-generation freeze consequence → prepare the immutable manifest at /app/distribution/:id → resume remaining entries → complete linked postal preflight where needed → review/approve each exact dispatch. Back/Forward/reload preserve the selected IDs, unsaved changes can veto departure, and navigation alone creates no plan or dispatch.
 
-**Failure/recovery:** An unavailable or inaccessible selected record blocks preparation rather than dropping part of the selection. A response from an obsolete visit cannot navigate after departure or a workspace/account change, including a return to the same URL. A frozen batch cannot retry even excluded failed records; create a new generation batch when needed. Multiple channels require explicitMultichannel. No manifest operation implies consent, transfer or sending.
+**Failure/recovery:** An unavailable or inaccessible selected record blocks preparation rather than dropping part of the selection. A response from an obsolete visit cannot navigate after departure or a workspace/account change, including a return to the same URL. A frozen batch cannot retry even excluded failed records; create a new generation batch when needed. Multiple channels require explicitMultichannel. No manifest operation implies consent, transfer or sending. Concurrent generation retry and distribution freeze have one durable winner; a frozen manifest cannot coexist with reopened generation.
 
 [Detailed contract](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -1344,11 +1349,11 @@ Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or
 
 ### J11 · Use iPhone or iPad
 
-**Actor:** Member using the native candidate. **Branch:** Interfaces.
+**Actor:** Authenticated native reader with current preparation permission when composing. **Branch:** Interfaces.
 
-Start system authentication on the canonical backend → use dedicated mobile session → import/inspect/search PDFs → prepare fax/email → open authenticated browser for final review → read tracking.
+Start system authentication on the canonical backend → use dedicated mobile session → import/inspect/search PDFs → prepare fax/email with one captured draft/key and disabled authoring while pending → open authenticated browser for final review → read tracking.
 
-**Failure/recovery:** Native sessions cannot approve or send. Account erasure processing, physical-device sign-in, signing, TestFlight and App Store distribution require separate qualification.
+**Failure/recovery:** Native sessions cannot approve or send. Account erasure processing, physical-device sign-in, signing, TestFlight and App Store distribution require separate qualification. A second queued tap cannot begin another preparation. Failed or interrupted responses retain the same key until an intentional edit; success retains its server-issued reference in that composer. A late response after sign-out cannot populate the dispatch list. Native preparation never grants human send approval.
 
 [Detailed contract](IOS_API.md).
 
@@ -1358,7 +1363,7 @@ Start system authentication on the canonical backend → use dedicated mobile se
 
 Read welcome/available/reserved/consumed balances → inspect the annual UTC consumption grid and selected-day totals → open the latest recorded usage month or select current/previous UTC month → inspect usage/billing → reserve the exact approved ceiling atomically with acceptance/outbox → settle using qualified provider evidence.
 
-**Failure/recovery:** Welcome credit is one-time, not monthly. Top-up is not commercially qualified. Unknown outcomes retain reserves; fax delivery alone does not settle verified usage. An empty current month does not mean lost history; failed period reads offer retry without replacing ledger or balance.
+**Failure/recovery:** Welcome credit is one-time, not monthly. Top-up is not commercially qualified. Unknown outcomes retain reserves; fax delivery alone does not settle verified usage. An empty current month does not mean lost history; failed period reads offer retry without replacing ledger or balance. A portal/customer response from an abandoned view cannot redirect or publish feedback into a later visit; retry retains the original portal operation key while the view is mounted.
 
 [Detailed contract](WELCOME_CREDIT.md).
 
@@ -1688,7 +1693,7 @@ Identify the exact selected production mechanism and real deadline → preserve 
 
 Open Administration from the application switcher, including from My documents or Use Guteneo when the current membership allows reports → choose a period preset or a custom UTC range → read the overview, activity, consumption and access → manage members, invitations, billing and workspace settings → download the complete report as Excel or PDF, or one dataset as CSV → find the export recorded in the audit log. In Settings, inspect the original dispatch before explicitly resolving an operationally and financially closed queue incident; the server retains one resolution receipt without replaying a communication.
 
-**Failure/recovery:** Changed membership refuses with MEMBERSHIP_CHANGED; assistants and native clients receive BROWSER_REQUIRED. Invalid dates recover in the browser and are refused by the API; periods over 366 days and export row/text bounds fail explicitly. PDFs disclose global row omissions. Changing a period or identity cancels obsolete downloads. An unresolved dispatch, hold, revoked administrator/session or cross-workspace incident refuses resolution; after an unknown response reread the same diagnostic.
+**Failure/recovery:** Changed membership refuses with MEMBERSHIP_CHANGED; assistants and native clients receive BROWSER_REQUIRED. Invalid dates recover in the browser and are refused by the API; periods over 366 days and export row/text bounds fail explicitly. PDFs disclose global row omissions. Changing a period or identity cancels obsolete downloads. An unresolved dispatch, hold, revoked administrator/session or cross-workspace incident refuses resolution; after an unknown response reread the same diagnostic. Billing-portal navigation and customer feedback remain bound to the current identity and route visit.
 
 [Detailed contract](WORKSPACE_ADMINISTRATION.md).
 

@@ -147,8 +147,12 @@ export const isPublicPreview = import.meta.env.VITE_PUBLIC_PREVIEW === "true";
  */
 export const SESSION_EXPIRED_EVENT = "guteneo:session-expired";
 const sessionProbePaths = ["/session", "/logout", "/dev/login"];
-function announceSessionExpiry(path: string, status: number) {
-  if (status !== 401 || sessionProbePaths.includes(path.split("?")[0] ?? ""))
+function announceSessionExpiry(path: string, status: number, revision: number) {
+  if (
+    revision !== sessionRevision ||
+    status !== 401 ||
+    sessionProbePaths.includes(path.split("?")[0] ?? "")
+  )
     return;
   window.dispatchEvent(new CustomEvent(SESSION_EXPIRED_EVENT));
 }
@@ -158,6 +162,7 @@ export async function getDocumentContent(
   signal?: AbortSignal,
   dispatchId?: string,
 ): Promise<Uint8Array> {
+  const revision = sessionRevision;
   if (isPublicPreview) {
     signal?.throwIfAborted();
     const { publicPreview } = await import("./preview");
@@ -174,7 +179,11 @@ export async function getDocumentContent(
   );
   signal?.throwIfAborted();
   if (!response.ok) {
-    announceSessionExpiry(`/documents/${id}/content`, response.status);
+    announceSessionExpiry(
+      `/documents/${id}/content`,
+      response.status,
+      revision,
+    );
     throw new ApiError(
       "DOCUMENT_UNAVAILABLE",
       "This document cannot be displayed.",
@@ -188,7 +197,26 @@ export async function getDocumentContent(
 
 let csrfToken = "";
 let sessionUserId: string | null = null;
+let sessionAuthority = "";
+let sessionRevision = 0;
 export function setSession(session: Session | null, applyPreference = true) {
+  const authority = session
+    ? JSON.stringify([
+        session.organization.id,
+        session.user.id,
+        session.csrfToken,
+        session.user.role,
+        session.user.supervisorCanApprove,
+        session.user.supervisorCanReport,
+        session.permissions,
+        session.simulation,
+        session.verifiedAccount,
+      ])
+    : "";
+  // Identity/authority changes supersede old requests, even after A -> B -> A.
+  // Reapplying the same session on navigation must still allow current expiry.
+  if (authority !== sessionAuthority) sessionRevision += 1;
+  sessionAuthority = authority;
   csrfToken = session?.csrfToken ?? "";
   if (applyPreference && session)
     applyAccountLocale(session.user.preferredLocale);
@@ -218,6 +246,7 @@ export async function api<T>(
     signal?: AbortSignal;
   } = {},
 ): Promise<T> {
+  const revision = sessionRevision;
   if (isPublicPreview) {
     const { publicPreview, PreviewError } = await import("./preview");
     try {
@@ -267,7 +296,7 @@ export async function api<T>(
   // parsing. Such a response must not expire the new session or update its UI.
   init.signal?.throwIfAborted();
   if (!response.ok) {
-    announceSessionExpiry(path, response.status);
+    announceSessionExpiry(path, response.status, revision);
     const failure = data as {
       error?: { code?: string; message?: string };
     } | null;

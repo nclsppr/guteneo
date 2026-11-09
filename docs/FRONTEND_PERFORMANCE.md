@@ -1,5 +1,24 @@
 # Frontend loading and table controls
 
+## Browser continuation guards — 9 November 2026 local candidate
+
+Billing handoff and protected-link actions reuse the existing current-view guard;
+session expiry carries an in-memory revision. No new dependency, API read,
+polling loop or eager module is added. Delayed synthetic responses qualify
+current-view versus abandoned-view behavior across desktop Chromium, Pixel 7
+Chromium and iPhone WebKit.
+
+The twelve focused browser cases passed. Billing startup observed five API paths:
+session, capabilities, overview, invoices and payments; 38–39 resource entries,
+582,337–583,064 transferred JavaScript bytes and 463–1,089 ms until the portal
+action was useful. Protected-link samples observed 49–53 resources,
+925,286–1,115,631 JavaScript bytes and 273–999 ms until reveal was useful; PDF
+loading was asynchronous and its completion differed between samples. These
+are local workerd/synthetic-response observations, not before/after speedup or
+production latency claims. The
+[follow-up record](STATE_MACHINE_REAUDIT_2026_11_09.md) owns aggregate validation
+and native execution limits.
+
 ## Queue incident action — 8 November 2026 local candidate
 
 The existing lazy Administration module adds deliberate incident resolution and
