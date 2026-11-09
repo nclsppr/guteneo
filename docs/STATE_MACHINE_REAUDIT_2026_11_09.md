@@ -71,7 +71,7 @@ qualification and retained artifacts are associated with the exact head in
 [PR #156 checks](https://github.com/nclsppr/guteneo/pull/156/checks).
 
 The broader application browser run passes **111/111**, without skips, retries
-or flakes, in 126.392 seconds across desktop Chromium, Pixel 7 Chromium and
+or flakes, in approximately 127 seconds across desktop Chromium, Pixel 7 Chromium and
 iPhone WebKit. It covers complete billing/account, protected-email and resource
 navigation suites plus the new billing continuation suite. Responses are
 intercepted synthetic fixtures where those suites declare them; no Stripe
