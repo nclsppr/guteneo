@@ -9,7 +9,7 @@
 }
 .studio-guide li {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
   counter-increment: steps;
 }
 .studio-guide li::before {
@@ -193,7 +193,7 @@
 .studio-list-row p {
   margin: 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 .studio-list-row > div {
   min-width: 0;
@@ -201,7 +201,7 @@
 }
 .studio-meta {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 .studio-saved {
   color: var(--success);

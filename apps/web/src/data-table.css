@@ -55,7 +55,7 @@
 .data-table :is(select, .button) {
   min-height: 44px;
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
 }
 .data-table select {
   width: auto;
@@ -173,7 +173,7 @@
   margin-top: 4px;
 }
 .data-table__cell-value :is(.date-cell, .channel-label) {
-  font-size: 13px;
+  font-size: 14px;
 }
 .data-table__cell-value .status {
   font-size: 12px;

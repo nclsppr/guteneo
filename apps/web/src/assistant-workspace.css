@@ -21,7 +21,7 @@
   font-weight: 400;
 }
 .assistants-intro > p {
-  font-size: 18px;
+  font-size: 20px;
   max-width: 65ch;
 }
 .assistants-intro .assistants-intro-note {
@@ -174,7 +174,7 @@
 .assistant-connection-reference code {
   display: block;
   overflow-wrap: anywhere;
-  font-size: 13px;
+  font-size: 14px;
 }
 .assistant-no-connections {
   color: var(--muted);

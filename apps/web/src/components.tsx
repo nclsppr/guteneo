@@ -577,18 +577,39 @@ export function EmptyState({
   title,
   text,
   action,
+  icon,
 }: {
   title: string;
   text?: string;
   action?: ReactNode;
+  /** Defaults to the PDF glyph; pass the glyph of the page's own object. */
+  icon?: ReactNode;
 }) {
   return (
     <div className="empty-state">
-      <FilePdf size={36} weight="light" aria-hidden="true" />
+      {icon ?? <FilePdf size={36} weight="light" aria-hidden="true" />}
       <h2>{title}</h2>
       {text && <p>{text}</p>}
       {action}
     </div>
+  );
+}
+
+/** The one disclosure row: label, chevron and a full-width hit area. */
+export function Disclosure({
+  label,
+  children,
+  className = "",
+}: {
+  label: ReactNode;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <details className={`disclosure ${className}`.trim()}>
+      <summary>{label}</summary>
+      {children}
+    </details>
   );
 }
 function dispatchStatusText(status: string, channel?: Channel) {

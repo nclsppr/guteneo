@@ -54,7 +54,7 @@
   flex-basis: 100%;
   margin: 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 .administration-stats {
   display: grid;
@@ -71,7 +71,7 @@
   padding-block: 12px;
 }
 .administration-stats-secondary .stat-tile > strong {
-  font-size: 22px;
+  font-size: 20px;
 }
 .administration-panel {
   display: grid;
@@ -176,7 +176,7 @@
 }
 .administration-export h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: 20px;
 }
 .administration-export > p {
   margin: 0;

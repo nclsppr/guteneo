@@ -115,7 +115,7 @@
 }
 .stat-tile > span {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 .stat-tile > strong {
   color: var(--heading-ink);

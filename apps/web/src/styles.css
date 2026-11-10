@@ -13,6 +13,11 @@
   --font-body: "IBM Plex Sans", sans-serif;
   --font-display: "EB Garamond", Georgia, serif;
   --font-code: "IBM Plex Mono", monospace;
+  /* Application text scale; display titles keep their own sizes. */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-md: 16px;
+  --text-lg: 20px;
   --content-measure: 68ch;
   --control-height: 44px;
 }
@@ -121,7 +126,7 @@ p {
   margin: 16px 0 0;
 }
 h3 {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 500;
 }
 img {
@@ -281,7 +286,7 @@ ol {
 }
 .confirm-action-question {
   flex-basis: 100%;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.45;
   color: var(--ink);
 }
@@ -590,7 +595,7 @@ ol {
   margin: 0 0 12px;
 }
 .page-heading p {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
   line-height: 1.6;
   max-width: var(--content-measure);
@@ -615,14 +620,14 @@ ol {
   margin: 27px 0 10px;
 }
 .section-toolbar h2 {
-  font-size: 19px;
+  font-size: 20px;
   margin: 0;
 }
 .section-toolbar > span {
-  font-size: 13px;
+  font-size: 14px;
 }
 .section-title {
-  font-size: 21px;
+  font-size: 20px;
   margin-top: 40px;
 }
 .overview-stats {
@@ -714,7 +719,7 @@ ol {
   overscroll-behavior-x: contain;
 }
 .row-link {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   text-decoration: none;
   display: block;
@@ -852,7 +857,7 @@ ol {
   margin-bottom: 12px;
 }
 .empty-state p {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
   max-width: 400px;
   margin-bottom: 23px;
@@ -860,7 +865,7 @@ ol {
 .empty-inline {
   padding: 22px 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 .connection-callout {
   margin-top: 55px;
@@ -894,7 +899,7 @@ ol {
   padding: 15px 18px;
   margin: 18px 0;
   border: 1px solid var(--line);
-  font-size: 13px;
+  font-size: 14px;
   background: var(--surface);
 }
 .notice p {
@@ -903,7 +908,7 @@ ol {
   line-height: 1.55;
 }
 .notice strong {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   display: block;
   margin-bottom: 4px;
@@ -1001,7 +1006,7 @@ ol {
   background: var(--surface);
   color: var(--ink);
   border-radius: var(--radius);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   min-height: 42px;
   padding: 10px 12px;
@@ -1089,11 +1094,11 @@ ol {
   margin-bottom: 23px;
 }
 .form-panel > h2 {
-  font-size: 21px;
+  font-size: 20px;
   margin-bottom: 23px;
 }
 .form-panel form > p {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
   max-width: 600px;
 }
@@ -1150,7 +1155,7 @@ ol {
 }
 .definition dd {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
@@ -1260,7 +1265,7 @@ ol {
   min-width: 0;
 }
 .prepare-preview h2 {
-  font-size: 18px;
+  font-size: 20px;
 }
 .preview-empty {
   border: 1px solid var(--line);
@@ -1332,14 +1337,14 @@ ol {
   grid-row: 2;
 }
 .dispatch-facts address {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.55;
 }
 .content-preview {
   min-width: 0;
 }
 .content-preview > h2 {
-  font-size: 18px;
+  font-size: 20px;
   margin-top: 13px;
 }
 .approval-panel {
@@ -1378,13 +1383,41 @@ ol {
 }
 .technical-details {
   border-top: 1px solid var(--line);
-  padding: 20px 0;
+  padding: 4px 0;
   margin-top: 24px;
   min-width: 0;
 }
-.technical-details > summary {
-  font-size: 12px;
-  color: var(--muted);
+/* One disclosure row: readable label, chevron, full-width hit area. */
+:is(.technical-details, .text-version, .disclosure) > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  font-size: var(--text-sm);
+  color: var(--ink);
+  list-style: none;
+}
+:is(.technical-details, .text-version, .disclosure)
+  > summary::-webkit-details-marker {
+  display: none;
+}
+:is(.technical-details, .text-version, .disclosure) > summary::after {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-right: 4px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.15s ease;
+}
+:is(.technical-details, .text-version, .disclosure)[open] > summary::after {
+  transform: rotate(-135deg);
+}
+.disclosure {
+  border-top: 1px solid var(--line);
 }
 .technical-details > p {
   font-size: 12px;
@@ -1400,9 +1433,6 @@ ol {
 .text-version {
   margin-top: 18px;
 }
-.text-version > summary {
-  font-size: 12px;
-}
 .text-version pre {
   white-space: pre-wrap;
   font: 12px/1.6 var(--font-body);
@@ -1417,7 +1447,7 @@ ol {
   border-top: 1px solid var(--line);
 }
 .timeline-section > h2 {
-  font-size: 22px;
+  font-size: 20px;
   margin-bottom: 26px;
 }
 .timeline {
@@ -1495,7 +1525,7 @@ ol {
   border-top: 1px solid var(--line);
 }
 .csv-result h3 {
-  font-size: 15px;
+  font-size: 16px;
 }
 .csv-counts {
   display: grid;
@@ -1548,7 +1578,7 @@ ol {
   letter-spacing: -0.5px;
 }
 .connection-steps {
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.65;
   margin: 32px 0;
 }
@@ -1561,7 +1591,7 @@ ol {
   border-left: 1px solid var(--line);
 }
 .permission-panel > p {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
 }
 .permission-panel > .field-hint {
@@ -1571,7 +1601,7 @@ ol {
   margin-top: 35px;
 }
 .client-matrix h2 {
-  font-size: 22px;
+  font-size: 20px;
 }
 .client-matrix td {
   font-size: 12px;
@@ -1622,7 +1652,7 @@ ol {
   padding-top: 22px;
 }
 .operations-diagnostics > h2 {
-  font-size: 21px;
+  font-size: 20px;
 }
 .usage-ledger > section {
   border-bottom: 1px solid var(--line);
@@ -1850,7 +1880,7 @@ ol {
   .organization .organization-initial {
     width: 28px;
     height: 28px;
-    font-size: 19px;
+    font-size: 20px;
   }
   .organization strong {
     font-size: 12px;
@@ -1946,7 +1976,7 @@ ol {
     font-size: 37px;
   }
   .section-toolbar h2 {
-    font-size: 19px;
+    font-size: 20px;
   }
   .section-toolbar .text-link {
     font-size: 12px;
@@ -2016,7 +2046,7 @@ ol {
     margin-bottom: 20px;
   }
   .form-panel > h2 {
-    font-size: 19px;
+    font-size: 20px;
   }
   .field > label {
     font-size: 12px;
@@ -2111,7 +2141,7 @@ ol {
     padding-top: 24px;
   }
   .timeline-section h2 {
-    font-size: 21px;
+    font-size: 20px;
   }
   .attempts li {
     flex-wrap: wrap;
@@ -2166,12 +2196,12 @@ ol {
   }
 
   .organization-button {
-    font-size: 13px;
+    font-size: 14px;
   }
   .organization-button > .organization-initial {
     height: 30px;
     width: 30px;
-    font-size: 22px;
+    font-size: 20px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2231,16 +2261,17 @@ ol {
   margin-top: 34px;
 }
 .authorized-connections > h2 {
-  font-size: 22px;
+  font-size: 20px;
 }
 .authorized-connections form {
   margin-top: 20px;
   max-width: 580px;
 }
 
+/* The banner reads as one sentence; it wraps only when it runs out of room. */
 .scanner-warning {
-  display: block;
-  margin-top: 3px;
+  display: inline;
+  margin-left: 6px;
   font-size: 12px;
   opacity: 0.9;
 }
@@ -2250,7 +2281,7 @@ ol {
   margin-bottom: 25px;
 }
 .channel-controls h2 {
-  font-size: 21px;
+  font-size: 20px;
 }
 .channel-controls > p {
   font-size: 12px;
@@ -2263,7 +2294,7 @@ ol {
   padding: 15px 0;
 }
 .channel-control > strong {
-  font-size: 13px;
+  font-size: 14px;
   min-width: 120px;
 }
 .channel-control > .button {
@@ -2440,11 +2471,11 @@ ol {
 .faq-heading > p {
   max-width: 34ch;
   color: var(--muted);
-  font-size: 15px;
+  font-size: 16px;
 }
 .installation-heading .text-link {
   margin-top: 13px;
-  font-size: 13px;
+  font-size: 14px;
 }
 .installation-guide,
 .pricing-content,
@@ -2576,7 +2607,7 @@ ol {
 }
 .first-prompt > p {
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 20px;
   line-height: 1.42;
   margin-bottom: 18px;
 }
@@ -2604,7 +2635,7 @@ ol {
   margin-left: 3px;
 }
 .welcome-copy h3 {
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1.35;
   margin: 0 0 9px;
 }
@@ -2618,7 +2649,7 @@ ol {
   margin-bottom: 0;
 }
 .pricing-table table {
-  font-size: 13px;
+  font-size: 14px;
 }
 .pricing-table th,
 .pricing-table td {
@@ -2630,7 +2661,7 @@ ol {
 }
 .pricing-table tbody th {
   width: 45%;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 500;
   color: var(--ink);
   border-bottom: 1px solid var(--line);
@@ -2652,7 +2683,7 @@ ol {
   margin: 0 0 7px;
 }
 .customer-price strong {
-  font-size: 22px;
+  font-size: 20px;
   display: block;
 }
 .customer-price > span {
@@ -2700,7 +2731,7 @@ ol {
   align-items: center;
   gap: 23px;
   padding: 20px 0;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 500;
   line-height: 1.5;
 }
@@ -2928,7 +2959,7 @@ ol {
   display: flex;
   flex-wrap: wrap;
   gap: 0 20px;
-  font-size: 13px;
+  font-size: 14px;
 }
 .footer-colophon .legal-links {
   padding-block-start: 8px;
@@ -2937,7 +2968,7 @@ ol {
 .footer-colophon .footer-contact {
   justify-self: start;
   min-height: 44px;
-  font-size: 13px;
+  font-size: 14px;
 }
 .footer-colophon nav a {
   min-height: 44px;
@@ -3016,10 +3047,10 @@ ol {
     font-size: 39px;
   }
   .welcome-copy h3 {
-    font-size: 17px;
+    font-size: 16px;
   }
   .welcome-copy p {
-    font-size: 13px;
+    font-size: 14px;
   }
   .pricing-table tbody th {
     width: 33%;
@@ -3219,7 +3250,7 @@ ol {
   .workspace .notice p,
   .workspace .approval-panel > p,
   .workspace .checkbox-label {
-    font-size: 15px;
+    font-size: 16px;
   }
   .workspace .field > label,
   .workspace .notice strong,
@@ -3243,7 +3274,7 @@ ol {
   }
   .workspace .channel-selector span {
     min-height: 48px;
-    font-size: 13px;
+    font-size: 14px;
   }
   .workspace .checkbox-label {
     padding-block: 8px;
@@ -3334,7 +3365,7 @@ ol {
     padding: 6px 10px;
   }
   .workspace .preview-label {
-    font-size: 13px;
+    font-size: 14px;
   }
   .workspace .preview-label > :is(a, button) {
     font-size: 14px;
@@ -3375,7 +3406,7 @@ ol {
   .workspace-navigation > summary::after {
     content: "+";
     margin-left: auto;
-    font-size: 22px;
+    font-size: 20px;
   }
   .workspace-navigation[open] > summary::after {
     content: "−";
