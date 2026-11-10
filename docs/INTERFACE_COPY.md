@@ -42,6 +42,10 @@ Review batches as `file:line`, the current text, `cut` or the replacement, and t
 reason. Record retained explanations where their consequence or invisible scope
 matters. Update existing positive test expectations when a heading changes;
 preserve the same behavior, authority, accessibility and recovery assertions.
+Search every test family, including standalone browser suites and native tests,
+for removed text in all four languages. If an optional link is removed, assert
+the remaining operational destinations positively. Check required localization
+keys and formatting arguments rather than a minimum catalog size.
 
 The [10 November review](CLEAN_COPY_AUDIT.md) records the inspected surfaces,
 changes and qualification. Its source, local fixtures, hosted CI and actual

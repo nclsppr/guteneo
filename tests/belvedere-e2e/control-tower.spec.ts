@@ -14,7 +14,7 @@ async function ready(page: Page) {
     page.getByRole("heading", { name: "Synthèse", level: 1 }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Le monde de guteneo." }),
+    page.getByRole("heading", { name: "Géographie" }),
   ).toBeVisible();
   await expect(
     page.getByText(
@@ -50,7 +50,7 @@ test("a root-host shell keeps navigation and read-only data on its own origin", 
     page.getByRole("heading", { name: "Synthèse", level: 1 }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Le monde de guteneo." }),
+    page.getByRole("heading", { name: "Géographie" }),
   ).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Retour à guteneo", includeHidden: true }),
@@ -96,7 +96,7 @@ test("overview filters, accessible chart and every navigation destination work",
     .getByRole("combobox", { name: "Période", exact: true })
     .selectOption({ value: "7" });
   await expect(
-    page.getByRole("heading", { name: "Le monde de guteneo." }),
+    page.getByRole("heading", { name: "Géographie" }),
   ).toBeVisible();
   for (const [name, heading] of [
     ["Espaces de travail", "Espaces de travail"],
@@ -389,7 +389,7 @@ test("expired or failed reads remove previous data and allow recovery", async ({
     "Votre accès doit être vérifié.",
   );
   await expect(
-    page.getByRole("heading", { name: "Le monde de guteneo." }),
+    page.getByRole("heading", { name: "Géographie" }),
   ).toHaveCount(0);
   await expect(
     page.getByRole("link", { name: /Vérifier mon accès/ }),
@@ -397,7 +397,7 @@ test("expired or failed reads remove previous data and allow recovery", async ({
   await page.unroute("**/api/overview?**");
   await page.getByRole("link", { name: /Vérifier mon accès/ }).click();
   await expect(
-    page.getByRole("heading", { name: "Le monde de guteneo." }),
+    page.getByRole("heading", { name: "Géographie" }),
   ).toBeVisible();
   await page.route("**/api/overview?**", (route) =>
     route.fulfill({ status: 503, json: { error: { code: "UNAVAILABLE" } } }),
@@ -409,7 +409,7 @@ test("expired or failed reads remove previous data and allow recovery", async ({
   await page.unroute("**/api/overview?**");
   await page.getByRole("button", { name: "Réessayer", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "Le monde de guteneo." }),
+    page.getByRole("heading", { name: "Géographie" }),
   ).toBeVisible();
 });
 
@@ -436,7 +436,7 @@ test("returning to a restored tab revalidates access and removes sensitive data"
     "Votre accès doit être vérifié.",
   );
   await expect(
-    page.getByRole("heading", { name: "Le monde de guteneo." }),
+    page.getByRole("heading", { name: "Géographie" }),
   ).toHaveCount(0);
   await expect(
     page.getByRole("link", { name: /Vérifier mon accès/ }),
@@ -551,7 +551,7 @@ test("globe country selection opens the exact distribution jobs", async ({
   page,
 }) => {
   await ready(page);
-  const globe = page.getByRole("region", { name: "Le monde de guteneo." });
+  const globe = page.getByRole("region", { name: "Géographie" });
   await expect(globe.locator("canvas")).toBeVisible();
   const coordinates = await globe.locator(".bv-globe-coordinate").textContent();
   await globe

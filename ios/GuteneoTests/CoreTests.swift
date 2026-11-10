@@ -573,16 +573,82 @@ final class CoreTests: XCTestCase, @unchecked Sendable {
         XCTAssertEqual(AppLanguage.resolve(["lb_LU"]), .lb)
         XCTAssertEqual(AppLanguage.resolve(["es"]), .fr)
         let expected = ["fr": "Se connecter", "en": "Sign in", "de": "Anmelden", "lb": "Umellen"]
+        // Required product actions and consequences, rather than a copy-count proxy.
+        let requiredKeys: Set<String> = [
+            "Sign in", "Workspace", "Documents", "Dispatches", "Account",
+            "Prepare a dispatch", "Import PDF", "Read original PDF", "Prepare quote",
+            "Maximum cost · EUR excl. tax",
+            "This limit is not a charged amount. The detailed quote and its terms are shown when you approve.",
+            "Guteneo will calculate the exact quote. Preparing this dispatch does not authorise sending it.",
+            "Review the content, recipient, options and quote in your secure workspace before confirming sending.",
+            "The provider has not confirmed the outcome. Do not create a second dispatch: refresh tracking or contact support.",
+            "Saved draft", "Resume draft", "Recover quote", "Discard draft",
+            "Drafts stay on this device for seven days. Resuming does not send anything.",
+            "Preparation was interrupted. Recover the same quote before editing this draft.",
+            "This removes the saved draft from this device. A prepared dispatch remains in tracking.",
+            "Request account deletion", "Your data",
+            "Your session is stored in the secure Keychain. Viewed PDFs remain in memory while you read them. The app does not request access to your contacts, location, microphone or camera.",
+            "Immediate sending is held by this schedule. Review or cancel the schedule in your secure workspace to change future authority.",
+            "Review and approve each dispatch in your browser.",
+            "Choose a document.", "Choose a dispatch.", "Import a PDF from Files.",
+            "PDFs remain private to your organisation.",
+            "Your preference is shared between the website and the app.",
+            "A dispatch already accepted cannot be cancelled.",
+            "%@ page", "%@ pages", "Requested on %@", "SHA 256 fingerprint: %@"
+        ]
+        let format = try NSRegularExpression(pattern:
+            #"%(?:([1-9][0-9]*)\$)?(?:(#@[A-Za-z_][A-Za-z0-9_]*@)|[-+ #0']*(\*(?:[1-9][0-9]*\$)?|[0-9]+)?(?:\.(\*(?:[1-9][0-9]*\$)?|[0-9]+))?(hh|ll|[hlqLzjt])?([@diouxXfFeEgGaAcCsSpn%]))"#)
+        func placeholders(_ value: String) throws -> [String] {
+            var nextArgument = 1
+            var arguments: Set<String> = []
+            func record(_ type: String, position: String?) throws {
+                let index: Int
+                if let position {
+                    index = try XCTUnwrap(Int(position))
+                } else {
+                    index = nextArgument
+                    nextArgument += 1
+                }
+                arguments.insert("\(index):\(type)")
+            }
+            for match in format.matches(in: value, range: NSRange(value.startIndex..., in: value)) {
+                func token(_ group: Int) -> String? {
+                    guard let range = Range(match.range(at: group), in: value) else { return nil }
+                    return String(value[range])
+                }
+                if let plural = token(2) {
+                    try record("plural:\(plural.dropFirst(2).dropLast())", position: token(1))
+                    continue
+                }
+                guard let specifier = token(6), specifier != "%" else { continue }
+                for group in [3, 4] {
+                    if let width = token(group), width.hasPrefix("*") {
+                        try record("d", position: width == "*" ? nil : String(width.dropFirst().dropLast()))
+                    }
+                }
+                try record((token(5) ?? "") + specifier, position: token(1))
+            }
+            return arguments.sorted()
+        }
+        XCTAssertEqual(try placeholders("%@ %lld"), try placeholders("%2$lld %1$@"))
+        XCTAssertNotEqual(try placeholders("%@ %lld"), try placeholders("%1$lld %2$@"))
+        XCTAssertEqual(try placeholders("%#@items@ %%"), try placeholders("%1$#@items@ %%"))
+        XCTAssertEqual(try placeholders("%*.*f"), try placeholders("%3$*1$.*2$f"))
+        XCTAssertEqual(try placeholders("100%%"), [])
         var keys: Set<String>?
         for language in AppLanguage.allCases {
             let path = try XCTUnwrap(Bundle.main.path(forResource: language.rawValue, ofType: "lproj"))
             let data = try Data(contentsOf: URL(fileURLWithPath: path).appendingPathComponent("Localizable.strings"))
             let catalog = try XCTUnwrap(PropertyListSerialization.propertyList(from: data, format: nil) as? [String: String])
-            XCTAssertGreaterThanOrEqual(catalog.count, 261)
+            let catalogKeys = Set(catalog.keys)
+            XCTAssertTrue(requiredKeys.isSubset(of: catalogKeys), "Missing required \(language.rawValue) copy: \(requiredKeys.subtracting(catalogKeys).sorted())")
             XCTAssertNotNil(catalog["Sign in"])
             XCTAssertNil(catalog["Se connecter"])
-            XCTAssertFalse(catalog.values.contains(where: \.isEmpty))
-            if let keys { XCTAssertEqual(Set(catalog.keys), keys) } else { keys = Set(catalog.keys) }
+            XCTAssertFalse(catalog.values.contains { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty })
+            for (key, value) in catalog {
+                XCTAssertEqual(try placeholders(value), try placeholders(key), "Formatting arguments differ for \(language.rawValue): \(key)")
+            }
+            if let keys { XCTAssertEqual(catalogKeys, keys) } else { keys = catalogKeys }
             XCTAssertEqual(L10n.text("Sign in", locale: language.locale), expected[language.rawValue])
             XCTAssertNotEqual(L10n.pages(1, locale: language.locale), L10n.pages(2, locale: language.locale))
         }

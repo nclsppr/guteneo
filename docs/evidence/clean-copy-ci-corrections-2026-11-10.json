@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "kind": "corrective-test-qualification",
+  "candidateVersion": "1.2.1",
+  "originalHead": "323f5f79f41a6e0fe01ffd4368789823414a72d8",
+  "firstAttempts": {
+    "application": {
+      "run": 42766304679,
+      "attempt": 1,
+      "conclusion": "failure",
+      "browserFailures": 46,
+      "classes": {
+        "removedPromotionalLink": 12,
+        "oldGeographyHeading": 34
+      }
+    },
+    "native": {
+      "run": 42766304403,
+      "attempt": 1,
+      "conclusion": "failure",
+      "passed": 54,
+      "failed": 2,
+      "total": 56,
+      "archive": "not_run",
+      "classes": [
+        "obsolete catalog-count floor",
+        "Account accessibility lookup before tab tap; underlying cause unproven"
+      ]
+    }
+  },
+  "corrections": {
+    "applicationSourceChanged": false,
+    "testFiles": {
+      "ios/GuteneoTests/CoreTests.swift": "97d0233534f431f68a297b34f7494384fdc03309087fda0e850a92175318095a",
+      "ios/GuteneoUITests/GuteneoUITests.swift": "6194251825c2700da9c58ada83fe79b607114115f72c7198256a76eaeade4e69",
+      "tests/belvedere-e2e/canonical-session.spec.ts": "221e287742116a4e3844a10d6be8017e87d1882b848745196d6b3f43d89a61d8",
+      "tests/belvedere-e2e/control-tower.spec.ts": "d69f47254587b62ff6fb33c65948acb55885b2cad3a216ad276eebf6036d3f91",
+      "tests/e2e/protected-email.spec.ts": "15f1e7c9c8ee35ded7e226256916cf0316c4485473df2e9b8944c27de1067231"
+    },
+    "email": "Two remaining operational links, exact document and localized unsubscribe/report destinations; layout, no remote requests and document content retained.",
+    "belvedere": "Twelve heading literal substitutions; complete behavior assertions retained.",
+    "native": "36 required runtime keys, whitespace and formatting argument parity; all original locale/number/date assertions. Existing readiness control awaited before unchanged Account tab and language assertions."
+  },
+  "localRuns": {
+    "email": {
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "retries": 0,
+      "profiles": [
+        "Chromium",
+        "mobile Chromium",
+        "iPhone WebKit"
+      ],
+      "languages": [
+        "fr",
+        "en",
+        "de",
+        "lb"
+      ]
+    },
+    "belvedere": {
+      "passed": 36,
+      "failed": 0,
+      "skipped": 0,
+      "retries": 0,
+      "profiles": [
+        "desktop Chromium",
+        "iPhone WebKit"
+      ],
+      "scope": "Two complete files, prebuilt local synthetic fixture; no rebuild."
+    },
+    "native": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "scope": "Focused catalog and account-language cases; isolated iPhone 17e / iOS 26.5 simulator; unsigned, no provisioning; owned simulator deleted."
+    }
+  },
+  "reportFingerprints": {
+    "email": {
+      "bytes": 20720,
+      "sha256": "bb9a6f93891a4c2183c4618c26a585785d13156de6de84ca40fc24318be374e3"
+    },
+    "belvedere": {
+      "bytes": 44980,
+      "sha256": "f98b93242d3108141c137cc6f2838c3b1d09cb762e3d17eb5bc2a5ccad181079"
+    },
+    "native": {
+      "bytes": 1003,
+      "sha256": "e9fc730f6709bb2a3c5f6f1e73f8b9705be17632b836bb63e1800768a31778b7"
+    }
+  },
+  "limits": [
+    "Targeted local checks do not replace full fresh-head hosted CI and native archive.",
+    "No production publication, authenticated journey, real communication or App Store distribution established."
+  ]
+}

@@ -59,7 +59,9 @@ cases** (available/blocked images, four languages), and status passes **50 cases
 Engineering documentation builds successfully and passes **30 browser cases**
 across desktop Chromium, mobile Chromium and iPhone WebKit. These are synthetic
 local checks, not live authenticated journeys. Swift parsing
-and catalog placeholder checks pass; fresh native execution remains required.
+and catalog placeholder checks pass. The first hosted attempt and its corrective
+qualification are recorded below; full execution on the corrected head remains
+required.
 Runtime locale packs and four Liquid account-email templates were regenerated. The first read-only Auth0 administration attempt
 was refused for lack of a usable CLI token; no provider template was changed. This record does not claim a merge, new native
 binary, Auth0 template publication, status publication or production rollout.
@@ -77,3 +79,32 @@ documents page. Both made zero automatic network API reads. No throttling, hoste
 measurement or before/after comparison was performed; these are diagnostics, not
 a production speed claim. Local fictional navigation and all account-email
 examples retain their own scope; an image is not delivery or publication proof.
+
+## First hosted attempt and corrections
+
+The first application run
+[42766304679](https://github.com/nclsppr/guteneo/actions/runs/42766304679),
+on `323f5f79f41a6e0fe01ffd4368789823414a72d8`, failed 46 browser cases:
+12 account-email cases expected a deliberately removed promotional link and
+34 Belvédère cases still selected the previous heading. All five affected test
+files are corrected without application changes. The remaining email actions
+now have positive destination checks; the Belvédère behavior assertions remain.
+Local corrective qualification passes 12 email cases and 36 complete Belvédère
+cases, without retries or skips. These targeted runs do not replace full CI.
+
+The native run
+[42766304403](https://github.com/nclsppr/guteneo/actions/runs/42766304403)
+passed 54 of 56 cases. One failed a catalog-size floor invalidated by intentional
+unused-copy removal. It now checks 36 required product and safety keys, nonempty
+translations, equal language key sets and typed/positional formatting arguments,
+while preserving sign-in, plural, money and date assertions. The account-language
+UI case could not resolve the visible Account tab after launch. Its underlying
+accessibility lookup cause remains unproven. It now waits for the existing main
+screen readiness control before the unchanged tab and language assertions,
+without retries or increased timeouts. Both focused cases pass in a real local
+unsigned Xcode run on an isolated iOS 26.5 simulator; full hosted native tests and
+archive are still required. The simulator was removed after this run.
+
+The [corrective receipt](evidence/clean-copy-ci-corrections-2026-11-10.json)
+records these actual outcomes and the source/report fingerprints. Failed first
+attempts remain part of the qualification history.
