@@ -2,7 +2,7 @@
 .administration-period {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 12px 20px;
   margin-bottom: 20px;
 }
@@ -197,4 +197,17 @@
     flex: 1 1 auto;
     justify-content: center;
   }
+}
+
+/* Custom dates sit beside the presets and unfold under them. */
+.administration-custom {
+  flex: 1 1 220px;
+  border-top: 0;
+}
+.administration-custom > summary {
+  justify-content: flex-start;
+  color: var(--muted);
+}
+.administration-custom[open] > summary {
+  margin-bottom: 8px;
 }

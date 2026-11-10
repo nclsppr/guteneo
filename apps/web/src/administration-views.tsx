@@ -146,6 +146,12 @@ function PeriodControlsEditor({
           </button>
         ))}
       </div>
+      {/* Presets cover most reads; custom dates open on demand or when in use. */}
+      <details
+        className="disclosure administration-custom"
+        open={preset == null || invalid || undefined}
+      >
+        <summary>{msg("Custom dates")}</summary>
       <form className="administration-custom-period" onSubmit={submit}>
         <Field label={msg("Start date")}>
           <input
@@ -188,6 +194,7 @@ function PeriodControlsEditor({
       <p className="administration-period-note">
         {msg("Dates are in UTC. A period covers at most 366 days.")}
       </p>
+      </details>
     </div>
   );
 }

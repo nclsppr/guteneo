@@ -506,6 +506,9 @@ test("a late period response cannot replace the current report", async ({
   await page.waitForFunction(() =>
     Boolean(Reflect.get(window, "releaseOldReport")),
   );
+  await page
+    .locator("details.administration-custom")
+    .evaluate((panel) => panel.setAttribute("open", ""));
   await page.getByLabel("Date de début", { exact: true }).fill("2026-10-05");
   await page.getByRole("button", { name: "Appliquer", exact: true }).click();
   await expect(page.locator(".stat-tile").first()).toContainText("2 222");
