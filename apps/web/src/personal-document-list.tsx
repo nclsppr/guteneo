@@ -394,17 +394,16 @@ export function PersonalDocumentList({
           }}
           role="search"
         >
+          {/* Enter searches; there is no separate button to reach. */}
           <Field label={msg("Search my documents")}>
             <input
               type="search"
               value={searchInput}
               maxLength={200}
+              enterKeyHint="search"
               onChange={(event) => setSearchInput(event.target.value)}
             />
           </Field>
-          <button className="button" type="submit">
-            {msg("Search")}
-          </button>
         </form>
         <div className="personal-document-controls">
           <Field label={msg("Sender")}>
@@ -500,12 +499,31 @@ export function PersonalDocumentList({
           aria-busy={navigation.pending || loading}
         >
           {visibleItems.map((item) => (
-            <li key={item.id}>
+            <li
+              key={item.id}
+              // A pointer click anywhere on the row follows its title link,
+              // unless it ends a text selection.
+              onClick={(event) => {
+                if ((event.target as HTMLElement).closest("a, button")) return;
+                if (window.getSelection()?.toString()) return;
+                event.currentTarget
+                  .querySelector<HTMLAnchorElement>("[data-document-link]")
+                  ?.click();
+              }}
+            >
               <div>
                 <h2 id={`personal-document-${encodeURIComponent(item.id)}`}>
-                  {item.status === "pending"
-                    ? msg("Document awaiting verification")
-                    : item.title}
+                  <a
+                    href={`#/app/my-documents/${encodeURIComponent(item.id)}`}
+                    data-document-link={item.id}
+                    onClick={() => {
+                      opened.current = { id: item.id, scrollY: window.scrollY };
+                    }}
+                  >
+                    {item.status === "pending"
+                      ? msg("Document awaiting verification")
+                      : item.title}
+                  </a>
                 </h2>
                 <p>{msg("Sender: {0}", item.sender)}</p>
                 <div className="personal-document-meta">
@@ -519,18 +537,11 @@ export function PersonalDocumentList({
                   <small>{msg("Received {0}", date(item.createdAt))}</small>
                 </div>
               </div>
-              <a
-                className="button"
-                href={`#/app/my-documents/${encodeURIComponent(item.id)}`}
-                data-document-link={item.id}
-                aria-describedby={`personal-document-${encodeURIComponent(item.id)}`}
-                onClick={() => {
-                  opened.current = { id: item.id, scrollY: window.scrollY };
-                }}
-              >
-                {msg("Open the document")}
-                <ArrowRight size={18} aria-hidden="true" />
-              </a>
+              <ArrowRight
+                className="personal-document-arrow"
+                size={18}
+                aria-hidden="true"
+              />
             </li>
           ))}
         </ul>

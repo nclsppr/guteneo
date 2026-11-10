@@ -331,10 +331,9 @@ test("a missing summary leaves the owner list, page controls and search usable",
   await expect(
     page.getByRole("heading", { name: "List without summary", exact: true }),
   ).toBeVisible();
-  await page
-    .getByLabel("Search my documents", { exact: true })
-    .fill("matching");
-  await page.getByRole("button", { name: "Search", exact: true }).click();
+  const search = page.getByLabel("Search my documents", { exact: true });
+  await search.fill("matching");
+  await search.press("Enter");
   await expect(
     page.getByRole("heading", { name: "Matching document", exact: true }),
   ).toBeVisible();

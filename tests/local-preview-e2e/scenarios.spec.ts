@@ -188,6 +188,11 @@ test("visible scenario controls reproduce huge data without materializing the wh
   await page.evaluate(() => {
     window.location.hash = "/app/documents";
   });
+  // Overview has two tables (queue and recent); read the count once Documents
+  // has replaced them.
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Documents", exact: true }),
+  ).toBeVisible();
   await expect(page.locator(".data-table__count")).toContainText(
     "50 loaded rows",
   );
@@ -333,9 +338,7 @@ test("Studio and My documents read the selected synthetic collections through no
     .locator(".secure-document-list > li")
     .filter({ has: page.getByText("Access available", { exact: true }) })
     .first();
-  await ready
-    .getByRole("link", { name: "Open the document", exact: true })
-    .click();
+  await ready.locator("[data-document-link]").click();
   // The list stays mounted, hidden, so returning restores its page and row.
   await expect(page.locator("main h1:visible")).toContainText(
     "Fictional received preview",

@@ -129,10 +129,31 @@
     align-items: stretch;
     gap: 12px;
   }
-  .personal-document-rows > li > .button,
+
   .personal-document-pager .button,
   .personal-document-onboarding .button {
     width: 100%;
     justify-content: center;
   }
+}
+
+/* The title opens the document; the whole row follows it on a pointer click. */
+.personal-document-rows > li {
+  cursor: pointer;
+}
+.personal-document-rows > li:hover {
+  background: var(--surface);
+}
+.personal-document-rows h2 > a {
+  color: inherit;
+  text-decoration: none;
+}
+.personal-document-rows h2 > a:hover,
+.personal-document-rows h2 > a:focus-visible {
+  text-decoration: underline;
+}
+.personal-document-arrow {
+  flex: none;
+  align-self: center;
+  color: var(--muted);
 }
