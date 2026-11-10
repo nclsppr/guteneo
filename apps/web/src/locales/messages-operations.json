@@ -3083,5 +3083,26 @@
     "Approve up to {0}",
     "Bis zu {0} freigeben",
     "Bis zu {0} fräiginn"
-  ]
+  ],
+  "Complétez ce champ.": [
+    "Fill in this field.",
+    "Füllen Sie dieses Feld aus.",
+    "Fëllt dëst Feld aus."
+  ],
+  "Utilisez le format international, par exemple +352 26 00 00 00.": [
+    "Use the international format, for example +352 26 00 00 00.",
+    "Verwenden Sie das internationale Format, zum Beispiel +352 26 00 00 00.",
+    "Benotzt den internationale Format, zum Beispill +352 26 00 00 00."
+  ],
+  "Saisissez une adresse e-mail complète, par exemple nom@example.com.": [
+    "Enter a full email address, for example name@example.com.",
+    "Geben Sie eine vollständige E-Mail-Adresse ein, zum Beispiel name@example.com.",
+    "Gitt eng komplett E-Mail-Adress an, zum Beispill numm@example.com."
+  ],
+  "Destinations fréquentes": [
+    "Frequent destinations",
+    "Häufige Ziele",
+    "Heefeg Destinatiounen"
+  ],
+  "Tous les pays": ["All countries", "Alle Länder", "All Länner"]
 }

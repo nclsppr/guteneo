@@ -271,6 +271,8 @@ test("the send ceiling is typed in euros and fax separators are removed", async 
   const phone = page.getByLabel("Numéro de fax international");
   const expectedPhone = "+33 (0)1 00 00 00 00";
   await enterInitialText(phone, expectedPhone, hasTouch, "Fax recipient");
+  // The cap shows its value in a summary and opens on demand.
+  await page.locator("details.postal-budget > summary").click();
   const ceiling = page.getByLabel("Plafond de cet envoi, en euros", {
     exact: true,
   });

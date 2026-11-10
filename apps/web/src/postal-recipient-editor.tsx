@@ -106,6 +106,17 @@ export function PostalRecipientFields({
       name: names.of(code === "XZ" ? "XK" : code) ?? postalCountryName(code),
     })).sort((left, right) => collator.compare(left.name, right.name));
   }, [locale]);
+  const countryOption = (code: string, name: string, group: string) => {
+    const closed = catalogue?.unavailableCountries.includes(
+      code as PostalCountry,
+    );
+    return (
+      <option key={`${group}:${code}`} value={code} disabled={closed}>
+        {name}
+        {closed ? ` — ${msg("Temporarily unavailable")}` : ""}
+      </option>
+    );
+  };
   const country = value.country ?? "FR";
   const legacyCountry = ["FR", "LU", "DE"].includes(country);
   const unavailable = catalogue?.unavailableCountries.includes(
@@ -135,15 +146,17 @@ export function PostalRecipientFields({
           onChange={(event) => onChange("country", event.target.value)}
           required
         >
-          {countries.map(({ code, name }) => {
-            const closed = catalogue?.unavailableCountries.includes(code);
-            return (
-              <option key={code} value={code} disabled={closed}>
-                {name}
-                {closed ? ` — ${msg("Temporarily unavailable")}` : ""}
-              </option>
-            );
-          })}
+          {/* The workspace's usual destinations lead; the full list follows. */}
+          <optgroup label={msg("Frequent destinations")}>
+            {countries
+              .filter(({ code }) => FREQUENT_COUNTRIES.includes(code))
+              .map(({ code, name }) => countryOption(code, name, "frequent"))}
+          </optgroup>
+          <optgroup label={msg("All countries")}>
+            {countries.map(({ code, name }) =>
+              countryOption(code, name, "all"),
+            )}
+          </optgroup>
         </select>
       </Field>
       {catalogueLoading && (
@@ -171,16 +184,12 @@ export function PostalRecipientFields({
       )}
       {unavailable && (
         <p className="field-hint" role="alert">
-          {msg(
-            "Mail to this destination is temporarily unavailable.",
-          )}
+          {msg("Mail to this destination is temporarily unavailable.")}
         </p>
       )}
       {delayed && (
         <p className="field-hint" role="status">
-          {msg(
-            "Delivery delays are currently reported for this destination.",
-          )}
+          {msg("Delivery delays are currently reported for this destination.")}
         </p>
       )}
       <Field label={msg("Address format")}>
@@ -267,3 +276,6 @@ export function PostalRecipientFields({
     </>
   );
 }
+
+// Guteneo's home market and its neighbours; every other country stays listed.
+const FREQUENT_COUNTRIES: readonly string[] = ["LU", "FR", "DE", "BE"];
