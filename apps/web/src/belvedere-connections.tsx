@@ -222,7 +222,7 @@ export function Connections({
             <Pagination
               data={data.current}
               onChange={setPage}
-              label={bmsg("sessions and authorisations")}
+              kind="authorizations"
             />
           </>
         ) : (
@@ -289,7 +289,7 @@ export function Connections({
             <Pagination
               data={data.events}
               onChange={setPage}
-              label={bmsg("connections")}
+              kind="connections"
             />
           </>
         )}

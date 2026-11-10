@@ -94,13 +94,13 @@ Authenticated REST/MCP share 180 business requests/organization/minute; excess i
 `429 RATE_LIMITED`, `Retry-After:60`. Document/send quotas are separate.
 Authentication, health and callback routes are outside this counter.
 
-| Bearer REST route | Required scope |
-| --- | --- |
-| `GET /api/documents…` | `documents:read` |
-| `/api/documents…` mutation | `documents:write` |
-| Mutation ending `/confirm` or `/cancel` | `dispatches:send` |
-| Other business read | `dispatches:read` |
-| Other business mutation | `dispatches:prepare` |
+| Bearer REST route                       | Required scope       |
+| --------------------------------------- | -------------------- |
+| `GET /api/documents…`                   | `documents:read`     |
+| `/api/documents…` mutation              | `documents:write`    |
+| Mutation ending `/confirm` or `/cancel` | `dispatches:send`    |
+| Other business read                     | `dispatches:read`    |
+| Other business mutation                 | `dispatches:prepare` |
 
 Role/human-session restrictions also apply. `/api/session`, `/api/logout` and
 `/api/connections` are browser-session-only. [Identity/MCP](IDENTITY_MCP.md) owns
@@ -108,18 +108,18 @@ Auth0 setup, consent, PKCE, verified-account policy, conditional MFA and real-cl
 
 ## Authentication and discovery
 
-| Method/path | Input/result |
-| --- | --- |
-| `GET /auth/login` | Optional same-origin relative `returnTo`; Auth0 PKCE redirect; default `/#/app`. |
-| `GET /auth/callback` | Checks/consumes `state` once, exchanges `code`, creates session, redirects. |
-| `GET /api/session` | `{organization:{id,name},user:{id,name,role,…},csrfToken,simulation,mfa,verifiedAccount}`; appearance candidate adds `user.preferredDashboardAppearance:"classic"\|"v2"`. |
-| `POST /api/logout` | Revokes current Guteneo session; `{signedOut:true}`, not global Auth0 logout. |
-| `GET /api/connections` | `{items:[{id,client_id,organization_id,status,created_at,updated_at}]}`; current member/organization only, at most 100. |
-| `POST /api/connections` | `{clientId}` binds client to current organization and invalidates prior tokens for that binding; `{bound:true,reconnectRequired:true}`. |
-| `DELETE /api/connections/:id` | Immediately revokes the member's owned connection; `{revoked:true}`. Auth0 grant/refresh revocation is separate. |
-| `GET /.well-known/oauth-protected-resource` | `/mcp` resource, Auth0 authorization server, scopes; same response at `/mcp` suffix; 503 without identity configuration. |
-| `POST /api/dev/login` | `{organization:"atelier"\|"studio"}` returns session only in `local`/`simulation` on configured loopback origin. |
-| `POST /api/dev/mcp-token` | Local session/CSRF; `{token,expiresAt,simulation:true}`; one-hour token unusable outside this mode; never log it. |
+| Method/path                                 | Input/result                                                                                                                                                              |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /auth/login`                           | Optional same-origin relative `returnTo`; Auth0 PKCE redirect; default `/#/app`.                                                                                          |
+| `GET /auth/callback`                        | Checks/consumes `state` once, exchanges `code`, creates session, redirects.                                                                                               |
+| `GET /api/session`                          | `{organization:{id,name},user:{id,name,role,…},csrfToken,simulation,mfa,verifiedAccount}`; appearance candidate adds `user.preferredDashboardAppearance:"classic"\|"v2"`. |
+| `POST /api/logout`                          | Revokes current Guteneo session; `{signedOut:true}`, not global Auth0 logout.                                                                                             |
+| `GET /api/connections`                      | `{items:[{id,client_id,organization_id,status,created_at,updated_at}]}`; current member/organization only, at most 100.                                                   |
+| `POST /api/connections`                     | `{clientId}` binds client to current organization and invalidates prior tokens for that binding; `{bound:true,reconnectRequired:true}`.                                   |
+| `DELETE /api/connections/:id`               | Immediately revokes the member's owned connection; `{revoked:true}`. Auth0 grant/refresh revocation is separate.                                                          |
+| `GET /.well-known/oauth-protected-resource` | `/mcp` resource, Auth0 authorization server, scopes; same response at `/mcp` suffix; 503 without identity configuration.                                                  |
+| `POST /api/dev/login`                       | `{organization:"atelier"\|"studio"}` returns session only in `local`/`simulation` on configured loopback origin.                                                          |
+| `POST /api/dev/mcp-token`                   | Local session/CSRF; `{token,expiresAt,simulation:true}`; one-hour token unusable outside this mode; never log it.                                                         |
 
 The initial signup contract created an organization without transport credit and
 with disabled channels. Later [welcome-credit policy](WELCOME_CREDIT.md) supersedes
@@ -128,12 +128,12 @@ provided. An OAuth connection is never dispatch approval.
 
 ## Personal appearance — 11 October 2026 candidate
 
-| Method/path | Input/result |
-| --- | --- |
-| `GET /api/account` | Browser session; `user.preferredDashboardAppearance` is `classic` or `v2`, alongside profile, permissions and current organization. |
-| `PATCH /api/account` | Browser session/Origin/CSRF; existing strict JSON extended with optional `preferredDashboardAppearance:"classic"\|"v2"`; updated profile returned. |
-| `GET /api/mobile/v1/session`, `GET /api/mobile/v1/account` | Additive read of the same user preference under authorized native session. |
-| `PATCH /api/mobile/v1/account` | No appearance setter; rejects `preferredDashboardAppearance`. Native profile mutation remains `preferredLocale` and preserves appearance. |
+| Method/path                                                | Input/result                                                                                                                                       |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/account`                                         | Browser session; `user.preferredDashboardAppearance` is `classic` or `v2`, alongside profile, permissions and current organization.                |
+| `PATCH /api/account`                                       | Browser session/Origin/CSRF; existing strict JSON extended with optional `preferredDashboardAppearance:"classic"\|"v2"`; updated profile returned. |
+| `GET /api/mobile/v1/session`, `GET /api/mobile/v1/account` | Additive read of the same user preference under authorized native session.                                                                         |
+| `PATCH /api/mobile/v1/account`                             | No appearance setter; rejects `preferredDashboardAppearance`. Native profile mutation remains `preferredLocale` and preserves appearance.          |
 
 `packages/contracts/src/dashboard-appearance.ts` owns the shared type.
 `0053_user_dashboard_appearance.sql` adds
@@ -156,14 +156,14 @@ See [DASHBOARD_V2.md](DASHBOARD_V2.md) for reconciliation, journeys and evidence
 
 ## Capabilities and documents
 
-| Method/path | Input/result |
-| --- | --- |
-| `GET /api/health` | Public `{status:"ok",mode}`; Worker response, not provider health certification. |
-| `GET /api/capabilities` | Public `mode`, `simulation`, `channels`, `limits`, `documents`, `mcpUrl`, `identity`, `scanner`, `assistants`, `productionBlockers`, `humanApproval:"authenticated_browser"`, `liveSending:false` in the initial inspected contract. Read current flags rather than assuming historical values. |
-| `GET /api/documents?cursor=…&limit=30` | `{items:Document[],nextCursor:string\|null}`. |
-| `POST /api/documents` | Multipart binary `file`; `201 Document`, no dispatch. |
-| `POST /api/documents/render` | Strict `{name,html}`; `201 Document`, `source:"render"`; new PDF from filtered HTML. |
-| `GET /api/documents/:id/content` | Exact private PDF, `Content-Type:application/pdf`, `X-Document-SHA256`, `Cache-Control:private, no-store`; audited read. |
+| Method/path                            | Input/result                                                                                                                                                                                                                                                                                    |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/health`                      | Public `{status:"ok",mode}`; Worker response, not provider health certification.                                                                                                                                                                                                                |
+| `GET /api/capabilities`                | Public `mode`, `simulation`, `channels`, `limits`, `documents`, `mcpUrl`, `identity`, `scanner`, `assistants`, `productionBlockers`, `humanApproval:"authenticated_browser"`, `liveSending:false` in the initial inspected contract. Read current flags rather than assuming historical values. |
+| `GET /api/documents?cursor=…&limit=30` | `{items:Document[],nextCursor:string\|null}`.                                                                                                                                                                                                                                                   |
+| `POST /api/documents`                  | Multipart binary `file`; `201 Document`, no dispatch.                                                                                                                                                                                                                                           |
+| `POST /api/documents/render`           | Strict `{name,html}`; `201 Document`, `source:"render"`; new PDF from filtered HTML.                                                                                                                                                                                                            |
+| `GET /api/documents/:id/content`       | Exact private PDF, `Content-Type:application/pdf`, `X-Document-SHA256`, `Cache-Control:private, no-store`; audited read.                                                                                                                                                                        |
 
 `Document` includes `id`, `organization_id`, `name`, `sha256`, `size`, `pages`,
 `status`, `source`, `created_at` and the initially exposed `storage_key`. An internal
@@ -183,14 +183,15 @@ contract](PUBLIC_PDF_IMPORT.md); local/private URLs and redirects remain refused
 
 ## Dispatch preparation, approval and acceptance
 
-| Method/path | Input/result |
-| --- | --- |
-| `POST /api/dispatches` | Strict body below and `Idempotency-Key`; `201 Dispatch`, `prepared`. |
-| `GET /api/dispatches?cursor=…&limit=30` | `{items:Dispatch[],nextCursor:string\|null}`; optional organization-wide `group` of `approval`, `in_progress`, `attention`, `done`; otherwise `400 INVALID_GROUP`. Shared groups: `packages/contracts/src/dispatch-groups.ts`. |
-| `GET /api/dispatches/:id` | `{dispatch,events,attempts,approval}`. |
-| `POST /api/dispatches/:id/approve` | Human browser/CSRF; strict hexadecimal SHA-256 `{fingerprint}`; returns `Dispatch`. |
-| `POST /api/dispatches/:id/confirm` | Required `Idempotency-Key`; no body parameters used; durably accepted `Dispatch`. |
-| `POST /api/dispatches/:id/cancel` | No body parameters used; cancelled `Dispatch` or `409 CANCELLATION_TOO_LATE`. |
+| Method/path                                 | Input/result                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `POST /api/dispatches`                      | Strict body below and `Idempotency-Key`; `201 Dispatch`, `prepared`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `GET /api/dispatches?cursor=…&limit=30`     | `{items:Dispatch[],nextCursor:string\|null}`; optional organization-wide `group` of `approval`, `in_progress`, `attention`, `done`; otherwise `400 INVALID_GROUP`. Shared groups: `packages/contracts/src/dispatch-groups.ts`.                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `GET /api/dispatches/:id`                   | `{dispatch,events,attempts,approval,approvalRequest,activeSchedule?}`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `POST /api/dispatches/:id/approve`          | Human browser/CSRF; strict hexadecimal SHA-256 `{fingerprint}`; returns `Dispatch`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `POST /api/dispatches/:id/confirm`          | Required `Idempotency-Key`; no body parameters used; durably accepted `Dispatch`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `POST /api/dispatches/:id/cancel`           | No body parameters used; cancelled `Dispatch` or `409 CANCELLATION_TOO_LATE`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `POST /api/dispatches/:id/request-approval` | Current human browser/CSRF with preparation permission; no body parameters used; `{requested_at,requested_by}` for the current fingerprint, idempotent. The final receipt write fences current browser credential, membership, workspace mode, source visibility and the exact prepared version. An active schedule refuses with `409 SCHEDULE_SOURCE_LOCKED`; a terminal source refuses with `409 INVALID_STATE`. It approves, reserves, sends and notifies nothing; `GET /api/dispatches/:id` returns it as `approvalRequest`. Migration 0081 adds only its lookup index. No OAuth/MCP/native request-approval surface is exposed. |
 
 Preparation is strict at the top level:
 
@@ -209,11 +210,11 @@ Preparation is strict at the top level:
 }
 ```
 
-| Channel | Recipient/content |
-| --- | --- |
-| `fax` | International `{phone}`: remove spaces including nonbreaking, dots, parentheses/hyphens; remove `(0)` after country code. Allowed `+33`, `+352`, `+49`; remaining national 0 after code returns `INVALID_PHONE`. Ready `documentId` required; no real destination prefilled. |
-| `email` | Lowercase-normalized `{email}`; final sanitized HTML and text; one recipient per dispatch. Message-only email requires subject/body. An accessible ready PDF `documentId` enables independent localized defaults for omitted subject/body. |
-| `postal` | Ready PDF and unchanged legacy `{name,line1,postalCode,city,country}` for `FR|LU|DE`; one street line, with nonempty `line2` refused. Candidate 1.1.27 also accepts strict `{country,addressLines}` for all 250 recognized codes, including the complete printed block. Fresh availability and route/PDF checks remain mandatory; see [worldwide postal mail](POSTAL_WORLDWIDE.md). |
+| Channel  | Recipient/content                                                                                                                                                                                                                                                            |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fax`    | International `{phone}`: remove spaces including nonbreaking, dots, parentheses/hyphens; remove `(0)` after country code. Allowed `+33`, `+352`, `+49`; remaining national 0 after code returns `INVALID_PHONE`. Ready `documentId` required; no real destination prefilled. |
+| `email`  | Lowercase-normalized `{email}`; final sanitized HTML and text; one recipient per dispatch. Message-only email requires subject/body. An accessible ready PDF `documentId` enables independent localized defaults for omitted subject/body.                                   |
+| `postal` | Ready PDF and unchanged legacy `{name,line1,postalCode,city,country}` for `FR                                                                                                                                                                                                | LU  | DE`; one street line, with nonempty `line2`refused. Candidate 1.1.27 also accepts strict`{country,addressLines}` for all 250 recognized codes, including the complete printed block. Fresh availability and route/PDF checks remain mandatory; see [worldwide postal mail](POSTAL_WORLDWIDE.md). |
 
 Sender must be verified for organization/channel/mode; omission selects an
 existing verified profile. `options.kind:"marketing"` returns `MARKETING_NOT_ENABLED`
@@ -294,18 +295,18 @@ works only from `prepared|queued`; repeating `cancelled` sends nothing.
 
 ## Campaigns, CSV and administration
 
-| Method/path | Input/result |
-| --- | --- |
-| `POST /api/campaigns` | Strict `{name}` of 1–150 characters; `201 Campaign`, `draft`. |
-| `GET /api/campaigns?cursor=…&limit=30` | `{items:Campaign[],nextCursor:string\|null}`. |
-| `GET /api/campaigns/:id` | `{campaign,dispatches:Dispatch[]}`, at most 500 dispatches. |
-| `POST /api/recipients/validate` | Strict `{csv}`; `{rows,errors,duplicates,valid}`; no dispatch creation. |
-| `GET /api/senders` | Read-only `{items:[{id,channel,name,address,status,mode}]}`. |
-| `GET /api/overview` | Browser-only `{documents,dispatches:{total,approval,in_progress,attention,done}}`; organization-wide counts, no page bound; OAuth gets `403 BROWSER_REQUIRED`. |
+| Method/path                             | Input/result                                                                                                                                                                                                                                                                                    |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /api/campaigns`                   | Strict `{name}` of 1–150 characters; `201 Campaign`, `draft`.                                                                                                                                                                                                                                   |
+| `GET /api/campaigns?cursor=…&limit=30`  | `{items:Campaign[],nextCursor:string\|null}`.                                                                                                                                                                                                                                                   |
+| `GET /api/campaigns/:id`                | `{campaign,dispatches:Dispatch[]}`, at most 500 dispatches.                                                                                                                                                                                                                                     |
+| `POST /api/recipients/validate`         | Strict `{csv}`; `{rows,errors,duplicates,valid}`; no dispatch creation.                                                                                                                                                                                                                         |
+| `GET /api/senders`                      | Read-only `{items:[{id,channel,name,address,status,mode}]}`.                                                                                                                                                                                                                                    |
+| `GET /api/overview`                     | Browser-only `{documents,dispatches:{total,approval,in_progress,attention,done}}`; organization-wide counts, no page bound; OAuth gets `403 BROWSER_REQUIRED`.                                                                                                                                  |
 | `GET /api/usage?period=YYYY-MM\|latest` | `{period,currentPeriod,availablePeriods,welcomeCredit,items:[{channel,period,limit_count,reserved_count,confirmed_count,limit_minor,reserved_minor,confirmed_minor,currency}]}`. Omitted `period` selects the current UTC month; `latest` selects the most recent stored month at or before it. |
-| `GET /api/usage/activity?year=YYYY` | `{year,currentYear,availableYears,asOf,timeZone:"UTC",currency:"EUR",evidence,days:[{date,amountMinor,dispatchCount,chargeCount}],totals:{amountMinor,dispatchCount,chargeCount,activeDays}}`. Omitted year selects the current UTC calendar year. |
-| `GET /api/admin` | `admin`; tenant-bounded `{states,outbox,uncertain,audit,controls,deadLetters,simulation,capabilities}`. |
-| `POST /api/admin/channels/:channel` | Browser admin/CSRF; strict `{enabled:boolean}`; audited stop/resume; `{channel,enabled}`. |
+| `GET /api/usage/activity?year=YYYY`     | `{year,currentYear,availableYears,asOf,timeZone:"UTC",currency:"EUR",evidence,days:[{date,amountMinor,dispatchCount,chargeCount}],totals:{amountMinor,dispatchCount,chargeCount,activeDays}}`. Omitted year selects the current UTC calendar year.                                              |
+| `GET /api/admin`                        | `admin`; tenant-bounded `{states,outbox,uncertain,audit,controls,deadLetters,simulation,capabilities}`.                                                                                                                                                                                         |
+| `POST /api/admin/channels/:channel`     | Browser admin/CSRF; strict `{enabled:boolean}`; audited stop/resume; `{channel,enabled}`.                                                                                                                                                                                                       |
 
 Usage reads require current administrator authority or supervisor reporting
 permission; OAuth also retains its existing scope requirement. `availablePeriods`
@@ -396,16 +397,16 @@ conversation. Strict tool inputs return `structuredContent` plus JSON text:
 `{ok:true,data}` or `{ok:false,error:{code,message}}` with `isError:true`.
 Protocol/authentication errors may occur before business results.
 
-| Tool | Main input | Scope |
-| --- | --- | --- |
-| `get_capabilities` | `{}` | Authentication only |
-| `import_document` | `{file:{download_url,file_id,mime_type?,file_name?}}` | `documents:write` |
-| `render_pdf` | `{name,html}` | `documents:write` |
-| `prepare_dispatch` | Preparation fields, `idempotencyKey` | `dispatches:prepare` |
-| `confirm_dispatch` | `{dispatchId,idempotencyKey}` | `dispatches:send` |
-| `get_dispatch_status` | `{dispatchId}` | `dispatches:read` |
-| `list_dispatches` | `{cursor?,limit?,group?}`, default 20/max 50; REST groups | `dispatches:read` |
-| `cancel_dispatch` | `{dispatchId}` | `dispatches:send` |
+| Tool                  | Main input                                                | Scope                |
+| --------------------- | --------------------------------------------------------- | -------------------- |
+| `get_capabilities`    | `{}`                                                      | Authentication only  |
+| `import_document`     | `{file:{download_url,file_id,mime_type?,file_name?}}`     | `documents:write`    |
+| `render_pdf`          | `{name,html}`                                             | `documents:write`    |
+| `prepare_dispatch`    | Preparation fields, `idempotencyKey`                      | `dispatches:prepare` |
+| `confirm_dispatch`    | `{dispatchId,idempotencyKey}`                             | `dispatches:send`    |
+| `get_dispatch_status` | `{dispatchId}`                                            | `dispatches:read`    |
+| `list_dispatches`     | `{cursor?,limit?,group?}`, default 20/max 50; REST groups | `dispatches:read`    |
+| `cancel_dispatch`     | `{dispatchId}`                                            | `dispatches:send`    |
 
 `import_document` declares `_meta["openai/fileParams"]:["file"]`; only
 `download_url`/`file_id` are mandatory among its four file properties. Import bytes
@@ -433,15 +434,15 @@ Remote-import diagnostics may append `Source domain: <public hostname>.` after
 hostname sanitization. Private URL paths, query parameters and signed credentials
 are discarded; observations retain only the bounded source category/known host.
 
-| Status | Examples/recovery |
-| --- | --- |
-| 400 | `VALIDATION_ERROR`, `IDEMPOTENCY_REQUIRED`, `INVALID_CURSOR`, `SOURCE_NOT_ALLOWED`: correct input. |
-| 401/403 | Invalid session/token, insufficient scope/role, refused Origin/CSRF: reauthenticate/correct authority; never choose tenant client-side. |
-| 404 | `NOT_FOUND`, `DOCUMENT_UNAVAILABLE`: absent or inaccessible in this tenant. |
-| 409 | `IDEMPOTENCY_CONFLICT`, `APPROVAL_REQUIRED`, `FINGERPRINT_MISMATCH`, `QUOTA_EXCEEDED`, `CHANNEL_DISABLED`, `CAMPAIGN_FROZEN`, `RECIPIENT_SUPPRESSED`, `LIVE_PRICING_REQUIRED`, `LIVE_QUOTE_INVALID`: resolve business condition first. |
-| 413/423 | Excessive content or quarantined document. |
-| 429 | `RATE_LIMITED` HTTP rate or `CONTENT_QUOTA_EXCEEDED` document budget. |
-| 500/503 | `INTERNAL_ERROR`, `CONFIGURATION_INVALID`, `RENDERER_NOT_CONFIGURED`: retain correlation. After lost confirmation, reread/replay the same key, never create another command. |
+| Status  | Examples/recovery                                                                                                                                                                                                                      |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 400     | `VALIDATION_ERROR`, `IDEMPOTENCY_REQUIRED`, `INVALID_CURSOR`, `SOURCE_NOT_ALLOWED`: correct input.                                                                                                                                     |
+| 401/403 | Invalid session/token, insufficient scope/role, refused Origin/CSRF: reauthenticate/correct authority; never choose tenant client-side.                                                                                                |
+| 404     | `NOT_FOUND`, `DOCUMENT_UNAVAILABLE`: absent or inaccessible in this tenant.                                                                                                                                                            |
+| 409     | `IDEMPOTENCY_CONFLICT`, `APPROVAL_REQUIRED`, `FINGERPRINT_MISMATCH`, `QUOTA_EXCEEDED`, `CHANNEL_DISABLED`, `CAMPAIGN_FROZEN`, `RECIPIENT_SUPPRESSED`, `LIVE_PRICING_REQUIRED`, `LIVE_QUOTE_INVALID`: resolve business condition first. |
+| 413/423 | Excessive content or quarantined document.                                                                                                                                                                                             |
+| 429     | `RATE_LIMITED` HTTP rate or `CONTENT_QUOTA_EXCEEDED` document budget.                                                                                                                                                                  |
+| 500/503 | `INTERNAL_ERROR`, `CONFIGURATION_INVALID`, `RENDERER_NOT_CONFIGURED`: retain correlation. After lost confirmation, reread/replay the same key, never create another command.                                                           |
 
 [reports/http-smoke.json](../reports/http-smoke.json) records
 `node scripts/http-smoke.mjs --with-server` after README install/migration/seed/build.
@@ -529,8 +530,7 @@ operation saves a private editable copy. No internal OpenAI call is required.
 equivalent `delete_template` takes `{id,expectedRevision}` and is annotated as
 destructive. `TemplateView.canDelete` describes this separate ownership right;
 edit/publish/share grants cannot confer it. Success returns `{id,deleted:true}`.
-The model then disappears for all users, and its direct template reads return
-404. Existing PDF and generation-history access rules are preserved. This is
+The model then disappears for all users, and its direct template reads return 404. Existing PDF and generation-history access rules are preserved. This is
 library removal, not erasure of historical documents. Migration 0049 is required.
 
 The anonymous recipient-only `POST /api/email-preferences` capability is intentionally outside the workspace OAuth catalogue. See [recipient feedback](EMAIL_RECIPIENT_FEEDBACK.md) for scope, origin/body guards, confirmation and status semantics. Standard dispatch/secure summaries expose nullable `recipientFeedback`; no feedback capability appears in MCP output.

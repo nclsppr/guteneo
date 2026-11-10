@@ -7,6 +7,7 @@ import type {
   AdministrationPeriod,
   AdministrationWorkspace,
 } from "../../../packages/contracts/src/administration";
+import { APPLICATION_TIME_ZONE } from "../../../packages/contracts/src/application-time";
 import {
   ADMINISTRATION_EXPORT_ROW_LIMIT,
   ADMINISTRATION_PDF_MAX_ROWS,
@@ -660,11 +661,11 @@ async function pdf(
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
-    timeZone: "UTC",
+    timeZone: APPLICATION_TIME_ZONE,
   });
   const day = new Intl.DateTimeFormat(locale, {
     dateStyle: "medium",
-    timeZone: "UTC",
+    timeZone: APPLICATION_TIME_ZONE,
   });
   const display = (cell: Cell, column: Column) => {
     const [value, type] = resolve(cell, column);

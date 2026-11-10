@@ -428,5 +428,22 @@
     "Invalid OAuth identifier.",
     "Ungültige OAuth-Kennung.",
     "Ongëltegen OAuth-Identifiant."
+  ],
+  "Identité": ["Identity", "Identität", "Identitéit"],
+  "Préférences": ["Preferences", "Einstellungen", "Preferenzen"],
+  "Accès et sessions": [
+    "Access and sessions",
+    "Zugriff und Sitzungen",
+    "Zougang a Sessiounen"
+  ],
+  "Au plus 30 jours à partir de maintenant.": [
+    "No more than 30 days from now.",
+    "Höchstens 30 Tage ab jetzt.",
+    "Héchstens 30 Deeg vun elo un."
+  ],
+  "Choisissez une date d’expiration de délégation dans les 30 prochains jours.": [
+    "Choose a delegation expiry within the next 30 days.",
+    "Wählen Sie ein Delegationsende innerhalb der nächsten 30 Tage.",
+    "Wielt en Enn vun der Delegatioun bannent den nächsten 30 Deeg."
   ]
 }

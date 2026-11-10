@@ -18,6 +18,7 @@ export const en: Copy = {
   preview: "Preview",
   download: "Open PDF",
   fileInput: {
+    drop: "You can also drop the file here.",
     choose: "Choose a file",
     chooseMultiple: "Choose files",
     empty: "No file selected",
@@ -190,7 +191,7 @@ export const en: Copy = {
     noLocal: "Local sign-in is available only in the development environment.",
   },
   overview: {
-    title: "Your correspondence, at a glance.",
+    queueTitle: "Needs attention",
     new: "Prepare a dispatch",
     recent: "Recent dispatches",
     all: "View all dispatches",
@@ -212,7 +213,6 @@ export const en: Copy = {
     attentionAction: "View dispatches to check",
   },
   documents: {
-    title: "Documents",
     import: "Import a PDF",
     render: "Compose a letter",
     uploadTitle: "Import the exact document",
@@ -265,10 +265,11 @@ export const en: Copy = {
       "<h1>Hello,</h1>\n<p>Here is a demonstration letter prepared with Guteneo.</p>\n<p>This document is only for testing a simulated dispatch.</p>\n<p>Kind regards,<br>The Guteneo workshop</p>",
   },
   dispatch: {
-    title: "Prepare your correspondence.",
-    intro: "The dispatch will await your approval.",
+    stepsLabel: "Dispatch progress",
+    uncertainNext:
+      "A workspace administrator checks the outcome in Administration. Nothing is resent automatically.",
+    versionDetails: "Version details",
     new: "New dispatch",
-    listTitle: "Your dispatch history.",
     chooseDocument: "Choose a document",
     noDocument:
       "No document available. Import or generate a PDF before preparing this dispatch.",
@@ -328,7 +329,7 @@ export const en: Copy = {
       "Provider acceptance is not delivery. Tracking shows only the results available.",
     uncertain:
       "Uncertain submission outcome. No automatic resubmission. Verification with the provider is required.",
-    documentPreview: "Approved document preview",
+    documentPreview: "Document preview",
     htmlPreview: "Email preview",
     textPreview: "Text version",
     recipientDetails: "Recipient address",
@@ -354,7 +355,6 @@ export const en: Copy = {
     cancelConfirm: "Yes, request cancellation",
   },
   campaigns: {
-    title: "Campaigns",
     name: "Campaign name",
     namePlaceholder: "September correspondence",
     csv: "Recipient list in CSV format",
@@ -464,7 +464,6 @@ export const en: Copy = {
     revokeConfirm: "Yes, revoke",
   },
   senders: {
-    title: "Senders",
     empty: "No sender profiles configured.",
     note: "Simulation profiles cannot send real dispatches. For postal mail, an administrator declares the organisation’s authorised sender. Other channels retain their own verification processes.",
     profile: "Profile",

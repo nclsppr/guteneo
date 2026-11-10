@@ -9,6 +9,7 @@ import { PINGEN_POSTAL_COUNTRY_CODES } from "../../../packages/contracts/src/pos
 import { api, recipientDisplayLines, type Channel, type Page } from "./api";
 import { DataTable } from "./data-table";
 import {
+  ConfirmAction,
   EmptyState,
   ErrorNotice,
   go,
@@ -51,7 +52,7 @@ function RecipientList() {
         }
       />
       <ErrorNotice error={recipients.error} retry={recipients.refresh} />
-      {!recipients.data && recipients.loading && <Loading />}
+      {!recipients.data && recipients.loading && <Loading shape="table" />}
       {recipients.data && !isAuthorityRefusal(recipients.error) && (
         <DataTable
           viewId="recipients"
@@ -98,7 +99,7 @@ function RecipientDetail({ id }: { id: string }) {
   return (
     <>
       <ErrorNotice error={recipient.error} retry={recipient.refresh} />
-      {!recipient.data && recipient.loading && <Loading />}
+      {!recipient.data && recipient.loading && <Loading shape="form" />}
       {recipient.data && !isAuthorityRefusal(recipient.error) && (
         <RecipientEditor
           key={`${recipient.data.id}:${recipient.data.revision}`}
@@ -305,19 +306,15 @@ function RecipientEditor({
         )}
       </form>
       {entry && (
-        <button
-          type="button"
+        <ConfirmAction
+          label={msg("Delete recipient")}
+          confirmLabel={msg("Delete recipient")}
+          question={msg(
+            "Delete this saved recipient? Prepared dispatches keep their original recipient.",
+          )}
           className="button danger"
           disabled={action.pending}
-          onClick={() => {
-            if (
-              !window.confirm(
-                msg(
-                  "Delete this saved recipient? Prepared dispatches keep their original recipient.",
-                ),
-              )
-            )
-              return;
+          onConfirm={() => {
             void action.run(async (view) => {
               await view.wait(
                 observeAuthorityRefusal(
@@ -332,9 +329,7 @@ function RecipientEditor({
               go("/app/recipients");
             });
           }}
-        >
-          {msg("Delete recipient")}
-        </button>
+        />
       )}
     </>
   );

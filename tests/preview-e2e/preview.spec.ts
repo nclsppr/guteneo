@@ -32,7 +32,7 @@ test("public design and every workspace page render without server data or overf
     .getByRole("link", { name: "Explorer la démo" })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+    page.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
   ).toBeVisible();
   await page.screenshot({
     path: await evidencePath(`preview/workspace-${info.project.name}.png`),
@@ -51,6 +51,9 @@ test("public design and every workspace page render without server data or overf
     "account",
     "admin",
     "prepare",
+    "studio/templates",
+    "studio/datasets",
+    "studio/generations",
   ]) {
     await page.goto(`/#/app/${route}`);
     await expect(page.locator("#main-content h1")).toBeVisible();

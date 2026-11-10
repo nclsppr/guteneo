@@ -182,7 +182,7 @@ test("mobile v2 account menu keeps 44 pixel items and closes on Escape or outsid
   // The open menu, beside the brand, covers the right of the header and the
   // page heading; select the uncovered application label instead.
   await page
-    .locator(".sidebar .application-switcher .space-switcher-static")
+    .locator(".sidebar .application-switcher .space-switcher-trigger")
     .click();
   await expect(menu).toBeHidden();
   expect(
@@ -273,9 +273,9 @@ test("mobile tables retain all fields without horizontal scrolling at 320px and 
   ]) {
     await page.setViewportSize(viewport);
     for (const [route, title] of [
-      ["", "Votre correspondance, au clair."],
+      ["", "Vue d’ensemble"],
       ["/documents", "Documents"],
-      ["/dispatches", "Le fil des envois."],
+      ["/dispatches", "Envois"],
       ["/campaigns", "Campagnes"],
       ["/connection", "Vos assistants, votre correspondance."],
       ["/senders", "Expéditeurs"],
@@ -284,7 +284,7 @@ test("mobile tables retain all fields without horizontal scrolling at 320px and 
       ["/account", "Mon compte"],
       ["/administration/members", "Membres et invitations"],
       ["/administration/settings", "Paramètres de l’espace de travail"],
-      ["/prepare", "Préparer une correspondance."],
+      ["/prepare", "Nouvel envoi"],
     ]) {
       await page.goto(`/#/app${route}`);
       // Route modules may retain the previous page while loading. Measure

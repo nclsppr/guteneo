@@ -79,7 +79,7 @@ test("OpenAPI is valid, self-contained and never resolves a remote document", as
     for (const child of Object.values(value)) inspect(child);
   }
   inspect(spec);
-  assert.equal(operations.length, 96);
+  assert.equal(operations.length, 97);
   assert.equal(
     new Set(operations.map(({ operation }) => operation.operationId)).size,
     operations.length,
@@ -193,13 +193,14 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     "get /api/usage/activity",
     "post /api/admin/dead-letters/{id}/resolution",
     "get /api/pdf-validation/pricing",
+    "get /api/pdf-validation/history",
     "get /api/secure-distributions",
     "post /api/secure-distributions",
     "get /api/secure-distributions/catalog",
     "get /api/secure-distributions/{id}",
     "post /api/secure-distributions/{id}/confirm",
-      "post /api/recipients",
-      "post /api/dispatch-schedules",
+    "post /api/recipients",
+    "post /api/dispatch-schedules",
     "post /api/secure-distributions/{id}/revoke",
     "post /api/postal/preflights",
     "get /api/postal/preflights/{id}",
@@ -261,7 +262,10 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     );
     const browserIncident =
       path === "/api/admin/dead-letters/{id}/resolution" && method === "post";
-    const browserLifecycle = path === "/api/attention" || path === "/api/dispatch-schedules/{id}/approve" || path.startsWith("/api/customer-webhooks");
+    const browserLifecycle =
+      path === "/api/attention" ||
+      path === "/api/dispatch-schedules/{id}/approve" ||
+      path.startsWith("/api/customer-webhooks");
     if (!browserIncident && !browserLifecycle)
       assert.doesNotMatch(
         path,
@@ -270,6 +274,7 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     const publicRoute = ["/api/health", "/api/capabilities"].includes(path);
     const browserPurchase =
       path === "/api/pdf-validation/pricing" ||
+      path === "/api/pdf-validation/history" ||
       (path === "/api/documents/{id}/validation" && method === "post");
     const scope = path.startsWith("/api/templates")
       ? /\/shar(e|ing)$/.test(path)
@@ -790,4 +795,53 @@ test("registration documents both explicit beta and historical verification poli
   );
   assert.match(spec.info.description, /MFA is optional/);
   assert.doesNotMatch(spec.info.description, /configure MFA/);
+});
+
+test("workspace PDF history remains browser-only bounded metadata without purchase authority", () => {
+  const operation = spec.paths["/api/pdf-validation/history"].get;
+  assert.deepEqual(operation.security, [{ BrowserSession: [] }]);
+  assert.equal(operation.requestBody, undefined);
+  assert.equal(operation.operationId, "getPdfValidationHistory");
+  assert.deepEqual(
+    operation.parameters.find((parameter) => parameter.name === "limit").schema,
+    { type: "integer", minimum: 1, maximum: 50, default: 30 },
+  );
+  assert.equal(
+    operation.parameters.find((parameter) => parameter.name === "cursor").schema
+      .maxLength,
+    512,
+  );
+  assert.deepEqual(
+    operation.responses["200"].headers["Cache-Control"].schema.enum,
+    ["private, no-store"],
+  );
+  assert.ok(operation.responses["429"]);
+  const page = spec.components.schemas.PdfValidationHistoryPage;
+  assert.equal(page.properties.items.maxItems, 50);
+  assert.equal(page.additionalProperties, false);
+  const row = spec.components.schemas.PdfValidationHistoryItem;
+  assert.equal(row.additionalProperties, false);
+  assert.deepEqual(Object.keys(row.properties).sort(), [
+    "completedAt",
+    "createdAt",
+    "documentId",
+    "documentName",
+    "evidence",
+    "id",
+    "profile",
+    "status",
+  ]);
+  assert.deepEqual(row.properties.status.enum, [
+    "processing",
+    "error",
+    "passed",
+    "failed",
+  ]);
+  assert.deepEqual(row.properties.evidence.enum, ["production", "simulation"]);
+  assert.match(operation.description, /another creator's private/);
+  assert.match(operation.description, /authority is rechecked after the read/);
+  assert.match(
+    operation.description,
+    /creates no purchase, reservation or debit/,
+  );
 });

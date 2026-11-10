@@ -12,7 +12,7 @@
 }
 .field > small,
 .field-hint {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   line-height: 1.55;
 }
@@ -36,7 +36,7 @@
   background: var(--surface);
   color: var(--ink);
   border-radius: var(--radius);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   min-height: 42px;
   padding: 10px 12px;
@@ -59,11 +59,21 @@
   min-width: 0;
   min-height: var(--control-height);
   padding: 8px;
-  border: 1px solid var(--control-line);
+  border: 1px dashed var(--control-line);
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--ink);
   cursor: pointer;
+}
+/* Every file field is a drop zone. */
+.file-input[data-dragging] {
+  border-color: var(--blue);
+  background: var(--blue-tint);
+}
+.file-input-drop {
+  flex-basis: 100%;
+  font-size: var(--text-xs);
+  color: var(--muted);
 }
 .file-input .file-input-native {
   position: absolute;
@@ -100,7 +110,7 @@
 }
 .field .code-input {
   font-family: var(--font-code);
-  font-size: 11px;
+  font-size: 12px;
 }
 .field input:disabled,
 .field select:disabled,
@@ -124,11 +134,11 @@
   margin-bottom: 23px;
 }
 .form-panel > h2 {
-  font-size: 21px;
+  font-size: 20px;
   margin-bottom: 23px;
 }
 .form-panel form > p {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
   max-width: 600px;
 }
@@ -178,14 +188,14 @@
   margin: 22px 0;
 }
 .definition dt {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   line-height: 1.4;
   margin-bottom: 8px;
 }
 .definition dd {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
@@ -193,7 +203,7 @@
   grid-column: 1/-1;
 }
 .document-metadata code {
-  font-size: 11px;
+  font-size: 12px;
 }
 .pdf-preview {
   min-width: 0;
@@ -203,7 +213,7 @@
   align-items: center;
   gap: 9px;
   padding: 13px 0;
-  font-size: 11px;
+  font-size: 12px;
 }
 .preview-label > span {
   min-width: 0;
@@ -216,7 +226,7 @@
   white-space: nowrap;
   color: var(--blue);
   text-decoration: none;
-  font-size: 10px;
+  font-size: 12px;
 }
 .pdf-preview iframe {
   width: 100%;
@@ -227,7 +237,7 @@
 }
 .pdf-preview > .field-hint {
   margin: 9px 0 0;
-  font-size: 10px;
+  font-size: 12px;
 }
 .prepare-layout {
   display: grid;
@@ -270,11 +280,13 @@
 }
 .channel-selector span {
   display: flex;
-  min-height: 45px;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 76px;
   align-items: center;
   justify-content: center;
   border: 1px solid var(--line);
-  font-size: 12px;
+  font-size: 14px;
   border-radius: var(--radius);
   background: var(--surface);
 }
@@ -295,7 +307,7 @@
   min-width: 0;
 }
 .prepare-preview h2 {
-  font-size: 18px;
+  font-size: 20px;
 }
 .preview-empty {
   border: 1px solid var(--line);
@@ -344,11 +356,13 @@
   border-bottom: 1px solid var(--line);
 }
 .dispatch-reference > code {
-  font-size: 11px;
-  margin-right: auto;
+  font-size: 12px;
+  margin-left: auto;
+  color: var(--muted);
+  user-select: all;
 }
 .dispatch-reference > span:not(.status):not(.simulation-stamp) {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
 }
 .dispatch-detail-layout {
@@ -367,14 +381,14 @@
   grid-row: 2;
 }
 .dispatch-facts address {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.55;
 }
 .content-preview {
   min-width: 0;
 }
 .content-preview > h2 {
-  font-size: 18px;
+  font-size: 20px;
   margin-top: 13px;
 }
 .approval-panel {
@@ -408,18 +422,46 @@
 }
 .cancel-button {
   margin-top: 20px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
 }
 .technical-details {
   border-top: 1px solid var(--line);
-  padding: 20px 0;
+  padding: 4px 0;
   margin-top: 24px;
   min-width: 0;
 }
-.technical-details > summary {
-  font-size: 12px;
-  color: var(--muted);
+/* One disclosure row: readable label, chevron, full-width hit area. */
+:is(.technical-details, .text-version, .disclosure) > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  font-size: var(--text-sm);
+  color: var(--ink);
+  list-style: none;
+}
+:is(.technical-details, .text-version, .disclosure)
+  > summary::-webkit-details-marker {
+  display: none;
+}
+:is(.technical-details, .text-version, .disclosure) > summary::after {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-right: 4px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.15s ease;
+}
+:is(.technical-details, .text-version, .disclosure)[open] > summary::after {
+  transform: rotate(-135deg);
+}
+.disclosure {
+  border-top: 1px solid var(--line);
 }
 .technical-details > p {
   font-size: 12px;
@@ -427,16 +469,13 @@
   margin-top: 16px;
 }
 .technical-details code {
-  font-size: 10px;
+  font-size: 12px;
 }
 .technical-details .definition {
   margin-top: 16px;
 }
 .text-version {
   margin-top: 18px;
-}
-.text-version > summary {
-  font-size: 12px;
 }
 .text-version pre {
   white-space: pre-wrap;
@@ -452,7 +491,7 @@
   border-top: 1px solid var(--line);
 }
 .timeline-section > h2 {
-  font-size: 22px;
+  font-size: 20px;
   margin-bottom: 26px;
 }
 .timeline {
@@ -492,7 +531,7 @@
 }
 .timeline time {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   margin-top: 6px;
 }
@@ -513,5 +552,62 @@
 .attempts time {
   margin-left: auto;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 12px;
+}
+
+/* Dispatch progress: four steps under the title. */
+.dispatch-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+.dispatch-steps > li {
+  padding-top: 10px;
+  border-top: 3px solid var(--line);
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.dispatch-steps > li[data-state="done"] {
+  border-top-color: var(--blue);
+}
+.dispatch-steps > li[data-state="current"] {
+  border-top-color: var(--blue);
+  color: var(--ink);
+  font-weight: 500;
+}
+/* The decision stays in view while the document scrolls beside it. */
+@media (min-width: 1025px) {
+  .dispatch-review-actions {
+    position: sticky;
+    top: 16px;
+  }
+}
+
+.channel-selector .channel-price {
+  padding: 0 6px 8px;
+  font-size: var(--text-xs);
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--muted);
+}
+.prepare-price-indication {
+  margin-block: 16px;
+}
+.prepare-price-indication p {
+  margin-block: 12px;
+}
+.approval-price {
+  margin-left: auto;
+  white-space: nowrap;
+}
+.dispatch-copy-reference {
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+.dispatch-reference [role="status"] {
+  margin: 0;
 }

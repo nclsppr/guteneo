@@ -211,6 +211,10 @@ export function DataTable<T>({
     <div
       className={`data-table ${className}`}
       data-layout={layout}
+      // Keep recovery visible if a filtered or shrinking list becomes short.
+      data-compact={
+        scope === "loaded" && items.length < 5 && !active ? "" : undefined
+      }
       aria-busy={ariaBusy}
     >
       <div className="data-table__toolbar" role="group" aria-label={label}>
@@ -452,6 +456,8 @@ export function DataTable<T>({
           aria-live="polite"
           aria-atomic="true"
         >
+          <span className="data-table__name">{label}</span>
+          {" · "}
           {scope === "page"
             ? msg("{0} rows on this page", rows.length)
             : msg(

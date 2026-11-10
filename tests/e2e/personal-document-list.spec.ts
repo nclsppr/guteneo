@@ -334,7 +334,6 @@ test("a missing summary leaves the owner list, page controls and search usable",
   await page
     .getByLabel("Search my documents", { exact: true })
     .fill("matching");
-  await page.getByRole("button", { name: "Search", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "Matching document", exact: true }),
   ).toBeVisible();
@@ -631,3 +630,126 @@ for (const status of [401, 403])
       held.resolve();
     }
   });
+
+test("document search runs after typing settles and retains keyboard focus", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  const searches: string[] = [];
+  await page.route("**/api/personal/documents?**", (route) => {
+    const query = new URL(route.request().url()).searchParams;
+    if (query.has("q")) searches.push(query.get("q")!);
+    return route.fulfill({
+      json: {
+        items: [
+          item(query.has("q") ? "Matching document" : "Unfiltered document"),
+        ],
+        nextCursor: null,
+        total: 1,
+      },
+    });
+  });
+  await page.goto("/#/app/my-documents");
+  const search = page.getByLabel("Search my documents", { exact: true });
+  await expect(
+    page.getByRole("heading", { name: "Unfiltered document", exact: true }),
+  ).toBeVisible();
+  await search.fill("match");
+  await search.fill("matching");
+  await expect(
+    page.getByRole("heading", { name: "Matching document", exact: true }),
+  ).toBeVisible();
+  await expect(search).toBeFocused();
+  await expect(page).toHaveURL(/q=matching/);
+  expect(searches).toEqual(["matching"]);
+  expect(state.writes).toEqual([]);
+});
+
+test("leaving the list cancels an unsubmitted search", async ({ page }) => {
+  const state = await fixture(page);
+  const searches: string[] = [];
+  await page.route("**/api/personal/documents?**", (route) => {
+    const query = new URL(route.request().url()).searchParams;
+    if (query.has("q")) searches.push(query.get("q")!);
+    return route.fulfill({
+      json: { items: [item("Current document")], nextCursor: null, total: 1 },
+    });
+  });
+  await page.route("**/api/personal/documents/Current%20document", (route) =>
+    route.fulfill({
+      json: {
+        ...item("Current document"),
+        pages: [],
+        audit: [],
+        auditNextCursor: null,
+      },
+    }),
+  );
+  await page.goto("/#/app/my-documents");
+  const search = page.getByLabel("Search my documents", { exact: true });
+  await expect(
+    page.getByRole("heading", { name: "Current document", exact: true }),
+  ).toBeVisible();
+  await search.fill("abandoned search");
+  await page.locator('[data-document-link="Current document"]').click();
+  await expect(
+    page.getByRole("link", { name: "Back to my documents", exact: true }),
+  ).toBeVisible();
+  await page.waitForTimeout(350);
+  await expect(page).toHaveURL(/my-documents\/Current%20document$/);
+  expect(searches).toEqual([]);
+  expect(state.writes).toEqual([]);
+});
+
+test("the whole document row opens its native link and only near expiry is highlighted", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  const near = {
+    ...item("Ending document"),
+    expiresAt: new Date(Date.now() + 2 * 86_400_000).toISOString(),
+  };
+  const later = {
+    ...item("Later document"),
+    expiresAt: new Date(Date.now() + 60 * 86_400_000).toISOString(),
+  };
+  await page.route("**/api/personal/documents?**", (route) =>
+    route.fulfill({
+      json: { items: [near, later], nextCursor: null, total: 2 },
+    }),
+  );
+  await page.route("**/api/personal/documents/Ending%20document", (route) =>
+    route.fulfill({
+      json: { ...near, pages: [], audit: [], auditNextCursor: null },
+    }),
+  );
+  await page.goto("/#/app/my-documents");
+  const row = page.locator(".personal-document-rows > li").filter({
+    has: page.getByRole("heading", { name: near.title, exact: true }),
+  });
+  await expect(row.locator(".personal-document-expiring")).toHaveCount(1);
+  await expect(page.locator(".personal-document-expiring")).toHaveCount(1);
+  await expect(
+    row.getByRole("link", { name: near.title, exact: true }),
+  ).toBeVisible();
+  const box = await row.boundingBox();
+  expect(box).not.toBeNull();
+  await row.click({ position: { x: 4, y: box!.height - 4 } });
+  await expect(
+    page.getByRole("link", { name: "Back to my documents", exact: true }),
+  ).toBeVisible();
+  await expect(page).toHaveURL(/my-documents\/Ending%20document$/);
+  const history = page.locator(".personal-document-history > details");
+  await expect(history).not.toHaveAttribute("open");
+  await expect(
+    page.getByText("No events available.", { exact: true }),
+  ).toBeHidden();
+  await history.locator("summary").click();
+  await expect(
+    page.getByText("No events available.", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.locator(".personal-document-reader > .secure-document-reader-toolbar"),
+  ).toHaveCSS("position", "sticky");
+  expect(state.writes).toEqual([]);
+});

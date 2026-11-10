@@ -1,6 +1,6 @@
 ---
 title: "Sensitive distribution and personal documents"
-description: "37 capabilities in the deliver branch of Guteneo."
+description: "38 capabilities in the deliver branch of Guteneo."
 sidebar:
   order: 10
 ---
@@ -55,6 +55,7 @@ Implemented candidate with migrations 0055–0059 and separate deterministic str
 <li id="feature-f4bc0532f72a">Page-by-page My documents navigation and a generic prompt to create a workspace for accounts without one</li>
 <li id="feature-28c8b8862fcb">Returning from a document by link or browser Back restores the same page, scroll position and focus without a new read; deleting or saving a copy rereads the page and counts, and deleting the final copy on a page returns to a valid page; ended rows show their end date</li>
 <li id="feature-2142b10f8a1e">Typed preparation/deposit and browser write states preserve paid progress across eligible reauthentication, clear stale lease ownership and refuse revoked source authority; late responses cannot activate, copy or navigate from an obsolete account/workspace/view</li>
+<li id="feature-515c73de9079">Personal document search commits a debounced URL query and cancels obsolete intent; native title/row links, near-expiry badges and sticky reader controls with optional responsive history retain exact account/document authority</li>
 </ol>
 
 ## REST operations

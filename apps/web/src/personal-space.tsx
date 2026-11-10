@@ -1,3 +1,4 @@
+import { ApplicationTimeScope } from "./application-time";
 import {
   useCallback,
   useEffect,
@@ -17,6 +18,7 @@ import { Brand } from "./brand";
 import { sessionAuthorityKey, ApiError, date, type Session } from "./api";
 import {
   ConfirmAction,
+  DateTimezone,
   EmptyState,
   ErrorNotice,
   Field,
@@ -455,42 +457,45 @@ export function PersonalSpace({
         className="personal-space-main"
         key={session.user.id}
       >
-        {session.simulation && (
-          <div className="notice info" role="note">
-            <p>
-              {msg("Local simulation: accounts and documents are fictional.")}
-            </p>
-          </div>
-        )}
-        <ErrorNotice
-          error={error ?? action.error}
-          retry={() => setVersion((n) => n + 1)}
-        />
-        {page === "/app/services" ? (
-          <PersonalServices
-            key={route}
-            session={session}
-            next={new URLSearchParams(route.split("?")[1]).get("next")}
+        <DateTimezone />
+        <ApplicationTimeScope>
+          {session.simulation && (
+            <div className="notice info" role="note">
+              <p>
+                {msg("Local simulation: accounts and documents are fictional.")}
+              </p>
+            </div>
+          )}
+          <ErrorNotice
+            error={error ?? action.error}
+            retry={() => setVersion((n) => n + 1)}
           />
-        ) : page === "/app/personal-account" ? (
-          <PersonalAccount
-            session={session}
-            onUpdated={(current) => {
-              // An already running focus read may contain the pre-save profile.
-              // Adopt the PATCH session without adding another read waterfall.
-              sessionReadRevision.current += 1;
-              setError(undefined);
-              setPersonalSession((previous) =>
-                previous?.user.id === session.user.id &&
-                previous.csrfToken === session.csrfToken
-                  ? current
-                  : previous,
-              );
-            }}
-          />
-        ) : (
-          documents(session, onSessionInvalid)
-        )}
+          {page === "/app/services" ? (
+            <PersonalServices
+              key={route}
+              session={session}
+              next={new URLSearchParams(route.split("?")[1]).get("next")}
+            />
+          ) : page === "/app/personal-account" ? (
+            <PersonalAccount
+              session={session}
+              onUpdated={(current) => {
+                // An already running focus read may contain the pre-save profile.
+                // Adopt the PATCH session without adding another read waterfall.
+                sessionReadRevision.current += 1;
+                setError(undefined);
+                setPersonalSession((previous) =>
+                  previous?.user.id === session.user.id &&
+                  previous.csrfToken === session.csrfToken
+                    ? current
+                    : previous,
+                );
+              }}
+            />
+          ) : (
+            documents(session, onSessionInvalid)
+          )}
+        </ApplicationTimeScope>
       </main>
       <footer className="personal-space-footer">
         <LegalLinks />

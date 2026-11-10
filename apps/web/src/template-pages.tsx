@@ -2,10 +2,10 @@ import type { GenerationCorrectionInput } from "../../../packages/contracts/src/
 import { msg } from "./messages";
 import { studioRoutes } from "./app-routes";
 import { FileInput } from "./file-input";
+import { TemplateThumbnail } from "./template-thumbnail";
 import {
   lazy,
   Suspense,
-  useEffect,
   useRef,
   useState,
   type FormEvent,
@@ -41,9 +41,9 @@ import {
 import { RolePermissionNotice } from "./role-guide";
 import {
   ConfirmAction,
+  EmptyState,
   DateTimezone,
   ErrorNotice,
-  BEFORE_WORKSPACE_NAVIGATION,
   Field,
   go,
   Loading,
@@ -53,11 +53,13 @@ import {
   useAction,
   useResource,
   useRoute,
+  useRefreshOnFocus,
 } from "./components";
 import { BusinessDataForm } from "./template-data-form";
 import { reconcileDesignerChange } from "../../../packages/templates/designer";
 import { TemplateSettings, TemplateAi } from "./template-settings";
 import { useCurrentClientView } from "./client-write-recovery";
+import { useUnsavedNavigation } from "./navigation-confirmation";
 
 const Designer = lazy(() => import("./template-designer"));
 const stateLabel = {
@@ -118,6 +120,7 @@ export function TemplateLibrary({
 }) {
   const currentView = useCurrentClientView(identity);
   const templates = useResource<Page<TemplateView>>("/templates");
+  useRefreshOnFocus(templates.refresh);
   const action = useAction();
   const [name, setName] = useState(msg("My document"));
   const [showBlank, setShowBlank] = useState(startBlank);
@@ -215,7 +218,7 @@ export function TemplateLibrary({
               onClick={() => setShowBlank(!showBlank)}
             >
               <Plus size={18} />
-              {msg("Create a document ")}
+              {msg("New template")}
             </button>
           )
         }
@@ -245,38 +248,6 @@ export function TemplateLibrary({
           </button>
         </form>
       )}
-      <h2>{msg("Demo templates")}</h2>
-      <p className="studio-demo-intro">
-        {msg(
-          "These examples contain only fictional data. Create a private copy, edit it in the studio and delete it when you no longer need it.",
-        )}
-      </p>
-      <div className="studio-gallery">
-        {templateGallery().map(({ id, envelope }) => (
-          <article key={id}>
-            <div className="studio-miniature" aria-hidden="true">
-              <FileText size={17} />
-              <span />
-              <span />
-              <span />
-            </div>
-            <h3>{msg(envelope.name)}</h3>
-            <p>{msg(envelope.description ?? "")}</p>
-            <button
-              className="button"
-              disabled={action.pending || !canPrepare}
-              aria-label={msg(
-                "Create my private copy of {0}",
-                msg(envelope.name),
-              )}
-              onClick={() => void create(galleryCopy(envelope))}
-            >
-              {msg("Create my private copy ")}
-              <ArrowRight size={17} />
-            </button>
-          </article>
-        ))}
-      </div>
       <div className="section-toolbar">
         <h2 ref={libraryHeading} tabIndex={-1}>
           {msg("Your templates")}
@@ -297,12 +268,21 @@ export function TemplateLibrary({
       ) : (
         <div className="studio-list">
           {!templates.data?.items.length && (
-            <p className="studio-list-row">
-              {msg("Your library is ready for its first template. ")}
-            </p>
+            <EmptyState
+              icon={<FileText size={36} weight="light" aria-hidden="true" />}
+              title={msg("No templates yet")}
+              text={msg("Start with a blank page or copy an example.")}
+            />
           )}
           {templates.data?.items.map((item) => (
-            <article className="studio-list-row" key={item.id}>
+            <article
+              className="studio-list-row studio-template-row"
+              key={item.id}
+            >
+              <TemplateThumbnail
+                key={`${identity}:${item.id}:${item.revision}`}
+                model={item}
+              />
               <div>
                 <h3>
                   <a href={`#${studioRoutes.template(item.id)}`}>{item.name}</a>
@@ -388,6 +368,30 @@ export function TemplateLibrary({
           )}
         </form>
       )}
+      <h2>{msg("Demo templates")}</h2>
+      <p className="studio-demo-intro">
+        {msg(
+          "These examples contain only fictional data. Create a private copy, edit it in the studio and delete it when you no longer need it.",
+        )}
+      </p>
+      <div className="studio-gallery">
+        {templateGallery().map(({ id, envelope }) => (
+          <button
+            key={id}
+            className="button"
+            disabled={action.pending || !canPrepare}
+            aria-label={msg(
+              "Create my private copy of {0}",
+              msg(envelope.name),
+            )}
+            onClick={() => void create(galleryCopy(envelope))}
+          >
+            <FileText size={18} aria-hidden="true" />
+            {msg(envelope.name)}
+            <ArrowRight size={17} aria-hidden="true" />
+          </button>
+        ))}
+      </div>
     </>
   );
 }
@@ -395,9 +399,11 @@ export function TemplateLibrary({
 export function TemplateEditor({
   id,
   session,
+  readOnly = false,
 }: {
   id: string;
   session: Session;
+  readOnly?: boolean;
 }) {
   const query = new URLSearchParams(useRoute().split("?")[1]);
   const generationId = query.get("generation");
@@ -460,12 +466,13 @@ export function TemplateEditor({
         source={sourceGeneration.data}
         template={sourceTemplate.data}
         record={correction.data}
-        canPrepare={permissionsFor(session).prepareDispatches}
+        canPrepare={!readOnly && permissionsFor(session).prepareDispatches}
       />
     );
   if (!resource.data) return <Loading />;
   return (
     <EditorBody
+      readOnly={readOnly}
       key={`${generationScope}:${resource.data.revision}`}
       model={resource.data}
       sourceGeneration={sourceGeneration.data}
@@ -504,29 +511,15 @@ function GenerationDataCorrection({
   const generated = useRef(false);
   const action = useAction();
   const dirty = JSON.stringify(data) !== JSON.stringify(record.data);
-  useEffect(() => {
-    if (!dirty) return;
-    const warn = (event: BeforeUnloadEvent) => {
-      if (generated.current) return;
-      event.preventDefault();
-      event.returnValue = "";
-    };
-    const guard = (event: Event) => {
-      if (
-        !generated.current &&
-        !window.confirm(msg("Leave this correction and lose unsaved changes?"))
-      )
-        event.preventDefault();
-    };
-    window.addEventListener("beforeunload", warn);
-    window.addEventListener(BEFORE_WORKSPACE_NAVIGATION, guard);
-    return () => {
-      window.removeEventListener("beforeunload", warn);
-      window.removeEventListener(BEFORE_WORKSPACE_NAVIGATION, guard);
-    };
-  }, [dirty]);
+  const navigationConfirmation = useUnsavedNavigation({
+    dirty,
+    scope: `correction:${source.id}:${record.recordId}`,
+    question: msg("Leave this correction and lose unsaved changes?"),
+    completed: () => generated.current,
+  });
   return (
     <>
+      {navigationConfirmation}
       <a className="back-link" href={`#${studioRoutes.generation(source.id)}`}>
         {msg("← Original generation")}
       </a>
@@ -627,6 +620,7 @@ function EditorBody({
   correctionError,
   generationData,
   onGenerationData,
+  readOnly = false,
 }: {
   model: TemplateView;
   session: Session;
@@ -635,6 +629,7 @@ function EditorBody({
   correctionError?: Error;
   generationData?: Record<string, unknown>;
   onGenerationData: (data: Record<string, unknown>) => void;
+  readOnly?: boolean;
 }) {
   const currentView = useCurrentClientView(
     JSON.stringify([sessionAuthorityKey(session), model.id, model.revision]),
@@ -657,31 +652,18 @@ function EditorBody({
   const [previewId, setPreviewId] = useState<string>();
   const action = useAction();
   const dirty = JSON.stringify(envelope) !== JSON.stringify(model.envelope);
-  const canPrepare = permissionsFor(session).prepareDispatches;
+  const canPrepare = !readOnly && permissionsFor(session).prepareDispatches;
   const editable =
     canPrepare && model.permissions.edit && model.state !== "archived";
   const generationKey = useRef(crypto.randomUUID());
   const generationInput = useRef("");
   const deletionComplete = useRef(false);
-  useEffect(() => {
-    if (!dirty) return;
-    const warn = (event: BeforeUnloadEvent) => {
-      if (deletionComplete.current) return;
-      event.preventDefault();
-      event.returnValue = "";
-    };
-    const guardNavigation = (event: Event) => {
-      if (deletionComplete.current) return;
-      if (!window.confirm(msg("Leave this template and lose unsaved changes?")))
-        event.preventDefault();
-    };
-    window.addEventListener("beforeunload", warn);
-    window.addEventListener(BEFORE_WORKSPACE_NAVIGATION, guardNavigation);
-    return () => {
-      window.removeEventListener("beforeunload", warn);
-      window.removeEventListener(BEFORE_WORKSPACE_NAVIGATION, guardNavigation);
-    };
-  }, [dirty]);
+  const navigationConfirmation = useUnsavedNavigation({
+    dirty: dirty || designerPending,
+    scope: `template:${model.id}:${model.revision}`,
+    question: msg("Leave this template and lose unsaved changes?"),
+    completed: () => deletionComplete.current,
+  });
   function change(next: TemplateEnvelope) {
     setHistory((h) => [...h.slice(-29), structuredClone(envelope)]);
     setFuture([]);
@@ -857,6 +839,7 @@ function EditorBody({
   }
   return (
     <>
+      {navigationConfirmation}
       <a className="back-link" href={`#${studioRoutes.templates}`}>
         {msg("← Templates ")}
       </a>

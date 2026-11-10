@@ -35,6 +35,11 @@ authenticated page also names its application in the browser tab
 
 ## Ownership layers
 
+The [application-time contract](APPLICATION_TIME.md) owns the single explicit UTC
+context shared by all five applications, including displayed instants, filters,
+report buckets, exports and date/time entry. It advertises no user timezone
+preference and preserves the existing financial calendar basis.
+
 Every file under `apps/web/src` belongs to exactly one owner:
 
 | Owner           | Contains                                                                                                                                                                                                           | May import                                       |
@@ -118,6 +123,16 @@ entry-only handoff rather than becoming a long-lived authentication cache.
 and backs off unchanged progress within its thirty-second default ceiling while
 preserving an in-flight read. It polls observations, never business mutations.
 
+Dirty Studio, distribution and schedule editors retain a synchronous route veto
+while the shared navigation confirmation shows a localized question. An explicit
+discard resumes the exact destination once under the same authority, visit and
+editor scope; Escape preserves the draft and existing action. Workspace preflight
+waits for all deferred decisions without overriding an independent hard veto,
+then rechecks its original identity and visit before the membership POST.
+Tab close retains native `beforeunload`. The
+[clarity recovery contract](CLARITY_FOUNDATION.md#consequential-actions) owns these
+client-only semantics; they create no business consent or new permission.
+
 Browser locale packs are generated from maintained source catalogues and load
 only the active French/English/German/Luxembourgish language before translated
 content mounts. SSR and tooling retain synchronous source access; Belvédère has
@@ -152,6 +167,38 @@ alongside the page; unavailable counts do not block documents. All rows keep the
 shared controls, typography, color tokens and responsive geometry. The
 [recipient journey](SECURE_DISTRIBUTION_JOURNEYS.md#find-documents-and-discover-services)
 owns the API and authority contract.
+
+The 10 November presentation candidate applies owner search after a 250 ms typing
+pause or Enter, keeping the committed query in the URL. Navigation, category or
+authority changes cancel an uncommitted search. Each title is one native link
+whose target covers the row; keyboard focus and returning scroll position retain
+that same link. Only available documents inside the server's expiry window gain
+a warning badge. The reader keeps controls above the pages and puts optional
+access history in a responsive side panel with the shared disclosure. List reads
+refresh on a visible-tab return, while hidden remembered lists remain idle.
+
+## Studio library presentation
+
+The template, data and generation libraries use the shared empty state and native
+file drop zones. **New template** names the template action; the user's library
+precedes one compact row of example-copy actions and one fictional-data notice.
+Template thumbnails are disposable local renders of sample data, loaded only
+after their row enters the viewport. One bounded job runs at a time, with package
+fonts and the existing template/resource and guarded-PDF validation. No preview
+endpoint, document registration, content cache or persistent image is involved;
+account/workspace replacement and unmount discard late results and revoke local
+image URLs. Large, unsupported or invalid samples retain their file glyph. The
+[Studio contract](TEMPLATES_DATA_DISTRIBUTION.md#local-library-thumbnails--10-november-2026-candidate)
+owns the decorative limits and the distinction from a verified generated PDF.
+
+Returning to a visible Studio library rereads its authorized list; template names,
+data-import settings and selected files remain unsubmitted. Editor models are not
+silently replaced by this list refresh. The ordinary public design preview exposes
+Studio through the application switcher with bounded viewer-only fixtures and
+read-only details. Creation, imports, template preview writes, editing, publication,
+AI-policy changes and generation stay disabled; direct browser-adapter writes are
+refused. [The preview contract](PUBLIC_PREVIEW.md#what-is-interactive) owns this
+fictional surface and its zero-business-transport tests.
 
 ## From Studio to Correspondence
 
@@ -190,6 +237,11 @@ Component-scoped custom properties (for example `--day-size`) remain allowed whe
 their values come from tokens. The visual vocabulary itself (portrait, blue rule,
 typography, geometry, controls, tables and forms) is described in the
 [design-system guide](../apps/engineering/src/content/docs/engineering/design-system.mdx).
+
+Application text is never set below 12 px. Stamp and postmark lettering, the
+public header and the public footer keep their own sizes. The floor was applied
+to the shared and application stylesheets on 10 November 2026; `npm run lint`
+does not enforce it yet.
 
 ## Operational tables — 30 October 2026 candidate
 
@@ -295,3 +347,30 @@ records the 1.2.1 cleanup and qualification. Functional page names stay aligned
 with navigation, while price, consent, units and recovery retain their existing
 meaning. The four roles, personal/workspace boundaries, routes and application
 ownership are unchanged.
+
+## Shared clarity components — 10 November 2026 candidate
+
+`StatTile` is the shared label/value/detail figure for Administration,
+Correspondence's overview and Belvédère. Card and plain variants change only
+presentation; each caller supplies already authorized values and localized text.
+
+A loaded table below five rows hides unneeded search/pagination only while no
+filter is active. Its named loaded/page count and scoped saved-view disclosure
+remain available. Applying a saved filter restores search and clear-filter
+recovery even for a short list; a source shrink cannot strand the filter. Counts
+retain the distinction between loaded rows, the current page and full-dataset
+aggregates.
+
+The dispatch list reads `/overview` once alongside its initial list only when
+`viewReports` is current in the supplied session. This adds one bounded metadata
+read for truthful full-dataset status-chip counts. An unprivileged caller reads
+no aggregate and displays no inferred counts. Focus refresh uses the existing
+shared hook, without polling; ordinary refresh is omitted while explicit error
+and extended-cursor recovery remain. No server permission, tenant visibility,
+price, consent, assistant/native surface or provider operation changes.
+
+The short-list saved-view browser regression lives in
+`tests/preview-e2e/data-tables.spec.ts`; current-authority request-budget UI
+fixtures live in `tests/e2e/workspace-roles.spec.ts`. These fixtures do not prove
+production behavior. Exact local results and request/transfer measurements are
+recorded by the final candidate qualification.

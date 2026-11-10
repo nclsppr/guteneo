@@ -11,11 +11,11 @@ candidate: no deployment, provider activation or hosted qualification is claimed
 
 ### Authority
 
-| Viewer                                       | Views                                                                                               |
-| -------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| Administrator                                | Every view: overview, activity, consumption, reports, members, access, audit log, billing, settings |
-| Supervisor with report permission            | Overview, activity, consumption and reports (full report without member data, activity and consumption exports)                 |
-| Supervisor without reports, member, observer | None. The application is not offered; a direct address shows the role notice and issues no read     |
+| Viewer                                       | Views                                                                                                           |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Administrator                                | Every view: overview, activity, consumption, reports, members, access, audit log, billing, settings, operations |
+| Supervisor with report permission            | Overview, activity, consumption and reports (full report without member data, activity and consumption exports) |
+| Supervisor without reports, member, observer | None. The application is not offered; a direct address shows the role notice and issues no read                 |
 
 - Authority is the **current membership** of the authenticated browser session.
   Every `/api/administration/*` read recomputes permissions from the membership
@@ -34,12 +34,13 @@ candidate: no deployment, provider activation or hosted qualification is claimed
 `/app/administration` hosts the application. Earlier addresses are aliases that
 keep links, bookmarks and the Stripe portal return working, with their query:
 
-| Earlier address        | Now                               | Content                                                                                      |
-| ---------------------- | --------------------------------- | -------------------------------------------------------------------------------------------- |
-| `/app/admin`           | `/app/administration/members`     | Members, roles, supervisor options, access revocation, invitations, member activity          |
-| `/app/usage`           | `/app/administration/consumption` | Posted consumption plus the former usage ledger and activity calendar                        |
-| `/app/billing`         | `/app/administration/billing`     | Unchanged billing page                                                                       |
-| Profile workspace name | `/app/administration/settings`    | Workspace name, channel controls, PDF analysis warm-up, incidents, dead letters, diagnostics |
+| Earlier address          | Now                               | Content                                                                             |
+| ------------------------ | --------------------------------- | ----------------------------------------------------------------------------------- |
+| `/app/admin`             | `/app/administration/members`     | Members, roles, supervisor options, access revocation, invitations, member activity |
+| `/app/usage`             | `/app/administration/consumption` | Posted consumption plus the former usage ledger and activity calendar               |
+| `/app/billing`           | `/app/administration/billing`     | Unchanged billing page                                                              |
+| Profile workspace name   | `/app/administration/settings`    | Workspace name, with a direct link to operational controls                          |
+| Former settings controls | `/app/administration/operations`  | Channel controls, PDF analysis warm-up, incidents, dead letters and diagnostics     |
 
 The personal profile (`/app/account`) keeps the person's own name, language,
 appearance, sessions and assistant delegation, and only displays the workspace
@@ -65,7 +66,7 @@ destination and its membership filter to the workspace form.
 
 ### Queue incident resolution
 
-Administrators can inspect an original dispatch in Settings and explicitly
+Administrators can inspect an original dispatch in Operations and explicitly
 resolve its retained queue diagnostic after operational and financial closure.
 The [resolution contract](DEAD_LETTER_RESOLUTION.md) owns the current browser/session
 and SQL fences, stable audit receipt, errors and same-ID recovery. Resolving a
@@ -75,7 +76,11 @@ no resolution authority. This is a local candidate, not a production activation.
 
 ### Period and response lifetime
 
-Presets and custom UTC periods live in the address. Malformed, reversed or
+Presets and custom UTC periods live in the address. The
+[shared application-time policy](APPLICATION_TIME.md) aligns displayed instants,
+filters, report buckets and exports in UTC; it exposes no per-user timezone
+preference. Unsupported non-UTC `timeZone`/`timezone` declarations are refused by
+the report API rather than silently interpreted as UTC. Malformed, reversed or
 unbounded URL dates fall back to the last 30 days. A manually entered range
 longer than 366 days instead keeps both fields and reports a localized validation
 error without changing the address or reading another report. API validation
@@ -97,25 +102,26 @@ shared four-language resources.
 - **Overview**: a primary row (dispatches, consumption, needing attention,
   promotional credit) above a secondary row (members, imported documents,
   activated secure shares); daily activity (dispatches, consumption, sign-ins)
-  with an equivalent data table; channels; states linking to the filtered
+  with an equivalent data table when the period has at least three days; channels; states linking to the filtered
   activity; incident notices. Simulation is stated once by the workspace
   notice, not repeated per page.
 - **Activity**: every dispatch of the period, filtered on the server by channel,
   state, "needing attention" or reference, 50 per page. Columns: reference,
   creation, channel, state, pages, coarse destination country, consumption,
-  reservation, approver. The reference opens the existing Correspondence detail.
+  reservation, approver. Pages, destination, reservation and approver are optional display columns, hidden initially; changing them uses already-authorized rows and issues no additional read. The reference opens the existing Correspondence detail.
 - **Consumption**: posted charges by service, channel and month, using the same
   ledger semantics as Belvédère's finance view (production: settled ledger and
   hosting by charge date; simulation: confirmed reservations), current
   dispatch and PDF-check reservations and promotional credit, followed by the monthly usage ledger.
 - **Members**: the existing member administration and invitations, plus member
   activity (active access, last sign-in, approvals in the period, last recorded
-  action).
+  action). The title links to the shared roles guide instead of repeating its content in a disclosure.
 - **Access**: open browser/native sessions and assistant authorizations, and
   recorded sign-ins (90-day retention). Revocation stays in Members.
-- **Audit log**: action, actor, resource identifier and time. `details_json` is
-  never projected because it can contain message or recipient context.
-- **Reports**: downloads for the chosen period.
+- **Audit log**: allowlisted action descriptions, actor, resource identifier and time. A delegated approval has its own description. Unknown action codes receive a neutral label; the original code is retained under Details. `details_json` is never projected because it can contain message or recipient context.
+- **Reports**: one row per dataset with a format selector and one explicit download action for the chosen period. The complete report supports Excel/PDF; other datasets retain their existing allowed formats.
+- **Settings**: workspace identity only. Operational reads do not start on this page.
+- **Operations**: administrator-only operational diagnostics, channel controls and incident resolution, retaining their exact existing browser/CSRF/membership gates. Report permission alone never grants access.
 
 ### Exports
 
@@ -253,3 +259,13 @@ the 500-row bound and the explicit omission notice.
   administrators.
 - Belvédère still renders its own chart; adopting the shared presentation is a
   separate change.
+
+## Clarity candidate — 10 November 2026
+
+[The dated A8/A9 record](CLARITY_ADMINISTRATION.md) covers title-row controls,
+optional activity columns, sparse-chart handling, report rows, billing alignment,
+audit presentation and the separate Operations page. It distinguishes the local
+source candidate from hosted or production proof. Server grouping and export
+periods and individual event dates use the same declared UTC application context.
+See [the shared timezone contract](APPLICATION_TIME.md); financial posting bases
+and stored absolute instants are unchanged.

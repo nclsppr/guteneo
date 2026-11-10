@@ -183,8 +183,15 @@ test("saved recipients have revision-checked create, edit and delete without sen
       () => state.contacts.find((item) => item.id === "contact_new")?.revision,
     )
     .toBe(2);
-  page.once("dialog", (dialog) => dialog.accept());
   await page
+    .getByRole("button", { name: "Delete recipient", exact: true })
+    .click();
+  expect(state.writes).toHaveLength(2);
+  await page
+    .getByRole("group", {
+      name: "Delete this saved recipient? Prepared dispatches keep their original recipient.",
+      exact: true,
+    })
     .getByRole("button", { name: "Delete recipient", exact: true })
     .click();
   await expect(page).toHaveURL(/#\/app\/recipients$/);
@@ -233,7 +240,7 @@ test("a departed action reports a receipt without navigating back and clears wit
     window.location.hash = "/app/documents";
   });
   await expect(
-    page.getByRole("heading", { name: en.documents.title, exact: true }),
+    page.getByRole("heading", { name: en.nav.documents, exact: true }),
   ).toBeVisible();
   state.release();
   const tray = page.locator(".action-outcomes");

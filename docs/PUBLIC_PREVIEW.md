@@ -89,6 +89,14 @@ actual deployment are qualified separately.
 
 ## What is interactive
 
+- Studio is available from the application switcher alongside Correspondence.
+  Templates, Data and Generations expose three deterministic fictional records
+  each and their read-only details, entirely in tab memory. Template editing,
+  preview creation, import, publication, AI policy changes and generation remain
+  disabled; the browser adapter also refuses direct Studio writes with
+  `403 PREVIEW_STUDIO_READ_ONLY`. The ordinary public fixture offers no personal
+  account/Belvédère navigation or authenticated backend fallback. Local advanced
+  profiles retain their independent role, volume and application contracts.
 - Landing and responsive dashboard, documents, sends, campaigns, sender profiles, usage, account settings, billing state and administration.
 - Real locally generated fictional PDF examples that can be displayed and downloaded.
 - Preparation, browser review, approval and deterministic simulated results for individual sends; CSV validation and campaign preparation.

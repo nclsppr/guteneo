@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-10",
+  "version": "1.2.3",
+  "branch": "worktree-trim-helper-copy-20261109",
+  "baseMain": "551ca4c85081bef321410c8b0198c076f3172409",
+  "scope": "Completion pass after initial1b63fd5 candidate; source checks ran before final commit with working changes included. No inherited full-suite green claim.",
+  "checks": {
+    "typecheck": "passed",
+    "lint": "passed;278 owned web files and locale projections current",
+    "docs": "build/check passed;28domains,520capabilities,57journeys,97RESToperations,92MCPtools",
+    "build": "passed;web assets plus Worker dry run only",
+    "previewBuild": "passed;SSR development websocket refused locally, static output completed",
+    "engineering": "build,Astro,authored-doc lint and4security checks passed",
+    "pureTests": {
+      "files": 7,
+      "passed": 102,
+      "failed": 0,
+      "report": "reports/clarity-completion-pure.json"
+    },
+    "backendUtcTests": {
+      "passed": 14,
+      "failed": 0,
+      "file": "tests/unit/application-time.test.ts",
+      "separateInvocation": true
+    },
+    "releaseGuardTests": {
+      "passed": 109,
+      "failed": 0,
+      "separateInvocation": true,
+      "scope": "New manual guards plus unchanged dependency/main publication tests"
+    },
+    "integrations": "1.2.3 MCP/package fingerprints matched"
+  },
+  "unqualified": [
+    "Combined-source complete Vitest/workerd/security/browser suites require hosted CI",
+    "No new rendered screenshots or first-load timings",
+    "Production schema and deployment not performed",
+    "Native simulator/device/distribution qualification unchanged from historical record"
+  ],
+  "browserCrash": {
+    "reportedBy": "user",
+    "engine": "Playwright WebKit",
+    "platform": "macOS27.2arm64",
+    "occurredAt": "2026-11-10T20:04:26+01:00",
+    "signal": "SIGABRT",
+    "frame": "HIServices _RegisterApplication before page creation",
+    "action": "Stopped further local browser-launch probes"
+  },
+  "productionEffects": {
+    "pushed": false,
+    "pullRequest": false,
+    "merged": false,
+    "schemaChanged": false,
+    "deployed": false,
+    "realCommunication": false,
+    "paidProvisioning": false
+  }
+}

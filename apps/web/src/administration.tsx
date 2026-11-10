@@ -13,6 +13,7 @@ import { CustomerWebhooksPage } from "./customer-webhooks-page";
 import { TeamAdmin } from "./administration-team";
 import { TeamInvitations } from "./team-invitations";
 import { AdministrationSettings } from "./administration-settings";
+import { WorkspaceOperations } from "./administration-operations";
 import {
   AdministrationActivityPage,
   AdministrationAuditPage,
@@ -50,6 +51,7 @@ export default function Administration({
     administrationRoutes.audit,
     administrationRoutes.billing,
     administrationRoutes.settings,
+    administrationRoutes.operations,
   ] as string[];
   if (!admin && !reports && !adminOnly.includes(path))
     return <RolePermissionNotice reports />;
@@ -78,7 +80,10 @@ export default function Administration({
     case administrationRoutes.members:
       return (
         <>
-          <PageHeading title={msg("Members and invitations")} />
+          <PageHeading
+            title={msg("Members and invitations")}
+            action={<a href="/roles/">{msg("Understand roles")}</a>}
+          />
           <TeamAdmin session={session} onUpdated={onUpdated} />
           {!isPublicPreview && <TeamInvitations />}
           <AdministrationMemberActivity route={route} />
@@ -96,6 +101,8 @@ export default function Administration({
       );
     case administrationRoutes.billing:
       return <Billing session={session} />;
+    case administrationRoutes.operations:
+      return <WorkspaceOperations />;
     case administrationRoutes.settings:
       return <AdministrationSettings session={session} onUpdated={onUpdated} />;
     default:

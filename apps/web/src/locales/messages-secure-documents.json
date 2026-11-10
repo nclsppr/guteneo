@@ -364,7 +364,6 @@
     "Barrierefreien Text anzeigen",
     "Den zougänglechen Text uweisen"
   ],
-  "{0} page(s)": ["{0} page(s)", "{0} Seite(n)", "{0} Säit(en)"],
   "Exporter ma copie": [
     "Export my copy",
     "Meine Kopie exportieren",
@@ -1335,5 +1334,7 @@
     "Secure viewing is being prepared.",
     "Die sichere Anzeige wird vorbereitet.",
     "Déi sécher Vue gëtt virbereet."
-  ]
+  ],
+  "1 page": ["1 page", "1 Seite", "1 Säit"],
+  "{0} pages": ["{0} pages", "{0} Seiten", "{0} Säiten"]
 }

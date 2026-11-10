@@ -110,7 +110,7 @@
   .workspace .notice p,
   .workspace .approval-panel > p,
   .workspace .checkbox-label {
-    font-size: 15px;
+    font-size: 16px;
   }
   .workspace .field > label,
   .workspace .notice strong,
@@ -134,7 +134,7 @@
   }
   .workspace .channel-selector span {
     min-height: 48px;
-    font-size: 13px;
+    font-size: 14px;
   }
   .workspace .checkbox-label {
     padding-block: 8px;
@@ -208,7 +208,7 @@
     max-width: none;
     white-space: normal;
     overflow: visible;
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1.5;
   }
   .workspace :is(.status, .channel-label) {
@@ -218,14 +218,14 @@
     line-height: 1.5;
   }
   .workspace .sub-label {
-    font-size: 11px;
+    font-size: 12px;
   }
   .workspace .pdf-navigation {
     font-size: 14px;
     padding: 6px 10px;
   }
   .workspace .preview-label {
-    font-size: 13px;
+    font-size: 14px;
   }
   .workspace .preview-label > :is(a, button) {
     font-size: 14px;
@@ -266,7 +266,7 @@
   .workspace-navigation > summary::after {
     content: "+";
     margin-left: auto;
-    font-size: 22px;
+    font-size: 20px;
   }
   .workspace-navigation[open] > summary::after {
     content: "−";

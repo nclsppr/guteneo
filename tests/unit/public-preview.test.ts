@@ -3,6 +3,11 @@ import { PDFDocument } from "pdf-lib";
 import { createPreviewApi } from "../../apps/web/src/preview";
 import type { WelcomeCredit } from "../../apps/web/src/credit-balance";
 import type {
+  TemplateView,
+  DatasetView,
+  GenerationJobView,
+} from "../../packages/contracts/src/template-workflow";
+import type {
   Dispatch,
   DispatchDetail,
   DocumentRecord,
@@ -33,6 +38,55 @@ describe("public browser design preview", () => {
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
     vi.useRealTimers();
+  });
+
+  it("offers bounded read-only Studio fixtures and refuses every Studio write without transport", async () => {
+    const preview = createPreviewApi();
+    const templates = (await preview.request(
+      "/templates",
+    )) as Page<TemplateView>;
+    const datasets = (await preview.request("/datasets")) as Page<DatasetView>;
+    const generations = (await preview.request(
+      "/generation-jobs",
+    )) as Page<GenerationJobView>;
+    expect(templates.items).toHaveLength(3);
+    expect(datasets.items).toHaveLength(3);
+    expect(generations.items).toHaveLength(3);
+    expect(
+      templates.items.every(
+        (item) =>
+          !item.canDelete &&
+          Object.values(item.permissions).every((allowed) => !allowed),
+      ),
+    ).toBe(true);
+    expect(
+      await preview.request(`/templates/${templates.items[0].id}`),
+    ).toEqual(templates.items[0]);
+    expect(
+      await preview.request(`/datasets/${datasets.items[0].id}/profile`),
+    ).toHaveProperty("profile");
+    expect(
+      await preview.request(
+        `/generation-jobs/${generations.items[0].id}/results`,
+      ),
+    ).toHaveProperty("items");
+    for (const [path, method] of [
+      ["/templates", "POST"],
+      [`/templates/${templates.items[0].id}`, "PATCH"],
+      [`/templates/${templates.items[0].id}`, "DELETE"],
+      [`/templates/${templates.items[0].id}/preview`, "POST"],
+      ["/templates/import-docx", "POST"],
+      ["/datasets", "POST"],
+      ["/generation-jobs", "POST"],
+      ["/dataset-ai-policy", "POST"],
+    ])
+      await expect(
+        preview.request(path, { method, body: {} }),
+      ).rejects.toMatchObject({
+        code: "PREVIEW_STUDIO_READ_ONLY",
+        status: 403,
+      });
+    expect(await preview.request("/templates")).toEqual(templates);
   });
 
   it("formats text-only email locally while keeping the subject and message required", async () => {

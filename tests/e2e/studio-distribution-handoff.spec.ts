@@ -12,6 +12,16 @@ test.afterEach(async ({ page }, info) => {
   }
 });
 
+function leaveDialog(page: Page) {
+  return page.locator("dialog.navigation-confirmation");
+}
+async function discardChanges(page: Page) {
+  await expect(leaveDialog(page)).toBeVisible();
+  await leaveDialog(page)
+    .getByRole("button", { name: "Écarter", exact: true })
+    .click();
+}
+
 const jobId = "handoff-generation";
 const recordId = (ordinal: number) =>
   `record-${String(ordinal).padStart(3, "0")}`;
@@ -387,20 +397,142 @@ test("an unsaved preparation can veto departure and confirmed close restores its
   await page
     .getByLabel("Numéro international", { exact: true })
     .fill("+33123456789");
-  page.once("dialog", (dialog) => dialog.dismiss());
   await page.getByRole("button", { name: "Fermer", exact: true }).click();
+  await expect(leaveDialog(page)).toBeVisible();
+  await expect(
+    leaveDialog(page).getByRole("button", { name: "Annuler", exact: true }),
+  ).toBeFocused();
+  await leaveDialog(page).press("Escape");
+  await expect(leaveDialog(page)).toBeHidden();
   await expect(page).toHaveURL(/#\/app\/distribution\/new\?/);
   await expect(
     page.getByLabel("Numéro international", { exact: true }),
   ).toHaveValue("+33123456789");
-  page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "Fermer", exact: true }).click();
+  await discardChanges(page);
   await expect(page).toHaveURL(
     /#\/app\/studio\/generation\/handoff-generation\?selected=record-001$/,
   );
   await expect(
     page.getByRole("checkbox", { name: /^Sélectionner record-001(?: ·|$)/ }),
   ).toBeChecked();
+  expect(state.writes).toEqual([]);
+});
+
+for (const direction of ["back", "forward"] as const) {
+  test(`a dirty preparation confirms browser ${direction} before leaving its exact selection`, async ({
+    page,
+  }) => {
+    const { state } = await fixture(page);
+    if (direction === "back") {
+      await page.goto(sourceUrl([1]));
+      await expect(
+        page.getByRole("checkbox", {
+          name: /^Sélectionner record-001(?: ·|$)/,
+        }),
+      ).toBeVisible();
+      await page.evaluate(
+        (url) => {
+          window.location.hash = url.split("#")[1];
+        },
+        preparationUrl([1]),
+      );
+    } else {
+      await page.goto(preparationUrl([1]));
+      await expect(destination(page, 1).getByRole("checkbox")).toBeVisible();
+      await page.evaluate(
+        (url) => {
+          window.location.hash = url.split("#")[1];
+        },
+        sourceUrl([1]),
+      );
+      await expect(
+        page.getByRole("checkbox", {
+          name: /^Sélectionner record-001(?: ·|$)/,
+        }),
+      ).toBeVisible();
+      await page.goBack();
+    }
+    await destination(page, 1).getByRole("checkbox").check();
+    const phone = page.getByLabel("Numéro international", { exact: true });
+    await phone.fill("+33123456789");
+    if (direction === "back") await page.goBack();
+    else await page.goForward();
+    await expect(leaveDialog(page)).toBeVisible();
+    expect(state.writes).toEqual([]);
+    await expect(page).toHaveURL(/#\/app\/distribution\/new\?/);
+    if (direction === "back") {
+      await discardChanges(page);
+      await expect(page).toHaveURL(
+        /#\/app\/studio\/generation\/handoff-generation\?selected=record-001$/,
+      );
+    } else {
+      await leaveDialog(page).press("Escape");
+      await expect(leaveDialog(page)).toBeHidden();
+      await expect(phone).toHaveValue("+33123456789");
+    }
+    expect(state.writes).toEqual([]);
+  });
+}
+
+test("a dirty workspace switch waits for discard and cancellation preserves its preparation", async ({
+  page,
+}) => {
+  const { state } = await fixture(page);
+  const switches: unknown[] = [];
+  await page.route("**/api/account/workspaces", (route) =>
+    route.fulfill({
+      json: {
+        items: [
+          { id: "first", name: "First workspace" },
+          { id: "other", name: "Other workspace" },
+        ],
+      },
+    }),
+  );
+  await page.route("**/api/account/workspace", async (route) => {
+    switches.push(route.request().postDataJSON());
+    state.workspace = "other";
+    await route.fulfill({
+      json: {
+        organization: { id: "other", name: "Other workspace" },
+        user: {
+          id: "handoff-owner",
+          name: "Camille Example",
+          role: "admin",
+          preferredLocale: "fr",
+        },
+        simulation: true,
+        csrfToken: "csrf-other",
+      },
+    });
+  });
+  await page.goto(preparationUrl([1]));
+  await destination(page, 1).getByRole("checkbox").check();
+  const phone = page.getByLabel("Numéro international", { exact: true });
+  await phone.fill("+33123456789");
+  const workspace = page.locator(".sidebar .workspace-switcher > button");
+  await workspace.click();
+  const other = page
+    .locator(".workspace-switcher")
+    .getByRole("button", { name: "Other workspace", exact: true });
+  await other.click();
+  await expect(leaveDialog(page)).toBeVisible();
+  expect(switches).toEqual([]);
+  await leaveDialog(page).press("Escape");
+  await expect(leaveDialog(page)).toBeHidden();
+  await expect(phone).toHaveValue("+33123456789");
+  expect(switches).toEqual([]);
+  if ((await workspace.getAttribute("aria-expanded")) !== "true")
+    await workspace.click();
+  await expect(other).toBeEnabled();
+  await other.click();
+  await expect(leaveDialog(page)).toBeVisible();
+  await other.evaluate((button) => (button as HTMLButtonElement).click());
+  expect(switches).toEqual([]);
+  await discardChanges(page);
+  await expect(workspace).toContainText("Other workspace");
+  expect(switches).toEqual([{ organizationId: "other" }]);
   expect(state.writes).toEqual([]);
 });
 
@@ -475,8 +607,8 @@ test("a late preparation response cannot navigate after an accepted departure wh
       })
       .click();
     await post;
-    page.once("dialog", (dialog) => dialog.accept());
     await page.getByRole("button", { name: "Fermer", exact: true }).click();
+    await discardChanges(page);
     await expect(page).toHaveURL(/#\/app\/studio\/generation\//);
     const response = page.waitForResponse(
       (result) =>
@@ -547,20 +679,16 @@ test("an old response stays obsolete after leaving and returning to the same pre
     });
     await submit.click();
     await expect.poll(() => state.writes.length).toBe(1);
-    await Promise.all([
-      page.waitForEvent("dialog").then((dialog) => dialog.accept()),
-      page.getByRole("button", { name: "Fermer", exact: true }).click(),
-    ]);
+    await page.getByRole("button", { name: "Fermer", exact: true }).click();
+    await discardChanges(page);
     await expect(page).toHaveURL(/#\/app\/studio\/generation\//);
-    await Promise.all([
-      page.waitForEvent("dialog").then((dialog) => dialog.accept()),
-      page.evaluate(
-        (url) => {
-          window.location.hash = url.split("#")[1];
-        },
-        preparationUrl([1]),
-      ),
-    ]);
+    await page.evaluate(
+      (url) => {
+        window.location.hash = url.split("#")[1];
+      },
+      preparationUrl([1]),
+    );
+    await discardChanges(page);
     await expect(page).toHaveURL(/#\/app\/distribution\/new\?/);
     releasePost();
     await expect(submit).toBeEnabled();
@@ -592,8 +720,8 @@ test("a preparation reply cannot revive a departed workspace", async ({
       })
       .click();
     await expect.poll(() => state.writes.length).toBe(1);
-    page.once("dialog", (dialog) => dialog.accept());
     await page.getByRole("button", { name: "Fermer", exact: true }).click();
+    await discardChanges(page);
     await expect(application(page)).toContainText("Studio");
     state.workspace = "other";
     await page.evaluate(() => window.dispatchEvent(new Event("focus")));
@@ -688,7 +816,6 @@ test("coalesced A to B to A hash events never revive the earlier preparation rep
     });
     await submit.click();
     await expect.poll(() => state.writes.length).toBe(1);
-    page.on("dialog", (dialog) => dialog.accept());
     await page.evaluate(async () => {
       const original = window.location.hash;
       await new Promise<void>((resolve) => {

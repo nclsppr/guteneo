@@ -200,10 +200,10 @@
     "Kanal nicht gespeichert",
     "Kanal net gespäichert"
   ],
-  "Ce qui circule": [
-    "What is being sent",
-    "Was versendet wird",
-    "Wat verschéckt gëtt"
+  "Envois par canal": [
+    "Dispatches by channel",
+    "Sendungen nach Kanal",
+    "Sendunge pro Kanal"
   ],
   "Ces mesures utilisent les données analytiques échantillonnées de Cloudflare. Les erreurs sont des erreurs d’exécution du Worker ; elles ne représentent pas l’ensemble des réponses HTTP en erreur.": [
     "These measurements use Cloudflare’s sampled analytics. Errors are Worker execution errors; they do not represent all HTTP error responses.",
@@ -921,10 +921,10 @@
     "Navigation öffnen",
     "Navigatioun opmaachen"
   ],
-  "Où en sont les envois ?": [
-    "How are dispatches progressing?",
-    "Wie steht es um die Sendungen?",
-    "Wéi steet et mat de Sendungen?"
+  "États des envois": [
+    "Dispatch states",
+    "Status der Sendungen",
+    "Zoustänn vun de Sendungen"
   ],
   "Page": ["Page", "Seite", "Säit"],
   "Page précédente": ["Previous page", "Vorherige Seite", "Vireg Säit"],
@@ -1203,7 +1203,7 @@
     "Verspéit Veraarbechtung"
   ],
   "Transmis": ["Submitted", "Übermittelt", "Iwwermëttelt"],
-  "Transmission": ["Submitting", "Wird übermittelt", "Gëtt iwwermëttelt"],
+  "Transmission": ["Delivery", "Übermittlung", "Iwwermëttlung"],
   "Transport :": ["Delivery:", "Zustellung:", "Zoustellung:"],
   "Type de connexion": ["Connection type", "Verbindungstyp", "Verbindungstyp"],
   "Une connexion correspond à une session ou une autorisation, pas à chaque requête ni à une présence en temps réel.": [
@@ -1507,5 +1507,73 @@
     "Location source",
     "Standortquelle",
     "Standuertquell"
+  ],
+  "1 connexion": ["1 connection", "1 Verbindung", "1 Verbindung"],
+  "1 envoi": ["1 dispatch", "1 Sendung", "1 Sendung"],
+  "1 membre": ["1 member", "1 Mitglied", "1 Member"],
+  "1 résultat": ["1 result", "1 Ergebnis", "1 Resultat"],
+  "1 session ou autorisation": [
+    "1 session or authorization",
+    "1 Sitzung oder Autorisierung",
+    "1 Sessioun oder Autorisatioun"
+  ],
+  "1 atelier": ["1 workshop", "1 Werkstatt", "1 Atelier"],
+  "{0} connexions": ["{0} connections", "{0} Verbindungen", "{0} Verbindungen"],
+  "{0} envois": ["{0} dispatches", "{0} Sendungen", "{0} Sendungen"],
+  "{0} membres": ["{0} members", "{0} Mitglieder", "{0} Memberen"],
+  "{0} résultats": ["{0} results", "{0} Ergebnisse", "{0} Resultater"],
+  "{0} sessions et autorisations": [
+    "{0} sessions and authorizations",
+    "{0} Sitzungen und Autorisierungen",
+    "{0} Sessiounen an Autorisatiounen"
+  ],
+  "{0} ateliers": ["{0} workshops", "{0} Werkstätten", "{0} Atelieren"],
+  "Page {0} sur {1}": [
+    "Page {0} of {1}",
+    "Seite {0} von {1}",
+    "Säit {0} vun {1}"
+  ],
+  "{0}–{1} sur {2}": ["{0}–{1} of {2}", "{0}–{1} von {2}", "{0}–{1} vun {2}"],
+  "Pièce jointe": ["Attachment", "Anhang", "Unhang"],
+  "Coût de transmission": [
+    "Delivery cost",
+    "Übermittlungskosten",
+    "Iwwermëttlungskäschten"
+  ],
+  "Hébergement": ["Hosting", "Hosting", "Hosting"],
+  "Plafond": ["Limit", "Obergrenze", "Limit"],
+  "Lien protégé": ["Protected link", "Geschützter Link", "Geschützte Link"],
+  "Devis": ["Quote", "Angebot", "Offer"],
+  "Filtres": ["Filters", "Filter", "Filteren"],
+  "1 envoi créé sur la période sans coût fournisseur vérifié. Une valeur absente ne signifie pas un coût nul.": [
+    "1 dispatch created in this period has no verified provider cost. A missing value does not mean zero cost.",
+    "1 in diesem Zeitraum erstellte Sendung hat keine bestätigten Anbieterkosten. Ein fehlender Wert bedeutet keine Kosten von null.",
+    "1 Sendung aus dësem Zäitraum huet keng iwwerpréift Ubidderkäschten. E feelende Wäert bedeit net, datt et keng Käschte gëtt."
+  ],
+  "{0} envois créés sur la période sans coûts fournisseurs vérifiés. Une valeur absente ne signifie pas un coût nul.": [
+    "{0} dispatches created in this period have no verified provider costs. A missing value does not mean zero cost.",
+    "{0} in diesem Zeitraum erstellte Sendungen haben keine bestätigten Anbieterkosten. Ein fehlender Wert bedeutet keine Kosten von null.",
+    "{0} Sendungen aus dësem Zäitraum hu keng iwwerpréift Ubidderkäschten. E feelende Wäert bedeit net, datt et keng Käschte gëtt."
+  ],
+  "1 débit d’abonnement enregistré sur la période, inclus dans la consommation totale. Il n’est pas compté comme un envoi.": [
+    "1 subscription debit recorded in this period, included in total consumption. It is not counted as a dispatch.",
+    "1 in diesem Zeitraum erfasste Abonnementbelastung ist im Gesamtverbrauch enthalten. Sie zählt nicht als Sendung.",
+    "1 Abonnementsbelaaschtung aus dësem Zäitraum ass am Gesamtverbrauch enthalen. Si zielt net als Sendung."
+  ],
+  "{0} débits d’abonnement enregistrés sur la période, inclus dans la consommation totale. Ils ne sont pas comptés comme des envois.": [
+    "{0} subscription debits recorded in this period, included in total consumption. They are not counted as dispatches.",
+    "{0} in diesem Zeitraum erfasste Abonnementbelastungen sind im Gesamtverbrauch enthalten. Sie zählen nicht als Sendungen.",
+    "{0} Abonnementsbelaaschtungen aus dësem Zäitraum sinn am Gesamtverbrauch enthalen. Si zielen net als Sendungen."
+  ],
+  "Soumission en cours": ["Submitting", "Wird übermittelt", "Gëtt iwwerdroen"],
+  "Montants en EUR sauf indication · Heures affichées : {0}": [
+    "Amounts in EUR unless stated · Times shown in: {0}",
+    "Beträge in EUR, falls nicht anders angegeben · Zeitzone: {0}",
+    "Beträg an EUR, ausser anescht uginn · Zäitzon: {0}"
+  ],
+  "Dates incluses.": [
+    "Inclusive dates.",
+    "Einschließlich beider Daten.",
+    "Béid Datumer abegraff."
   ]
 }

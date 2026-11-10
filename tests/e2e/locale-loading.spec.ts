@@ -95,7 +95,7 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
         await expect(
           page.getByRole("heading", {
             level: 1,
-            name: copies[locale].documents.title,
+            name: copies[locale].nav.documents,
             exact: true,
           }),
         ).toBeVisible();
@@ -178,7 +178,7 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
       if (space === "workspace")
         expect(
           metrics.headings.every(
-            (heading) => heading.title === copies[locale].documents.title,
+            (heading) => heading.title === copies[locale].nav.documents,
           ),
         ).toBe(true);
       expect(metrics.headings.every((heading) => heading.lang === locale)).toBe(

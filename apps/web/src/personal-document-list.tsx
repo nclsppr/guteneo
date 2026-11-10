@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -25,10 +25,11 @@ import {
   go,
   Loading,
   PageHeading,
-  RefreshButton,
   useAction,
+  useRefreshOnFocus,
 } from "./components";
 import { formatLocale } from "./locale";
+import { useCurrentClientView } from "./client-write-recovery";
 import { msg } from "./messages";
 import { personalApi, type PersonalSession } from "./personal-api";
 import { PersonalSecurityNotice } from "./personal-space";
@@ -149,6 +150,9 @@ export function PersonalDocumentList({
   /** Increments after a change made from a document, to reread this page. */
   revision?: number;
 }) {
+  const currentView = useCurrentClientView(
+    JSON.stringify([session.user.id, session.csrfToken]),
+  );
   const [pageResult, setResult] = useState<ListPage>();
   const [loadedPath, setLoadedPath] = useState<string>();
   // One cursor per visited page; the first page has none.
@@ -181,7 +185,31 @@ export function PersonalDocumentList({
   const listPath = `/personal/documents?${params.toString()}`;
   // A changed filter never lends its predecessor's page or cursor to the new URL.
   const result = loadedPath === listPath ? pageResult : undefined;
-  useEffect(() => setSearchInput(query.search), [query.search]);
+  const refresh = useCallback(() => setVersion((current) => current + 1), []);
+  const searchRoute = personalDocumentRoute(query, {
+    search: searchInput.trim(),
+  });
+  useRefreshOnFocus(refresh, active);
+  useEffect(
+    () => setSearchInput(query.search),
+    [
+      query.kind,
+      query.search,
+      query.status,
+      query.sender,
+      query.sort,
+      query.size,
+    ],
+  );
+  useEffect(() => {
+    const search = searchInput.trim();
+    if (!active || search === query.search) return;
+    const isCurrent = currentView();
+    const timer = setTimeout(() => {
+      if (isCurrent()) go(searchRoute);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [active, currentView, searchInput, query.search, searchRoute]);
   useEffect(() => {
     const controller = new AbortController();
     const requestedRevision = latestRevision.current;
@@ -361,10 +389,7 @@ export function PersonalDocumentList({
   const filtered = Boolean(query.search || query.status || query.sender);
   return (
     <div className="secure-document-layout" hidden={!active}>
-      <PageHeading
-        title={msg("My documents")}
-        action={<RefreshButton onClick={() => setVersion((n) => n + 1)} />}
-      />
+      <PageHeading title={msg("My documents")} />
       <nav
         className="secure-document-tabs"
         aria-label={msg("Document categories")}
@@ -434,9 +459,6 @@ export function PersonalDocumentList({
               onChange={(event) => setSearchInput(event.target.value)}
             />
           </Field>
-          <button className="button" type="submit">
-            {msg("Search")}
-          </button>
         </form>
         <div className="personal-document-controls">
           <Field label={msg("Sender")}>
@@ -535,9 +557,18 @@ export function PersonalDocumentList({
             <li key={item.id}>
               <div>
                 <h2 id={`personal-document-${encodeURIComponent(item.id)}`}>
-                  {item.status === "pending"
-                    ? msg("Document awaiting verification")
-                    : item.title}
+                  <a
+                    className="personal-document-link"
+                    href={`#/app/my-documents/${encodeURIComponent(item.id)}`}
+                    data-document-link={item.id}
+                    onClick={() => {
+                      opened.current = { id: item.id, scrollY: window.scrollY };
+                    }}
+                  >
+                    {item.status === "pending"
+                      ? msg("Document awaiting verification")
+                      : item.title}
+                  </a>
                 </h2>
                 <p>{msg("Sender: {0}", item.sender)}</p>
                 <div className="personal-document-meta">
@@ -547,22 +578,28 @@ export function PersonalDocumentList({
                     <LockKey size={14} aria-hidden="true" />
                     {personalDocumentStatus(item.status)}
                   </span>
-                  {rowDate(item) && <small>{rowDate(item)}</small>}
+                  {rowDate(item) && (
+                    <small
+                      className={
+                        item.status === "active" &&
+                        Date.parse(item.expiresAt) > Date.now() &&
+                        Date.parse(item.expiresAt) - Date.now() <=
+                          (summary?.expiringDays ?? 14) * 86_400_000
+                          ? "personal-document-expiring"
+                          : undefined
+                      }
+                    >
+                      {rowDate(item)}
+                    </small>
+                  )}
                   <small>{msg("Received {0}", date(item.createdAt))}</small>
                 </div>
               </div>
-              <a
-                className="button"
-                href={`#/app/my-documents/${encodeURIComponent(item.id)}`}
-                data-document-link={item.id}
-                aria-describedby={`personal-document-${encodeURIComponent(item.id)}`}
-                onClick={() => {
-                  opened.current = { id: item.id, scrollY: window.scrollY };
-                }}
-              >
-                {msg("Open the document")}
-                <ArrowRight size={18} aria-hidden="true" />
-              </a>
+              <ArrowRight
+                className="personal-document-open-icon"
+                size={18}
+                aria-hidden="true"
+              />
             </li>
           ))}
         </ul>

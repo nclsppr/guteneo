@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { Client } from "@modelcontextprotocol/client";
 import { InMemoryTransport } from "@modelcontextprotocol/server";
 import { PdfValidationService } from "../../apps/api/src/pdf-validation";
+import worker from "../../apps/api/src/index";
 import {
   DomainService,
   sha256,
@@ -211,7 +212,7 @@ const key = () => crypto.randomUUID();
 
 async function tenantPeer(
   f: Awaited<ReturnType<typeof fixture>>,
-  role: "member" | "admin",
+  role: "member" | "admin" | "viewer",
 ) {
   const userId = `user_${key()}`;
   const now = new Date().toISOString();
@@ -243,7 +244,7 @@ async function tenantPeer(
       },
     }),
     f.env,
-    true,
+    role !== "viewer",
   );
   return { userId, authority };
 }
@@ -293,6 +294,182 @@ async function diagnosticClient(
 }
 
 describe("immutable PDF diagnostics and explicit per-check purchases", () => {
+  it("keeps processing and failed checks distinct from completed diagnostic results", async () => {
+    const f = await fixture();
+    let started!: () => void;
+    const engineStarted = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    let complete!: () => void;
+    f.fetch.mockImplementationOnce(async () => {
+      started();
+      return new Promise<Response>((resolve) => {
+        complete = () => resolve(Response.json(engineResult("ua1")));
+      });
+    });
+    const pending = f.service.validate(
+      f.authority,
+      f.document.id,
+      purchase("ua1"),
+      key(),
+    );
+    await engineStarted;
+    try {
+      expect((await f.service.history(f.authority)).items).toEqual([
+        expect.objectContaining({ status: "processing", completedAt: null }),
+      ]);
+    } finally {
+      complete();
+    }
+    await pending;
+    f.fetch.mockRejectedValueOnce(new Error("Synthetic engine unavailable"));
+    await expect(
+      f.service.validate(f.authority, f.document.id, purchase("1b"), key()),
+    ).rejects.toMatchObject({ code: "PDF_VALIDATION_FAILED" });
+    const history = await f.service.history(f.authority);
+    expect(history.items.find((item) => item.status === "error")).toMatchObject(
+      { completedAt: null, profile: "1b" },
+    );
+    expect(
+      history.items.find((item) => item.status === "passed"),
+    ).toMatchObject({ completedAt: expect.any(String), profile: "ua1" });
+    expect(f.fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("lists only bounded check metadata with stable chronological cursors and no new purchase", async () => {
+    const f = await fixture();
+    await f.service.validate(
+      f.authority,
+      f.document.id,
+      purchase("ua1"),
+      key(),
+    );
+    await f.service.validate(f.authority, f.document.id, purchase("1b"), key());
+    const before = await getPdfValidationPricing(f.env, f.actor);
+    const first = await f.service.history(f.authority, undefined, 1);
+    expect(first.items).toHaveLength(1);
+    expect(first.nextCursor).toEqual(expect.any(String));
+    expect(first.items[0]).toEqual({
+      id: expect.any(String),
+      documentId: f.document.id,
+      documentName: f.document.name,
+      profile: expect.any(String),
+      status: "passed",
+      evidence: "simulation",
+      createdAt: expect.any(String),
+      completedAt: expect.any(String),
+    });
+    const second = await f.service.history(f.authority, first.nextCursor!, 1);
+    expect(second.items).toHaveLength(1);
+    expect(second.items[0].id).not.toBe(first.items[0].id);
+    expect(second.nextCursor).toBeNull();
+    expect(f.fetch).toHaveBeenCalledTimes(2);
+    expect(await getPdfValidationPricing(f.env, f.actor)).toEqual(before);
+    for (const limit of [0, 51, 1.5, NaN])
+      await expect(
+        f.service.history(f.authority, undefined, limit),
+      ).rejects.toMatchObject({ code: "INVALID_INPUT" });
+    for (const cursor of [
+      "bad",
+      btoa("{}"),
+      btoa(JSON.stringify({ createdAt: "bad", id: "id" })),
+    ])
+      await expect(
+        f.service.history(f.authority, cursor),
+      ).rejects.toMatchObject({ code: "INVALID_CURSOR" });
+  });
+
+  it("keeps private reports out of peers' history while observers retain existing shared-document read access", async () => {
+    const f = await fixture(true, true);
+    await f.service.validate(
+      f.authority,
+      f.document.id,
+      purchase("ua1"),
+      key(),
+    );
+    const shared = await f.domain.registerDocument(f.actor, {
+      name: "Shared synthetic.pdf",
+      sha256: hash,
+      size: bytes.length,
+      pages: 1,
+      status: "ready",
+      source: "import",
+      storageKey: f.document.storage_key,
+    });
+    await f.service.validate(f.authority, shared.id, purchase("1b"), key());
+    expect((await f.service.history(f.authority)).items).toHaveLength(2);
+    for (const role of ["member", "admin", "viewer"] as const) {
+      const peer = await tenantPeer(f, role);
+      const history = await f.service.history(peer.authority);
+      expect(history.items.map((item) => item.documentId)).toEqual([shared.id]);
+      expect(
+        history.items.every((item) => item.documentName !== f.document.name),
+      ).toBe(true);
+    }
+    const other = await fixture(false);
+    expect(await other.service.history(other.authority)).toEqual({
+      items: [],
+      nextCursor: null,
+    });
+    expect(other.fetch).not.toHaveBeenCalled();
+  });
+
+  it("rejects authority loss after the history read rather than publishing old metadata", async () => {
+    const f = await fixture();
+    await f.service.validate(
+      f.authority,
+      f.document.id,
+      purchase("ua1"),
+      key(),
+    );
+    let assertions = 0;
+    await expect(
+      f.service.history({
+        ...f.authority,
+        async assertCurrent() {
+          if (++assertions === 2)
+            await DB.prepare("DELETE FROM browser_sessions WHERE token_hash=?")
+              .bind(f.tokenHash)
+              .run();
+          await f.authority.assertCurrent();
+        },
+      }),
+    ).rejects.toMatchObject({ code: "SESSION_EXPIRED" });
+    expect(assertions).toBe(2);
+    expect(f.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("mounts browser-only history without exposing it to assistant credentials or public caching", async () => {
+    const f = await fixture(false);
+    const request = (headers: HeadersInit) =>
+      worker.fetch(
+        new Request(`${origin}/api/pdf-validation/history`, { headers }),
+        f.env,
+        {} as ExecutionContext,
+      );
+    expect((await request({})).status).toBe(401);
+    const bearer = await request({
+      Authorization: "Bearer untrusted-test-token",
+    });
+    expect(bearer.status).toBe(403);
+    expect(await bearer.json()).toMatchObject({
+      error: { code: "BROWSER_REQUIRED" },
+    });
+    const response = await request(f.authRequest.headers);
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Cache-Control")).toBe("private, no-store");
+    expect(await response.json()).toEqual({ items: [], nextCursor: null });
+    await DB.prepare(
+      "UPDATE http_limits SET count=180 WHERE organization_id=? AND window_start=?",
+    )
+      .bind(f.actor.organizationId, Math.floor(Date.now() / 60000))
+      .run();
+    const limited = await request(f.authRequest.headers);
+    expect(limited.status).toBe(429);
+    expect(limited.headers.get("Retry-After")).toBe("60");
+    expect(f.fetch).not.toHaveBeenCalled();
+  });
+
   it("requires current human purchase consent bound to the exact PDF, profile and unit price", async () => {
     const f = await fixture();
     await expect(
@@ -996,7 +1173,9 @@ describe("immutable PDF diagnostics and explicit per-check purchases", () => {
       const names = tools.map((tool) => tool.name);
       // An assistant can only replay an existing report, so the tool reads.
       // The connection's last-used time is connection metadata, not its effect.
-      const validationTool = tools.find((tool) => tool.name === "validate_pdf")!;
+      const validationTool = tools.find(
+        (tool) => tool.name === "validate_pdf",
+      )!;
       expect(validationTool.annotations).toEqual({
         title: validationTool.title,
         readOnlyHint: true,

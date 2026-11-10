@@ -1,0 +1,171 @@
+{
+  "date": "2026-11-10",
+  "candidateVersion": "1.2.3",
+  "branch": "worktree-trim-helper-copy-20261109",
+  "baselineMain": "551ca4c8",
+  "originalClaudeHead": "39375884",
+  "replayedHead": "71f7cd8af896b91bd57f280a6090a9c8c2120e05",
+  "implementationCommit": "b1f29c3799bd1b0c1cc061cc8f78e3faf8ae1b1b",
+  "source": {
+    "previewBuildCommit": "b1f29c3799bd1b0c1cc061cc8f78e3faf8ae1b1b",
+    "buildWasDirty": false,
+    "sourceSnapshotSha256": "be2989dc1b185eb83f2b4ac9e6e181537ee77df44338ce008a946134ae875db0",
+    "snapshotMatchedCommittedImplementation": true,
+    "snapshotMatchMethod": "scripts/release-source.mjs sourceSnapshot on preview scope; no change to code after matching"
+  },
+  "checks": {
+    "typecheck": "passed",
+    "lint": "passed",
+    "ownershipFiles": 274,
+    "standards": "passed",
+    "docsBuildAndCheck": "passed",
+    "engineeringBuildAndCheck": "passed",
+    "engineeringSecurityTests": 4,
+    "build": "passed; Worker dry run only",
+    "previewBuild": "passed; local SSR development WebSocket listen refused, static build completed",
+    "vitest": {
+      "files": 215,
+      "passedFiles": 118,
+      "failedFiles": 97,
+      "tests": 4094,
+      "passed": 1998,
+      "failed": 57,
+      "skippedAfterSetupFailure": 2039,
+      "unhandledErrors": 1,
+      "result": "not green",
+      "failures": "Loopback EPERM and blocked real renderer/browser; no successful D1 or browser proof inferred",
+      "report": "reports/clarity-vitest-final.json"
+    },
+    "security": {
+      "tests": 733,
+      "passed": 702,
+      "failed": 31,
+      "skipped": 0,
+      "result": "not green",
+      "blockers": {
+        "loopbackListenRefused": 28,
+        "browserMachPortPermission": 1,
+        "validatorPythonTimeoutWithConfirmedSocketBindRefusal": 1,
+        "offlineNetworkProbeUnproven": 1
+      },
+      "log": "reports/clarity-security-final.log"
+    },
+    "sqliteSmoke": {
+      "command": "node --import tsx tests/offline/clarity-sqlite.mts",
+      "assertions": 26,
+      "migrations": 82,
+      "syntheticEngineCalls": 2,
+      "quickCheck": "ok",
+      "foreignKeyViolations": 0,
+      "runtime": "Node24.18.0 native SQLite3.53.1, in-memory synthetic D1 adapter",
+      "notProven": [
+        "Cloudflare D1/workerd",
+        "real provider send",
+        "production schema"
+      ]
+    },
+    "additionalFocusedRuns": {
+      "thumbnailBounds": 4,
+      "belvedereLocale": 8,
+      "tableAndFoundation": 34,
+      "openapi": 17,
+      "note": "Separate invocations; do not add these to the single full-run pass count"
+    },
+    "integrations": {
+      "version": "1.2.3",
+      "fingerprints": "matched",
+      "mcpUiProbeResource": "checked",
+      "mcpDocumentUploadResource": "checked",
+      "zipCrc": "passed",
+      "zipBytes": 1351420,
+      "zipSha256": "ea8af3b2d85d0df1c7fd71c5c00b6eb084216c671a7a3112c9ec9ebf182e6435"
+    },
+    "ios": {
+      "xcode": "27.2",
+      "globalXcodeSelectionChanged": false,
+      "unsignedDeviceBuild": "failed at Icon Studio export after CoreSimulator denial",
+      "tests": "not run",
+      "distribution": "not attempted"
+    },
+    "browserAndVisual": "not qualified; Chromium MachPort permission and WebKit abort before page creation; no fresh loading metrics"
+  },
+  "openRequirements": [
+    "Successful exact-source browser and D1/workerd qualification in hosted CI",
+    "Production migration/runtime qualification and served-version readback",
+    "Native qualification remains separate from this unchanged-native-code application release"
+  ],
+  "productionEffects": {
+    "push": false,
+    "pullRequest": false,
+    "merge": false,
+    "migration": false,
+    "deployment": false,
+    "realCommunication": false,
+    "paidProvisioning": false
+  },
+  "originalClaudeAuditDocuments": "Both have a dated execution update; historical findings retained",
+  "buildSizes": {
+    "environment": "macOS, Node24.18.0, Vite8.3.5; local build bytes, not HTTP transfers",
+    "chunks": [
+      {
+        "name": "index-LhMq7q8w.js",
+        "rawBytes": 680471,
+        "localGzipBytes": 220368
+      },
+      {
+        "name": "fr-DQ93kJq6.js",
+        "rawBytes": 508314,
+        "localGzipBytes": 154498
+      },
+      {
+        "name": "en-8yQsZBhX.js",
+        "rawBytes": 495951,
+        "localGzipBytes": 151259
+      },
+      {
+        "name": "de-D8zCPukE.js",
+        "rawBytes": 764301,
+        "localGzipBytes": 235147
+      },
+      {
+        "name": "lb-Cy8tBRUU.js",
+        "rawBytes": 762405,
+        "localGzipBytes": 235725
+      },
+      {
+        "name": "template-thumbnail-render-8OnczLPl.js",
+        "rawBytes": 9782,
+        "localGzipBytes": 3901
+      },
+      {
+        "name": "pdfme-Ck9VNu2u.js",
+        "rawBytes": 2409264,
+        "localGzipBytes": 753276
+      },
+      {
+        "name": "template-designer-Y0FTWQfU.js",
+        "rawBytes": 4140429,
+        "localGzipBytes": 1407671
+      }
+    ]
+  },
+  "evidenceScope": "Historical local proof through1b63fd5; subsequent completion-pass qualification is recorded separately and must not inherit these build/test results.",
+  "completionPass": {
+    "implemented": [
+      "Shared fixedUTC contract across five application display/filter/input surfaces",
+      "Localized cancel-focused one-use dirty-navigation continuation",
+      "Public read-only Studio fixtures with explicit write refusal",
+      "Focus refresh preserving unsent Studio input",
+      "PDF main-action deduplication",
+      "Exact-main schema-first operator release workflow"
+    ],
+    "qualification": "Focused unit and release guard checks passed; combined-source hosted CI and production actions pending",
+    "localBrowser": "No further local launch attempts after supplied macOS WebKit startup SIGABRT",
+    "productionObserved": {
+      "version": "1.2.1",
+      "sourceCommit": "551ca4c85081bef321410c8b0198c076f3172409",
+      "health": "ok",
+      "observation": "Normal browser read; no deployment"
+    }
+  }
+}

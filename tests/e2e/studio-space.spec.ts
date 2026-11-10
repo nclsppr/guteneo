@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { blankTemplate } from "../../packages/templates/gallery";
 
 // Synthetic responses only: no account, document or workspace is written.
 async function fixture(
@@ -455,4 +456,177 @@ test("menus opened on a page stay closed when the person returns to it", async (
   await page.goto("/#/app");
   await page.goto("/#/app/documents");
   await expect(account).toHaveAttribute("aria-expanded", "false");
+});
+
+test("Studio empty libraries reuse shared states and never render or prepare on entry", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  for (const [path, title] of [
+    ["templates", "Aucun modèle pour le moment"],
+    ["datasets", "Aucun fichier de données pour le moment"],
+    ["generations", "Aucune génération pour le moment"],
+  ]) {
+    await page.goto(`/#/app/studio/${path}`);
+    await expect(
+      page
+        .locator(".empty-state")
+        .getByRole("heading", { name: title, exact: true }),
+    ).toBeVisible();
+    if (path === "templates") {
+      await expect(
+        page.getByRole("button", { name: "Nouveau modèle", exact: true }),
+      ).toBeVisible();
+      await expect(page.locator(".studio-gallery > button")).toHaveCount(5);
+      await expect(page.locator(".studio-demo-intro")).toBeVisible();
+    }
+    if (path !== "generations") {
+      await expect(page.locator(".file-input input[type=file]")).toBeAttached();
+      await expect(page.locator(".file-input-drop")).toBeVisible();
+    }
+  }
+  expect(state.writes).toEqual([]);
+  expect(
+    state.reads.some((path) => /\/templates\/[^/]+\/preview/.test(path)),
+  ).toBe(false);
+});
+
+test("template thumbnails render locally only for rows entering the viewport", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  const envelope = blankTemplate();
+  const templates = Array.from({ length: 30 }, (_, index) => ({
+    id: `local-thumbnail-${index}`,
+    name: `Synthetic template ${index}`,
+    ownerId: "studio-user",
+    state: "draft",
+    visibility: "private",
+    revision: 1,
+    currentVersion: null,
+    permissions: { use: true, edit: true, publish: true, share: true },
+    canDelete: true,
+    envelope,
+    createdAt: "2026-11-10T09:00:00.000Z",
+    updatedAt: "2026-11-10T09:00:00.000Z",
+  }));
+  await page.route("**/api/templates", (route) =>
+    route.fulfill({ json: { items: templates, nextCursor: null } }),
+  );
+  await page.goto("/#/app/studio/templates");
+  const rows = page.locator(".studio-template-row");
+  await expect(rows).toHaveCount(30);
+  await expect(
+    rows.first().locator(".studio-template-thumbnail img"),
+  ).toBeVisible({ timeout: 30000 });
+  await expect(
+    rows.last().locator(".studio-template-thumbnail img"),
+  ).toHaveCount(0);
+  await rows.last().scrollIntoViewIfNeeded();
+  await expect(
+    rows.last().locator(".studio-template-thumbnail img"),
+  ).toBeVisible({ timeout: 30000 });
+  await expect(
+    rows.last().locator(".studio-template-thumbnail img"),
+  ).toHaveAttribute("src", /^blob:/);
+  expect(state.writes).toEqual([]);
+  expect(
+    state.reads.some(
+      (path) => path.includes("/documents/") || path.endsWith("/preview"),
+    ),
+  ).toBe(false);
+});
+
+test("returning to Studio libraries rereads their lists and preserves unsubmitted inputs", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  const template = {
+    id: "remote-template",
+    name: "Updated template from another client",
+    ownerId: "studio-user",
+    state: "published",
+    visibility: "private",
+    revision: 1,
+    currentVersion: 1,
+    permissions: { use: true, edit: true, publish: true, share: true },
+    canDelete: true,
+    envelope: blankTemplate(),
+    createdAt: "2026-11-10T09:00:00.000Z",
+    updatedAt: "2026-11-10T09:00:00.000Z",
+  };
+  for (const [path, endpoint, item, destination] of [
+    [
+      "templates",
+      "/templates",
+      template,
+      "/app/studio/template/remote-template",
+    ],
+    [
+      "datasets",
+      "/datasets",
+      {
+        id: "remote-dataset",
+        name: "Updated data from another client",
+        format: "csv",
+        size: 20,
+        status: "ready",
+        createdAt: "2026-11-10T09:00:00.000Z",
+      },
+      "/app/studio/dataset/remote-dataset",
+    ],
+    [
+      "generations",
+      "/generation-jobs",
+      {
+        id: "remote-generation",
+        templateId: template.id,
+        templateVersion: 1,
+        state: "completed",
+        total: 1,
+        generated: 1,
+        failed: 0,
+        pending: 0,
+        cancelled: 0,
+        createdAt: "2026-11-10T09:00:00.000Z",
+      },
+      "/app/studio/generation/remote-generation",
+    ],
+  ] as const) {
+    await page.goto(`/#/app/studio/${path}`);
+    await expect(page.locator(".empty-state")).toBeVisible();
+    if (path === "templates") {
+      await page
+        .getByRole("button", { name: "Nouveau modèle", exact: true })
+        .click();
+      await page
+        .getByLabel("Nom du modèle", { exact: true })
+        .fill("Unsubmitted template name");
+    } else if (path === "datasets") {
+      await page
+        .locator('main input[type="file"]')
+        .setInputFiles({
+          name: "unsubmitted.csv",
+          mimeType: "text/csv",
+          buffer: Buffer.from("name\nFictional\n"),
+        });
+    }
+    await page.route(
+      (url) => url.pathname === `/api${endpoint}`,
+      (route) => route.fulfill({ json: { items: [item], nextCursor: null } }),
+    );
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await expect(
+      page.locator(`main a[href="#${destination}"]`).first(),
+    ).toBeVisible();
+    if (path === "templates")
+      await expect(
+        page.getByLabel("Nom du modèle", { exact: true }),
+      ).toHaveValue("Unsubmitted template name");
+    else if (path === "datasets")
+      await expect(page.locator(".file-input-name")).toHaveText(
+        "unsubmitted.csv",
+      );
+  }
+  expect(state.writes).toEqual([]);
 });

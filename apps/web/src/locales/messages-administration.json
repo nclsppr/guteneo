@@ -523,5 +523,87 @@
     "Each export is recorded in the audit log.",
     "Jeder Export wird im Prüfprotokoll erfasst.",
     "All Export gëtt am Auditprotokoll erfaasst."
+  ],
+  "1 envoi demande une vérification.": [
+    "1 dispatch needs attention.",
+    "1 Sendung muss geprüft werden.",
+    "1 Sendung muss iwwerpréift ginn."
+  ],
+  "Dates personnalisées": [
+    "Custom dates",
+    "Eigener Zeitraum",
+    "Eegenen Zäitraum"
+  ],
+  "Colonnes": ["Columns", "Spalten", "Kolonnen"],
+  "Format de {0}": ["Format for {0}", "Format für {0}", "Format fir {0}"],
+  "Les périodes des rapports utilisent UTC. Une période couvre au plus 366 jours.": [
+    "Report periods use UTC. A period covers at most 366 days.",
+    "Berichtszeiträume verwenden UTC. Ein Zeitraum umfasst höchstens 366 Tage.",
+    "Berichterzäitraim benotzen UTC. En Zäitraum ëmfaasst héchstens 366 Deeg."
+  ],
+  "Envoi approuvé": [
+    "Dispatch approved",
+    "Sendung genehmigt",
+    "Sendung geneemegt"
+  ],
+  "Envoi approuvé par délégation": [
+    "Dispatch approved by delegation",
+    "Sendung durch Delegation genehmigt",
+    "Sendung duerch Delegatioun geneemegt"
+  ],
+  "Envoi annulé": [
+    "Dispatch cancelled",
+    "Sendung storniert",
+    "Sendung annuléiert"
+  ],
+  "Analyse du document vérifiée": [
+    "Document scan verified",
+    "Dokumentenprüfung bestätigt",
+    "Dokumentanalyse iwwerpréift"
+  ],
+  "Rôle du membre modifié": [
+    "Member role changed",
+    "Mitgliedsrolle geändert",
+    "Roll vum Member geännert"
+  ],
+  "Accès du membre révoqué": [
+    "Member access revoked",
+    "Mitgliedszugang widerrufen",
+    "Zougang vum Member zréckgezunn"
+  ],
+  "Paramètres du compte modifiés": [
+    "Account settings updated",
+    "Kontoeinstellungen aktualisiert",
+    "Kontastellungen aktualiséiert"
+  ],
+  "Session révoquée": [
+    "Session revoked",
+    "Sitzung widerrufen",
+    "Sessioun zréckgezunn"
+  ],
+  "Délégation activée": [
+    "Delegation enabled",
+    "Delegation aktiviert",
+    "Delegatioun aktivéiert"
+  ],
+  "Délégation révoquée": [
+    "Delegation revoked",
+    "Delegation widerrufen",
+    "Delegatioun zréckgezunn"
+  ],
+  "Rapport exporté": [
+    "Report exported",
+    "Bericht exportiert",
+    "Bericht exportéiert"
+  ],
+  "Action enregistrée": [
+    "Recorded action",
+    "Aufgezeichnete Aktion",
+    "Opgeholl Aktioun"
+  ],
+  "Une période couvre au plus 366 jours.": [
+    "A period covers at most 366 days.",
+    "Ein Zeitraum umfasst höchstens 366 Tage.",
+    "En Zäitraum ëmfaasst héchstens 366 Deeg."
   ]
 }

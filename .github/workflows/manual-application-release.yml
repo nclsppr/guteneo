@@ -1,0 +1,84 @@
+name: Publish reviewed application manually
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_commit:
+        description: Exact current main commit with its published version tag
+        type: string
+        required: true
+      ci_run_id:
+        description: Successful Guteneo checks push run for that exact main commit
+        type: string
+        required: true
+      ci_run_attempt:
+        description: Current successful attempt of that checks run
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: guteneo-production-application
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      WRANGLER_SEND_METRICS: "false"
+      CI: "true"
+    steps:
+      - name: Set the release evidence location
+        run: echo "MANUAL_RELEASE_EVIDENCE_DIR=$RUNNER_TEMP/manual-application-release" >> "$GITHUB_ENV"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Require exact current main, successful complete CI and remote tag
+        run: node scripts/ci/manual-application-release.mjs qualify
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Require separate existing application and D1 credentials
+        env:
+          APPLICATION_TOKEN: ${{ secrets.CLOUDFLARE_APP_RELEASE_API_TOKEN }}
+          MIGRATION_TOKEN: ${{ secrets.CLOUDFLARE_D1_MIGRATION_API_TOKEN }}
+        run: |
+          test -n "$APPLICATION_TOKEN" || { echo 'MANUAL_RELEASE_APPLICATION_CREDENTIAL_REQUIRED'; exit 1; }
+          test -n "$MIGRATION_TOKEN" || { echo 'MANUAL_RELEASE_D1_CREDENTIAL_REQUIRED: no permission expansion or external-proof bypass is automatic.'; exit 1; }
+      - run: npm ci
+      - name: Qualify and apply only reviewed missing index migrations before runtime
+        run: node scripts/ci/manual-application-release.mjs schema
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CLOUDFLARE_D1_MIGRATION_API_TOKEN: ${{ secrets.CLOUDFLARE_D1_MIGRATION_API_TOKEN }}
+      - name: Recheck exact qualification, publish and verify served bytes
+        shell: bash
+        run: |
+          set -o pipefail
+          node scripts/ci/manual-application-release.mjs publish 2>&1 | tee "$MANUAL_RELEASE_EVIDENCE_DIR/release.log"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_APP_RELEASE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: "39ac9fada6cba44d9ecf09d467609e69"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: manual-application-release-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/manual-application-release/
+            dist/web/release.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Explain incomplete schema or publication
+        if: failure()
+        run: |
+          echo 'Manual publication is unverified. Inspect the retained schema ledger/bookmark and current served release before another operator-triggered attempt. An unknown migration outcome is never retried automatically; no rollback or provider send is performed.' >> "$GITHUB_STEP_SUMMARY"

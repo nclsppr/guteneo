@@ -3,10 +3,11 @@ import { useCallback, useState, type ReactNode } from "react";
 import {
   dispatchGroupNames,
   isDispatchGroup,
+  type DispatchOverview,
 } from "../../../packages/contracts/src/dispatch-groups";
 import { Plus } from "@phosphor-icons/react";
 import { type Dispatch, type Page } from "./api";
-import { t } from "./locale";
+import { formatLocale, t } from "./locale";
 import {
   DispatchTable,
   ErrorNotice,
@@ -19,7 +20,18 @@ import {
   useRoute,
 } from "./components";
 
-export function DispatchList({ canPrepare = true }: { canPrepare?: boolean }) {
+export function DispatchList({
+  canPrepare = true,
+  canViewReports = false,
+}: {
+  canPrepare?: boolean;
+  canViewReports?: boolean;
+}) {
+  const overview = useResource<DispatchOverview>(
+    canViewReports ? "/overview" : null,
+  );
+  useRefreshOnFocus(overview.refresh, canViewReports);
+  const counts = overview.data?.dispatches;
   const route = useRoute();
   const requested = new URLSearchParams(route.split("?")[1]).get("group");
   const group = isDispatchGroup(requested) ? requested : undefined;
@@ -27,7 +39,7 @@ export function DispatchList({ canPrepare = true }: { canPrepare?: boolean }) {
   return (
     <>
       <PageHeading
-        title={t.dispatch.listTitle}
+        title={t.nav.dispatches}
         action={
           canPrepare && (
             <a
@@ -55,8 +67,21 @@ export function DispatchList({ canPrepare = true }: { canPrepare?: boolean }) {
                 item ? `#/app/dispatches?group=${item}` : "#/app/dispatches"
               }
               aria-current={item === group ? "page" : undefined}
+              aria-label={t.dispatch.groups[item ?? "all"]}
+              aria-description={
+                counts
+                  ? `${t.nav.dispatches}: ${new Intl.NumberFormat(formatLocale()).format(counts[item ?? "total"])}`
+                  : undefined
+              }
             >
               {t.dispatch.groups[item ?? "all"]}
+              {counts && (
+                <span className="dispatch-filter-count" aria-hidden="true">
+                  {new Intl.NumberFormat(formatLocale()).format(
+                    counts[item ?? "total"],
+                  )}
+                </span>
+              )}
             </a>
           ))}
         </nav>
@@ -90,7 +115,9 @@ function DispatchListResults({
     <>
       <div className="section-toolbar">
         {children}
-        <RefreshButton onClick={reload} disabled={resource.loading} />
+        {extended && (
+          <RefreshButton onClick={reload} disabled={resource.loading} />
+        )}
       </div>
       <ErrorNotice error={resource.error} retry={reload} />
       {resource.loading && !resource.data ? (
@@ -102,6 +129,7 @@ function DispatchListResults({
         ) : (
           <DispatchTable
             items={resource.data.items}
+            statusFilter={false}
             emptyAction={
               canPrepare && (
                 <div className="button-group">

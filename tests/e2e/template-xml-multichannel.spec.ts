@@ -18,7 +18,7 @@ async function login(page: Page) {
     .getByRole("button", { name: "Entrer dans l’espace de travail" })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+    page.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
   ).toBeVisible();
   const session = (await (
     await page.request.get("/api/session")
@@ -704,8 +704,11 @@ test("account language changes in another tab preserve the studio title and unsa
     path: `reports/templates-data/studio-lb-${testInfo.project.name}.png`,
     fullPage: true,
   });
-  page.once("dialog", (dialog) => dialog.dismiss());
   await page.locator('a.back-link[href="#/app/studio/templates"]').click();
+  const leave = page.locator("dialog.navigation-confirmation");
+  await expect(leave).toBeVisible();
+  await leave.press("Escape");
+  await expect(leave).toBeHidden();
   await expect(page).toHaveURL(/#\/app\/studio\/template\/locale-studio$/);
   await expect(
     page.getByLabel("Numm vun der Virlag", { exact: true }),

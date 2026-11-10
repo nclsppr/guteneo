@@ -28,10 +28,12 @@ import type {
 import { ADMINISTRATION_PDF_MAX_ROWS } from "../../../packages/contracts/src/administration";
 import { administrationRoutes } from "./app-routes";
 import { ActivityChart, BreakdownBars, StatTile } from "./activity-chart";
-import { DataTable, tableTimestamp } from "./data-table";
+import { DataTable, tableTimestamp, type DataTableColumn } from "./data-table";
+import { auditActionLabel } from "./administration-presentation";
 import { date, type Channel } from "./api";
 import {
   DateTimezone,
+  Disclosure,
   EmptyState,
   ErrorNotice,
   Field,
@@ -146,49 +148,88 @@ function PeriodControlsEditor({
           </button>
         ))}
       </div>
-      <form className="administration-custom-period" onSubmit={submit}>
-        <Field label={msg("Start date")}>
-          <input
-            type="date"
-            value={custom.from}
-            max={custom.to}
-            required
-            aria-invalid={invalid || undefined}
-            onChange={(event) => {
-              setInvalid(false);
-              setCustom((current) => ({
-                ...current,
-                from: event.target.value,
-              }));
-            }}
+      {/* Presets cover most reads; custom dates open on demand or when in use. */}
+      <details
+        className="disclosure administration-custom"
+        open={preset == null || invalid || undefined}
+      >
+        <summary>{msg("Custom dates")}</summary>
+        <form className="administration-custom-period" onSubmit={submit}>
+          <Field label={msg("Start date")}>
+            <input
+              type="date"
+              value={custom.from}
+              max={custom.to}
+              required
+              aria-invalid={invalid || undefined}
+              onChange={(event) => {
+                setInvalid(false);
+                setCustom((current) => ({
+                  ...current,
+                  from: event.target.value,
+                }));
+              }}
+            />
+          </Field>
+          <Field label={msg("End date")}>
+            <input
+              type="date"
+              value={custom.to}
+              min={custom.from}
+              required
+              aria-invalid={invalid || undefined}
+              onChange={(event) => {
+                setInvalid(false);
+                setCustom((current) => ({
+                  ...current,
+                  to: event.target.value,
+                }));
+              }}
+            />
+          </Field>
+          <button className="button" type="submit">
+            {msg("Apply")}
+          </button>
+        </form>
+        {invalid && (
+          <ErrorNotice
+            error={new Error(msg("Choose a period of at most 366 days."))}
           />
-        </Field>
-        <Field label={msg("End date")}>
-          <input
-            type="date"
-            value={custom.to}
-            min={custom.from}
-            required
-            aria-invalid={invalid || undefined}
-            onChange={(event) => {
-              setInvalid(false);
-              setCustom((current) => ({ ...current, to: event.target.value }));
-            }}
-          />
-        </Field>
-        <button className="button" type="submit">
-          {msg("Apply")}
-        </button>
-      </form>
-      {invalid && (
-        <ErrorNotice
-          error={new Error(msg("Choose a period of at most 366 days."))}
-        />
-      )}
-      <p className="administration-period-note">
-        {msg("Dates are in UTC. A period covers at most 366 days.")}
-      </p>
+        )}
+        <p className="administration-period-note">
+          {msg("A period covers at most 366 days.")}
+        </p>
+      </details>
     </div>
+  );
+}
+
+function ReportHeading({
+  title,
+  intro,
+  route,
+  path,
+  keep,
+  refresh,
+}: {
+  title: string;
+  intro?: string;
+  route: string;
+  path: string;
+  keep?: Record<string, string | undefined>;
+  refresh?: () => void;
+}) {
+  return (
+    <PageHeading
+      title={title}
+      intro={intro}
+      action={
+        <div className="administration-heading-controls">
+          <PeriodControls route={route} path={path} keep={keep} />
+          {refresh && <RefreshButton onClick={refresh} />}
+        </div>
+      }
+    />
   );
 }
 
@@ -242,11 +283,12 @@ export function AdministrationOverviewPage({ route }: { route: string }) {
   const data = resource.data;
   return (
     <>
-      <PageHeading
+      <ReportHeading
         title={msg("Workspace overview")}
-        action={<RefreshButton onClick={resource.refresh} />}
+        route={route}
+        path={administrationRoutes.home}
+        refresh={resource.refresh}
       />
-      <PeriodControls route={route} path={administrationRoutes.home} />
       <ErrorNotice error={resource.error} retry={resource.refresh} />
       {resource.loading && !data ? (
         <Loading />
@@ -264,10 +306,12 @@ export function AdministrationOverviewPage({ route }: { route: string }) {
                             "{0} accepted dispatches are waiting to be transmitted.",
                             count(incident.count),
                           )
-                        : msg(
-                            "{0} dispatches need attention.",
-                            count(incident.count),
-                          ),
+                        : incident.count === 1
+                          ? msg("1 dispatch needs attention.")
+                          : msg(
+                              "{0} dispatches need attention.",
+                              count(incident.count),
+                            ),
                     )
                     .join(" ")}{" "}
                   <a
@@ -328,36 +372,38 @@ export function AdministrationOverviewPage({ route }: { route: string }) {
                 {msg("Activated in this period")}
               </StatTile>
             </div>
-            <section className="administration-panel">
-              <h2>{msg("Daily activity")}</h2>
-              <ActivityChart
-                label={msg("Daily activity")}
-                data={data.trend}
-                formatDate={day}
-                metrics={[
-                  {
-                    key: "dispatches",
-                    label: msg("Dispatches"),
-                    format: count,
-                  },
-                  {
-                    key: "consumptionMinor",
-                    label: msg("Consumption"),
-                    format: amount,
-                  },
-                  {
-                    key: "connections",
-                    label: msg("Sign-ins"),
-                    format: count,
-                  },
-                ]}
-                empty={
-                  <p className="empty-inline">
-                    {msg("No activity in this period.")}
-                  </p>
-                }
-              />
-            </section>
+            {data.trend.length >= 3 && (
+              <section className="administration-panel">
+                <h2>{msg("Daily activity")}</h2>
+                <ActivityChart
+                  label={msg("Daily activity")}
+                  data={data.trend}
+                  formatDate={day}
+                  metrics={[
+                    {
+                      key: "dispatches",
+                      label: msg("Dispatches"),
+                      format: count,
+                    },
+                    {
+                      key: "consumptionMinor",
+                      label: msg("Consumption"),
+                      format: amount,
+                    },
+                    {
+                      key: "connections",
+                      label: msg("Sign-ins"),
+                      format: count,
+                    },
+                  ]}
+                  empty={
+                    <p className="empty-inline">
+                      {msg("No activity in this period.")}
+                    </p>
+                  }
+                />
+              </section>
+            )}
             <div className="administration-columns">
               <section className="administration-panel">
                 <h2>{msg("Channels")}</h2>
@@ -440,6 +486,12 @@ export function AdministrationActivityPage({ route }: { route: string }) {
   const reference = params.get("q") ?? "";
   const page = pageOf(route);
   const [search, setSearch] = useState(reference);
+  const [hiddenColumns, setHiddenColumns] = useState([
+    "pages",
+    "destination",
+    "reserved",
+    "approved",
+  ]);
   useEffect(() => setSearch(reference), [reference]);
   const state = {
     ...period,
@@ -455,17 +507,16 @@ export function AdministrationActivityPage({ route }: { route: string }) {
     go(routeWith(administrationRoutes.activity, { ...state, ...change }));
   return (
     <>
-      <PageHeading
+      <ReportHeading
         title={msg("Workspace activity")}
-        action={<RefreshButton onClick={resource.refresh} />}
-      />
-      <PeriodControls
         route={route}
         path={administrationRoutes.activity}
+        refresh={resource.refresh}
         keep={{
           channel: channel || undefined,
           status: status || undefined,
           group: attention ? "attention" : undefined,
+          q: reference || undefined,
         }}
       />
       <div className="administration-filters">
@@ -538,6 +589,34 @@ export function AdministrationActivityPage({ route }: { route: string }) {
             {msg("{0} dispatches", count(resource.data.total))}
           </p>
           <DateTimezone />
+          <Disclosure
+            label={msg("Columns")}
+            className="administration-column-picker"
+          >
+            <div className="administration-column-options">
+              {[
+                ["pages", msg("Pages")],
+                ["destination", msg("Destination")],
+                ["reserved", msg("Reserved")],
+                ["approved", msg("Approved by")],
+              ].map(([id, label]) => (
+                <label key={id}>
+                  <input
+                    type="checkbox"
+                    checked={!hiddenColumns.includes(id)}
+                    onChange={() =>
+                      setHiddenColumns((current) =>
+                        current.includes(id)
+                          ? current.filter((value) => value !== id)
+                          : [...current, id],
+                      )
+                    }
+                  />
+                  {label}
+                </label>
+              ))}
+            </div>
+          </Disclosure>
           <DataTable
             viewId="workspace-activity"
             className="administration-table"
@@ -547,77 +626,79 @@ export function AdministrationActivityPage({ route }: { route: string }) {
             scope="page"
             searchable={false}
             pagination={false}
-            columns={[
-              {
-                id: "reference",
-                label: msg("Reference"),
-                value: (item) => item.id,
-                rowHeader: true,
-                sortable: false,
-                render: (item) => (
-                  <a
-                    className="administration-dispatch-link"
-                    href={`#/app/dispatch/${encodeURIComponent(item.id)}`}
-                  >
-                    <code>{item.id}</code>
-                  </a>
-                ),
-              },
-              {
-                id: "created",
-                label: msg("Created"),
-                value: (item) => tableTimestamp(item.createdAt),
-                render: (item) => date(item.createdAt),
-                className: "date-cell",
-              },
-              {
-                id: "channel",
-                label: msg("Channel"),
-                value: (item) => channelName(item.channel),
-              },
-              {
-                id: "status",
-                label: msg("State"),
-                value: (item) => t.statuses[item.status] ?? item.status,
-                render: (item) => (
-                  <Status
-                    status={item.status}
-                    channel={item.channel as Channel}
-                  />
-                ),
-              },
-              {
-                id: "pages",
-                label: msg("Pages"),
-                value: (item) => item.pages ?? 0,
-                render: (item) =>
-                  item.pages === null ? "—" : count(item.pages),
-              },
-              {
-                id: "destination",
-                label: msg("Destination"),
-                value: (item) => item.destinationCountry ?? "",
-                render: (item) => item.destinationCountry ?? "—",
-              },
-              {
-                id: "consumption",
-                label: msg("Consumption"),
-                value: (item) => item.consumptionMinor ?? -1,
-                render: (item) => amount(item.consumptionMinor),
-              },
-              {
-                id: "reserved",
-                label: msg("Reserved"),
-                value: (item) => item.reservedMinor,
-                render: (item) => amount(item.reservedMinor),
-              },
-              {
-                id: "approved",
-                label: msg("Approved by"),
-                value: (item) => item.approvedBy ?? "",
-                render: (item) => item.approvedBy ?? "—",
-              },
-            ]}
+            columns={(
+              [
+                {
+                  id: "reference",
+                  label: msg("Reference"),
+                  value: (item) => item.id,
+                  rowHeader: true,
+                  sortable: false,
+                  render: (item) => (
+                    <a
+                      className="administration-dispatch-link"
+                      href={`#/app/dispatch/${encodeURIComponent(item.id)}`}
+                    >
+                      <code>{item.id}</code>
+                    </a>
+                  ),
+                },
+                {
+                  id: "created",
+                  label: msg("Created"),
+                  value: (item) => tableTimestamp(item.createdAt),
+                  render: (item) => date(item.createdAt),
+                  className: "date-cell",
+                },
+                {
+                  id: "channel",
+                  label: msg("Channel"),
+                  value: (item) => channelName(item.channel),
+                },
+                {
+                  id: "status",
+                  label: msg("State"),
+                  value: (item) => t.statuses[item.status] ?? item.status,
+                  render: (item) => (
+                    <Status
+                      status={item.status}
+                      channel={item.channel as Channel}
+                    />
+                  ),
+                },
+                {
+                  id: "pages",
+                  label: msg("Pages"),
+                  value: (item) => item.pages ?? 0,
+                  render: (item) =>
+                    item.pages === null ? "—" : count(item.pages),
+                },
+                {
+                  id: "destination",
+                  label: msg("Destination"),
+                  value: (item) => item.destinationCountry ?? "",
+                  render: (item) => item.destinationCountry ?? "—",
+                },
+                {
+                  id: "consumption",
+                  label: msg("Consumption"),
+                  value: (item) => item.consumptionMinor ?? -1,
+                  render: (item) => amount(item.consumptionMinor),
+                },
+                {
+                  id: "reserved",
+                  label: msg("Reserved"),
+                  value: (item) => item.reservedMinor,
+                  render: (item) => amount(item.reservedMinor),
+                },
+                {
+                  id: "approved",
+                  label: msg("Approved by"),
+                  value: (item) => item.approvedBy ?? "",
+                  render: (item) => item.approvedBy ?? "—",
+                },
+              ] satisfies DataTableColumn<AdministrationDispatch>[]
+            ).filter((column) => !hiddenColumns.includes(column.id))}
           />
           <Pager
             label={msg("Activity pages")}
@@ -648,18 +729,15 @@ export function AdministrationConsumptionPage({ route }: { route: string }) {
   const [usageVersion, setUsageVersion] = useState(0);
   return (
     <>
-      <PageHeading
+      <ReportHeading
         title={msg("Consumption")}
-        action={
-          <RefreshButton
-            onClick={() => {
-              resource.refresh();
-              setUsageVersion((version) => version + 1);
-            }}
-          />
-        }
+        route={route}
+        path={administrationRoutes.consumption}
+        refresh={() => {
+          resource.refresh();
+          setUsageVersion((version) => version + 1);
+        }}
       />
-      <PeriodControls route={route} path={administrationRoutes.consumption} />
       <ErrorNotice error={resource.error} retry={resource.refresh} />
       {resource.loading && !data ? (
         <Loading />
@@ -694,7 +772,7 @@ export function AdministrationConsumptionPage({ route }: { route: string }) {
             <div className="administration-columns">
               <section className="administration-panel">
                 <h2>{msg("By service")}</h2>
-                {data.services.length ? (
+                {data.services.length >= 2 ? (
                   <BreakdownBars
                     label={msg("Consumption by service")}
                     format={amount}
@@ -705,6 +783,11 @@ export function AdministrationConsumptionPage({ route }: { route: string }) {
                       detail: msg("{0} charges", count(row.charges)),
                     }))}
                   />
+                ) : data.services.length === 1 ? (
+                  <dl className="administration-single-value">
+                    <dt>{serviceName(data.services[0].service)}</dt>
+                    <dd>{amount(data.services[0].amountMinor)}</dd>
+                  </dl>
                 ) : (
                   <p className="empty-inline">
                     {msg("No charge in this period.")}
@@ -896,12 +979,13 @@ export function AdministrationConnectionsPage({ route }: { route: string }) {
   );
   return (
     <>
-      <PageHeading
+      <ReportHeading
         title={msg("Access and sign-ins")}
         intro={msg("An authorization is not proof of presence.")}
-        action={<RefreshButton onClick={resource.refresh} />}
+        route={route}
+        path={administrationRoutes.connections}
+        refresh={resource.refresh}
       />
-      <PeriodControls route={route} path={administrationRoutes.connections} />
       <ErrorNotice error={resource.error} retry={resource.refresh} />
       {resource.loading && !data ? (
         <Loading />
@@ -1031,14 +1115,15 @@ export function AdministrationAuditPage({ route }: { route: string }) {
   >(routeWith("/administration/audit", { ...period, page, pageSize: 50 }));
   return (
     <>
-      <PageHeading
+      <ReportHeading
         title={msg("Audit log")}
         intro={msg(
           "Recorded actions of this workspace: approvals, member changes, settings and exports. Details that may contain content are not shown.",
         )}
-        action={<RefreshButton onClick={resource.refresh} />}
+        route={route}
+        path={administrationRoutes.audit}
+        refresh={resource.refresh}
       />
-      <PeriodControls route={route} path={administrationRoutes.audit} />
       <ErrorNotice error={resource.error} retry={resource.refresh} />
       {resource.loading && !resource.data ? (
         <Loading />
@@ -1064,8 +1149,15 @@ export function AdministrationAuditPage({ route }: { route: string }) {
               {
                 id: "action",
                 label: msg("Action"),
-                value: (item) => item.action,
-                render: (item) => <code>{item.action}</code>,
+                value: (item) => auditActionLabel(item.action),
+                render: (item) => (
+                  <>
+                    <span>{auditActionLabel(item.action)}</span>
+                    <Disclosure label={msg("Details")}>
+                      <code>{item.action}</code>
+                    </Disclosure>
+                  </>
+                ),
                 rowHeader: true,
               },
               {
@@ -1135,6 +1227,10 @@ function ExportCard({
   available?: boolean;
 }) {
   const action = useAction();
+  const [format, setFormat] = useState<AdministrationExportFormat>(
+    allowed[0] ?? "xlsx",
+  );
+  const { label, Icon } = formats.find((item) => item.format === format)!;
   const [downloaded, setDownloaded] = useState<string>();
   const request = useRef<AbortController | null>(null);
   useEffect(() => {
@@ -1148,47 +1244,56 @@ function ExportCard({
   }, []);
   return (
     <article className="administration-export">
-      <h3>{title}</h3>
-      <p>{text}</p>
+      <div className="administration-export-description">
+        <h3>{title}</h3>
+        <p>{text}</p>
+      </div>
       <div className="administration-export-actions">
-        {formats
-          .filter((item) => allowed.includes(item.format))
-          .map(({ format, label, Icon }) => (
-            <button
-              key={format}
-              type="button"
-              className="button"
-              disabled={action.pending || !available}
-              aria-label={msg("Download {0} as {1}", title, label)}
-              onClick={() =>
-                void action.run(async (view) => {
-                  request.current?.abort();
-                  const controller = new AbortController();
-                  request.current = controller;
-                  setDownloaded(undefined);
-                  try {
-                    const name = await view.wait(
-                      downloadExport(
-                        dataset,
-                        format,
-                        period,
-                        controller.signal,
-                      ),
-                    );
-                    if (!controller.signal.aborted) setDownloaded(name);
-                  } catch (error) {
-                    view.checkpoint();
-                    if (!controller.signal.aborted) throw error;
-                  } finally {
-                    if (request.current === controller) request.current = null;
-                  }
-                })
+        <select
+          aria-label={msg("Format for {0}", title)}
+          value={format}
+          disabled={action.pending || !available}
+          onChange={(event) =>
+            setFormat(event.target.value as AdministrationExportFormat)
+          }
+        >
+          {formats
+            .filter((item) => allowed.includes(item.format))
+            .map((item) => (
+              <option key={item.format} value={item.format}>
+                {item.label}
+              </option>
+            ))}
+        </select>
+        <button
+          key={format}
+          type="button"
+          className="button"
+          disabled={action.pending || !available}
+          aria-label={msg("Download {0} as {1}", title, label)}
+          onClick={() =>
+            void action.run(async (view) => {
+              request.current?.abort();
+              const controller = new AbortController();
+              request.current = controller;
+              setDownloaded(undefined);
+              try {
+                const name = await view.wait(
+                  downloadExport(dataset, format, period, controller.signal),
+                );
+                if (!controller.signal.aborted) setDownloaded(name);
+              } catch (error) {
+                view.checkpoint();
+                if (!controller.signal.aborted) throw error;
+              } finally {
+                if (request.current === controller) request.current = null;
               }
-            >
-              <Icon size={18} aria-hidden="true" />
-              {label}
-            </button>
-          ))}
+            })
+          }
+        >
+          <Icon size={18} aria-hidden="true" />
+          {msg("Download")}
+        </button>
       </div>
       {action.pending && <p role="status">{msg("Preparing the file…")}</p>}
       {downloaded && (
@@ -1212,11 +1317,12 @@ export function AdministrationReportsPage({
   const period = readPeriod(route);
   return (
     <>
-      <PageHeading
+      <ReportHeading
         title={msg("Reports and exports")}
         intro={msg("Each export is recorded in the audit log.")}
+        route={route}
+        path={administrationRoutes.reports}
       />
-      <PeriodControls route={route} path={administrationRoutes.reports} />
       <div className="notice info" role="note">
         <p>
           {msg(

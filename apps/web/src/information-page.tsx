@@ -12,6 +12,7 @@ type InformationPageContent = {
   title: ReactNode;
   description: string;
   faq?: boolean;
+  contactCard?: boolean;
   sections: { id: string; label: string; content: ReactNode }[];
 };
 
@@ -547,6 +548,7 @@ export function getInformationPages(): Record<string, InformationPageContent> {
     },
     "/support/": {
       faq: true,
+      contactCard: true,
       label: msg("Support"),
       title: msg("Support"),
       description: msg(
@@ -555,23 +557,13 @@ export function getInformationPages(): Record<string, InformationPageContent> {
       sections: [
         {
           id: "contact",
-          label: msg("Write to us"),
+          label: msg("What to include"),
           content: (
             <>
-              <h2>{msg("Write to us")}</h2>
-              <p>
-                {msg("For a question, incident or account request, write to ")}
-                <a href="mailto:guteneo@pieper.fr">guteneo@pieper.fr</a>
-                {msg(". Your contact is Nicolas Pieper, Guteneo’s publisher.")}
-              </p>
+              <h2>{msg("What to include")}</h2>
               <p>
                 {msg(
                   "Include the relevant account address, document or dispatch reference, approximate date, action attempted and error message. A screenshot with personal data hidden may help. Do not attach the original PDF, the recipient’s full contact details or other sensitive data to the first message unless necessary. Never send a password, sign-in code or access token.",
-                )}
-              </p>
-              <p>
-                {msg(
-                  "The beta offers no emergency support or guaranteed response time for technical requests. If your procedure has a strict deadline, arrange another suitable method.",
                 )}
               </p>
             </>
@@ -692,7 +684,11 @@ export function InformationPage({
         {msg("Skip to content")}
       </a>
       <PublicHeader />
-      <main id="information-content" className="legal-document" tabIndex={-1}>
+      <main
+        id="information-content"
+        className={`legal-document${content.contactCard ? " support-document" : ""}`}
+        tabIndex={-1}
+      >
         <div className="legal-intro">
           <h1>{content.title}</h1>
           <p>{content.description}</p>
@@ -717,6 +713,24 @@ export function InformationPage({
               </section>
             ))}
           </div>
+          {content.contactCard && (
+            <aside
+              className="support-contact-card"
+              aria-labelledby="support-contact-title"
+            >
+              <h2 id="support-contact-title">{msg("Write to us")}</h2>
+              <p className="support-contact-publisher">Nicolas Pieper</p>
+              <a className="button primary" href="mailto:guteneo@pieper.fr">
+                guteneo@pieper.fr
+              </a>
+              <p>
+                {msg(
+                  "The beta offers no emergency support or guaranteed response time for technical requests. If your procedure has a strict deadline, arrange another suitable method.",
+                )}
+              </p>
+              <a href="#contact">{msg("What to include")}</a>
+            </aside>
+          )}
         </div>
         {content.faq && <PublicSupportFaq />}
       </main>

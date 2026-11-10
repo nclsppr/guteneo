@@ -13,9 +13,7 @@ async function ready(page: Page) {
   await expect(
     page.getByRole("heading", { name: "Synthèse", level: 1 }),
   ).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "Géographie" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Géographie" })).toBeVisible();
   await expect(
     page.getByText(
       "Démonstration locale — données fictives, aucun service réel.",
@@ -49,9 +47,7 @@ test("a root-host shell keeps navigation and read-only data on its own origin", 
   await expect(
     page.getByRole("heading", { name: "Synthèse", level: 1 }),
   ).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "Géographie" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Géographie" })).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Retour à guteneo", includeHidden: true }),
   ).toHaveAttribute("href", "https://guteneo.com/");
@@ -88,6 +84,15 @@ test("overview filters, accessible chart and every navigation destination work",
       r.url().includes("/api/overview?") &&
       new URL(r.url()).searchParams.get("mode") === "simulation",
   );
+  const filterControl = page.locator(".bv-filter-disclosure");
+  if (
+    !(await filterControl.evaluate(
+      (element) => (element as HTMLDetailsElement).open,
+    ))
+  ) {
+    const summary = filterControl.locator("summary");
+    if (await summary.isVisible()) await summary.click();
+  }
   await page
     .getByRole("combobox", { name: "Données", exact: true })
     .selectOption({ value: "simulation" });
@@ -95,9 +100,7 @@ test("overview filters, accessible chart and every navigation destination work",
   await page
     .getByRole("combobox", { name: "Période", exact: true })
     .selectOption({ value: "7" });
-  await expect(
-    page.getByRole("heading", { name: "Géographie" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Géographie" })).toBeVisible();
   for (const [name, heading] of [
     ["Espaces de travail", "Espaces de travail"],
     ["Envois", "Envois"],
@@ -388,17 +391,15 @@ test("expired or failed reads remove previous data and allow recovery", async ({
   await expect(page.getByRole("alert")).toContainText(
     "Votre accès doit être vérifié.",
   );
-  await expect(
-    page.getByRole("heading", { name: "Géographie" }),
-  ).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Géographie" })).toHaveCount(
+    0,
+  );
   await expect(
     page.getByRole("link", { name: /Vérifier mon accès/ }),
   ).toHaveAttribute("href", fixtureBase);
   await page.unroute("**/api/overview?**");
   await page.getByRole("link", { name: /Vérifier mon accès/ }).click();
-  await expect(
-    page.getByRole("heading", { name: "Géographie" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Géographie" })).toBeVisible();
   await page.route("**/api/overview?**", (route) =>
     route.fulfill({ status: 503, json: { error: { code: "UNAVAILABLE" } } }),
   );
@@ -408,9 +409,7 @@ test("expired or failed reads remove previous data and allow recovery", async ({
   ).toBeVisible();
   await page.unroute("**/api/overview?**");
   await page.getByRole("button", { name: "Réessayer", exact: true }).click();
-  await expect(
-    page.getByRole("heading", { name: "Géographie" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Géographie" })).toBeVisible();
 });
 
 test("returning to a restored tab revalidates access and removes sensitive data", async ({
@@ -435,9 +434,9 @@ test("returning to a restored tab revalidates access and removes sensitive data"
   await expect(page.getByRole("alert")).toContainText(
     "Votre accès doit être vérifié.",
   );
-  await expect(
-    page.getByRole("heading", { name: "Géographie" }),
-  ).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Géographie" })).toHaveCount(
+    0,
+  );
   await expect(
     page.getByRole("link", { name: /Vérifier mon accès/ }),
   ).toHaveAttribute("href", fixtureBase);
@@ -474,7 +473,11 @@ test("empty data remains explicit without invented income or activity", async ({
   await expect(page.locator("#belvedere-main")).not.toContainText("NaN");
   await navigate(page, "Finances");
   await expect(page.getByText("Non calculable", { exact: true })).toBeVisible();
-  await expect(page.getByText("Non configurés", { exact: true })).toBeVisible();
+  await expect(page.locator(".bv-unavailable")).toHaveAttribute(
+    "title",
+    "Non configurés",
+  );
+  await expect(page.locator(".bv-unavailable")).toContainText("—");
 });
 
 test("finance separates retained legacy PDF plan consumption from delivery channels and counts", async ({
@@ -486,7 +489,7 @@ test("finance separates retained legacy PDF plan consumption from delivery chann
     page.getByRole("term").filter({ hasText: /^Anciens forfaits PDF$/ }),
   ).toBeVisible();
   await expect(page.locator("#belvedere-main")).toContainText(
-    "1 débit d’abonnement comptabilisé sur la période, inclus dans la consommation totale. Il n’est pas compté comme un envoi.",
+    "1 débit d’abonnement enregistré sur la période, inclus dans la consommation totale. Il n’est pas compté comme un envoi.",
   );
   const monthly = page.getByRole("region", { name: "Consommation mensuelle" });
   await expect(

@@ -85,6 +85,7 @@ describe("Belvédère account-language interface", () => {
         new Intl.DateTimeFormat(tag, {
           dateStyle: "medium",
           timeStyle: "short",
+          timeZone: "UTC",
         }).format(new Date("2026-01-09T13:45:00Z")),
       );
       expect(shortDate("2026-01-09")).toBe(

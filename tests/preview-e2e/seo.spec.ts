@@ -250,17 +250,17 @@ test("app entry links resolve privately and reach the existing preview router", 
   } else await page.locator('.public-workspace-link[href="/app"]').click();
   await expect(page).toHaveURL(/\/#\/app$/);
   await expect(
-    page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+    page.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
   ).toBeVisible();
   await page.goto("/");
   await page.locator('a[href="/app/prepare?entry=direct"]').click();
   await expect(page).toHaveURL(/\/#\/app\/prepare\?entry=direct$/);
   await expect(
-    page.getByRole("heading", { name: "Préparer une correspondance." }),
+    page.getByRole("heading", { name: "Nouvel envoi", exact: true }),
   ).toBeVisible();
   await page.reload();
   await expect(
-    page.getByRole("heading", { name: "Préparer une correspondance." }),
+    page.getByRole("heading", { name: "Nouvel envoi", exact: true }),
   ).toBeVisible();
   await page.goto("/app?lang=en");
   await expect(page).toHaveURL(/\/\?lang=en#\/app$/);

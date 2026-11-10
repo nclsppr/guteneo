@@ -1,3 +1,4 @@
+import { ApplicationTimeScope } from "./application-time";
 import { msg, msgIn } from "./messages";
 import { isAdvancedLocalPreview } from "./local-preview";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
@@ -8,6 +9,7 @@ import { TableViewScope } from "./table-view-scope";
 import {
   clientNavigationRevision,
   createWorkspaceSwitchPreflightEvent,
+  confirmWorkspaceSwitch,
 } from "./client-navigation";
 import {
   ArrowRight,
@@ -76,6 +78,7 @@ import {
   type WorkspaceApplication,
 } from "./space-switcher";
 import {
+  DateTimezone,
   ErrorNotice,
   go,
   Loading,
@@ -370,6 +373,12 @@ const administrationNavigation: readonly (NavigationItem<AdministrationEntry> & 
     admin: true,
   },
   {
+    id: "administrationOperations",
+    path: administrationRoutes.operations,
+    Icon: ListChecks,
+    admin: true,
+  },
+  {
     id: "administrationSettings",
     path: administrationRoutes.settings,
     Icon: Wrench,
@@ -387,6 +396,7 @@ const administrationLabels: Record<AdministrationEntry, () => string> = {
   administrationAudit: () => msg("Audit log"),
   administrationBilling: () => msg("Billing"),
   administrationSettings: () => msg("Settings"),
+  administrationOperations: () => msg("Operations"),
 };
 const studioNavigation: readonly NavigationItem<StudioEntry>[] = [
   { id: "templates", path: studioRoutes.templates, Icon: FileText },
@@ -554,7 +564,44 @@ function Application() {
       workshop: msgIn("application", "Correspondence"),
       administration: msgIn("application", "Administration"),
     }[spaceOf(path)];
-    document.title = `${application} | guteneo`;
+    // The longest matching menu entry names the page, so tabs and history
+    // tell pages of one application apart.
+    const entry = [
+      ...workshopNavigation,
+      ...studioNavigation,
+      ...administrationNavigation,
+    ]
+      .filter(
+        (item) =>
+          item.path !== "/app" &&
+          (path === item.path || path.startsWith(`${item.path}/`)),
+      )
+      .sort((a, b) => b.path.length - a.path.length)[0];
+    const pageName = entry
+      ? entry.id in administrationLabels
+        ? administrationLabels[entry.id as AdministrationEntry]()
+        : entry.id === "secure-distributions"
+          ? msg("Secure distribution")
+          : entry.id === "recipients"
+            ? msg("Saved recipients")
+            : entry.id === "schedules"
+              ? msg("Scheduled dispatches")
+              : t.nav[
+                  entry.id as Exclude<
+                    WorkshopEntry | StudioEntry,
+                    "secure-distributions" | "recipients" | "schedules"
+                  >
+                ]
+      : path === "/app/prepare"
+        ? t.dispatch.new
+        : /^\/app\/(dispatch|postal)\//.test(path)
+          ? t.nav.dispatches
+          : path.startsWith("/app/campaign/")
+            ? t.nav.campaigns
+            : path === "/app" || path === "/app/"
+              ? t.nav.overview
+              : undefined;
+    document.title = `${pageName && pageName !== application ? `${pageName} · ` : ""}${application} | guteneo`;
   }, [route, locale, emailPreferencesRoute, publicLocation]);
   if (emailPreferencesRoute)
     return (
@@ -619,6 +666,7 @@ function WorkspaceApplication({
       setSession(session);
   }, [page, session, personalRoute]);
   const navigationSummary = useRef<HTMLElement>(null);
+  const workspaceSwitchPending = useRef(false);
   const [navigationOpen, setNavigationOpen] = useState(
     () => window.matchMedia("(min-width: 1025px)").matches,
   );
@@ -863,7 +911,12 @@ function WorkspaceApplication({
       />
     );
   else if (page === "/app/dispatches")
-    content = <DispatchList canPrepare={permissions.prepareDispatches} />;
+    content = (
+      <DispatchList
+        canPrepare={permissions.prepareDispatches}
+        canViewReports={permissions.viewReports}
+      />
+    );
   else if (page.startsWith("/app/dispatch/"))
     content = (
       <DispatchDetailPage
@@ -904,7 +957,18 @@ function WorkspaceApplication({
     content = <PdfCheckPage session={session} />;
   else if (page === "/app/account")
     content = <Account session={session} onUpdated={refreshSession} />;
-  else content = <Overview session={session} />;
+  else if (page === "/app" || page === "/app/")
+    content = <Overview session={session} />;
+  // A mistyped address says so instead of showing Overview under it.
+  else
+    content = (
+      <div className="notice info" role="note">
+        <p>
+          {msg("This page does not exist.")}{" "}
+          <a href="#/app">{msg("Back to Overview")}</a>
+        </p>
+      </div>
+    );
   const navigationLabel = (
     id: WorkshopEntry | StudioEntry | AdministrationEntry,
   ) =>
@@ -950,7 +1014,7 @@ function WorkspaceApplication({
         !["recipients", "schedules"].includes(entry.id) ||
         (permissions.prepareDispatches && !isPublicPreview),
     ),
-    ...(!publicPreview ? studioNavigation : []),
+    ...studioNavigation,
     ...administrationNavigation.filter(
       (entry) =>
         canOpenAdministration &&
@@ -975,24 +1039,38 @@ function WorkspaceApplication({
         ? msg("Administration navigation")
         : msg("Correspondence navigation");
   const enterWorkspace = async (id: string, target: WorkspaceApplication) => {
-    const authority = sessionAuthorityKey();
-    const href = window.location.href;
-    // Let a screen with unsaved work refuse before the session changes.
-    if (!window.dispatchEvent(createWorkspaceSwitchPreflightEvent())) return;
-    const navigation = clientNavigationRevision();
-    const next = await api<Session>("/account/workspace", {
-      method: "POST",
-      body: { organizationId: id },
-    });
-    if (sessionAuthorityKey() !== authority) return;
-    const redirect =
-      navigation === clientNavigationRevision() &&
-      window.location.href === href;
-    setSession(next, !isPublicPreview);
-    // Remount the page for the new workspace before routing, so the previous
-    // screen cannot ask a second time.
-    flushSync(() => updateSession(next));
-    if (redirect) go(spaceHome[target]);
+    if (workspaceSwitchPending.current) return;
+    workspaceSwitchPending.current = true;
+    try {
+      const authority = sessionAuthorityKey();
+      const href = window.location.href;
+      const navigation = clientNavigationRevision();
+      if (
+        !(await confirmWorkspaceSwitch(createWorkspaceSwitchPreflightEvent()))
+      )
+        return;
+      // A dialog grants no authority and cannot outlive its original visit.
+      if (
+        sessionAuthorityKey() !== authority ||
+        navigation !== clientNavigationRevision() ||
+        window.location.href !== href
+      )
+        return;
+      const next = await api<Session>("/account/workspace", {
+        method: "POST",
+        body: { organizationId: id },
+      });
+      if (sessionAuthorityKey() !== authority) return;
+      const redirect =
+        navigation === clientNavigationRevision() &&
+        window.location.href === href;
+      setSession(next, !isPublicPreview);
+      // Remount before routing, so the previous editor cannot ask a second time.
+      flushSync(() => updateSession(next));
+      if (redirect) go(spaceHome[target]);
+    } finally {
+      workspaceSwitchPending.current = false;
+    }
   };
   const logout = async () => {
     const authority = sessionAuthorityKey();
@@ -1092,16 +1170,7 @@ function WorkspaceApplication({
               </a>
             )}
             {navigation
-              .filter(
-                (n) =>
-                  !publicPreview ||
-                  ![
-                    "secure-distributions",
-                    "templates",
-                    "datasets",
-                    "generations",
-                  ].includes(n.id),
-              )
+              .filter((n) => !publicPreview || n.id !== "secure-distributions")
               .map(({ id, path, Icon }) => (
                 <a
                   key={id}
@@ -1184,10 +1253,13 @@ function WorkspaceApplication({
             aria-busy={routePending || undefined}
             key={`${session.organization.id}:${session.user.id}`}
           >
-            <ErrorNotice error={logoutError} />
-            <WorkspaceRouteBoundary route={route}>
-              <Suspense fallback={<Loading />}>{content}</Suspense>
-            </WorkspaceRouteBoundary>
+            <DateTimezone />
+            <ApplicationTimeScope>
+              <ErrorNotice error={logoutError} />
+              <WorkspaceRouteBoundary route={route}>
+                <Suspense fallback={<Loading />}>{content}</Suspense>
+              </WorkspaceRouteBoundary>
+            </ApplicationTimeScope>
           </main>
         </TableViewScope>
       </div>

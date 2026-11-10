@@ -162,7 +162,7 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
     {
       path: "studio/templates",
       title: "Modèles",
-      action: "Créer un document",
+      action: "Nouveau modèle",
     },
     {
       path: "studio/datasets",
@@ -174,7 +174,7 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
       title: "Générations",
       action: "Créer un document",
     },
-    { path: "dispatches", title: "Le fil des envois.", action: "Nouvel envoi" },
+    { path: "dispatches", title: "Envois", action: "Nouvel envoi" },
   ]) {
     await page.goto(`/#/app/${destination.path}`);
     await expect(
@@ -219,7 +219,7 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
 
   await page.goto("/#/app/studio/templates");
   const create = main.getByRole("button", {
-    name: "Créer un document",
+    name: "Nouveau modèle",
     exact: true,
   });
   await create.click();
@@ -494,19 +494,17 @@ test("V2 prepares through the existing API and requires explicit consent before 
   await backToHistory.click();
   await expect(page).toHaveURL(/#\/app\/dispatches$/);
   await expect(
-    page.getByRole("heading", { level: 1, name: "Le fil des envois." }),
+    page.getByRole("heading", { level: 1, name: "Envois", exact: true }),
   ).toBeVisible();
   await page.goto(`/#/app/dispatch/${prepared.id}`);
   await expect(backToHistory).toBeVisible();
   const reviewFacts = page.locator(".dispatch-review-facts");
   await expect(reviewFacts.getByText("Créé le", { exact: true })).toBeVisible();
-  const timezone = await page.evaluate(
-    () => Intl.DateTimeFormat().resolvedOptions().timeZone,
+  await expect(page.locator(".timestamp-context")).toHaveCount(1);
+  await expect(page.locator(".timestamp-context")).toHaveText(
+    "Heures affichées : UTC",
   );
-  await expect(reviewFacts.locator(".timestamp-context")).toHaveText(
-    `Heures affichées : ${timezone}`,
-  );
-  await expect(reviewFacts.locator(".timestamp-context")).toBeVisible();
+  await expect(page.locator(".timestamp-context")).toBeVisible();
   await expect(
     page
       .frameLocator(".email-preview")

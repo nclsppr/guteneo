@@ -7,7 +7,8 @@ sidebar:
 
 GitHub CI checks proposed source and then checks `main` again. A separate,
 credential-gated workflow can publish an eligible merged dependency update after
-the complete current-main checks succeed. The reviewed revision, required job results, clean build,
+the complete current-main checks succeed. A separate manual application workflow
+publishes only an explicitly selected, checked current-main revision. The reviewed revision, required job results, clean build,
 authorized publication and served bytes form a chain of evidence with distinct
 owners and failure states.
 
@@ -191,6 +192,38 @@ the scheduled public browser monitor remains separate. Failure remains failure; 
 migration, provider send or retry is introduced. The
 [maintenance contract](https://github.com/nclsppr/guteneo/blob/main/docs/DEPENDENCY_UPDATES.md)
 owns the observed failures, compatibility holds, activation and recovery steps.
+
+## Manual application publication
+
+`manual-application-release.yml` is a separate `workflow_dispatch` operation;
+`dependency-release.yml` retains its existing bot-only contract. The operator
+supplies the exact current-main commit and canonical successful checks run/attempt
+after creating the matching remote version tag, readable release notes and portable
+release proof. The dispatcher reuses the canonical complete full/reused-job guards,
+requires fresh main/source/tag agreement and shares production concurrency with
+dependency publication. Its GitHub permission remains contents/actions read.
+
+The schema phase uses a separate already-authorized D1 credential, while the final
+unchanged clean-main publisher receives only the existing application token.
+Missing credentials or refused access fail; the workflow never creates secrets,
+expands permissions or falls back to the scanner credential. It permits only the
+two reviewed additive index migrations 0081/0082, requires a complete exact source
+ledger prefix from 0080 onward, and compares the complete qualified schema before
+and after. Each index and ledger receipt are atomic. A recovery bookmark and
+in-flight marker precede mutation; an unknown response never auto-retries.
+Enabled constraints, global integrity and foreign-key readback remain mandatory.
+Older/future schemas, drift and resource-limit errors stop the release.
+
+Only that workflow's successful commit/version-bound schema receipt permits a
+fresh CI/main/tag recheck and the existing guarded application publisher. Served
+verification follows publication; a failed step may have partially applied schema
+or runtime and must be inspected before a deliberate new attempt. The workflow
+retains sanitized hashes/statuses/bookmarks, never customer rows or credentials.
+It performs no rollback, private-service publication, paid provisioning, callback
+activation or business send. Source tests do not qualify hosted authorization or
+production outcomes. The
+[manual publication contract](https://github.com/nclsppr/guteneo/blob/main/docs/MAIN_RELEASE.md#operator-triggered-application-publication)
+owns the precise sequence, maintenance and recovery obligations.
 
 ## Keep browser icons bound to their source
 

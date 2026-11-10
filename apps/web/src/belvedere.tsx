@@ -1,3 +1,5 @@
+import { APPLICATION_TIME_ZONE } from "./application-time";
+import { applicationDay } from "../../../packages/contracts/src/application-time";
 import {
   lazy,
   Suspense,
@@ -174,6 +176,15 @@ export default function Belvedere({
   );
   const lastWorkshopTrigger = useRef<HTMLElement | null>(null);
   const [mobileNav, setMobileNav] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(
+    () => window.matchMedia("(min-width: 641px)").matches,
+  );
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 641px)");
+    const sync = () => setFiltersOpen(media.matches);
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
   const sidebar = useRef<HTMLElement>(null);
   const main = useRef<HTMLElement>(null);
   const navButton = useRef<HTMLButtonElement>(null);
@@ -460,42 +471,50 @@ export default function Belvedere({
             </div>
             {view !== "infrastructure" && (
               <div className="bv-filterbar">
-                <div className="bv-filter-fields">
-                  <label>
-                    <span>{bmsg("Period")}</span>
-                    <select
-                      value={period}
-                      onChange={(event) => {
-                        const value = event.target.value;
-                        setPeriod(value);
-                        if (value !== "custom")
-                          setFilters(
-                            periodFilters(Number(value), filters.mode),
-                          );
-                      }}
-                    >
-                      <option value="7">{bmsg("Last 7 days")}</option>
-                      <option value="30">{bmsg("Last 30 days")}</option>
-                      <option value="90">{bmsg("Last 90 days")}</option>
-                      <option value="custom">{bmsg("Custom dates")}</option>
-                    </select>
-                  </label>
-                  <label>
-                    <span>{bmsg("Data")}</span>
-                    <select
-                      value={filters.mode}
-                      onChange={(event) =>
-                        setFilters({
-                          ...filters,
-                          mode: event.target.value as BelvedereFilters["mode"],
-                        })
-                      }
-                    >
-                      <option value="production">{bmsg("Production")}</option>
-                      <option value="simulation">{bmsg("Simulation")}</option>
-                    </select>
-                  </label>
-                </div>
+                <details
+                  className="bv-filter-disclosure"
+                  open={filtersOpen || period === "custom"}
+                  onToggle={(event) => setFiltersOpen(event.currentTarget.open)}
+                >
+                  <summary>{bmsg("Filters")}</summary>
+                  <div className="bv-filter-fields">
+                    <label>
+                      <span>{bmsg("Period")}</span>
+                      <select
+                        value={period}
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          setPeriod(value);
+                          if (value !== "custom")
+                            setFilters(
+                              periodFilters(Number(value), filters.mode),
+                            );
+                        }}
+                      >
+                        <option value="7">{bmsg("Last 7 days")}</option>
+                        <option value="30">{bmsg("Last 30 days")}</option>
+                        <option value="90">{bmsg("Last 90 days")}</option>
+                        <option value="custom">{bmsg("Custom dates")}</option>
+                      </select>
+                    </label>
+                    <label>
+                      <span>{bmsg("Data")}</span>
+                      <select
+                        value={filters.mode}
+                        onChange={(event) =>
+                          setFilters({
+                            ...filters,
+                            mode: event.target
+                              .value as BelvedereFilters["mode"],
+                          })
+                        }
+                      >
+                        <option value="production">{bmsg("Production")}</option>
+                        <option value="simulation">{bmsg("Simulation")}</option>
+                      </select>
+                    </label>
+                  </div>
+                </details>
                 <span className={`bv-evidence bv-evidence-${filters.mode}`}>
                   <span aria-hidden="true" />
                   {filters.mode === "production"
@@ -524,14 +543,14 @@ export default function Belvedere({
                     type="date"
                     value={filters.to}
                     min={filters.from}
-                    max={new Date().toISOString().slice(0, 10)}
+                    max={applicationDay()}
                     onChange={(event) => {
                       if (event.target.value)
                         setFilters({ ...filters, to: event.target.value });
                     }}
                   />
                 </label>
-                <span>{bmsg("Inclusive dates, in UTC.")}</span>
+                <span>{bmsg("Inclusive dates.")}</span>
               </div>
             )}
             {accessError || sessionExpired ? (
@@ -591,7 +610,8 @@ export default function Belvedere({
               <span>{bmsg("Belvédère by guteneo")}</span>
               <span>
                 {bmsg(
-                  "Amounts in EUR unless stated · Dates shown in local time",
+                  "Amounts in EUR unless stated · Times shown in: {0}",
+                  APPLICATION_TIME_ZONE,
                 )}
               </span>
             </footer>

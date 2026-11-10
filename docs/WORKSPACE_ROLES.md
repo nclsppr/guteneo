@@ -9,23 +9,41 @@ permission. Read the [schedule contract](SCHEDULED_DISPATCHES.md),
 [callback contract](CUSTOMER_WEBHOOKS.md) and
 [web application contract](WEB_APPLICATIONS.md) with this matrix.
 
-| Action | Administrator | Supervisor | Operator | Observer | Connected assistant |
-| --- | --- | --- | --- | --- | --- |
-| Read saved destinations | Current preparation rights | Current preparation rights | Current preparation rights | No | `dispatches:read` and current preparer/connection authority |
-| Save, update or delete a destination | Current preparation rights | Same | Same | No | `dispatches:prepare`; stable create key, exact revision for update/delete |
-| Prepare a schedule | Current preparation and source rights | Same | Same | No | `dispatches:prepare`; draft only, no future consent |
-| List/read a schedule | Current source rights | Approvers; otherwise own preparations | Own preparations | No | `dispatches:read` and the same creator/approver visibility |
-| Approve future spending | Actual current browser session | Actual current browser and approval option | No | No | No, including under an expert mandate |
-| Cancel an unaccepted schedule | Current authority and exact revision | Only its preparer or recorded approver | Only its preparer | No | `dispatches:send` plus the same current preparer/approver/admin rule |
-| Configure callbacks or reveal/rotate their secrets | Actual current browser, Origin/CSRF and exact revision | No | No | No | No OAuth/MCP/native configuration authority |
-| Read attention metadata | Browser and current resource rights | Same | Same | Current operational visibility only | No attention MCP/native surface |
-| Use commands, outcome tray or saved views | Browser; current navigation/data rights | Same | Same | Same | No new business authority or tool |
-| Save/resume a native composer draft | Own native person/workspace | Same | Same | No composer permission | No access to device-local drafts |
+Discarding unsaved browser edits is permission to leave that exact view only.
+The localized [navigation confirmation](CLARITY_FOUNDATION.md#consequential-actions)
+grants none of the business approvals, membership rights or assistant authority
+below. A workspace switch still requires its current server membership and
+rechecks its initiating browser authority after any deferred decision.
+
+| Action                                             | Administrator                                          | Supervisor                                 | Operator                   | Observer                            | Connected assistant                                                               |
+| -------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------ | -------------------------- | ----------------------------------- | --------------------------------------------------------------------------------- |
+| Request ordinary dispatch review                   | Current browser preparation rights                     | Same                                       | Same                       | No                                  | No OAuth/MCP/native surface                                                       |
+| Read workspace PDF-check history                   | Current browser and document-library visibility        | Same                                       | Same                       | Same                                | No collection endpoint; existing exact-document report reads keep their own scope |
+| Read saved destinations                            | Current preparation rights                             | Current preparation rights                 | Current preparation rights | No                                  | `dispatches:read` and current preparer/connection authority                       |
+| Save, update or delete a destination               | Current preparation rights                             | Same                                       | Same                       | No                                  | `dispatches:prepare`; stable create key, exact revision for update/delete         |
+| Prepare a schedule                                 | Current preparation and source rights                  | Same                                       | Same                       | No                                  | `dispatches:prepare`; draft only, no future consent                               |
+| List/read a schedule                               | Current source rights                                  | Approvers; otherwise own preparations      | Own preparations           | No                                  | `dispatches:read` and the same creator/approver visibility                        |
+| Approve future spending                            | Actual current browser session                         | Actual current browser and approval option | No                         | No                                  | No, including under an expert mandate                                             |
+| Cancel an unaccepted schedule                      | Current authority and exact revision                   | Only its preparer or recorded approver     | Only its preparer          | No                                  | `dispatches:send` plus the same current preparer/approver/admin rule              |
+| Configure callbacks or reveal/rotate their secrets | Actual current browser, Origin/CSRF and exact revision | No                                         | No                         | No                                  | No OAuth/MCP/native configuration authority                                       |
+| Read attention metadata                            | Browser and current resource rights                    | Same                                       | Same                       | Current operational visibility only | No attention MCP/native surface                                                   |
+| Use commands, outcome tray or saved views          | Browser; current navigation/data rights                | Same                                       | Same                       | Same                                | No new business authority or tool                                                 |
+| Save/resume a native composer draft                | Own native person/workspace                            | Same                                       | Same                       | No composer permission              | No access to device-local drafts                                                  |
 
 Saving a recipient is not a recipient-request attestation. Editing or deleting
 the address book does not alter frozen dispatch recipients or existing approvals.
 Even contact reads require preparation rights, so ordinary operational reading
 does not become an address-book export.
+
+An ordinary approval request creates one audit receipt per exact prepared version,
+with the active browser credential, membership, workspace mode and source visibility
+fenced at insertion. A scheduled source uses its separate future-approval journey.
+The request creates no consent, reservation, outbox entry or external notification.
+Workspace PDF-check history is a bounded metadata read with the existing document
+library ACL; another member's private sources remain hidden, including from an
+administrator. Processing and failed checks are distinct from completed reports.
+Reading history purchases no check and grants no certification; see
+[the validator contract](PDF_VALIDATOR.md#browser-workspace-history--10-november-2026-candidate).
 
 A schedule draft holds immediate approval and acceptance of its original. Source
 detail can project that hold's identifier, status, time and cap after the existing
@@ -85,17 +103,17 @@ time. Creators see their own preparations; current workspace approvers may revie
 them. Other operators, supervisors without approval permission and observers
 receive no sensitive content through general read access.
 
-| Action | Administrator | Supervisor | Operator | Observer | Connected assistant |
-| --- | --- | --- | --- | --- | --- |
-| Prepare sharing of an accessible PDF | Yes | Yes | Yes | No | Membership, `dispatches:prepare` and current authority |
-| Read a distribution and workspace audit | Yes | All with approval permission; otherwise own creations | Own creations | No | Same resource access and `dispatches:read` |
-| Inspect final review pages | Browser and recent document session | Same requirement, with approval permission or own creation | Own creation, browser and recent document session | No | No recipient-page or personal-principal access |
-| Give sensitive approval | Browser and recent document session | Approval permission, browser and recent document session | No | No | No; an expert mandate cannot replace approval |
-| Activate an already approved distribution | Yes, with current evidence | Approval permission and current evidence | No | No | Approver role, `dispatches:send`, existing sensitive browser evidence and host confirmation |
-| Confirm an independent recipient/account association | Browser, independent verification and recent document session | Same requirement and approval permission | No | No | No |
-| Read a delivery’s recipient response | Own/current authorized delivery | Own/current authorized delivery | Own creation | No | Current resource rights; cannot exercise recipient preference or restore permission |
-| Revoke shared access without refund | Yes | Approval permission | No | No | Approver role and `dispatches:send`; acquired personal copies remain |
-| Read, export or delete another person's personal copy | No | No | No | No | No |
+| Action                                                | Administrator                                                 | Supervisor                                                 | Operator                                          | Observer | Connected assistant                                                                         |
+| ----------------------------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------- |
+| Prepare sharing of an accessible PDF                  | Yes                                                           | Yes                                                        | Yes                                               | No       | Membership, `dispatches:prepare` and current authority                                      |
+| Read a distribution and workspace audit               | Yes                                                           | All with approval permission; otherwise own creations      | Own creations                                     | No       | Same resource access and `dispatches:read`                                                  |
+| Inspect final review pages                            | Browser and recent document session                           | Same requirement, with approval permission or own creation | Own creation, browser and recent document session | No       | No recipient-page or personal-principal access                                              |
+| Give sensitive approval                               | Browser and recent document session                           | Approval permission, browser and recent document session   | No                                                | No       | No; an expert mandate cannot replace approval                                               |
+| Activate an already approved distribution             | Yes, with current evidence                                    | Approval permission and current evidence                   | No                                                | No       | Approver role, `dispatches:send`, existing sensitive browser evidence and host confirmation |
+| Confirm an independent recipient/account association  | Browser, independent verification and recent document session | Same requirement and approval permission                   | No                                                | No       | No                                                                                          |
+| Read a delivery’s recipient response                  | Own/current authorized delivery                               | Own/current authorized delivery                            | Own creation                                      | No       | Current resource rights; cannot exercise recipient preference or restore permission         |
+| Revoke shared access without refund                   | Yes                                                           | Approval permission                                        | No                                                | No       | Approver role and `dispatches:send`; acquired personal copies remain                        |
+| Read, export or delete another person's personal copy | No                                                            | No                                                         | No                                                | No       | No                                                                                          |
 
 New `verified_email` invitations bind the matching verified address to the stable
 personal account at claim; this is recipient authority, not a workspace-role
@@ -123,14 +141,14 @@ One source cannot combine sensitive distribution with legacy sending,
 password-link hosting, postal transformation, cropping or analysis. This is a
 deliberate V1 incompatibility that no role, scope or mandate overrides.
 
-| Source state or operation | Compatibility with sensitive distribution |
-| --- | --- |
-| Unexpired legacy `draft` or `active` hosting | Revoke the link before first sensitive preparation; all other restrictions still apply |
-| Derived, reserved or generated postal preparation | Choose a dedicated source |
-| Legacy send, postal preflight or provider draft already referencing the source | Choose a dedicated source, even after failure or cancellation |
-| New ordinary email, fax or postal attachment after sensitive reference | Forbidden for every role |
-| Legacy password/link content, postal processing, cropping or analysis after sensitive reference | Forbidden, including after sensitive failure or revocation |
-| Dedicated sensitive invitation | Allowed under current rights, without the source attachment (`document_id` is null) |
+| Source state or operation                                                                       | Compatibility with sensitive distribution                                              |
+| ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Unexpired legacy `draft` or `active` hosting                                                    | Revoke the link before first sensitive preparation; all other restrictions still apply |
+| Derived, reserved or generated postal preparation                                               | Choose a dedicated source                                                              |
+| Legacy send, postal preflight or provider draft already referencing the source                  | Choose a dedicated source, even after failure or cancellation                          |
+| New ordinary email, fax or postal attachment after sensitive reference                          | Forbidden for every role                                                               |
+| Legacy password/link content, postal processing, cropping or analysis after sensitive reference | Forbidden, including after sensitive failure or revocation                             |
+| Dedicated sensitive invitation                                                                  | Allowed under current rights, without the source attachment (`document_id` is null)    |
 
 Bidirectional service and SQL guards protect sensitive insertion and concurrent
 legacy writes for the same workspace/source. A legacy operation already under
@@ -146,18 +164,18 @@ Luxembourgish; account/member management link to it.
 Roles belong to **one workspace**; the same person may have another role elsewhere.
 Four roles separate preparation, approval and administration:
 
-| Permission | Administrator | Supervisor | Operator | Observer |
-| --- | --- | --- | --- | --- |
-| Read ordinary workspace documents, recipients, dispatches | Yes | Yes | Yes | Yes |
-| Dry-run an accessible existing dispatch | Subject to dispatch access | Subject to dispatch access | Subject to dispatch access | Subject to dispatch access |
-| Import documents; prepare dispatches/campaigns | Yes | Yes | Yes | No |
-| Approve, confirm, reject, cancel eligible dispatches | Yes | Approval option | No | No |
-| Authorize postal document transfer for review | Yes | Approval option | No | No |
-| Read aggregate reports/usage | Yes | Reporting option | No | No |
-| Manage workspace, members, permissions | Yes | No | No | No |
-| Manage billing, senders, channels | Yes | No | No | No |
-| Grant/renew assistant delegation | Yes, browser only | No | No | No |
-| Set own language | Personal browser setting | Personal browser setting | Personal browser setting | Personal browser setting |
+| Permission                                                | Administrator              | Supervisor                 | Operator                   | Observer                   |
+| --------------------------------------------------------- | -------------------------- | -------------------------- | -------------------------- | -------------------------- |
+| Read ordinary workspace documents, recipients, dispatches | Yes                        | Yes                        | Yes                        | Yes                        |
+| Dry-run an accessible existing dispatch                   | Subject to dispatch access | Subject to dispatch access | Subject to dispatch access | Subject to dispatch access |
+| Import documents; prepare dispatches/campaigns            | Yes                        | Yes                        | Yes                        | No                         |
+| Approve, confirm, reject, cancel eligible dispatches      | Yes                        | Approval option            | No                         | No                         |
+| Authorize postal document transfer for review             | Yes                        | Approval option            | No                         | No                         |
+| Read aggregate reports/usage                              | Yes                        | Reporting option           | No                         | No                         |
+| Manage workspace, members, permissions                    | Yes                        | No                         | No                         | No                         |
+| Manage billing, senders, channels                         | Yes                        | No                         | No                         | No                         |
+| Grant/renew assistant delegation                          | Yes, browser only          | No                         | No                         | No                         |
+| Set own language                                          | Personal browser setting   | Personal browser setting   | Personal browser setting   | Personal browser setting   |
 
 Administrators own workspace access; at least one must remain. Supervisors prepare
 and independently receive approval/reporting options, both initially off unless

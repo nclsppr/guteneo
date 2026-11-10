@@ -263,7 +263,7 @@ function BillingWorkspace({
         <>
           {data.welcomeCredit && <CreditBalance credit={data.welcomeCredit} />}
           <section
-            className="form-panel"
+            className="form-panel billing-profile"
             aria-labelledby="billing-account-title"
           >
             <div className="section-toolbar">
@@ -338,7 +338,8 @@ function BillingWorkspace({
               <p>{msg("No invoices recorded for this workspace.")}</p>
             ) : (
               <>
-                <DataTable viewId="invoices"
+                <DataTable
+                  viewId="invoices"
                   label={msg("Invoices")}
                   items={invoices.data.items}
                   getRowKey={(item) => item.id}
@@ -396,7 +397,8 @@ function BillingWorkspace({
                     },
                   ]}
                   filters={[
-                    { saveValue: true,
+                    {
+                      saveValue: true,
                       id: "status",
                       label: msg("Status"),
                       value: (item) => item.status,
@@ -436,7 +438,8 @@ function BillingWorkspace({
               <p>{msg("No payments recorded for this workspace.")}</p>
             ) : (
               <>
-                <DataTable viewId="payments"
+                <DataTable
+                  viewId="payments"
                   label={msg("Payments")}
                   items={payments.data.items}
                   getRowKey={(item) => item.id}
@@ -474,7 +477,8 @@ function BillingWorkspace({
                     },
                   ]}
                   filters={[
-                    { saveValue: true,
+                    {
+                      saveValue: true,
                       id: "status",
                       label: msg("Status"),
                       value: (item) => item.status,
@@ -514,7 +518,8 @@ function BillingWorkspace({
             {!data.subscriptions.length ? (
               <p>{msg("No subscriptions recorded for this workspace.")}</p>
             ) : (
-              <DataTable viewId="subscriptions"
+              <DataTable
+                viewId="subscriptions"
                 label={msg("Subscriptions")}
                 items={data.subscriptions}
                 getRowKey={(item) => item.id}
@@ -550,7 +555,8 @@ function BillingWorkspace({
                   },
                 ]}
                 filters={[
-                  { saveValue: true,
+                  {
+                    saveValue: true,
                     id: "status",
                     label: msg("Status"),
                     value: (item) => item.status,

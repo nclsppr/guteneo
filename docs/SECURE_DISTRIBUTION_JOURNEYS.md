@@ -235,6 +235,26 @@ availability/retention or, once ended, "Access ended …"/"Retention ended …";
 revoked rows show only their state. Measurements on 5,000 documents are in
 [frontend performance](FRONTEND_PERFORMANCE.md).
 
+10 November 2026 presentation candidate: the shared search toolbar commits a
+bounded owner query after a 250 ms pause or Enter, with no separate Search action.
+Pending input is cancelled when changing filters/category, opening a document or
+replacing authority. Existing generation/cancellation guards still refuse late
+page results. Each title is the row's single native link, preserving modifier
+keys, keyboard focus and return position. Available documents ending inside the
+server-projected expiry window gain a warning badge; ordinary and ended dates
+remain readable without the warning treatment. A visible-tab return revalidates
+the active list, while an open document keeps its remembered list idle.
+
+The reader keeps the page/text/export toolbar sticky and access history in a
+responsive side panel, collapsed through the shared disclosure. Export consent,
+copy retention, deletion confirmation and actual authority refusals remain visible
+in their existing flows. An aborted detail read cannot restore a prior document.
+This changes browser presentation only; personal authority, current-owner checks,
+original-document rules, REST/MCP/native capabilities and sender visibility are
+unchanged. `tests/e2e/personal-document-list.spec.ts` adds source regressions for
+automatic search, cancellation, native row navigation, expiry treatment and the
+history panel; executed evidence remains separate from this contract.
+
 These reads expose no workspace OAuth/MCP or native personal-vault capability,
 perform no document-content prefetch and grant no sender membership. The current
 server authentication policy, association, approval, retention and financial

@@ -58,7 +58,7 @@
 }
 @media (max-width: 1024px) {
   .eyebrow {
-    font-size: 8px;
+    font-size: 12px;
     letter-spacing: 1.1px;
     margin-bottom: 21px;
   }
@@ -116,12 +116,12 @@
     gap: 0;
   }
   .site-header .button.small {
-    font-size: 11px;
+    font-size: 12px;
     padding: 10px 12px;
   }
 
   .eyebrow {
-    font-size: 8px;
+    font-size: 12px;
     letter-spacing: 1.15px;
     margin-bottom: 25px;
   }
@@ -135,7 +135,7 @@
     font-size: 27px;
   }
   .site-footer p {
-    font-size: 11px;
+    font-size: 12px;
   }
   .site-footer > a:last-child {
     margin-left: 0;
@@ -173,14 +173,14 @@
   .organization .organization-initial {
     width: 28px;
     height: 28px;
-    font-size: 19px;
+    font-size: 20px;
   }
   .organization strong {
-    font-size: 10px;
+    font-size: 12px;
     max-width: 100px;
   }
   .organization small {
-    font-size: 9px;
+    font-size: 12px;
   }
   .sidebar nav {
     grid-column: 1/-1;
@@ -194,7 +194,7 @@
     min-width: 0;
   }
   .sidebar nav a {
-    font-size: 11px;
+    font-size: 12px;
     min-height: 34px;
     padding: 8px;
     gap: 7px;
@@ -210,11 +210,11 @@
     min-height: 46px;
   }
   .simulation-banner p {
-    font-size: 9px;
+    font-size: 12px;
     line-height: 1.45;
   }
   .simulation-stamp {
-    font-size: 8px;
+    font-size: 12px;
     padding: 3px 5px;
   }
 
@@ -244,7 +244,7 @@
     gap: 8px;
   }
   .button.small {
-    font-size: 11px;
+    font-size: 12px;
   }
   .overview-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -260,7 +260,7 @@
     border-left: 0;
   }
   .overview-stats span {
-    font-size: 10px;
+    font-size: 12px;
     line-height: 1.5;
     min-height: 30px;
     margin-bottom: 12px;
@@ -269,10 +269,10 @@
     font-size: 37px;
   }
   .section-toolbar h2 {
-    font-size: 19px;
+    font-size: 20px;
   }
   .section-toolbar .text-link {
-    font-size: 10px;
+    font-size: 12px;
     gap: 5px;
   }
   .section-toolbar {
@@ -284,7 +284,7 @@
     padding: 16px 12px;
   }
   .table-scroll th {
-    font-size: 10px;
+    font-size: 12px;
     padding: 12px;
   }
   .table-scroll th:first-child,
@@ -298,18 +298,18 @@
     min-width: 35px;
   }
   .table-scroll .date-cell {
-    font-size: 10px;
+    font-size: 12px;
     min-width: 120px;
   }
   .table-scroll .reference {
-    font-size: 8px;
+    font-size: 12px;
     max-width: 210px;
   }
   .row-link {
     font-size: 12px;
   }
   .status {
-    font-size: 9px;
+    font-size: 12px;
     padding: 4px 6px;
   }
   .empty-state {
@@ -339,7 +339,7 @@
     margin-bottom: 20px;
   }
   .form-panel > h2 {
-    font-size: 19px;
+    font-size: 20px;
   }
   .field > label {
     font-size: 12px;
@@ -356,14 +356,14 @@
   }
   .field > small,
   .field-hint {
-    font-size: 10px;
+    font-size: 12px;
   }
   .field-row {
     gap: 12px;
     grid-template-columns: 1fr 1.6fr;
   }
   .channel-selector span {
-    font-size: 11px;
+    font-size: 12px;
     min-height: 43px;
   }
   .prepare-layout {
@@ -376,7 +376,7 @@
     font-size: 12px;
   }
   .document-metadata code {
-    font-size: 9px;
+    font-size: 12px;
   }
   .document-detail h2 {
     font-size: 20px;
@@ -386,12 +386,12 @@
     height: 400px;
   }
   .preview-label {
-    font-size: 10px;
+    font-size: 12px;
     gap: 6px;
     flex-wrap: wrap;
   }
   .preview-label > a {
-    font-size: 10px;
+    font-size: 12px;
   }
   .preview-label > svg {
     height: 15px;
@@ -403,7 +403,7 @@
   }
   .dispatch-reference > code {
     flex-basis: 100%;
-    font-size: 10px;
+    font-size: 12px;
   }
   .dispatch-facts {
     gap: 22px 18px;
@@ -412,7 +412,7 @@
     font-size: 12px;
   }
   .dispatch-facts dt {
-    font-size: 10px;
+    font-size: 12px;
   }
   .dispatch-facts address {
     font-size: 14px;
@@ -434,7 +434,7 @@
     padding-top: 24px;
   }
   .timeline-section h2 {
-    font-size: 21px;
+    font-size: 20px;
   }
   .attempts li {
     flex-wrap: wrap;
@@ -459,7 +459,7 @@
     gap: 10px;
   }
   .diagnostics dd {
-    font-size: 11px;
+    font-size: 12px;
   }
   .usage-ledger dl {
     gap: 13px;
@@ -468,17 +468,17 @@
     font-size: 33px;
   }
   .usage-ledger dd span {
-    font-size: 11px;
+    font-size: 12px;
   }
   .usage-ledger dt {
-    font-size: 10px;
+    font-size: 12px;
   }
   .notice {
     padding: 13px;
     gap: 10px;
   }
   .notice p {
-    font-size: 11px;
+    font-size: 12px;
   }
   .notice > svg {
     width: 19px;
@@ -489,12 +489,12 @@
   }
 
   .organization-button {
-    font-size: 13px;
+    font-size: 14px;
   }
   .organization-button > .organization-initial {
     height: 30px;
     width: 30px;
-    font-size: 22px;
+    font-size: 20px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -554,17 +554,18 @@
   margin-top: 34px;
 }
 .authorized-connections > h2 {
-  font-size: 22px;
+  font-size: 20px;
 }
 .authorized-connections form {
   margin-top: 20px;
   max-width: 580px;
 }
 
+/* The banner reads as one sentence; it wraps only when it runs out of room. */
 .scanner-warning {
-  display: block;
-  margin-top: 3px;
-  font-size: 9px;
+  display: inline;
+  margin-left: 6px;
+  font-size: 12px;
   opacity: 0.9;
 }
 .channel-controls {
@@ -573,7 +574,7 @@
   margin-bottom: 25px;
 }
 .channel-controls h2 {
-  font-size: 21px;
+  font-size: 20px;
 }
 .channel-controls > p {
   font-size: 12px;
@@ -586,7 +587,7 @@
   padding: 15px 0;
 }
 .channel-control > strong {
-  font-size: 13px;
+  font-size: 14px;
   min-width: 120px;
 }
 .channel-control > .button {
@@ -633,7 +634,7 @@
     grid-column: 1 / -1;
   }
   .scanner-warning {
-    font-size: 8px;
+    font-size: 12px;
   }
 }
 
@@ -689,7 +690,7 @@
   gap: 18px;
   background: var(--paper);
   padding: 3px 10px;
-  font-size: 11px;
+  font-size: 12px;
 }
 .pdf-navigation button:disabled {
   opacity: 0.35;
@@ -702,10 +703,10 @@
   margin: 18px 0;
 }
 .csv-preview table {
-  font-size: 11px;
+  font-size: 12px;
 }
 .csv-preview td {
-  font-size: 11px;
+  font-size: 12px;
   padding: 10px 8px;
 }
 .csv-preview td:first-child {

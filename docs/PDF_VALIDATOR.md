@@ -1,5 +1,43 @@
 # Private PDF validator
 
+## Browser workspace history — 10 November 2026 candidate
+
+`GET /api/pdf-validation/history` is a browser-only, private/no-store metadata
+read for the current workspace. It remains available when new paid checks are
+disabled. It accepts an opaque `cursor` and integer `limit` from 1 to 50
+(default 30), returning `{items,nextCursor}` in descending creation-time/id order.
+Each item contains `id`, `documentId`, `documentName`, `profile`, `status`,
+`evidence`, `createdAt` and nullable `completedAt`. `processing` and `error`
+have no completed result; `passed` and `failed` describe the stored diagnostic,
+never legal compliance, certification or completed human review.
+
+The route rejects bearer/native credentials before the general OAuth API
+middleware. It authenticates current browser membership and uses the same
+creator-private and secure-source SQL visibility as the document library.
+Observers retain their existing shared-document reading rights; a role alone,
+including administrator, does not expose another creator's private source.
+Current session, role and workspace authority are rechecked after the read before
+metadata is returned. Changing workspace or losing access requires a new read;
+an old cursor grants no authority. Invalid bounds/cursors return
+`INVALID_INPUT`/`INVALID_CURSOR`; authentication refusals preserve their normal
+recovery. There is no new native, public REST or MCP collection-history surface.
+Existing authorized per-document report reads remain separate.
+
+Migration `0082_pdf_validation_history.sql` adds the chronological workspace index;
+it rewrites no reports, purchases, financial evidence or approval. The read never
+invokes veraPDF, scans a PDF, reserves/debits credit or starts a new check, and its
+projection contains no PDF bytes, hashes, findings, content or recipient fields.
+The document link opens the existing authorized report view, which still owns
+the exact diagnostic and manual-review notice.
+
+`tests/unit/pdf-validation.test.ts` uses disposable migrated D1/R2 and synthetic
+engine responses to cover keyset bounds, private-source and tenant isolation,
+observer reading, post-read session revocation, explicit processing/error states,
+no additional purchase and the mounted browser-only/no-store route. Actual test
+execution and publication evidence belong to the final candidate record; neither
+this authored coverage nor local fixtures qualify deployed history or a live
+customer diagnostic.
+
 3 October opening preparation: Nicolas authorizes private deployment and hosted
 qualification before PDF verification activation on existing credits. The updated local
 Docker qualification now includes twelve pinned official references: a positive

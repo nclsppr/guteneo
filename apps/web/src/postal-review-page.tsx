@@ -460,81 +460,81 @@ export function PostalReviewPage({
                   deliveryProduct={review.options.deliveryProduct}
                 />
               </section>
-            </div>
 
-            {canPrepare && review.transferStatus === "prepared" ? (
-              <section
-                className="postal-consent"
-                aria-labelledby="postal-draft-title"
-              >
-                <h2 id="postal-draft-title">
-                  {quote.pending
-                    ? msg("Fetching your quote…")
-                    : msg("Your letter is awaiting its quote")}
-                </h2>
-                <p>
-                  {quote.paused
-                    ? msg(
-                        "Analysis is taking longer than expected. You can resume fetching the price.",
-                      )
-                    : msg(
-                        "You will automatically proceed to price approval when analysis is complete. No letter has been sent yet.",
-                      )}
-                </p>
-                <button
-                  className="button primary"
-                  type="button"
-                  disabled={
-                    action.pending ||
-                    quote.pending ||
-                    resource.loading ||
-                    !!resource.error ||
-                    needsReconciliation
-                  }
-                  onClick={quote.retry}
+              {canPrepare && review.transferStatus === "prepared" ? (
+                <section
+                  className="postal-consent approval-panel"
+                  aria-labelledby="postal-draft-title"
                 >
-                  {quote.pending
-                    ? msg("Calculating the quote…")
-                    : msg("Resume quote")}
-                  <ArrowRight size={18} aria-hidden="true" />
-                </button>
-              </section>
-            ) : (
-              canApprove &&
-              review.transferStatus === "not_started" && (
-                <form
-                  className="postal-consent"
-                  onSubmit={(event) => void transfer(event)}
-                  aria-busy={action.pending}
-                >
-                  <h2>{msg("Get the delivery price")}</h2>
+                  <h2 id="postal-draft-title">
+                    {quote.pending
+                      ? msg("Fetching your quote…")
+                      : msg("Your letter is awaiting its quote")}
+                  </h2>
                   <p>
-                    {msg(
-                      "By clicking below, you confirm that you have checked every page, the address visible in the window and the return address. You authorise transferring this PDF and its address to our printing provider to prepare the quote.",
-                    )}
+                    {quote.paused
+                      ? msg(
+                          "Analysis is taking longer than expected. You can resume fetching the price.",
+                        )
+                      : msg(
+                          "You will automatically proceed to price approval when analysis is complete. No letter has been sent yet.",
+                        )}
                   </p>
                   <button
                     className="button primary"
-                    disabled={!canTransfer || action.pending}
-                    aria-describedby="postal-transfer-help"
+                    type="button"
+                    disabled={
+                      action.pending ||
+                      quote.pending ||
+                      resource.loading ||
+                      !!resource.error ||
+                      needsReconciliation
+                    }
+                    onClick={quote.retry}
                   >
-                    {action.pending
-                      ? msg("Preparing the draft…")
-                      : msg("Confirm the document and get the price")}
+                    {quote.pending
+                      ? msg("Calculating the quote…")
+                      : msg("Resume quote")}
                     <ArrowRight size={18} aria-hidden="true" />
                   </button>
-                  <p id="postal-transfer-help" className="field-hint">
-                    {canTransfer
-                      ? msg(
-                          "This action does not send anything. You will decide after reviewing the exact price.",
-                        )
-                      : msg(
-                          "Transfer remains unavailable until the PDF checks and service activation are complete.",
-                        )}
-                  </p>
-                </form>
-              )
-            )}
+                </section>
+              ) : (
+                canApprove &&
+                review.transferStatus === "not_started" && (
+                  <form
+                    className="postal-consent approval-panel"
+                    onSubmit={(event) => void transfer(event)}
+                    aria-busy={action.pending}
+                  >
+                    <h2>{msg("Get the delivery price")}</h2>
+                    <p>
+                      {msg(
+                        "By clicking below, you confirm that you have checked every page, the address visible in the window and the return address. You authorise transferring this PDF and its address to our printing provider to prepare the quote.",
+                      )}
+                    </p>
+                    <button
+                      className="button primary"
+                      disabled={!canTransfer || action.pending}
+                      aria-describedby="postal-transfer-help"
+                    >
+                      {action.pending
+                        ? msg("Preparing the draft…")
+                        : msg("Confirm the document and get the price")}
+                      <ArrowRight size={18} aria-hidden="true" />
+                    </button>
+                    <p id="postal-transfer-help" className="field-hint">
+                      {canTransfer
+                        ? msg(
+                            "This action does not send anything. You will decide after reviewing the exact price.",
+                          )
+                        : msg(
+                            "Transfer remains unavailable until the PDF checks and service activation are complete.",
+                          )}
+                    </p>
+                  </form>
+                )
+              )}
+            </div>
           </div>
         )
       )}

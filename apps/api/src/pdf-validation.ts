@@ -14,6 +14,8 @@ import {
   pdfManualChecks,
   pdfValidationReportSchema,
   type PdfValidationReport,
+  type PdfValidationHistory,
+  type PdfValidationHistoryItem,
 } from "../../../packages/contracts/src/pdf-validation";
 import { pdfValidationAvailable } from "./pdf-validation-pricing";
 import type { Env } from "./env";
@@ -49,6 +51,68 @@ export class PdfValidationService {
     private readonly env: Env,
     private readonly domain: DomainService,
   ) {}
+
+  /** Metadata only, under the same source visibility as the document library. */
+  async history(
+    authority: PdfValidationAuthority,
+    cursor?: string,
+    limit = 30,
+  ): Promise<PdfValidationHistory> {
+    if (authority.context.actor !== "browser")
+      fail(
+        "BROWSER_REQUIRED",
+        "Open Guteneo in your browser to read check history.",
+        403,
+      );
+    await authority.assertCurrent();
+    if (!Number.isSafeInteger(limit) || limit < 1 || limit > 50)
+      fail("INVALID_INPUT", "Choose a history page size from 1 to 50.", 400);
+    let after: { createdAt: string; id: string } | undefined;
+    if (cursor !== undefined) {
+      try {
+        if (cursor.length > 512) throw new Error("Invalid cursor");
+        const value = JSON.parse(atob(cursor));
+        if (
+          !value ||
+          typeof value !== "object" ||
+          Object.keys(value).sort().join(",") !== "createdAt,id" ||
+          typeof value.createdAt !== "string" ||
+          new Date(value.createdAt).toISOString() !== value.createdAt ||
+          typeof value.id !== "string" ||
+          !/^[A-Za-z0-9_-]{1,200}$/.test(value.id)
+        )
+          throw new Error("Invalid cursor");
+        after = value;
+      } catch {
+        fail("INVALID_CURSOR", "Invalid PDF check history cursor.", 400);
+      }
+    }
+    const actor = authority.context;
+    const fence = authority.sql();
+    const visibility = this.domain.documentLibraryVisibility(actor, "d");
+    const rows = await this.env.DB.prepare(
+      `SELECT v.id,v.document_id AS documentId,d.name AS documentName,v.profile,CASE WHEN v.status='complete' THEN json_extract(v.result_json,'$.status') ELSE v.status END AS status,v.evidence,v.created_at AS createdAt,v.completed_at AS completedAt FROM pdf_validations v JOIN documents d ON d.organization_id=v.organization_id AND d.id=v.document_id WHERE v.organization_id=? AND ${fence.condition} AND ${visibility.condition} ${after ? "AND (v.created_at<? OR (v.created_at=? AND v.id<?))" : ""} ORDER BY v.created_at DESC,v.id DESC LIMIT ?`,
+    )
+      .bind(
+        actor.organizationId,
+        ...fence.values,
+        ...visibility.values,
+        ...(after ? [after.createdAt, after.createdAt, after.id] : []),
+        limit + 1,
+      )
+      .all<PdfValidationHistoryItem>();
+    // A role, session or workspace change during the read cannot publish stale metadata.
+    await authority.assertCurrent();
+    const items = rows.results.slice(0, limit);
+    const last = items.at(-1);
+    return {
+      items,
+      nextCursor:
+        rows.results.length > limit && last
+          ? btoa(JSON.stringify({ createdAt: last.createdAt, id: last.id }))
+          : null,
+    };
+  }
 
   async list(
     actor: ActorContext,

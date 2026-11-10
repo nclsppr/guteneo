@@ -75,9 +75,12 @@ browser administrator action and its no-replay financial/execution closure gate.
 The [execution ledger](STATE_MACHINE_EXECUTION.md) tracks implementation of the
 state-machine work and its local proof separately from deployment.
 
-
 The [interface-copy contract](INTERFACE_COPY.md) explains contextual text review;
 the [dated cleanup audit](CLEAN_COPY_AUDIT.md) records changes and qualification.
+The [application-time contract](APPLICATION_TIME.md) owns the single UTC context
+for the five browser applications, reports, exports and date/time entry.
+
+The [10 November clarity execution](CLAUDE_PLAN_EXECUTION.md) reconciles both Claude audits with current main and records remaining qualification gates. Its detailed presentation contracts are [dispatch review](DISPATCH_REVIEW_DESIGN.md), [Administration](CLARITY_ADMINISTRATION.md) and [shared foundations](CLARITY_FOUNDATION.md).
 
 ## Current sources of truth
 
@@ -105,7 +108,7 @@ the [dated cleanup audit](CLEAN_COPY_AUDIT.md) records changes and qualification
 | Billing, costs and plans                               | [Billing](BILLING.md), [costs](COSTS.md), [retired subscription history](MONTHLY_PLAN.md), [welcome credits](WELCOME_CREDIT.md)                                                                                                                                                                                                                           |
 | Local development and verification                     | [Root README](../README.md), [CI and artifact provenance](CI.md), [dependency maintenance and redelivery](DEPENDENCY_UPDATES.md), [offline tests](TESTING_OFFLINE.md), [dated test results](TEST_RESULTS.md), [async hot-path audit](ASYNC_HOT_PATH_AUDIT.md)                                                                                             |
 | Cloud development bootstrap and provider diagnostics   | [Repository helper contract](CODEX_CLOUD.md), [dated setup evidence](CODEX_CLOUD_PROOF.md), [AI contribution guide](../apps/engineering/src/content/docs/engineering/ai-contributions.mdx)                                                                                                                                                                |
-| Publication and migrations                             | [Main release](MAIN_RELEASE.md), [1.2.0 human release notes](releases/1.2.0.md), [D1 migrations](D1_MIGRATION.md), [current candidate](V1_RELEASE_CANDIDATE.md), [dated release proof](LIVE_RELEASE.md)                                                                                                                                                                                                   |
+| Publication and migrations                             | [Main release](MAIN_RELEASE.md), [1.2.0 human release notes](releases/1.2.0.md), [D1 migrations](D1_MIGRATION.md), [current candidate](V1_RELEASE_CANDIDATE.md), [dated release proof](LIVE_RELEASE.md)                                                                                                                                                   |
 | Operations, security and restoration                   | [Runbook](RUNBOOK.md), [operations](OPERATIONS.md), [threats](THREATS.md), [secure setup](SECURE_CONFIGURATION.md), [restore proof](RESTORE_PROOF.md)                                                                                                                                                                                                     |
 | Fax reference continuity and maintenance               | [Continuous reviewer contract](REVIEW_FAX_PREPARATION.md), [private reviewer setup](REVIEW_FAX_OPERATOR.md), [automatic commercial-reference maintenance](FAX_TARIFF_MAINTENANCE.md)                                                                                                                                                                      |
 | Scanner maintenance                                    | [Scanner](SCANNER.md), [CI maintenance](SCANNER_CI.md), [rescan](SCANNER_RESCAN.md)                                                                                                                                                                                                                                                                       |

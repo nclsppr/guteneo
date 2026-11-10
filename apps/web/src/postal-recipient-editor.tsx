@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   isPingenPostalCountry,
   PINGEN_POSTAL_COUNTRY_CODES,
@@ -106,7 +106,22 @@ export function PostalRecipientFields({
       name: names.of(code === "XZ" ? "XK" : code) ?? postalCountryName(code),
     })).sort((left, right) => collator.compare(left.name, right.name));
   }, [locale]);
+  const [countrySearch, setCountrySearch] = useState("");
+  const normalizeSearch = (text: string) =>
+    text
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "")
+      .toLocaleLowerCase(locale);
+  const query = normalizeSearch(countrySearch.trim());
   const country = value.country ?? "FR";
+  const matchingCountries = countries.filter(({ code, name }) =>
+    normalizeSearch(`${name} ${code}`).includes(query),
+  );
+  // Searching never changes the selected country or the entered address.
+  const matchingCodes = new Set(matchingCountries.map(({ code }) => code));
+  const visibleCountries = countries.filter(
+    ({ code }) => code === country || matchingCodes.has(code),
+  );
   const legacyCountry = ["FR", "LU", "DE"].includes(country);
   const unavailable = catalogue?.unavailableCountries.includes(
     country as PostalCountry,
@@ -120,6 +135,19 @@ export function PostalRecipientFields({
       : undefined;
   return (
     <>
+      <Field label={msg("Search countries")}>
+        <input
+          type="search"
+          value={countrySearch}
+          onChange={(event) => setCountrySearch(event.target.value)}
+          autoComplete="off"
+        />
+      </Field>
+      {query && matchingCountries.length === 0 && (
+        <p className="field-hint" role="status">
+          {msg("No matching country.")}
+        </p>
+      )}
       <Field
         label={t.dispatch.country}
         hint={
@@ -135,7 +163,7 @@ export function PostalRecipientFields({
           onChange={(event) => onChange("country", event.target.value)}
           required
         >
-          {countries.map(({ code, name }) => {
+          {visibleCountries.map(({ code, name }) => {
             const closed = catalogue?.unavailableCountries.includes(code);
             return (
               <option key={code} value={code} disabled={closed}>
@@ -171,16 +199,12 @@ export function PostalRecipientFields({
       )}
       {unavailable && (
         <p className="field-hint" role="alert">
-          {msg(
-            "Mail to this destination is temporarily unavailable.",
-          )}
+          {msg("Mail to this destination is temporarily unavailable.")}
         </p>
       )}
       {delayed && (
         <p className="field-hint" role="status">
-          {msg(
-            "Delivery delays are currently reported for this destination.",
-          )}
+          {msg("Delivery delays are currently reported for this destination.")}
         </p>
       )}
       <Field label={msg("Address format")}>

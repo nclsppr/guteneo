@@ -385,8 +385,18 @@ test("enable, pause, revision-bound rotation and revocation require their explic
   await expect(
     page.getByRole("button", { name: "Enable endpoint", exact: true }),
   ).toBeVisible();
-  page.on("dialog", (dialog) => dialog.accept());
   await page
+    .getByRole("button", {
+      name: "Replace and show signing secret",
+      exact: true,
+    })
+    .click();
+  expect(state.writes).toHaveLength(2);
+  await page
+    .getByRole("group", {
+      name: "Replace the signing secret? This pauses delivery and invalidates the previous secret.",
+      exact: true,
+    })
     .getByRole("button", {
       name: "Replace and show signing secret",
       exact: true,
@@ -398,6 +408,14 @@ test("enable, pause, revision-bound rotation and revocation require their explic
   expect(state.items[0]).toMatchObject({ enabled: false, revision: 4 });
   await page
     .getByRole("button", { name: /^(Delete|Revoke) endpoint$/ })
+    .click();
+  expect(state.writes).toHaveLength(3);
+  await page
+    .getByRole("group", {
+      name: "Revoke this endpoint and destroy its signing secret?",
+      exact: true,
+    })
+    .getByRole("button", { name: "Revoke endpoint", exact: true })
     .click();
   await expect(
     page.getByText("Endpoint revoked", { exact: true }),
@@ -444,8 +462,18 @@ test("a lost creation response retries one key and explicitly replaces its unrec
   await expect(
     page.getByRole("textbox", { name: "Signing secret", exact: true }),
   ).toHaveCount(0);
-  page.on("dialog", (dialog) => dialog.accept());
   await page
+    .getByRole("button", {
+      name: "Replace and show signing secret",
+      exact: true,
+    })
+    .click();
+  expect(state.writes).toHaveLength(2);
+  await page
+    .getByRole("group", {
+      name: "Replace the signing secret? This pauses delivery and invalidates the previous secret.",
+      exact: true,
+    })
     .getByRole("button", {
       name: "Replace and show signing secret",
       exact: true,

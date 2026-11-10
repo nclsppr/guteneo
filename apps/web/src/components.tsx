@@ -1,3 +1,7 @@
+import {
+  APPLICATION_TIME_ZONE,
+  useApplicationTimeDeclared,
+} from "./application-time";
 import { msg } from "./messages";
 import { DataTable, tableTimestamp } from "./data-table";
 import { canonicalApplicationRoute } from "./app-routes";
@@ -41,7 +45,7 @@ import {
 } from "./api";
 import { useCurrentClientView } from "./client-write-recovery";
 import {
-  BEFORE_WORKSPACE_NAVIGATION,
+  createRouteNavigationEvent,
   clientNavigationRevision,
   subscribeClientNavigation,
 } from "./client-navigation";
@@ -57,6 +61,7 @@ import {
 } from "./client-resources";
 import { recordActionOutcome } from "./action-outcomes";
 import { t, getLocale } from "./locale";
+import { peekLocaleData } from "./locale-data";
 import { pdfCheckErrorMessage } from "./pdf-check-errors";
 import { workspaceAuthenticationRecoveryHref } from "./auth-navigation";
 
@@ -147,8 +152,11 @@ export function useRouteState() {
       if (nextRoute !== acceptedRoute) {
         // Let the current screen veto navigation before React replaces it.
         // This covers links, programmatic navigation and browser history alike.
-        const navigation = new Event(BEFORE_WORKSPACE_NAVIGATION, {
-          cancelable: true,
+        const previous = new URL(window.location.href);
+        previous.hash = acceptedHash;
+        const navigation = createRouteNavigationEvent({
+          fromHref: previous.href,
+          toHref: window.location.href,
         });
         if (!window.dispatchEvent(navigation)) {
           const restore = new URL(window.location.href);
@@ -420,25 +428,32 @@ export function ErrorNotice({
   const quoteRecovery =
     error instanceof ApiError &&
     ["QUOTE_STILL_VALID", "SECURE_QUOTE_RENEWAL_UNSAFE"].includes(error.code);
+  const title = authenticationRecovery
+    ? msg("Verify your sign-in")
+    : t.errorTitle;
+  const message =
+    error instanceof ApiError
+      ? (pdfCheckErrorMessage(error.code) ??
+        postalErrorMessage(error.code) ??
+        emailErrorMessage(error.code) ??
+        generalErrorMessage(error.code) ??
+        reviewedServerErrorMessage(error.message))
+      : msg(error.message);
   return (
     <div className="notice error" role="alert" tabIndex={-1} ref={notice}>
       <WarningCircle size={22} aria-hidden="true" />
       <div>
-        <strong>
-          {authenticationRecovery ? msg("Verify your sign-in") : t.errorTitle}
-        </strong>
-        <p>
-          {error instanceof ApiError
-            ? (pdfCheckErrorMessage(error.code) ??
-              postalErrorMessage(error.code) ??
-              emailErrorMessage(error.code) ??
-              generalErrorMessage(error.code) ??
-              msg(error.message))
-            : msg(error.message)}
-        </p>
+        <strong>{title}</strong>
+        {message && message !== title && <p>{message}</p>}
         {error instanceof ApiError &&
           !authenticationRecovery &&
-          !quoteRecovery && <small className="mono">{error.code}</small>}
+          !quoteRecovery && (
+            // The code helps support; it stays out of the sentence a person reads.
+            <details className="error-details">
+              <summary>{msg("Details")}</summary>
+              <small className="mono">{error.code}</small>
+            </details>
+          )}
         {authenticationRecovery && (
           <a
             className="button primary"
@@ -458,6 +473,18 @@ export function ErrorNotice({
       </div>
     </div>
   );
+}
+
+/** Never echo an unreviewed server body into a translated interface. */
+function reviewedServerErrorMessage(source: string): string | undefined {
+  const key = source.trim();
+  const catalog = peekLocaleData(getLocale());
+  // Identity translations are omitted from the compiled lookup; their reviewed
+  // text is still present in its string table (notably English source messages).
+  return catalog &&
+    (Object.hasOwn(catalog.messages, key) || catalog.strings.includes(key))
+    ? msg(source)
+    : undefined;
 }
 
 /** Fixed copy only: provider response bodies can contain private identities. */
@@ -652,24 +679,58 @@ export function sesErrorMessage(code?: string): string | undefined {
   };
   return Object.hasOwn(messages, code) ? messages[code] : undefined;
 }
-export function Loading() {
+export function Loading({
+  shape = "page",
+}: {
+  shape?: "page" | "table" | "form" | "document";
+}) {
   return (
-    <div className="loading" role="status" aria-label={t.loading}>
-      <span />
-      <span />
-      <span />
-      <p>{t.loading}</p>
+    <div
+      className={`loading loading-shape-${shape}`}
+      role="status"
+      aria-label={t.loading}
+    >
+      <div className="loading-skeleton" aria-hidden="true">
+        <span className="loading-skeleton-heading" />
+        {shape === "table" ? (
+          <div className="loading-skeleton-table">
+            {[0, 1, 2].map((row) => (
+              <div className="loading-skeleton-row" key={row}>
+                <span />
+                <span />
+                <span />
+              </div>
+            ))}
+          </div>
+        ) : shape === "form" ? (
+          <>
+            {[0, 1, 2].map((field) => (
+              <div className="loading-skeleton-field" key={field}>
+                <span />
+                <span />
+              </div>
+            ))}
+          </>
+        ) : shape === "document" ? (
+          <div className="loading-skeleton-document" />
+        ) : (
+          <div className="loading-skeleton-panels">
+            <span />
+            <span />
+          </div>
+        )}
+      </div>
+      <p className="loading-label">{t.loading}</p>
     </div>
   );
 }
-/** Local timestamps use the browser timezone; keep its context beside dates. */
+/** The application frame declares its shared timezone once. */
 export function DateTimezone() {
+  const declared = useApplicationTimeDeclared();
+  if (declared) return null;
   return (
-    <p className="timestamp-context">
-      {msg(
-        "Times shown in: {0}",
-        Intl.DateTimeFormat().resolvedOptions().timeZone,
-      )}
+    <p className="timestamp-context" id="application-time-context">
+      {msg("Times shown in: {0}", APPLICATION_TIME_ZONE)}
     </p>
   );
 }
@@ -697,18 +758,39 @@ export function EmptyState({
   title,
   text,
   action,
+  icon,
 }: {
   title: string;
   text?: string;
   action?: ReactNode;
+  /** Defaults to the PDF glyph; pass the glyph of the page's own object. */
+  icon?: ReactNode;
 }) {
   return (
     <div className="empty-state">
-      <FilePdf size={36} weight="light" aria-hidden="true" />
+      {icon ?? <FilePdf size={36} weight="light" aria-hidden="true" />}
       <h2>{title}</h2>
       {text && <p>{text}</p>}
       {action}
     </div>
+  );
+}
+
+/** The one disclosure row: label, chevron and a full-width hit area. */
+export function Disclosure({
+  label,
+  children,
+  className = "",
+}: {
+  label: ReactNode;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <details className={`disclosure ${className}`.trim()}>
+      <summary>{label}</summary>
+      {children}
+    </details>
   );
 }
 function dispatchStatusText(status: string, channel?: Channel) {
@@ -774,8 +856,16 @@ export function RefreshButton({
 export function DispatchTable({
   items,
   emptyAction,
+  statusFilter = true,
+  className,
+  timezoneNote = true,
 }: {
   items: Dispatch[];
+  className?: string;
+  /** False when a table above on the same page already states the zone. */
+  timezoneNote?: boolean;
+  /** False where the page already filters by status group. */
+  statusFilter?: boolean;
   /** The next step when the list is empty. */
   emptyAction?: ReactNode;
 }) {
@@ -783,10 +873,11 @@ export function DispatchTable({
     return <EmptyState title={t.dispatch.countEmpty} action={emptyAction} />;
   return (
     <>
-      <DateTimezone />
+      {timezoneNote && <DateTimezone />}
       <DataTable
         viewId="dispatches"
-        label={t.dispatch.listTitle}
+        label={t.nav.dispatches}
+        className={className}
         items={items}
         getRowKey={(item) => item.id}
         filters={[
@@ -799,15 +890,22 @@ export function DispatchTable({
               (value) => ({ value, label: t.channels[value] ?? value }),
             ),
           },
-          {
-            saveValue: true,
-            id: "status",
-            label: t.status,
-            value: dispatchPresentationStatus,
-            options: [...new Set(items.map(dispatchPresentationStatus))].map(
-              (value) => ({ value, label: dispatchStatusText(value) }),
-            ),
-          },
+          ...(statusFilter
+            ? [
+                {
+                  saveValue: true,
+                  id: "status",
+                  label: t.status,
+                  value: dispatchPresentationStatus,
+                  options: [
+                    ...new Set(items.map(dispatchPresentationStatus)),
+                  ].map((value) => ({
+                    value,
+                    label: dispatchStatusText(value),
+                  })),
+                },
+              ]
+            : []),
         ]}
         columns={[
           {
@@ -818,7 +916,6 @@ export function DispatchTable({
             render: (item) => (
               <a className="row-link" href={`#/app/dispatch/${item.id}`}>
                 {recipientLabel(item) || item.id}
-                <span className="reference mono">{item.id}</span>
               </a>
             ),
           },
@@ -879,6 +976,44 @@ export function DispatchTable({
   );
 }
 const LazyPdfViewer = lazy(() => import("./pdf-viewer"));
+const LazyPdfThumbnail = lazy(() => import("./pdf-thumbnail"));
+
+/** First page of a ready PDF, read and drawn only once its row is on screen. */
+export function DocumentThumbnail({
+  id,
+  ready,
+}: {
+  id: string;
+  ready: boolean;
+}) {
+  const frame = useRef<HTMLSpanElement>(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    if (!ready || seen || !frame.current) return;
+    if (!("IntersectionObserver" in window)) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setSeen(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "120px" },
+    );
+    observer.observe(frame.current);
+    return () => observer.disconnect();
+  }, [ready, seen]);
+  return (
+    <span className="document-thumbnail" ref={frame} aria-hidden="true">
+      <FilePdf size={20} weight="light" />
+      {seen && (
+        <Suspense fallback={null}>
+          <LazyPdfThumbnail id={id} />
+        </Suspense>
+      )}
+    </span>
+  );
+}
 
 export function PdfPreview({
   id,
@@ -908,7 +1043,7 @@ export function PdfPreview({
     });
   }
   const viewer = (
-    <Suspense fallback={<Loading />}>
+    <Suspense fallback={<Loading shape="document" />}>
       <LazyPdfViewer id={id} dispatchId={dispatchId} />
     </Suspense>
   );

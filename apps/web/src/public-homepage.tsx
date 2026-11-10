@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import {
   ArrowRight,
-  ArrowUpRight,
   Check,
   FilePdf,
   EnvelopeSimple,
@@ -48,7 +47,12 @@ export function PublicHomepage() {
       </a>
       <PublicHeader home />
       <main id="landing-main" tabIndex={-1}>
-        <section className="public-home-hero" aria-labelledby="home-title">
+        <section
+          className="public-home-hero"
+          id="installation"
+          tabIndex={-1}
+          aria-labelledby="home-title"
+        >
           <h1 id="home-title">
             {msg("Prepare your documents.")}
             <br />
@@ -60,19 +64,29 @@ export function PublicHomepage() {
             )}
           </p>
           <div className="public-home-actions">
-            <a className="button primary" href="/getting-started/">
-              {msg("Get started")}
+            <a
+              className="button primary"
+              href={workspaceEntryHref("/app/prepare?entry=direct")}
+            >
+              {msg("Send from Guteneo")}
               <ArrowRight size={19} aria-hidden="true" />
+            </a>
+            <a className="text-link" href="/assistants/">
+              {msg("Use my assistant")}
+              <ArrowRight size={18} aria-hidden="true" />
             </a>
             <a className="text-link" href="/how-it-works/">
               {msg("See how it works")}
-              <ArrowUpRight size={18} aria-hidden="true" />
+              <ArrowRight size={18} aria-hidden="true" />
             </a>
           </div>
         </section>
 
         <section
           className="public-home-route"
+          // Older links to the three steps land on their one remaining telling.
+          id="how"
+          tabIndex={-1}
           aria-label={msg("Document dispatch workflow")}
         >
           <div className="public-home-document">
@@ -114,76 +128,6 @@ export function PublicHomepage() {
         </section>
 
         <section
-          className="public-home-workflow public-home-section"
-          id="how"
-          tabIndex={-1}
-          aria-labelledby="home-workflow-title"
-        >
-          <div className="public-home-section-heading">
-            <h2 id="home-workflow-title">
-              {msg("From your document to its destination.")}
-            </h2>
-            <a className="text-link" href="/how-it-works/">
-              {msg("Follow an example")}
-              <ArrowRight size={18} aria-hidden="true" />
-            </a>
-          </div>
-          <ol>
-            <li>
-              <h3>{msg("Prepare")}</h3>
-              <p>
-                {msg(
-                  "Import a PDF, create a document or ask your connected assistant to prepare your dispatch.",
-                )}
-              </p>
-            </li>
-            <li>
-              <h3>{msg("Review")}</h3>
-              <p>
-                {msg(
-                  "Check the exact document, recipient, channel and cost. By default, you approve in Guteneo.",
-                )}
-              </p>
-            </li>
-            <li>
-              <h3>{msg("Track")}</h3>
-              <p>
-                {msg(
-                  "Follow the events returned for your dispatch. Technical delivery does not prove that a document was read.",
-                )}
-              </p>
-            </li>
-          </ol>
-        </section>
-
-        <section
-          className="public-home-start public-home-section"
-          id="installation"
-          tabIndex={-1}
-          aria-labelledby="home-start-title"
-        >
-          <div>
-            <h2 id="home-start-title">
-              {msg("Start with your document. Or your assistant.")}
-            </h2>
-            <a className="text-link" href="/getting-started/">
-              {msg("Getting started")}
-              <ArrowRight size={18} aria-hidden="true" />
-            </a>
-          </div>
-          <div className="public-home-entry-links">
-            <a href={workspaceEntryHref("/app/prepare?entry=direct")}>
-              <span>{msg("Send from Guteneo")}</span>
-              <ArrowUpRight size={22} aria-hidden="true" />
-            </a>
-            <a href="/assistants/">
-              <span>{msg("Use my assistant")}</span>
-              <ArrowRight size={22} aria-hidden="true" />
-            </a>
-          </div>
-        </section>
-
-        <section
           className="public-home-pricing public-home-section"
           id="pricing"
           tabIndex={-1}
@@ -203,12 +147,12 @@ export function PublicHomepage() {
             <a href="/pricing/">
               <strong>{msg("Email, fax and post")}</strong>
               <span>{msg("Rates, examples and welcome credit")}</span>
-              <ArrowUpRight size={20} aria-hidden="true" />
+              <ArrowRight size={20} aria-hidden="true" />
             </a>
             <a href="/pdf-checks/" id="pdf-checks">
               <strong>{msg("PDF accessibility checks")}</strong>
               <span>{msg("PDF/UA and PDF/A, per document and profile")}</span>
-              <ArrowUpRight size={20} aria-hidden="true" />
+              <ArrowRight size={20} aria-hidden="true" />
             </a>
           </div>
         </section>
@@ -284,7 +228,7 @@ export function PublicHomepage() {
                   <h3>
                     <a href={articlePath(article.slug)}>
                       {article.title}
-                      <ArrowUpRight size={20} aria-hidden="true" />
+                      <ArrowRight size={20} aria-hidden="true" />
                     </a>
                   </h3>
                 </article>

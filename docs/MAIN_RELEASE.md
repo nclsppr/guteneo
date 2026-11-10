@@ -150,6 +150,77 @@ prove neither current provider state nor a real signed callback. Retain inspecti
 results separately; see [TELNYX_READINESS.md](TELNYX_READINESS.md) and
 [telnyx-readiness.test.ts](../tests/unit/telnyx-readiness.test.ts).
 
+## Operator-triggered application publication
+
+The separate [`manual-application-release.yml`](../.github/workflows/manual-application-release.yml)
+workflow is an explicitly dispatched production operation. It does not change
+`dependency-release.yml`, widen bot eligibility, create credentials or publish
+from a pull request. Its read-only GitHub token cannot merge, create a tag or
+attach release assets. Complete the version/tag, readable notes and portable
+release-proof steps above before dispatching it.
+
+Supply the exact forty-character current `main` commit and the successful
+`Guteneo checks` push run ID and current attempt. The dispatch revision, fresh
+remote `main`, checkout, canonical CI workflow, full or strictly rechecked reused
+job inventory and exact remote version tag must agree. A changed main or concurrent
+CI retry fails qualification. Both manual and eligible dependency publications
+share `guteneo-production-application` concurrency without cancelling a started
+operation. Repository administrators must still avoid advancing main while a
+publication is in progress; Git and Cloudflare operations are not atomic together.
+
+The workflow requires the existing `CLOUDFLARE_APP_RELEASE_API_TOKEN` solely for
+application publication and a separate, already authorized
+`CLOUDFLARE_D1_MIGRATION_API_TOKEN` for the fixed production database. No secret
+value is an input or artifact. The documented application token has no D1
+permission. A missing/refused D1 credential fails before schema mutation or
+publication; there is no fallback to scanner credentials, personal OAuth,
+operator-supplied proof or a wider token. Creating or expanding access remains a
+separate explicitly authorized operator action. A read-only D1 credential can
+qualify an already-current schema; a pending migration also needs the provider's
+actual write authorization.
+
+The manual schema runner is deliberately bounded to the reviewed additive indexes
+`0081_approval_request_lookup.sql` and `0082_pdf_validation_history.sql`. It accepts
+only the exact source-prefix ledger through migration 0080, 0081 or 0082, compares
+the complete application schema with the locally qualified source/transport
+schema, and requires enabled foreign-key/CHECK constraints. It will not replay
+older migrations, accept a future migration, change runtime configuration or
+seed data. An older, divergent or unreadable production schema needs its own
+reviewed reconciliation instead of a relaxed release gate.
+
+Before any write, it retains a Time Travel bookmark and rechecks current source,
+CI and tag. Each missing index and its ledger row use one atomic D1 API batch;
+an in-flight marker is retained before invocation. There is no automatic retry
+of an unknown response. Afterward the exact ledger and complete schema must match,
+with global `quick_check=ok`, no foreign-key violations and enabled constraints.
+The global check's resource refusal is a failure, never a partial-table substitute
+or a passing integrity claim. The existing
+[migration transport protocol](D1_MIGRATION.md) owns its equivalence proof.
+
+Only a successful schema receipt generated within that same workflow run/attempt,
+for the same commit and version, permits the publication step. It freshly rechecks
+main/CI/tag and calls the unchanged guarded `deployPublic("live")` implementation.
+This rebuilds exact clean main and verifies canonical served assets afterward.
+The D1 token is absent from that publication step. Runtime publication does not
+activate future schedules or customer callbacks, authorize a real communication,
+provision infrastructure or publish private services.
+
+The `manual-application-release-<run>-<attempt>` artifact retains sanitized
+qualification, schema hashes/ledger names/bookmarks, in-flight state, publication
+status, build log and public release manifest. It contains no document rows,
+recipients, content, tokens or signed URLs. A failed schema/publication step can
+already have changed production; inspect the actual ledger and served release
+before another deliberate dispatch. Do not automatically restore a bookmark or
+roll back runtime. Attach the separately verified public receipt and update the
+GitHub Release status under the existing procedure above.
+
+The local guard tests use synthetic GitHub/D1 responses and real reviewed migration
+files. They establish refusal, ordering and no-retry behavior, not hosted
+permissions, schema integrity or a deployed release. Run
+`node --test tests/security/manual-application-release.test.mjs` and the unchanged
+main-only/dependency-release guard suites; exact-source hosted CI and the actual
+manual run remain separate required evidence.
+
 ## CI boundaries
 
 `Guteneo checks` runs for every PR and `main` push without path filters. It retains

@@ -20,8 +20,8 @@ test("homepage connects concise product information to complete public pages", a
   await expect(page.getByRole("heading", { name: headline })).toBeVisible();
   const hero = page.locator(".public-home-hero");
   await expect(
-    hero.getByRole("link", { name: "Commencer", exact: true }),
-  ).toHaveAttribute("href", "/getting-started/");
+    hero.getByRole("link", { name: "Envoyer depuis Guteneo", exact: true }),
+  ).toHaveAttribute("href", "/app/prepare?entry=direct");
   await expect(
     hero.getByRole("link", { name: "Voir le fonctionnement", exact: true }),
   ).toHaveAttribute("href", "/how-it-works/");
@@ -45,9 +45,11 @@ test("homepage connects concise product information to complete public pages", a
   expect(serviceRequests).toEqual([]);
   expect(mediaRequests).toEqual([]);
   expect(errors).toEqual([]);
-  await hero.getByRole("link", { name: "Commencer", exact: true }).click();
-  await expect(page).toHaveURL(/\/getting-started\/$/);
-  await expect(page.locator("main h1")).toHaveText("Premiers pas");
+  await hero
+    .getByRole("link", { name: "Voir le fonctionnement", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/how-it-works\/$/);
+  await expect(page.locator("main h1")).toBeVisible();
 });
 
 test("the same public footer connects product, help, resources and legal information", async ({
@@ -358,7 +360,7 @@ test("legacy homepage fragments remain meaningful and restore focus", async ({
     if (await destination.count())
       await expect(destination).toHaveAttribute(
         "href",
-        /^\/(how-it-works|getting-started|pricing|pdf-checks|support|roles)/,
+        /^\/(how-it-works|getting-started|pricing|pdf-checks|support|roles|app\/prepare)/,
       );
   }
 });

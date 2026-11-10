@@ -14,6 +14,7 @@ import {
   type ActorContext,
 } from "../../packages/domain/src/index";
 import type { Env } from "../../apps/api/src/env";
+import { DispatchScheduleService } from "../../apps/api/src/dispatch-schedules";
 
 let mf: Miniflare, db: D1Database, domain: DomainService, env: AuthEnv;
 let admin: Principal,
@@ -263,6 +264,142 @@ describe("workspace roles on current D1 membership", () => {
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
     expect(await count("reservations")).toBe(0);
     expect(await count("outbox")).toBe(0);
+  });
+
+  it("lets a preparer ask for approval once per version without approving or sending anything", async () => {
+    const dispatch = await prepare();
+    const browser = {
+      ...operator.context,
+      documentSessionHash: operator.browserHash,
+    };
+    const first = await domain.requestDispatchApproval(browser, dispatch.id);
+    const again = await domain.requestDispatchApproval(browser, dispatch.id);
+    expect(again).toEqual(first);
+    const detail = await domain.getDispatch(admin.context, dispatch.id);
+    expect(detail.approvalRequest).toEqual(first);
+    expect(detail.approval).toBeNull();
+    await expect(
+      domain.requestDispatchApproval(observer.context, dispatch.id),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(
+      domain.requestDispatchApproval(
+        { ...outsider.context, documentSessionHash: outsider.browserHash },
+        dispatch.id,
+      ),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    await expect(
+      domain.requestDispatchApproval(
+        { ...operator.context, actor: "mcp" },
+        dispatch.id,
+      ),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    expect(await count("approvals")).toBe(0);
+    expect(await count("reservations")).toBe(0);
+    expect(await count("outbox")).toBe(0);
+    await domain.cancelDispatch(admin.context, dispatch.id);
+    await expect(
+      domain.requestDispatchApproval(browser, dispatch.id),
+    ).rejects.toMatchObject({ code: "INVALID_STATE" });
+  });
+
+  it.each(["cancelled", "session", "membership", "mode", "schedule"] as const)(
+    "fences an approval request when %s changes before the receipt write",
+    async (change) => {
+      const dispatch = await prepare();
+      const browser = {
+        ...operator.context,
+        documentSessionHash: operator.browserHash,
+      };
+      const raced = new DomainService(
+        raceBeforeBatch(async () => {
+          if (change === "cancelled")
+            await domain.cancelDispatch(admin.context, dispatch.id);
+          if (change === "session")
+            await db
+              .prepare("DELETE FROM browser_sessions WHERE token_hash=?")
+              .bind(operator.browserHash)
+              .run();
+          if (change === "membership")
+            await db
+              .prepare(
+                "UPDATE memberships SET role='viewer' WHERE organization_id=? AND user_id=?",
+              )
+              .bind(browser.organizationId, browser.userId)
+              .run();
+          if (change === "mode")
+            await db
+              .prepare("UPDATE organizations SET mode='production' WHERE id=?")
+              .bind(browser.organizationId)
+              .run();
+          if (change === "schedule")
+            await new DispatchScheduleService(
+              { MODE: "simulation" },
+              domain,
+            ).create(
+              browser,
+              {
+                dispatchId: dispatch.id,
+                executeAt: new Date(Date.now() + 180_000).toISOString(),
+                maxTotalMinor: 100,
+              },
+              random(),
+            );
+        }),
+        { mode: "simulation" },
+      );
+      await expect(
+        raced.requestDispatchApproval(browser, dispatch.id),
+      ).rejects.toMatchObject({
+        code:
+          change === "cancelled"
+            ? "INVALID_STATE"
+            : change === "schedule"
+              ? "SCHEDULE_SOURCE_LOCKED"
+              : change === "mode"
+                ? "MODE_MISMATCH"
+                : "FORBIDDEN",
+      });
+      expect(
+        await db
+          .prepare(
+            "SELECT 1 FROM audit_log WHERE organization_id=? AND action='dispatch.approval_requested'",
+          )
+          .bind(browser.organizationId)
+          .first(),
+      ).toBeNull();
+      expect(await count("approvals")).toBe(0);
+      expect(await count("reservations")).toBe(0);
+      expect(await count("outbox")).toBe(0);
+    },
+  );
+
+  it("does not replay a previous approval request through a revoked browser session", async () => {
+    const dispatch = await prepare();
+    const browser = {
+      ...operator.context,
+      documentSessionHash: operator.browserHash,
+    };
+    await domain.requestDispatchApproval(browser, dispatch.id);
+    await db
+      .prepare("DELETE FROM browser_sessions WHERE token_hash=?")
+      .bind(operator.browserHash)
+      .run();
+    await expect(
+      domain.requestDispatchApproval(browser, dispatch.id),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(
+      domain.requestDispatchApproval(operator.context, dispatch.id),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    expect(
+      (
+        await db
+          .prepare(
+            "SELECT count(*) n FROM audit_log WHERE organization_id=? AND action='dispatch.approval_requested'",
+          )
+          .bind(browser.organizationId)
+          .first<{ n: number }>()
+      )?.n,
+    ).toBe(1);
   });
 
   it("starts supervisor approval and reporting closed, with operational preparation available", async () => {

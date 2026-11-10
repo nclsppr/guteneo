@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+import { getCustomerPricing } from "./customer-pricing";
 import { SavedRecipientPicker } from "./saved-recipient-picker";
 import { useCurrentClientView } from "./client-write-recovery";
 import { FileInput } from "./file-input";
@@ -8,7 +9,14 @@ import {
   renderTransactionalEmail,
 } from "../../../packages/contracts/src/email-template";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowRight, FileText, ShieldCheck } from "@phosphor-icons/react";
+import {
+  ArrowRight,
+  FileText,
+  ShieldCheck,
+  Printer,
+  EnvelopeSimple,
+  Mailbox,
+} from "@phosphor-icons/react";
 import {
   api,
   EURO_INPUT_PATTERN,
@@ -88,12 +96,17 @@ export function PrepareDispatch({
   const action = useAction();
   const route = useRoute();
   const key = useRef(crypto.randomUUID());
+  const [validationError, setValidationError] = useState<string>();
+  const invalidControl = useRef<
+    HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | undefined
+  >(undefined);
+  const customerPricing = getCustomerPricing();
   const [channel, setChannel] = useState<Channel>(() =>
     ["postal", "email"].includes(
       new URLSearchParams(route.split("?")[1]).get("channel") ?? "",
     )
       ? (new URLSearchParams(route.split("?")[1]).get("channel") as Channel)
-      : "fax",
+      : lastChannel(),
   );
   const [documentId, setDocumentId] = useState(initialDocument);
   const [emailDeliveryMode, setEmailDeliveryMode] = useState<DocumentEmailMode>(
@@ -415,12 +428,7 @@ export function PrepareDispatch({
   };
   return (
     <>
-      <PageHeading
-        title={
-          channel === "postal" ? msg("Prepare your letter.") : t.dispatch.title
-        }
-        intro={t.dispatch.intro}
-      />
+      <PageHeading title={t.dispatch.new} />
       <ErrorNotice
         error={
           documents.error ?? initial.error ?? senders.error ?? action.error
@@ -442,8 +450,52 @@ export function PrepareDispatch({
         )}
       <form
         className="prepare-layout"
+        noValidate
+        onInputCapture={() => {
+          invalidControl.current?.removeAttribute("aria-invalid");
+          invalidControl.current?.removeAttribute("aria-errormessage");
+          invalidControl.current = undefined;
+          setValidationError(undefined);
+        }}
         onSubmit={(event) => {
           event.preventDefault();
+          let invalid:
+            | HTMLInputElement
+            | HTMLSelectElement
+            | HTMLTextAreaElement
+            | undefined;
+          for (const control of Array.from(event.currentTarget.elements)) {
+            if (
+              (control instanceof HTMLInputElement ||
+                control instanceof HTMLSelectElement ||
+                control instanceof HTMLTextAreaElement) &&
+              control.willValidate &&
+              !control.validity.valid
+            ) {
+              invalid = control;
+              break;
+            }
+          }
+          if (invalid) {
+            invalidControl.current?.removeAttribute("aria-invalid");
+            invalidControl.current?.removeAttribute("aria-errormessage");
+            invalidControl.current = invalid;
+            invalid.setAttribute("aria-invalid", "true");
+            invalid.setAttribute(
+              "aria-errormessage",
+              "prepare-validation-error",
+            );
+            const label = invalid.labels?.[0]?.textContent?.trim();
+            const message = invalid.validity.valueMissing
+              ? msg("Fill in this field.")
+              : invalid instanceof HTMLInputElement && invalid.type === "email"
+                ? msg("Enter a valid email address.")
+                : invalid.getAttribute("title") || msg("Check this field.");
+            setValidationError([label, message].filter(Boolean).join(": "));
+            invalid.focus();
+            return;
+          }
+          setValidationError(undefined);
           void prepare();
         }}
         aria-busy={action.pending || sourceCopy.pending}
@@ -454,6 +506,15 @@ export function PrepareDispatch({
           onChange={changed}
         >
           <legend className="sr-only">{msg("Delivery preparation")}</legend>
+          {validationError && (
+            <p
+              id="prepare-validation-error"
+              className="notice warning"
+              role="alert"
+            >
+              {validationError}
+            </p>
+          )}
           <fieldset className="channel-selector">
             <legend>{t.channel}</legend>
             {(["fax", "email", "postal"] as const).map((c) => (
@@ -461,14 +522,43 @@ export function PrepareDispatch({
                 <input
                   type="radio"
                   name="channel"
+                  aria-label={t.channels[c]}
+                  aria-describedby={`prepare-channel-${c}-price`}
                   value={c}
                   checked={channel === c}
                   onChange={() => {
                     setChannel(c);
+                    rememberChannel(c);
                     setSenderId("");
                   }}
                 />
-                <span>{t.channels[c]}</span>
+                <span>
+                  {c === "fax" ? (
+                    <Printer size={22} weight="light" aria-hidden="true" />
+                  ) : c === "email" ? (
+                    <EnvelopeSimple
+                      size={22}
+                      weight="light"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <Mailbox size={22} weight="light" aria-hidden="true" />
+                  )}
+                  {t.channels[c]}
+                  <small
+                    className="channel-price"
+                    id={`prepare-channel-${c}-price`}
+                  >
+                    {
+                      customerPricing.rates.find((rate) => rate.id === c)
+                        ?.prices[0]?.amount
+                    }{" "}
+                    {
+                      customerPricing.rates.find((rate) => rate.id === c)
+                        ?.prices[0]?.unit
+                    }
+                  </small>
+                </span>
               </label>
             ))}
           </fieldset>
@@ -767,6 +857,33 @@ export function PrepareDispatch({
               </p>
             </fieldset>
           )}
+          <details className="prepare-price-indication">
+            <summary>
+              {msg("Indicative price")}
+              {": "}
+              {
+                customerPricing.rates.find((rate) => rate.id === channel)
+                  ?.prices[0]?.amount
+              }{" "}
+              {
+                customerPricing.rates.find((rate) => rate.id === channel)
+                  ?.prices[0]?.unit
+              }
+            </summary>
+            {customerPricing.rates
+              .filter((rate) => rate.id === channel)
+              .map((rate) => (
+                <div key={rate.id}>
+                  {rate.prices.map((price) => (
+                    <p key={price.unit}>
+                      <strong>{price.amount}</strong> {price.unit}
+                    </p>
+                  ))}
+                  <p className="field-hint">{rate.supplement}</p>
+                </div>
+              ))}
+            <p className="field-hint">{customerPricing.note}</p>
+          </details>
           {channel === "postal" && !simulation ? (
             <details className="postal-budget">
               <summary>
@@ -984,4 +1101,22 @@ export function PrepareDispatch({
       </form>
     </>
   );
+}
+
+// The last channel a person chose opens first next time; it names no content.
+const LAST_CHANNEL_KEY = "guteneo.prepare.channel";
+function lastChannel(): Channel {
+  try {
+    const stored = window.localStorage.getItem(LAST_CHANNEL_KEY);
+    return stored === "email" || stored === "postal" ? stored : "fax";
+  } catch {
+    return "fax";
+  }
+}
+function rememberChannel(channel: Channel) {
+  try {
+    window.localStorage.setItem(LAST_CHANNEL_KEY, channel);
+  } catch {
+    // Storage can be unavailable; the default channel then applies.
+  }
 }

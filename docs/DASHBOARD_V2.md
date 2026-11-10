@@ -556,23 +556,23 @@ and route remain.
 
 ## Server contract and reconciliation
 
-| Item                  | Contract                                                                                                                                     |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Values                | `classic`/`v2`, `packages/contracts/src/dashboard-appearance.ts`                                                                             |
-| Durable storage       | Personal `users.preferred_dashboard_appearance`, not organization preference                                                                 |
-| Migration             | `0053_user_dashboard_appearance.sql`; historical SQL default `classic`, `CHECK` on both values; new account inserts explicitly persist `v2`                                              |
-| Browser reads         | `user.preferredDashboardAppearance` in `GET /api/session` and `GET /api/account`                                                             |
-| Write                 | Optional `preferredDashboardAppearance` in existing strict `PATCH /api/account` body                                                         |
-| Authority             | Current browser session, Origin/CSRF; older clients may still change their own value, the web no longer offers it                            |
-| Target                | Session identity/workspace; no body `userId`/`organizationId` targeting                                                                      |
-| Omitted field         | Preserves preference, including older name/language clients                                                                                  |
-| Audit                 | `account.updated`, changed field names without values/document data                                                                          |
-| Refusal               | Invalid value/unknown field: `INVALID_INPUT`; invalid CSRF: `CSRF_REJECTED`; revoked authority: `ACCESS_CHANGED`, no partial update          |
-| Authenticated account | Session rereads preference; same user retained across workspace switching, different identity reconciled                                     |
-| URL                   | Ignored since the Classic retirement; old `appearance` and `atelier` links open V2 without persistence                                       |
-| Browser cache         | No longer read or written; old `guteneo.dashboard.appearance` entries are ignored                                                            |
-| Unavailable cache     | Not applicable since the Classic retirement                                                                                                  |
-| Unavailable history   | Not applicable since the Classic retirement                                                                                                  |
+| Item                  | Contract                                                                                                                                    |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Values                | `classic`/`v2`, `packages/contracts/src/dashboard-appearance.ts`                                                                            |
+| Durable storage       | Personal `users.preferred_dashboard_appearance`, not organization preference                                                                |
+| Migration             | `0053_user_dashboard_appearance.sql`; historical SQL default `classic`, `CHECK` on both values; new account inserts explicitly persist `v2` |
+| Browser reads         | `user.preferredDashboardAppearance` in `GET /api/session` and `GET /api/account`                                                            |
+| Write                 | Optional `preferredDashboardAppearance` in existing strict `PATCH /api/account` body                                                        |
+| Authority             | Current browser session, Origin/CSRF; older clients may still change their own value, the web no longer offers it                           |
+| Target                | Session identity/workspace; no body `userId`/`organizationId` targeting                                                                     |
+| Omitted field         | Preserves preference, including older name/language clients                                                                                 |
+| Audit                 | `account.updated`, changed field names without values/document data                                                                         |
+| Refusal               | Invalid value/unknown field: `INVALID_INPUT`; invalid CSRF: `CSRF_REJECTED`; revoked authority: `ACCESS_CHANGED`, no partial update         |
+| Authenticated account | Session rereads preference; same user retained across workspace switching, different identity reconciled                                    |
+| URL                   | Ignored since the Classic retirement; old `appearance` and `atelier` links open V2 without persistence                                      |
+| Browser cache         | No longer read or written; old `guteneo.dashboard.appearance` entries are ignored                                                           |
+| Unavailable cache     | Not applicable since the Classic retirement                                                                                                 |
+| Unavailable history   | Not applicable since the Classic retirement                                                                                                 |
 
 Before the retirement, the cache contained appearance only: no content,
 recipient, token or signed URL. Existing session
@@ -769,16 +769,16 @@ instrumentation, content collection or provider permission activation.
 
 ## Sources and evidence
 
-| Source                                                                 | Role                                                                                 |
-| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `packages/contracts/src/dashboard-appearance.ts`                       | Shared values/default                                                                |
-| `migrations/0053_user_dashboard_appearance.sql`                        | User column/constraints                                                              |
-| `apps/api/src/account.ts`, `auth.ts`, `mobile.ts`                      | Browser save, account/session reads, native boundary                                 |
-| `apps/web/src/App.tsx`, `account-page.tsx`, `personal-space.tsx`       | V2 shells; account saves without a layout field                                      |
-| `apps/web/src/workspace-identity.tsx`, `theme-toggle.tsx`              | Account menu at navigation bottom                                                    |
-| `apps/web/src/dashboard-v2.css`                                        | Current workspace styles and shared theme tokens; `dashboard-artwork.tsx` is retired |
-| `apps/web/src/dispatch-pages.tsx`, `assistant-workspace.tsx`           | Daily hierarchy, review, assistants                                                  |
-| `apps/web/src/locales/messages-dashboard-v2.json`                      | FR/EN/DE/LB translations                                                             |
+| Source                                                           | Role                                                                                 |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `packages/contracts/src/dashboard-appearance.ts`                 | Shared values/default                                                                |
+| `migrations/0053_user_dashboard_appearance.sql`                  | User column/constraints                                                              |
+| `apps/api/src/account.ts`, `auth.ts`, `mobile.ts`                | Browser save, account/session reads, native boundary                                 |
+| `apps/web/src/App.tsx`, `account-page.tsx`, `personal-space.tsx` | V2 shells; account saves without a layout field                                      |
+| `apps/web/src/workspace-identity.tsx`, `theme-toggle.tsx`        | Account menu at navigation bottom                                                    |
+| `apps/web/src/dashboard-v2.css`                                  | Current workspace styles and shared theme tokens; `dashboard-artwork.tsx` is retired |
+| `apps/web/src/dispatch-pages.tsx`, `assistant-workspace.tsx`     | Daily hierarchy, review, assistants                                                  |
+| `apps/web/src/locales/messages-dashboard-v2.json`                | FR/EN/DE/LB translations                                                             |
 
 Earlier evidence is retained without extending it to server preference:
 
@@ -942,3 +942,45 @@ pagination act only on authorized loaded records. Existing backend cursor/search
 controls and all four membership roles retain their authority. This source
 candidate adds no business API, native or assistant operation, financial consent,
 communication or deployment.
+
+## Clarity pass — 10 November 2026 candidate
+
+This source candidate follows the 9 November 2026 frontend audits. It changes
+presentation only: no business API, membership permission, tenant scope,
+financial consent, communication or deployment.
+
+- **Names.** Overview, Documents, Dispatches, New dispatch, Campaigns and Senders
+  are titled with their menu label in the four languages. A dispatch is titled
+  by its channel and first recipient line; "Ready for your approval." remains
+  while approval is pending. The browser tab reads `Page · Application | guteneo`.
+- **Unknown address.** An application address that matches no page shows a
+  notice with a link back to Overview instead of rendering Overview.
+- **Overview queue.** The full-dataset, SQL-derived authorized attention queue
+  from main remains authoritative; it includes unknown submissions, blocked
+  schedules, expiring items and eligible approvals. See the
+  [lifecycle acceptance record](LIFECYCLE_EXPERIENCE_EXECUTION.md). The clarity
+  pass does not add a second queue inferred from a bounded dispatch list.
+- **Dispatch page.** Four progress steps sit under the title for the ordinary
+  path; an exceptional outcome keeps its status badge alone. The approval region
+  is sticky beside the document from 1025 px. The provider-attempt panel is
+  hidden while empty. An uncertain outcome says that a workspace administrator
+  checks it in Administration and that nothing is resent automatically. A role
+  that cannot approve reads who can.
+- **Tables.** A loaded table under five rows hides search, filters and
+  pagination. A row with a link opens from anywhere on the row. The dispatch
+  list no longer repeats its status groups as a filter.
+- **Files.** Every file field is a drop zone with a drag state; the native input
+  still performs selection and validation. A ready PDF in the documents list
+  shows its first page, read through the guarded viewer loader once its row is
+  on screen and shown as an image; a failure leaves the glyph and reports
+  nothing.
+- **Type.** Application text uses 12, 14, 16 and 20 px; see
+  [WEB_APPLICATIONS.md](WEB_APPLICATIONS.md).
+- **Errors.** The error code moves under a folded "Details" row.
+- **Guards.** One activation starts one action, and a hidden tab stops polling
+  a dispatch until it is shown again.
+
+Evidence is recorded with the change: unit, security, preview-browser and
+application-browser suites, plus the automated accessibility check described in
+the testing guide. Thumbnails add one document read per visible ready row; the
+measured cost belongs in [FRONTEND_PERFORMANCE.md](FRONTEND_PERFORMANCE.md).

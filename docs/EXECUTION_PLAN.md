@@ -1,5 +1,9 @@
 # Execution plan and handoff
 
+## Claude frontend clarity continuation — 10 November 2026
+
+The recovered design branch is replayed on main `551ca4c8`. The [execution matrix](CLAUDE_PLAN_EXECUTION.md) reconciles every design, foundation and feature lot, including newer main implementations, approval-request migration 0081 and browser check-history migration 0082. Localized resumable dirty-navigation confirmations and the shared fixed-UTC display/filter/input contract are now implemented. Ordinary public Studio fixtures and focus-preserving library refresh are complete; exact-source hosted browser/D1 qualification remains required. Local implementation, offline proof, blocked browser/D1 qualification and separately authorized release remain distinct.
+
 ## Lifecycle experience — 10 November 2026 candidate
 
 The [implementation and qualification ledger](LIFECYCLE_EXPERIENCE_EXECUTION.md)

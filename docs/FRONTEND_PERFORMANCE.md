@@ -1,5 +1,22 @@
 # Frontend loading and table controls
 
+## Resumable dirty-navigation confirmation — 10 November 2026 candidate
+
+The shared dialog and pure confirmation controller add no third-party dependency,
+data read, polling loop or business operation. Studio corrections/templates,
+distribution preparation and schedule creation reuse their existing lazy route
+entries. Workspace switching performs its existing membership POST only after
+an explicit current decision, preserving the original authority and visit checks.
+The local preview's synthetic-account control shares this preflight.
+
+The 25 focused controller/foundation tests pass locally; they qualify veto,
+one-use resume and stale authority/scope/address/revision behavior, not browser
+paint or timing. Existing and added browser cases cover dirty Back/Forward,
+translated questions, Escape/focus recovery and deferred workspace switching.
+This environment's loopback/browser restrictions leave exact-candidate browser
+request, transferred-code and first-useful-content measurements pending. No
+loading or latency improvement is claimed from these source changes.
+
 ## Locale loading and lifecycle controls — 10 November 2026 local candidate
 
 The browser loads its active locale projection and resolves the authenticated
@@ -28,12 +45,12 @@ The table shows desktop Chromium's total JavaScript `transferSize`, including
 response overhead, after client entry. It is not raw asset size or
 `encodedBodySize` alone.
 
-| Locale | Public pricing: before → final candidate | Change | Workspace: before → final candidate | Change |
-| --- | ---: | ---: | ---: | ---: |
-| French | 559,420 → 481,293 | -13.97% | 603,511 → 519,431 | -13.93% |
-| English | 559,420 → 477,944 | -14.56% | 603,511 → 516,082 | -14.49% |
-| German | 559,420 → 562,697 | +0.59% | 603,511 → 600,835 | -0.44% |
-| Luxembourgish | 559,420 → 563,314 | +0.70% | 603,511 → 601,452 | -0.34% |
+| Locale        | Public pricing: before → final candidate |  Change | Workspace: before → final candidate |  Change |
+| ------------- | ---------------------------------------: | ------: | ----------------------------------: | ------: |
+| French        |                        559,420 → 481,293 | -13.97% |                   603,511 → 519,431 | -13.93% |
+| English       |                        559,420 → 477,944 | -14.56% |                   603,511 → 516,082 | -14.49% |
+| German        |                        559,420 → 562,697 |  +0.59% |                   603,511 → 600,835 |  -0.44% |
+| Luxembourgish |                        559,420 → 563,314 |  +0.70% |                   603,511 → 601,452 |  -0.34% |
 
 All measured workspace profiles transferred fewer JavaScript bytes. Public
 German/Luxembourgish transferred slightly more: +0.59/+0.70% on Chromium and
@@ -1229,3 +1246,44 @@ that the first enabled gesture calls play/fullscreen synchronously. Both
 introduction and role films retain their actual media, language, captions and
 format/rotation contracts. The four new browser cases and existing playback
 suite run on Chromium and iPhone WebKit; physical-device behavior is separate.
+
+## Clarity continuation — 10 November 2026 local build
+
+The recovered Claude design work is combined with main `551ca4c8`;
+[the execution record](CLAUDE_PLAN_EXECUTION.md) owns scope and remaining gates.
+On macOS, Node 24.18.0 and Vite 8.3.5, the final local preview build's content
+snapshot matches the source after the implementation commits. The table records
+file bytes and Node gzip output; these are not measured network transfers,
+first-content timings, CPU, memory or a before/after speed improvement.
+
+| Chunk                                   | Raw bytes | Local gzip bytes |
+| --------------------------------------- | --------: | ---------------: |
+| `index-LhMq7q8w.js`                     |   680,471 |          220,368 |
+| `fr-DQ93kJq6.js`                        |   508,314 |          154,498 |
+| `en-8yQsZBhX.js`                        |   495,951 |          151,259 |
+| `de-D8zCPukE.js`                        |   764,301 |          235,147 |
+| `lb-Cy8tBRUU.js`                        |   762,405 |          235,725 |
+| `template-thumbnail-render-8OnczLPl.js` |     9,782 |            3,901 |
+| `pdfme-Ck9VNu2u.js`                     | 2,409,264 |          753,276 |
+| `template-designer-Y0FTWQfU.js`         | 4,140,429 |        1,407,671 |
+
+The shared entry retains active-language loading. Template thumbnails defer the
+renderer until a visible row's queued idle job; abandoned/hidden jobs yield
+before idle and the queue stores no rendered result. The renderer and pdfme
+chunks are large, so they are not described as a free or measured-fast decoration.
+At most 40 total source/static blocks, 128 KiB envelope, 8 KiB sample, 25 array entries,
+three source pages, four layout pages, four million aggregate decoded raster
+pixels and 2 MiB generated PDF bound the decorative path. Unsupported models
+retain a glyph. All computation remains local; this adds no template preview
+mutation, provider request, storage operation or cross-authority image cache.
+
+The dispatch list adds one parallel report-authorized aggregate read to display
+truthful group counts, with no such request for unauthorized roles. PDF checks
+adds one parallel bounded metadata-history read beside pricing. The postal
+setup remains independent of sender-profile loading. These are source request
+contracts, not browser-observed budgets in this environment.
+
+Local browsers fail before page creation (Chromium MachPort permission and
+WebKit abort); loopback servers are also refused. Consequently loading latency,
+actual transferred bytes, visual geometry and physical-device behavior remain
+unqualified for this combined candidate. No Cloudflare cost saving is claimed.

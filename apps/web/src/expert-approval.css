@@ -11,7 +11,7 @@
   margin: 0 0 20px;
 }
 .expert-heading .eyebrow {
-  font-size: 10px;
+  font-size: 12px;
   margin-bottom: 8px;
 }
 .expert-settings > p,
@@ -50,7 +50,7 @@
   margin-block: 20px;
 }
 .expert-summary dt {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   margin-bottom: 5px;
 }

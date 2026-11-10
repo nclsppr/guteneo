@@ -12,6 +12,7 @@ import {
 } from "./api";
 import {
   DateTimezone,
+  Disclosure,
   ErrorNotice,
   Loading,
   PageHeading,
@@ -41,17 +42,6 @@ type SessionItem = {
   development: number;
   current: number;
 };
-function PreviewNotice() {
-  return (
-    <div className="notice info" role="note">
-      <p>
-        {msg(
-          "Accounts and access in this preview are fictional. You can edit them in your signed-in workspace.",
-        )}
-      </p>
-    </div>
-  );
-}
 
 export function Account({ session, onUpdated }: Props) {
   const permissions = permissionsFor(session);
@@ -109,51 +99,52 @@ export function Account({ session, onUpdated }: Props) {
   return (
     <>
       <PageHeading title={msg("My account")} />
-      <section
-        className="form-panel account-identity"
-        aria-labelledby="account-identity-title"
-      >
-        <h2 id="account-identity-title">{msg("Your account")}</h2>
-        <dl className="account-identity-details">
-          <div>
-            <dt>{msg("Your name")}</dt>
-            <dd>{session.user.name}</dd>
-          </div>
-          <div>
-            <dt>{msg("Sign-in email")}</dt>
-            <dd>{session.user.email || msg("Sign-in email unavailable")}</dd>
-          </div>
-          <div>
-            <dt>{msg("Workshop")}</dt>
-            <dd>{session.organization.name}</dd>
-          </div>
-          <div>
-            <dt>{msg("Your role in this workshop")}</dt>
-            <dd>{roleLabel(session.user.role)}</dd>
-          </div>
-        </dl>
-        <p className="field-hint">
-          {msg(
-            "Your sign-in email comes from your identity account. It cannot be changed in Guteneo.",
-          )}
-        </p>
-      </section>
-      {isPublicPreview ? (
-        <>
-          <PreviewNotice />
-          <section className="form-panel">
+      <div className="account-card-grid">
+        <section
+          className="form-panel account-identity"
+          aria-labelledby="account-identity-title"
+        >
+          <h2 id="account-identity-title">{msg("Identity")}</h2>
+          <dl className="account-identity-details">
+            <div>
+              <dt>{msg("Your name")}</dt>
+              <dd>{session.user.name}</dd>
+            </div>
+            <div>
+              <dt>{msg("Sign-in email")}</dt>
+              <dd>{session.user.email || msg("Sign-in email unavailable")}</dd>
+            </div>
+            <div>
+              <dt>{msg("Workshop")}</dt>
+              <dd>{session.organization.name}</dd>
+            </div>
+            <div>
+              <dt>{msg("Your role in this workshop")}</dt>
+              <dd>{roleLabel(session.user.role)}</dd>
+            </div>
+          </dl>
+          <p className="field-hint">
+            {msg(
+              "Your sign-in email comes from your identity account. It cannot be changed in Guteneo.",
+            )}
+          </p>
+        </section>
+        {isPublicPreview ? (
+          <section
+            className="form-panel"
+            aria-labelledby="account-preferences-title"
+          >
+            <h2 id="account-preferences-title">{msg("Preferences")}</h2>
             <AppearancePreferences language={<LanguageSelect profile />} />
             <p className="field-hint">{languageCopy().browser}</p>
           </section>
-        </>
-      ) : (
-        <>
+        ) : (
           <form
             className="form-panel"
             onSubmit={(event) => void save(event)}
             aria-busy={action.pending}
           >
-            <h2>{msg("My profile")}</h2>
+            <h2>{msg("Preferences")}</h2>
             <p className="field-hint">
               {msg(
                 "Your profile name is shared across your workspaces. Your sign-in address and security factors remain managed by your identity provider.",
@@ -211,6 +202,13 @@ export function Account({ session, onUpdated }: Props) {
               <ErrorNotice error={action.error} />
             </div>
           </form>
+        )}
+      </div>
+      {!isPublicPreview && (
+        <Disclosure
+          label={msg("Access and sessions")}
+          className="account-access-details"
+        >
           <section
             className="form-panel account-role"
             aria-labelledby="account-role-title"
@@ -273,7 +271,6 @@ export function Account({ session, onUpdated }: Props) {
             <a href="/roles/">{msg("Understand roles")}</a>
           </section>
           <WorkspaceContacts session={session} />
-          <ExpertApproval />
           <section
             className="form-panel"
             aria-labelledby="account-sessions-title"
@@ -359,9 +356,9 @@ export function Account({ session, onUpdated }: Props) {
               </p>
             )}
           </section>
-        </>
+        </Disclosure>
       )}
-      {isPublicPreview && <ExpertApproval />}
+      <ExpertApproval />
     </>
   );
 }

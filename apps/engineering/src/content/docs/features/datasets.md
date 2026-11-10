@@ -18,7 +18,7 @@ Implemented; private-source and optional AI-transfer gates apply.
 ## Capabilities
 
 <ol>
-<li id="feature-c30d6283604c">CSV, XLSX, XML and JSON imports with a private original</li>
+<li id="feature-acac4a138cb9">CSV, XLSX, XML and JSON imports with a private original; the browser data library revalidates on visible-tab return without submitting or clearing a selected file, import options or private mapping state</li>
 <li id="feature-64c7925c6cc6">MCP JSON dataset metadata declares arrays of objects or named arrays of objects to match existing parsing; nested values, runtime errors/recovery, request/cell bounds and private ownership remain unchanged, without new host-file or AI-transfer authority</li>
 <li id="feature-4505e9415713">Sheet/header selection and XML record paths</li>
 <li id="feature-34984f3b9bc1">English generated Data sheet names, with provenance-bound legacy aliases; uploaded XLSX and explicitly named JSON tables require exact mapping and join names</li>

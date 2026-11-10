@@ -1,3 +1,4 @@
+import { APPLICATION_TIME_ZONE } from "./application-time";
 import { useAdministrationResource } from "./administration-data";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ShieldCheck, WarningCircle } from "@phosphor-icons/react";
@@ -26,6 +27,7 @@ import {
   Field,
   Loading,
   LoadMore,
+  PageHeading,
   RefreshButton,
   useAction,
 } from "./components";
@@ -86,7 +88,7 @@ export function UsageLedger({
       : new Intl.DateTimeFormat(formatLocale(), {
           month: "long",
           year: "numeric",
-          timeZone: "UTC",
+          timeZone: APPLICATION_TIME_ZONE,
         }).format(new Date(`${value}-01T00:00:00Z`));
   return (
     <section className="administration-usage">
@@ -231,15 +233,17 @@ export function WorkspaceOperations() {
   const incidents = dispatches.data?.items ?? [];
   return (
     <>
-      <div className="section-toolbar">
-        <h2>{msg("Operations")}</h2>
-        <RefreshButton
-          onClick={() => {
-            diagnostics.refresh();
-            dispatches.refresh();
-          }}
-        />
-      </div>
+      <PageHeading
+        title={msg("Operations")}
+        action={
+          <RefreshButton
+            onClick={() => {
+              diagnostics.refresh();
+              dispatches.refresh();
+            }}
+          />
+        }
+      />
       <p className="field-hint">{t.admin.intro}</p>
       <ErrorNotice
         error={
@@ -326,7 +330,8 @@ export function WorkspaceOperations() {
         <h2 className="section-title">{t.admin.deadLetters}</h2>
         {!!diagnostics.data?.deadLetters?.length && <DateTimezone />}
         {diagnostics.data?.deadLetters?.length ? (
-          <DataTable viewId="dead-letters"
+          <DataTable
+            viewId="dead-letters"
             label={t.admin.deadLetters}
             items={diagnostics.data.deadLetters}
             getRowKey={(receipt) => receipt.id}

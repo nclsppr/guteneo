@@ -14,7 +14,7 @@ test("business rules edited in the studio persist and govern real PDF totals, de
     .getByRole("button", { name: "Entrer dans l’espace de travail" })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+    page.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
   ).toBeVisible();
   const session = (await (
     await page.request.get("/api/session")

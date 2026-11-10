@@ -1,6 +1,12 @@
-import { useId, useState, type FormEvent } from "react";
+import { useId, useRef, useState, type FormEvent } from "react";
 import { CaretDown, Flask, Shuffle } from "@phosphor-icons/react";
-import { BEFORE_WORKSPACE_NAVIGATION, ErrorNotice } from "./components";
+import { ErrorNotice } from "./components";
+import { sessionAuthorityKey } from "./api";
+import {
+  clientNavigationRevision,
+  confirmWorkspaceSwitch,
+  createWorkspaceSwitchPreflightEvent,
+} from "./client-navigation";
 import { formatLocale, useLocale } from "./locale";
 import { msg } from "./messages";
 import {
@@ -87,6 +93,7 @@ export function LocalPreviewControls({ onApplied }: { onApplied: () => void }) {
   );
   const [expanded, setExpanded] = useState(true);
   const [pending, setPending] = useState(false);
+  const applying = useRef(false);
   const [error, setError] = useState<Error>();
   const number = new Intl.NumberFormat(formatLocale());
   const compact = new Intl.NumberFormat(formatLocale(), {
@@ -99,15 +106,24 @@ export function LocalPreviewControls({ onApplied }: { onApplied: () => void }) {
       : `${msg({ small: "Small", large: "Large", huge: "Huge", extreme: "Extreme" }[value])} · ${msg("up to {0}", compact.format(limits[value][1]))}`;
 
   async function apply(nextSeed = seed, nextVolume = volume) {
-    if (
-      !window.dispatchEvent(
-        new Event(BEFORE_WORKSPACE_NAVIGATION, { cancelable: true }),
-      )
-    )
-      return;
+    if (applying.current) return;
+    applying.current = true;
+    const authority = sessionAuthorityKey();
+    const href = window.location.href;
+    const navigation = clientNavigationRevision();
     setPending(true);
     setError(undefined);
     try {
+      if (
+        !(await confirmWorkspaceSwitch(createWorkspaceSwitchPreflightEvent()))
+      )
+        return;
+      if (
+        authority !== sessionAuthorityKey() ||
+        href !== window.location.href ||
+        navigation !== clientNavigationRevision()
+      )
+        return;
       const next: PreviewSimulationConfiguration = {
         account,
         seed: nextSeed,
@@ -138,6 +154,7 @@ export function LocalPreviewControls({ onApplied }: { onApplied: () => void }) {
         new Error(msg("The local scenario could not be applied. Try again.")),
       );
     } finally {
+      applying.current = false;
       setPending(false);
     }
   }

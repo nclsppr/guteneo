@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "pluginVersion": "1.2.1",
-  "mcpSourceSha256": "e8b7e5b8986d790c31006d1f68001d658162e356608abb21e6d6381cbe1fde70",
-  "packageSha256": "766912a875db2386328d9d73735564468eae03abdf213694b97bf5d7b30f23f9",
+  "pluginVersion": "1.2.3",
+  "mcpSourceSha256": "5bf0d10c155149e8bb567e766d51af5a57672dbca2eefaeb7a9e6ceca21800e9",
+  "packageSha256": "cd226f48dcb23b5f98386d79fbae0dce5fb6e531eed03de0941d9f1eb702580e",
   "sources": {
     "apps/api/src/auth.ts": "ed445a4c666d89dd3a73200adf591143e1455f86df56049977f4485932d7aa52",
     "apps/api/src/connection-observations.ts": "40278b9fab339e05949a04c2d2718348236e9362e944f95a4d2a3466c186fa24",
@@ -31,7 +31,7 @@
     "packages/contracts/src/mcp-app-upload.ts": "5781719e8b47d1dd9177cb8bdd78d51e2f673e7a6d919b37ff6621b33f578859",
     "packages/contracts/src/mcp-document-upload-resource.json": "bf6f3dd2361925ad0c929d2f234281eb9c94aef4cc450684c8b338e0a3e76f42",
     "packages/contracts/src/mcp-ui-probe-resource.json": "eafa886cc44f196aaff1c9be67fa010f6f8b82633c0d3189a9d8b2d71b08763a",
-    "packages/contracts/src/pdf-validation.ts": "4df70fa4ab6280132c8d1008e890a821bb389dfa15ee4c12527dac953d806321",
+    "packages/contracts/src/pdf-validation.ts": "e160b14b7501b122cdbe111570d6fc3f1dcefb57badffddd7cba920df8c63b1f",
     "packages/contracts/src/postal-address-page.ts": "fcb36742546abf450ed19f5b0978974b505c623c19f828093e2bcb0ef012c896",
     "packages/contracts/src/postal-destinations.ts": "72cf5b9450ca9cc221b616d80d0dc092e90520c0791f1e73705a2f4ffc66c025",
     "packages/contracts/src/postal-recipient.ts": "2566a62497484529df05d3fede826e5664c97c1c9f3ef21e46cc251fde8d5b97",
@@ -41,7 +41,7 @@
     "packages/contracts/src/saved-recipients.ts": "a2b17fc4caefdad82668c2bf043964d2af302336c75a3e69bef9ec58f5b741af",
     "packages/contracts/src/secure-distribution.ts": "5393fb5c0813c8346a0def96e0c0016d931d3bcb22407fac86b7d92ed5f4e64e",
     "packages/contracts/src/template-workflow.ts": "5a2c345b307bd33b583b8ccca81daac167025980fa0baf5090b1e4957d6aed7a",
-    "packages/domain/src/index.ts": "e1655966aaa664a81bc5d8854bc6e0d4fbd73f44b3088fbf6396376391900553",
+    "packages/domain/src/index.ts": "c9de6bc8dfe36a4675a86e441b2507cdfc78814af66f9f555beae37bcc3dbb21",
     "packages/observability/src/index.ts": "eb78d263cbe05d4f1e6a43391f43d6b1bf5fd7412466940035f97aed1cb65301"
   }
 }

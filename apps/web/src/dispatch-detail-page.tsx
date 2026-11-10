@@ -23,6 +23,7 @@ import {
   quotedMoney,
   recipientOf,
   recipientDisplayLines,
+  type Channel,
   type Dispatch,
   type DispatchDetail,
 } from "./api";
@@ -68,6 +69,11 @@ export function DispatchDetailPage({
   );
   const action = useAction();
   const [consent, setConsent] = useState(false);
+  const [referenceCopied, setReferenceCopied] = useState(false);
+  const [decisionMoved, setDecisionMoved] = useState(false);
+  const decisionPointer = useRef<
+    { element: Element; top: number; left: number } | undefined
+  >(undefined);
   const [recipientRequested, setRecipientRequested] = useState(false);
   const d =
     resource.data?.dispatch.id === id ? resource.data.dispatch : undefined;
@@ -83,6 +89,9 @@ export function DispatchDetailPage({
   );
   useEffect(() => {
     setConsent(false);
+    setReferenceCopied(false);
+    setDecisionMoved(false);
+    decisionPointer.current = undefined;
     setRecipientRequested(false);
     setInvalidQuoteId(undefined);
     setPostalReadRequired(false);
@@ -345,6 +354,11 @@ export function DispatchDetailPage({
               ...(emailAttestationRequired ? { recipientRequested } : {}),
             },
           }),
+          () => ({
+            kind: "dispatch_approved",
+            resourceId: id,
+            route: `/app/dispatch/${encodeURIComponent(id)}`,
+          }),
         );
         if (!isCurrent()) return;
         if (d?.channel === "email") {
@@ -407,11 +421,28 @@ export function DispatchDetailPage({
           key: `web-renew:${id}`,
           body: {},
         }),
+        (receipt) => ({
+          kind: "quote_renewed",
+          resourceId: receipt.id,
+          route: `/app/dispatch/${encodeURIComponent(receipt.id)}`,
+        }),
       );
       if (!isCurrent()) return;
       setConsent(false);
       setRecipientRequested(false);
       go(`/app/dispatch/${encodeURIComponent(replacement.id)}`);
+    });
+  }
+  async function requestApproval() {
+    const isCurrent = currentView();
+    await action.run(async (view) => {
+      await view.wait(
+        api(`/dispatches/${encodeURIComponent(id)}/request-approval`, {
+          method: "POST",
+          body: {},
+        }),
+      );
+      if (isCurrent()) resource.refresh();
     });
   }
   async function cancel() {
@@ -443,6 +474,79 @@ export function DispatchDetailPage({
   ].includes(d.status)
     ? emailErrorMessage(latestAttempt?.error_code)
     : undefined;
+  const timeline = (
+    <section className="timeline-section">
+      <h2>{t.dispatch.timeline}</h2>
+      {!events.length ? (
+        <p className="muted">{t.dispatch.noEvents}</p>
+      ) : (
+        <ol className="timeline">
+          {events.map((event) => {
+            const record = event as typeof event & {
+              kind?: string;
+              occurred_at?: string;
+              received_at?: string;
+            };
+            const name =
+              record.kind ??
+              event.type ??
+              event.event_type ??
+              event.status ??
+              t.status;
+            return (
+              <li key={event.id}>
+                <span className="timeline-mark" aria-hidden="true" />
+                <div>
+                  <strong>
+                    {(name === "delivered" && d.channel === "email"
+                      ? t.statuses.email_delivered
+                      : name === "delivered" && d.channel === "fax"
+                        ? t.statuses.fax_delivered
+                        : t.statuses[name]) ??
+                      name.replaceAll(".", " · ").replaceAll("_", " ")}
+                  </strong>
+                  <time>
+                    {date(
+                      record.occurred_at ??
+                        event.created_at ??
+                        record.received_at,
+                    )}
+                  </time>
+                  {event.detail && <p>{event.detail}</p>}
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      )}
+      <details
+        className="technical-details"
+        hidden={!resource.data?.attempts.length}
+      >
+        <summary>{t.dispatch.attempts}</summary>
+        {!resource.data?.attempts.length ? (
+          <p>{t.dispatch.noAttempts}</p>
+        ) : (
+          <ul className="attempts">
+            {resource.data.attempts.map((attempt) => (
+              <li key={attempt.id}>
+                <span>
+                  {d.channel === "postal"
+                    ? msg("Guteneo postal service")
+                    : attempt.provider}
+                </span>
+                <Status status={attempt.status} />
+                <time>{date(attempt.created_at)}</time>
+              </li>
+            ))}
+          </ul>
+        )}
+      </details>
+    </section>
+  );
+  const approvalPrice = faxPricing
+    ? msg("up to {0}", money(faxPricing.ceilingMinor))
+    : quotedMoney(d);
   return (
     <>
       <a className="back-link" href="#/app/dispatches">
@@ -453,7 +557,9 @@ export function DispatchDetailPage({
         title={
           pendingApproval || approved
             ? t.dispatch.reviewTitle
-            : t.dispatch.listTitle
+            : [t.channels[d.channel], recipientDisplayLines(target)[0]]
+                .filter(Boolean)
+                .join(" — ")
         }
         intro={
           pendingApproval || approved ? undefined : t.dispatch.deliveryNote
@@ -467,8 +573,15 @@ export function DispatchDetailPage({
           />
         }
       />
+      <DispatchSteps
+        status={
+          approved
+            ? "approved"
+            : dispatchPresentationStatus({ ...d, activeSchedule })
+        }
+        channel={d.channel}
+      />
       <div className="dispatch-reference">
-        <code>{d.id}</code>
         <Status
           status={
             approved
@@ -479,6 +592,29 @@ export function DispatchDetailPage({
         />
         {d.mode === "simulation" && (
           <span className="simulation-stamp">{t.simulation}</span>
+        )}
+        <button
+          type="button"
+          className="text-button mono dispatch-copy-reference"
+          aria-label={msg("Copy reference {0}", d.id)}
+          onClick={() => {
+            const isCurrent = currentView();
+            void navigator.clipboard
+              ?.writeText(d.id)
+              .then(() => {
+                if (isCurrent()) setReferenceCopied(true);
+              })
+              .catch(() => {
+                // The visible reference remains selectable when clipboard access is unavailable.
+              });
+          }}
+        >
+          {d.id}
+        </button>
+        {referenceCopied && (
+          <span className="field-hint" role="status">
+            {msg("Reference copied.")}
+          </span>
         )}
       </div>
       {canPrepare &&
@@ -586,7 +722,9 @@ export function DispatchDetailPage({
       {uncertain && (
         <div className="notice warning">
           <WarningCircle size={25} />
-          <p>{t.dispatch.uncertain}</p>
+          <p>
+            {t.dispatch.uncertain} {t.dispatch.uncertainNext}
+          </p>
         </div>
       )}
       {postalReadRequired && (
@@ -605,6 +743,7 @@ export function DispatchDetailPage({
           </button>
         </section>
       )}
+      {(!pendingApproval || approved) && timeline}
       <div className="dispatch-detail-layout dispatch-review-regions">
         <section className="dispatch-review-facts">
           <dl className="dispatch-facts">
@@ -774,12 +913,74 @@ export function DispatchDetailPage({
               id={d.document_id}
               dispatchId={d.id}
               title={t.dispatch.documentPreview}
-              stableViewport
             />
           )}
         </section>
-        <section className="dispatch-review-actions">
-          {pendingApproval && !canApprove && <RolePermissionNotice />}
+        <section
+          className="dispatch-review-actions"
+          onPointerDownCapture={(event) => {
+            const element = (event.target as Element).closest(
+              "input, button, label",
+            );
+            decisionPointer.current = element
+              ? {
+                  element,
+                  top: element.getBoundingClientRect().top,
+                  left: element.getBoundingClientRect().left,
+                }
+              : undefined;
+          }}
+          onClickCapture={(event) => {
+            const pointer = decisionPointer.current;
+            decisionPointer.current = undefined;
+            if (!pointer || event.detail === 0) return;
+            const box = pointer.element.getBoundingClientRect();
+            if (
+              Math.abs(box.top - pointer.top) > 1 ||
+              Math.abs(box.left - pointer.left) > 1
+            ) {
+              event.preventDefault();
+              event.stopPropagation();
+              setDecisionMoved(true);
+            } else setDecisionMoved(false);
+          }}
+        >
+          {decisionMoved && (
+            <p className="notice warning" role="status">
+              {msg("The layout changed. Check the document and try again.")}
+            </p>
+          )}
+          {pendingApproval && !canApprove && <RolePermissionNotice approval />}
+          {pendingApproval &&
+            !approved &&
+            !canApprove &&
+            canPrepare &&
+            !isPublicPreview &&
+            (resource.data?.approvalRequest ? (
+              <p className="field-hint" role="status">
+                {msg(
+                  "Approval requested on {0}.",
+                  date(resource.data.approvalRequest.requested_at),
+                )}
+              </p>
+            ) : (
+              <button
+                className="button"
+                disabled={action.pending}
+                onClick={() => void requestApproval()}
+              >
+                {msg("Ask for approval")}
+              </button>
+            ))}
+          {pendingApproval && canApprove && resource.data?.approvalRequest && (
+            <p className="notice info" role="note">
+              {msg(
+                "{0} asked for approval on {1}.",
+                resource.data.approvalRequest.requested_by ?? msg("A member"),
+                date(resource.data.approvalRequest.requested_at),
+              )}
+            </p>
+          )}
           {canApprove &&
             pendingApproval &&
             resource.data?.approval?.approval_kind === "expert" && (
@@ -881,6 +1082,9 @@ export function DispatchDetailPage({
                         ? msg("Approve and simulate the dispatch")
                         : msg("Approve and send")
                       : t.dispatch.approve}
+                  {!action.pending && (
+                    <span className="approval-price">{approvalPrice}</span>
+                  )}
                 </button>
               </section>
             )}
@@ -903,6 +1107,9 @@ export function DispatchDetailPage({
                     : simulation
                       ? t.dispatch.confirm
                       : t.dispatch.confirmReal}
+                  {!action.pending && (
+                    <span className="approval-price">{approvalPrice}</span>
+                  )}
                   <ArrowRight size={18} />
                 </button>
               </section>
@@ -923,7 +1130,9 @@ export function DispatchDetailPage({
             </div>
           )}
           <details className="technical-details">
-            <summary>{t.dispatch.version}</summary>
+            <summary>
+              {pendingApproval ? t.dispatch.version : t.dispatch.versionDetails}
+            </summary>
             <p>{t.dispatch.noChange}</p>
             <dl>
               <Definition label={t.dispatch.fingerprint}>
@@ -938,74 +1147,57 @@ export function DispatchDetailPage({
           </details>
         </section>
       </div>
-      <section className="timeline-section">
-        <h2>{t.dispatch.timeline}</h2>
-        {(events.length > 0 || !!resource.data?.attempts.length) && (
-          <DateTimezone />
-        )}
-        {!events.length ? (
-          <p className="muted">{t.dispatch.noEvents}</p>
-        ) : (
-          <ol className="timeline">
-            {events.map((event) => {
-              const record = event as typeof event & {
-                kind?: string;
-                occurred_at?: string;
-                received_at?: string;
-              };
-              const name =
-                record.kind ??
-                event.type ??
-                event.event_type ??
-                event.status ??
-                t.status;
-              return (
-                <li key={event.id}>
-                  <span className="timeline-mark" aria-hidden="true" />
-                  <div>
-                    <strong>
-                      {(name === "delivered" && d.channel === "email"
-                        ? t.statuses.email_delivered
-                        : name === "delivered" && d.channel === "fax"
-                          ? t.statuses.fax_delivered
-                          : t.statuses[name]) ??
-                        name.replaceAll(".", " · ").replaceAll("_", " ")}
-                    </strong>
-                    <time>
-                      {date(
-                        record.occurred_at ??
-                          event.created_at ??
-                          record.received_at,
-                      )}
-                    </time>
-                    {event.detail && <p>{event.detail}</p>}
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
-        )}
-        <details className="technical-details">
-          <summary>{t.dispatch.attempts}</summary>
-          {!resource.data?.attempts.length ? (
-            <p>{t.dispatch.noAttempts}</p>
-          ) : (
-            <ul className="attempts">
-              {resource.data.attempts.map((attempt) => (
-                <li key={attempt.id}>
-                  <span>
-                    {d.channel === "postal"
-                      ? msg("Guteneo postal service")
-                      : attempt.provider}
-                  </span>
-                  <Status status={attempt.status} />
-                  <time>{date(attempt.created_at)}</time>
-                </li>
-              ))}
-            </ul>
-          )}
-        </details>
-      </section>
+      {pendingApproval && !approved && timeline}
     </>
+  );
+}
+
+/** Where a dispatch stands, as four steps; exceptional outcomes keep the badge alone. */
+function DispatchSteps({
+  status,
+  channel,
+}: {
+  status: string;
+  channel: Channel;
+}) {
+  const position: Record<string, number> = {
+    draft: 0,
+    prepared: 0,
+    approved: 1,
+    accepted: 2,
+    queued: 2,
+    submitting: 2,
+    submitted: 2,
+    sending: 2,
+    printed: 2,
+    dispatched: 2,
+    delivered: 4,
+  };
+  const current = position[status];
+  if (current === undefined) return null;
+  const steps = [
+    t.statuses.prepared,
+    t.statuses.approved,
+    t.statuses.sending,
+    channel === "email"
+      ? t.statuses.email_delivered
+      : channel === "fax"
+        ? t.statuses.fax_delivered
+        : t.statuses.delivered,
+  ];
+  return (
+    <ol className="dispatch-steps" aria-label={t.dispatch.stepsLabel}>
+      {steps.map((label, index) => (
+        <li
+          key={index}
+          data-state={
+            index < current ? "done" : index === current ? "current" : "todo"
+          }
+          aria-current={index === current ? "step" : undefined}
+        >
+          {label}
+        </li>
+      ))}
+    </ol>
   );
 }

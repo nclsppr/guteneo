@@ -49,8 +49,10 @@ export function RolesOverview() {
 
 export function RolePermissionNotice({
   reports = false,
+  approval = false,
 }: {
   reports?: boolean;
+  approval?: boolean;
 }) {
   return (
     <div className="notice info" role="note">
@@ -59,9 +61,13 @@ export function RolePermissionNotice({
           ? msg(
               "Your role does not provide access to workspace reports. An administrator can change your permissions.",
             )
-          : msg(
-              "Your role does not allow this action. An administrator can change your permissions.",
-            )}{" "}
+          : approval
+            ? msg(
+                "This dispatch is waiting for approval. An administrator or an authorized supervisor can approve it.",
+              )
+            : msg(
+                "Your role does not allow this action. An administrator can change your permissions.",
+              )}{" "}
         <a href="#/app/account">{msg("Contact someone in charge")}</a>
         {" · "}
         <a href="/roles/">{msg("Understand roles")}</a>

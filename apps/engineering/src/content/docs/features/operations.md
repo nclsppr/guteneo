@@ -1,6 +1,6 @@
 ---
 title: "Operations and reliability"
-description: "33 capabilities in the operations branch of Guteneo."
+description: "34 capabilities in the operations branch of Guteneo."
 sidebar:
   order: 20
 ---
@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Restricted operator authority required.
 
-Implemented operational tooling; changes require explicit authority and exact-source proof.
+Implemented operational tooling; changes require explicit authority and exact-source proof. The operator-triggered application workflow is implemented in source; existing credential authorization, exact-current-main hosted CI, same-run schema receipt and actual served publication remain separately qualified.
 
 **Surfaces:** Authorised operator/CI tooling and private services; anonymous monitoring has no workshop authority.
 
@@ -51,6 +51,7 @@ Implemented operational tooling; changes require explicit authority and exact-so
 <li id="feature-459721b72b29">Same-run static builds deduplicate identical bytes into commit/tree-bound SHA-256 objects, verify full object and selected release/health inventories before reconstruction, narrow only prebuilt browser/distribution source checkouts, preserve authored caption scripts and retain raw debug evidence separately from compact aggregate proof; no LFS migration, test removal or paid provisioning.</li>
 <li id="feature-383511a05da4">Claimed dispatch preflight overlaps independent tenant reads before submission; maintenance cursor reads are combined while deletion, audits and mutation order remain unchanged</li>
 <li id="feature-a7b9661cbc4a">Production application publication requires a fresh remote v&lt;package version&gt; tag resolving to exact clean main and matching authored release notes, checked before build and before deployment. CI emits a portable offline HTML test summary and sanitized JSON with tested source, attempts, declared skips and full/reused provenance; repository screenshots, native qualification and served production receipts remain separate evidence. Version anchors never imply deployment and existing tags must never be moved.</li>
+<li id="feature-389adb8ad665">Separately dispatched manual application publication requires exact current main, the canonical successful complete CI run/attempt and matching immutable version tag; separate existing application and D1 credentials fence schema-first qualification of reviewed additive indexes 0081/0082, exact ledger/schema/constraint checks, pre-write recovery bookmarks and in-flight markers, followed by the unchanged guarded publisher and served-byte verification. Unknown outcomes never auto-retry; no credentials are created or widened, provider activated, private service published or real communication sent. Hosted authorization, schema execution and production publication require their own proof.</li>
 </ol>
 
 ## REST operations

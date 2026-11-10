@@ -1,3 +1,4 @@
+import { formatApplicationTimestamp } from "./application-time";
 import { msg } from "./messages";
 import { invalidateClientLists } from "./client-resources";
 import {
@@ -113,6 +114,11 @@ export type EventRecord = {
 };
 export type DispatchDetail = {
   activeSchedule?: Dispatch["activeSchedule"];
+  /** A preparer's request for review; never an approval. */
+  approvalRequest?: {
+    requested_at: string;
+    requested_by: string | null;
+  } | null;
   approval?: {
     fingerprint: string;
     expires_at: string;
@@ -479,21 +485,9 @@ export function dispatchPresentationStatus(dispatch: Dispatch): string {
     : dispatch.status;
 }
 export function date(value?: string): string {
-  if (!value) return t.unknown;
-  const d = new Date(
-    value.endsWith("Z") || /[+-]\d\d:\d\d$/.test(value)
-      ? value
-      : value.includes("T")
-        ? `${value}Z`
-        : `${value.replace(" ", "T")}Z`,
-  );
-  return Number.isNaN(d.getTime())
-    ? value
-    : new Intl.DateTimeFormat(formatLocale(), {
-        dateStyle: "medium",
-        timeStyle: "short",
-      }).format(d);
+  return value ? (formatApplicationTimestamp(value) ?? value) : t.unknown;
 }
+
 /**
  * Native validation for a euro amount typed with either decimal mark, the
  * format euroToMinor() reads. Amount fields are text fields: a number field

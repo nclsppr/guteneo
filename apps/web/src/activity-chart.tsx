@@ -172,14 +172,20 @@ export function StatTile({
   value,
   children,
   tone = "neutral",
+  variant = "card",
+  className = "",
 }: {
   label: string;
   value: ReactNode;
   children?: ReactNode;
   tone?: "neutral" | "accent" | "warning";
+  variant?: "card" | "plain";
+  className?: string;
 }) {
   return (
-    <div className={`stat-tile stat-tile-${tone}`}>
+    <div
+      className={`stat-tile stat-tile-${tone} stat-tile-${variant} ${className}`.trim()}
+    >
       <span>{label}</span>
       <strong>{value}</strong>
       {children && <small>{children}</small>}

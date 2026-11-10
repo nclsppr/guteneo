@@ -97,6 +97,12 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
     page.on("pageerror", (error) => failures.push(error.message));
     await setup(page, locale);
     await expect(page.locator("html")).toHaveAttribute("lang", locale);
+    await expect(page.locator(".bv-footer")).toContainText(
+      copy(
+        locale,
+        "Montants en EUR sauf indication · Heures affichées : {0}",
+      ).replace("{0}", "UTC"),
+    );
     await expect(
       page.getByRole("heading", {
         name: copy(locale, "Synthèse"),

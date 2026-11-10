@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+import { StatTile } from "./activity-chart";
 import { studioRoutes } from "./app-routes";
 import { WorkspaceContacts } from "./workspace-contacts";
 import {
@@ -145,7 +146,7 @@ export function Overview({ session }: { session: Session }) {
   const contacts = (
     <WorkspaceContacts key="contacts" session={session} compact />
   );
-  const legacyAttentionNotice = attention > 0 && (
+  const legacyAttentionNotice = attention > 0 && !permissions.viewReports && (
     <div
       key="attention"
       className="notice warning overview-attention"
@@ -211,8 +212,12 @@ export function Overview({ session }: { session: Session }) {
                 href={stat.href}
                 className={stat.warning ? "stat-warning" : undefined}
               >
-                <span>{stat.label}</span>
-                <strong>{stat.value ?? "·"}</strong>
+                <StatTile
+                  label={stat.label}
+                  value={stat.value ?? "·"}
+                  variant="plain"
+                  tone={stat.warning ? "warning" : "neutral"}
+                />
               </a>
             </li>
           ))}
@@ -232,7 +237,10 @@ export function Overview({ session }: { session: Session }) {
       {dispatches.loading && !dispatches.data ? (
         <Loading />
       ) : dispatches.data?.items.length ? (
-        <DispatchTable items={dispatches.data.items.slice(0, 6)} />
+        <DispatchTable
+          items={dispatches.data.items.slice(0, 6)}
+          className="overview-recent"
+        />
       ) : dispatches.error ? null : (
         <EmptyState
           title={t.overview.emptyTitle}
@@ -275,7 +283,7 @@ export function Overview({ session }: { session: Session }) {
     <>
       <div className="dashboard-editorial-heading">
         <PageHeading
-          title={t.overview.title}
+          title={t.nav.overview}
           action={
             permissions.prepareDispatches && (
               <a

@@ -542,3 +542,26 @@ test("a postal quote has no email exchange-rate copy", async ({ page }) => {
   expect(state.writes).toEqual([]);
   expect(state.unmatched).toEqual([]);
 });
+
+test("postal setup remains readable while the independent sender list is pending", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  let release: () => void = () => {};
+  const pending = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/api/senders", async (route) => {
+    await pending;
+    await route.fulfill({ json: { items: [] } });
+  });
+  try {
+    await page.goto("/#/app/senders");
+    await expect(
+      page.getByRole("textbox", { name: "Nom de l’expéditeur" }),
+    ).toBeVisible();
+    expect(state.writes).toEqual([]);
+  } finally {
+    release();
+  }
+});

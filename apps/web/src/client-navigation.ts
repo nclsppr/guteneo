@@ -3,14 +3,54 @@
 export const BEFORE_WORKSPACE_NAVIGATION =
   "guteneo:before-workspace-navigation";
 const WORKSPACE_SWITCH_PREFLIGHT = "workspace-switch-preflight";
+const preflights = new WeakMap<Event, (() => Promise<boolean>)[]>();
+export type RouteNavigationIntent = { fromHref: string; toHref: string };
+const routes = new WeakMap<Event, RouteNavigationIntent>();
+
+/** The router, not a page or URL parameter, owns the exact resumable visit. */
+export function createRouteNavigationEvent(intent: RouteNavigationIntent) {
+  const event = new Event(BEFORE_WORKSPACE_NAVIGATION, { cancelable: true });
+  routes.set(event, { ...intent });
+  return event;
+}
+export const routeNavigationIntent = (event: Event) => routes.get(event);
 
 /** Ask the existing dirty-form guards without claiming that a visit departed.
  * A refused server request still belongs to the initiating view. */
 export function createWorkspaceSwitchPreflightEvent() {
-  return new CustomEvent(BEFORE_WORKSPACE_NAVIGATION, {
+  const event = new CustomEvent(BEFORE_WORKSPACE_NAVIGATION, {
     cancelable: true,
     detail: WORKSPACE_SWITCH_PREFLIGHT,
   });
+  preflights.set(event, []);
+  return event;
+}
+
+/** Deferred guards do not cancel the event: an independent hard veto still wins. */
+export function deferWorkspaceSwitch(
+  event: Event,
+  decide: () => Promise<boolean>,
+) {
+  const decisions = preflights.get(event);
+  if (!decisions) return false;
+  decisions.push(decide);
+  return true;
+}
+
+export async function confirmWorkspaceSwitch(event: Event) {
+  const decisions = preflights.get(event);
+  if (!decisions) return false;
+  const accepted = window.dispatchEvent(event);
+  preflights.delete(event);
+  if (!accepted) return false;
+  const permitted = await Promise.all(
+    decisions.map((decide) =>
+      Promise.resolve()
+        .then(decide)
+        .catch(() => false),
+    ),
+  );
+  return permitted.every(Boolean) && !event.defaultPrevented;
 }
 
 let revision = 0;

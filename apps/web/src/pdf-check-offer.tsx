@@ -1,12 +1,20 @@
 import { ArrowRight, Check, ShieldCheck } from "@phosphor-icons/react";
-import { isPublicPreview, money, type Session } from "./api";
+import { date, isPublicPreview, money, type Session } from "./api";
 import {
+  Disclosure,
+  EmptyState,
   ErrorNotice,
+  LoadMore,
   Loading,
   PageHeading,
   RefreshButton,
   useResource,
 } from "./components";
+import { DataTable, tableTimestamp } from "./data-table";
+import type {
+  PdfValidationHistory,
+  PdfValidationHistoryItem,
+} from "../../../packages/contracts/src/pdf-validation";
 import type { PdfValidationPricing } from "../../../packages/contracts/src/pdf-validation";
 import { msg } from "./messages";
 import "./pdf-check.css";
@@ -46,6 +54,7 @@ export function PdfCheckPage({ session }: { session: Session }) {
     <>
       <PageHeading title={msg("PDF checks")} />
       <PdfCheckAccount key={session.organization.id} />
+      <PdfCheckHistory key={`history:${session.organization.id}`} />
     </>
   );
 }
@@ -96,18 +105,6 @@ export function PdfCheckOffer({
           ? msg("Available in your workspace")
           : msg("PDF checks are currently unavailable")}
       </p>
-      <PdfCheckCreditTerms />
-      <p className="pdf-check-limit">
-        {msg(
-          "A completed technical report is charged even when issues are found. An interrupted check with no usable report is not charged.",
-        )}
-      </p>
-      <PdfCheckBenefits />
-      <p className="pdf-check-limit">
-        {msg(
-          "PDFs up to 10 MiB and 100 pages. Each profile is a separate check; the exact price is shown before you confirm.",
-        )}
-      </p>
       {pricing.evidence === "simulation" ? (
         <p className="notice info">
           {msg(
@@ -123,23 +120,120 @@ export function PdfCheckOffer({
           )}
         </p>
       ) : null}
-      <p>
-        {msg(
-          "Open a ready PDF in Documents to choose a profile and confirm one paid check. Only a browser administrator can confirm its payment.",
-        )}
-      </p>
       <a className="button" href="#/app/documents">
         {msg("Choose a PDF")}
         <ArrowRight size={18} aria-hidden="true" />
       </a>
-      <p className="pdf-check-limit">
-        <ShieldCheck size={18} aria-hidden="true" />
-        <span>
+      <Disclosure label={msg("Conditions and limits")}>
+        <PdfCheckCreditTerms />
+        <p className="pdf-check-limit">
           {msg(
-            "Automated checks provide technical guidance. They do not replace human review or certify legal compliance.",
+            "A completed technical report is charged even when issues are found. An interrupted check with no usable report is not charged.",
           )}
-        </span>
-      </p>
+        </p>
+        <PdfCheckBenefits />
+        <p className="pdf-check-limit">
+          {msg(
+            "PDFs up to 10 MiB and 100 pages. Each profile is a separate check; the exact price is shown before you confirm.",
+          )}
+        </p>
+        <p className="pdf-check-limit">
+          <ShieldCheck size={18} aria-hidden="true" />
+          <span>
+            {msg(
+              "Automated checks provide technical guidance. They do not replace human review or certify legal compliance.",
+            )}
+          </span>
+        </p>
+      </Disclosure>
+    </section>
+  );
+}
+
+function historyStatus(item: PdfValidationHistoryItem) {
+  return item.status === "passed"
+    ? msg("Technical checks passed")
+    : item.status === "failed"
+      ? msg("Issues found")
+      : item.status === "processing"
+        ? msg("Checking…")
+        : msg("Check interrupted");
+}
+function profileName(profile: PdfValidationHistoryItem["profile"]) {
+  return profile.startsWith("ua")
+    ? `PDF/UA-${profile.slice(2)}`
+    : `PDF/A-${profile}`;
+}
+function PdfCheckHistory() {
+  const history = useResource<PdfValidationHistory>(
+    "/pdf-validation/history?limit=30",
+  );
+  return (
+    <section
+      className="pdf-check-history"
+      aria-labelledby="pdf-check-history-title"
+    >
+      <h2 id="pdf-check-history-title">{msg("Past checks")}</h2>
+      <ErrorNotice error={history.error} retry={history.refresh} />
+      {history.loading && !history.data ? (
+        <Loading shape="table" />
+      ) : history.data?.items.length ? (
+        <>
+          <DataTable
+            viewId="pdf-check-history"
+            label={msg("Past checks")}
+            items={history.data.items}
+            getRowKey={(item) => item.id}
+            columns={[
+              {
+                id: "document",
+                label: msg("Document"),
+                value: (item) => item.documentName,
+                render: (item) => (
+                  <a
+                    className="row-link"
+                    href={`#/app/documents?document=${encodeURIComponent(item.documentId)}`}
+                  >
+                    {item.documentName}
+                  </a>
+                ),
+              },
+              {
+                id: "profile",
+                label: msg("Profile"),
+                value: (item) => profileName(item.profile),
+              },
+              {
+                id: "status",
+                label: msg("Status"),
+                value: historyStatus,
+                render: (item) => (
+                  <>
+                    <span>{historyStatus(item)}</span>
+                    {item.evidence === "simulation" && (
+                      <small className="sub-label">{msg("Simulation")}</small>
+                    )}
+                  </>
+                ),
+              },
+              {
+                id: "created",
+                label: msg("Created"),
+                value: (item) => tableTimestamp(item.createdAt),
+                render: (item) => date(item.createdAt),
+                className: "date-cell",
+              },
+            ]}
+          />
+          <LoadMore
+            path="/pdf-validation/history?limit=30"
+            data={history.data}
+            onLoaded={history.setData}
+          />
+        </>
+      ) : (
+        !history.error && <EmptyState title={msg("No PDF checks yet")} />
+      )}
     </section>
   );
 }
