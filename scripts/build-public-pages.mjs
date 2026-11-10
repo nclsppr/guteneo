@@ -160,7 +160,8 @@ export function publicPageDocument(
     )
     .replace(
       root,
-      () => `<div id="root">${localizeLinks(page.html, locale)}</div>`,
+      () =>
+        `<div id="root"><div data-public-prerendered>${localizeLinks(page.html, locale)}</div></div>`,
     )
     .replace("</head>", () => `    ${metadata}\n  </head>`);
 }

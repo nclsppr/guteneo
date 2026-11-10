@@ -46,6 +46,12 @@ async function fixture(page: Page, initialItems: AssistantConnection[] = []) {
       } else body = { items, nextCursor: null };
     } else if (["/documents", "/dispatches", "/senders"].includes(path)) {
       body = { items: [], nextCursor: null };
+    } else if (method === "GET" && path === "/attention") {
+      body = {
+        items: [],
+        nextCursor: null,
+        observedAt: "2026-11-10T00:00:00.000Z",
+      };
     } else if (path === "/overview") {
       body = {
         documents: 0,

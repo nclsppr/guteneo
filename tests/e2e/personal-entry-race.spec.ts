@@ -247,15 +247,16 @@ test("a failed personal code request offers explicit recovery without private re
     }),
   );
   await page.goto("/#/app/my-documents");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.getByRole("alert")).toContainText(
-    "Cette page n’a pas pu être chargée.",
+    "This page could not be loaded.",
   );
   expect(state.reads).not.toContain("/api/personal/documents");
   expect(state.reads).not.toContain("/api/session");
   expect(state.writes).toEqual([]);
   await page.unroute(chunk);
   await page
-    .getByRole("button", { name: "Recharger la page", exact: true })
+    .getByRole("button", { name: "Reload the page", exact: true })
     .click();
   await expect(
     page.getByRole("heading", {

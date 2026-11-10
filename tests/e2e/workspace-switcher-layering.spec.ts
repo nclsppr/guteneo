@@ -6,7 +6,9 @@ test("workspace and application choices remain clickable beside the closed accou
   page,
 }, info) => {
   // Every request, including the workspace switch, is a synthetic response.
-  await page.addInitScript(() => localStorage.setItem("guteneo.theme", "light"));
+  await page.addInitScript(() =>
+    localStorage.setItem("guteneo.theme", "light"),
+  );
   const workspaces = [
     { id: "first-workspace", name: "Atelier de contrôle des identités" },
     { id: "second-workspace", name: "Deuxième atelier" },
@@ -45,6 +47,12 @@ test("workspace and application choices remain clickable beside the closed accou
       body = session;
     } else if (method === "GET" && path === "/api/capabilities")
       body = { scanner: "ready", simulation: false };
+    else if (method === "GET" && path === "/api/attention")
+      body = {
+        items: [],
+        nextCursor: null,
+        observedAt: "2026-11-10T00:00:00.000Z",
+      };
     else if (method === "GET" && path === "/api/overview")
       body = {
         documents: 0,

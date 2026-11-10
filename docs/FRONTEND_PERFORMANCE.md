@@ -2,59 +2,60 @@
 
 ## Locale loading and lifecycle controls — 10 November 2026 local candidate
 
-The browser loads the active locale projection instead of eagerly loading all
-four translation catalogs. Session bootstrap resolves its authenticated locale
-before workspace content is shown. Lifecycle controls share authority/navigation
-guards, bound collection reads and visibility-aware polling; command search and
-saved table views retain their existing lazy application boundaries. Source
+The browser loads its active locale projection and resolves the authenticated
+language before workspace content appears. Lifecycle controls share authority and
+navigation guards, bounded collection reads and visibility-aware polling. Command
+search and saved table views keep their lazy application boundaries. Source
 catalogs remain available to server/tooling code.
 
-The [dated evidence](evidence/lifecycle-experience-2026-11-10.json) retains the
-final raw browser observations and build/source fingerprints. The comparison
-uses a **pre-split candidate snapshot**, not clean main. Each route/locale/profile
-has one cold-context sample against a local optimized build with every API request
-intercepted and synthetic data, no network/CPU throttle and shared-host activity.
-These samples diagnose bytes, requests and fallback-language headings; they are
-not a production latency benchmark or a statistically established speedup.
+The [dated evidence](evidence/lifecycle-experience-2026-11-10.json) binds the final
+observations to source and assets. Final qualification uses `build:live`, including
+public server-rendered HTML. Private hash entries and mismatched public-language
+fallbacks hide only that SSR subtree; matching public text remains available.
+The language observer records visible headings at paint opportunities after
+render-blocking styles apply and requires a nonempty observation. Public samples
+wait for the enhanced client entry as well as the visible heading.
 
-The table shows desktop Chromium's total JavaScript `transferSize` in bytes,
-including response overhead. This is transferred data, not raw asset size or
-`encodedBodySize` alone. Both sides were observed with the same measurement
-fixture.
+The comparison is against a **pre-split candidate snapshot**, not clean main.
+That snapshot used plain Vite HTML; the final candidate includes public SSR and
+its preload hints. This compares whole entry graphs, not an isolated locale
+change. Each route/locale/profile has one cold-context sample with intercepted
+synthetic APIs, no CPU/network throttle and shared-host activity. Timing methods
+also changed to include stable paint opportunities, so the timings are retained
+as separate diagnostics without a before/after latency claim.
 
-| Locale        | Public pricing: before → reviewed candidate |  Change | Workspace: before → reviewed candidate |  Change |
-| ------------- | ------------------------------------------: | ------: | -------------------------------------: | ------: |
-| French        |                           559,420 → 480,898 | −14.04% |                      603,511 → 519,036 | −14.00% |
-| English       |                           559,420 → 477,549 | −14.63% |                      603,511 → 515,687 | −14.55% |
-| German        |                           559,420 → 562,302 |  +0.52% |                      603,511 → 600,440 |  −0.51% |
-| Luxembourgish |                           559,420 → 562,919 |  +0.63% |                      603,511 → 601,057 |  −0.41% |
+The table shows desktop Chromium's total JavaScript `transferSize`, including
+response overhead, after client entry. It is not raw asset size or
+`encodedBodySize` alone.
+
+| Locale | Public pricing: before → final candidate | Change | Workspace: before → final candidate | Change |
+| --- | ---: | ---: | ---: | ---: |
+| French | 559,420 → 481,293 | -13.97% | 603,511 → 519,431 | -13.93% |
+| English | 559,420 → 477,944 | -14.56% | 603,511 → 516,082 | -14.49% |
+| German | 559,420 → 562,697 | +0.59% | 603,511 → 600,835 | -0.44% |
+| Luxembourgish | 559,420 → 563,314 | +0.70% | 603,511 → 601,452 | -0.34% |
 
 All measured workspace profiles transferred fewer JavaScript bytes. Public
-German/Luxembourgish transferred slightly more: +0.52/+0.63% on Chromium and
-+0.57/+0.68% on iPhone WebKit. Decoded JavaScript decreased for every measured
-locale/route: workspace reductions range from 2.05% to 16.34%; public reductions
-range from 1.79% to 17.14%. Loading one locale does not guarantee a smaller
-compressed total for every route, and the public DE/LB transfer increase remains
-visible in the record.
+German/Luxembourgish transferred slightly more: +0.59/+0.70% on Chromium and
++0.64/+0.75% on iPhone WebKit. Decoded JavaScript decreased for every measured
+locale/route: workspace reductions range from 1.99% to 16.29%; public reductions
+range from 1.73% to 17.09%. Loading one language does not guarantee a smaller
+compressed total for every route; the public DE/LB increase remains visible.
 
-Across the 24 final cold samples, no fallback-language heading was observed.
-Public pages made no session read; workspace bootstrap made one. First useful
-content was 188–224 ms on public pricing and 211–250 ms in the workspace, versus
-198–988 ms and 481–571 ms in the pre-split samples. This is the fixture's elapsed
-time to asserted content, separate from paint timing; sample variability and
-concurrent host activity prevent a latency-improvement claim. Only the active
-locale asset was observed in each sample. The final browser run passed 165 cases:
-24 cold samples, 36 session/authority cases and 105 product cases.
+All 24 final cold samples observed one selected locale asset and no visible
+fallback-language heading. Public pages made no session read; workspace bootstrap
+made one. Final asserted client content was useful after 198–251 ms on public
+pricing and 217–343 ms in the workspace. These elapsed fixture observations are
+not physical paint measurements or production benchmarks.
 
-The new product fixtures pass all 105 cases in that final run. Accessibility
-checks pass 24 locale/theme/profile cases, each examining
-nine rendered states: 216 checks across attention, saved recipients/views,
-recipient forms, background outcomes, command search, future approval and webhook
-controls. No WCAG A/AA axe rule is disabled. The
-[implementation ledger](LIFECYCLE_EXPERIENCE_EXECUTION.md#recorded-local-proof)
-distinguishes these final-source local results from hosted qualification. These
-measurements do not establish physical-device, production-authentication or
-live-provider proof.
+The final application run passes 165/165: 105 product cases, 36 session/authority
+cases and 24 cold samples across desktop Chromium, Pixel-sized Chromium and
+iPhone WebKit. Its 24 accessibility cases examine nine states each, giving 216
+checks across attention, recipients/views, forms, background outcomes, command
+search, future approval and webhook controls. No WCAG A/AA axe rule is disabled.
+The [implementation ledger](LIFECYCLE_EXPERIENCE_EXECUTION.md#recorded-local-proof)
+records the wider corrected legacy and recovery checks. These local results do
+not establish physical-device, hosted authentication or live-provider behavior.
 
 ## Browser continuation guards — 9 November 2026 local candidate
 

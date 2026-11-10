@@ -107,6 +107,12 @@ async function fixture(
     } else if (path === "/capabilities")
       body = { scanner: "ready", simulation: false };
     else if (path === "/connections") body = { items: [] };
+    else if (method === "GET" && path === "/attention")
+      body = {
+        items: [],
+        nextCursor: null,
+        observedAt: "2026-11-10T00:00:00.000Z",
+      };
     else if (path === "/overview")
       body = {
         documents: 0,

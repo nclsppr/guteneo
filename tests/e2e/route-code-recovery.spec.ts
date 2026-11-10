@@ -97,11 +97,12 @@ async function heldRecovery(page: Page) {
     }
   });
   await page.goto("/#/app/my-documents");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.getByRole("alert")).toContainText(
-    "Cette page n’a pas pu être chargée.",
+    "This page could not be loaded.",
   );
   const reload = page.getByRole("button", {
-    name: "Recharger la page",
+    name: "Reload the page",
     exact: true,
   });
   await reload.click();
@@ -150,7 +151,7 @@ for (const detour of [
         await navigate(page, "/app/services");
         await expect(page).toHaveURL(/#\/app\/services$/);
         await expect(page.getByRole("alert")).toContainText(
-          "Cette page n’a pas pu être chargée.",
+          "This page could not be loaded.",
         );
       } else {
         await navigate(page, "/");
@@ -159,7 +160,7 @@ for (const detour of [
       await navigate(page, "/app/my-documents");
       await expect(page).toHaveURL(/#\/app\/my-documents$/);
       await expect(page.getByRole("alert")).toContainText(
-        "Cette page n’a pas pu être chargée.",
+        "This page could not be loaded.",
       );
       await page.evaluate((value) => {
         Reflect.set(window, "recoveryVisitMarker", value);

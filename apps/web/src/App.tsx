@@ -1007,15 +1007,15 @@ function WorkspaceApplication({
       if (sessionAuthorityKey() !== authority) return;
       const redirect = ownsVisit();
       clearPendingDocumentInvitation();
+      // Unmount private readers before publishing signed-out authority; a
+      // delayed document navigation must not start fresh unauthenticated reads.
+      flushSync(() => {
+        setLogoutNeedsReconnect(true);
+        updateSession(null);
+      });
       setSession(null);
       // Leave the protected route before Login can restart an Auth0 SSO flow.
       if (redirect) window.location.replace("/");
-      else {
-        // The cookie change still ends this session. Remove private content
-        // without letting Login redirect a visit that the person left behind.
-        setLogoutNeedsReconnect(true);
-        updateSession(null);
-      }
     } catch (e) {
       if (sessionAuthorityKey() !== authority || !ownsVisit()) return;
       setLogoutError(e as Error);

@@ -3,7 +3,7 @@
   "base": "77a7570b9d2c463afb968eef7be2bdbf1456dc02",
   "branch": "codex/lifecycle-experience-20261109",
   "environment": {
-    "browser": "Optimized local Vite build, intercepted synthetic API fixtures; Chromium/Pixel 7 Chromium/iPhone 13 WebKit; no CPU or network throttle.",
+    "browser": "Optimized local build:live with public SSR HTML, intercepted synthetic API fixtures; Chromium/Pixel 7 Chromium/iPhone 13 WebKit; no CPU or network throttle.",
     "server": "Local workerd/Miniflare D1 and R2 with synthetic injected provider transports; no provider delivery.",
     "native": "iPhone 17 Pro / iOS 27 local simulator; synthetic fixtures; no physical-device claim."
   },
@@ -35,11 +35,11 @@
     ]
   },
   "unitIntegration": {
-    "method": "Complete 212-file sweep followed by affected-file reruns after fixing historical migration fixtures. Latest result per file; this is not a single all-green invocation.",
-    "files": 212,
-    "cases": 4049,
+    "method": "Complete sweep followed by affected-file reruns after fixing historical migration fixtures. Latest result per file; this is not a single all-green invocation.",
+    "files": 213,
+    "cases": 4058,
     "statuses": {
-      "passed": 4049
+      "passed": 4058
     },
     "reports": [
       {
@@ -85,9 +85,17 @@
       {
         "file": "lifecycle-final-mcp-compatibility.json",
         "sha256": "ae398d02964ae887f0c040c1e56c93d4538e43611a67a99629b9ba27c7457406"
+      },
+      {
+        "file": "lifecycle-ci-bootstrap-unit.json",
+        "sha256": "ea9b06403c7f4e8fb9ab1fc3c9f094334b544bdac417d24b5b6c51f5b0d26d0e"
+      },
+      {
+        "file": "lifecycle-public-bootstrap-final.json",
+        "sha256": "35dcfae0480ba9e64e94749e4501bef890a3511a489b2df1f1d00ab0ed62c5ed"
       }
     ],
-    "filesSha256": "67605dd9148e8c19e6bf37c5d8fa16e51b6f0488353ffe4b159f5c1d134f91ed"
+    "filesSha256": "a2357685846b538a61d540e28cba4166bf4110ed79b28c1b1a980bdacea093a0"
   },
   "security": {
     "tests": 697,
@@ -95,18 +103,18 @@
     "failed": 0,
     "skipped": 0,
     "report": {
-      "file": "lifecycle-security-release-final.log",
-      "sha256": "9af4b4c6bf54bb176d0355bbbdc2e7f8c2254d3b14908353b2a0604692919738"
+      "file": "lifecycle-ci-corrected-security.log",
+      "sha256": "0a22b1b10ec5c221c81eb31a6cce1d5736ef41c7a58fdd9693836585a8f3279d"
     }
   },
   "applicationBrowser": {
     "report": {
-      "file": "lifecycle-release-qualified-browser.json",
-      "sha256": "1462a3735e13d8b723e418f6c57084a0e2b486f7ecfedd0938cc359fc0049a99"
+      "file": "lifecycle-ci-corrected-browser.json",
+      "sha256": "abd0b50373c411d795338fa8098fcd827865cc9af345b4e5954de7e3cb2d2ff7"
     },
     "stats": {
-      "startTime": "2026-11-10T00:37:31.027Z",
-      "duration": 211489.38900000002,
+      "startTime": "2026-11-10T01:22:20.796Z",
+      "duration": 213627.057,
       "expected": 165,
       "skipped": 0,
       "unexpected": 0,
@@ -193,6 +201,103 @@
     "axeStates": 0,
     "testsSha256": "21e2995be39a37f512204d912b95e73e5b224916bdeb6403ca1ef76c2ebfcbff"
   },
+  "correctiveBrowserChecks": [
+    {
+      "report": {
+        "file": "guteneo-lifecycle-legacy-built-final.json",
+        "sha256": "c0a0452a7a2c1e9685b5fa09cfe25e8d3fa082623c49583a1ad98ac05faad277"
+      },
+      "stats": {
+        "startTime": "2026-11-10T01:11:38.363Z",
+        "duration": 140659.52599999998,
+        "expected": 161,
+        "skipped": 4,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    {
+      "report": {
+        "file": "lifecycle-ci-bootstrap-final-browser.json",
+        "sha256": "423a4092dfdc95e61297aafad5d3e85bc657f79ac4f93258bc9da910371837b7"
+      },
+      "stats": {
+        "startTime": "2026-11-10T01:12:35.526Z",
+        "duration": 98293.049,
+        "expected": 84,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    {
+      "report": {
+        "file": "guteneo-personal-list-fixed-20261110.json",
+        "sha256": "8227b701d6556be8d9fcb9e034bca3a576cd24eeed9260bb969710fb3578edd7"
+      },
+      "stats": {
+        "startTime": "2026-11-10T01:11:32.158Z",
+        "duration": 22879.502,
+        "expected": 33,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    {
+      "report": {
+        "file": "lifecycle-dashboard-attention-corrected.json",
+        "sha256": "5711d8a62798f36e6030801dc4cdfc61c93b3e0956a8713c8b4f98bde0be262d"
+      },
+      "stats": {
+        "startTime": "2026-11-10T01:15:14.503Z",
+        "duration": 6692.721,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    {
+      "report": {
+        "file": "lifecycle-ci-workspace-obsolete-final.json",
+        "sha256": "431b665a4aa7da74c23dc65660be5f3bf5c9d4300dafb7a398619e7d780c5a5c"
+      },
+      "stats": {
+        "startTime": "2026-11-10T01:25:23.411Z",
+        "duration": 4018.6569999999997,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    }
+  ],
+  "localSecureDistribution": {
+    "cases": 14,
+    "passed": 14,
+    "failed": 0,
+    "skipped": 0,
+    "report": {
+      "file": "report.json",
+      "sha256": "125aa612a5cc454eb7363feb647dcb685afcae71090076915269c8e7477b2cf8"
+    },
+    "log": {
+      "file": "lifecycle-ci-corrected-distribution.log",
+      "sha256": "3cd29855fd7153bda1e4ae598aa1c008e101fbd7805379ccd8aee1c35f47bbd7"
+    },
+    "synthetic": true,
+    "isolatedLocalDatabase": true,
+    "invitationArtifactsSanitized": true
+  },
+  "initialHostedQualification": {
+    "head": "8fca2b5b6b765f517228a1b6408d56ffb5ff5180",
+    "applicationRun": "https://github.com/nclsppr/guteneo/actions/runs/42730872720",
+    "applicationConclusion": "failure; legacy browser regressions subsequently corrected and locally requalified",
+    "nativeRun": "https://github.com/nclsppr/guteneo/actions/runs/42730872579",
+    "nativeConclusion": "success",
+    "nextExactHeadQualification": "Tracked in pull request 158 checks, separately from this local source snapshot."
+  },
   "native": {
     "passed": 56,
     "unit": 46,
@@ -220,8 +325,8 @@
       "flaky": 0
     },
     "afterStats": {
-      "startTime": "2026-11-10T00:37:31.027Z",
-      "duration": 211489.38900000002,
+      "startTime": "2026-11-10T01:22:20.796Z",
+      "duration": 213627.057,
       "expected": 165,
       "skipped": 0,
       "unexpected": 0,
@@ -234,14 +339,14 @@
         "locale": "fr",
         "status": "passed",
         "beforeTransferredBytes": 559420,
-        "transferredBytes": 480898,
-        "transferChangePercent": -14.04,
+        "transferredBytes": 481293,
+        "transferChangePercent": -13.97,
         "beforeDecodedBytes": 1766358,
-        "decodedBytes": 1476251,
-        "decodedChangePercent": -16.42,
+        "decodedBytes": 1477287,
+        "decodedChangePercent": -16.37,
         "beforeFirstUsefulMs": 475,
-        "firstUsefulMs": 188,
-        "firstContentfulPaintMs": 172,
+        "firstUsefulMs": 235,
+        "firstContentfulPaintMs": 88,
         "sessionReads": 0,
         "fallbackHeadingObserved": false,
         "localeAssets": [
@@ -258,14 +363,14 @@
         "locale": "fr",
         "status": "passed",
         "beforeTransferredBytes": 603511,
-        "transferredBytes": 519036,
-        "transferChangePercent": -14,
+        "transferredBytes": 519431,
+        "transferChangePercent": -13.93,
         "beforeDecodedBytes": 1897333,
-        "decodedBytes": 1599949,
-        "decodedChangePercent": -15.67,
+        "decodedBytes": 1600985,
+        "decodedChangePercent": -15.62,
         "beforeFirstUsefulMs": 551,
-        "firstUsefulMs": 232,
-        "firstContentfulPaintMs": 156,
+        "firstUsefulMs": 343,
+        "firstContentfulPaintMs": 232,
         "sessionReads": 1,
         "fallbackHeadingObserved": false,
         "localeAssets": [
@@ -282,13 +387,13 @@
         "locale": "en",
         "status": "passed",
         "beforeTransferredBytes": 559420,
-        "transferredBytes": 477549,
-        "transferChangePercent": -14.63,
+        "transferredBytes": 477944,
+        "transferChangePercent": -14.56,
         "beforeDecodedBytes": 1766358,
-        "decodedBytes": 1463524,
-        "decodedChangePercent": -17.14,
+        "decodedBytes": 1464560,
+        "decodedChangePercent": -17.09,
         "beforeFirstUsefulMs": 225,
-        "firstUsefulMs": 205,
+        "firstUsefulMs": 235,
         "firstContentfulPaintMs": 188,
         "sessionReads": 0,
         "fallbackHeadingObserved": false,
@@ -306,14 +411,14 @@
         "locale": "en",
         "status": "passed",
         "beforeTransferredBytes": 603511,
-        "transferredBytes": 515687,
-        "transferChangePercent": -14.55,
+        "transferredBytes": 516082,
+        "transferChangePercent": -14.49,
         "beforeDecodedBytes": 1897333,
-        "decodedBytes": 1587222,
-        "decodedChangePercent": -16.34,
+        "decodedBytes": 1588258,
+        "decodedChangePercent": -16.29,
         "beforeFirstUsefulMs": 497,
-        "firstUsefulMs": 228,
-        "firstContentfulPaintMs": 152,
+        "firstUsefulMs": 284,
+        "firstContentfulPaintMs": 204,
         "sessionReads": 1,
         "fallbackHeadingObserved": false,
         "localeAssets": [
@@ -330,14 +435,14 @@
         "locale": "de",
         "status": "passed",
         "beforeTransferredBytes": 559420,
-        "transferredBytes": 562302,
-        "transferChangePercent": 0.52,
+        "transferredBytes": 562697,
+        "transferChangePercent": 0.59,
         "beforeDecodedBytes": 1766358,
-        "decodedBytes": 1734825,
-        "decodedChangePercent": -1.79,
+        "decodedBytes": 1735861,
+        "decodedChangePercent": -1.73,
         "beforeFirstUsefulMs": 213,
-        "firstUsefulMs": 211,
-        "firstContentfulPaintMs": 196,
+        "firstUsefulMs": 251,
+        "firstContentfulPaintMs": 192,
         "sessionReads": 0,
         "fallbackHeadingObserved": false,
         "localeAssets": [
@@ -354,14 +459,14 @@
         "locale": "de",
         "status": "passed",
         "beforeTransferredBytes": 603511,
-        "transferredBytes": 600440,
-        "transferChangePercent": -0.51,
+        "transferredBytes": 600835,
+        "transferChangePercent": -0.44,
         "beforeDecodedBytes": 1897333,
-        "decodedBytes": 1858523,
-        "decodedChangePercent": -2.05,
+        "decodedBytes": 1859559,
+        "decodedChangePercent": -1.99,
         "beforeFirstUsefulMs": 526,
-        "firstUsefulMs": 236,
-        "firstContentfulPaintMs": 184,
+        "firstUsefulMs": 283,
+        "firstContentfulPaintMs": 172,
         "sessionReads": 1,
         "fallbackHeadingObserved": false,
         "localeAssets": [
@@ -378,14 +483,14 @@
         "locale": "lb",
         "status": "passed",
         "beforeTransferredBytes": 559420,
-        "transferredBytes": 562919,
-        "transferChangePercent": 0.63,
+        "transferredBytes": 563314,
+        "transferChangePercent": 0.7,
         "beforeDecodedBytes": 1766358,
-        "decodedBytes": 1732715,
-        "decodedChangePercent": -1.9,
+        "decodedBytes": 1733751,
+        "decodedChangePercent": -1.85,
         "beforeFirstUsefulMs": 213,
-        "firstUsefulMs": 199,
-        "firstContentfulPaintMs": null,
+        "firstUsefulMs": 233,
+        "firstContentfulPaintMs": 176,
         "sessionReads": 0,
         "fallbackHeadingObserved": false,
         "localeAssets": [
@@ -402,14 +507,14 @@
         "locale": "lb",
         "status": "passed",
         "beforeTransferredBytes": 603511,
-        "transferredBytes": 601057,
-        "transferChangePercent": -0.41,
+        "transferredBytes": 601452,
+        "transferChangePercent": -0.34,
         "beforeDecodedBytes": 1897333,
-        "decodedBytes": 1856413,
-        "decodedChangePercent": -2.16,
+        "decodedBytes": 1857449,
+        "decodedChangePercent": -2.1,
         "beforeFirstUsefulMs": 481,
-        "firstUsefulMs": 246,
-        "firstContentfulPaintMs": 168,
+        "firstUsefulMs": 266,
+        "firstContentfulPaintMs": 180,
         "sessionReads": 1,
         "fallbackHeadingObserved": false,
         "localeAssets": [
@@ -426,14 +531,14 @@
         "locale": "fr",
         "status": "passed",
         "beforeTransferredBytes": 559420,
-        "transferredBytes": 480898,
-        "transferChangePercent": -14.04,
+        "transferredBytes": 481293,
+        "transferChangePercent": -13.97,
         "beforeDecodedBytes": 1766358,
-        "decodedBytes": 1476251,
-        "decodedChangePercent": -16.42,
+        "decodedBytes": 1477287,
+        "decodedChangePercent": -16.37,
         "beforeFirstUsefulMs": 221,
-        "firstUsefulMs": 201,
-        "firstContentfulPaintMs": 184,
+        "firstUsefulMs": 198,
+        "firstContentfulPaintMs": 68,
         "sessionReads": 0,
         "fallbackHeadingObserved": false,
         "localeAssets": [
@@ -450,14 +555,14 @@
         "locale": "fr",
         "status": "passed",
         "beforeTransferredBytes": 603511,
-        "transferredBytes": 519036,
-        "transferChangePercent": -14,
+        "transferredBytes": 519431,
+        "transferChangePercent": -13.93,
         "beforeDecodedBytes": 1897333,
-        "decodedBytes": 1599949,
-        "decodedChangePercent": -15.67,
+        "decodedBytes": 1600985,
+        "decodedChangePercent": -15.62,
         "beforeFirstUsefulMs": 506,
-        "firstUsefulMs": 242,
-        "firstContentfulPaintMs": 160,
+        "firstUsefulMs": 249,
+        "firstContentfulPaintMs": 152,
         "sessionReads": 1,
         "fallbackHeadingObserved": false,
         "localeAssets": [
@@ -474,14 +579,14 @@
         "locale": "en",
         "status": "passed",
         "beforeTransferredBytes": 559420,
-        "transferredBytes": 477549,
-        "transferChangePercent": -14.63,
+        "transferredBytes": 477944,
+        "transferChangePercent": -14.56,
         "beforeDecodedBytes": 1766358,
-        "decodedBytes": 1463524,
-        "decodedChangePercent": -17.14,
+        "decodedBytes": 1464560,
+        "decodedChangePercent": -17.09,
         "beforeFirstUsefulMs": 203,
-        "firstUsefulMs": 200,
-        "firstContentfulPaintMs": 180,
+        "firstUsefulMs": 215,
+        "firstContentfulPaintMs": 152,
         "sessionReads": 0,
         "fallbackHeadingObserved": false,
         "localeAssets": [
@@ -498,13 +603,13 @@
         "locale": "en",
         "status": "passed",
         "beforeTransferredBytes": 603511,
-        "transferredBytes": 515687,
-        "transferChangePercent": -14.55,
+        "transferredBytes": 516082,
+        "transferChangePercent": -14.49,
         "beforeDecodedBytes": 1897333,
-        "decodedBytes": 1587222,
-        "decodedChangePercent": -16.34,
+        "decodedBytes": 1588258,
+        "decodedChangePercent": -16.29,
         "beforeFirstUsefulMs": 486,
-        "firstUsefulMs": 232,
+        "firstUsefulMs": 217,
         "firstContentfulPaintMs": 152,
         "sessionReads": 1,
         "fallbackHeadingObserved": false,
@@ -522,14 +627,14 @@
         "locale": "de",
         "status": "passed",
         "beforeTransferredBytes": 559420,
-        "transferredBytes": 562302,
-        "transferChangePercent": 0.52,
+        "transferredBytes": 562697,
+        "transferChangePercent": 0.59,
         "beforeDecodedBytes": 1766358,
-        "decodedBytes": 1734825,
-        "decodedChangePercent": -1.79,
+        "decodedBytes": 1735861,
+        "decodedChangePercent": -1.73,
         "beforeFirstUsefulMs": 227,
-        "firstUsefulMs": 202,
-        "firstContentfulPaintMs": 184,
+        "firstUsefulMs": 232,
+        "firstContentfulPaintMs": 168,
         "sessionReads": 0,
         "fallbackHeadingObserved": false,
         "localeAssets": [
@@ -546,14 +651,14 @@
         "locale": "de",
         "status": "passed",
         "beforeTransferredBytes": 603511,
-        "transferredBytes": 600440,
-        "transferChangePercent": -0.51,
+        "transferredBytes": 600835,
+        "transferChangePercent": -0.44,
         "beforeDecodedBytes": 1897333,
-        "decodedBytes": 1858523,
-        "decodedChangePercent": -2.05,
+        "decodedBytes": 1859559,
+        "decodedChangePercent": -1.99,
         "beforeFirstUsefulMs": 499,
-        "firstUsefulMs": 244,
-        "firstContentfulPaintMs": 164,
+        "firstUsefulMs": 249,
+        "firstContentfulPaintMs": 176,
         "sessionReads": 1,
         "fallbackHeadingObserved": false,
         "localeAssets": [
@@ -570,14 +675,14 @@
         "locale": "lb",
         "status": "passed",
         "beforeTransferredBytes": 559420,
-        "transferredBytes": 562919,
-        "transferChangePercent": 0.63,
+        "transferredBytes": 563314,
+        "transferChangePercent": 0.7,
         "beforeDecodedBytes": 1766358,
-        "decodedBytes": 1732715,
-        "decodedChangePercent": -1.9,
+        "decodedBytes": 1733751,
+        "decodedChangePercent": -1.85,
         "beforeFirstUsefulMs": 198,
-        "firstUsefulMs": 213,
-        "firstContentfulPaintMs": null,
+        "firstUsefulMs": 232,
+        "firstContentfulPaintMs": 172,
         "sessionReads": 0,
         "fallbackHeadingObserved": false,
         "localeAssets": [
@@ -594,13 +699,13 @@
         "locale": "lb",
         "status": "passed",
         "beforeTransferredBytes": 603511,
-        "transferredBytes": 601057,
-        "transferChangePercent": -0.41,
+        "transferredBytes": 601452,
+        "transferChangePercent": -0.34,
         "beforeDecodedBytes": 1897333,
-        "decodedBytes": 1856413,
-        "decodedChangePercent": -2.16,
+        "decodedBytes": 1857449,
+        "decodedChangePercent": -2.1,
         "beforeFirstUsefulMs": 494,
-        "firstUsefulMs": 250,
+        "firstUsefulMs": 283,
         "firstContentfulPaintMs": 168,
         "sessionReads": 1,
         "fallbackHeadingObserved": false,
@@ -618,20 +723,20 @@
         "locale": "fr",
         "status": "passed",
         "beforeTransferredBytes": 560083,
-        "transferredBytes": 481824,
-        "transferChangePercent": -13.97,
+        "transferredBytes": 482179,
+        "transferChangePercent": -13.91,
         "beforeDecodedBytes": 1766358,
-        "decodedBytes": 1476251,
-        "decodedChangePercent": -16.42,
+        "decodedBytes": 1477287,
+        "decodedChangePercent": -16.37,
         "beforeFirstUsefulMs": 988,
-        "firstUsefulMs": 213,
-        "firstContentfulPaintMs": 164,
+        "firstUsefulMs": 218,
+        "firstContentfulPaintMs": 86,
         "sessionReads": 0,
         "fallbackHeadingObserved": false,
         "localeAssets": [
           {
             "path": "/assets/fr-zSDl4YZl.js",
-            "transferredBytes": 156858,
+            "transferredBytes": 156846,
             "decodedBytes": 514719
           }
         ]
@@ -642,20 +747,20 @@
         "locale": "fr",
         "status": "passed",
         "beforeTransferredBytes": 604380,
-        "transferredBytes": 520067,
-        "transferChangePercent": -13.95,
+        "transferredBytes": 520460,
+        "transferChangePercent": -13.89,
         "beforeDecodedBytes": 1897333,
-        "decodedBytes": 1599949,
-        "decodedChangePercent": -15.67,
+        "decodedBytes": 1600985,
+        "decodedChangePercent": -15.62,
         "beforeFirstUsefulMs": 571,
-        "firstUsefulMs": 248,
-        "firstContentfulPaintMs": 156,
+        "firstUsefulMs": 253,
+        "firstContentfulPaintMs": 149,
         "sessionReads": 1,
         "fallbackHeadingObserved": false,
         "localeAssets": [
           {
             "path": "/assets/fr-zSDl4YZl.js",
-            "transferredBytes": 156858,
+            "transferredBytes": 156859,
             "decodedBytes": 514719
           }
         ]
@@ -666,14 +771,14 @@
         "locale": "en",
         "status": "passed",
         "beforeTransferredBytes": 560078,
-        "transferredBytes": 478453,
-        "transferChangePercent": -14.57,
+        "transferredBytes": 478855,
+        "transferChangePercent": -14.5,
         "beforeDecodedBytes": 1766358,
-        "decodedBytes": 1463524,
-        "decodedChangePercent": -17.14,
+        "decodedBytes": 1464560,
+        "decodedChangePercent": -17.09,
         "beforeFirstUsefulMs": 292,
-        "firstUsefulMs": 200,
-        "firstContentfulPaintMs": 152,
+        "firstUsefulMs": 250,
+        "firstContentfulPaintMs": 168,
         "sessionReads": 0,
         "fallbackHeadingObserved": false,
         "localeAssets": [
@@ -690,20 +795,20 @@
         "locale": "en",
         "status": "passed",
         "beforeTransferredBytes": 604359,
-        "transferredBytes": 516698,
-        "transferChangePercent": -14.5,
+        "transferredBytes": 517091,
+        "transferChangePercent": -14.44,
         "beforeDecodedBytes": 1897333,
-        "decodedBytes": 1587222,
-        "decodedChangePercent": -16.34,
+        "decodedBytes": 1588258,
+        "decodedChangePercent": -16.29,
         "beforeFirstUsefulMs": 541,
-        "firstUsefulMs": 211,
-        "firstContentfulPaintMs": 138,
+        "firstUsefulMs": 250,
+        "firstContentfulPaintMs": 165,
         "sessionReads": 1,
         "fallbackHeadingObserved": false,
         "localeAssets": [
           {
             "path": "/assets/en-CLB6juxl.js",
-            "transferredBytes": 153497,
+            "transferredBytes": 153502,
             "decodedBytes": 501992
           }
         ]
@@ -714,14 +819,14 @@
         "locale": "de",
         "status": "passed",
         "beforeTransferredBytes": 560064,
-        "transferredBytes": 563253,
-        "transferChangePercent": 0.57,
+        "transferredBytes": 563648,
+        "transferChangePercent": 0.64,
         "beforeDecodedBytes": 1766358,
-        "decodedBytes": 1734825,
-        "decodedChangePercent": -1.79,
+        "decodedBytes": 1735861,
+        "decodedChangePercent": -1.73,
         "beforeFirstUsefulMs": 245,
-        "firstUsefulMs": 224,
-        "firstContentfulPaintMs": 170,
+        "firstUsefulMs": 236,
+        "firstContentfulPaintMs": 158,
         "sessionReads": 0,
         "fallbackHeadingObserved": false,
         "localeAssets": [
@@ -738,20 +843,20 @@
         "locale": "de",
         "status": "passed",
         "beforeTransferredBytes": 604353,
-        "transferredBytes": 601512,
-        "transferChangePercent": -0.47,
+        "transferredBytes": 601906,
+        "transferChangePercent": -0.4,
         "beforeDecodedBytes": 1897333,
-        "decodedBytes": 1858523,
-        "decodedChangePercent": -2.05,
+        "decodedBytes": 1859559,
+        "decodedChangePercent": -1.99,
         "beforeFirstUsefulMs": 515,
-        "firstUsefulMs": 241,
-        "firstContentfulPaintMs": 195,
+        "firstUsefulMs": 248,
+        "firstContentfulPaintMs": 149,
         "sessionReads": 1,
         "fallbackHeadingObserved": false,
         "localeAssets": [
           {
             "path": "/assets/de-BOHtNnH-.js",
-            "transferredBytes": 238305,
+            "transferredBytes": 238309,
             "decodedBytes": 773293
           }
         ]
@@ -762,20 +867,20 @@
         "locale": "lb",
         "status": "passed",
         "beforeTransferredBytes": 560077,
-        "transferredBytes": 563891,
-        "transferChangePercent": 0.68,
+        "transferredBytes": 564282,
+        "transferChangePercent": 0.75,
         "beforeDecodedBytes": 1766358,
-        "decodedBytes": 1732715,
-        "decodedChangePercent": -1.9,
+        "decodedBytes": 1733751,
+        "decodedChangePercent": -1.85,
         "beforeFirstUsefulMs": 244,
-        "firstUsefulMs": 220,
-        "firstContentfulPaintMs": 178,
+        "firstUsefulMs": 249,
+        "firstContentfulPaintMs": 165,
         "sessionReads": 0,
         "fallbackHeadingObserved": false,
         "localeAssets": [
           {
             "path": "/assets/lb-OlgR2aiH.js",
-            "transferredBytes": 238927,
+            "transferredBytes": 238930,
             "decodedBytes": 771183
           }
         ]
@@ -786,14 +891,14 @@
         "locale": "lb",
         "status": "passed",
         "beforeTransferredBytes": 604348,
-        "transferredBytes": 602129,
-        "transferChangePercent": -0.37,
+        "transferredBytes": 602516,
+        "transferChangePercent": -0.3,
         "beforeDecodedBytes": 1897333,
-        "decodedBytes": 1856413,
-        "decodedChangePercent": -2.16,
+        "decodedBytes": 1857449,
+        "decodedChangePercent": -2.1,
         "beforeFirstUsefulMs": 515,
-        "firstUsefulMs": 219,
-        "firstContentfulPaintMs": 145,
+        "firstUsefulMs": 254,
+        "firstContentfulPaintMs": 148,
         "sessionReads": 1,
         "fallbackHeadingObserved": false,
         "localeAssets": [
@@ -805,20 +910,20 @@
         ]
       }
     ],
-    "beforeSnapshot": "Pre-locale-split candidate, not clean main; single fresh-context samples on a shared host. Whole entry-graph comparison, not isolated causal attribution or production performance.",
+    "beforeSnapshot": "Pre-locale-split plain-Vite candidate, not clean main. Final candidate uses build:live public SSR and paint-frame observation. Single fresh contexts on a shared host; transfer is a whole entry-graph diagnostic. Timing methods differ, so no before/after latency comparison or production benchmark.",
     "beforeReport": {
       "file": "lifecycle-locale-before.json",
       "sha256": "75b6798dd7dada4258dc8a24d7b08f6d04c9efc3d9d188575ae6cbcad77505e1"
     },
     "afterReport": {
-      "file": "lifecycle-release-qualified-browser.json",
-      "sha256": "1462a3735e13d8b723e418f6c57084a0e2b486f7ecfedd0938cc359fc0049a99"
+      "file": "lifecycle-ci-corrected-browser.json",
+      "sha256": "abd0b50373c411d795338fa8098fcd827865cc9af345b4e5954de7e3cb2d2ff7"
     },
     "reviewedPriorSnapshot": "defebf60a0e4f2307be433ae199ba93212c9054dacf251e511f1f8efb586350c"
   },
   "builtFrontend": {
-    "indexSha256": "c7943a6a464c826d4f4598b7560cb2a7c9db5350779c1c212c76b249410325bc",
-    "assetsSha256": "aecfe1e70bbd25e9918f5e0afa8f7ec0d9782ab5525de28d4110b9e8dc87afad",
+    "indexSha256": "d4384c9b51146e1fb19ea0c04225246ff54d5d10611b896a81e63afd6c18b533",
+    "assetsSha256": "c3d21c181155bd0c5e1e7b76da7ffae511f5d0d472af1e12fa5968b4319fc641",
     "assets": [
       {
         "path": "/assets/ArrowLeft.es-ayk3peG5.js",
@@ -1231,14 +1336,14 @@
         "sha256": "089a442aa228f1263f21f3c4fdce1e2450db82bf9b7a3769dcb5ae1d0e8b10af"
       },
       {
-        "path": "/assets/index-D1uAjgU4.js",
-        "bytes": 694763,
-        "sha256": "9cf2594181867d3c30a76cdb179cc49feb28b5ac8ce50505330b4c8bb6384b1d"
+        "path": "/assets/index-BwOQHQoR.js",
+        "bytes": 695803,
+        "sha256": "ec759d8fa7b62319fa5ba5b7771b1fca2a252169a9456e610d75787cf0cfcc18"
       },
       {
-        "path": "/assets/index-DONVPSxE.css",
-        "bytes": 110785,
-        "sha256": "7331109fb1742662a0c78a09951a4974512445b9266a29d0eb6841809b0c9766"
+        "path": "/assets/index-Dc2rm32t.css",
+        "bytes": 110865,
+        "sha256": "7fa3ab5db00757aa2f0aa00c179638b27d821b6f2526bbfce7e99064f4d8c344"
       },
       {
         "path": "/assets/jsx-runtime-Caymlcyp.js",
@@ -1301,14 +1406,14 @@
         "sha256": "e7dd808d55019073a81fb948ff9143f0e79587cc7b71f93bc67e08a975eedb78"
       },
       {
+        "path": "/assets/personal-area-8a0M0QuS.js",
+        "bytes": 40103,
+        "sha256": "ebca046e2cd9696d6702c8d91a81650e2f182374c8f521d92f657c774b7e0750"
+      },
+      {
         "path": "/assets/personal-area-BYeAF14T.css",
         "bytes": 2397,
         "sha256": "47323eabd6b7a4f138f2cb8f0876dd17e0e60ffdc00488de1889b1405339bd3a"
-      },
-      {
-        "path": "/assets/personal-area-CRxPvXVf.js",
-        "bytes": 39921,
-        "sha256": "fccb7c3eefe8d9fcc6f3ca9f79f8b9f1969b32d4e75edcc6950f5b599f49ee39"
       },
       {
         "path": "/assets/postal-address-page-CRFXwDQu.js",
@@ -1431,19 +1536,19 @@
         "sha256": "15fbee856e1363d68320bc1620c4e035cd510be0d4efb45257e7746249c9f6fc"
       },
       {
-        "path": "/assets/secure-distribution-pages-B7r2BgF-.js",
+        "path": "/assets/secure-distribution-pages-3jBuFwgo.js",
         "bytes": 22543,
-        "sha256": "8dc567f683736140f52ae3d7bc469ec37d2d30a66ca45842f34165b6a970641c"
+        "sha256": "9f49d71c45e09a34717828942b104066ddcd4a3fedaf7ecf42bd138ad3047ee2"
       },
       {
-        "path": "/assets/secure-documents-OStU135U.js",
+        "path": "/assets/secure-documents-By5fm0S2.js",
         "bytes": 2553,
         "sha256": "58327d371903742f2dd40c8cdd2dec21cce3cc3387445bb616ff0648fa7a53e3"
       },
       {
-        "path": "/assets/secure-documents-U7AYqRHb.css",
-        "bytes": 14859,
-        "sha256": "cb14b4e9a2dc5bee5a3c4c602a98cdc03231f67b23691826206fd3e0d8a18c7c"
+        "path": "/assets/secure-documents-CQRYUoSS.css",
+        "bytes": 14876,
+        "sha256": "e3d3c58bfe54612854973084d06c334d591740047ac5d2c108a17d16f6649a9e"
       },
       {
         "path": "/assets/secure-source-copy-DjUJlrxy.js",
@@ -1520,7 +1625,7 @@
   "inspectedVisualEvidence": [
     {
       "file": "docs/evidence/lifecycle-schedule-desktop-2026-11-10.png",
-      "sha256": "d390c935db1b2b201f31e4ec39363c71bdc235bd05e770aa09feaeef79aeca14"
+      "sha256": "5127612d151218a9f270890d7174173cadc00e2a83904cd96fe30749ac24b54a"
     },
     {
       "file": "docs/evidence/lifecycle-recipient-mobile-2026-11-10.png",
@@ -1636,27 +1741,22 @@
   "checks": {
     "applicationBuild": {
       "passed": true,
-      "file": "lifecycle-release-final-build.log",
-      "sha256": "61e31a2b949b7fd4a756b039a1c74ae234562c2216990065ad3c745b9b8410f6"
+      "file": "lifecycle-ci-corrected-build-live.log",
+      "sha256": "b0fe1de33c6f1fdb93552b6d935dae90b3f79fb0bfb9521b99f224a48accccd6"
     },
     "finalApiBundle": {
       "passed": true,
       "file": "lifecycle-api-build-final.log",
       "sha256": "3f969989be297724f6396645b90cd359f667e49ea8d3e74fcd114bcf12a18a82"
     },
-    "restoredIdenticalBrowserArtifacts": {
-      "passed": true,
-      "file": "lifecycle-final-artifact-build.log",
-      "sha256": "f5c2e5d477556c98c2eec1918ee4c086ea80af6b20130f311ae32066f8b2296a"
-    },
     "finalTypecheck": {
       "passed": true,
-      "file": "lifecycle-typecheck-final.log",
+      "file": "lifecycle-ci-corrected-typecheck.log",
       "sha256": "02d3a8bb21e7190a5885470bc5dbe7297e36ec625ded569a3fdeee811531356b"
     },
     "lintAndOwnership": {
       "passed": true,
-      "file": "lifecycle-release-final-lint.log",
+      "file": "lifecycle-ci-corrected-lint.log",
       "sha256": "f9e953aac9f8737487b55494455eba333a1a0b7bde1e695483020e51fe1256e2"
     },
     "integrationSynchronization": {
@@ -1699,9 +1799,9 @@
     "apps/api/src/mcp.ts": "fc0ebf1e1c08f4b048b60b379d72d16aeac13db28548e0c3a70ba3f3a6f923a9",
     "apps/api/src/saved-recipients.ts": "f9bde0f3851e684bc0b63b19ca0a7fc5584942eaa2bba460cbb0d1fb6a0339ae",
     "apps/web/applications.json": "44e31f6ddc777c6219ea6ba5637996f625f1d8cb403beb08ecc87c996e5e6adb",
-    "apps/web/public/locale-init.js": "0a17a217e33e022de41208b55c0b141255c4f50d9ce3c011a253457cf30c20bb",
+    "apps/web/public/locale-init.js": "28f07b3d3d3d761b1e9624c19dff00cf6ac1fe7712aef1e5442eab7e19785229",
     "apps/web/public/openapi.json": "1aa81d5cf3f1754909be0233de46ce53b2fdb7900184deb5bf63cb2961d55012",
-    "apps/web/src/App.tsx": "10cdeade6532f26ed1ec42fa7c859a7d48566c3b52574d9832263bb80f74be53",
+    "apps/web/src/App.tsx": "c827e6c0efd0c09272a4dd10e940639f5af369da284fef3830a633a4e857ac98",
     "apps/web/src/account-page.tsx": "f9f7235cc6c3925aa7cdf6920b171e84cb82770fbf5d6206233e21f5a6b85844",
     "apps/web/src/action-outcome-tray.tsx": "8bcf1135d9fdabb057696616cfb8755a7415c6b68d1389051324285ac25cb7a7",
     "apps/web/src/action-outcomes.ts": "e49d05bd9b3c6dbc3ea7a21b6b1d866a6183b05db3a61370f3c4a561e817d7b5",
@@ -1735,7 +1835,7 @@
     "apps/web/src/client-navigation.ts": "7a0a41e8c135f68ef924d10a2f615fa7eca90b685a20f69319382699a70a2c32",
     "apps/web/src/client-polling.ts": "02979af6ee37c8e3c2ef252b735699ebc2ba1ad5ba3976a5471ea59a7974e9e0",
     "apps/web/src/client-resources.ts": "047bd476b206d13a3c76e138d92d7dba2797dd8e824165018b59b61e5a8a5c60",
-    "apps/web/src/client-session-bootstrap.ts": "5abfaa19cc6db1ee8b49ffc62a53a83a07622c1934db042b97c7ad2aa0d0f2bb",
+    "apps/web/src/client-session-bootstrap.ts": "bc80908f472553c619c98b3d395c358547c1875cc3411d409dd98a975cb51894",
     "apps/web/src/client-write-recovery.ts": "59d2b4ae359db14316c0777c095ad00d9136319f811b0a8f303e504ac95c40c9",
     "apps/web/src/command-palette.tsx": "8edd997dba5dcc713248ebe42e4fabd7ce4d66bb88b9f0f10c554a44db59630f",
     "apps/web/src/components.tsx": "8a4dd4a9734ed4efa393956d438b850ed6d44af4bc24c7a12775ea4ea0e576a2",
@@ -1778,14 +1878,14 @@
     "apps/web/src/locales/runtime/fr.json": "4c7bd7a3b467fcc1b676746732f8d929a801ef7c3d07c30ce435b07de67f21ba",
     "apps/web/src/locales/runtime/lb.json": "7fd40f4267fc025cc4cde3649fd70273f79444a85c609b58bc4b57ade9247a15",
     "apps/web/src/login-page.tsx": "f80eed090ff3a577d3a4024de9ead00012e47785d6377d13c25f6f7f31b0b150",
-    "apps/web/src/main.tsx": "0a129edc3bf5ae103551e481ae671ed477954587c5dc08be3b95df0e24e2d225",
+    "apps/web/src/main.tsx": "e65e3909849bda5f9f395b29a5d08de457affec9a2e6ce812f42505c7ed85cd5",
     "apps/web/src/message-catalogs-source.ts": "700afadcb09adb377c922db2524697c761b1723471a5bb95e0c504d97babbc39",
     "apps/web/src/messages.ts": "bd54a95fa33703d902c10f2562e9d1f576a43714f16030930b4deb22f5a0697b",
     "apps/web/src/overview-page.tsx": "73bdb35c0161fd3b3121844fa9efe1ccf100aa42579499ddeb6b112e7e810e63",
     "apps/web/src/pdf-check-public.tsx": "805dc06d214bd72cbd383a90975018b6b92cbf71426e7d315e4a80a433268d1c",
     "apps/web/src/pdf-validation.tsx": "fa0ed2dd86fe94b2b661d8a3c53b4ef6d8a8557fd855a983b05a024f262993f6",
     "apps/web/src/personal-document-claim.tsx": "157deac85551435d61417443c1757b4504674f95050f30807ca6ec9681947f16",
-    "apps/web/src/personal-document-list.tsx": "c19f0fb76c53f018e267fa88d88b1e68c393761ae8eb828c447c3ace821907ee",
+    "apps/web/src/personal-document-list.tsx": "c2cbc6ae7ced4cc3565c8854e3c3a2fca46f5fe6626f9d9d987c6345e93cc1ad",
     "apps/web/src/personal-document-reader.tsx": "0dd890c70b4698ac84fa6fed6666b0121712faf08c992e4633d14ffa171b5d10",
     "apps/web/src/personal-space.tsx": "cf792d7fd6d35ab1baada3ef3339a0656d6cefc98c7da816ef7a3b1aa4cb61ae",
     "apps/web/src/postal-review-page.tsx": "0dedb3b57595ac6825b65f74372542688af0326e34218bc3ed888382721ba376",
@@ -1799,14 +1899,14 @@
     "apps/web/src/schedule-pages.tsx": "14a82f4ed65eccdc23749fb5bfcb3de49efcfc26e03b00bfab16fb9778072daf",
     "apps/web/src/secure-audit-history.tsx": "5d885e8b5a753d29269254daef853ec56bd06a9adcc996f6f2e81df1597c9aac",
     "apps/web/src/secure-distribution-pages.tsx": "6fbfc89b2564fc5801cdaaf0226e5e86d280f096a27936ee9c06c9eff29972dc",
-    "apps/web/src/secure-documents.css": "418dd39ed09c6353dd713b15e92c32e1aa34d1b0fa845958a64935e3a14062b3",
+    "apps/web/src/secure-documents.css": "898a1362e69870cb5c15e65dee6ee1aa03f99403078d2b9f7f526de128f8af89",
     "apps/web/src/secure-source-copy.tsx": "727ec1c9463d6e043b5c42c39b1bbf24cadc9b058d5b9c2bd278ec5da3d0e0a4",
     "apps/web/src/space-switcher.tsx": "384f3d71a907715de30b0ad72761c726a656c346d1f637b24843e62f40e00f84",
     "apps/web/src/styles-adaptations.css": "0e6a7e4c0eecd1dcff36ce9102d94fa5ccd4ef345e3113c3ab1438fadd83d033",
     "apps/web/src/styles-documents.css": "dfadcfc395a45b8b9f67ed9973e5bceb74d97f43de15b80f9818e2bc951faef3",
     "apps/web/src/styles-foundation.css": "dccf166b88edb8c90a28f7a2faa9562e042b2ea2215d7b9fc1cd21181b1ce779",
     "apps/web/src/styles-operations.css": "066f3fcc8380d4e9390eda171a9a911790cb53ff336f108435c5ac416d1726fd",
-    "apps/web/src/styles-public.css": "c3af8cb4d8353337dbd8e7379361a4c9734a8119a5a3f386e33e8a8a5cd74c74",
+    "apps/web/src/styles-public.css": "cfe2fd855838d6925d14954514f18ddb7e848244469e5c193d94e77164fa4c61",
     "apps/web/src/styles-responsive.css": "49010440e4c8d61cd50ac256a60e1414219647a29cbacca61d738ba0732826da",
     "apps/web/src/styles-workspace.css": "10028f5502932d520a1bab475be2606a8f50ca8d330d1ead6bd2b2ae879f6adf",
     "apps/web/src/styles.css": "20ee020793d002163af66bc97da566ab38e11ad56bf51c4aae6e6cb02769a00e",
@@ -1868,16 +1968,27 @@
     "packages/contracts/src/saved-recipients.ts": "a2b17fc4caefdad82668c2bf043964d2af302336c75a3e69bef9ec58f5b741af",
     "packages/domain/src/index.ts": "e1655966aaa664a81bc5d8854bc6e0d4fbd73f44b3088fbf6396376391900553",
     "scripts/build-locale-catalogs.mjs": "54231852c02906ffefd6c2d81494e60bb42c1fb8f4a1d79dbd9ccc42f837727d",
+    "scripts/build-public-pages.mjs": "f82b0c9498c17edd5d2ee2e6583b544b2ee42ac116893bc4c873510138a5806c",
     "scripts/build-social-card.mjs": "051dc5aeb3f48493f1d648681522a28be0456c35b53ccd8513168067b9d14389",
     "scripts/update-lifecycle-openapi.ts": "1cfb8fc12aea2de33db8cc2f6e51bc11abce779b81b580ce2b84b228b76ac8f0",
     "tests/belvedere-e2e/control-tower.spec.ts": "13031289931b51927d55b04536010dbca15dfe9fe3ff2d356a1d8e2bc2825948",
     "tests/belvedere-e2e/locale.spec.ts": "e977911f8bacbd4d2d8f7930e42582df98fc8b0a054d5b42e5ab06923769e169",
+    "tests/distribution-e2e/fixtures.ts": "a3189c41fc52c0f19bdb6168f10388fe493f7ae0085be2b18b5b7168d5b9fabb",
+    "tests/e2e/account-identity.spec.ts": "c198729606b393bf11ee9fb16f4bafdc4fa36a4fda2886a44cf4481d23e73537",
+    "tests/e2e/assistant-hub.spec.ts": "327277a131fa33d49e1b62c9cd4aa0609fae0c3a6380c6c61503382e170b6168",
     "tests/e2e/customer-webhooks.spec.ts": "18af738134f7814390ce7f554e0a1323ce2f4f1e236274a44c0e94e2c80d5ca5",
+    "tests/e2e/dashboard.spec.ts": "ab153f3b6197cd5f7726afb01fadb664e6da34df99ffb43094eb904ee915e25d",
     "tests/e2e/dispatch-schedules.spec.ts": "dcc40936a747f95bc37bfe7bb0c201892a135094e21dca5d4243be76973e57c8",
     "tests/e2e/lifecycle-accessibility.spec.ts": "a4b8a85b393ba64d95cf66033271c89a7edd1aee91df5013d1054dfa9faee5a0",
     "tests/e2e/lifecycle-workspace.spec.ts": "436aed653bd6c30a283a52a731918eb232f9e946440b87bbf9d2776dfc41aa20",
-    "tests/e2e/locale-loading.spec.ts": "3c6810b45a820307992b2ad3593f765283163dce972f161c9ab2fad9601f5c76",
+    "tests/e2e/locale-loading.spec.ts": "1289867d1648ed2eca352f5056325a424a49e3363439d6ced36d91dd206c37ca",
+    "tests/e2e/personal-entry-race.spec.ts": "ade30a4b6da00ce978dd0c409f0ae216198766b7dc19090134e3a9dfdfbda853",
+    "tests/e2e/route-code-recovery.spec.ts": "6cfd48cad682cecc8e2cc0875ad8270de768996c9215d998c242b9d09dec94dc",
     "tests/e2e/session-authority-races.spec.ts": "c56c2c66e736d1f6f9f2dfafcd812791c93686b4c0fa8f25a97bdfffeb1a009e",
+    "tests/e2e/studio-space.spec.ts": "00f343bb376dbea2579e1c87eb24f22185449c6c351b8030cfc4fbb8de430b67",
+    "tests/e2e/workspace-administration.spec.ts": "90627fb09de8ae6870a256615acce8d3736ee2e5a117f256589d6e375cd9cd34",
+    "tests/e2e/workspace-route-performance.spec.ts": "45322afbcebd6af5f88d3313a5d2e82630410f61fe203de806a139968167668f",
+    "tests/e2e/workspace-switcher-layering.spec.ts": "cac1e5f2aca00e06b900cdec89ac919c4064bcdc435efb8ea3b0bc00a816cab7",
     "tests/helpers/historical-acceptance.ts": "84bd017bf20f19225b84facd0299f228d8f26cdd6806061dde78bc39d71db30e",
     "tests/helpers/scheduled-production-fixture.ts": "353c2fae37dd78b5e0e553673aa92ba89bff1e0081ef496de3e4cada3e83fdc6",
     "tests/integration/account-deletion.test.ts": "dce3a8763eb344937e27528996f62176bff90aef4edb98f953fa09421b0be69c",
@@ -1898,14 +2009,15 @@
     "tests/unit/belvedere-locale.test.ts": "fe0b55d368958731960e85063f670511dd61cd91c106527a52d19c3e1792ba09",
     "tests/unit/belvedere.test.ts": "664ab4450541f2d635e9d67957b0fa11235a24e362f98190a366f6d526f66bee",
     "tests/unit/client-foundations.test.ts": "a8e52d60881629fe5644ea79861b9009128f87a3d8d864be54528a7dbe1e13c9",
-    "tests/unit/client-session-bootstrap.test.ts": "6a75c9b269db55e684efbbb5ac65876b75c0071a3f9c24dc54e31949d5e29e05",
+    "tests/unit/client-session-bootstrap.test.ts": "e516b613fc40a521dd13161575a29b0d00531a22969a4027e79bdec512e3c865",
     "tests/unit/locale-projections.test.ts": "130733ae3efd5a73de4b3b990b01fa358fe4a918090d7e7db4e44a1af18786b1",
     "tests/unit/mcp-annotation-audit.test.ts": "e9e8804988b98bf73d8ddb051f9af652e2f41c1430aa6c3a14eaadad47deefc4",
     "tests/unit/mcp-integrations.test.ts": "5326b181852d27b4747a8f0b8a412b642c5823574537f860c0c6e3315fce6fc5",
+    "tests/unit/public-locale-bootstrap.test.ts": "077180444af0fa3dc4e7bc9cb50cd6f8e702475013bda691cd21dd948c6c9953",
     "tests/unit/table-views.test.ts": "fe92a71cdc1f44cb866c77188c2ded59ff1a1088066ce355d31c051cbb8ea538",
     "tests/unit/web-api-cancellation.test.ts": "c4542f644affcb2de0a3b1be818bd3c029bc487728e39925a6d82cf84c18d323"
   },
-  "sourceHashesSha256": "5f76d22ae9ce6f2d13fa0021b657eb8aa420e58733d38cd3e2b1ec8d92e43b24",
+  "sourceHashesSha256": "8810d88f023792cf1c172f5c8df5106f47817dcac644cba7f48e69713331647a",
   "limitations": [
     "No production deployment, activation, external webhook delivery, real provider send, marketplace publication or paid resource provisioning.",
     "Scheduling excludes postal, protected/secure distribution and PDF-email flows that retain contemporaneous consent gates.",

@@ -789,7 +789,8 @@
 }
 
 @media (max-width: 1024px) and (max-height: 640px) {
-  .personal-space-v2 .workspace-identity-menu {
+  /* Keep the viewport clamp stronger than the shared downward-opening rule. */
+  .personal-space-v2 .sidebar-account .workspace-identity-menu {
     position: fixed;
     inset: 16px 16px auto;
     width: auto;

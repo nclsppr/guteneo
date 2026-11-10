@@ -39,21 +39,52 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
       await page.addInitScript(() => {
         const seen: { title: string; lang: string }[] = [];
         Object.assign(window, { __localeHeadings: seen });
-        new MutationObserver(() => {
-          const title = document.querySelector("main h1")?.textContent?.trim();
-          if (
-            title &&
-            !seen.some(
-              (item) =>
-                item.title === title &&
-                item.lang === document.documentElement.lang,
+        let queued = false;
+        const observePaint = () => {
+          if (queued) return;
+          queued = true;
+          requestAnimationFrame(() => {
+            queued = false;
+            // Parser-time DOM can exist before render-blocking styles. Inspect a
+            // paint opportunity after those styles apply, rather than counting
+            // unstyled content the browser has not been able to paint.
+            if (
+              [
+                ...document.querySelectorAll<HTMLLinkElement>(
+                  'link[rel="stylesheet"]',
+                ),
+              ].some((link) => !link.sheet)
+            ) {
+              observePaint();
+              return;
+            }
+            const heading = document.querySelector<HTMLElement>("main h1");
+            // SSR text hidden before paint is not a language flash. Observe its
+            // visibility changes too, so revealing a wrong language still fails.
+            if (
+              !heading ||
+              heading.getClientRects().length === 0 ||
+              getComputedStyle(heading).visibility !== "visible"
             )
-          )
-            seen.push({ title, lang: document.documentElement.lang });
-        }).observe(document, {
+              return;
+            const title = heading.textContent?.trim();
+            if (
+              title &&
+              !seen.some(
+                (item) =>
+                  item.title === title &&
+                  item.lang === document.documentElement.lang,
+              )
+            )
+              seen.push({ title, lang: document.documentElement.lang });
+          });
+        };
+        new MutationObserver(observePaint).observe(document, {
           childList: true,
           subtree: true,
           characterData: true,
+          attributes: true,
+          attributeFilter: ["lang", "style", "class", "hidden"],
         });
       });
       const started = Date.now();
@@ -69,9 +100,21 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
           }),
         ).toBeVisible();
       else {
+        // Measure the enhanced client entry consistently with a plain Vite
+        // entry; crawlable SSR text can already be useful before code finishes.
+        await expect(
+          page.locator("#root > [data-public-prerendered]"),
+        ).toHaveCount(0);
+        await expect(page.locator("main h1").first()).toBeVisible();
         await expect(page.locator("main h1").first()).not.toBeEmpty();
         await expect(page.locator("html")).toHaveAttribute("lang", locale);
       }
+      await page.evaluate(
+        () =>
+          new Promise<void>((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+          ),
+      );
       const metrics = await page.evaluate(() => {
         const resources = performance.getEntriesByType(
           "resource",
@@ -131,6 +174,7 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
         expect(apiReads.filter((path) => path === "/api/session")).toHaveLength(
           1,
         );
+      expect(metrics.headings.length).toBeGreaterThan(0);
       if (space === "workspace")
         expect(
           metrics.headings.every(

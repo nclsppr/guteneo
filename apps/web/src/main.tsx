@@ -15,6 +15,8 @@ import {
   startInitialWorkspaceSession,
   startInitialPersonalSession,
   readInitialWorkspaceSession,
+  initialSessionIsCurrent,
+  isInitialSessionObsolete,
 } from "./client-session-bootstrap";
 import {
   preloadWorkspaceRoute,
@@ -71,6 +73,40 @@ if (isBelvedere)
   void import("./belvedere-view-loader")
     .then((module) => module.preloadBelvedereView(window.location.hash))
     .catch(() => undefined);
+async function initializePrivateEntryLocale() {
+  for (;;) {
+    const href = window.location.href;
+    const route = window.location.hash.slice(1);
+    if (!route.startsWith("/app")) {
+      initializeLocale();
+      return;
+    }
+    const personal =
+      /^\/app\/(my-documents|services|personal-account)(\/|$|\?)/.test(route);
+    if (personal) void workspaceRouteModules.personal().catch(() => undefined);
+    else void preloadWorkspaceRoute(route).catch(() => undefined);
+    if (personal && document.visibilityState === "hidden") {
+      initializeLocale(true);
+      return;
+    }
+    const request = personal
+      ? startInitialPersonalSession()
+      : startInitialWorkspaceSession();
+    const initial = await request.catch((error: unknown) => {
+      if (isInitialSessionObsolete(error)) return "obsolete" as const;
+      return null;
+    });
+    if (initial === "obsolete" || window.location.href !== href) continue;
+    if (initial) applyAccountLocale(initial.user.preferredLocale, false);
+    else initializeLocale(true);
+    await waitForLocale();
+    // Focus/visibility can change the account while its language pack loads.
+    if (!initialSessionIsCurrent(request) || window.location.href !== href)
+      continue;
+    return;
+  }
+}
+let entryLocaleReady = true;
 if (isBelvedere) {
   applyAccountLocale(
     document.querySelector<HTMLMetaElement>(
@@ -85,32 +121,23 @@ if (isBelvedere) {
   import.meta.env.VITE_PUBLIC_PREVIEW !== "true" &&
   window.location.hash.startsWith("#/app")
 ) {
-  const route = window.location.hash.slice(1);
-  const personal =
-    /^\/app\/(my-documents|services|personal-account)(\/|$|\?)/.test(route);
-  if (personal) void workspaceRouteModules.personal().catch(() => undefined);
-  else void preloadWorkspaceRoute(route).catch(() => undefined);
-  const initial =
-    personal && document.visibilityState === "hidden"
-      ? null
-      : await (
-          personal
-            ? startInitialPersonalSession()
-            : startInitialWorkspaceSession()
-        ).catch(() => null);
-  if (initial) applyAccountLocale(initial.user.preferredLocale, false);
-  else initializeLocale(true);
+  entryLocaleReady = await initializePrivateEntryLocale().then(
+    () => true,
+    () => false,
+  );
 } else {
   initializeLocale();
 }
 // Keep server-rendered public text until the selected locale is complete.
-const localeReady = await Promise.all([
-  waitForLocale(),
-  ...(isBelvedere ? [loadBelvedereLocaleData(getRequestedLocale())] : []),
-]).then(
-  () => true,
-  () => false,
-);
+const localeReady =
+  entryLocaleReady &&
+  (await Promise.all([
+    waitForLocale(),
+    ...(isBelvedere ? [loadBelvedereLocaleData(getRequestedLocale())] : []),
+  ]).then(
+    () => true,
+    () => false,
+  ));
 observePublicLinks(document.getElementById("root")!);
 const Belvedere = React.lazy(() => belvedereModule ?? import("./belvedere"));
 

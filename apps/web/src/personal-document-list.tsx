@@ -158,6 +158,9 @@ export function PersonalDocumentList({
   const [version, setVersion] = useState(0);
   const [summary, setSummary] = useState<PersonalDocumentSummary>();
   const [searchInput, setSearchInput] = useState(query.search);
+  const handledRevision = useRef(revision);
+  const latestRevision = useRef(revision);
+  latestRevision.current = revision;
   const navigation = useAction(
     `${sessionAuthorityKey(session)}:${JSON.stringify(query)}:${active}`,
   );
@@ -181,6 +184,7 @@ export function PersonalDocumentList({
   useEffect(() => setSearchInput(query.search), [query.search]);
   useEffect(() => {
     const controller = new AbortController();
+    const requestedRevision = latestRevision.current;
     generation.current += 1;
     accessDenied.current = false;
     setResult(undefined);
@@ -191,6 +195,10 @@ export function PersonalDocumentList({
     personalApi<ListPage>(listPath, session, { signal: controller.signal })
       .then((response) => {
         if (controller.signal.aborted || accessDenied.current) return;
+        handledRevision.current = Math.max(
+          handledRevision.current,
+          requestedRevision,
+        );
         setLoadedPath(listPath);
         setResult(response);
       })
@@ -242,12 +250,19 @@ export function PersonalDocumentList({
     );
     return () => controller.abort();
   }, [session, version, revision]);
-  async function openPage(stack: (string | null)[]) {
+  async function openPage(stack: (string | null)[], changedRevision?: number) {
     if (loading || navigation.pending || !result || accessDenied.current)
       return;
     const controller = new AbortController();
     paginationRequest.current = controller;
     const current = generation.current;
+    const acknowledgeChange = () => {
+      if (changedRevision !== undefined)
+        handledRevision.current = Math.max(
+          handledRevision.current,
+          changedRevision,
+        );
+    };
     await navigation.run(async (view) => {
       try {
         let next: ListPage;
@@ -274,6 +289,7 @@ export function PersonalDocumentList({
           if (next.items.length || nextStack.length === 1) break;
           nextStack = nextStack.slice(0, -1);
         }
+        acknowledgeChange();
         setResult(next);
         setCursors(nextStack);
         document
@@ -282,6 +298,9 @@ export function PersonalDocumentList({
       } catch (cause) {
         view.checkpoint();
         if (controller.signal.aborted || current !== generation.current) return;
+        // A current refusal/error stays visible for explicit recovery. An
+        // obsolete view never consumes the pending change or retries itself.
+        acknowledgeChange();
         // A refused page removes everything already shown for this account.
         if (cause instanceof ApiError && [401, 403].includes(cause.status)) {
           accessDenied.current = true;
@@ -298,16 +317,24 @@ export function PersonalDocumentList({
   }
   const reloadPage = useRef(openPage);
   reloadPage.current = openPage;
-  const handledRevision = useRef(revision);
   useEffect(() => {
     // A copy saved or deleted from a document changes this page: reread it at
-    // the same position instead of returning to the first page.
-    if (revision === handledRevision.current) return;
-    handledRevision.current = revision;
-    void reloadPage.current(cursors);
-    // Only a new revision rereads; the cursor stack is read at that moment.
+    // the same position once the list owns the visible view again. The reader's
+    // return navigation must not abandon and consume this recovery read.
+    if (
+      !active ||
+      loading ||
+      navigation.pending ||
+      !result ||
+      accessDenied.current ||
+      revision === handledRevision.current
+    )
+      return;
+    void reloadPage.current(cursors, revision);
+    // A pending change retries after an obsolete read, never after a current
+    // error. The cursor stack is read only when this visible view is ready.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [revision]);
+  }, [active, revision, loading, navigation.pending, result]);
   useEffect(() => {
     if (!active || !opened.current) return;
     const { id, scrollY } = opened.current;

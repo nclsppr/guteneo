@@ -276,6 +276,7 @@ test("an administrator manages the workspace in Administration, not in the profi
     "Membres",
     "Accès",
     "Journal d’audit",
+    "Webhooks clients",
     "Facturation",
     "Paramètres",
   ]);

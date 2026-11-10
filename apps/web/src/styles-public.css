@@ -1,4 +1,10 @@
 /* Homepage extensions inherit the printing-house typography and open rules. */
+/* A public HTML fallback cannot know a private hash or a newer browser locale.
+ * React replaces this SSR-only wrapper; client-rendered pages stay visible. */
+html[data-public-bootstrap-pending="true"] [data-public-prerendered] {
+  display: none;
+}
+
 .installation-section,
 .pricing-section,
 .faq-section {
