@@ -83,6 +83,30 @@ effective role/options, credential and document-policy facts. Route identity is
 not a substitute for that authority revision. A stale failure cannot expire a
 replacement session, and current authority refusals clear private UI models.
 
+Application and workspace disclosure panels bind their open state to the accepted
+navigation revision and current authority, rather than the route whose React
+transition last finished. A menu opened after a navigation was accepted must
+survive that earlier page's delayed code/render commit. A new accepted navigation
+or authority replacement closes the old menu, including A→B→A; a vetoed dirty-form
+intent preserves it. Main-content focus belongs to its initiating navigation and
+must yield to a newer user interaction, including a pointer-opened panel on Safari
+where clicking a button need not focus it. Escape, outside press, peer-panel
+dismissal and normal route-focus recovery remain intact. These are local frame
+rules: opening panels adds no API call or business authority. Qualify the deferred
+commit boundary by deliberately holding a route module, not by adding sleeps or
+weakening pointer/focus assertions.
+
+Route acceptance guards cover both native `popstate` and its `hashchange`
+acknowledgement, since WebKit/Chromium can emit the former before the latter for
+a fragment change. A veto must restore the accepted address before the shared
+navigation clock observes it. Fragment route rendering follows its paired native
+hash acknowledgement. A focus claim survives until its transition is no longer
+pending, then uses one owned render frame after the navigation clock settles.
+The callback rechecks the claim, actual route, authority and visit revision,
+plus the connected, current, non-inert main. New interaction, replacement or
+unmount cancels it. Only one focus attempt is allowed; no timeout, polling/retry
+loop, forced style flush or extra module/account request substitutes for readiness.
+
 `client-resources.ts` shares only allowlisted collection reads in memory: five
 seconds, at most sixty-four entries and 32,768 serialized characters per stored
 value, partitioned by authority/locale/path. Every mutation attempt, including

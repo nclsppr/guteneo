@@ -3,6 +3,7 @@ import type { Page } from "@playwright/test";
 type FrameResult = { executed: number; probes: number; pending: number };
 type BrowserFrames = {
   settle(): Promise<void>;
+  stepOneFrame(): FrameResult;
   resume(): FrameResult;
   restore(): void;
 };
@@ -38,6 +39,23 @@ export async function deferAnimationFrames(page: Page) {
             nativeRequest.call(window, () => resolve()),
           );
         }),
+      stepOneFrame: () => {
+        // One browser frame runs only callbacks already scheduled. Callbacks
+        // added by those callbacks belong to a later frame and stay deferred.
+        const callbacks = [...pending.entries()];
+        if (callbacks.length > 1000)
+          throw new Error(
+            "Deferred animation frame exceeds its callback limit.",
+          );
+        let executed = 0;
+        const timestamp = performance.now();
+        for (const [id, callback] of callbacks) {
+          if (!pending.delete(id)) continue;
+          executed += 1;
+          callback(timestamp);
+        }
+        return { executed, probes, pending: pending.size };
+      },
       resume: () => {
         let executed = 0;
         try {
@@ -68,6 +86,10 @@ export async function deferAnimationFrames(page: Page) {
     settle: () =>
       page.evaluate(() =>
         (window as FrameHost).guteneoDeferredAnimationFrames!.settle(),
+      ),
+    stepOneFrame: () =>
+      page.evaluate(() =>
+        (window as FrameHost).guteneoDeferredAnimationFrames!.stepOneFrame(),
       ),
     resume: () =>
       page.evaluate(async () => {

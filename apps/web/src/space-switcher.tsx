@@ -10,15 +10,21 @@ import {
   ShieldCheck,
   type Icon,
 } from "@phosphor-icons/react";
-import { useEffect, useId, useRef, useState } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { getSessionAuthorityKey, subscribeSessionAuthority } from "./api";
+import {
+  clientNavigationRevision,
+  subscribeClientNavigation,
+} from "./client-navigation";
 import { spaceHome, type ApplicationSpace } from "./app-routes";
 import { workspaceBridgeRoute } from "./workspace-entry";
-import {
-  ErrorNotice,
-  NAVIGATION_PANEL_OPEN,
-  useAction,
-  useRoute,
-} from "./components";
+import { ErrorNotice, NAVIGATION_PANEL_OPEN, useAction } from "./components";
 import { msg, msgIn } from "./messages";
 import "./space-switcher.css";
 
@@ -33,12 +39,24 @@ function initial(name: string) {
 
 /** Open state shared by both switchers: any navigation, Escape or outside press closes. */
 function usePanel() {
-  const route = useRoute();
-  // Opening records the committed route, so navigating away closes the panel.
-  const [openOn, setOpenOn] = useState<string>();
-  // Forget it on navigation, so returning to the same address keeps it closed.
-  if (openOn !== undefined && openOn !== route) setOpenOn(undefined);
-  const open = openOn === route;
+  const navigation = useSyncExternalStore(
+    subscribeClientNavigation,
+    clientNavigationRevision,
+    clientNavigationRevision,
+  );
+  const authority = useSyncExternalStore(
+    subscribeSessionAuthority,
+    getSessionAuthorityKey,
+    getSessionAuthorityKey,
+  );
+  const [openOn, setOpenOn] = useState<{
+    navigation: number;
+    authority: string;
+  }>();
+  // A pending route can commit after a newer panel opens. Its accepted visit
+  // already owns that panel; only a later visit or authority epoch closes it.
+  const open =
+    openOn?.navigation === navigation && openOn.authority === authority;
   const area = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const id = useId();
@@ -55,20 +73,16 @@ function usePanel() {
       setOpenOn(undefined);
       trigger.current?.focus();
     };
-    // Two quick address changes may render once; the event still closes it.
-    const navigate = () => setOpenOn(undefined);
     const anotherPanel = (event: Event) => {
       if ((event as CustomEvent<string>).detail !== id) setOpenOn(undefined);
     };
     document.addEventListener("pointerdown", dismiss);
     document.addEventListener("keydown", escape, true);
     document.addEventListener(NAVIGATION_PANEL_OPEN, anotherPanel);
-    window.addEventListener("hashchange", navigate);
     return () => {
       document.removeEventListener("pointerdown", dismiss);
       document.removeEventListener("keydown", escape, true);
       document.removeEventListener(NAVIGATION_PANEL_OPEN, anotherPanel);
-      window.removeEventListener("hashchange", navigate);
     };
   }, [open, id]);
   return {
@@ -83,7 +97,10 @@ function usePanel() {
         document.dispatchEvent(
           new CustomEvent(NAVIGATION_PANEL_OPEN, { detail: id }),
         );
-        setOpenOn(route);
+        setOpenOn({
+          navigation: clientNavigationRevision(),
+          authority: getSessionAuthorityKey(),
+        });
       }
     },
     // Safari blurs without a target when a pointer selects an item.

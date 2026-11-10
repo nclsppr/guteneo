@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "date": "2026-11-10",
+  "baseMain": "fe4384a9ef86a1526efd72e1052c8c79a50d8dd0",
+  "qualification": "Local synthetic browser fixtures and unit assertions; hosted correction and production publication remain separate.",
+  "failure": {
+    "run": "https://github.com/nclsppr/guteneo/actions/runs/42747940371",
+    "job": 129605353488,
+    "case": "workspace and application choices remain clickable beside the closed account control",
+    "evidence": "Menu opens while old Documents is inert; deferred Overview commit closes it. Held-module reproduction fails before correction without another hashchange."
+  },
+  "candidateBuild": {
+    "mode": "production-style SSR",
+    "sourceDirty": true,
+    "assets": 422,
+    "sourceSnapshotSha256": "adf9c1fc5086c5af60767cf7a1fb3038d60c75a90ad6694ced85884fca4076d5",
+    "assetsSha256": "767b7c37c1b61b786a911756fee5e6df1545a46315cf81437f973a88542bfc24"
+  },
+  "localBrowserChecks": [
+    {
+      "scope": "focused_browser",
+      "passed": 57,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "automaticRetries": 0,
+      "rawReportSha256": "4a01f62aa11a778e6e60c84a192d6535de1f500279052860d3dbe11392004f67"
+    },
+    {
+      "scope": "iphone_independent_repetitions",
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "automaticRetries": 0,
+      "rawReportSha256": "78385939c2dddb6363ed22b908ad44da7b41293cf657026365e03a220407ea79"
+    }
+  ],
+  "focusedUnitAssertions": 36,
+  "boundaries": [
+    "Delayed real Overview module; newer menu survives and normal Studio focus works",
+    "Accepted A-B-A and real Back/Forward close obsolete panels",
+    "Router veto precedes native popstate observation and preserves current panel",
+    "Same-address authority replacement closes obsolete panel",
+    "New input cancels one owned render-frame focus claim; retired claims never revive on a no-op acknowledgement",
+    "No extra account reads, unexpected routes or duplicate workspace writes"
+  ],
+  "native": {
+    "run": "https://github.com/nclsppr/guteneo/actions/runs/42747940148/attempts/2",
+    "sourceCommit": "fe4384a9ef86a1526efd72e1052c8c79a50d8dd0",
+    "nativeTree": "a81f97703b91e49a3c833492c38ee5a8041d9f94",
+    "workflowBlob": "62e06f81d8ad6a21634dedb0fff7445d04666d78",
+    "unitPassed": 46,
+    "uiPassed": 10,
+    "archive": "unsigned",
+    "failedFirstAttemptPreserved": true,
+    "distributionProven": false
+  },
+  "limits": [
+    "No real communication or authenticated hosted journey",
+    "No production schema/runtime mutation before this candidate qualification",
+    "A source tag or unsigned archive is not deployed/activated/App Store proof"
+  ],
+  "testHarnessQualification": {
+    "productSourceUnchangedFrom": "481ff88e70fdfd24034a3351b0dcc32151977d0a",
+    "failedHostedRun": "https://github.com/nclsppr/guteneo/actions/runs/42752541710",
+    "failuresPreserved": [
+      {
+        "job": 129619877912,
+        "cause": "Test held all application RAF callbacks then expected the legitimate route-focus frame to have run."
+      },
+      {
+        "job": 129619878114,
+        "cause": "Test selected the outgoing inert Overview page-size control before Dispatches committed."
+      }
+    ],
+    "correction": "Step exactly one queued callback batch; preserve nested callbacks and newer-focus precedence. Wait for actual current page and interactive main before imperative selectOption. All original focus/row/read/retention assertions retained.",
+    "localChecks": [
+      {
+        "scope": "mobile_preview",
+        "passed": 10,
+        "declaredSkipped": 4,
+        "failed": 0,
+        "flaky": 0,
+        "automaticRetries": 0,
+        "rawReportSha256": "16ed2d939bc8f9266d0bed34a662b0bfce5c7b2058651e49f6306d089d053758"
+      },
+      {
+        "scope": "navigation_regressions",
+        "passed": 57,
+        "declaredSkipped": 0,
+        "failed": 0,
+        "flaky": 0,
+        "automaticRetries": 0,
+        "rawReportSha256": "e142eeee3a3bb712d38147e3bcfb822a3f4ccb654e1043d65f2f148119b0e27e"
+      },
+      {
+        "scope": "iphone_switcher_five_repeats",
+        "passed": 20,
+        "declaredSkipped": 0,
+        "failed": 0,
+        "flaky": 0,
+        "automaticRetries": 0,
+        "rawReportSha256": "798cc0342770affa819fb9b4c7547b9774cc3f6ec715c0f43c552ccb3f7e6e09"
+      },
+      {
+        "scope": "iphone_frame_five_repeats",
+        "passed": 5,
+        "declaredSkipped": 0,
+        "failed": 0,
+        "flaky": 0,
+        "automaticRetries": 0,
+        "rawReportSha256": "2dc3c7134711bb1de430766179b7b6420b39f11b8a2b9daa3e3f6a9afe5cff9a"
+      },
+      {
+        "scope": "dashboard_three_profiles",
+        "passed": 3,
+        "declaredSkipped": 0,
+        "failed": 0,
+        "flaky": 0,
+        "automaticRetries": 0,
+        "rawReportSha256": "aabe078076c5f4f537b1e725ca1dee7f1dc102d8d31b2ef5f099632eee0aaac9"
+      }
+    ],
+    "hostedCorrectionStatus": "Fresh exact-head CI required; these local synthetic results are not hosted or production proof."
+  }
+}

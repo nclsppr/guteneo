@@ -336,10 +336,20 @@ test("coming back to the tab re-reads the list once and keeps loaded pages", asy
     await page.request.get("/api/overview")
   ).json()) as { dispatches: { total: number } };
   await page.goto("/#/app/dispatches");
+  await expect(
+    page.getByRole("heading", { name: "Le fil des envois.", exact: true }),
+  ).toBeVisible();
+  // The outgoing overview has the same selector while navigation is pending.
+  const main = page.locator("#main-content");
+  await expect(main).not.toHaveAttribute("inert", "");
+  await expect(main).not.toHaveAttribute("aria-busy", "true");
   const rows = page.locator("tbody tr");
-  await page
-    .getByRole("combobox", { name: "Lignes par page", exact: true })
-    .selectOption("50");
+  const pageSize = main.getByRole("combobox", {
+    name: "Lignes par page",
+    exact: true,
+  });
+  await pageSize.selectOption("50");
+  await expect(pageSize).toHaveValue("50");
   await expect(rows).toHaveCount(30);
   const firstPageReads: string[] = [];
   page.on("request", (request) => {
