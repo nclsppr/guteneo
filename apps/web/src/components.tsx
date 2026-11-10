@@ -667,9 +667,12 @@ export function DispatchTable({
   emptyAction,
   statusFilter = true,
   className,
+  timezoneNote = true,
 }: {
   items: Dispatch[];
   className?: string;
+  /** False when a table above on the same page already states the zone. */
+  timezoneNote?: boolean;
   /** False where the page already filters by status group. */
   statusFilter?: boolean;
   /** The next step when the list is empty. */
@@ -679,7 +682,7 @@ export function DispatchTable({
     return <EmptyState title={t.dispatch.countEmpty} action={emptyAction} />;
   return (
     <>
-      <DateTimezone />
+      {timezoneNote && <DateTimezone />}
       <DataTable
         label={t.nav.dispatches}
         view="dispatches"

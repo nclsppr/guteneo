@@ -3063,5 +3063,15 @@
     "{0} hat am {1} um Freigabe gebeten.",
     "{0} huet den {1} ëm Fräigab gefrot."
   ],
-  "Un membre": ["A member", "Ein Mitglied", "E Member"]
+  "Un membre": ["A member", "Ein Mitglied", "E Member"],
+  "Une demande d’approbation est faite par une personne dans le navigateur.": [
+    "An approval request is made by a person in the browser.",
+    "Eine Freigabeanfrage wird von einer Person im Browser gestellt.",
+    "Eng Fräigab-Ufro gëtt vun enger Persoun am Browser gemaach."
+  ],
+  "Seul un envoi en attente d’approbation peut être soumis pour approbation.": [
+    "Only a dispatch awaiting approval can be submitted for approval.",
+    "Nur eine Sendung, die auf Freigabe wartet, kann zur Freigabe eingereicht werden.",
+    "Nëmmen eng Sendung, déi op Fräigab waart, kann fir d’Fräigab agereecht ginn."
+  ]
 }

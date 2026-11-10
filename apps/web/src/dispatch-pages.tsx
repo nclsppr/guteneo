@@ -351,6 +351,7 @@ export function Overview({ session }: { session: Session }) {
         <DispatchTable
           items={dispatches.data.items.slice(0, 6)}
           className="overview-recent"
+          timezoneNote={!queue.length}
         />
       ) : (
         <EmptyState

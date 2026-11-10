@@ -141,6 +141,18 @@ are unchanged. Local archive validation grants no activation, host qualification
 marketplace submission or production publication. See the
 [state-machine follow-up](STATE_MACHINE_REAUDIT_2026_11_09.md).
 
+### Approval request source synchronization — 10 November 2026
+
+Candidate 1.1.36 synchronizes the application and portable/Claude/Cursor package
+versions after the shared domain module gained the browser-only approval request
+(`POST /api/dispatches/:id/request-approval`) and the `approvalRequest` field
+of the browser dispatch detail. No assistant tool reads or writes it: an
+assistant cannot raise a request for human consent, and dispatch summaries
+returned to assistants are unchanged. The catalogue, schemas, annotation
+booleans, OAuth scopes, instructions and host confirmations are unchanged. Local
+archive validation grants no activation, host qualification, marketplace
+submission or production publication.
+
 ### Preventive maintenance source synchronization — 7 November 2026
 
 Candidate 1.1.32 synchronizes the application and portable/Claude/Cursor package
