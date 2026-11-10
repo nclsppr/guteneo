@@ -32,7 +32,7 @@
     "integrations": "1.2.3 MCP/package fingerprints matched"
   },
   "unqualified": [
-    "Fresh complete exact-tree hosted CI is required for the public interaction readiness lot. CI7 fully qualified the unchanged application source but failed one preview test; no whole-pipeline green claim.",
+    "Fresh complete exact-tree hosted CI is required after the independent discovery checkout repair. CI8 passed every executed test but its verifier failed on a missing helper directory; no complete green claim.",
     "No new rendered screenshots or first-load timings",
     "Production schema and deployment not performed",
     "Native simulator/device/distribution qualification unchanged from historical record"
@@ -229,5 +229,48 @@
     "preserved": "All original pointer/keyboard/focus/locale/archive/authority/no-business-request assertions. Intentional initial HTML, delayed/unavailable/no JavaScript, early theme, native-link, HTTP-only/text/href coverage unchanged.",
     "source": "No product source change from the application-qualified GO7 candidate; no timeout/retry/skip relaxation.",
     "localChecks": "TypeScript, complete lint/ownership/locales and formatting passed. Documentation checks and fresh complete hosted qualification required for this final test-only lot."
+  },
+  "eighthHostedCi": {
+    "head": "442ab06d849626ca015012a59ad797a37de40e98",
+    "tree": "f824d61b22abde7e5a5cd0270f545d99c736cca9",
+    "runId": 42917132402,
+    "result": "failed final independent discovery; all23testjobs passed",
+    "passedJobs": 23,
+    "applicationBrowser": {
+      "passed": 1421,
+      "failed": 0,
+      "declaredSkipped": 19,
+      "discovered": 1440
+    },
+    "previewBrowser": {
+      "passed": 323,
+      "failed": 0,
+      "declaredSkipped": 5,
+      "discovered": 328
+    },
+    "observedBrowserTotal": {
+      "passed": 1844,
+      "failed": 0,
+      "declaredSkipped": 24,
+      "discovered": 1868
+    },
+    "verifier": "Failedclosed: sparsecheckout omitted tests/helpers imported by browser tests. This is not a complete green run and grants no release qualification."
+  },
+  "independentDiscoveryCheckoutRepair": {
+    "change": "Add only /tests/helpers/ to verify job non-cone sparse checkout. No verification rule, product module, test assertion, retry, timeout or skip change.",
+    "reproduction": "Actual temporary Git clone at local7ec21cdb with exact verifier patterns plus that directory and matching installed dependencies. Eight canonical Playwright --list --reporter=json commands succeeded without browser/server launch.",
+    "discoveryOnly": {
+      "applicationPerProject": 480,
+      "applicationProjects": 3,
+      "previewPerProject": 164,
+      "previewProjects": 2,
+      "belvederePerProject": 25,
+      "belvedereProjects": 2,
+      "status": 50,
+      "total": 1868
+    },
+    "auditReceipt": "/tmp/guteneo-verify-git-sparse-6jqmzt7g/audit-discovery.json",
+    "eagerFileAudit": "Only OpenAPI is read at import time and already included; execution-only films/images/spreadsheets/build assets remain excluded.",
+    "qualification": "A fresh complete exact-source hosted run is required before merge and publication."
   }
 }

@@ -316,3 +316,25 @@ or delayed JavaScript, no-JavaScript, early theme, native-link and HTTP-only
 coverage stays unchanged. No product source, timeout, retry or declared skip is
 changed by this lot. TypeScript, complete lint and formatting passed; fresh
 complete hosted qualification is required before merge and publication.
+
+### Eighth hosted pass: all tests passed, discovery checkout repaired
+
+[Run 42917132402](https://github.com/nclsppr/guteneo/actions/runs/42917132402)
+passed all 23 test jobs. Application stages recorded 1,421 passes and 19 declared
+skips across 1,440 identities; preview recorded 323 passes and five declared skips
+across 328. Belvedere and status completed the observed browser inventory:
+1,844 passes, zero failures and 24 declared skips across 1,868 identities.
+
+The final verifier correctly refused to certify an inventory it could not load:
+its partial checkout omitted `tests/helpers`, newly imported by application tests.
+This is failed complete qualification even though every executed test passed.
+The workflow now includes that directory without changing verification rules.
+
+An independent temporary Git clone reproduced the exact non-cone checkout plus
+that one directory. All eight canonical Playwright discovery commands succeeded:
+480 application cases per project, 164 preview cases per project, 25 Belvedere
+cases per project and 50 status cases. Only discovery ran, with no browser or
+server; these 1,868 identities are not a second test execution. The eager file
+read audit found no other missing import or asset. Product source and test
+assertions remain unchanged; a fresh full hosted run must certify the repaired
+checkout before merge and publication.
