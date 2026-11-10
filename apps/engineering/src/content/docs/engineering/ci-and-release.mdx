@@ -558,6 +558,39 @@ source/evidence discipline to tariff expiry, callbacks and external contracts.
 [Background jobs](/engineering/background-jobs/) explains why successful queue
 processing never grants approval or permission to retry uncertain sends.
 
+## Portable release proof
+
+After full verification or independently rechecked identical-source reuse,
+`scripts/ci/release-evidence.mjs` renders a single offline HTML file and sanitized
+JSON in the verification artifact. It requires a version-matched authored note,
+uses the existing complete counters and preserves every actual browser evidence
+attempt. Current execution SHA/tree and reviewed head remain distinct. Reuse
+additionally identifies the original tested SHA/run/attempt and immutable proof
+digest; it never claims the tests ran again on main.
+
+The renderer adds no npm dependency and runs on the already installed Node runtime,
+including the reuse path. The narrow verifier checkout retains the authored notes
+and approved repository PNG locations. At most six bounded PNGs are embedded with
+their hashes; symlinks, escaping/remote paths and unsupported input fail closed.
+Source owners must separately review pictured content for publication. Raw HTML
+is escaped; no scripts, remote fonts, test bodies, response logs or raw sealed
+proof are embedded. Repository illustrations are labeled separately from the
+verified CI inventory. Native and provider results are not added to those totals.
+
+The report is generated inside the verifier; its linked GitHub run owns the final
+workflow outcome. Missing or malformed input fails the gate rather than making a
+partial report look complete. Correct notes/source through normal review and
+retain failed attempts. The [repository CI contract](https://github.com/nclsppr/guteneo/blob/main/docs/CI.md#portable-release-test-evidence)
+owns the exact markup, origins, file bounds and maintenance checks.
+
+Local renderer qualification on **10 November 2026** passes provenance/counter
+refusals, release-note version gating and offline Chromium at desktop and phone
+widths, with embedded images, keyboard focus, no requests and no overflow. This
+does not establish hosted CI, physical-device testing or production deployment.
+Release operators attach the HTML/JSON as direct GitHub Release assets using
+[changes and releases](/engineering/releases/#give-a-version-a-readable-release-record).
+The workflow keeps read-only permissions and introduces no automatic publisher.
+
 ## Verify the served application before completing publication
 
 The live wrapper follows a successful Wrangler deployment with the existing

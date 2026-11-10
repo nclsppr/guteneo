@@ -73,6 +73,57 @@ verifies the served release; it does not start another full application test run
 The engineering release wrapper separately retains its small fresh-build browser
 checks. CI proof reuse grants no merge, deployment, provider or sending authority.
 
+## Portable release test evidence
+
+After the existing full or independently rechecked reused verification succeeds,
+`scripts/ci/release-evidence.mjs` writes `test-proof.html` and `test-proof.json`
+under `test-results/ci/release-evidence/`. Both are retained in the immutable
+`guteneo-verification-attempt-<attempt>` artifact. This dependency-free renderer
+also runs on the reuse path without installing npm dependencies again. It does
+not qualify a run, replace any verifier, create a tag/Release or deploy anything.
+
+Every package version must have authored `docs/releases/<version>.md`, beginning
+with `# Guteneo <version>` or `# Guteneo <version> — <title>`, with meaningful prose
+and at least one second-level section. A missing, empty or wrong-version note
+fails verification. Keep the supported markup simple: paragraphs, headings,
+hyphenated lists, bold text, inline code and credential-free HTTPS links on the
+repository or canonical product/engineering origins. Raw HTML is escaped.
+
+Optional PNG images occupy their own Markdown line. A note may reference
+`../evidence/<file>.png` or a repository-relative
+`ios/QA/Screenshots/<file>.png`. Only flat files in those two approved directories
+are accepted: at most six images, two MiB each and eight MiB combined, with bounded
+PNG dimensions. Absolute/remote/escaping paths, symlinks, unsupported images and
+oversized input are refused. Select synthetic screenshots already cleared for
+publication; a path restriction cannot inspect the privacy of pictured content.
+The verifier's sparse checkout retains notes and these PNG directories only.
+
+The HTML is self-contained: embedded PNGs, local styles, no script, fonts,
+network reads or report server. It preserves the existing complete Vitest/browser
+counts and declared skips, all browser evidence attempts, exact execution SHA and
+tree, reviewed head, run/attempt and qualification limits. A reused main summary
+is cross-checked against the already qualified sealed proof and explicitly shows
+the original tested SHA, prior run/attempt, artifact digest and identical tree.
+Raw sealed data, logs, test bodies, provider responses and secrets are not copied.
+Screenshots are labeled repository illustrations; native, security, hosted and
+real-provider results are never silently added to the inventory counters.
+
+The report is generated during `verify`; the GitHub run still owns the final
+workflow conclusion. Missing or malformed inputs fail report generation, and the
+final artifact upload preserves available diagnostics. Correct the authored note
+or renderer through normal review, then rerun the affected gate without replacing
+failed evidence. Release operators attach the portable files directly under the
+[main release procedure](MAIN_RELEASE.md#version-anchor-readable-notes-and-portable-test-proof),
+which separately requires an exact remote version tag before live publication.
+
+Local qualification on **10 November 2026** covers full/reused provenance and
+counter refusals, note-version gating, escaping, bounded safe image/file reads,
+and offline Chromium at desktop, 390-pixel and 320-pixel widths with zero network
+requests or overflow. These are renderer fixtures, not a new hosted CI result,
+physical-device check or production receipt. Meaningful regressions live in
+`tests/security/release-evidence.test.mjs`; recheck the offline layout and complete
+CI/validation-proof guards when changing the format or input contract.
+
 ## Transfer each static byte once
 
 The build job packages both complete static products through

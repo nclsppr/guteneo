@@ -750,6 +750,9 @@ jobs:
             /apps/web/public/openapi.json
             /apps/api/src/
             /packages/
+            /docs/releases/
+            /docs/evidence/*.png
+            /ios/QA/Screenshots/*.png
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "24"
@@ -809,6 +812,11 @@ jobs:
             test-results/ci/verified.json
           if-no-files-found: error
           retention-days: 2
+      - name: Render portable test evidence and require version release notes
+        if: success()
+        run: node scripts/ci/release-evidence.mjs test-results/ci/verified.json test-results/ci/release-evidence
+        env:
+          REUSE_PROOF_B64: ${{ needs.qualification.outputs.proof_b64 }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
@@ -819,5 +827,6 @@ jobs:
             test-results/ci/browser-verified.json
             test-results/ci/proof.json
             test-results/ci/artifact-selection-verify.json
+            test-results/ci/release-evidence/
           if-no-files-found: error
           retention-days: 14

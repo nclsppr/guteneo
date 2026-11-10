@@ -1169,7 +1169,8 @@
         "TypeScript 7 validator behavior tests use native Node type stripping and an exact JSONC parser declared in both root and service manifests; independent root-only and service-only installs preserve complete shared security assertions.",
         "Every PR retains complete 24-job validation; an ordinary main merge may reuse a fresh complete same-repository PR proof only for identical Git trees, trusted CI policy, current locks, exact recorded runtimes and complete successful job/test inventories; missing or uncertain metadata runs full, fresh advisory checks remain, and an independent final gate rejects drift or arbitrary skips.",
         "Same-run static builds deduplicate identical bytes into commit/tree-bound SHA-256 objects, verify full object and selected release/health inventories before reconstruction, narrow only prebuilt browser/distribution source checkouts, preserve authored caption scripts and retain raw debug evidence separately from compact aggregate proof; no LFS migration, test removal or paid provisioning.",
-        "Claimed dispatch preflight overlaps independent tenant reads before submission; maintenance cursor reads are combined while deletion, audits and mutation order remain unchanged"
+        "Claimed dispatch preflight overlaps independent tenant reads before submission; maintenance cursor reads are combined while deletion, audits and mutation order remain unchanged",
+        "Production application publication requires a fresh remote v<package version> tag resolving to exact clean main and matching authored release notes, checked before build and before deployment. CI emits a portable offline HTML test summary and sanitized JSON with tested source, attempts, declared skips and full/reused provenance; repository screenshots, native qualification and served production receipts remain separate evidence. Version anchors never imply deployment and existing tags must never be moved."
       ],
       "status": "Implemented operational tooling; changes require explicit authority and exact-source proof.",
       "tests": [
@@ -1196,7 +1197,8 @@
         "tests/security/ci-build-artifact.test.mjs",
         "tests/security/ci-validation-proof.test.mjs",
         "tests/security/sqlite-integrity-proof.test.mjs",
-        "tests/unit/domain-async.test.ts"
+        "tests/unit/domain-async.test.ts",
+        "tests/security/release-evidence.test.mjs"
       ],
       "surfaces": "Authorised operator/CI tooling and private services; anonymous monitoring has no workshop authority.",
       "id": "operations",
@@ -1647,10 +1649,10 @@
       "id": "J15",
       "title": "Release a change",
       "actor": "Developer and explicitly authorised release operator",
-      "steps": "Update feature tree/developer contracts/source/tests together → regenerate and check atlas → check canonical build assets and compatibility redirects → run exact-source checks → review → obtain explicit merge/release authority → publish from clean synchronized main → verify public manifest/assets and separately qualify authenticated/runtime behavior.",
+      "steps": "Update feature tree/developer contracts/source/tests and version-matched human release notes together → regenerate and check atlas → check canonical build assets and compatibility redirects → run exact-source checks and retain portable HTML test evidence → review → obtain explicit merge/release authority → qualify merged main → create an immutable v<package version> tag on that exact commit → publish from clean synchronized main with fresh remote-tag checks → verify public manifest/assets and record the production receipt → publish GitHub Release notes with one-click test report and explicit activation limits; separately qualify authenticated/runtime behavior.",
       "branch": "Operations",
       "doc": "MAIN_RELEASE.md",
-      "failure": "Dirty source, drift, failing checks, missing configuration/scan or absent authority blocks release. Manual reruns must select the latest same-run evidence deterministically without deleting failed attempts, falling back to older passing reports or bypassing complete-result verification. Private-engine graceful-stop or idle failures keep customer activation closed; explicit force-stop recovery is not qualification. Unexpected redirects or changed/missing advertised bytes fail served verification; correct the source and repeat the reviewed release sequence without weakening verification. CI, local fixtures, production HTTP and real provider/client proof remain distinct."
+      "failure": "Dirty source, drift, failing checks, missing configuration/scan or absent authority blocks release. Manual reruns must select the latest same-run evidence deterministically without deleting failed attempts, falling back to older passing reports or bypassing complete-result verification. Private-engine graceful-stop or idle failures keep customer activation closed; explicit force-stop recovery is not qualification. Unexpected redirects or changed/missing advertised bytes fail served verification; correct the source and repeat the reviewed release sequence without weakening verification. CI, local fixtures, production HTTP and real provider/client proof remain distinct. An absent, moved or mismatched remote tag or missing/mismatched human notes stops application publication before build or deployment. Existing tags must never be moved; release a new reviewed version for a new commit. Reused CI reports identify the original tested commit and identical source tree. A source tag or historical release record alone never proves a production rollout."
     },
     {
       "id": "J16",

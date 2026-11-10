@@ -11,7 +11,10 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { deployPublic } from "../../scripts/deploy-public.mjs";
+import {
+  deployPublic,
+  verifyReleaseTag,
+} from "../../scripts/deploy-public.mjs";
 import {
   collectAssets,
   releaseProfiles,
@@ -40,6 +43,15 @@ async function fixture(t) {
   git(root, "config", "core.hooksPath", "/dev/null");
   await mkdir(join(root, "apps/web"), { recursive: true });
   await mkdir(join(root, "reports"));
+  await mkdir(join(root, "docs/releases"), { recursive: true });
+  await writeFile(
+    join(root, "package.json"),
+    JSON.stringify({ version: "1.0.0" }),
+  );
+  await writeFile(
+    join(root, "docs/releases/1.0.0.md"),
+    "# Guteneo 1.0.0\n\nSynthetic release notes.\n",
+  );
   await writeFile(join(root, ".gitignore"), "dist/\nnode_modules/\n.env*\n");
   await writeFile(
     join(root, "apps/web/source.js"),
@@ -60,6 +72,8 @@ async function fixture(t) {
   git(root, "commit", "-m", "initial source");
   git(root, "remote", "add", "origin", origin);
   git(root, "push", "-u", "origin", "main");
+  git(root, "tag", "-a", "v1.0.0", "-m", "Synthetic release anchor");
+  git(root, "push", "origin", "refs/tags/v1.0.0");
   const initial = git(root, "rev-parse", "HEAD");
   return { root, origin, initial, directory };
 }
@@ -75,6 +89,7 @@ async function buildFixture(root, target) {
   const assets = await collectAssets(output);
   const release = {
     product: "Guteneo",
+    version: "1.0.0",
     mode: profile.mode,
     publicPreview: profile.publicPreview,
     ...(target === "live"
@@ -177,6 +192,117 @@ for (const target of ["live", "preview"]) {
   });
 }
 
+test("version anchor accepts annotated and lightweight exact remote tags", async (t) => {
+  const f = await fixture(t);
+  assert.deepEqual(await verifyReleaseTag(f.root, f.initial), {
+    version: "1.0.0",
+    tag: "v1.0.0",
+    sourceCommit: f.initial,
+  });
+  git(f.root, "tag", "-f", "v1.0.0", f.initial);
+  git(f.root, "push", "--force", "origin", "refs/tags/v1.0.0");
+  assert.equal(
+    (await verifyReleaseTag(f.root, f.initial)).sourceCommit,
+    f.initial,
+  );
+});
+
+test("an absent remote version tag refuses live before building despite a cached local tag", async (t) => {
+  const f = await fixture(t);
+  git(f.root, "push", "origin", ":refs/tags/v1.0.0");
+  const runner = executor(f.root, "live");
+  await assert.rejects(
+    deployPublic("live", { root: f.root, execute: runner.execute }),
+    /RELEASE_REMOTE_TAG_REQUIRED/,
+  );
+  assert.equal(runner.calls.length, 0);
+  assert.equal(git(f.root, "rev-parse", "v1.0.0^{}"), f.initial);
+});
+
+test("a moved remote tag refuses publication while the cached tag still matches", async (t) => {
+  const f = await fixture(t);
+  git(f.root, "commit", "--allow-empty", "-m", "different source");
+  const other = git(f.root, "rev-parse", "HEAD");
+  git(f.root, "push", "origin", `${other}:refs/tags/v1.0.0`, "--force");
+  const runner = executor(f.root, "live");
+  await assert.rejects(
+    deployPublic("live", { root: f.root, execute: runner.execute }),
+    /RELEASE_ORIGIN_MAIN_MISMATCH/,
+  );
+  await assert.rejects(
+    verifyReleaseTag(f.root, f.initial),
+    /RELEASE_REMOTE_TAG_MISMATCH/,
+  );
+  assert.equal(runner.calls.length, 0);
+  assert.equal(git(f.root, "rev-parse", "v1.0.0^{}"), f.initial);
+});
+
+test("deleting the remote version tag during build refuses deployment", async (t) => {
+  const f = await fixture(t);
+  const runner = executor(f.root, "live", {
+    afterBuild() {
+      git(f.root, "push", "origin", ":refs/tags/v1.0.0");
+    },
+  });
+  await assert.rejects(
+    deployPublic("live", { root: f.root, execute: runner.execute }),
+    /RELEASE_REMOTE_TAG_REQUIRED/,
+  );
+  assert.equal(runner.calls.length, 1);
+});
+
+test("preview remains independent of production version tags", async (t) => {
+  const f = await fixture(t);
+  git(f.root, "push", "origin", ":refs/tags/v1.0.0");
+  const runner = executor(f.root, "preview");
+  await deployPublic("preview", { root: f.root, execute: runner.execute });
+  assert.equal(runner.calls.length, 2);
+});
+
+test("version anchor refuses unreachable origin instead of trusting a local tag", async (t) => {
+  const f = await fixture(t);
+  git(f.root, "remote", "set-url", "origin", join(f.directory, "missing.git"));
+  await assert.rejects(
+    verifyReleaseTag(f.root, f.initial),
+    /RELEASE_GIT_CHECK_FAILED/,
+  );
+});
+
+for (const version of [
+  "../outside",
+  "1.0",
+  "1.0.0-rc.1",
+  "01.0.0",
+  "1.0.0\n",
+  null,
+]) {
+  test(`version anchor refuses invalid version ${JSON.stringify(version)}`, async (t) => {
+    const f = await fixture(t);
+    await writeFile(join(f.root, "package.json"), JSON.stringify({ version }));
+    await assert.rejects(
+      verifyReleaseTag(f.root, f.initial),
+      /RELEASE_VERSION_INVALID/,
+    );
+  });
+}
+
+test("version anchor requires human notes matching the exact version", async (t) => {
+  const f = await fixture(t);
+  await rm(join(f.root, "docs/releases/1.0.0.md"));
+  await assert.rejects(
+    verifyReleaseTag(f.root, f.initial),
+    /RELEASE_NOTES_REQUIRED/,
+  );
+  await writeFile(
+    join(f.root, "docs/releases/1.0.0.md"),
+    "# Guteneo 1.0.1\nWrong version\n",
+  );
+  await assert.rejects(
+    verifyReleaseTag(f.root, f.initial),
+    /RELEASE_NOTES_VERSION_MISMATCH/,
+  );
+});
+
 test("live publication waits for full verification of the exact published manifest", async (t) => {
   const f = await fixture(t);
   let published = false;
@@ -251,6 +377,13 @@ async function configureSending(f, channels, enabled = true) {
   git(f.root, "add", "wrangler.live.jsonc");
   git(f.root, "commit", "-m", "review transport configuration");
   git(f.root, "push", "origin", "main");
+  publishFixtureTag(f.root);
+}
+
+// Every fixture has its own disposable bare remote, never the product remote.
+function publishFixtureTag(root) {
+  git(root, "tag", "-f", "-a", "v1.0.0", "-m", "Synthetic release anchor");
+  git(root, "push", "--force", "origin", "refs/tags/v1.0.0");
 }
 
 for (const channels of ["fax,postal", "fax", "postal", "postal,fax"]) {
@@ -289,6 +422,7 @@ test("reviewed Resend email configuration preserves fax/postal and publishes all
   git(f.root, "add", "wrangler.live.jsonc");
   git(f.root, "commit", "-m", "review Resend transport");
   git(f.root, "push", "origin", "main");
+  publishFixtureTag(f.root);
   const runner = executor(f.root, "live");
   await deployPublic("live", { root: f.root, execute: runner.execute });
   const manifest = JSON.parse(
@@ -520,6 +654,7 @@ for (const change of [
 
 for (const [field, value] of [
   ["sourceCommit", "f".repeat(40)],
+  ["version", "9.9.9"],
   ["sourceDirty", true],
   ["sourceDirty", null],
   ["mode", "public-design-preview"],
@@ -653,6 +788,7 @@ test("source snapshot includes the guard and shared digest helper, including ign
   git(f.root, "add", ".");
   git(f.root, "commit", "-m", "fixture tooling");
   git(f.root, "push", "origin", "main");
+  publishFixtureTag(f.root);
   const runner = executor(f.root, "live", {
     afterBuild: async () => {
       git(

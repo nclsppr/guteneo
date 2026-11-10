@@ -59,6 +59,58 @@ export function verifyMainSource(root) {
   return head;
 }
 
+/** Require a published, exact version anchor; cached local tags are insufficient. */
+export async function verifyReleaseTag(root, sourceCommit) {
+  let version;
+  try {
+    version = JSON.parse(
+      await readFile(join(root, "package.json"), "utf8"),
+    ).version;
+  } catch {
+    fail("RELEASE_VERSION_INVALID");
+  }
+  if (
+    typeof version !== "string" ||
+    version !== version.trim() ||
+    !/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version)
+  )
+    fail("RELEASE_VERSION_INVALID");
+  let notes;
+  try {
+    notes = await readFile(
+      join(root, "docs/releases", `${version}.md`),
+      "utf8",
+    );
+  } catch {
+    fail("RELEASE_NOTES_REQUIRED");
+  }
+  if (
+    !notes.startsWith(`# Guteneo ${version}\n`) &&
+    !notes.startsWith(`# Guteneo ${version} — `)
+  )
+    fail("RELEASE_NOTES_VERSION_MISMATCH");
+  const ref = `refs/tags/v${version}`;
+  const rows = git(root, ["ls-remote", "--tags", "origin", ref, `${ref}^{}`])
+    .split("\n")
+    .filter(Boolean)
+    .map((row) => row.split("\t"));
+  if (!rows.length) fail("RELEASE_REMOTE_TAG_REQUIRED");
+  if (
+    rows.some(
+      ([sha, name, extra]) =>
+        extra !== undefined ||
+        !/^[a-f0-9]{40}$/.test(sha) ||
+        (name !== ref && name !== `${ref}^{}`),
+    ) ||
+    rows.filter(([, name]) => name === ref).length !== 1 ||
+    rows.filter(([, name]) => name === `${ref}^{}`).length > 1
+  )
+    fail("RELEASE_REMOTE_TAG_INVALID");
+  const commit = (rows.find(([, name]) => name === `${ref}^{}`) ?? rows[0])[0];
+  if (commit !== sourceCommit) fail("RELEASE_REMOTE_TAG_MISMATCH");
+  return { version, tag: `v${version}`, sourceCommit };
+}
+
 export async function verifyLocalRelease(root, target, sourceCommit) {
   if (!Object.hasOwn(releaseProfiles, target)) fail("RELEASE_TARGET_INVALID");
   const profile = releaseProfiles[target];
@@ -136,12 +188,17 @@ export async function deployPublic(
   if (!Object.hasOwn(releaseProfiles, target)) fail("RELEASE_TARGET_INVALID");
   const profile = releaseProfiles[target];
   const sourceCommit = verifyMainSource(root);
+  const anchor =
+    target === "live" ? await verifyReleaseTag(root, sourceCommit) : null;
   await execute(process.execPath, [join(root, profile.build)], {
     cwd: root,
     stdio: "inherit",
   });
   if (verifyMainSource(root) !== sourceCommit) fail("RELEASE_SOURCE_CHANGED");
-  await verifyLocalRelease(root, target, sourceCommit);
+  const manifest = await verifyLocalRelease(root, target, sourceCommit);
+  if (anchor && manifest.version !== anchor.version)
+    fail("RELEASE_MANIFEST_MISMATCH");
+  if (target === "live") await verifyReleaseTag(root, sourceCommit);
   // Recheck after reading artifacts too. Do not edit the checkout during publication.
   if (cleanMain(root) !== sourceCommit) fail("RELEASE_SOURCE_CHANGED");
   await execute(
