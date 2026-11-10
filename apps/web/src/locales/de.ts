@@ -263,7 +263,8 @@ export const de: Copy = {
   },
   dispatch: {
     stepsLabel: "Fortschritt der Sendung",
-    uncertainNext: "Ein Administrator des Arbeitsbereichs prüft das Ergebnis in der Administration. Nichts wird automatisch erneut gesendet.",
+    uncertainNext:
+      "Ein Administrator des Arbeitsbereichs prüft das Ergebnis in der Administration. Nichts wird automatisch erneut gesendet.",
     versionDetails: "Versionsdetails",
     new: "Neue Sendung",
     chooseDocument: "Dokument auswählen",

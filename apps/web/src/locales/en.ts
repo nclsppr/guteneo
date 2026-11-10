@@ -262,7 +262,8 @@ export const en: Copy = {
   },
   dispatch: {
     stepsLabel: "Dispatch progress",
-    uncertainNext: "A workspace administrator checks the outcome in Administration. Nothing is resent automatically.",
+    uncertainNext:
+      "A workspace administrator checks the outcome in Administration. Nothing is resent automatically.",
     versionDetails: "Version details",
     new: "New dispatch",
     chooseDocument: "Choose a document",

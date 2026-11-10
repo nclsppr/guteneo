@@ -152,48 +152,51 @@ function PeriodControlsEditor({
         open={preset == null || invalid || undefined}
       >
         <summary>{msg("Custom dates")}</summary>
-      <form className="administration-custom-period" onSubmit={submit}>
-        <Field label={msg("Start date")}>
-          <input
-            type="date"
-            value={custom.from}
-            max={custom.to}
-            required
-            aria-invalid={invalid || undefined}
-            onChange={(event) => {
-              setInvalid(false);
-              setCustom((current) => ({
-                ...current,
-                from: event.target.value,
-              }));
-            }}
+        <form className="administration-custom-period" onSubmit={submit}>
+          <Field label={msg("Start date")}>
+            <input
+              type="date"
+              value={custom.from}
+              max={custom.to}
+              required
+              aria-invalid={invalid || undefined}
+              onChange={(event) => {
+                setInvalid(false);
+                setCustom((current) => ({
+                  ...current,
+                  from: event.target.value,
+                }));
+              }}
+            />
+          </Field>
+          <Field label={msg("End date")}>
+            <input
+              type="date"
+              value={custom.to}
+              min={custom.from}
+              required
+              aria-invalid={invalid || undefined}
+              onChange={(event) => {
+                setInvalid(false);
+                setCustom((current) => ({
+                  ...current,
+                  to: event.target.value,
+                }));
+              }}
+            />
+          </Field>
+          <button className="button" type="submit">
+            {msg("Apply")}
+          </button>
+        </form>
+        {invalid && (
+          <ErrorNotice
+            error={new Error(msg("Choose a period of at most 366 days."))}
           />
-        </Field>
-        <Field label={msg("End date")}>
-          <input
-            type="date"
-            value={custom.to}
-            min={custom.from}
-            required
-            aria-invalid={invalid || undefined}
-            onChange={(event) => {
-              setInvalid(false);
-              setCustom((current) => ({ ...current, to: event.target.value }));
-            }}
-          />
-        </Field>
-        <button className="button" type="submit">
-          {msg("Apply")}
-        </button>
-      </form>
-      {invalid && (
-        <ErrorNotice
-          error={new Error(msg("Choose a period of at most 366 days."))}
-        />
-      )}
-      <p className="administration-period-note">
-        {msg("Dates are in UTC. A period covers at most 366 days.")}
-      </p>
+        )}
+        <p className="administration-period-note">
+          {msg("Dates are in UTC. A period covers at most 366 days.")}
+        </p>
       </details>
     </div>
   );

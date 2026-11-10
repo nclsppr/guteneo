@@ -264,7 +264,8 @@ export const lb: Copy = {
   },
   dispatch: {
     stepsLabel: "Fortschrëtt vun der Sendung",
-    uncertainNext: "En Administrateur vum Atelier préift d’Resultat an der Administratioun. Näischt gëtt automatesch nach eng Kéier geschéckt.",
+    uncertainNext:
+      "En Administrateur vum Atelier préift d’Resultat an der Administratioun. Näischt gëtt automatesch nach eng Kéier geschéckt.",
     versionDetails: "Detailer vun der Versioun",
     new: "Nei Sendung",
     chooseDocument: "En Dokument wielen",

@@ -265,7 +265,8 @@ export const fr = {
   },
   dispatch: {
     stepsLabel: "Avancement de l’envoi",
-    uncertainNext: "Un administrateur de l’atelier vérifie l’issue dans Administration. Rien n’est renvoyé automatiquement.",
+    uncertainNext:
+      "Un administrateur de l’atelier vérifie l’issue dans Administration. Rien n’est renvoyé automatiquement.",
     versionDetails: "Détails de la version",
     new: "Nouvel envoi",
     filterLabel: "Afficher",

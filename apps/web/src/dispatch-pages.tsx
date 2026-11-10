@@ -245,7 +245,8 @@ export function Overview({ session }: { session: Session }) {
     ...(toCheck.data?.items ?? []),
     ...(toApprove.data?.items ?? []),
   ].filter(
-    (item, index, all) => all.findIndex((other) => other.id === item.id) === index,
+    (item, index, all) =>
+      all.findIndex((other) => other.id === item.id) === index,
   );
   const dailyOverview =
     (counts?.dispatches.total ?? 0) > 0 ||
@@ -290,11 +291,9 @@ export function Overview({ session }: { session: Session }) {
       <DispatchTable items={queue} />
     </section>
   );
-  const assistantStart =
-    permissions.prepareDispatches &&
-    !dailyOverview && (
-      <OverviewAssistantStart key="assistant" session={session} />
-    );
+  const assistantStart = permissions.prepareDispatches && !dailyOverview && (
+    <OverviewAssistantStart key="assistant" session={session} />
+  );
   const studioLinks = !isPublicPreview && permissions.prepareDispatches && (
     <nav
       key="studio"
@@ -1235,7 +1234,11 @@ export function PrepareDispatch({
                   {c === "fax" ? (
                     <Printer size={22} weight="light" aria-hidden="true" />
                   ) : c === "email" ? (
-                    <EnvelopeSimple size={22} weight="light" aria-hidden="true" />
+                    <EnvelopeSimple
+                      size={22}
+                      weight="light"
+                      aria-hidden="true"
+                    />
                   ) : (
                     <Mailbox size={22} weight="light" aria-hidden="true" />
                   )}
