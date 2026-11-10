@@ -1290,9 +1290,12 @@ unqualified for this combined candidate. No Cloudflare cost saving is claimed.
 
 ### Personal session refresh ordering
 
-A visible-tab return starts personal-session revalidation before child focus
-refresh listeners. Private body content remains mounted but hidden and inert
-until the parent session read succeeds; failures expose retry outside that
-barrier. This preserves unsent state for the same identity and remounts it for a
-changed account. The initial entry read does not consume the focus coalescing
-window. Hosted delayed-session evidence remains distinct from source review.
+Personal document focus refresh subscribes to the parent verified-identity cycle.
+Every visible-window wake closes the private-body barrier before bounded
+coalescing; a scheduled read handles a rapid return without another focus.
+Private content remains mounted but hidden and inert until the current parent
+session read succeeds; failures expose retry outside the barrier. Unchanged
+identities notify only their own subscribers, while replacement identities mount
+their own scoped list. This preserves unsent state for the same identity. The
+initial entry read does not consume the focus coalescing window. Hosted
+delayed-session evidence remains distinct from source review.

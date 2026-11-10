@@ -199,6 +199,7 @@ test("validated CSV rows paginate, resize and search across all loaded rows", as
         `email,participant-${String(index + 1).padStart(2, "0")}@example.invalid`,
     ),
   ].join("\n");
+  await page.getByText("Paste instead", { exact: true }).click();
   await page
     .getByLabel("Recipient list in CSV format", { exact: true })
     .fill(csv);

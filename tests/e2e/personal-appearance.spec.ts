@@ -461,6 +461,15 @@ test("an older focus session read cannot overwrite a successful profile save", a
     window.fetch = async (input, init) => {
       if (
         new URL(String(input), location.href).pathname ===
+          "/api/personal/account" &&
+        init?.method === "PATCH"
+      ) {
+        await new Promise<void>((resolve) => {
+          Reflect.set(window, "releasePendingPersonalSave", resolve);
+        });
+      }
+      if (
+        new URL(String(input), location.href).pathname ===
           "/api/personal/session" &&
         Reflect.get(window, "holdNextPersonalFocusRead")
       ) {
@@ -478,8 +487,22 @@ test("an older focus session read cannot overwrite a successful profile save", a
   await expect(
     page.getByRole("textbox", { name: "Your name", exact: true }),
   ).toBeVisible();
+  await page
+    .getByRole("textbox", { name: "Your name", exact: true })
+    .fill("Updated synthetic reader");
+  await page
+    .locator(".personal-account-profile select")
+    .nth(1)
+    .selectOption("fr");
+  await page
+    .getByRole("button", { name: "Save preferences", exact: true })
+    .click();
+  await page.waitForFunction(() =>
+    Boolean(Reflect.get(window, "releasePendingPersonalSave")),
+  );
   // Hold an actual background revalidation, after the initial profile is ready.
-  // A code/session race may legitimately replace an entry read before that.
+  // The in-flight save has not reached the server yet, so this response captures
+  // the old profile. A pending identity check blocks new edits, not this request.
   await page.evaluate(() => {
     Reflect.set(window, "holdNextPersonalFocusRead", true);
   });
@@ -495,17 +518,17 @@ test("an older focus session read cannot overwrite a successful profile save", a
       )
       .toBe(true);
   }).toPass();
-  await page
-    .getByRole("textbox", { name: "Your name", exact: true })
-    .fill("Updated synthetic reader");
-  await page
-    .locator(".personal-account-profile select")
-    .nth(1)
-    .selectOption("fr");
-  await page
-    .getByRole("button", { name: "Save preferences", exact: true })
-    .click();
+  const privateBody = page.locator(".personal-session-content");
+  await expect(privateBody).toHaveAttribute("hidden", "");
+  await expect(privateBody).toHaveAttribute("inert", "");
+  await expect(page.locator(".personal-account-profile input")).toHaveValue(
+    "Updated synthetic reader",
+  );
+  await page.evaluate(() => {
+    Reflect.get(window, "releasePendingPersonalSave")();
+  });
   await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+  await expect(privateBody).toHaveAttribute("hidden", "");
   await page.evaluate(() => {
     Reflect.get(window, "releasePreviousPersonalRead")();
   });
@@ -516,6 +539,7 @@ test("an older focus session read cannot overwrite a successful profile save", a
       ),
   );
   await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+  await expect(privateBody).toBeVisible();
   await expect(
     page.locator(".personal-account-identity-details"),
   ).toContainText("Updated synthetic reader");

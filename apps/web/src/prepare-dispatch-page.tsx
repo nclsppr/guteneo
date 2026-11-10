@@ -471,7 +471,9 @@ export function PrepareDispatch({
       <form
         className="prepare-layout"
         noValidate
-        onInputCapture={() => {
+        // Let the target's controlled onChange capture its new value before
+        // clearing an earlier validation error triggers another render.
+        onChange={() => {
           invalidControl.current?.removeAttribute("aria-invalid");
           invalidControl.current?.removeAttribute("aria-errormessage");
           invalidControl.current = undefined;

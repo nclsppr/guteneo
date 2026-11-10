@@ -26,13 +26,15 @@ import {
   Loading,
   PageHeading,
   useAction,
-  useRefreshOnFocus,
 } from "./components";
 import { formatLocale } from "./locale";
 import { useCurrentClientView } from "./client-write-recovery";
 import { msg } from "./messages";
 import { personalApi, type PersonalSession } from "./personal-api";
-import { PersonalSecurityNotice } from "./personal-space";
+import {
+  PersonalSecurityNotice,
+  usePersonalFocusRefresh,
+} from "./personal-space";
 import {
   needsAuthentication,
   personalDocumentStatus,
@@ -189,7 +191,7 @@ export function PersonalDocumentList({
   const searchRoute = personalDocumentRoute(query, {
     search: searchInput.trim(),
   });
-  useRefreshOnFocus(refresh, active);
+  usePersonalFocusRefresh(refresh, sessionAuthorityKey(session), active);
   useEffect(
     () => setSearchInput(query.search),
     [

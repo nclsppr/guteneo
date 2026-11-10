@@ -1,6 +1,8 @@
 import { ApplicationTimeScope } from "./application-time";
 import {
   useCallback,
+  createContext,
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -68,6 +70,22 @@ export function isPersonalRoute(page: string) {
 
 function isPageHidden() {
   return document.visibilityState === "hidden";
+}
+
+const PersonalFocusRefresh = createContext<
+  ((identity: string, refresh: () => void) => () => void) | null
+>(null);
+
+/** Personal reads resume only after the parent has verified this identity. */
+export function usePersonalFocusRefresh(
+  refresh: () => void,
+  identity: string,
+  enabled = true,
+) {
+  const subscribe = useContext(PersonalFocusRefresh);
+  useEffect(() => {
+    if (enabled) return subscribe?.(identity, refresh);
+  }, [subscribe, identity, refresh, enabled]);
 }
 
 function authHref(kind: "login" | "signup", fresh = false) {
@@ -255,6 +273,21 @@ export function PersonalSpace({
   const [version, setVersion] = useState(0);
   const [sessionRevalidating, setSessionRevalidating] = useState(false);
   const sessionRevalidation = useRef(false);
+  const currentSession = useRef(session);
+  currentSession.current = session;
+  const focusRefreshers = useRef(
+    new Set<{ identity: string; refresh: () => void }>(),
+  );
+  const subscribeFocusRefresh = useCallback(
+    (identity: string, refresh: () => void) => {
+      const subscriber = { identity, refresh };
+      focusRefreshers.current.add(subscriber);
+      return () => {
+        focusRefreshers.current.delete(subscriber);
+      };
+    },
+    [],
+  );
   const sessionReadRevision = useRef(0);
   const entryReadConsumed = useRef(false);
   const action = useAction(sessionAuthorityKey(session));
@@ -273,12 +306,36 @@ export function PersonalSpace({
     const controller = new AbortController();
     let pending = false;
     let revalidateAfterRead = false;
-    let lastFocus = 0;
+    let lastFocusRead = 0;
+    let focusTimer: number | undefined;
+    const requestFocusRead = () => {
+      if (pending) {
+        revalidateAfterRead = true;
+        return;
+      }
+      const remaining = Math.max(0, 1000 - (Date.now() - lastFocusRead));
+      if (remaining) {
+        if (focusTimer === undefined)
+          focusTimer = window.setTimeout(() => {
+            focusTimer = undefined;
+            if (!controller.signal.aborted && !isPageHidden()) {
+              lastFocusRead = Date.now();
+              void read();
+            }
+          }, remaining);
+      } else {
+        lastFocusRead = Date.now();
+        void read();
+      }
+    };
     const read = async () => {
       if (pending || isPageHidden()) return;
       pending = true;
       const revision = sessionReadRevision.current;
-      let verified = false;
+      const previousIdentity = currentSession.current
+        ? sessionAuthorityKey(currentSession.current)
+        : undefined;
+      let verified: PersonalSession | undefined;
       try {
         let current: PersonalSession;
         if (
@@ -311,8 +368,8 @@ export function PersonalSpace({
           revision !== sessionReadRevision.current
         )
           return;
-        // An unchanged revalidation keeps the same object, so documents and
-        // counts are not reread each time the tab regains focus.
+        // Retain the same identity object and mounted state when unchanged;
+        // eligible lists refresh only after this verified cycle completes.
         setPersonalSession((previous) =>
           previous && JSON.stringify(previous) === JSON.stringify(current)
             ? previous
@@ -320,7 +377,7 @@ export function PersonalSpace({
         );
         applyAccountLocale(current.user.preferredLocale);
         setError(undefined);
-        verified = true;
+        verified = current;
       } catch (cause) {
         if (
           controller.signal.aborted ||
@@ -342,12 +399,16 @@ export function PersonalSpace({
           revalidateAfterRead = true;
         if (!controller.signal.aborted && revalidateAfterRead) {
           revalidateAfterRead = false;
-          void read();
+          requestFocusRead();
         } else if (!controller.signal.aborted && !isPageHidden()) {
           setLoading(false);
           if (verified) {
             sessionRevalidation.current = false;
             setSessionRevalidating(false);
+            const identity = sessionAuthorityKey(verified);
+            if (identity === previousIdentity)
+              for (const subscriber of focusRefreshers.current)
+                if (subscriber.identity === identity) subscriber.refresh();
           }
         }
       }
@@ -356,30 +417,28 @@ export function PersonalSpace({
       // Capture the window wake before child list listeners, not field focus.
       if (event.type === "focus" && event.target !== window) return;
       if (isPageHidden()) {
-        lastFocus = 0;
+        lastFocusRead = 0;
+        if (focusTimer !== undefined) window.clearTimeout(focusTimer);
+        focusTimer = undefined;
         return;
       }
-      // Coalesce the focus/visibility pair, not the initial session read. A
-      // first return must revalidate even when the entry read just completed;
-      // otherwise document focus reads can already belong to another account.
-      const now = Date.now();
-      if (lastFocus && now - lastFocus < 1000) return;
-      lastFocus = now;
       sessionRevalidation.current = true;
       // Keep editor/list state mounted while making private data unavailable
-      // before an independently refreshed list can resolve for another account.
+      // until the parent can authorize subsequent child refreshes.
       flushSync(() => {
         setSessionRevalidating(true);
         setError(undefined);
       });
-      if (pending) revalidateAfterRead = true;
-      else void read();
+      // Coalescing delays a read within the bounded window; it never drops a
+      // real wake or lends an unverified identity to a child list refresh.
+      requestFocusRead();
     };
     void read();
     window.addEventListener("focus", onFocus, true);
     document.addEventListener("visibilitychange", onFocus, true);
     return () => {
       controller.abort();
+      if (focusTimer !== undefined) window.clearTimeout(focusTimer);
       window.removeEventListener("focus", onFocus, true);
       document.removeEventListener("visibilitychange", onFocus, true);
     };
@@ -502,42 +561,44 @@ export function PersonalSpace({
           hidden={sessionRevalidating}
           inert={sessionRevalidating}
         >
-          <ApplicationTimeScope>
-            {session.simulation && (
-              <div className="notice info" role="note">
-                <p>
-                  {msg(
-                    "Local simulation: accounts and documents are fictional.",
-                  )}
-                </p>
-              </div>
-            )}
-            {page === "/app/services" ? (
-              <PersonalServices
-                key={route}
-                session={session}
-                next={new URLSearchParams(route.split("?")[1]).get("next")}
-              />
-            ) : page === "/app/personal-account" ? (
-              <PersonalAccount
-                session={session}
-                onUpdated={(current) => {
-                  // An already running focus read may contain the pre-save profile.
-                  // Adopt the PATCH session without adding another read waterfall.
-                  sessionReadRevision.current += 1;
-                  setError(undefined);
-                  setPersonalSession((previous) =>
-                    previous?.user.id === session.user.id &&
-                    previous.csrfToken === session.csrfToken
-                      ? current
-                      : previous,
-                  );
-                }}
-              />
-            ) : (
-              documents(session, onSessionInvalid)
-            )}
-          </ApplicationTimeScope>
+          <PersonalFocusRefresh.Provider value={subscribeFocusRefresh}>
+            <ApplicationTimeScope>
+              {session.simulation && (
+                <div className="notice info" role="note">
+                  <p>
+                    {msg(
+                      "Local simulation: accounts and documents are fictional.",
+                    )}
+                  </p>
+                </div>
+              )}
+              {page === "/app/services" ? (
+                <PersonalServices
+                  key={route}
+                  session={session}
+                  next={new URLSearchParams(route.split("?")[1]).get("next")}
+                />
+              ) : page === "/app/personal-account" ? (
+                <PersonalAccount
+                  session={session}
+                  onUpdated={(current) => {
+                    // An already running focus read may contain the pre-save profile.
+                    // Adopt the PATCH session without adding another read waterfall.
+                    sessionReadRevision.current += 1;
+                    setError(undefined);
+                    setPersonalSession((previous) =>
+                      previous?.user.id === session.user.id &&
+                      previous.csrfToken === session.csrfToken
+                        ? current
+                        : previous,
+                    );
+                  }}
+                />
+              ) : (
+                documents(session, onSessionInvalid)
+              )}
+            </ApplicationTimeScope>
+          </PersonalFocusRefresh.Provider>
         </div>
       </main>
       <footer className="personal-space-footer">

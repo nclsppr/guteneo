@@ -526,21 +526,14 @@ test("a dirty workspace switch waits for discard and cancellation preserves its 
   if ((await workspace.getAttribute("aria-expanded")) !== "true")
     await workspace.click();
   await expect(other).toBeEnabled();
-  await other.click();
+  // Queue both native attempts while the choice is still accessible. Once the
+  // modal opens the menu is outside its active tree and cannot be operated.
+  await other.evaluate((button) => {
+    (button as HTMLButtonElement).click();
+    (button as HTMLButtonElement).click();
+  });
   await expect(leaveDialog(page)).toBeVisible();
-  // Moving focus into the modal closes the menu. Its existing choice is still
-  // mounted but hidden from the accessibility tree and disabled while pending.
-  const pendingChoice = page
-    .locator(".workspace-switcher")
-    .getByRole("button", {
-      name: "Other workspace",
-      exact: true,
-      includeHidden: true,
-    });
-  await expect(pendingChoice).toBeDisabled();
-  await pendingChoice.evaluate((button) =>
-    (button as HTMLButtonElement).click(),
-  );
+  await expect(leaveDialog(page)).toHaveCount(1);
   expect(switches).toEqual([]);
   await discardChanges(page);
   await expect(workspace).toContainText("Other workspace");
@@ -804,15 +797,17 @@ test("a valid prototype-named business record retains its label and can be selec
   expect(state.writes).toEqual([]);
 });
 
-test("coalesced A to B to A hash events never revive the earlier preparation reply", async ({
+test("confirmed A to B to A while Studio code is pending never revives the earlier preparation reply", async ({
   page,
 }) => {
   const { state, releasePost } = await fixture(page, { holdPost: true });
   let releaseStudio!: () => void;
+  let studioRequested = false;
   const held = new Promise<void>((resolve) => {
     releaseStudio = resolve;
   });
   await page.route(/\/assets\/document-studio-[^/]+\.js$/, async (route) => {
+    studioRequested = true;
     await held;
     await route.continue().catch(() => undefined);
   });
@@ -833,8 +828,9 @@ test("coalesced A to B to A hash events never revive the earlier preparation rep
       "recordHandoffHashChange",
       (event: { oldURL: string; newURL: string }) => hashEvents.push(event),
     );
-    // Let evaluate finish before waiting for browser navigation tasks. Keep the
-    // exact native event inventory observable from the test's bounded wait.
+    // Each dirty departure is first vetoed, then resumed after explicit discard.
+    // Hold B's code so both accepted visits occur before its view can commit;
+    // same-task hash assignments alone need not produce a native round trip.
     const visit = await page.evaluate(() => {
       const observer = window as typeof window & {
         recordHandoffHashChange: (event: {
@@ -851,17 +847,31 @@ test("coalesced A to B to A hash events never revive the earlier preparation rep
           oldURL: event.oldURL,
           newURL: event.newURL,
         });
-        if (++events === 2) window.removeEventListener("hashchange", observed);
+        if (++events === 4) window.removeEventListener("hashchange", observed);
       };
       window.addEventListener("hashchange", observed);
       window.location.hash = target.hash;
-      window.location.hash = new URL(original).hash;
       return { original, target: target.href };
     });
+    await expect(leaveDialog(page)).toBeVisible();
+    await expect(page).toHaveURL(visit.original);
+    await discardChanges(page);
+    await expect(page).toHaveURL(visit.target);
+    await expect.poll(() => studioRequested).toBe(true);
+    await expect(page.locator("#main-content")).toHaveAttribute("inert", "");
+    await page.evaluate((original) => {
+      window.location.hash = new URL(original).hash;
+    }, visit.original);
+    await expect(leaveDialog(page)).toBeVisible();
+    await expect(page).toHaveURL(visit.target);
+    await discardChanges(page);
+    await expect(page).toHaveURL(visit.original);
     await expect
       .poll(() => hashEvents)
       .toEqual([
         { oldURL: visit.original, newURL: visit.target },
+        { oldURL: visit.original, newURL: visit.target },
+        { oldURL: visit.target, newURL: visit.original },
         { oldURL: visit.target, newURL: visit.original },
       ]);
     releasePost();

@@ -218,16 +218,20 @@ test("operator can prepare while approval and report interfaces stay restricted"
     page.locator('a[href="#/app/prepare"]:visible').first(),
   ).toBeVisible();
   await page.goto("/#/app/dispatch/request");
-  const refusal = page.getByRole("alert").filter({ hasText: "FORBIDDEN" });
-  await expect(refusal).toContainText(
-    "Cette action n’est pas autorisée pour votre compte.",
-  );
-  const technicalCode = refusal.getByText("FORBIDDEN", { exact: true });
-  await expect(technicalCode).toBeHidden();
-  await refusal.getByText("Détails", { exact: true }).click();
-  await expect(technicalCode).toBeVisible();
-  await refusal.getByText("Détails", { exact: true }).click();
-  await expect(technicalCode).toBeHidden();
+  const approvalNotice = page.getByRole("note").filter({
+    hasText:
+      "Cet envoi attend une approbation. Un administrateur ou un superviseur autorisé peut l’approuver.",
+  });
+  await expect(approvalNotice).toBeVisible();
+  await expect(
+    approvalNotice.locator('a[href="#/app/account"]'),
+  ).toBeVisible();
+  await expect(
+    approvalNotice.getByRole("link", {
+      name: "Comprendre les rôles",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "/roles/");
   await expect(page.locator(".approval-panel")).toHaveCount(0);
   await expect(page.locator(".cancel-button")).toHaveCount(0);
   await page.goto("/#/app/usage");
@@ -238,6 +242,11 @@ test("operator can prepare while approval and report interfaces stay restricted"
   ).toBeVisible();
   expect(state.requested).not.toContain("/usage");
   expect(state.requested).not.toContain("/overview");
+  expect(
+    state.requested.some((path) =>
+      /^\/dispatches\/request\/(approve|confirm|cancel)$/.test(path),
+    ),
+  ).toBe(false);
 });
 
 test("observer sees documents and tracking without preparation controls", async ({

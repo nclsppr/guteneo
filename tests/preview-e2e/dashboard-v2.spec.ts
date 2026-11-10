@@ -92,12 +92,12 @@ test("V2 prioritizes existing correspondence and puts readable content before co
     }),
   ).toBe(true);
   await expect(consent).not.toBeChecked();
-  await expect(
-    page.getByRole("button", {
-      name: "Approuver et simuler l’envoi",
-      exact: true,
-    }),
-  ).toBeDisabled();
+  const approve = page.getByRole("button", {
+    name: /^Approuver et simuler l’envoi/,
+  });
+  await expect(approve.locator(".approval-price")).toBeVisible();
+  await expect(approve.locator(".approval-price")).toContainText("€");
+  await expect(approve).toBeDisabled();
   await consent.focus();
   await page.keyboard.press("Space");
   await expect(consent).toBeChecked();

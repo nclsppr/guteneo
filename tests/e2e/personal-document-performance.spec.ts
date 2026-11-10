@@ -601,7 +601,7 @@ test("personal account utilities share the menu, dismiss accessibly and follow t
   expect(state.writes).toEqual([]);
 });
 
-test("a focus refresh keeps another account's list hidden until its delayed identity is verified", async ({
+test("a focus refresh waits for its delayed identity before refreshing private documents", async ({
   page,
 }) => {
   const state = await fixture(page);
@@ -634,21 +634,34 @@ test("a focus refresh keeps another account's list hidden until its delayed iden
     await sessionGate;
     await route.fallback();
   });
+  const listReads = state.reads.filter(
+    (path) => path === "/api/personal/documents",
+  ).length;
   state.switchAccount();
   try {
     await refreshSession(page);
     await pendingSession;
-    const incomingDocument = page.getByRole("heading", {
-      name: "Document for personal-performance-b",
+    const preservedDocument = page.getByRole("heading", {
+      name: "Document for personal-performance-a",
       exact: true,
       includeHidden: true,
     });
-    // The independently refreshed list has arrived before the parent identity.
-    await expect(incomingDocument).toHaveCount(1);
+    // Preserve mounted state, but issue no list read under an unverified frame.
+    await expect(preservedDocument).toHaveCount(1);
+    expect(
+      state.reads.filter((path) => path === "/api/personal/documents"),
+    ).toHaveLength(listReads);
+    await expect(
+      page.getByRole("heading", {
+        name: "Document for personal-performance-b",
+        exact: true,
+        includeHidden: true,
+      }),
+    ).toHaveCount(0);
     const privateBody = page.locator(".personal-session-content");
     await expect(privateBody).toHaveAttribute("hidden", "");
     await expect(privateBody).toHaveAttribute("inert", "");
-    await expect(incomingDocument).toBeHidden();
+    await expect(preservedDocument).toBeHidden();
     await expect(page.locator(".workspace-identity-email")).toHaveText(
       "personal-performance-a@example.invalid",
     );
@@ -666,6 +679,26 @@ test("a focus refresh keeps another account's list hidden until its delayed iden
   ).toBeVisible();
   await expect(
     page.getByText("personal-performance-a@example.invalid", { exact: false }),
+  ).toHaveCount(0);
+  // A real second wake inside the coalescing window must schedule its own
+  // verified read, rather than requiring another focus event to discover A.
+  state.switchAccount("personal-performance-a");
+  await refreshSession(page);
+  await expect(page.locator(".personal-session-content")).toHaveAttribute(
+    "hidden",
+    "",
+  );
+  await expect(page.locator(".workspace-identity-email")).toHaveText(
+    "personal-performance-a@example.invalid",
+  );
+  await expect(
+    page.getByRole("heading", {
+      name: "Document for personal-performance-a",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("personal-performance-b@example.invalid", { exact: false }),
   ).toHaveCount(0);
   expect(state.writes).toEqual([]);
 });

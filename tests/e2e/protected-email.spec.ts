@@ -486,6 +486,12 @@ test("email without attachment requires its message and leaves automatic HTML to
   await page.getByRole("button", { name: "Vérifier et préparer" }).click();
   expect(writes).toEqual([]);
   await fillMessage(page);
+  await expect(page.getByLabel("Adresse e-mail", { exact: true })).toHaveValue(
+    "recipient@example.invalid",
+  );
+  await expect(page.getByLabel("Objet", { exact: true })).toHaveValue(
+    "Votre document",
+  );
   await expect(
     page.frameLocator(".email-preview").locator("body"),
   ).toContainText("Bonjour <Camille>");

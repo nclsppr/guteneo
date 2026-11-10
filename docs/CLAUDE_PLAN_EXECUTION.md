@@ -164,3 +164,35 @@ Unresolved email/postal browser failures keep their original assertions and gain
 finite failure-only diagnostics from synthetic fixtures, excluding entered
 content/recipient values. Fresh hosted CI must qualify these repairs. No
 production schema or runtime has been changed.
+
+### Second hosted pass
+
+[Run 42891102890](https://github.com/nclsppr/guteneo/actions/runs/42891102890)
+validated the historical populated migration fixture, security and rendering,
+and both distribution suites. Application stages recorded 1,391 passing
+results, 24 failures and 19 declared skips across 1,434 identities. The newly
+reached desktop preview stage passed 53 and failed two. This run also failed
+the final verifier; these partial inventories must not be combined into a
+complete passing browser result.
+
+Failure-only synthetic diagnostics identified controlled recipient fields
+being cleared after the first invalid submit: validation state was changed
+in the input capture phase before the controlled change handler captured its
+value. Validation clearing now bubbles after the target change, and the existing
+single-fill regression explicitly checks that recipient and subject survive.
+The same cause explains the iPhone postal name failure.
+
+Personal list focus refresh now subscribes to the parent verified-identity cycle.
+Every real tab wake closes the private-content barrier before bounded coalescing,
+including a rapid B-to-A return; a timer guarantees the read without another
+focus. Identity replacement mounts its own scoped list rather than notifying
+old-identity subscribers. The held-identity regression checks that no list
+refresh occurs before identity verification.
+
+Remaining presentation tests use actual disclosures, accessibility roles and
+priced controls; the preview CSV journey explicitly opens its paste option.
+Cross-tab language observers register before native reactivation, and the
+session-expiry fixture consistently returns an expired session rather than
+contradicting it with a successful parent read. Workspace authentication policy,
+consent assertions and every required CI gate remain intact. A fresh complete
+hosted result is still required.

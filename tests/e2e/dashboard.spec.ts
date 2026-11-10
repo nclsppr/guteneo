@@ -510,6 +510,12 @@ test("dashboard filters, confirmations and expiry copy follow the saved account 
       page.getByRole("button", { name: copy.confirm, exact: true }),
     ).toBeVisible();
     await page.getByRole("button", { name: copy.dismiss, exact: true }).click();
+    await page.goto("/#/app/dispatches?group=approval");
+    await expect(
+      page.getByRole("navigation", { name: copy.filter, exact: true }),
+    ).toBeVisible();
+    // A genuinely expired session refuses both the collection and the session
+    // recheck. A concurrent healthy session response would correctly recover it.
     await page.route("**/api/dispatches?group=approval", (route) =>
       route.fulfill({
         status: 401,
@@ -518,14 +524,64 @@ test("dashboard filters, confirmations and expiry copy follow the saved account 
         },
       }),
     );
-    await page.goto("/#/app/dispatches?group=approval");
+    await page.route("**/api/session", (route) =>
+      route.fulfill({
+        status: 401,
+        json: {
+          error: { code: "UNAUTHENTICATED", message: "Session expired" },
+        },
+      }),
+    );
+    let listRejected = false;
+    let sessionRejected = false;
+    const listRead = page
+      .waitForResponse(
+        (response) =>
+          response.url().endsWith("/api/dispatches?group=approval") &&
+          response.request().method() === "GET" &&
+          response.status() === 401,
+      )
+      .then((response) => {
+        listRejected = true;
+        return response;
+      });
+    const sessionRead = page
+      .waitForResponse(
+        (response) =>
+          response.url().endsWith("/api/session") &&
+          response.request().method() === "GET" &&
+          response.status() === 401,
+      )
+      .then((response) => {
+        sessionRejected = true;
+        return response;
+      });
+    // Register observers before activation: iPhone WebKit can start its native
+    // focus read while bringToFront is still completing.
+    await page.bringToFront();
+    await expect
+      .poll(() => page.evaluate(() => document.visibilityState))
+      .toBe("visible");
     // The first page revalidates on focus even while the collection cache is
-    // warm. Exercise that read rather than waiting for an arbitrary TTL.
-    await expect(
-      page.getByRole("navigation", { name: copy.filter, exact: true }),
-    ).toBeVisible();
-    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    // warm. Repeated wakes may coalesce for one second; observe the actual reads.
+    await expect(async () => {
+      await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+      expect(listRejected).toBe(true);
+      expect(sessionRejected).toBe(true);
+    }).toPass();
+    expect((await listRead).status()).toBe(401);
+    expect((await sessionRead).status()).toBe(401);
     await expect(page.locator(".session-expired")).toContainText(copy.expiry);
     await page.unroute("**/api/dispatches?group=approval");
+    await page.unroute("**/api/session");
+    const recovered = page.waitForResponse(
+      (response) =>
+        response.url().endsWith("/api/session") &&
+        response.request().method() === "GET" &&
+        response.status() === 200,
+    );
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    expect((await recovered).status()).toBe(200);
+    await expect(page.locator(".session-expired")).toHaveCount(0);
   }
 });

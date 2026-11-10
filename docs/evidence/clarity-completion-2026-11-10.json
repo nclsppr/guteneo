@@ -83,5 +83,23 @@
     },
     "integrations": "1.2.3 fingerprints matched",
     "browser": "not run locally; fresh exact-source hosted run required"
+  },
+  "secondHostedCi": {
+    "head": "cd095d641a65b0f011ccce8b586273fab19f5522",
+    "tree": "c97310dfc6698e103a85416e1236153a2f3b9807",
+    "runId": 42891102890,
+    "result": "failed",
+    "passedJobs": 15,
+    "applicationBrowser": {
+      "passed": 1391,
+      "failed": 24,
+      "declaredSkipped": 19,
+      "discovered": 1434
+    },
+    "desktopPreview": {
+      "passed": 53,
+      "failed": 2
+    },
+    "note": "Partial inventories; no complete green claim. Postal continuation passed mobile, while recipient capture-phase reset explained remaining iPhone postal/email failures. Fresh hosted qualification required after repairs."
   }
 }

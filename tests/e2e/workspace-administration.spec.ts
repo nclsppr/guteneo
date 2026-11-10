@@ -308,7 +308,7 @@ test("an administrator manages the workspace in Administration, not in the profi
   ).toHaveCount(0);
   const accountAccess = page.locator("details.account-access-details");
   await expect(accountAccess).not.toHaveAttribute("open");
-  await accountAccess.locator("summary").click();
+  await accountAccess.locator(":scope > summary").click();
   await expect(accountAccess).toHaveAttribute("open", "");
   await expect(
     accountAccess.getByRole("link", {
