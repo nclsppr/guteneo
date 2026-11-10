@@ -200,10 +200,10 @@
     "Kanal nicht gespeichert",
     "Kanal net gespäichert"
   ],
-  "Ce qui circule": [
-    "What is being sent",
-    "Was versendet wird",
-    "Wat verschéckt gëtt"
+  "Envois par canal": [
+    "Dispatches by channel",
+    "Sendungen nach Kanal",
+    "Sendunge pro Kanal"
   ],
   "Ces mesures utilisent les données analytiques échantillonnées de Cloudflare. Les erreurs sont des erreurs d’exécution du Worker ; elles ne représentent pas l’ensemble des réponses HTTP en erreur.": [
     "These measurements use Cloudflare’s sampled analytics. Errors are Worker execution errors; they do not represent all HTTP error responses.",
@@ -951,10 +951,10 @@
     "Navigation öffnen",
     "Navigatioun opmaachen"
   ],
-  "Où en sont les envois ?": [
-    "How are dispatches progressing?",
-    "Wie steht es um die Sendungen?",
-    "Wéi steet et mat de Sendungen?"
+  "États des envois": [
+    "Dispatch states",
+    "Status der Sendungen",
+    "Zoustänn vun de Sendungen"
   ],
   "Où vont les envois.": [
     "Where dispatches go.",

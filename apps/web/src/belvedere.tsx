@@ -956,7 +956,7 @@ function Overview(
         </section>
         <section className="bv-panel">
           <SectionHeading
-            title={bmsg("How are dispatches progressing?")}
+            title={bmsg("Dispatch states")}
             aside={
               <button className="bv-text-button" onClick={() => openJobs()}>
                 {bmsg("All dispatches")}
@@ -973,7 +973,7 @@ function Overview(
         </section>
         <section className="bv-panel">
           <SectionHeading
-            title={bmsg("What is being sent")}
+            title={bmsg("Dispatches by channel")}
             aside={
               <span className="bv-subtle">
                 {number(totals.documents)}
