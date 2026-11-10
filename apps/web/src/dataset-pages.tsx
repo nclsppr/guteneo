@@ -5,7 +5,7 @@ import { DataTable, type DataTableColumn } from "./data-table";
 import { useStudioAiPolicy, StudioAiNotice } from "./studio-ai";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useCurrentClientView } from "./client-write-recovery";
-import { ArrowRight, UploadSimple } from "@phosphor-icons/react";
+import { ArrowRight, Table, UploadSimple } from "@phosphor-icons/react";
 import type {
   DatasetProfile,
   ProfileSheet,
@@ -38,6 +38,7 @@ import {
   useAction,
   useResource,
   useRoute,
+  EmptyState,
 } from "./components";
 
 function datasetContext(route: string) {
@@ -193,9 +194,10 @@ export function DatasetLibrary({ session }: { session: Session }) {
       ) : (
         <div className="studio-list">
           {!resource.data?.items.length && (
-            <p className="studio-list-row">
-              {msg("Your files will appear here after import. ")}
-            </p>
+            <EmptyState
+              icon={<Table size={36} weight="light" aria-hidden="true" />}
+              title={msg("Your files will appear here after import. ")}
+            />
           )}
           {resource.data?.items.map((item) => (
             <article key={item.id} className="studio-list-row">

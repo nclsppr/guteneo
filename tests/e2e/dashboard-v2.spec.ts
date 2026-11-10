@@ -162,7 +162,7 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
     {
       path: "studio/templates",
       title: "Modèles",
-      action: "Créer un document",
+      action: "Nouveau modèle",
     },
     {
       path: "studio/datasets",
@@ -219,7 +219,7 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
 
   await page.goto("/#/app/studio/templates");
   const create = main.getByRole("button", {
-    name: "Créer un document",
+    name: "Nouveau modèle",
     exact: true,
   });
   await create.click();

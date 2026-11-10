@@ -3652,3 +3652,9 @@ ol {
     overflow: visible;
   }
 }
+
+/* An empty Studio list is one designed state, not a grey row. */
+.studio-list > .empty-state {
+  min-height: 220px;
+  border-bottom: 0;
+}

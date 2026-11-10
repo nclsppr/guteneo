@@ -380,6 +380,17 @@ const studioNavigation: readonly NavigationItem<StudioEntry>[] = [
   { id: "generations", path: studioRoutes.generations, Icon: Printer },
 ];
 
+// The public demo hides what it cannot run. The loopback simulation runs
+// Studio, so its menu lists Studio's pages instead of an empty sidebar.
+function previewHides(id: string) {
+  if (!publicPreview) return false;
+  if (id === "secure-distributions") return true;
+  return (
+    !isAdvancedLocalPreview &&
+    ["templates", "datasets", "generations"].includes(id)
+  );
+}
+
 export function App() {
   const [scenarioRevision, setScenarioRevision] = useState(0);
   return (
@@ -1048,16 +1059,7 @@ function WorkspaceApplication({
               </a>
             )}
             {navigation
-              .filter(
-                (n) =>
-                  !publicPreview ||
-                  ![
-                    "secure-distributions",
-                    "templates",
-                    "datasets",
-                    "generations",
-                  ].includes(n.id),
-              )
+              .filter((n) => !previewHides(n.id))
               .map(({ id, path, Icon }) => (
                 <a
                   key={id}
@@ -1098,16 +1100,7 @@ function WorkspaceApplication({
               ? [{ label: t.dispatch.new, path: "/app/prepare" }]
               : []),
             ...navigation
-              .filter(
-                (entry) =>
-                  !publicPreview ||
-                  ![
-                    "secure-distributions",
-                    "templates",
-                    "datasets",
-                    "generations",
-                  ].includes(entry.id),
-              )
+              .filter((entry) => !previewHides(entry.id))
               .map((entry) => ({
                 label: navigationLabel(entry.id),
                 path: entry.path,

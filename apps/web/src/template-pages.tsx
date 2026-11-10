@@ -47,6 +47,7 @@ import {
   useAction,
   useResource,
   useRoute,
+  EmptyState,
 } from "./components";
 import { BusinessDataForm } from "./template-data-form";
 import { reconcileDesignerChange } from "../../../packages/templates/designer";
@@ -188,7 +189,7 @@ export function TemplateLibrary({
               onClick={() => setShowBlank(!showBlank)}
             >
               <Plus size={18} />
-              {msg("Create a document ")}
+              {msg("New template")}
             </button>
           )
         }
@@ -238,9 +239,10 @@ export function TemplateLibrary({
       ) : (
         <div className="studio-list">
           {!templates.data?.items.length && (
-            <p className="studio-list-row">
-              {msg("Your library is ready for its first template. ")}
-            </p>
+            <EmptyState
+              icon={<FileText size={36} weight="light" aria-hidden="true" />}
+              title={msg("Your library is ready for its first template. ")}
+            />
           )}
           {templates.data?.items.map((item) => (
             <article className="studio-list-row" key={item.id}>

@@ -1,3 +1,4 @@
+import { Plus, Printer } from "@phosphor-icons/react";
 import type {
   GenerationContextPage,
   GenerationRecordContext,
@@ -32,6 +33,7 @@ import {
   useResource,
   useAction,
   useRoute,
+  EmptyState,
 } from "./components";
 
 const stateLabel: Record<string, string> = {
@@ -83,6 +85,7 @@ export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
         action={
           canPrepare && (
             <a className="button primary" href={`#${studioRoutes.templates}`}>
+              <Plus size={18} aria-hidden="true" />
               {msg("Create a document ")}
             </a>
           )
@@ -95,9 +98,10 @@ export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
       ) : (
         <div className="studio-list">
           {!resource.data?.items.length && (
-            <p className="studio-list-row">
-              {msg("Generated PDFs will appear here.")}
-            </p>
+            <EmptyState
+              icon={<Printer size={36} weight="light" aria-hidden="true" />}
+              title={msg("Generated PDFs will appear here.")}
+            />
           )}
           {resource.data?.items.map((job) => (
             <article className="studio-list-row" key={job.id}>
