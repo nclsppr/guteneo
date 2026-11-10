@@ -38,6 +38,7 @@
         "brand.tsx",
         "components.tsx",
         "command-palette.tsx",
+        "outcome-tray.tsx",
         "client-write-recovery.ts",
         "data-table.tsx",
         "data-table-model.ts",

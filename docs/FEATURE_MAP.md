@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**28 domains · 475 features · 46 journeys · 78 documented REST operations · 83 MCP tools**
+**28 domains · 476 features · 46 journeys · 78 documented REST operations · 83 MCP tools**
 Updated 2026-11-10.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -31,7 +31,7 @@ mindmap
     Operate
       Campaigns and tracking (9)
       Credits and billing (10)
-      Workspace layout and browser appearance (42)
+      Workspace layout and browser appearance (43)
       PDF verification (10)
     Interfaces
       Assistants and API (31)
@@ -74,7 +74,7 @@ mindmap
 
 - [Campaigns and tracking](#campaigns) — 9 features; capability-gated.
 - [Credits and billing](#billing) — 10 features; partial.
-- [Workspace layout and browser appearance](#dashboard) — 42 features; browser-session.
+- [Workspace layout and browser appearance](#dashboard) — 43 features; browser-session.
 - [PDF verification](#pdf-verification) — 10 features; capability-gated.
 
 ### Interfaces
@@ -944,6 +944,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Automated axe-core WCAG 2 A/AA check of the main Correspondence pages in four languages and both themes in the preview suite; a critical violation fails it
 - Command palette (Ctrl or ⌘ + K) listing the pages the menu already shows for the signed-in role in the current application; it grants no access and guarded pages still refuse
 - Saved table view for the dispatch and document tables: this browser remembers sort and page size only; search text and filters are never stored
+- Outcome tray: an approval or quote renewal that completes after the person left the dispatch page is announced on the current page with a link to the dispatch; the abandoned view is never modified and the tray empties when the signed-in identity changes
 
 **Contract:** [DASHBOARD_V2.md](DASHBOARD_V2.md) · **Implementation:** [apps/web/src/account-page.tsx](../apps/web/src/account-page.tsx)
 

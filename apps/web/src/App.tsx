@@ -87,6 +87,7 @@ import { WorkspaceIdentity } from "./workspace-identity";
 import { WorkspaceRouteBoundary } from "./workspace-route-boundary";
 import { RolePermissionNotice } from "./role-guide";
 import { CommandPalette } from "./command-palette";
+import { OutcomeTray } from "./outcome-tray";
 import { InvitationPage } from "./invitation-page";
 import { LegalPage } from "./legal-page";
 import { InformationPage, getInformationPages } from "./information-page";
@@ -1090,6 +1091,7 @@ function WorkspaceApplication({
         </div>
       </aside>
       <div className="workspace-main">
+        <OutcomeTray key={`${session.organization.id}:${session.user.id}`} />
         <CommandPalette
           items={[
             ...(space === "workshop" && permissions.prepareDispatches

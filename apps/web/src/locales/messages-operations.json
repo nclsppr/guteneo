@@ -3032,5 +3032,20 @@
     "The email qualification could not be checked.",
     "Die E-Mail-Qualifizierung konnte nicht überprüft werden.",
     "D’E-Mail-Qualifikatioun konnt net iwwerpréift ginn."
+  ],
+  "Votre approbation a été enregistrée après votre départ de la page. Ouvrez l’envoi pour terminer l’envoi.": [
+    "Your approval was recorded after you left the page. Open the dispatch to finish sending.",
+    "Ihre Freigabe wurde erfasst, nachdem Sie die Seite verlassen hatten. Öffnen Sie die Sendung, um den Versand abzuschließen.",
+    "Är Fräigab gouf opgeholl, nodeems Dir d’Säit verlooss hat. Maacht d’Sendung op, fir de Versand ofzeschléissen."
+  ],
+  "Votre approbation a été enregistrée après votre départ de la page.": [
+    "Your approval was recorded after you left the page.",
+    "Ihre Freigabe wurde erfasst, nachdem Sie die Seite verlassen hatten.",
+    "Är Fräigab gouf opgeholl, nodeems Dir d’Säit verlooss hat."
+  ],
+  "Un nouveau devis a été préparé après votre départ de la page. Vérifiez-le avant d’approuver.": [
+    "A new quote was prepared after you left the page. Review it before approving.",
+    "Ein neues Angebot wurde erstellt, nachdem Sie die Seite verlassen hatten. Prüfen Sie es vor der Freigabe.",
+    "En neien Devis gouf virbereet, nodeems Dir d’Säit verlooss hat. Préift en, ier Dir fräigitt."
   ]
 }

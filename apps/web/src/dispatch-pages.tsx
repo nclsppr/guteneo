@@ -4,6 +4,7 @@ import { useCurrentClientView } from "./client-write-recovery";
 export { RememberDirectChoice } from "./assistant-state";
 import { studioRoutes } from "./app-routes";
 import { FileInput } from "./file-input";
+import { announceLateOutcome } from "./outcome-tray";
 import { WorkspaceContacts } from "./workspace-contacts";
 import { RolePermissionNotice } from "./role-guide";
 import { formatLocale } from "./locale";
@@ -2151,7 +2152,18 @@ export function DispatchDetailPage({
             ...(emailAttestationRequired ? { recipientRequested } : {}),
           },
         });
-        if (!isCurrent()) return;
+        if (!isCurrent()) {
+          // The approval is recorded; say so where the person now is.
+          announceLateOutcome(
+            d?.channel === "email"
+              ? msg(
+                  "Your approval was recorded after you left the page. Open the dispatch to finish sending.",
+                )
+              : msg("Your approval was recorded after you left the page."),
+            `/app/dispatch/${encodeURIComponent(id)}`,
+          );
+          return;
+        }
         if (d?.channel === "email") {
           try {
             await api(`/dispatches/${encodeURIComponent(id)}/confirm`, {
@@ -2204,7 +2216,15 @@ export function DispatchDetailPage({
         `/dispatches/${encodeURIComponent(id)}/renew-quote`,
         { method: "POST", key: `web-renew:${id}`, body: {} },
       );
-      if (!isCurrent()) return;
+      if (!isCurrent()) {
+        announceLateOutcome(
+          msg(
+            "A new quote was prepared after you left the page. Review it before approving.",
+          ),
+          `/app/dispatch/${encodeURIComponent(replacement.id)}`,
+        );
+        return;
+      }
       setConsent(false);
       setRecipientRequested(false);
       go(`/app/dispatch/${encodeURIComponent(replacement.id)}`);
