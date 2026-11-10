@@ -99,9 +99,10 @@
         "Login email distinguishes members with the same name; effective permissions stay readable",
         "Sensitive preparations are visible to their creator and current approvers; operators and observers gain no general access to other preparations",
         "Sensitive approval and recipient/account association require a browser under the current document policy; OAuth confirmation follows recorded browser evidence, with no expert-mandate substitute",
-        "Workspace roles grant no access to another person’s vault; a recipient gains no membership in the sender’s workspace"
+        "Workspace roles grant no access to another person’s vault; a recipient gains no membership in the sender’s workspace",
+        "Approval request: a member who can prepare asks the workspace's approvers to review a dispatch awaiting approval, from a human browser session only; one audit receipt per version (fingerprint), shown to approvers on the dispatch; it approves, reserves, sends and notifies nothing"
       ],
-      "status": "Implemented; invitations require separately configured delivery.",
+      "status": "Implemented; invitations require separately configured delivery. The 10 November 2026 approval request (POST /api/dispatches/:id/request-approval, migration 0078 index, dispatch page control) is a local source candidate covered by the workspace-role integration test; it requires CI, application-browser and publication evidence and is not exposed to assistants, the public REST contract or the native applications.",
       "tests": [
         "tests/integration/workspace-roles.test.ts",
         "tests/unit/account.test.ts",
@@ -1843,6 +1844,15 @@
       "branch": "Private default-off operator RPC and offline private-file CLI; no new browser, MCP, native processor or Belvédère authority",
       "doc": "ACCOUNT_DELETION.md",
       "failure": "Request acceptance is not erasure. Last-administrator/unsupported ownership, unresolved execution/storage debt, missing individual retention review or changed snapshot blocks beginning. Expired/lost leases cannot publish checkpoints. Unknown storage or Auth0 effects remain processing and recover only against the same exact targets. Completion requires fresh no-auth/no-content checks, preserved shared/financial integrity and delivered request/plan-bound notice evidence; the processor sends no message. Retained backup/processor evidence has reviewed exceptions and no global anonymity claim. Local tests do not establish real Auth0 deletion, real email receipt or production activation."
+    },
+    {
+      "id": "J47",
+      "title": "Ask for approval of a prepared dispatch",
+      "actor": "Operator, or any member who can prepare but not approve, in a human browser session; then an administrator or a supervisor with the approval option",
+      "steps": "Open a dispatch awaiting approval → read who can approve it → choose Ask for approval → the server records one audit receipt for the current fingerprint after rechecking membership and preparation permission → the page shows the request date → an approver opens the dispatch from the Overview queue or the dispatch list, reads who asked and when, reviews the exact version and approves or cancels through the unchanged approval path.",
+      "branch": "Web only; no REST OAuth, MCP, native, email or push surface. Nothing is reserved, accepted, sent or notified outside the application",
+      "doc": "API_CONTRACT.md",
+      "failure": "Observers and assistants receive FORBIDDEN; another workspace receives NOT_FOUND; a dispatch that is not awaiting approval receives 409 INVALID_STATE. Asking again returns the first receipt. A new version (new fingerprint) needs its own request. The request never substitutes for approval, and withdrawing preparation permission before the write leaves no receipt."
     }
   ],
   "roles": [
@@ -2316,6 +2326,14 @@
       "No",
       "No",
       "No"
+    ],
+    [
+      "Ask approvers to review a dispatch awaiting approval",
+      "Yes",
+      "Yes",
+      "Yes",
+      "No",
+      "Cannot raise a request for human consent; human browser session only"
     ]
   ],
   "schemaVersion": 2

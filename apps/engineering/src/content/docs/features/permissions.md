@@ -69,5 +69,6 @@ There are four human membership roles. A connected assistant is a separate OAuth
 | Resolve a durably closed queue incident | Browser, current session and CSRF | No | No | No | No |
 | Request deletion of own account | Own authenticated native account or published support channel | Own authenticated native account or published support channel | Own authenticated native account or published support channel | Own authenticated native account or published support channel | No |
 | Process a reviewed account-deletion plan | No workspace-role authority; separate private operator RPC | No | No | No | No |
+| Ask approvers to review a dispatch awaiting approval | Yes | Yes | Yes | No | Cannot raise a request for human consent; human browser session only |
 
 Read [authority and tenancy](/architecture/authority-and-tenancy/) for the enforcement model and [MCP](/integrations/mcp/) for assistant constraints.

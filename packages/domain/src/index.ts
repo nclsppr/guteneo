@@ -2022,7 +2022,7 @@ export class DomainService {
   }
   async getDispatch(ctx: ActorContext, id: string) {
     const dispatch = await this.dispatch(ctx, id);
-    const [events, attempts, approval] = await Promise.all([
+    const [events, attempts, approval, approvalRequest] = await Promise.all([
       this.db
         .prepare(
           "SELECT id,provider,kind,payload_json,occurred_at,received_at,dispatch_id FROM provider_events WHERE organization_id=? AND dispatch_id=? ORDER BY occurred_at,id",
@@ -2045,12 +2045,15 @@ export class DomainService {
           expires_at: string;
           approval_kind: "browser" | "expert";
         }>(),
+      this.approvalRequest(ctx, id, dispatch.fingerprint),
     ]);
     return {
       dispatch,
       events: events.results,
       attempts: attempts.results,
       approval,
+      // A request is not an approval and cannot create consent.
+      approvalRequest,
     };
   }
   async listDispatches(
@@ -2158,6 +2161,59 @@ export class DomainService {
       );
     await this.audit(ctx, "dispatch.cancelled", id).run();
     return row;
+  }
+  /**
+   * A preparer asks the workspace's approvers to review a dispatch awaiting
+   * approval. It records the request only: it approves nothing, reserves
+   * nothing, sends nothing and notifies nobody outside the application. One
+   * request exists per version (fingerprint); asking again returns it.
+   */
+  async requestDispatchApproval(ctx: ActorContext, id: string) {
+    writable(ctx);
+    // A person asks from the browser; an assistant cannot raise a request
+    // for human consent on its own.
+    if (ctx.actor !== "browser")
+      throw new DomainError(
+        "FORBIDDEN",
+        "An approval request is made by a person in the browser.",
+        403,
+      );
+    const dispatch = await this.dispatch(ctx, id);
+    if (dispatch.status !== "prepared")
+      throw new DomainError(
+        "INVALID_STATE",
+        "Only a dispatch awaiting approval can be submitted for approval.",
+        409,
+      );
+    const authority = membershipPermissionFence(ctx, "prepareDispatches");
+    await this.audit(
+      ctx,
+      "dispatch.approval_requested",
+      id,
+      { fingerprint: dispatch.fingerprint },
+      {
+        condition: `(${authority.condition}) AND NOT EXISTS(SELECT 1 FROM audit_log r WHERE r.organization_id=? AND r.resource_id=? AND r.action='dispatch.approval_requested' AND json_extract(r.details_json,'$.fingerprint')=?)`,
+        values: [
+          ...authority.values,
+          ctx.organizationId,
+          id,
+          dispatch.fingerprint,
+        ],
+      },
+    ).run();
+    const request = await this.approvalRequest(ctx, id, dispatch.fingerprint);
+    if (!request)
+      throw new DomainError("FORBIDDEN", "Editing permission required.", 403);
+    return request;
+  }
+  /** Earliest approval request for one version of a dispatch, if any. */
+  private approvalRequest(ctx: ActorContext, id: string, fingerprint: string) {
+    return this.db
+      .prepare(
+        "SELECT r.created_at AS requested_at,u.name AS requested_by FROM audit_log r LEFT JOIN users u ON u.id=r.user_id WHERE r.organization_id=? AND r.resource_id=? AND r.action='dispatch.approval_requested' AND json_extract(r.details_json,'$.fingerprint')=? ORDER BY r.created_at,r.id LIMIT 1",
+      )
+      .bind(ctx.organizationId, id, fingerprint)
+      .first<{ requested_at: string; requested_by: string | null }>();
   }
   async createCampaign(ctx: ActorContext, input: { name: string }) {
     writable(ctx);

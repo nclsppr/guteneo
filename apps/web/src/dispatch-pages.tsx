@@ -2245,6 +2245,16 @@ export function DispatchDetailPage({
       go(`/app/dispatch/${encodeURIComponent(replacement.id)}`);
     });
   }
+  async function requestApproval() {
+    const isCurrent = currentView();
+    await action.run(async () => {
+      await api(`/dispatches/${encodeURIComponent(id)}/request-approval`, {
+        method: "POST",
+        body: {},
+      });
+      if (isCurrent()) resource.refresh();
+    });
+  }
   async function cancel() {
     await action.run(async () => {
       await api(`/dispatches/${encodeURIComponent(id)}/cancel`, {
@@ -2572,6 +2582,35 @@ export function DispatchDetailPage({
         </section>
         <section className="dispatch-review-actions">
           {pendingApproval && !canApprove && <RolePermissionNotice approval />}
+          {pendingApproval &&
+            !canApprove &&
+            canPrepare &&
+            !isPublicPreview &&
+            (resource.data?.approvalRequest ? (
+              <p className="field-hint" role="status">
+                {msg(
+                  "Approval requested on {0}.",
+                  date(resource.data.approvalRequest.requested_at),
+                )}
+              </p>
+            ) : (
+              <button
+                className="button"
+                disabled={action.pending}
+                onClick={() => void requestApproval()}
+              >
+                {msg("Ask for approval")}
+              </button>
+            ))}
+          {pendingApproval && canApprove && resource.data?.approvalRequest && (
+            <p className="notice info" role="note">
+              {msg(
+                "{0} asked for approval on {1}.",
+                resource.data.approvalRequest.requested_by ?? msg("A member"),
+                date(resource.data.approvalRequest.requested_at),
+              )}
+            </p>
+          )}
           {canApprove &&
             pendingApproval &&
             resource.data?.approval?.approval_kind === "expert" && (

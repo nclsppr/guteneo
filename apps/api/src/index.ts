@@ -1284,6 +1284,16 @@ app.post("/api/dispatches/:id/confirm", async (c) => {
 app.post("/api/dispatches/:id/cancel", async (c) =>
   c.json(await domain(c.env).cancelDispatch(c.get("actor"), c.req.param("id"))),
 );
+app.post("/api/dispatches/:id/request-approval", async (c) => {
+  // Human browser session with CSRF, like approval itself.
+  const session = await authenticateBrowser(c.req.raw, c.env, true);
+  return c.json(
+    await domain(c.env).requestDispatchApproval(
+      session.context as ActorContext,
+      c.req.param("id"),
+    ),
+  );
+});
 app.get("/api/campaigns", async (c) =>
   c.json(await domain(c.env).listCampaigns(c.get("actor"), ...page(c.req.url))),
 );

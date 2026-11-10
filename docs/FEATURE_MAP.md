@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**28 domains · 476 features · 46 journeys · 78 documented REST operations · 83 MCP tools**
+**28 domains · 477 features · 47 journeys · 78 documented REST operations · 83 MCP tools**
 Updated 2026-11-10.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -15,7 +15,7 @@ mindmap
   root((Guteneo))
     Access
       Access and identity (40)
-      Team and responsibilities (10)
+      Team and responsibilities (11)
       Workspace administration and reports (14)
     Create
       Documents and protection (23)
@@ -52,7 +52,7 @@ mindmap
 ### Access
 
 - [Access and identity](#identity) — 40 features; browser-session.
-- [Team and responsibilities](#team) — 10 features; browser-session.
+- [Team and responsibilities](#team) — 11 features; browser-session.
 - [Workspace administration and reports](#administration) — 14 features; browser-session.
 
 ### Create
@@ -165,6 +165,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Resolve a durably closed queue incident | Browser, current session and CSRF | No | No | No | No |
 | Request deletion of own account | Own authenticated native account or published support channel | Own authenticated native account or published support channel | Own authenticated native account or published support channel | Own authenticated native account or published support channel | No |
 | Process a reviewed account-deletion plan | No workspace-role authority; separate private operator RPC | No | No | No | No |
+| Ask approvers to review a dispatch awaiting approval | Yes | Yes | Yes | No | Cannot raise a request for human consent; human browser session only |
 
 Supervisor approval/reporting options are independent and off by default. Resource ownership/context checks still apply. See [workspace roles](WORKSPACE_ROLES.md), [expert approval](EXPERT_APPROVAL.md) and [studio access](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -227,7 +228,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="team"></a>
 ### Team and responsibilities
 
-**Availability model:** browser-session. Implemented; invitations require separately configured delivery.
+**Availability model:** browser-session. Implemented; invitations require separately configured delivery. The 10 November 2026 approval request (POST /api/dispatches/:id/request-approval, migration 0078 index, dispatch page control) is a local source candidate covered by the workspace-role integration test; it requires CI, application-browser and publication evidence and is not exposed to assistants, the public REST contract or the native applications.
 
 **Surfaces:** Authenticated browser; invitation emails are authored in English.
 
@@ -241,6 +242,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Sensitive preparations are visible to their creator and current approvers; operators and observers gain no general access to other preparations
 - Sensitive approval and recipient/account association require a browser under the current document policy; OAuth confirmation follows recorded browser evidence, with no expert-mandate substitute
 - Workspace roles grant no access to another person’s vault; a recipient gains no membership in the sender’s workspace
+- Approval request: a member who can prepare asks the workspace's approvers to review a dispatch awaiting approval, from a human browser session only; one audit receipt per version (fingerprint), shown to approvers on the dispatch; it approves, reserves, sends and notifies nothing
 
 **Contract:** [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md) · **Implementation:** [packages/contracts/src/roles.ts](../packages/contracts/src/roles.ts)
 
@@ -1713,6 +1715,16 @@ Request deletion explicitly in native Account, or use the published support chan
 **Failure/recovery:** Request acceptance is not erasure. Last-administrator/unsupported ownership, unresolved execution/storage debt, missing individual retention review or changed snapshot blocks beginning. Expired/lost leases cannot publish checkpoints. Unknown storage or Auth0 effects remain processing and recover only against the same exact targets. Completion requires fresh no-auth/no-content checks, preserved shared/financial integrity and delivered request/plan-bound notice evidence; the processor sends no message. Retained backup/processor evidence has reviewed exceptions and no global anonymity claim. Local tests do not establish real Auth0 deletion, real email receipt or production activation.
 
 [Detailed contract](ACCOUNT_DELETION.md).
+
+### J47 · Ask for approval of a prepared dispatch
+
+**Actor:** Operator, or any member who can prepare but not approve, in a human browser session; then an administrator or a supervisor with the approval option. **Branch:** Web only; no REST OAuth, MCP, native, email or push surface. Nothing is reserved, accepted, sent or notified outside the application.
+
+Open a dispatch awaiting approval → read who can approve it → choose Ask for approval → the server records one audit receipt for the current fingerprint after rechecking membership and preparation permission → the page shows the request date → an approver opens the dispatch from the Overview queue or the dispatch list, reads who asked and when, reviews the exact version and approves or cancels through the unchanged approval path.
+
+**Failure/recovery:** Observers and assistants receive FORBIDDEN; another workspace receives NOT_FOUND; a dispatch that is not awaiting approval receives 409 INVALID_STATE. Asking again returns the first receipt. A new version (new fingerprint) needs its own request. The request never substitutes for approval, and withdrawing preparation permission before the write leaves no receipt.
+
+[Detailed contract](API_CONTRACT.md).
 
 ## Required maintenance
 

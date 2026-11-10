@@ -3047,5 +3047,21 @@
     "A new quote was prepared after you left the page. Review it before approving.",
     "Ein neues Angebot wurde erstellt, nachdem Sie die Seite verlassen hatten. Prüfen Sie es vor der Freigabe.",
     "En neien Devis gouf virbereet, nodeems Dir d’Säit verlooss hat. Préift en, ier Dir fräigitt."
-  ]
+  ],
+  "Demander l’approbation": [
+    "Ask for approval",
+    "Freigabe anfragen",
+    "Fräigab ufroen"
+  ],
+  "Approbation demandée le {0}.": [
+    "Approval requested on {0}.",
+    "Freigabe angefragt am {0}.",
+    "Fräigab ugefrot den {0}."
+  ],
+  "{0} a demandé l’approbation le {1}.": [
+    "{0} asked for approval on {1}.",
+    "{0} hat am {1} um Freigabe gebeten.",
+    "{0} huet den {1} ëm Fräigab gefrot."
+  ],
+  "Un membre": ["A member", "Ein Mitglied", "E Member"]
 }

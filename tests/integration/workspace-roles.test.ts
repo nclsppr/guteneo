@@ -265,6 +265,41 @@ describe("workspace roles on current D1 membership", () => {
     expect(await count("outbox")).toBe(0);
   });
 
+  it("lets a preparer ask for approval once per version without approving or sending anything", async () => {
+    const dispatch = await prepare();
+    const first = await domain.requestDispatchApproval(
+      operator.context,
+      dispatch.id,
+    );
+    const again = await domain.requestDispatchApproval(
+      operator.context,
+      dispatch.id,
+    );
+    expect(again).toEqual(first);
+    const detail = await domain.getDispatch(admin.context, dispatch.id);
+    expect(detail.approvalRequest).toEqual(first);
+    expect(detail.approval).toBeNull();
+    await expect(
+      domain.requestDispatchApproval(observer.context, dispatch.id),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(
+      domain.requestDispatchApproval(outsider.context, dispatch.id),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    await expect(
+      domain.requestDispatchApproval(
+        { ...operator.context, actor: "mcp" },
+        dispatch.id,
+      ),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    expect(await count("approvals")).toBe(0);
+    expect(await count("reservations")).toBe(0);
+    expect(await count("outbox")).toBe(0);
+    await domain.cancelDispatch(admin.context, dispatch.id);
+    await expect(
+      domain.requestDispatchApproval(operator.context, dispatch.id),
+    ).rejects.toMatchObject({ code: "INVALID_STATE" });
+  });
+
   it("starts supervisor approval and reporting closed, with operational preparation available", async () => {
     const dispatch = await prepare(supervisor.context);
     await expect(

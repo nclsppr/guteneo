@@ -187,10 +187,11 @@ contract](PUBLIC_PDF_IMPORT.md); local/private URLs and redirects remain refused
 | --- | --- |
 | `POST /api/dispatches` | Strict body below and `Idempotency-Key`; `201 Dispatch`, `prepared`. |
 | `GET /api/dispatches?cursor=…&limit=30` | `{items:Dispatch[],nextCursor:string\|null}`; optional organization-wide `group` of `approval`, `in_progress`, `attention`, `done`; otherwise `400 INVALID_GROUP`. Shared groups: `packages/contracts/src/dispatch-groups.ts`. |
-| `GET /api/dispatches/:id` | `{dispatch,events,attempts,approval}`. |
+| `GET /api/dispatches/:id` | `{dispatch,events,attempts,approval,approvalRequest}`. |
 | `POST /api/dispatches/:id/approve` | Human browser/CSRF; strict hexadecimal SHA-256 `{fingerprint}`; returns `Dispatch`. |
 | `POST /api/dispatches/:id/confirm` | Required `Idempotency-Key`; no body parameters used; durably accepted `Dispatch`. |
 | `POST /api/dispatches/:id/cancel` | No body parameters used; cancelled `Dispatch` or `409 CANCELLATION_TOO_LATE`. |
+| `POST /api/dispatches/:id/request-approval` | Human browser/CSRF with preparation permission; no body parameters used; `{requested_at,requested_by}` for the current fingerprint, idempotent, or `409 INVALID_STATE` when the dispatch is not awaiting approval. It approves, reserves, sends and notifies nothing; `GET /api/dispatches/:id` returns it as `approvalRequest`. |
 
 Preparation is strict at the top level:
 

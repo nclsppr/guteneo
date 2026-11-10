@@ -105,6 +105,11 @@ export type EventRecord = {
   payload_json?: string;
 };
 export type DispatchDetail = {
+  /** A preparer's request for review; never an approval. */
+  approvalRequest?: {
+    requested_at: string;
+    requested_by: string | null;
+  } | null;
   approval?: {
     fingerprint: string;
     expires_at: string;

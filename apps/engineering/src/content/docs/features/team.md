@@ -1,6 +1,6 @@
 ---
 title: "Team and responsibilities"
-description: "10 capabilities in the access branch of Guteneo."
+description: "11 capabilities in the access branch of Guteneo."
 sidebar:
   order: 2
 ---
@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Authenticated browser session.
 
-Implemented; invitations require separately configured delivery.
+Implemented; invitations require separately configured delivery. The 10 November 2026 approval request (POST /api/dispatches/:id/request-approval, migration 0078 index, dispatch page control) is a local source candidate covered by the workspace-role integration test; it requires CI, application-browser and publication evidence and is not exposed to assistants, the public REST contract or the native applications.
 
 **Surfaces:** Authenticated browser; invitation emails are authored in English.
 
@@ -28,4 +28,5 @@ Implemented; invitations require separately configured delivery.
 <li id="feature-0f4c31854ae1">Sensitive preparations are visible to their creator and current approvers; operators and observers gain no general access to other preparations</li>
 <li id="feature-149da7afd29d">Sensitive approval and recipient/account association require a browser under the current document policy; OAuth confirmation follows recorded browser evidence, with no expert-mandate substitute</li>
 <li id="feature-f4b883cce481">Workspace roles grant no access to another person’s vault; a recipient gains no membership in the sender’s workspace</li>
+<li id="feature-ea866dbcab8b">Approval request: a member who can prepare asks the workspace's approvers to review a dispatch awaiting approval, from a human browser session only; one audit receipt per version (fingerprint), shown to approvers on the dispatch; it approves, reserves, sends and notifies nothing</li>
 </ol>
