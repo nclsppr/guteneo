@@ -114,49 +114,6 @@ export function PublicHomepage() {
         </section>
 
         <section
-          className="public-home-workflow public-home-section"
-          id="how"
-          tabIndex={-1}
-          aria-labelledby="home-workflow-title"
-        >
-          <div className="public-home-section-heading">
-            <h2 id="home-workflow-title">
-              {msg("From your document to its destination.")}
-            </h2>
-            <a className="text-link" href="/how-it-works/">
-              {msg("Follow an example")}
-              <ArrowRight size={18} aria-hidden="true" />
-            </a>
-          </div>
-          <ol>
-            <li>
-              <h3>{msg("Prepare")}</h3>
-              <p>
-                {msg(
-                  "Import a PDF, create a document or ask your connected assistant to prepare your dispatch.",
-                )}
-              </p>
-            </li>
-            <li>
-              <h3>{msg("Review")}</h3>
-              <p>
-                {msg(
-                  "Check the exact document, recipient, channel and cost. By default, you approve in Guteneo.",
-                )}
-              </p>
-            </li>
-            <li>
-              <h3>{msg("Track")}</h3>
-              <p>
-                {msg(
-                  "Follow the events returned for your dispatch. Technical delivery does not prove that a document was read.",
-                )}
-              </p>
-            </li>
-          </ol>
-        </section>
-
-        <section
           className="public-home-start public-home-section"
           id="installation"
           tabIndex={-1}
@@ -208,12 +165,12 @@ export function PublicHomepage() {
             <a href="/pricing/">
               <strong>{msg("Email, fax and post")}</strong>
               <span>{msg("Rates, examples and welcome credit")}</span>
-              <ArrowUpRight size={20} aria-hidden="true" />
+              <ArrowRight size={20} aria-hidden="true" />
             </a>
             <a href="/pdf-checks/" id="pdf-checks">
               <strong>{msg("PDF accessibility checks")}</strong>
               <span>{msg("PDF/UA and PDF/A, per document and profile")}</span>
-              <ArrowUpRight size={20} aria-hidden="true" />
+              <ArrowRight size={20} aria-hidden="true" />
             </a>
           </div>
         </section>
