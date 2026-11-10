@@ -350,8 +350,7 @@ export function Overview({ session }: { session: Session }) {
     <>
       <div className="dashboard-editorial-heading">
         <PageHeading
-          title={t.overview.title}
-          intro={t.overview.intro}
+          title={t.nav.overview}
           action={
             permissions.prepareDispatches && (
               <a
@@ -477,8 +476,7 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
   return (
     <>
       <PageHeading
-        title={t.documents.title}
-        intro={t.documents.intro}
+        title={t.nav.documents}
         action={
           canPrepare && (
             <div className="button-group">
@@ -719,7 +717,7 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
         <Loading />
       ) : resource.data?.items.length ? (
         <DataTable
-          label={t.documents.title}
+          label={t.nav.documents}
           items={resource.data.items}
           getRowKey={(item) => item.id}
           filters={[
@@ -1158,18 +1156,7 @@ export function PrepareDispatch({
   };
   return (
     <>
-      <PageHeading
-        title={
-          channel === "postal" ? msg("Prepare your letter.") : t.dispatch.title
-        }
-        intro={
-          channel === "postal"
-            ? msg(
-                "Choose the PDF, its recipient and the envelope window. You will then check the document and price before sending.",
-              )
-            : t.dispatch.intro
-        }
-      />
+      <PageHeading title={t.dispatch.new} />
       <ErrorNotice
         error={
           documents.error ?? initial.error ?? senders.error ?? action.error
@@ -1731,8 +1718,7 @@ export function DispatchList({ canPrepare = true }: { canPrepare?: boolean }) {
   return (
     <>
       <PageHeading
-        title={t.dispatch.listTitle}
-        intro={t.dispatch.listIntro}
+        title={t.nav.dispatches}
         action={
           canPrepare && (
             <a
@@ -1920,13 +1906,22 @@ export function DispatchDetailPage({
         settlementStatus !== "reserved")
     )
       return;
+    // A hidden tab reads nothing; it catches up as soon as it is shown again.
+    const refresh = resource.refresh;
+    const read = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
     const interval = window.setInterval(
-      resource.refresh,
+      read,
       ["delivered", "failed", "cancelled"].includes(dispatchStatus)
         ? 15000
         : 3000,
     );
-    return () => window.clearInterval(interval);
+    document.addEventListener("visibilitychange", read);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", read);
+    };
   }, [dispatchStatus, settlementStatus, resource.refresh]);
   if (!d && !resource.error) return <Loading />;
   if (!d)
@@ -2211,12 +2206,12 @@ export function DispatchDetailPage({
         title={
           pendingApproval || approved
             ? t.dispatch.reviewTitle
-            : t.dispatch.listTitle
+            : [t.channels[d.channel], recipientDisplayLines(target)[0]]
+                .filter(Boolean)
+                .join(" — ")
         }
         intro={
-          pendingApproval || approved
-            ? t.dispatch.reviewIntro
-            : t.dispatch.deliveryNote
+          pendingApproval || approved ? undefined : t.dispatch.deliveryNote
         }
         action={
           <RefreshButton
@@ -2499,7 +2494,7 @@ export function DispatchDetailPage({
           )}
         </section>
         <section className="dispatch-review-actions">
-          {pendingApproval && !canApprove && <RolePermissionNotice />}
+          {pendingApproval && !canApprove && <RolePermissionNotice approval />}
           {canApprove &&
             pendingApproval &&
             resource.data?.approval?.approval_kind === "expert" && (
@@ -2660,9 +2655,6 @@ export function DispatchDetailPage({
       </div>
       <section className="timeline-section">
         <h2>{t.dispatch.timeline}</h2>
-        {(events.length > 0 || !!resource.data?.attempts.length) && (
-          <DateTimezone />
-        )}
         {!events.length ? (
           <p className="muted">{t.dispatch.noEvents}</p>
         ) : (

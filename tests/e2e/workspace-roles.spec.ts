@@ -202,7 +202,7 @@ test("operator can prepare while approval and report interfaces stay restricted"
   const state = await fixture(page, "member");
   await page.goto("/#/app");
   await expect(
-    page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+    page.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
   ).toBeVisible();
   expect(state.requested).not.toContain("/overview");
   await expect(page.locator(".overview-stats")).toHaveCount(0);
@@ -232,7 +232,7 @@ test("observer sees documents and tracking without preparation controls", async 
   await fixture(page, "viewer");
   await page.goto("/#/app/documents");
   await expect(
-    page.getByRole("heading", { name: "La matière première.", exact: true }),
+    page.getByRole("heading", { name: "Documents", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Importer un PDF", exact: true }),
@@ -263,7 +263,7 @@ for (const [canApprove, canReport] of [
     const state = await fixture(page, "supervisor", canApprove, canReport);
     await page.goto("/#/app");
     await expect(
-      page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+      page.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
     ).toBeVisible();
     await expect(page.locator(".overview-stats")).toHaveCount(
       canReport ? 1 : 0,

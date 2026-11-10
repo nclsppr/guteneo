@@ -101,7 +101,7 @@ for (const depart of [false, true]) {
         location.hash = "#/app/documents";
       });
       await expect(
-        page.getByRole("heading", { name: "The raw material.", exact: true }),
+        page.getByRole("heading", { name: "Documents", exact: true }),
       ).toBeVisible();
     }
     const response = page.waitForResponse((result) =>

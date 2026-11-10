@@ -129,11 +129,6 @@
     "D’Konten an d’Zougrëffer an dëser Virschau si fiktiv. Dir kënnt se an Ärem ageloggten Aarbechtsberäich änneren."
   ],
   "Mon compte": ["My account", "Mein Konto", "Mäi Kont"],
-  "Votre identité, les autorisations de vos assistants et vos sessions dans l’atelier.": [
-    "Your identity, assistant permissions and workspace sessions.",
-    "Ihre Identität, die Berechtigungen Ihrer Assistenten und Ihre Sitzungen im Arbeitsbereich.",
-    "Är Identitéit, d’Autorisatioune vun Ären Assistenten an Är Sessiounen am Aarbechtsberäich."
-  ],
   "Profil et atelier": [
     "Profile and workspace",
     "Profil und Arbeitsbereich",
@@ -472,5 +467,15 @@
     "Reload the page",
     "Seite neu laden",
     "D’Säit nei lueden"
+  ],
+  "Cette page n’existe pas.": [
+    "This page does not exist.",
+    "Diese Seite gibt es nicht.",
+    "Dës Säit gëtt et net."
+  ],
+  "Revenir à la vue d’ensemble": [
+    "Back to Overview",
+    "Zurück zur Übersicht",
+    "Zréck op d’Iwwersiicht"
   ]
 }

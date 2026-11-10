@@ -193,8 +193,6 @@ export const fr = {
       "La connexion locale est réservée à l’environnement de développement.",
   },
   overview: {
-    title: "Votre correspondance, au clair.",
-    intro: "Préparez un document, choisissez sa destination et gardez le fil.",
     new: "Préparer un envoi",
     recent: "Derniers envois",
     all: "Voir tous les envois",
@@ -216,8 +214,6 @@ export const fr = {
     connect: "Configurer la connexion",
   },
   documents: {
-    title: "La matière première.",
-    intro: "Vos PDF originaux et les documents générés, conservés par version.",
     import: "Importer un PDF",
     render: "Composer une lettre",
     uploadTitle: "Importer le document exact",
@@ -270,12 +266,7 @@ export const fr = {
       "<h1>Bonjour,</h1>\n<p>Voici une lettre de démonstration préparée avec Guteneo.</p>\n<p>Ce document sert uniquement à tester un envoi simulé.</p>\n<p>Bien cordialement,<br>L’atelier Guteneo</p>",
   },
   dispatch: {
-    title: "Préparer une correspondance.",
-    intro:
-      "Un document, un destinataire, un canal. L’envoi attendra votre approbation.",
     new: "Nouvel envoi",
-    listTitle: "Le fil des envois.",
-    listIntro: "Chaque ligne correspond à un destinataire et un canal.",
     filterLabel: "Afficher",
     groups: {
       all: "Tous",
@@ -314,7 +305,6 @@ export const fr = {
     prepare: "Vérifier et préparer",
     preparing: "Préparation…",
     reviewTitle: "Le bon à envoyer.",
-    reviewIntro: "Vérifiez cette version avant de donner votre accord.",
     approvalCheck:
       "J’ai vérifié le contenu, le destinataire, le canal et le plafond de cette version.",
     approve: "Approuver cette version",
@@ -346,7 +336,7 @@ export const fr = {
       "Une acceptation par le prestataire n’est pas une livraison. Le suivi indique uniquement les résultats disponibles.",
     uncertain:
       "Résultat de soumission incertain. Aucune nouvelle soumission automatique. Une vérification du prestataire est nécessaire.",
-    documentPreview: "Aperçu du document approuvé",
+    documentPreview: "Aperçu du document",
     htmlPreview: "Aperçu de l’e-mail",
     textPreview: "Version texte",
     recipientDetails: "Adresse du destinataire",
@@ -359,9 +349,6 @@ export const fr = {
     noChange: "Le contenu de cette préparation est figé.",
   },
   campaigns: {
-    title: "Une lettre. Plusieurs destinations.",
-    intro:
-      "Vérifiez votre liste, puis préparez des envois individuels dans une campagne commune.",
     name: "Nom de la campagne",
     namePlaceholder: "Correspondance de septembre",
     csv: "Liste des destinataires au format CSV",
@@ -474,9 +461,6 @@ export const fr = {
       "Association enregistrée. Reconnectez l’assistant pour obtenir une nouvelle autorisation.",
   },
   senders: {
-    title: "Qui prend la plume ?",
-    intro:
-      "Chaque canal utilise un expéditeur autorisé, propre à votre organisation.",
     empty: "Aucun profil d’expéditeur configuré.",
     note: "Les profils de simulation ne permettent aucun envoi réel. Pour le courrier, un administrateur déclare l’expéditeur autorisé de l’organisation. Les autres canaux conservent leur vérification propre.",
     profile: "Profil",

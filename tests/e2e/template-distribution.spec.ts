@@ -20,7 +20,7 @@ test("web distribution assigns channels to selected records without a Cartesian 
     .getByRole("button", { name: "Entrer dans l’espace de travail" })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+    page.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
   ).toBeVisible();
   const session = (await (
     await page.request.get("/api/session")
@@ -211,7 +211,7 @@ test("multichannel intent remains available when two records reuse the same PDF 
     .getByRole("button", { name: "Entrer dans l’espace de travail" })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+    page.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
   ).toBeVisible();
   // Explicit UI fixture for an exact-byte deduplication outcome. No generation,
   // approval or distribution mutation is made by this scenario.
@@ -301,7 +301,7 @@ test("recipients from the data offer the documents' own fields and fill them in 
     .getByRole("button", { name: "Entrer dans l’espace de travail" })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+    page.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
   ).toBeVisible();
   const session = (await (
     await page.request.get("/api/session")

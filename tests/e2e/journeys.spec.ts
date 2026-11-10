@@ -129,7 +129,7 @@ async function login(
     })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+    page.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
   ).toBeVisible();
   await expect(page.locator(".simulation-banner")).toContainText(
     "Aucun fax, e-mail ou courrier réel",
@@ -209,7 +209,7 @@ test("landing and workspace fit desktop and iPhone widths, keyboard navigation r
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/#/app/prepare");
   await expect(
-    page.getByRole("heading", { name: "Préparer une correspondance." }),
+    page.getByRole("heading", { name: "Nouvel envoi", exact: true }),
   ).toBeVisible();
   await expect
     .poll(() =>
@@ -360,7 +360,7 @@ test("imports exact PDF bytes and rejects cross-organization preview access", as
     .getByRole("button", { name: "Entrer dans le Studio" })
     .click();
   await expect(
-    otherPage.getByRole("heading", { name: "Votre correspondance, au clair." }),
+    otherPage.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
   ).toBeVisible();
   const denied = await otherPage.request.get(
     `http://localhost:8787/api/documents/${document.id}/content`,

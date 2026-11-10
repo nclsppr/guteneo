@@ -446,5 +446,10 @@
     "You already belong to this workspace. Sign in and select it in My account.",
     "Sie sind bereits Mitglied dieses Arbeitsbereichs. Melden Sie sich an und wählen Sie ihn unter Mein Konto aus.",
     "Dir sidd scho Member vun dësem Atelier. Mellt Iech un a wielt en ënner Mäi Kont aus."
+  ],
+  "Cet envoi attend une approbation. Un administrateur ou un superviseur autorisé peut l’approuver.": [
+    "This dispatch is waiting for approval. An administrator or an authorized supervisor can approve it.",
+    "Diese Sendung wartet auf Genehmigung. Ein Administrator oder berechtigter Supervisor kann sie genehmigen.",
+    "Dës Sendung waart op eng Geneemegung. En Administrateur oder e berechtegte Supervisor kann se geneemegen."
   ]
 }

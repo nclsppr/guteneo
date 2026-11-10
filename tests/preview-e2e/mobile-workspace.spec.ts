@@ -66,7 +66,7 @@ test(`mobile navigation exposes every destination and returns focus to the opene
     expect((await link.boundingBox())?.width).toBeGreaterThanOrEqual(44);
   }
   await nav.getByRole("link", { name: "Expéditeurs", exact: true }).click();
-  await expect(page.locator("main h1")).toHaveText("Qui prend la plume ?");
+  await expect(page.locator("main h1")).toHaveText("Expéditeurs");
   await expect(nav).toBeHidden();
   await expect(page.locator("main")).toBeFocused();
   await toggle.focus();
@@ -208,7 +208,7 @@ test("mobile navigation preserves restored summary focus after deferred route fr
   const frames = await deferAnimationFrames(page);
   try {
     await nav.getByRole("link", { name: "Expéditeurs", exact: true }).click();
-    await expect(page.locator("main h1")).toHaveText("Qui prend la plume ?");
+    await expect(page.locator("main h1")).toHaveText("Expéditeurs");
     await expect(nav).toBeHidden();
     await frames.settle();
     await expect(page.locator("main")).toBeFocused();
@@ -245,18 +245,18 @@ test("mobile tables retain all fields without horizontal scrolling at 320px and 
   ]) {
     await page.setViewportSize(viewport);
     for (const [route, title] of [
-      ["", "Votre correspondance, au clair."],
-      ["/documents", "La matière première."],
-      ["/dispatches", "Le fil des envois."],
-      ["/campaigns", "Une lettre. Plusieurs destinations."],
+      ["", "Vue d’ensemble"],
+      ["/documents", "Documents"],
+      ["/dispatches", "Envois"],
+      ["/campaigns", "Campagnes"],
       ["/connection", "Vos assistants, votre correspondance."],
-      ["/senders", "Qui prend la plume ?"],
+      ["/senders", "Expéditeurs"],
       ["/administration/consumption", "Consommation"],
       ["/administration/billing", "Facturation"],
       ["/account", "Mon compte"],
       ["/administration/members", "Membres et invitations"],
       ["/administration/settings", "Paramètres de l’espace de travail"],
-      ["/prepare", "Préparer une correspondance."],
+      ["/prepare", "Nouvel envoi"],
     ]) {
       await page.goto(`/#/app${route}`);
       // Route modules may retain the previous page while loading. Measure

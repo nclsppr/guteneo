@@ -69,7 +69,8 @@ languages. `npm run lint` enforces it: application and shared stylesheets use
 theme tokens for color, the three font tokens for type, never redefine a root
 token and never restyle the shared frame, and no application imports another.
 `docs/WEB_APPLICATIONS.md` owns the ownership manifest, the rules and their
-dated exceptions. Compare navigation, theme actions, typography, forms, tables and
+dated exceptions, including the 12 px floor for application text, which is not
+lint-enforced yet. Compare navigation, theme actions, typography, forms, tables and
 account customization against the shared components before changing any of them.
 Keep authority and loading independent: visual consistency never justifies
 importing another space's session bootstrap or granting its permissions.

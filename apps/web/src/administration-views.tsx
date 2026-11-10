@@ -264,10 +264,12 @@ export function AdministrationOverviewPage({ route }: { route: string }) {
                             "{0} accepted dispatches are waiting to be transmitted.",
                             count(incident.count),
                           )
-                        : msg(
-                            "{0} dispatches need attention.",
-                            count(incident.count),
-                          ),
+                        : incident.count === 1
+                          ? msg("1 dispatch needs attention.")
+                          : msg(
+                              "{0} dispatches need attention.",
+                              count(incident.count),
+                            ),
                     )
                     .join(" ")}{" "}
                   <a

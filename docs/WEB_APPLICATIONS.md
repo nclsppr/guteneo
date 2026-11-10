@@ -103,6 +103,11 @@ their values come from tokens. The visual vocabulary itself (portrait, blue rule
 typography, geometry, controls, tables and forms) is described in the
 [design-system guide](../apps/engineering/src/content/docs/engineering/design-system.mdx).
 
+Application text is never set below 12 px. Stamp and postmark lettering, the
+public header and the public footer keep their own sizes. The floor was applied
+to the shared and application stylesheets on 10 November 2026; `npm run lint`
+does not enforce it yet.
+
 ## Operational tables — 30 October 2026 candidate
 
 `apps/web/src/data-table.tsx`, `data-table-model.ts` and `data-table.css` own the

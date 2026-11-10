@@ -79,9 +79,7 @@ export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
     <>
       <PageHeading
         title={msg("Generations")}
-        intro={msg(
-          "Find your generated PDFs here. Generating a PDF does not send it.",
-        )}
+        intro={msg("Generating a PDF does not send it.")}
         action={
           canPrepare && (
             <a className="button primary" href={`#${studioRoutes.templates}`}>

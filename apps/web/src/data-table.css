@@ -169,7 +169,7 @@
   font-size: 14px;
 }
 .data-table__cell-value .reference {
-  font-size: 11px;
+  font-size: 12px;
   margin-top: 4px;
 }
 .data-table__cell-value :is(.date-cell, .channel-label) {

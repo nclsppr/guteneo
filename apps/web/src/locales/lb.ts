@@ -190,9 +190,6 @@ export const lb: Copy = {
     noLocal: "D’lokal Umeldung ass nëmme fir d’Entwécklungsëmwelt geduecht.",
   },
   overview: {
-    title: "Är Korrespondenz am Bléck.",
-    intro:
-      "Bereet en Dokument vir, wielt seng Destinatioun a behält den Iwwerbléck.",
     new: "Eng Sendung virbereeden",
     recent: "Lescht Sendungen",
     all: "All Sendunge kucken",
@@ -214,9 +211,6 @@ export const lb: Copy = {
     attentionAction: "Sendunge fir ze kontrolléieren ukucken",
   },
   documents: {
-    title: "D’Ausgangsmaterial.",
-    intro:
-      "Är original PDF-Dateien an erstallt Dokumenter, no Versioun versuergt.",
     import: "Eng PDF-Datei importéieren",
     render: "E Bréif verfaassen",
     uploadTitle: "Dat onverännert Dokument importéieren",
@@ -271,11 +265,7 @@ export const lb: Copy = {
       "<h1>Gudde Moien,</h1>\n<p>Hei ass e Beispillbréif, dee mat Guteneo virbereet gouf.</p>\n<p>Dëst Dokument ass nëmme fir den Test vun enger simuléierter Sendung geduecht.</p>\n<p>Mat beschte Gréiss<br>Den Atelier Guteneo</p>",
   },
   dispatch: {
-    title: "Eng Korrespondenz virbereeden.",
-    intro: "En Dokument, en Empfänger, e Kanal. D’Sendung waart op Är Fräigab.",
     new: "Nei Sendung",
-    listTitle: "De Verlaf vun Äre Sendungen.",
-    listIntro: "All Zeil entsprécht engem Empfänger an engem Kanal.",
     chooseDocument: "En Dokument wielen",
     noDocument:
       "Keen Dokument disponibel. Importéiert oder erstellt eng PDF-Datei, ier Dir dës Sendung virbereet.",
@@ -307,7 +297,6 @@ export const lb: Copy = {
     prepare: "Kontrolléieren a virbereeden",
     preparing: "Gëtt virbereet…",
     reviewTitle: "Prett fir Är Fräigab.",
-    reviewIntro: "Kontrolléiert dës Versioun, ier Dir zoustëmmt.",
     approvalCheck:
       "Ech hunn den Inhalt, den Empfänger, de Kanal an d’Käschtegrenz vun dëser Versioun kontrolléiert.",
     approve: "Dës Versioun fräiginn",
@@ -336,7 +325,7 @@ export const lb: Copy = {
       "D’Unhuele vum Ubidder ass keng Liwwerung. De Suivi weist nëmmen déi disponibel Resultater.",
     uncertain:
       "Ongewësst Resultat vun der Iwwerdroung. Keng automatesch nei Iwwerdroung. Eng Kontroll beim Ubidder ass néideg.",
-    documentPreview: "Virschau vum fräiginnene Dokument",
+    documentPreview: "Virschau vum Dokument",
     htmlPreview: "Virschau vun der E-Mail",
     textPreview: "Textversioun",
     recipientDetails: "Adress vum Empfänger",
@@ -363,9 +352,6 @@ export const lb: Copy = {
     cancelConfirm: "Jo, Annulatioun ufroen",
   },
   campaigns: {
-    title: "Ee Bréif. Vill Destinatiounen.",
-    intro:
-      "Kontrolléiert Är Lëscht a bereet duerno eenzel Sendungen an enger gemeinsamer Campagne vir.",
     name: "Numm vun der Campagne",
     namePlaceholder: "Korrespondenz am September",
     csv: "Empfängerlëscht am CSV-Format",
@@ -478,9 +464,6 @@ export const lb: Copy = {
     revokeConfirm: "Jo, zréckzéien",
   },
   senders: {
-    title: "Wie gräift zur Fieder?",
-    intro:
-      "All Kanal benotzt en autoriséierten Ofsender vun Ärer Organisatioun.",
     empty: "Keng Ofsenderprofiller konfiguréiert.",
     note: "Simulatiounsprofiller erlabe keng richteg Sendung. Fir Bréifpost deklaréiert en Administrateur den autoriséierten Ofsender vun der Organisatioun. Fir déi aner Kanäl gëlle weider hir eege Kontrollprozeduren.",
     profile: "Profil",

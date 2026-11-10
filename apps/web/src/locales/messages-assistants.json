@@ -783,11 +783,6 @@
     "Meng Verbindungen"
   ],
   "Actualiser": ["Refresh", "Aktualisieren", "Aktualiséieren"],
-  "Après votre première demande dans l’assistant, revenez ici pour retrouver le dernier échange confirmé.": [
-    "After your first request in the assistant, return here to find the latest confirmed exchange.",
-    "Kehren Sie nach Ihrer ersten Anfrage im Assistenten hierher zurück, um den letzten bestätigten Austausch zu sehen.",
-    "Kommt no Ärer éischter Ufro am Assistent heihinner zréck, fir de leschte bestätegten Austausch ze gesinn."
-  ],
   "Démonstration : aucune connexion réelle n’est créée ou vérifiée dans cet aperçu.": [
     "Demo: no real connection is created or verified in this preview.",
     "Demonstration: In dieser Vorschau wird keine echte Verbindung erstellt oder geprüft.",
@@ -858,10 +853,10 @@
     "Ihre Assistenten, Ihre Korrespondenz.",
     "Är Assistenten, Är Korrespondenz."
   ],
-  "Connectez votre assistant à Guteneo par MCP, puis retrouvez vos connexions ici. Chaque guide vous accompagne sans attendre un plugin publié.": [
-    "Connect your assistant to Guteneo via MCP, then find your connections here. Each guide walks you through without waiting for a published plugin.",
-    "Verbinden Sie Ihren Assistenten über MCP mit Guteneo und finden Sie Ihre Verbindungen hier. Jede Anleitung begleitet Sie, ohne auf ein veröffentlichtes Plugin warten zu müssen.",
-    "Verbannt Ären Assistent iwwer MCP mat Guteneo a fannt Är Verbindungen hei erëm. All Uleedung begleet Iech, ouni op e publizéierte Plugin ze waarden."
+  "Connectez votre assistant à Guteneo par MCP, puis retrouvez vos connexions ici.": [
+    "Connect your assistant to Guteneo via MCP, then find your connections here.",
+    "Verbinden Sie Ihren Assistenten über MCP mit Guteneo und finden Sie Ihre Verbindungen hier.",
+    "Verbannt Ären Assistent iwwer MCP mat Guteneo a fannt Är Verbindungen hei erëm."
   ],
   "Ce guide n’existe pas. Choisissez un assistant ci-dessous.": [
     "This guide does not exist. Choose an assistant below.",

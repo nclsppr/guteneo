@@ -167,11 +167,6 @@ export function Connection({
           {msg("Refresh")}
         </button>
       </div>
-      <p>
-        {msg(
-          "After your first request in the assistant, return here to find the latest confirmed exchange.",
-        )}
-      </p>
       {isPublicPreview && (
         <p className="notice info">
           {msg(
@@ -281,7 +276,7 @@ export function Connection({
             <PageHeading
               title={msg("Your assistants, your correspondence.")}
               intro={msg(
-                "Connect your assistant to Guteneo via MCP, then find your connections here. Each guide walks you through without waiting for a published plugin.",
+                "Connect your assistant to Guteneo via MCP, then find your connections here.",
               )}
             />
           </div>

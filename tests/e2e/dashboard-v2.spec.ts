@@ -156,7 +156,7 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
   for (const destination of [
     {
       path: "documents",
-      title: "La matière première.",
+      title: "Documents",
       action: "Importer un PDF",
     },
     {
@@ -174,7 +174,7 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
       title: "Générations",
       action: "Créer un document",
     },
-    { path: "dispatches", title: "Le fil des envois.", action: "Nouvel envoi" },
+    { path: "dispatches", title: "Envois", action: "Nouvel envoi" },
   ]) {
     await page.goto(`/#/app/${destination.path}`);
     await expect(
@@ -494,7 +494,7 @@ test("V2 prepares through the existing API and requires explicit consent before 
   await backToHistory.click();
   await expect(page).toHaveURL(/#\/app\/dispatches$/);
   await expect(
-    page.getByRole("heading", { level: 1, name: "Le fil des envois." }),
+    page.getByRole("heading", { level: 1, name: "Envois", exact: true }),
   ).toBeVisible();
   await page.goto(`/#/app/dispatch/${prepared.id}`);
   await expect(backToHistory).toBeVisible();

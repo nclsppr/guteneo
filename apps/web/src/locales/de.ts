@@ -191,9 +191,6 @@ export const de: Copy = {
     noLocal: "Die lokale Anmeldung ist der Entwicklungsumgebung vorbehalten.",
   },
   overview: {
-    title: "Ihre Korrespondenz im Blick.",
-    intro:
-      "Bereiten Sie ein Dokument vor, wählen Sie sein Ziel und behalten Sie den Überblick.",
     new: "Sendung vorbereiten",
     recent: "Letzte Sendungen",
     all: "Alle Sendungen ansehen",
@@ -215,9 +212,6 @@ export const de: Copy = {
     attentionAction: "Zu prüfende Sendungen ansehen",
   },
   documents: {
-    title: "Das Ausgangsmaterial.",
-    intro:
-      "Ihre ursprünglichen PDF-Dateien und erzeugten Dokumente, nach Versionen gespeichert.",
     import: "PDF importieren",
     render: "Brief verfassen",
     uploadTitle: "Das unveränderte Dokument importieren",
@@ -270,12 +264,7 @@ export const de: Copy = {
       "<h1>Guten Tag,</h1>\n<p>dies ist ein mit Guteneo vorbereiteter Beispielbrief.</p>\n<p>Dieses Dokument dient ausschließlich zum Testen eines simulierten Versands.</p>\n<p>Mit freundlichen Grüßen<br>Die Guteneo-Werkstatt</p>",
   },
   dispatch: {
-    title: "Korrespondenz vorbereiten.",
-    intro:
-      "Ein Dokument, ein Empfänger, ein Kanal. Die Sendung wartet auf Ihre Freigabe.",
     new: "Neue Sendung",
-    listTitle: "Der Verlauf Ihrer Sendungen.",
-    listIntro: "Jede Zeile steht für einen Empfänger und einen Kanal.",
     chooseDocument: "Dokument auswählen",
     noDocument:
       "Kein Dokument verfügbar. Importieren oder erstellen Sie eine PDF-Datei, bevor Sie diese Sendung vorbereiten.",
@@ -307,7 +296,6 @@ export const de: Copy = {
     prepare: "Prüfen und vorbereiten",
     preparing: "Wird vorbereitet…",
     reviewTitle: "Bereit zur Freigabe.",
-    reviewIntro: "Prüfen Sie diese Version, bevor Sie zustimmen.",
     approvalCheck:
       "Ich habe Inhalt, Empfänger, Kanal und Kostenobergrenze dieser Version geprüft.",
     approve: "Diese Version freigeben",
@@ -336,7 +324,7 @@ export const de: Copy = {
       "Die Annahme durch den Anbieter ist keine Zustellung. Der Status zeigt nur die verfügbaren Ergebnisse.",
     uncertain:
       "Ungewisses Übermittlungsergebnis. Keine automatische erneute Übermittlung. Eine Prüfung beim Anbieter ist erforderlich.",
-    documentPreview: "Vorschau des freigegebenen Dokuments",
+    documentPreview: "Dokumentvorschau",
     htmlPreview: "E-Mail-Vorschau",
     textPreview: "Textversion",
     recipientDetails: "Empfängeradresse",
@@ -364,9 +352,6 @@ export const de: Copy = {
     cancelConfirm: "Ja, Stornierung anfordern",
   },
   campaigns: {
-    title: "Ein Brief. Viele Ziele.",
-    intro:
-      "Prüfen Sie Ihre Liste und bereiten Sie anschließend einzelne Sendungen innerhalb einer gemeinsamen Kampagne vor.",
     name: "Kampagnenname",
     namePlaceholder: "Korrespondenz im September",
     csv: "Empfängerliste im CSV-Format",
@@ -479,9 +464,6 @@ export const de: Copy = {
     revokeConfirm: "Ja, widerrufen",
   },
   senders: {
-    title: "Wer greift zur Feder?",
-    intro:
-      "Jeder Kanal verwendet einen autorisierten Absender Ihrer Organisation.",
     empty: "Keine Absenderprofile konfiguriert.",
     note: "Simulationsprofile erlauben keinen echten Versand. Für Briefpost erklärt ein Administrator den autorisierten Absender der Organisation. Für die anderen Kanäle gelten weiterhin die jeweiligen eigenen Prüfverfahren.",
     profile: "Profil",

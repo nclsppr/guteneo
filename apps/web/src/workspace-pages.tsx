@@ -148,7 +148,7 @@ export function Campaigns({
   const locked = !!campaignId.current;
   return (
     <>
-      <PageHeading title={t.campaigns.title} intro={t.campaigns.intro} />
+      <PageHeading title={t.nav.campaigns} />
       <DistributionRoadmap />
       {!isPublicPreview && canPrepare && (
         <p className="notice info">
@@ -533,8 +533,7 @@ export function Senders({
   return (
     <>
       <PageHeading
-        title={t.senders.title}
-        intro={t.senders.intro}
+        title={t.nav.senders}
         action={
           <RefreshButton
             onClick={() => {
@@ -567,7 +566,7 @@ export function Senders({
         !postalSetup?.available && <EmptyState title={t.senders.empty} />
       ) : (
         <DataTable
-          label={t.senders.title}
+          label={t.nav.senders}
           items={resource.data.items}
           getRowKey={(sender) => sender.id}
           columns={[

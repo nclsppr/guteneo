@@ -359,14 +359,14 @@
   color: var(--blue-ink);
 }
 .workspace-v2 .reference {
-  font-size: 11px;
+  font-size: 12px;
   margin-top: 5px;
 }
 .workspace-v2 :is(.date-cell, .channel-label) {
   font-size: 13px;
 }
 .workspace-v2 .sub-label {
-  font-size: 11px;
+  font-size: 12px;
 }
 .workspace-v2 .status {
   font-size: 12px;

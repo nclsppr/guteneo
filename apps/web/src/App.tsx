@@ -538,7 +538,40 @@ function Application() {
       workshop: msgIn("application", "Correspondence"),
       administration: msgIn("application", "Administration"),
     }[spaceOf(path)];
-    document.title = `${application} | guteneo`;
+    // The longest matching menu entry names the page, so tabs and history
+    // tell pages of one application apart.
+    const entry = [
+      ...workshopNavigation,
+      ...studioNavigation,
+      ...administrationNavigation,
+    ]
+      .filter(
+        (item) =>
+          item.path !== "/app" &&
+          (path === item.path || path.startsWith(`${item.path}/`)),
+      )
+      .sort((a, b) => b.path.length - a.path.length)[0];
+    const pageName = entry
+      ? entry.id in administrationLabels
+        ? administrationLabels[entry.id as AdministrationEntry]()
+        : entry.id === "secure-distributions"
+          ? msg("Secure distribution")
+          : t.nav[
+              entry.id as Exclude<
+                WorkshopEntry | StudioEntry,
+                "secure-distributions"
+              >
+            ]
+      : path === "/app/prepare"
+        ? t.dispatch.new
+        : /^\/app\/(dispatch|postal)\//.test(path)
+          ? t.nav.dispatches
+          : path.startsWith("/app/campaign/")
+            ? t.nav.campaigns
+            : path === "/app" || path === "/app/"
+              ? t.nav.overview
+              : undefined;
+    document.title = `${pageName && pageName !== application ? `${pageName} · ` : ""}${application} | guteneo`;
   }, [route, locale, emailPreferencesRoute, publicLocation]);
   if (emailPreferencesRoute)
     return (
@@ -862,7 +895,18 @@ function WorkspaceApplication({
     content = <PdfCheckPage session={session} />;
   else if (page === "/app/account")
     content = <Account session={session} onUpdated={refreshSession} />;
-  else content = <Overview session={session} />;
+  else if (page === "/app" || page === "/app/")
+    content = <Overview session={session} />;
+  // A mistyped address says so instead of showing Overview under it.
+  else
+    content = (
+      <div className="notice info" role="note">
+        <p>
+          {msg("This page does not exist.")}{" "}
+          <a href="#/app">{msg("Back to Overview")}</a>
+        </p>
+      </div>
+    );
   const navigationLabel = (
     id: WorkshopEntry | StudioEntry | AdministrationEntry,
   ) =>

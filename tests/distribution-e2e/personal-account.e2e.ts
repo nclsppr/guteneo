@@ -148,7 +148,7 @@ test("creating and selecting a workshop reloads its session without changing the
   ]);
   expect(createdResponse.status).toBe(200);
   await expect(browser).toHaveURL(/#\/app\/prepare/);
-  await expect(screen.getByRole("heading", "Préparer une correspondance.")).toBeVisible();
+  await expect(screen.getByRole("heading", "Nouvel envoi")).toBeVisible();
   // A real document reload discards the previous POST response body. Inspect
   // the fresh session instead, without triggering another navigation.
   const created = await localApi<{

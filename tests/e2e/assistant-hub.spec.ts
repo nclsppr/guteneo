@@ -304,13 +304,13 @@ test("workspace routing catches a fragment change before its listener subscribes
   await expect(page).toHaveURL(/#\/app$/);
   await expect(
     page.getByRole("heading", {
-      name: "Votre correspondance, au clair.",
+      name: "Vue d’ensemble",
       exact: true,
     }),
   ).toBeVisible();
   await expect(
     page.getByRole("heading", {
-      name: "Préparer une correspondance.",
+      name: "Nouvel envoi",
       exact: true,
     }),
   ).toHaveCount(0);
@@ -343,7 +343,7 @@ test("direct sending preference persists only for its user and tenant and can be
   await expect(page).toHaveURL(/#\/app\/prepare\?entry=direct$/);
   await expect(
     page.getByRole("heading", {
-      name: "Préparer une correspondance.",
+      name: "Nouvel envoi",
       exact: true,
     }),
   ).toBeVisible();

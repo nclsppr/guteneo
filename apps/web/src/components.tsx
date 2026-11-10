@@ -254,7 +254,12 @@ export function useAction() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<Error>();
   // Stable callbacks: effects may depend on them without re-running.
+  // A second call can arrive before the disabled control renders; the ref
+  // refuses it synchronously so one activation starts one action.
+  const running = useRef(false);
   const run = useCallback(async (action: () => Promise<void>) => {
+    if (running.current) return;
+    running.current = true;
     setPending(true);
     setError(undefined);
     try {
@@ -262,6 +267,7 @@ export function useAction() {
     } catch (err) {
       setError(err instanceof Error ? err : new Error(String(err)));
     } finally {
+      running.current = false;
       setPending(false);
     }
   }, []);
@@ -643,7 +649,7 @@ export function DispatchTable({
     <>
       <DateTimezone />
       <DataTable
-        label={t.dispatch.listTitle}
+        label={t.nav.dispatches}
         items={items}
         getRowKey={(item) => item.id}
         filters={[
