@@ -1,0 +1,65 @@
+{
+  "capturedAt": "2026-11-10T05:55:16.056Z",
+  "scope": "Synthetic local fixture model; fresh browser contexts, no throttling; one observation per surface, no production speed claim or baseline comparison.",
+  "renderedBuild": {
+    "sourceCommit": "31a43a3936bf20a099616b80591f4eaf3cd6d782",
+    "sourceDirty": true,
+    "sourceSnapshotSha256": "bfa8094c69c9a78c26e195afa833f55b28338710edb6845ea4dab3d6773f2bac",
+    "assetsSha256": "3f5c92aea41713555500348c6a6a394c87242a12f37009d213370b8e3199dd83"
+  },
+  "captures": [
+    {
+      "name": "clean-copy-developers-desktop-2026-11-10.png",
+      "engine": "Chromium",
+      "route": "/developers/?lang=en",
+      "heading": "Developers",
+      "bytes": 117005,
+      "sha256": "13ea7610714b5d1f90d40acfe72db40da0915d0c5f6a2f8ff39006fcec14c494",
+      "metrics": {
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "documentWidth": 1280,
+        "resourceRequests": 57,
+        "transferredBytes": 773213,
+        "firstContentfulPaintMs": 124,
+        "domContentLoadedMs": 193.60000002384186,
+        "automaticApiRequests": 0
+      },
+      "pageErrors": 0,
+      "blockedRequests": 0
+    },
+    {
+      "name": "clean-copy-documents-mobile-2026-11-10.png",
+      "engine": "WebKit",
+      "route": "/?lang=fr#/app/documents",
+      "heading": "Documents",
+      "bytes": 72668,
+      "sha256": "5d1df78ec0c2e0eb1a507e736ef842e83d76760125bf14b9b171e4e816bd989b",
+      "metrics": {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "resourceRequests": 72,
+        "transferredBytes": 955639,
+        "firstContentfulPaintMs": 218,
+        "domContentLoadedMs": 184,
+        "automaticApiRequests": 0
+      },
+      "pageErrors": 0,
+      "blockedRequests": 0
+    }
+  ],
+  "accountEmail": {
+    "name": "clean-copy-account-email-mobile-2026-11-10.png",
+    "bytes": 55064,
+    "sha256": "28cbcfadbb84049a55e095d2c38ec67179328eac1e893fad996228d0cb45d3d3",
+    "viewportWidth": 320,
+    "scope": "Synthetic offline Liquid rendering with a short example.invalid URL; no Auth0/provider operation or email-client/delivery claim.",
+    "externalRequests": 0
+  },
+  "visualReview": "All three examples inspected: readable, no horizontal overflow, intended labels/actions present; original artwork unchanged."
+}

@@ -656,3 +656,14 @@ runner use its existing APT defaults. Only the previously recognized three-entry
 Azure configuration receives the existing priority adjustment. No repository,
 URI, suite, signature, workflow or required browser test is replaced or skipped.
 Regression fixtures verify exact preservation and known-list idempotence.
+
+## Served-verification download workers
+
+The [main release procedure](MAIN_RELEASE.md#bounded-served-file-download-concurrency)
+owns the bounded `GUTENEO_RELEASE_VERIFY_CONCURRENCY` option. Live publication
+preflights its value; the default remains four and serial verification uses one.
+Receipts expose the chosen count and unchanged 30-second per-request deadline.
+Synthetic security tests exercise complete body reads at one/four workers,
+invalid-value refusal before requests/publication and the same complete
+manifest/hash/header/robots checks. CI test inventories and qualification gates
+are independent of this operator-side read setting.

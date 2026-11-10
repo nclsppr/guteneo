@@ -99,7 +99,7 @@ export const fr = {
         "Votre organisation reçoit une seule fois 50 € de crédit de bienvenue à l’ouverture de son compte. Le prix ou le plafond de chaque envoi vous est présenté avant validation.",
       welcomeTitle: "Offerts à l’ouverture de votre compte.",
       welcomeBody:
-        "Votre organisation reçoit 50 € de crédit de bienvenue une seule fois à la création de son compte. Ce solde est partagé entre les canaux activés : fax, e-mail et courrier postal.",
+        "Ce solde est partagé entre les canaux activés : fax, e-mail et courrier postal.",
       welcomeTerms:
         "Aucun renouvellement mensuel. Les envois s’arrêtent lorsque le solde disponible ne couvre plus leur coût.",
       rateLabel: "Tarifs clients indicatifs des trois canaux",
@@ -194,7 +194,6 @@ export const fr = {
   },
   overview: {
     title: "Votre correspondance, au clair.",
-    intro: "Préparez un document, choisissez sa destination et gardez le fil.",
     new: "Préparer un envoi",
     recent: "Derniers envois",
     all: "Voir tous les envois",
@@ -216,8 +215,7 @@ export const fr = {
     connect: "Configurer la connexion",
   },
   documents: {
-    title: "La matière première.",
-    intro: "Vos PDF originaux et les documents générés, conservés par version.",
+    title: "Documents",
     import: "Importer un PDF",
     render: "Composer une lettre",
     uploadTitle: "Importer le document exact",
@@ -271,11 +269,9 @@ export const fr = {
   },
   dispatch: {
     title: "Préparer une correspondance.",
-    intro:
-      "Un document, un destinataire, un canal. L’envoi attendra votre approbation.",
+    intro: "L’envoi attendra votre approbation.",
     new: "Nouvel envoi",
     listTitle: "Le fil des envois.",
-    listIntro: "Chaque ligne correspond à un destinataire et un canal.",
     filterLabel: "Afficher",
     groups: {
       all: "Tous",
@@ -314,7 +310,6 @@ export const fr = {
     prepare: "Vérifier et préparer",
     preparing: "Préparation…",
     reviewTitle: "Le bon à envoyer.",
-    reviewIntro: "Vérifiez cette version avant de donner votre accord.",
     approvalCheck:
       "J’ai vérifié le contenu, le destinataire, le canal et le plafond de cette version.",
     approve: "Approuver cette version",
@@ -359,9 +354,7 @@ export const fr = {
     noChange: "Le contenu de cette préparation est figé.",
   },
   campaigns: {
-    title: "Une lettre. Plusieurs destinations.",
-    intro:
-      "Vérifiez votre liste, puis préparez des envois individuels dans une campagne commune.",
+    title: "Campagnes",
     name: "Nom de la campagne",
     namePlaceholder: "Correspondance de septembre",
     csv: "Liste des destinataires au format CSV",
@@ -474,9 +467,7 @@ export const fr = {
       "Association enregistrée. Reconnectez l’assistant pour obtenir une nouvelle autorisation.",
   },
   senders: {
-    title: "Qui prend la plume ?",
-    intro:
-      "Chaque canal utilise un expéditeur autorisé, propre à votre organisation.",
+    title: "Expéditeurs",
     empty: "Aucun profil d’expéditeur configuré.",
     note: "Les profils de simulation ne permettent aucun envoi réel. Pour le courrier, un administrateur déclare l’expéditeur autorisé de l’organisation. Les autres canaux conservent leur vérification propre.",
     profile: "Profil",

@@ -79,21 +79,13 @@
     "Ergebnis ausblenden",
     "Resultat ausblenden"
   ],
-  "Tout masquer": [
-    "Dismiss all",
-    "Alle ausblenden",
-    "Alles ausblenden"
-  ],
+  "Tout masquer": ["Dismiss all", "Alle ausblenden", "Alles ausblenden"],
   "Rechercher une commande": [
     "Search commands",
     "Befehle suchen",
     "Kommandoe sichen"
   ],
-  "Commandes": [
-    "Commands",
-    "Befehle",
-    "Kommandoen"
-  ],
+  "Commandes": ["Commands", "Befehle", "Kommandoen"],
   "Aucune commande correspondante.": [
     "No matching commands.",
     "Keine passenden Befehle.",
@@ -149,26 +141,14 @@
     "Gespeicherte Ansichten",
     "Gespäichert Usichten"
   ],
-  "Vue actuelle": [
-    "Current view",
-    "Aktuelle Ansicht",
-    "Aktuell Usicht"
-  ],
-  "Nom de la vue": [
-    "View name",
-    "Ansichtsname",
-    "Numm vun der Usicht"
-  ],
+  "Vue actuelle": ["Current view", "Aktuelle Ansicht", "Aktuell Usicht"],
+  "Nom de la vue": ["View name", "Ansichtsname", "Numm vun der Usicht"],
   "Enregistrer le tri et les filtres": [
     "Save sort and filters",
     "Sortierung und Filter speichern",
     "Sortéierung a Filtere späicheren"
   ],
-  "Supprimer la vue": [
-    "Delete view",
-    "Ansicht löschen",
-    "Usicht läschen"
-  ],
+  "Supprimer la vue": ["Delete view", "Ansicht löschen", "Usicht läschen"],
   "Cette vue n’a pas pu être enregistrée dans ce navigateur.": [
     "This browser could not save the view.",
     "Die Ansicht konnte in diesem Browser nicht gespeichert werden.",
@@ -234,16 +214,8 @@
     "Diese Sendung planen",
     "Dës Sendung plangen"
   ],
-  "Nouvelle programmation": [
-    "New schedule",
-    "Neue Zeitplanung",
-    "Neie Plang"
-  ],
-  "Heure d’exécution": [
-    "Dispatch time",
-    "Ausführungszeit",
-    "Ausféierungszäit"
-  ],
+  "Nouvelle programmation": ["New schedule", "Neue Zeitplanung", "Neie Plang"],
+  "Heure d’exécution": ["Dispatch time", "Ausführungszeit", "Ausféierungszäit"],
   "Plafond total en euros hors taxes": [
     "Maximum total cost in euros excluding tax",
     "Gesamtkostenobergrenze in Euro ohne Steuern",
@@ -314,21 +286,9 @@
     "Kunden-Webhooks",
     "Client-Webhooks"
   ],
-  "Nouvel endpoint": [
-    "New endpoint",
-    "Neuer Endpunkt",
-    "Neien Endpoint"
-  ],
-  "Nom de l’endpoint": [
-    "Endpoint name",
-    "Endpunktname",
-    "Numm vum Endpoint"
-  ],
-  "Adresse HTTPS": [
-    "HTTPS endpoint",
-    "HTTPS-Endpunkt",
-    "HTTPS-Endpoint"
-  ],
+  "Nouvel endpoint": ["New endpoint", "Neuer Endpunkt", "Neien Endpoint"],
+  "Nom de l’endpoint": ["Endpoint name", "Endpunktname", "Numm vum Endpoint"],
+  "Adresse HTTPS": ["HTTPS endpoint", "HTTPS-Endpunkt", "HTTPS-Endpoint"],
   "Enregistrer l’endpoint": [
     "Save endpoint",
     "Endpunkt speichern",
@@ -409,11 +369,7 @@
     "Diesen gespeicherten Empfänger löschen? Vorbereitete Sendungen behalten ihren ursprünglichen Empfänger.",
     "Dëse gespäicherten Empfänger läschen? Virbereet Sendunge behalen hiren ursprénglechen Empfänger."
   ],
-  "Numéro de fax": [
-    "Fax number",
-    "Faxnummer",
-    "Faxnummer"
-  ],
+  "Numéro de fax": ["Fax number", "Faxnummer", "Faxnummer"],
   "L’approbation remplace l’envoi immédiat par cette programmation. Un nouveau devis doit respecter le plafond et la période d’exécution. Annuler cette programmation ne rétablit pas l’envoi préparé d’origine.": [
     "Approval replaces immediate sending with this schedule. A fresh quote must fit the cap and release window. Cancelling this schedule does not restore the original prepared dispatch.",
     "Die Genehmigung ersetzt den sofortigen Versand durch diesen Zeitplan. Ein neues Angebot muss Obergrenze und Ausführungszeitraum einhalten. Eine Stornierung stellt die ursprüngliche vorbereitete Sendung nicht wieder her.",
@@ -614,9 +570,10 @@
     "Genehmigung der geplanten Ausgaben ausstehend",
     "Approbatioun vun de geplangten Ausgabe steet aus"
   ],
-  "Recharger": [
-    "Reload",
-    "Neu laden",
-    "Nei lueden"
+  "Recharger": ["Reload", "Neu laden", "Nei lueden"],
+  "Ce type d’envoi ne peut pas être planifié.": [
+    "This type of dispatch cannot be scheduled.",
+    "Dieser Versandtyp kann nicht geplant werden.",
+    "Dës Aart vu Versand kann net geplangt ginn."
   ]
 }

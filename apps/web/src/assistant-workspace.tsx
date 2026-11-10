@@ -102,7 +102,6 @@ export function OverviewAssistantStart({ session }: { session: Session }) {
         </a>
       </div>
       <div className="assistant-welcome-direct">
-        <p>{msg("You can also prepare your dispatch directly.")}</p>
         <a
           className="text-link"
           href="#/app/prepare?entry=direct"
@@ -171,11 +170,6 @@ export function Connection({
           {msg("Refresh")}
         </button>
       </div>
-      <p>
-        {msg(
-          "After your first request in the assistant, return here to find the latest confirmed exchange.",
-        )}
-      </p>
       {isPublicPreview && (
         <p className="notice info">
           {msg(
@@ -282,12 +276,7 @@ export function Connection({
       ) : (
         <>
           <div className="dashboard-editorial-heading dashboard-editorial-heading-pdf-verification">
-            <PageHeading
-              title={msg("Your assistants, your correspondence.")}
-              intro={msg(
-                "Connect your assistant to Guteneo via MCP, then find your connections here. Each guide walks you through without waiting for a published plugin.",
-              )}
-            />
+            <PageHeading title={msg("Your assistants, your correspondence.")} />
           </div>
           {assistantId && (
             <p className="notice info">
@@ -317,11 +306,6 @@ export function Connection({
           <h2 id="workspace-direct-title">
             {msg("You can also send directly.")}
           </h2>
-          <p>
-            {msg(
-              "One document, one recipient, one check: your Guteneo workspace works without an assistant.",
-            )}
-          </p>
         </div>
         <a
           className="button"

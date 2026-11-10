@@ -37,11 +37,7 @@ export function AssistantsPage({ assistantId }: { assistantId?: string }) {
         ) : (
           <>
             <section className="assistants-intro">
-              <h1>
-                {msg("Your assistant.")}
-                <br />
-                <em>{msg("Your correspondence.")}</em>
-              </h1>
+              <h1>{msg("Assistants")}</h1>
               <p>
                 {msg(
                   "Connect your assistant to Guteneo via MCP. Choose your tool and follow the steps to add the server and connect your account.",

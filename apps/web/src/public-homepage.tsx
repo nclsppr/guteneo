@@ -166,11 +166,6 @@ export function PublicHomepage() {
             <h2 id="home-start-title">
               {msg("Start with your document. Or your assistant.")}
             </h2>
-            <p>
-              {msg(
-                "Use the same preparation, review and tracking workflow whichever way you start.",
-              )}
-            </p>
             <a className="text-link" href="/getting-started/">
               {msg("Getting started")}
               <ArrowRight size={18} aria-hidden="true" />

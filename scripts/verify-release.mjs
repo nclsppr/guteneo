@@ -6,6 +6,16 @@ import site from "../packages/contracts/src/public-site.json" with { type: "json
 import mcpUiProbeManifest from "../packages/contracts/src/mcp-ui-probe-resource.json" with { type: "json" };
 import mcpDocumentUploadManifest from "../packages/contracts/src/mcp-document-upload-resource.json" with { type: "json" };
 
+const defaultDownloadConcurrency = 4;
+const requestDeadlineMs = 30_000;
+
+export function parseReleaseVerifyConcurrency(value) {
+  if (value === undefined) return defaultDownloadConcurrency;
+  if (typeof value !== "string" || !["1", "2", "3", "4"].includes(value))
+    throw new Error("GUTENEO_RELEASE_VERIFY_CONCURRENCY must be 1, 2, 3 or 4.");
+  return Number(value);
+}
+
 /** Verify internal localized bytes through their only public URL. */
 function publicAssetPath(path) {
   if (
@@ -29,7 +39,14 @@ function publicAssetPath(path) {
     : path;
 }
 
-export async function verifyRelease(originArgument, local, fetcher = fetch) {
+export async function verifyRelease(
+  originArgument,
+  local,
+  fetcher = fetch,
+  { concurrency = defaultDownloadConcurrency } = {},
+) {
+  if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4)
+    throw new Error("Download concurrency must be an integer from 1 to 4.");
   const origin = new URL(originArgument);
   if (
     origin.protocol !== "https:" ||
@@ -50,7 +67,7 @@ export async function verifyRelease(originArgument, local, fetcher = fetch) {
     url.searchParams.set("release-proof", local.sourceCommit);
     const response = await fetcher(url, {
       redirect: "error",
-      signal: AbortSignal.timeout(30_000),
+      signal: AbortSignal.timeout(requestDeadlineMs),
       headers: { "Cache-Control": "no-cache" },
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}: ${path}`);
@@ -81,7 +98,7 @@ export async function verifyRelease(originArgument, local, fetcher = fetch) {
   if (!files.some((entry) => entry.path === "/robots.txt"))
     throw new Error("Release manifest is missing robots.txt.");
   await Promise.all(
-    Array.from({ length: 4 }, async () => {
+    Array.from({ length: concurrency }, async () => {
       for (;;) {
         const entry = files.shift();
         if (!entry) return;
@@ -158,6 +175,8 @@ export async function verifyRelease(originArgument, local, fetcher = fetch) {
     dynamicResources,
     robotsPolicyVerified: true,
     securityHeadersVerified: true,
+    downloadConcurrency: concurrency,
+    requestDeadlineMs,
     verifiedAt: new Date().toISOString(),
   };
 }
@@ -171,8 +190,15 @@ if (
     throw new Error(
       "Pass a public origin and its local release.json manifest.",
     );
+  const concurrency = parseReleaseVerifyConcurrency(
+    process.env.GUTENEO_RELEASE_VERIFY_CONCURRENCY,
+  );
   const local = JSON.parse(await readFile(manifestPath, "utf8"));
   console.log(
-    JSON.stringify(await verifyRelease(originArgument, local), null, 2),
+    JSON.stringify(
+      await verifyRelease(originArgument, local, fetch, { concurrency }),
+      null,
+      2,
+    ),
   );
 }

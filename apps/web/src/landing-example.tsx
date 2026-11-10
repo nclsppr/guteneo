@@ -181,11 +181,6 @@ export function GuidedExample() {
         <h2 id="guided-example-title">
           {msg("A fictional dispatch, step by step")}
         </h2>
-        <p>
-          {msg(
-            "This demonstration follows 3 steps: compose your request, check the details in Guteneo to give your approval, then track the dispatch.",
-          )}
-        </p>
         <div
           className="guided-example-tabs"
           role="tablist"
@@ -275,9 +270,6 @@ export function GuidedExample() {
                   </p>
                 </li>
               </ol>
-              <p className="guided-example-detail">
-                {msg("Fictional conversation, document and recipient.")}
-              </p>
               <button
                 type="button"
                 className="button"

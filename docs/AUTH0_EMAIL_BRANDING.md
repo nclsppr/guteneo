@@ -119,3 +119,14 @@ Primary references consulted on 3 November 2026:
 - [Auth0 supported Liquid syntax and application variables](https://auth0.com/docs/customize/email/email-templates/supported-liquid-syntax)
 - [Auth0 email template scope and provider prerequisites](https://auth0.com/docs/customize/email/email-templates)
 - [LiquidJS engine options](https://liquidjs.com/tutorials/options.html)
+
+## Contextual account-email copy — 10 November 2026 candidate
+
+Source messages retain the account purpose, personal-link and unexpected-activity
+instructions while removing narration of the adjacent button. The renderer omits
+absent intro, preheader and note elements. Regenerate the four Liquid candidates
+from the source catalog and use the existing strict locale/scoping tests. The
+publication allowlist, exact unrelated-application fallback, functional-field
+preservation and readback procedure above remain authoritative. The
+[copy audit](CLEAN_COPY_AUDIT.md) separates offline examples from a later guarded
+Auth0 publication and any actual delivery.

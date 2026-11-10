@@ -16,11 +16,6 @@ export function LegalPage() {
             {msg("Legal ")}
             <em>{msg("notice.")}</em>
           </h1>
-          <p>
-            {msg(
-              "Information about Guteneo’s publisher, hosting and use of this website.",
-            )}
-          </p>
           <p className="legal-date">{msg("Updated on 21 September 2026")}</p>
         </div>
         <div className="legal-layout">

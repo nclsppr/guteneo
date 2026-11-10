@@ -452,11 +452,6 @@
     "Status prüfen",
     "Status kontrolléieren"
   ],
-  "Un accès individuel, une durée définie et un journal des événements observables.": [
-    "Individual access, a defined term and a log of observable events.",
-    "Individueller Zugriff, eine festgelegte Dauer und ein Protokoll beobachtbarer Ereignisse.",
-    "Individuellen Zougang, eng festgeluechten Dauer an e Protokoll vun observéierbaren Evenementer."
-  ],
   "La révocation bloque les nouveaux accès et ne rembourse pas la période activée.": [
     "Revocation blocks new access and does not refund the activated term.",
     "Ein Widerruf sperrt neue Zugriffe und erstattet den aktivierten Zeitraum nicht.",
@@ -783,11 +778,6 @@
     "Aktivierung bestätigen",
     "D’Aktivéierung bestätegen"
   ],
-  "Le rendu sécurisé est en préparation. Cette page se met à jour pendant le traitement.": [
-    "Secure viewing is being prepared. This page updates during processing.",
-    "Die sichere Anzeige wird vorbereitet. Diese Seite aktualisiert sich während der Verarbeitung.",
-    "Déi sécher Vue gëtt virbereet. Dës Säit aktualiséiert sech wärend der Veraarbechtung."
-  ],
   "Confirmer le destinataire": [
     "Confirm recipient",
     "Empfänger bestätigen",
@@ -852,11 +842,6 @@
     "Preparation failed",
     "Vorbereitung fehlgeschlagen",
     "Virbereedung feelgeschloen"
-  ],
-  "Le journal s’actualise automatiquement lorsque cette page est visible.": [
-    "The log updates automatically while this page is visible.",
-    "Das Protokoll aktualisiert sich automatisch, solange diese Seite sichtbar ist.",
-    "D’Protokoll aktualiséiert sech automatesch, wann dës Säit siichtbar ass."
   ],
   "Document en attente de vérification": [
     "Document awaiting verification",
@@ -1345,5 +1330,10 @@
     "This idempotency key was used for a different source.",
     "Dieser Idempotenzschlüssel wurde für eine andere Quelle verwendet.",
     "Dësen Idempotenzschlëssel gouf fir eng aner Quell benotzt."
+  ],
+  "Le rendu sécurisé est en préparation.": [
+    "Secure viewing is being prepared.",
+    "Die sichere Anzeige wird vorbereitet.",
+    "Déi sécher Vue gëtt virbereet."
   ]
 }

@@ -638,3 +638,14 @@ separate roughly fifteen minutes of normal validation from runner queues and
 about 104 aggregate runner minutes. Current media move through same-run build
 objects; Git LFS would still meter their downloads and is not introduced. Record
 new artifact sizes and actual hosted timing before claiming a wall-time gain.
+
+## Served-file read concurrency
+
+The main release procedure owns `GUTENEO_RELEASE_VERIFY_CONCURRENCY`: the default
+is four, with only literal values one through four accepted. The live publisher
+validates it before building or publishing. Operators can select one for large
+public-media reads on a constrained connection. Every byte/hash, source, header,
+robots and origin check still runs under the same 30-second request deadline;
+the receipt records the selected count and deadline. This changes read
+parallelism, not qualification coverage or deployment permission. Inspect actual
+served state after a post-publication failure before attempting another release.

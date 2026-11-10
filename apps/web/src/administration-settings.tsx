@@ -34,12 +34,7 @@ export function AdministrationSettings({
   }
   return (
     <>
-      <PageHeading
-        title={msg("Workspace settings")}
-        intro={msg(
-          "The workspace name, channel availability and operating diagnostics. Your own profile and language stay in your account.",
-        )}
-      />
+      <PageHeading title={msg("Workspace settings")} />
       <form
         className="form-panel"
         onSubmit={(event) => void save(event)}

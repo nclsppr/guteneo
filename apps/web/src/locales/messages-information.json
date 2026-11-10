@@ -51,12 +51,6 @@
     "DIE WERKSTATT / ENTWICKLER",
     "DEN ATELIER / ENTWÉCKLER"
   ],
-  "Vos documents.": ["Your documents.", "Ihre Dokumente.", "Är Dokumenter."],
-  "Votre façon de les envoyer.": [
-    "Your way to send them.",
-    "Ihr Weg, sie zu versenden.",
-    "Äre Wee, fir se ze schécken."
-  ],
   "Reliez votre application à Guteneo : un PDF fidèle à l’original, une préparation vérifiable et le dernier mot laissé à la personne qui l’envoie.": [
     "Connect your app to Guteneo: a PDF faithful to the original, a preparation you can check and the final say left to the person sending it.",
     "Verbinden Sie Ihre Anwendung mit Guteneo: ein originalgetreues PDF, eine prüfbare Vorbereitung und das letzte Wort bei der Person, die es versendet.",
@@ -634,15 +628,15 @@
     "06 / DER VOLLSTÄNDIGE VERTRAG",
     "06 / DE VOLLSTÄNNEGE KONTRAKT"
   ],
-  "Chaque route, chaque réponse.": [
-    "Every route, every response.",
-    "Jede Route, jede Antwort.",
-    "All Route, all Äntwert."
+  "Référence de l’API": [
+    "API reference",
+    "API-Referenz",
+    "API-Referenz"
   ],
-  "23 opérations : documents, contrôle postal, envois, campagnes, destinataires, expéditeurs, consommation et état du service. Explorez les schémas en lecture seule. Aucun bouton d’exécution, aucune connexion OAuth, aucun jeton envoyé depuis l’explorateur.": [
-    "23 operations: documents, postal checks, dispatches, campaigns, recipients, senders, usage and service status. Explore the schemas in read-only mode. No execution button, no OAuth sign-in and no token sent from the explorer.",
-    "23 Operationen: Dokumente, Postprüfung, Sendungen, Kampagnen, Empfänger, Absender, Verbrauch und Dienststatus. Erkunden Sie die Schemas mit reinem Lesezugriff. Kein Ausführen-Knopf, keine OAuth-Anmeldung und kein vom Explorer gesendetes Token.",
-    "23 Operatiounen: Dokumenter, Postkontroll, Sendungen, Campagnen, Empfänger, Ofsender, Verbrauch a Servicestatus. Entdeckt d'Schemae mat rengem Lieszougrëff. Keen Ausféierungsknäppchen, keng OAuth-Umeldung a keen Token, dee vum Explorer geschéckt gëtt."
+  "Consultez les schémas de l’API en lecture seule.": [
+    "Browse the API schemas in read-only mode.",
+    "Sehen Sie sich die API-Schemas im Nur-Lese-Modus an.",
+    "Kuckt Iech d’API-Schemaen am Liesmodus un."
   ],
   "Chargement de la référence…": [
     "Loading the reference…",
@@ -680,13 +674,6 @@
     "Schemas werden mit reinem Lesezugriff geladen.",
     "Schemae gi mat rengem Lieszougrëff gelueden."
   ],
-  "L’explorateur se charge uniquement à votre demande.": [
-    "The explorer loads only when you request it.",
-    "Der Explorer wird nur auf Ihre Anforderung geladen.",
-    "Den Explorer gëtt nëmmen op Är Ufro gelueden."
-  ],
-  "Vos données,": ["Your data,", "Ihre Daten,", "Är Donnéeën,"],
-  "vos droits.": ["your rights.", "Ihre Rechte.", "Är Rechter."],
   "Les données utilisées par Guteneo, leurs destinataires, leur conservation et les moyens d’exercer vos droits.": [
     "The data Guteneo uses, who receives it, how long it is kept and how to exercise your rights.",
     "Die von Guteneo verwendeten Daten, ihre Empfänger, ihre Aufbewahrung und die Möglichkeiten, Ihre Rechte auszuüben.",
@@ -931,12 +918,6 @@
     "Nutzungsbedingungen",
     "Notzungsbedéngungen"
   ],
-  "Un cadre": ["A framework", "Ein Rahmen", "E Kader"],
-  "pour vos envois.": [
-    "for your dispatches.",
-    "für Ihre Sendungen.",
-    "fir Är Sendungen."
-  ],
   "Conditions d’utilisation de la bêta Guteneo : accès, documents, autorisations, crédit d’essai et limites des envois.": [
     "Guteneo beta terms of use: access, documents, authorisations, trial credit and dispatch limits.",
     "Nutzungsbedingungen der Guteneo-Beta: Zugang, Dokumente, Berechtigungen, Testguthaben und Versandgrenzen.",
@@ -1091,8 +1072,6 @@
     "Diese Bedingungen entziehen Ihnen keine zwingenden gesetzlichen Rechte und schließen keine Haftung aus, die rechtlich nicht ausgeschlossen werden kann. Bei Schwierigkeiten bitten wir Sie, uns zu kontaktieren, um eine Lösung zu finden.",
     "Dës Bedéngungen huelen Iech keng zwéngend gesetzlech Rechter ewech a schléisse keng Haftung aus, déi gesetzlech net ausgeschloss ka ginn. Bei Schwieregkeete biede mir Iech, eis ze kontaktéieren, fir eng Léisung ze sichen."
   ],
-  "Besoin": ["Need", "Brauchen Sie", "Braucht Dir"],
-  "d’un coup de main ?": ["a helping hand?", "Unterstützung?", "eng Hand?"],
   "Contactez l’assistance Guteneo pour un document, un envoi, une connexion ou une demande relative à vos données.": [
     "Contact Guteneo support about a document, dispatch, connection or data-related request.",
     "Kontaktieren Sie den Guteneo-Support zu Dokumenten, Sendungen, Verbindungen oder Anfragen zu Ihren Daten.",

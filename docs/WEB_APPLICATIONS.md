@@ -286,3 +286,12 @@ node --test tests/security/check-applications.test.mjs
 
 The fixture in `tests/fixtures/applications` proves that a cross-application
 import, an eager application load and each design rule are refused.
+
+## Contextual interface copy
+
+The [interface-copy contract](INTERFACE_COPY.md) owns review of headings, captions,
+state messages and source translations. The [dated audit](CLEAN_COPY_AUDIT.md)
+records the 1.2.1 cleanup and qualification. Functional page names stay aligned
+with navigation, while price, consent, units and recovery retain their existing
+meaning. The four roles, personal/workspace boundaries, routes and application
+ownership are unchanged.

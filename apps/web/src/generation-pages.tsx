@@ -80,9 +80,7 @@ export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
     <>
       <PageHeading
         title={msg("Generations")}
-        intro={msg(
-          "Find your generated PDFs here. Generating a PDF does not send it.",
-        )}
+        intro={msg("Generating a PDF does not send it.")}
         action={
           canPrepare && (
             <a className="button primary" href={`#${studioRoutes.templates}`}>
@@ -432,7 +430,8 @@ export function GenerationDetail({
           </p>
         )}
       </section>
-      <DataTable<GenerationResultView> viewId="generation-results"
+      <DataTable<GenerationResultView>
+        viewId="generation-results"
         label={msg("Results of this generation")}
         items={results.data?.items ?? []}
         getRowKey={(result) => result.recordId}
@@ -739,7 +738,8 @@ function GenerationProvenance({
               <code>{trace.data.sourceHash}</code>
             </p>
           )}
-          <DataTable viewId="generation-provenance"
+          <DataTable
+            viewId="generation-provenance"
             label={msg("Provenance of ") + recordId}
             items={Object.entries(trace.data.provenance)}
             getRowKey={([field]) => field}

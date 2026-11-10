@@ -175,7 +175,6 @@ export function Overview({ session }: { session: Session }) {
       <div className="dashboard-editorial-heading">
         <PageHeading
           title={t.overview.title}
-          intro={t.overview.intro}
           action={
             permissions.prepareDispatches && (
               <a

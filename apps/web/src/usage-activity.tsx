@@ -152,7 +152,6 @@ export function UsageActivityCalendar({
       <div className="usage-activity-heading">
         <div>
           <h2 id={`${id}-title`}>{msg("Daily activity")}</h2>
-          <p>{msg("Your correspondence, one day at a time.")}</p>
         </div>
         <div className="usage-activity-year">
           <label htmlFor={`${id}-year`}>{msg("Activity year")}</label>

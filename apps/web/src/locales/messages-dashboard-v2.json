@@ -10,11 +10,6 @@
     "Versioun vum Aarbechtsberäich"
   ],
   "Classique": ["Classic", "Klassisch", "Klassesch"],
-  "Retrouvez vos PDF générés. La génération ne déclenche aucun envoi.": [
-    "Find your generated PDFs here. Generating a PDF does not send it.",
-    "Hier finden Sie Ihre erzeugten PDFs. Die Erzeugung löst keinen Versand aus.",
-    "Hei fannt Dir Är generéiert PDFen. D’Generéierung léist kee Versand aus."
-  ],
   "Heures affichées : {0}": [
     "Times shown in: {0}",
     "Angezeigte Zeiten: {0}",
@@ -48,5 +43,10 @@
     "Korrespondenz-Navigation",
     "Navigatioun vun der Korrespondenz"
   ],
-  "Correspondance": ["Correspondence", "Korrespondenz", "Korrespondenz"]
+  "Correspondance": ["Correspondence", "Korrespondenz", "Korrespondenz"],
+  "La génération ne déclenche aucun envoi.": [
+    "Generating a PDF does not send it.",
+    "Die Erzeugung löst keinen Versand aus.",
+    "D’Generéierung léist kee Versand aus."
+  ]
 }

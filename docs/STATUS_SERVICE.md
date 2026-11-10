@@ -475,3 +475,13 @@ Main-site changes use their normal `npm run deploy:live` release.
 
 Rollback selects a verified Cloudflare version while retaining observations and
 checking schema/API compatibility. Do not delete history as a rollback mechanism.
+
+## Contextual status copy — 10 November 2026 candidate
+
+The current loading or fresh-state heading and service badges convey their state
+without a repeated explanatory caption. Unknown, stale and failed reads still
+show their actual next action in the detail region. Observation timestamps,
+public-access scope, history, collector cadence and failure semantics retain
+their contracts above. See the [copy contract](INTERFACE_COPY.md) and
+[dated qualification record](CLEAN_COPY_AUDIT.md); source cleanup alone does not
+establish a new status deployment or observation.

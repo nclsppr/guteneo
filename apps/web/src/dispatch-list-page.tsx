@@ -28,7 +28,6 @@ export function DispatchList({ canPrepare = true }: { canPrepare?: boolean }) {
     <>
       <PageHeading
         title={t.dispatch.listTitle}
-        intro={t.dispatch.listIntro}
         action={
           canPrepare && (
             <a

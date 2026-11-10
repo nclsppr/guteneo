@@ -105,7 +105,7 @@ export function renderEmailServiceFooter(
   locale: SupportedLocale,
   preferencesUrl: string,
 ): string {
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#f6f5ef;border-collapse:collapse"><tbody><tr><td align="center" style="padding:0 16px 32px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.8;color:#555963"><a href="https://guteneo.com/?lang=${locale}" style="color:#555963;text-decoration:underline">${escape(deliveryText("Discover guteneo", locale))}</a><br><a href="${escape(preferencesUrl)}" style="color:#555963;text-decoration:underline">${escape(deliveryText("Unsubscribe or report this email", locale))}</a></td></tr></tbody></table>`;
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#f6f5ef;border-collapse:collapse"><tbody><tr><td align="center" style="padding:0 16px 32px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.8;color:#555963"><a href="${escape(preferencesUrl)}" style="color:#555963;text-decoration:underline">${escape(deliveryText("Unsubscribe or report this email", locale))}</a></td></tr></tbody></table>`;
 }
 /** Shared draft/final presentation. Callers never pass arbitrary markup to this renderer. */
 export function renderTransactionalEmail(input: {

@@ -152,13 +152,12 @@ function renderStatus() {
     title = attention
       ? "Some checks need attention"
       : "Public access is available";
-    detail = attention
-      ? "An issue was observed in the services listed below."
-      : "The latest automatic checks passed.";
+    detail = "";
   }
   $("live-state").dataset.state = state;
   put("state-title", statusText(title));
   put("state-detail", statusText(detail));
+  $("state-detail").hidden = !detail;
   if (latest?.checkedAt) {
     $("checked-time").dateTime = latest.checkedAt;
     put("checked-time", checkedFormat.format(new Date(latest.checkedAt)));

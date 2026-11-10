@@ -1,9 +1,4 @@
 {
-  "Cette démonstration suit 3 étapes : vous composez votre demande, vérifiez les détails dans Guteneo pour donner votre accord, puis suivez l’envoi.": [
-    "This demonstration follows 3 steps: compose your request, check the details in Guteneo to give your approval, then track the dispatch.",
-    "Diese Demonstration zeigt 3 Schritte: Verfassen Sie Ihre Anfrage, prüfen Sie die Details in Guteneo für Ihre Freigabe und verfolgen Sie dann die Sendung.",
-    "Dës Demonstratioun weist 3 Schrëtt: Dir verfaasst Är Ufro, kontrolléiert d’Detailer a Guteneo fir Är Zoustëmmung ze ginn a verfollegt duerno d’Sendung."
-  ],
   "Vérifiez le document, le destinataire, le canal et le montant avant de donner votre accord.": [
     "Check the document, recipient, channel and amount before giving your approval.",
     "Prüfen Sie Dokument, Empfänger, Kanal und Betrag, bevor Sie Ihre Freigabe erteilen.",
@@ -607,20 +602,10 @@
     "Ein Guteneo-Konto für die Anmeldung beim Verbinden.",
     "E Guteneo-Kont, fir Iech beim Verbannen unzemellen."
   ],
-  "Ce guide se consulte sans compte. Retrouvez-le dans votre espace pour poursuivre.": [
-    "You can read this guide without an account. Find it in your workspace to continue.",
-    "Sie können diese Anleitung ohne Konto lesen. Zum Fortfahren finden Sie sie in Ihrem Bereich.",
-    "Dir kënnt dës Uleedung ouni Kont liesen. Dir fannt se an Ärem Beräich, fir weiderzefueren."
-  ],
   "Créer ou ouvrir mon espace": [
     "Create or open my workspace",
     "Meinen Bereich erstellen oder öffnen",
     "Mäi Beräich erstellen oder opmaachen"
-  ],
-  "Gardez ce guide ouvert pendant l’ajout dans votre application.": [
-    "Keep this guide open while adding the connection in your app.",
-    "Lassen Sie diese Anleitung geöffnet, während Sie die Verbindung in Ihrer Anwendung hinzufügen.",
-    "Loosst dës Uleedung op, wärend Dir d’Verbindung an Ärer App derbäisetzt."
   ],
   "Installer par MCP": [
     "Install via MCP",
@@ -762,11 +747,6 @@
     "Meinen Assistenten verwenden",
     "Mäin Assistent benotzen"
   ],
-  "Vous pouvez aussi préparer votre envoi directement.": [
-    "You can also prepare your dispatch directly.",
-    "Sie können Ihre Sendung auch direkt vorbereiten.",
-    "Dir kënnt Är Sendung och direkt virbereeden."
-  ],
   "Envoyer depuis Guteneo": [
     "Send from Guteneo",
     "Über Guteneo versenden",
@@ -783,11 +763,6 @@
     "Meng Verbindungen"
   ],
   "Actualiser": ["Refresh", "Aktualisieren", "Aktualiséieren"],
-  "Après votre première demande dans l’assistant, revenez ici pour retrouver le dernier échange confirmé.": [
-    "After your first request in the assistant, return here to find the latest confirmed exchange.",
-    "Kehren Sie nach Ihrer ersten Anfrage im Assistenten hierher zurück, um den letzten bestätigten Austausch zu sehen.",
-    "Kommt no Ärer éischter Ufro am Assistent heihinner zréck, fir de leschte bestätegten Austausch ze gesinn."
-  ],
   "Démonstration : aucune connexion réelle n’est créée ou vérifiée dans cet aperçu.": [
     "Demo: no real connection is created or verified in this preview.",
     "Demonstration: In dieser Vorschau wird keine echte Verbindung erstellt oder geprüft.",
@@ -858,11 +833,6 @@
     "Ihre Assistenten, Ihre Korrespondenz.",
     "Är Assistenten, Är Korrespondenz."
   ],
-  "Connectez votre assistant à Guteneo par MCP, puis retrouvez vos connexions ici. Chaque guide vous accompagne sans attendre un plugin publié.": [
-    "Connect your assistant to Guteneo via MCP, then find your connections here. Each guide walks you through without waiting for a published plugin.",
-    "Verbinden Sie Ihren Assistenten über MCP mit Guteneo und finden Sie Ihre Verbindungen hier. Jede Anleitung begleitet Sie, ohne auf ein veröffentlichtes Plugin warten zu müssen.",
-    "Verbannt Ären Assistent iwwer MCP mat Guteneo a fannt Är Verbindungen hei erëm. All Uleedung begleet Iech, ouni op e publizéierte Plugin ze waarden."
-  ],
   "Ce guide n’existe pas. Choisissez un assistant ci-dessous.": [
     "This guide does not exist. Choose an assistant below.",
     "Diese Anleitung ist nicht vorhanden. Wählen Sie unten einen Assistenten aus.",
@@ -882,11 +852,6 @@
     "You can also send directly.",
     "Versenden Sie auch direkt.",
     "Schéckt och direkt."
-  ],
-  "Un document, un destinataire, une vérification : votre espace Guteneo fonctionne sans assistant.": [
-    "One document, one recipient, one check: your Guteneo workspace works without an assistant.",
-    "Ein Dokument, ein Empfänger, eine Prüfung: Ihr Guteneo-Bereich funktioniert ohne Assistenten.",
-    "En Dokument, en Empfänger, eng Kontroll: Äre Guteneo-Beräich funktionéiert ouni Assistent."
   ],
   "L’invitation de démarrage est masquée sur ce navigateur.": [
     "The getting-started invitation is hidden in this browser.",
@@ -946,12 +911,6 @@
     "Choose my assistant",
     "Meinen Assistenten auswählen",
     "Mäin Assistent wielen"
-  ],
-  "Votre assistant.": ["Your assistant.", "Ihr Assistent.", "Ären Assistent."],
-  "Votre correspondance.": [
-    "Your correspondence.",
-    "Ihre Korrespondenz.",
-    "Är Korrespondenz."
   ],
   "Connectez votre assistant à Guteneo par MCP. Choisissez votre outil et suivez les étapes pour ajouter le serveur et connecter votre compte.": [
     "Connect your assistant to Guteneo via MCP. Choose your tool and follow the steps to add the server and connect your account.",
@@ -1146,11 +1105,6 @@
     "in Guteneo before giving your approval.",
     "in Guteneo, bevor Sie zustimmen.",
     "a Guteneo, ier Dir zoustëmmt."
-  ],
-  "Conversation, document et destinataire fictifs.": [
-    "Fictional conversation, document and recipient.",
-    "Fiktive Unterhaltung, fiktives Dokument und fiktiver Empfänger.",
-    "Fiktivt Gespréich, fiktivt Dokument a fiktiven Empfänger."
   ],
   "Voir la vérification": [
     "View the review step",

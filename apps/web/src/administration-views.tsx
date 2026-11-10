@@ -538,7 +538,8 @@ export function AdministrationActivityPage({ route }: { route: string }) {
             {msg("{0} dispatches", count(resource.data.total))}
           </p>
           <DateTimezone />
-          <DataTable viewId="workspace-activity"
+          <DataTable
+            viewId="workspace-activity"
             className="administration-table"
             label={msg("Workspace activity")}
             items={resource.data.items}
@@ -733,7 +734,8 @@ export function AdministrationConsumptionPage({ route }: { route: string }) {
             {data.monthly.length > 0 && (
               <section className="administration-panel">
                 <h2>{msg("By month")}</h2>
-                <DataTable viewId="monthly-consumption"
+                <DataTable
+                  viewId="monthly-consumption"
                   className="administration-table"
                   label={msg("Consumption by month")}
                   items={data.monthly}
@@ -792,7 +794,8 @@ export function AdministrationMemberActivity({ route }: { route: string }) {
         resource.data && (
           <>
             <DateTimezone />
-            <DataTable viewId="member-activity"
+            <DataTable
+              viewId="member-activity"
               className="administration-table"
               label={msg("Member activity")}
               items={resource.data.items}
@@ -895,9 +898,7 @@ export function AdministrationConnectionsPage({ route }: { route: string }) {
     <>
       <PageHeading
         title={msg("Access and sign-ins")}
-        intro={msg(
-          "Open sessions and assistant authorizations of members, and their recorded sign-ins. An authorization is not proof of presence.",
-        )}
+        intro={msg("An authorization is not proof of presence.")}
         action={<RefreshButton onClick={resource.refresh} />}
       />
       <PeriodControls route={route} path={administrationRoutes.connections} />
@@ -915,7 +916,8 @@ export function AdministrationConnectionsPage({ route }: { route: string }) {
               {data.current.items.length ? (
                 <>
                   <DateTimezone />
-                  <DataTable viewId="current-access"
+                  <DataTable
+                    viewId="current-access"
                     className="administration-table"
                     label={msg("Current access")}
                     items={data.current.items}
@@ -977,7 +979,8 @@ export function AdministrationConnectionsPage({ route }: { route: string }) {
               </p>
               {data.events.items.length ? (
                 <>
-                  <DataTable viewId="sign-ins"
+                  <DataTable
+                    viewId="sign-ins"
                     className="administration-table"
                     label={msg("Sign-ins")}
                     items={data.events.items}
@@ -1042,7 +1045,8 @@ export function AdministrationAuditPage({ route }: { route: string }) {
       ) : resource.data?.items.length ? (
         <>
           <DateTimezone />
-          <DataTable viewId="audit-log"
+          <DataTable
+            viewId="audit-log"
             className="administration-table"
             label={msg("Audit log")}
             items={resource.data.items}
@@ -1210,9 +1214,7 @@ export function AdministrationReportsPage({
     <>
       <PageHeading
         title={msg("Reports and exports")}
-        intro={msg(
-          "Download what happened in this workspace for the chosen period. Each export is recorded in the audit log.",
-        )}
+        intro={msg("Each export is recorded in the audit log.")}
       />
       <PeriodControls route={route} path={administrationRoutes.reports} />
       <div className="notice info" role="note">

@@ -370,13 +370,7 @@ export function BelvedereGlobe({
     >
       <header className="bv-globe-header">
         <div>
-          <h2 id={titleId}>{bmsg("The world of guteneo.")}</h2>
-          <p>
-            {mode === "connections"
-              ? bmsg("Where connections come from.")
-              : bmsg("Where dispatches go.")}{" "}
-            <span>{bmsg("A view, country by country.")}</span>
-          </p>
+          <h2 id={titleId}>{bmsg("Geography")}</h2>
         </div>
         <div
           className="bv-globe-switch"
@@ -620,11 +614,11 @@ export function BelvedereGlobe({
                 ? name(selectedRow.country)
                 : bmsg("Select a country")}
             </span>
-            <p>
-              {selectedRow
-                ? `${format.format(selectedRow.connections)} ${metric}${mode === "distribution" && selectedDistribution ? bmsg(" · {0} delivered", format.format(selectedDistribution.delivered)) : ""}`
-                : bmsg("Globe points and the list share the same selection.")}
-            </p>
+            {selectedRow && (
+              <p>
+                {`${format.format(selectedRow.connections)} ${metric}${mode === "distribution" && selectedDistribution ? bmsg(" · {0} delivered", format.format(selectedDistribution.delivered)) : ""}`}
+              </p>
+            )}
             {mode === "distribution" &&
               selectedRow?.country &&
               onDistributionCountry && (

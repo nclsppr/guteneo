@@ -29,11 +29,6 @@
     "D’Word-Dokument ass méi grouss wéi 5 MB."
   ],
   "Modèles": ["Templates", "Vorlagen", "Virlagen"],
-  "Une page, vos variables, autant de documents que nécessaire. Vos modèles restent rééditables depuis le web, l’API et votre assistant.": [
-    "One page, your variables, as many documents as you need. You can keep editing your templates on the web, through the API and with your assistant.",
-    "Eine Seite, Ihre Variablen, beliebig viele Dokumente. Ihre Vorlagen bleiben im Web, über die API und mit Ihrem Assistenten bearbeitbar.",
-    "Eng Säit, Är Variabelen, esou vill Dokumenter wéi néideg. Är Virlage bleiwen am Web, iwwer d’API a mat Ärem Assistent editéierbar."
-  ],
   "Créer un document": [
     "Create a document",
     "Dokument erstellen",
@@ -166,11 +161,6 @@
     "All changes are saved.",
     "Alle Änderungen sind gespeichert.",
     "All Ännerunge si gespäichert."
-  ],
-  "Ce modèle est en consultation. Vos droits permettent les actions indiquées ci-dessus.": [
-    "This template is read-only. Your permissions allow the actions shown above.",
-    "Diese Vorlage ist schreibgeschützt. Ihre Berechtigungen erlauben die oben angezeigten Aktionen.",
-    "Dës Virlag ass nëmme fir ze liesen. Är Rechter erlaben d’Aktiounen uewen."
   ],
   "Variables métier": [
     "Business variables",
@@ -747,5 +737,10 @@
     "The field already exists; reuse it without redeclaring its type.",
     "Das Feld existiert bereits; verwenden Sie es erneut, ohne seinen Typ neu zu deklarieren.",
     "D’Feld gëtt et schonn; benotzt et nach eng Kéier, ouni säin Typ nei ze deklaréieren."
+  ],
+  "Ce modèle est en consultation.": [
+    "This template is read-only.",
+    "Diese Vorlage ist schreibgeschützt.",
+    "Dës Virlag ass nëmme fir ze liesen."
   ]
 }

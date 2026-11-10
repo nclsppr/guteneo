@@ -9,6 +9,7 @@ import {
   sourceSnapshot,
   liveReleaseSending,
 } from "./release-source.mjs";
+import { parseReleaseVerifyConcurrency } from "./verify-release.mjs";
 
 function fail(code) {
   throw new Error(code);
@@ -186,6 +187,16 @@ export async function deployPublic(
   } = {},
 ) {
   if (!Object.hasOwn(releaseProfiles, target)) fail("RELEASE_TARGET_INVALID");
+  let verificationConcurrency;
+  if (target === "live") {
+    try {
+      verificationConcurrency = parseReleaseVerifyConcurrency(
+        process.env.GUTENEO_RELEASE_VERIFY_CONCURRENCY,
+      );
+    } catch {
+      fail("RELEASE_VERIFY_CONCURRENCY_INVALID");
+    }
+  }
   const profile = releaseProfiles[target];
   const sourceCommit = verifyMainSource(root);
   const anchor =
@@ -220,7 +231,14 @@ export async function deployPublic(
           "https://guteneo.com",
           join(root, profile.output, "release.json"),
         ],
-        { cwd: root, stdio: "inherit" },
+        {
+          cwd: root,
+          stdio: "inherit",
+          env: {
+            ...process.env,
+            GUTENEO_RELEASE_VERIFY_CONCURRENCY: String(verificationConcurrency),
+          },
+        },
       );
     } catch {
       fail("RELEASE_VERIFICATION_FAILED");

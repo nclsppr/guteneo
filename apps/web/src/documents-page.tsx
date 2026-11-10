@@ -166,7 +166,6 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
     <>
       <PageHeading
         title={t.documents.title}
-        intro={t.documents.intro}
         action={
           canPrepare && (
             <div className="button-group">

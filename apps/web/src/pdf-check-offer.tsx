@@ -44,12 +44,7 @@ export function PdfCheckCreditTerms() {
 export function PdfCheckPage({ session }: { session: Session }) {
   return (
     <>
-      <PageHeading
-        title={msg("PDF checks")}
-        intro={msg(
-          "Check a document’s technical accessibility or archival rules, when you need it.",
-        )}
-      />
+      <PageHeading title={msg("PDF checks")} />
       <PdfCheckAccount key={session.organization.id} />
     </>
   );

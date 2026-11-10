@@ -236,3 +236,25 @@ builds both static products and checks the verifier with local fixtures;
 `npx vitest run tests/unit/public-routes.test.ts` checks GET/HEAD alias status,
 target, query preservation and absence of asset reads on both routing surfaces.
 These local checks do not replace post-publication verification.
+
+## Bounded served-file download concurrency
+
+The live publisher validates `GUTENEO_RELEASE_VERIFY_CONCURRENCY` before building
+or publishing. Absent means four download workers. Only literal `1`, `2`, `3` or
+`4` is accepted; empty, malformed or out-of-range values fail closed. The
+standalone served verifier uses the same parser.
+
+For a connection on which parallel large-media downloads exceed the existing
+request deadline, run:
+
+```sh
+GUTENEO_RELEASE_VERIFY_CONCURRENCY=1 npm run deploy:live
+```
+
+Every manifest entry still receives its existing exact byte/hash verification
+or explicit configuration/robots treatment. The 30-second request deadline,
+source identity, headers, origin and robots checks remain the same. The receipt
+records `downloadConcurrency` and `requestDeadlineMs`. This setting controls
+operator-side read parallelism and grants no publication bypass, automatic
+retry, sending capability or resource provisioning. A failure after publication
+still requires actual served-state inspection before another deployment.

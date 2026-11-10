@@ -156,7 +156,7 @@ test("V2 gives each creation page one prominent action and keeps account utiliti
   for (const destination of [
     {
       path: "documents",
-      title: "La matière première.",
+      title: "Documents",
       action: "Importer un PDF",
     },
     {

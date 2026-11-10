@@ -4,7 +4,7 @@ English is the default and required language for repository-authored code, ident
 
 Give every current rule one authoritative home and link to it instead of copying operational guidance. Reuse shared frontend shells, components, route helpers and locale keys for the same behavior; remove repeated titles, identity blocks, explanations and primary actions without hiding consent, price or recovery information. Keep the [documentation index](docs/README.md) current. Language and documentation checks must pass in the same PR as the change; generated views are edited through their source.
 
-Cut taglines, helper text and secondary labels. If a screen needs them to make sense, fix the layout.
+Review interface copy in its rendered context using [docs/INTERFACE_COPY.md](docs/INTERFACE_COPY.md). Remove redundant captions and implementation commentary; keep actionable errors, units, access requirements and real consequences at the point of choice. Name functional pages directly and preserve the explicitly approved homepage invitation.
 
 Make the best decision that will elevate all three: the user experience (UX), developer experience (DX), and agent experience (AX) always, without breaking anything.
 

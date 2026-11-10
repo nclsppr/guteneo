@@ -75,6 +75,10 @@ browser administrator action and its no-replay financial/execution closure gate.
 The [execution ledger](STATE_MACHINE_EXECUTION.md) tracks implementation of the
 state-machine work and its local proof separately from deployment.
 
+
+The [interface-copy contract](INTERFACE_COPY.md) explains contextual text review;
+the [dated cleanup audit](CLEAN_COPY_AUDIT.md) records changes and qualification.
+
 ## Current sources of truth
 
 | Need                                                   | Start here                                                                                                                                                                                                                                                                                                                                                |

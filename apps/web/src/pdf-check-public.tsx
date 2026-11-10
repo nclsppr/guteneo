@@ -52,7 +52,6 @@ export function PdfCheckPublicOffer({
           <strong>{money(PDF_VALIDATION_PRICE_MINOR, "EUR")}</strong>
           <span>{msg("excluding tax, per PDF and profile")}</span>
         </p>
-        <p>{msg("Find barriers in your PDFs before sharing them.")}</p>
         <p>
           {msg(
             "Choose PDF/UA accessibility or PDF/A archiving. Pay only for the check you confirm, with no monthly subscription.",

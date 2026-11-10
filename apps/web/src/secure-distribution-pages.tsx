@@ -115,9 +115,6 @@ function SecureDistributionList({ canPrepare }: { canPrepare: boolean }) {
     <div className="secure-document-layout">
       <PageHeading
         title={msg("Secure distributions")}
-        intro={msg(
-          "Individual access, a defined term and a log of observable events.",
-        )}
         action={
           canPrepare && (
             <a className="button primary" href="#/app/secure-distributions/new">
@@ -925,11 +922,7 @@ function SecureDistributionDetail({
             {publication.status === "preparing" && (
               <section className="secure-document-panel" role="status">
                 <Loading />
-                <p>
-                  {msg(
-                    "Secure viewing is being prepared. This page updates during processing.",
-                  )}
-                </p>
+                <p>{msg("Secure viewing is being prepared.")}</p>
               </section>
             )}
             {publication.status === "prepared" && (
@@ -1148,13 +1141,6 @@ function SecureDistributionDetail({
             )}
             <section className="secure-document-panel">
               <h2>{msg("Workspace log")}</h2>
-              {publication.status === "active" && (
-                <p className="field-hint">
-                  {msg(
-                    "The log updates automatically while this page is visible.",
-                  )}
-                </p>
-              )}
               <p>
                 {msg(
                   "A reported display does not prove reading. Transmitting the PDF does not prove that it was saved to disk.",

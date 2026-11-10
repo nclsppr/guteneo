@@ -126,7 +126,6 @@ export function JournalPage() {
         <h2 className="sr-only">{msg("Stories from the workspace")}</h2>
         <ArticleList />
         <aside className="journal-note">
-          <p>{msg("Documented stories, contemporary images.")}</p>
           <span>
             {msg(
               "Each issue cites its sources. The illustrations created for Guteneo interpret this history; they are not archival documents.",
@@ -194,7 +193,6 @@ export function ArticlePage({ article }: { article: EditorialArticle }) {
               className="article-contents"
               aria-label={msg("Article contents")}
             >
-              <p className="editorial-kicker">{msg("Through the pages")}</p>
               <ol>
                 {article.chapters.map((chapter) => (
                   <li key={chapter.id}>
@@ -242,13 +240,7 @@ export function ArticlePage({ article }: { article: EditorialArticle }) {
             aria-labelledby="sources-title"
           >
             <div>
-              <p className="editorial-kicker">{msg("Explore further")}</p>
               <h2 id="sources-title">{msg("Sources & further reading.")}</h2>
-              <p>
-                {msg(
-                  "The links below lead to the dates, objects and collections discussed in this story.",
-                )}
-              </p>
             </div>
             <ol>
               {article.sources.map((source) => (

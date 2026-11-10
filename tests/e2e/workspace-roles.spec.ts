@@ -232,7 +232,7 @@ test("observer sees documents and tracking without preparation controls", async 
   await fixture(page, "viewer");
   await page.goto("/#/app/documents");
   await expect(
-    page.getByRole("heading", { name: "La matière première.", exact: true }),
+    page.getByRole("heading", { name: "Documents", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Importer un PDF", exact: true }),
@@ -303,28 +303,28 @@ test("public guide explains all roles and supervisor options in four languages",
   for (const [locale, title, operator, observer, approval] of [
     [
       "fr",
-      "Un rôle clair pour chaque membre.",
+      "Rôles et droits",
       "Opérateur",
       "Observateur",
       "Approuver et refuser les requêtes",
     ],
     [
       "en",
-      "A clear role for every member.",
+      "Roles and permissions",
       "Operator",
       "Observer",
       "Approve and reject requests",
     ],
     [
       "de",
-      "Eine klare Rolle für jedes Mitglied.",
+      "Rollen und Rechte",
       "Sachbearbeiter",
       "Beobachter",
       "Anfragen genehmigen und ablehnen",
     ],
     [
       "lb",
-      "Eng kloer Roll fir all Member.",
+      "Rollen a Rechter",
       "Operateur",
       "Observateur",
       "Ufroe geneemegen a refuséieren",

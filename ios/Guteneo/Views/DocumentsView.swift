@@ -20,13 +20,9 @@ struct DocumentsWorkspaceView: View {
                             Image(systemName: "doc.text.magnifyingglass")
                                 .font(.largeTitle).foregroundStyle(Brand.cobalt)
                                 .accessibilityHidden(true)
-                            Text("Every original,\nin its place.")
+                            Text("Choose a document.")
                                 .font(.system(.largeTitle, design: .serif))
                                 .foregroundStyle(Brand.ink)
-                            Text("Choose a document from the list to check its verification, read the original PDF or prepare a fax.")
-                                .font(.title3).foregroundStyle(.secondary)
-                            Text("To add a document, use “Import a PDF” in the list.")
-                                .foregroundStyle(.secondary)
                         }
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: 460, alignment: .leading).padding(32)
@@ -105,7 +101,7 @@ struct DocumentsView: View {
         }
         if uploading { Section { ProgressView("Uploading PDF…") } }
         if documents.isEmpty && !model.isLoading {
-            ContentUnavailableView(LocalizedStringKey(search.isEmpty ? "Your PDFs, here" : "No documents found"), systemImage: "doc.text", description: Text(LocalizedStringKey(search.isEmpty ? "Import a PDF from Files. Its original will be preserved and verified before use." : "Try another name or load more documents.")))
+            ContentUnavailableView("No documents found", systemImage: "doc.text", description: Text(LocalizedStringKey(search.isEmpty ? "Import a PDF from Files." : "Try another name or load more documents.")))
                 .listRowBackground(Color.clear)
         }
         ForEach(documents) { document in
@@ -123,7 +119,7 @@ struct DocumentsView: View {
                 .disabled(model.isLoading)
         }
         Section {
-            Notice(text: "PDFs remain private to your organisation. Verification may take a few minutes.", symbol: "lock.doc")
+            Notice(text: "PDFs remain private to your organisation.", symbol: "lock.doc")
         }
     }
 }
@@ -168,9 +164,7 @@ struct DocumentDetailView: View {
                             .disabled(model.session?.canPrepare != true)
                     }
                 }
-                Section("Original preserved") {
-                    Text("The document sent matches the imported PDF. Guteneo does not modify its pages.")
-                        .font(.footnote).foregroundStyle(.secondary)
+                Section {
                     DisclosureGroup("Document fingerprint") {
                         Text(document.sha256).font(.caption.monospaced()).textSelection(.enabled)
                             .accessibilityLabel("SHA 256 fingerprint: \(document.sha256)")

@@ -511,7 +511,7 @@ test("discarded workspace reads cannot overwrite personal state and returning re
     location.hash = "/app/documents";
   });
   await expect(
-    page.getByRole("heading", { name: "The raw material.", exact: true }),
+    page.getByRole("heading", { name: "Documents", exact: true }),
   ).toBeVisible();
   await expect(
     page.locator(".workspace-switcher .space-switcher-trigger"),

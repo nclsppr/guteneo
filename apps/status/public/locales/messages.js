@@ -23,11 +23,6 @@ window.STATUS_MESSAGES = {
     "Verfügbarkeit wird geprüft…",
     "Disponibilitéit gëtt gepréift…",
   ],
-  "Reading the latest observation.": [
-    "Lecture de la dernière observation.",
-    "Die letzte Beobachtung wird geladen.",
-    "Déi lescht Observatioun gëtt gelueden.",
-  ],
   "Last checked": ["Dernier contrôle", "Zuletzt geprüft", "Lescht Kontroll"],
   Pending: ["En attente", "Ausstehend", "Ausstoend"],
   "Monitored services": [
@@ -158,16 +153,6 @@ window.STATUS_MESSAGES = {
     "Les accès publics sont disponibles",
     "Der öffentliche Zugang ist verfügbar",
     "Den ëffentlechen Zougang ass disponibel",
-  ],
-  "An issue was observed in the services listed below.": [
-    "Une anomalie a été observée sur les services indiqués ci-dessous.",
-    "Bei den unten aufgeführten Diensten wurde ein Problem beobachtet.",
-    "Bei de Servicer hei ënnendrënner gouf e Problem festgestallt.",
-  ],
-  "The latest automatic checks passed.": [
-    "Les derniers contrôles automatiques ont réussi.",
-    "Die letzten automatischen Prüfungen waren erfolgreich.",
-    "Déi lescht automatesch Kontrolle waren erfollegräich.",
   ],
   "No observation yet": [
     "Aucune observation reçue",

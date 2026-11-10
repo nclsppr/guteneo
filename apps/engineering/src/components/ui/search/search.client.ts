@@ -106,7 +106,7 @@ export function initSearch(config: SearchConfig): SearchInstance {
     } catch {
       emptyState.textContent = import.meta.env.DEV
         ? "Search is available after a production build."
-        : "Search could not load. Check your connection and reload the page. If it persists, ask the site owner to rebuild and deploy the search index.";
+        : "Search could not load. Check your connection and reload the page.";
       return false;
     }
   }

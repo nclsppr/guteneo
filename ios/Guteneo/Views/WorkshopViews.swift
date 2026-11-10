@@ -54,12 +54,6 @@ struct WelcomeView: View {
                                 welcomeCopy.frame(maxWidth: 480, alignment: .leading)
                                 PrintWorkshopArtwork(height: 380)
                             }
-                            PaperRule()
-                            HStack(alignment: .top, spacing: 40) {
-                                principle("Your documents, unchanged", symbol: "doc.text")
-                                principle("You control every dispatch", symbol: "checkmark.shield")
-                                principle("Tracking shared with your workspace", symbol: "clock.arrow.circlepath")
-                            }
                         } else {
                             welcomeCopy
                             if !typeSize.isAccessibilitySize { PrintWorkshopArtwork(height: 150) }
@@ -81,11 +75,8 @@ struct WelcomeView: View {
 
     private var welcomeCopy: some View {
         VStack(alignment: .leading, spacing: 22) {
-            Text("Your workspace,\nwithin reach.")
+            Text("Your workspace")
                 .font(.system(.largeTitle, design: .serif)).foregroundStyle(Brand.ink)
-                .fixedSize(horizontal: false, vertical: true)
-            Text("Find your PDFs, prepare dispatches and track their progress.")
-                .font(.title3).foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             if let error = model.errorMessage {
                 Notice(text: error, symbol: "exclamationmark.circle")
@@ -111,11 +102,6 @@ struct WelcomeView: View {
         }
     }
 
-    private func principle(_ title: String, symbol: String) -> some View {
-        Label(LocalizedStringKey(title), systemImage: symbol).font(.subheadline)
-            .fixedSize(horizontal: false, vertical: true)
-            .frame(maxWidth: .infinity, alignment: .leading)
-    }
 }
 
 struct OverviewView: View {
@@ -149,7 +135,7 @@ struct OverviewView: View {
                         recentDispatches
                         recentDocuments
                     }
-                    workflow(wide: wide)
+                    Notice(text: "Review and approve each dispatch in your browser.", symbol: "checkmark.shield")
                 }
                 .frame(maxWidth: 1200, alignment: .leading)
                 .padding(wide ? 32 : 20)
@@ -179,11 +165,9 @@ struct OverviewView: View {
     private var introductionCopy: some View {
         VStack(alignment: .leading, spacing: 16) {
             Wordmark()
-            Text("The right document.\nThe right recipient.")
+            Text(verbatim: model.session?.organization.name ?? L10n.text("Your workspace", locale: locale))
                 .font(.system(.title, design: .serif)).foregroundStyle(Brand.ink)
                 .fixedSize(horizontal: false, vertical: true)
-            Text(verbatim: model.session?.organization.name ?? L10n.text("Your workspace", locale: locale))
-                .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             Button { composing = true } label: {
                 Label("Prepare a dispatch", systemImage: "plus")
                     .fontWeight(.semibold).padding(.vertical, 7).foregroundStyle(Brand.paper)
@@ -217,9 +201,9 @@ struct OverviewView: View {
 
     private var recentDocuments: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Close at hand").font(.system(.title2, design: .serif))
+            Text("Documents").font(.system(.title2, design: .serif))
             if model.documents.isEmpty {
-                Label("Your PDFs will find their place here.", systemImage: "doc.on.doc")
+                Label("No documents found", systemImage: "doc.on.doc")
                     .foregroundStyle(.secondary).padding(.vertical, 20)
             } else {
                 VStack(spacing: 0) {
@@ -237,7 +221,6 @@ struct OverviewView: View {
                     .font(.subheadline.weight(.semibold)).frame(minHeight: 44)
             }
             .accessibilityIdentifier("atelier.openDocuments")
-            Notice(text: "The original PDF is preserved. It is verified before use.", symbol: "lock.doc")
         }
     }
 
@@ -251,30 +234,4 @@ struct OverviewView: View {
         .contentShape(Rectangle())
     }
 
-    private func workflow(wide: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 18) {
-            PaperRule()
-            Text("Every dispatch under your control.")
-                .font(.system(.title3, design: .serif)).foregroundStyle(Brand.ink)
-            let layout = wide ? AnyLayout(HStackLayout(alignment: .top, spacing: 30)) : AnyLayout(VStackLayout(alignment: .leading, spacing: 16))
-            layout {
-                workflowStep("Prepare", detail: "A PDF and its recipient.", symbol: "doc.badge.plus")
-                workflowStep("Review", detail: "The content, options and quote.", symbol: "doc.text.magnifyingglass")
-                workflowStep("Approve", detail: "Personally, in your secure workspace.", symbol: "checkmark.shield")
-            }
-        }
-    }
-
-    private func workflowStep(_ title: String, detail: String, symbol: String) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: symbol).font(.title3).foregroundStyle(Brand.cobalt)
-                .frame(width: 26).accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 5) {
-                Text(LocalizedStringKey(title)).font(.subheadline.weight(.semibold))
-                Text(LocalizedStringKey(detail)).font(.footnote).foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }.frame(maxWidth: .infinity, alignment: .leading)
-        .accessibilityElement(children: .combine)
-    }
 }
