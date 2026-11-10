@@ -215,15 +215,37 @@ export function Overview({ session }: { session: Session }) {
     permissions.viewReports ? "/overview" : null,
   );
   const dispatches = useResource<Page<Dispatch>>("/dispatches?limit=6");
+  const counts = overview.data;
+  const attention = counts?.dispatches.attention ?? 0;
+  // The queue reads only what the counts announce; without report access the
+  // counts are unknown, so both short lists are read.
+  const toCheck = useResource<Page<Dispatch>>(
+    !permissions.viewReports || attention > 0
+      ? "/dispatches?group=attention&limit=5"
+      : null,
+  );
+  const toApprove = useResource<Page<Dispatch>>(
+    !permissions.viewReports || (counts?.dispatches.approval ?? 0) > 0
+      ? "/dispatches?group=approval&limit=5"
+      : null,
+  );
   const refreshOverview = overview.refresh;
   const refreshDispatches = dispatches.refresh;
+  const refreshToCheck = toCheck.refresh;
+  const refreshToApprove = toApprove.refresh;
   const refresh = useCallback(() => {
     refreshOverview();
     refreshDispatches();
-  }, [refreshOverview, refreshDispatches]);
+    refreshToCheck();
+    refreshToApprove();
+  }, [refreshOverview, refreshDispatches, refreshToCheck, refreshToApprove]);
   useRefreshOnFocus(refresh);
-  const counts = overview.data;
-  const attention = counts?.dispatches.attention ?? 0;
+  const queue = [
+    ...(toCheck.data?.items ?? []),
+    ...(toApprove.data?.items ?? []),
+  ].filter(
+    (item, index, all) => all.findIndex((other) => other.id === item.id) === index,
+  );
   const dailyOverview =
     (counts?.dispatches.total ?? 0) > 0 ||
     (dispatches.data?.items.length ?? 0) > 0;
@@ -253,23 +275,19 @@ export function Overview({ session }: { session: Session }) {
   const contacts = (
     <WorkspaceContacts key="contacts" session={session} compact />
   );
-  // With report access the amber figure already carries this alert.
-  const attentionNotice = attention > 0 && !permissions.viewReports && (
-    <div
+  // What waits for this workspace: uncertain or failed outcomes first, then
+  // dispatches awaiting approval. It replaces the former attention banner.
+  const attentionNotice = queue.length > 0 && (
+    <section
       key="attention"
-      className="notice warning overview-attention"
-      role="status"
+      className="overview-queue"
+      aria-labelledby="overview-queue-title"
     >
-      <WarningCircle size={22} aria-hidden="true" />
-      <div>
-        <strong>{t.overview.attentionTitle}</strong>
-        <p>{t.overview.attentionBody}</p>
-        <a className="text-link" href="#/app/dispatches?group=attention">
-          {t.overview.attentionAction}
-          <ArrowRight size={17} aria-hidden="true" />
-        </a>
+      <div className="section-toolbar">
+        <h2 id="overview-queue-title">{t.overview.queueTitle}</h2>
       </div>
-    </div>
+      <DispatchTable items={queue} />
+    </section>
   );
   const assistantStart =
     permissions.prepareDispatches &&

@@ -169,18 +169,12 @@ test("uncertain or failed sends are surfaced on the overview", async ({
     page.getByRole("button", { name: "Importer un PDF", exact: true }),
   ).toBeVisible();
   await page.goto("/#/app");
-  const notice = page.getByRole("status").filter({
-    hasText: "Des envois demandent votre attention.",
-  });
-  await expect(notice).toBeVisible();
-  await expect(
-    page
-      .getByRole("list", { name: "Synthèse de l’espace de travail" })
-      .getByRole("link", { name: /^À vérifier/ }),
-  ).toContainText("4");
-  await notice
-    .getByRole("link", { name: "Voir les envois à vérifier" })
-    .click();
+  // The amber figure is the single alert; the queue below lists the items.
+  const figure = page
+    .getByRole("list", { name: "Synthèse de l’espace de travail" })
+    .getByRole("link", { name: /^À vérifier/ });
+  await expect(figure).toContainText("4");
+  await figure.click();
   await expect(page).toHaveURL(/#\/app\/dispatches\?group=attention$/);
 });
 

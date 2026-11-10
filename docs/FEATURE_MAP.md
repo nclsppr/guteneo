@@ -1,8 +1,8 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**28 domains · 469 features · 46 journeys · 78 documented REST operations · 83 MCP tools**
-Updated 2026-11-09.
+**28 domains · 473 features · 46 journeys · 78 documented REST operations · 83 MCP tools**
+Updated 2026-11-10.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
 
@@ -18,7 +18,7 @@ mindmap
       Team and responsibilities (10)
       Workspace administration and reports (14)
     Create
-      Documents and protection (22)
+      Documents and protection (23)
       Template studio (15)
       Data and mappings (12)
       PDF generation and distribution (17)
@@ -31,7 +31,7 @@ mindmap
     Operate
       Campaigns and tracking (9)
       Credits and billing (10)
-      Workspace layout and browser appearance (37)
+      Workspace layout and browser appearance (40)
       PDF verification (10)
     Interfaces
       Assistants and API (31)
@@ -57,7 +57,7 @@ mindmap
 
 ### Create
 
-- [Documents and protection](#documents) — 22 features; capability-gated.
+- [Documents and protection](#documents) — 23 features; capability-gated.
 - [Template studio](#templates) — 15 features; capability-gated.
 - [Data and mappings](#datasets) — 12 features; capability-gated.
 - [PDF generation and distribution](#generation) — 17 features; capability-gated.
@@ -74,7 +74,7 @@ mindmap
 
 - [Campaigns and tracking](#campaigns) — 9 features; capability-gated.
 - [Credits and billing](#billing) — 10 features; partial.
-- [Workspace layout and browser appearance](#dashboard) — 37 features; browser-session.
+- [Workspace layout and browser appearance](#dashboard) — 40 features; browser-session.
 - [PDF verification](#pdf-verification) — 10 features; capability-gated.
 
 ### Interfaces
@@ -277,6 +277,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - MCP_DOCUMENT_UPLOAD_APP is off by default: strict existing-connection/revision JSON supports at most one hour of qualification, while explicit enabled mode supports a separately reviewed general production rollout after actual qualification and authorized delivery; both retain current writer/OAuth guards, observer denial and no browser fetch, Origin/network permission, new scope, approval, paid check, mandate or infrastructure
 - Bounded document-analysis reads and PDF canvas/text extraction overlap; both renderer tasks settle before completion or cleanup, with stale-response and sensitive-source fences retained
 - Typed private/MCP upload receipt and lease decisions preserve the same operation through uncertain results; final completion requires the exact nonpurged document in SQL, closing purge-between-read-and-write races
+- First-page thumbnail of a ready PDF in the documents list, read through the guarded viewer loader and drawn only once its row is on screen; nothing is kept after unmount
 
 **Contract:** [SCANNER_RESCAN.md](SCANNER_RESCAN.md) · **Implementation:** [apps/api/src/documents.ts](../apps/api/src/documents.ts)
 
@@ -897,7 +898,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="dashboard"></a>
 ### Workspace layout and browser appearance
 
-**Availability model:** browser-session. The 29 October 2026 Studio space, the application/workspace switchers and the four-application ownership check are a local source candidate requiring CI and publication evidence. The 29 October 2026 Classic retirement is a local source candidate requiring CI and publication evidence: every account sees V2, and the stored preference stays accepted without changing the web layout. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority. The shared outlined personal-context navigation refinement is a local source candidate requiring its own rendered and publication evidence. The 29 October compact V2 navigation and account-menu refinement is a local source candidate requiring CI and publication evidence. The 30 October shared operational-table refinement is locally qualified with synthetic model/browser checks and measured loading recorded in docs/FRONTEND_PERFORMANCE.md; hosted CI and publication remain separate.
+**Availability model:** browser-session. The 29 October 2026 Studio space, the application/workspace switchers and the four-application ownership check are a local source candidate requiring CI and publication evidence. The 29 October 2026 Classic retirement is a local source candidate requiring CI and publication evidence: every account sees V2, and the stored preference stays accepted without changing the web layout. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority. The shared outlined personal-context navigation refinement is a local source candidate requiring its own rendered and publication evidence. The 29 October compact V2 navigation and account-menu refinement is a local source candidate requiring CI and publication evidence. The 30 October shared operational-table refinement is locally qualified with synthetic model/browser checks and measured loading recorded in docs/FRONTEND_PERFORMANCE.md; hosted CI and publication remain separate. The 10 November 2026 Overview queue, page titles named after their menu entry, per-page browser tab titles, the unknown-address notice, the 12 px text floor with the four-step text scale, compact short tables, whole-row links, dispatch progress steps, drop-zone file fields and on-demand first-page thumbnails are a local source candidate requiring CI and publication evidence; they change no authority, tenant scope or API.
 
 **Surfaces:** Authenticated web V2 only; native reads the stored preference without a setter; no new business API/MCP authority.
 
@@ -938,6 +939,9 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - DEV + public-preview + loopback-only simulation controls select four fictional membership roles and a separate observer platform-access hint; unsaved-navigation veto, scenario identity remount and scoped IDs/cursors preserve account separation without Auth0, memberships or business authority
 - Reproducible seeded Small/Large/Huge/Extreme metadata profiles expose up to one billion logical documents, dispatches, templates, datasets and generations while generating at most fifty records per read; generated volumes and fictional personal documents are read-only, bounded PDF caches materialize only requested bytes and fixture failures never fall through to production
 - Shared table regions have distinct accessible names and source-range captions retain table naming; keyboard journeys traverse added search/sort controls, pagination tests inspect all loaded rows, and responsive assertions distinguish active cards from intentionally scrollable wider tables
+- Overview queue "Needs attention": up to five dispatches with an uncertain or failed outcome and up to five awaiting approval, read from the existing tenant-scoped dispatch list only when the overview counts announce them (always for roles without report access); replaces the former attention banner
+- Dispatch page progress steps (awaiting approval, approved, transmitting, delivered) with the approval region kept in view beside the document on wide screens
+- Automated axe-core WCAG 2 A/AA check of the main Correspondence pages in four languages and both themes in the preview suite; a critical violation fails it
 
 **Contract:** [DASHBOARD_V2.md](DASHBOARD_V2.md) · **Implementation:** [apps/web/src/account-page.tsx](../apps/web/src/account-page.tsx)
 

@@ -194,6 +194,7 @@ export const fr = {
       "La connexion locale est réservée à l’environnement de développement.",
   },
   overview: {
+    queueTitle: "À traiter",
     new: "Préparer un envoi",
     recent: "Derniers envois",
     all: "Voir tous les envois",
@@ -202,10 +203,6 @@ export const fr = {
     attention: "À vérifier",
     tracked: "Envois",
     statsLabel: "Synthèse de l’espace de travail",
-    attentionTitle: "Des envois demandent votre attention.",
-    attentionBody:
-      "Leur résultat est incertain ou négatif. Consultez leur suivi avant de préparer un nouvel envoi.",
-    attentionAction: "Voir les envois à vérifier",
     emptyTitle: "Le premier envoi commence ici.",
     emptyBody:
       "Importez un PDF ou composez une lettre. Vous la relirez avant toute confirmation.",

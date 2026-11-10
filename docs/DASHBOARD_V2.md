@@ -942,3 +942,45 @@ pagination act only on authorized loaded records. Existing backend cursor/search
 controls and all four membership roles retain their authority. This source
 candidate adds no business API, native or assistant operation, financial consent,
 communication or deployment.
+
+## Clarity pass — 10 November 2026 candidate
+
+This source candidate follows the 9 November 2026 frontend audits. It changes
+presentation only: no business API, membership permission, tenant scope,
+financial consent, communication or deployment.
+
+- **Names.** Overview, Documents, Dispatches, New dispatch, Campaigns and Senders
+  are titled with their menu label in the four languages. A dispatch is titled
+  by its channel and first recipient line; "Ready for your approval." remains
+  while approval is pending. The browser tab reads `Page · Application | guteneo`.
+- **Unknown address.** An application address that matches no page shows a
+  notice with a link back to Overview instead of rendering Overview.
+- **Overview queue.** "Needs attention" lists up to five dispatches with an
+  uncertain or failed outcome and up to five awaiting approval. It reads
+  `/dispatches?group=attention&limit=5` and `/dispatches?group=approval&limit=5`
+  only when `/overview` announces a non-zero count; a role without report access
+  has no counts, so both lists are read. Every role sees only what the existing
+  dispatch list already authorizes. The former attention banner is removed.
+- **Dispatch page.** Four progress steps sit under the title for the ordinary
+  path; an exceptional outcome keeps its status badge alone. The approval region
+  is sticky beside the document from 1025 px. The provider-attempt panel is
+  hidden while empty. An uncertain outcome says that a workspace administrator
+  checks it in Administration and that nothing is resent automatically. A role
+  that cannot approve reads who can.
+- **Tables.** A loaded table under ten rows hides search, filters and
+  pagination. A row with a link opens from anywhere on the row. The dispatch
+  list no longer repeats its status groups as a filter.
+- **Files.** Every file field is a drop zone with a drag state; the native input
+  still performs selection and validation. A ready PDF in the documents list
+  shows its first page, read through the guarded viewer loader once its row is
+  on screen; a failure leaves the glyph and reports nothing.
+- **Type.** Application text uses 12, 14, 16 and 20 px; see
+  [WEB_APPLICATIONS.md](WEB_APPLICATIONS.md).
+- **Errors.** The error code moves under a folded "Details" row.
+- **Guards.** One activation starts one action, and a hidden tab stops polling
+  a dispatch until it is shown again.
+
+Evidence is recorded with the change: unit, security, preview-browser and
+application-browser suites, plus the automated accessibility check described in
+the testing guide. Thumbnails add one document read per visible ready row; the
+measured cost belongs in [FRONTEND_PERFORMANCE.md](FRONTEND_PERFORMANCE.md).

@@ -3536,3 +3536,8 @@ ol {
   margin-top: 4px;
   user-select: all;
 }
+
+/* Overview queue: what waits for a decision or a check. */
+.overview-queue {
+  margin-bottom: 32px;
+}

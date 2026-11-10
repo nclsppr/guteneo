@@ -191,6 +191,7 @@ export const en: Copy = {
     noLocal: "Local sign-in is available only in the development environment.",
   },
   overview: {
+    queueTitle: "Needs attention",
     new: "Prepare a dispatch",
     recent: "Recent dispatches",
     all: "View all dispatches",
@@ -206,10 +207,6 @@ export const en: Copy = {
     connect: "Set up the connection",
     attention: "To check",
     statsLabel: "Workspace summary",
-    attentionTitle: "Some dispatches need your attention.",
-    attentionBody:
-      "Their outcome is uncertain or negative. Check their tracking before preparing another dispatch.",
-    attentionAction: "View dispatches to check",
   },
   documents: {
     import: "Import a PDF",

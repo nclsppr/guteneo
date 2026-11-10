@@ -191,6 +191,7 @@ export const lb: Copy = {
     noLocal: "D’lokal Umeldung ass nëmme fir d’Entwécklungsëmwelt geduecht.",
   },
   overview: {
+    queueTitle: "Ze maachen",
     new: "Eng Sendung virbereeden",
     recent: "Lescht Sendungen",
     all: "All Sendunge kucken",
@@ -206,10 +207,6 @@ export const lb: Copy = {
     connect: "D’Verbindung ariichten",
     attention: "Fir ze kontrolléieren",
     statsLabel: "Iwwersiicht vum Aarbechtsberäich",
-    attentionTitle: "Verschidde Sendunge brauchen Är Opmierksamkeet.",
-    attentionBody:
-      "Hiert Resultat ass ongewëss oder negativ. Kuckt hire Suivi, ier Dir eng nei Sendung virbereet.",
-    attentionAction: "Sendunge fir ze kontrolléieren ukucken",
   },
   documents: {
     import: "Eng PDF-Datei importéieren",

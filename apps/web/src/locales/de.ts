@@ -192,6 +192,7 @@ export const de: Copy = {
     noLocal: "Die lokale Anmeldung ist der Entwicklungsumgebung vorbehalten.",
   },
   overview: {
+    queueTitle: "Zu erledigen",
     new: "Sendung vorbereiten",
     recent: "Letzte Sendungen",
     all: "Alle Sendungen ansehen",
@@ -207,10 +208,6 @@ export const de: Copy = {
     connect: "Verbindung einrichten",
     attention: "Zu prüfen",
     statsLabel: "Übersicht des Arbeitsbereichs",
-    attentionTitle: "Einige Sendungen benötigen Ihre Aufmerksamkeit.",
-    attentionBody:
-      "Ihr Ergebnis ist ungewiss oder negativ. Prüfen Sie den Verlauf, bevor Sie eine weitere Sendung vorbereiten.",
-    attentionAction: "Zu prüfende Sendungen ansehen",
   },
   documents: {
     import: "PDF importieren",
