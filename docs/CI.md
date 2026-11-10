@@ -317,7 +317,7 @@ owns observed failures, security implications of holds and hosted activation.
 
 ## Evidence and caches
 
-`guteneo-verification` contains the complete merged `reports/vitest.json` on full runs and compact verified inventories/provenance. Original per-job reports, restoration proof, logs and cost model remain in immutable `ci-evidence-*` child artifacts; browser visual proof and traces remain in `ci-debug-browser-*`. Intermediate evidence artifacts are retained for 14 days, including when a job fails; the reusable browser builds expire after one day. Downloaded evidence keeps separate artifact directories to avoid report filename collisions. The historical tracked restoration report is copied only by the shard that actually passed the restoration test. Browser runners remove historical screenshot fixtures before testing so their artifacts contain only images generated in that run.
+`guteneo-verification-attempt-<n>` contains the complete merged `reports/vitest.json` on full runs and compact verified inventories/provenance. Original per-job reports, restoration proof, logs and cost model remain in immutable `ci-evidence-*` child artifacts; browser visual proof and traces remain in `ci-debug-browser-*`. Intermediate evidence artifacts are retained for 14 days, including when a job fails; the reusable browser builds expire after one day. Downloaded evidence keeps separate artifact directories to avoid report filename collisions. The historical tracked restoration report is copied only by the shard that actually passed the restoration test. Browser runners remove historical screenshot fixtures before testing so their artifacts contain only images generated in that run.
 
 ### Manual reruns and artifact identity
 
@@ -332,6 +332,32 @@ artifact. The downloaded browser reports still require the exact execution SHA,
 run ID, valid attempt, original digests and complete independent test inventory.
 For a pull request, GitHub's run head can differ from its synthetic merge SHA;
 metadata provenance and executed-source identity are checked separately.
+
+Main CI producers append `-attempt-<n>` to their physical artifact names. The
+selector groups only reviewed producer families by logical name, accepting
+legacy unsuffixed names and a single terminal positive safe-integer attempt
+suffix no greater than the actual run attempt. Creation time remains the
+selection clock; the suffix does not grant authority or replace provenance.
+Raw physical names and exact selected IDs remain in the selection record.
+
+This also avoids a transport defect observed on 10 November 2026. In run
+`42736475065`, all tests passed after one unchanged WebKit media rerun, but the
+pinned download action `9000827` (8.0.2) deduplicated equal names by descending
+numeric ID before honoring selected IDs. The selector correctly chose newer
+artifact `13727929529`; the downloader retained older `13728221552`, merely
+warned about the missing selected ID, and returned eight browser rows. The
+unchanged nine-row verification gate refused this incomplete evidence.
+Attempt-unique physical names prevent that pre-filter from dropping a selected
+retry while preserving failed observations. Existing same-name uploads cannot
+be retroactively repaired; qualification requires the corrected producer run.
+
+The reusable proof already has a unique `ci-validation-proof-<run>-<attempt>`
+name. Its exact source/runtime checks and rejection of mixed-attempt reuse are
+unchanged, as are all report hashes, suite inventories and test assertions.
+Local qualification passes all 701 Node security checks, including focused
+workflow-producer expansion, lower-ID retries, legacy names, mixed attempts and
+malformed/expired/ambiguous metadata. Fresh hosted qualification is recorded in
+the pull request; no artifact is deleted or report manufactured.
 
 Only the browser, distribution and aggregate jobs receive `actions:read` for
 current-run metadata. Downloads retain the existing action and report formats;

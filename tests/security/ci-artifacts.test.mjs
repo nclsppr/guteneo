@@ -43,6 +43,164 @@ const artifact = (
 const older = () => artifact(900, "2026-10-26T03:07:14Z");
 const newer = () => artifact(100, "2026-10-26T03:23:10Z");
 
+// Exact behavior in the pinned download-artifact bundle: deduplicate names by
+// highest ID before applying the caller's already-selected immutable IDs.
+function pinnedDownloadIds(entries, selected) {
+  const names = new Set();
+  return [...entries]
+    .sort((a, b) => b.id - a.id)
+    .filter((entry) => {
+      if (names.has(entry.name)) return false;
+      names.add(entry.name);
+      return true;
+    })
+    .filter((entry) => selected.some(({ id }) => entry.id === id))
+    .map(({ id }) => id);
+}
+
+test("attempt-unique physical names preserve selected lower IDs through the pinned downloader", () => {
+  assert.deepEqual(pinnedDownloadIds([older(), newer()], [newer()]), []);
+  for (const [family, logical] of [
+    ["build", `guteneo-browser-builds-${context.revision}`],
+    ["vitest", "ci-vitest-1"],
+    ["vitest", "ci-vitest-renderer"],
+    ["evidence", "ci-evidence-browser-iphone-webkit-2"],
+    ["evidence", "ci-evidence-vitest-1"],
+    ["evidence", "ci-evidence-runtime-build"],
+  ]) {
+    const entries = [
+      { ...older(), name: `${logical}-attempt-1` },
+      { ...newer(), name: `${logical}-attempt-2` },
+    ];
+    const before = structuredClone(entries);
+    const selected = selectArtifacts(entries, family, run(), context.revision);
+    assert.deepEqual(selected, [entries[1]]);
+    assert.deepEqual(pinnedDownloadIds(entries, selected), [100]);
+    assert.equal(selected[0].name, `${logical}-attempt-2`);
+    assert.deepEqual(entries, before);
+  }
+});
+
+test("mixed attempts retain every logical row and legacy unsuffixed evidence", async () => {
+  const entries = [
+    { ...older(), name: "ci-evidence-browser-iphone-webkit-2-attempt-1" },
+    { ...newer(), name: "ci-evidence-browser-iphone-webkit-2-attempt-2" },
+    artifact(
+      300,
+      "2026-10-26T03:07:14Z",
+      "ci-evidence-browser-chromium-1-attempt-1",
+    ),
+    artifact(400, "2026-10-26T03:07:14Z", "ci-evidence-checks"),
+    artifact(500, "2026-10-26T03:23:10Z", "ci-evidence-checks-attempt-2"),
+    artifact(600, "2026-10-26T03:07:14Z", "ci-vitest-1"),
+  ];
+  const proof = await selectCurrentRunArtifacts(
+    context,
+    "verify",
+    async (path) =>
+      path.includes("/artifacts?")
+        ? { total_count: entries.length, artifacts: entries }
+        : run(),
+  );
+  assert.deepEqual(
+    proof.selected.evidence.map(({ id }) => id),
+    [300, 100, 500],
+  );
+  assert.deepEqual(
+    pinnedDownloadIds(entries, proof.selected.evidence).sort((a, b) => a - b),
+    [100, 300, 500],
+  );
+  assert.deepEqual(
+    proof.selected.vitest.map(({ id }) => id),
+    [600],
+  );
+  assert.deepEqual(proof.observed, entries);
+});
+
+test("attempt suffixes do not replace chronological selection or weaken newest-evidence refusals", () => {
+  const entries = [
+    { ...older(), name: `${older().name}-attempt-2` },
+    { ...newer(), name: `${newer().name}-attempt-1` },
+  ];
+  assert.deepEqual(
+    selectArtifacts(entries, "evidence", run(), context.revision),
+    [entries[1]],
+  );
+  assert.throws(
+    () =>
+      selectArtifacts(
+        [entries[0], { ...entries[1], expired: true }],
+        "evidence",
+        run(),
+        context.revision,
+      ),
+    /LATEST_EXPIRED/,
+  );
+  assert.throws(
+    () =>
+      selectArtifacts(
+        [entries[0], { ...entries[1], created_at: entries[0].created_at }],
+        "evidence",
+        run(),
+        context.revision,
+      ),
+    /CREATION_TIME_AMBIGUOUS/,
+  );
+  for (const key of ["id", "head_sha", "repository_id", "head_repository_id"]) {
+    const invalid = structuredClone(entries[1]);
+    invalid.workflow_run[key] = key === "head_sha" ? "b".repeat(40) : 999;
+    assert.throws(
+      () =>
+        selectArtifacts(
+          [entries[0], invalid],
+          "evidence",
+          run(),
+          context.revision,
+        ),
+      /PROVENANCE_INVALID/,
+    );
+  }
+  const build = artifact(
+    1,
+    "2026-10-26T03:07:14Z",
+    `guteneo-browser-builds-${context.revision}-attempt-2`,
+  );
+  assert.throws(
+    () => selectArtifacts([build], "build", run(), "b".repeat(40)),
+    /BUILD_REVISION_INVALID/,
+  );
+});
+
+test("only recognized producers and strict current-or-earlier attempt suffixes are normalized", () => {
+  for (const name of [
+    "ci-evidence-browser-iphone-webkit-2-attempt-3",
+    "ci-evidence-browser-iphone-webkit-2-attempt-0",
+    "ci-evidence-browser-iphone-webkit-2-attempt-01",
+    "ci-evidence-browser-iphone-webkit-2-attempt-1-attempt-2",
+    "ci-evidence-browser-iphone-webkit-2-attempt-9007199254740992",
+    "ci-evidence-browser-iphone-webkit-2-attempt-latest",
+    "ci-evidence-browser-iphone-webkit-4-attempt-2",
+    "ci-evidence-unreviewed-attempt-2",
+  ])
+    assert.throws(() =>
+      selectArtifacts(
+        [artifact(1, "2026-10-26T03:07:14Z", name)],
+        "evidence",
+        run(),
+        context.revision,
+      ),
+    );
+  for (const name of ["ci-vitest-5-attempt-2", "ci-vitest-renderer-attempt-3"])
+    assert.throws(() =>
+      selectArtifacts(
+        [artifact(1, "2026-10-26T03:07:14Z", name)],
+        "vitest",
+        run(),
+        context.revision,
+      ),
+    );
+});
+
 test("selects the later creation time despite descending artifact IDs and input order", () => {
   for (const entries of [
     [older(), newer()],
@@ -278,4 +436,49 @@ test("workflow downloads exact IDs with narrowly scoped read permission and reta
     source,
     /npx vitest run --merge-reports=test-results\/ci\/blobs/,
   );
+  const producerNames = [
+    ...source.matchAll(/^\s+name: ((?:ci-|guteneo-)[^\n]+)$/gm),
+  ].map((match) => match[1]);
+  assert.equal(producerNames.length, 16);
+  for (const name of producerNames)
+    if (name.startsWith("ci-validation-proof-"))
+      assert.equal(
+        name,
+        "ci-validation-proof-${{ github.run_id }}-${{ github.run_attempt }}",
+      );
+    else assert.ok(name.endsWith("-attempt-${{ github.run_attempt }}"), name);
+  for (const name of producerNames) {
+    const family = name.startsWith("ci-evidence-")
+      ? "evidence"
+      : name.startsWith("ci-vitest-")
+        ? "vitest"
+        : name.startsWith("guteneo-browser-builds-")
+          ? "build"
+          : undefined;
+    if (!family) continue;
+    let physicalNames = [name];
+    for (const [expression, values] of [
+      ["github.sha", [context.revision]],
+      ["github.run_attempt", ["2"]],
+      ["matrix.shard", ["1", "2", "3", "4"]],
+      ["matrix.project", ["chromium", "mobile-chromium", "iphone-webkit"]],
+      ["matrix.shardIndex", ["1", "2", "3"]],
+      ["matrix.authentication", ["strong", "verified_account"]],
+    ]) {
+      const placeholder = `\${{ ${expression} }}`;
+      physicalNames = physicalNames.flatMap((physical) =>
+        physical.includes(placeholder)
+          ? values.map((value) => physical.replace(placeholder, value))
+          : [physical],
+      );
+    }
+    for (const physical of physicalNames) {
+      assert.ok(!physical.includes("${{"), physical);
+      const produced = artifact(1, "2026-10-26T03:23:10Z", physical);
+      assert.deepEqual(
+        selectArtifacts([produced], family, run(), context.revision),
+        [produced],
+      );
+    }
+  }
 });

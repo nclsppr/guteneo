@@ -98,13 +98,13 @@
     "filesSha256": "a2357685846b538a61d540e28cba4166bf4110ed79b28c1b1a980bdacea093a0"
   },
   "security": {
-    "tests": 697,
-    "passed": 697,
+    "tests": 701,
+    "passed": 701,
     "failed": 0,
     "skipped": 0,
     "report": {
-      "file": "lifecycle-ci-corrected-security.log",
-      "sha256": "0a22b1b10ec5c221c81eb31a6cce1d5736ef41c7a58fdd9693836585a8f3279d"
+      "file": "lifecycle-ci-attempt-qualified-security.log",
+      "sha256": "34fc2257f4b878304acf71bb21960695179800ef400b6f31d804c374af45ec97"
     }
   },
   "applicationBrowser": {
@@ -289,6 +289,23 @@
     "synthetic": true,
     "isolatedLocalDatabase": true,
     "invitationArtifactsSanitized": true
+  },
+  "artifactRetryTransport": {
+    "head": "2c473fd406425880617edfc75afb4657a8cc0348",
+    "run": "https://github.com/nclsppr/guteneo/actions/runs/42736475065",
+    "testJobs": "All passed; one unchanged WebKit media rerun",
+    "verification": "Refused incomplete eight-row download; nine rows still required",
+    "selectedNewArtifactId": 13727929529,
+    "droppedInFavorOfOlderId": 13728221552,
+    "cause": "Pinned downloader pre-deduplicates equal physical names by numeric ID before filtering exact selected IDs",
+    "correction": "Attempt-unique producer names; strict logical name grouping retains metadata/source/digest/expiry/tie/build identity and required counts",
+    "focusedTests": 112,
+    "focusedReport": {
+      "file": "guteneo-ci-artifact-attempts-20261110.log",
+      "sha256": "7fc1736554cbe0c78112b26578db0005706e898d11c7e9feec1f8675bc1bb45a"
+    },
+    "reusableProofMixedAttemptRefusalUnchanged": true,
+    "artifactDeletion": false
   },
   "initialHostedQualification": {
     "head": "8fca2b5b6b765f517228a1b6408d56ffb5ff5180",
@@ -1756,7 +1773,7 @@
     },
     "lintAndOwnership": {
       "passed": true,
-      "file": "lifecycle-ci-corrected-lint.log",
+      "file": "lifecycle-ci-attempt-qualified-lint.log",
       "sha256": "f9e953aac9f8737487b55494455eba333a1a0b7bde1e695483020e51fe1256e2"
     },
     "integrationSynchronization": {
@@ -1970,6 +1987,7 @@
     "scripts/build-locale-catalogs.mjs": "54231852c02906ffefd6c2d81494e60bb42c1fb8f4a1d79dbd9ccc42f837727d",
     "scripts/build-public-pages.mjs": "f82b0c9498c17edd5d2ee2e6583b544b2ee42ac116893bc4c873510138a5806c",
     "scripts/build-social-card.mjs": "051dc5aeb3f48493f1d648681522a28be0456c35b53ccd8513168067b9d14389",
+    "scripts/ci/select-artifacts.mjs": "3da69e7d8bbd3751f8b8d47cd18eb299c0103ce2222de08951928a30c4525610",
     "scripts/update-lifecycle-openapi.ts": "1cfb8fc12aea2de33db8cc2f6e51bc11abce779b81b580ce2b84b228b76ac8f0",
     "tests/belvedere-e2e/control-tower.spec.ts": "13031289931b51927d55b04536010dbca15dfe9fe3ff2d356a1d8e2bc2825948",
     "tests/belvedere-e2e/locale.spec.ts": "e977911f8bacbd4d2d8f7930e42582df98fc8b0a054d5b42e5ab06923769e169",
@@ -2003,6 +2021,7 @@
     "tests/integration/saved-recipients.test.ts": "8b5245b00be074d9b97f9ac5ab985a3792a9053c5345577347f6e3be0045ade8",
     "tests/integration/secure-approval-boundary.test.ts": "705891956cdb48ded13a0b02ae91fc1b60a0fe42028f4b64032c2b2bd8cef862",
     "tests/integration/workspace-roles-migration.test.ts": "f258427b821494e5bdfc304fd24d49942c778d118b2b4569812af264821157bb",
+    "tests/security/ci-artifacts.test.mjs": "1043fb366d0f8b274d34958e2a9f42830eecea91668514da96448b5bfdcd1cbd",
     "tests/security/client-action-boundaries.test.mjs": "01715f67db723828a1ea57bddb6f6f428f7b1fb6d3fee8c8f5597626239d698e",
     "tests/security/openapi.test.mjs": "1d00eaec89d348737c5a15d1f2f8e7a583ba75a9db729da8b5018c24592200f1",
     "tests/unit/action-outcomes.test.ts": "3c68d860187ada3a401705495b6dbeb6d5f6d951ab4ff48b68dcca14844191df",
@@ -2017,7 +2036,7 @@
     "tests/unit/table-views.test.ts": "fe92a71cdc1f44cb866c77188c2ded59ff1a1088066ce355d31c051cbb8ea538",
     "tests/unit/web-api-cancellation.test.ts": "c4542f644affcb2de0a3b1be818bd3c029bc487728e39925a6d82cf84c18d323"
   },
-  "sourceHashesSha256": "8810d88f023792cf1c172f5c8df5106f47817dcac644cba7f48e69713331647a",
+  "sourceHashesSha256": "4d7396e7b604e23096280b7e30cbdef343e437bc3d0c524d91296b5f2855c886",
   "limitations": [
     "No production deployment, activation, external webhook delivery, real provider send, marketplace publication or paid resource provisioning.",
     "Scheduling excludes postal, protected/secure distribution and PDF-email flows that retain contemporaneous consent gates.",

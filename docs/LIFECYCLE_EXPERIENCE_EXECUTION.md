@@ -86,7 +86,7 @@ complete green run.
 | Belvédère browser flows              | 50 cases passed                                                                     | Local intercepted fixtures across the configured browser profiles; no hosted administrator or production-data proof.                                                                                                                                                 |
 | Native app                           | 56 cases passed: 46 unit and 10 UI                                                  | Full iPhone simulator run, including durable Keychain drafts, recovery and schedule-held source actions. Physical devices, distribution and App Store review remain separate.                                                                                        |
 | Locale loading and session authority | Included in the 165-case run: 36 authority cases and 24 cold-load samples | Four locales, public/workspace routes and three browser profiles. No fallback-language heading, no public session request and one initial workspace session request. This is a local diagnostic sample, not a production benchmark. |
-| Security checks | 697/697 on the final source | Complete serialized Node security suite; zero failures or skips. Includes API/package/OpenAPI, continuation boundaries and public release fences. |
+| Security checks | 701/701 on the final source | Complete serialized Node security suite; zero failures or skips. Includes API/package/OpenAPI, continuation boundaries, public release fences and attempt-unique CI artifact selection. |
 
 Additional qualification after the first hosted run surfaced legacy-interface
 regressions:
@@ -109,6 +109,14 @@ holds. Final locale proof uses the actual SSR build, rather than the earlier
 Vite-only HTML. The native result supersedes the earlier 52-case snapshot.
 Source and asset fingerprints bind final browser observations; fresh exact-head
 hosted qualification is tracked in the pull request.
+
+All test jobs at `2c473fd4` subsequently passed, including an unchanged rerun of
+a fully buffered but stalled Linux WebKit video. Final report collection exposed
+the pinned downloader's duplicate-name filtering defect. Main CI now uses unique
+physical names per attempt while the selector retains strict logical grouping,
+creation-time selection and every provenance/inventory guard. The [CI record](CI.md#manual-reruns-and-artifact-identity)
+preserves both observations and the local regression proof. Application/native
+code and assertions are unchanged by that transport correction.
 
 The inspected synthetic captures show [capped future approval](evidence/lifecycle-schedule-desktop-2026-11-10.png),
 [mobile saved-recipient editing](evidence/lifecycle-recipient-mobile-2026-11-10.png)
