@@ -289,3 +289,30 @@ web/Worker dry-run build, documentation, 43 focused pure assertions and the
 action-boundary guard. Its browser coverage still awaits hosted execution. The
 held-response cases cover already-started reads; an earlier queued refresh intent
 whose request starts after a manual update has no new browser proof in this lot.
+
+### Seventh hosted pass: application qualified, public interaction readiness
+
+[Run 42913974468](https://github.com/nclsppr/guteneo/actions/runs/42913974468)
+passed 22 jobs. All nine application stages completed with 1,421 passes, zero
+failures and 19 declared skips across 1,440 identities. The six pagination cases,
+three late-document selections, three held initial libraries and three webhook
+configuration refusals all passed. Unit/integration, security, builds and both
+distribution suites also passed.
+
+One preview test focused the Support FAQ's initial HTML summary before client
+replacement and then sent Enter after that element lost focus. The preview
+inventory recorded 322 passes, one failure and five declared skips across 328
+identities. Together with Belvedere and status, the observed browser inventory
+was 1,843 passes, one failure and 24 declared skips across 1,868 identities. The
+final verifier correctly refused this complete run; application success does not
+make the whole pipeline green.
+
+A bounded review of all 26 preview test files reconciles functional marketing
+interactions with the existing public-header interactive marker. Eight test
+files now wait at the relevant menu, disclosure, keyboard, version-selector or
+fragment boundary. Existing pointer, keyboard, focus, locale, archive, authority
+and no-business-request assertions remain. Intentional initial-HTML, unavailable
+or delayed JavaScript, no-JavaScript, early theme, native-link and HTTP-only
+coverage stays unchanged. No product source, timeout, retry or declared skip is
+changed by this lot. TypeScript, complete lint and formatting passed; fresh
+complete hosted qualification is required before merge and publication.

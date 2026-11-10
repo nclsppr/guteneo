@@ -32,7 +32,7 @@
     "integrations": "1.2.3 MCP/package fingerprints matched"
   },
   "unqualified": [
-    "Fresh complete exact-source hosted CI is required after pagination repair; historical failed runs do not substitute.",
+    "Fresh complete exact-tree hosted CI is required for the public interaction readiness lot. CI7 fully qualified the unchanged application source but failed one preview test; no whole-pipeline green claim.",
     "No new rendered screenshots or first-load timings",
     "Production schema and deployment not performed",
     "Native simulator/device/distribution qualification unchanged from historical record"
@@ -196,5 +196,38 @@
     "testReadiness": "Await existing public-header interactive marker and committed post-create webhook configuration before original actions; keyboard/focus/authority/secret assertions remain.",
     "qualification": "Root and independent expanded audit passed. TypeScript via npm run build, full lint/ownership/locales, docs, web/Worker dry-run build,43pureassertions4files and1actionboundary all passed separately. New browser execution awaits a fresh complete exact-source hosted run before merge.",
     "coverageLimit": "Held-response cases cover already-started reads. An earlier queued refresh intent whose request starts after a manual update has no new browser proof in this lot."
+  },
+  "seventhHostedCi": {
+    "head": "bf84ef303c6512d2d539ac63857160727ddf5cb8",
+    "tree": "3ff686b9b640d9aa842b0541979813b65f92ecc0",
+    "runId": 42913974468,
+    "result": "failed; complete application inventory passed",
+    "passedJobs": 22,
+    "applicationBrowser": {
+      "passed": 1421,
+      "failed": 0,
+      "declaredSkipped": 19,
+      "discovered": 1440
+    },
+    "previewBrowser": {
+      "passed": 322,
+      "failed": 1,
+      "declaredSkipped": 5,
+      "discovered": 328
+    },
+    "observedBrowserTotal": {
+      "passed": 1843,
+      "failed": 1,
+      "declaredSkipped": 24,
+      "discovered": 1868
+    },
+    "targetedRegressions": "Six pagination, three late document selections, three held initial libraries and three webhook configuration refusals passed.",
+    "remaining": "Support FAQ keyboard focus targeted initial HTML before client replacement. Final verifier correctly refused; no merge or deployment."
+  },
+  "publicReadinessRepair": {
+    "scope": "Bounded audit of all26previewtestfiles; eight functional marketing test files wait for the existing public-header interactive marker at actual native/client interaction boundaries.",
+    "preserved": "All original pointer/keyboard/focus/locale/archive/authority/no-business-request assertions. Intentional initial HTML, delayed/unavailable/no JavaScript, early theme, native-link, HTTP-only/text/href coverage unchanged.",
+    "source": "No product source change from the application-qualified GO7 candidate; no timeout/retry/skip relaxation.",
+    "localChecks": "TypeScript, complete lint/ownership/locales and formatting passed. Documentation checks and fresh complete hosted qualification required for this final test-only lot."
   }
 }

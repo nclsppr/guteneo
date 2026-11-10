@@ -151,6 +151,10 @@ for (const locale of supportedLocales) {
           "utf8",
         ),
       ) as { narrations: Array<{ cues: Array<{ text: string }> }> };
+      await expect(page.locator(".public-header")).toHaveAttribute(
+        "data-render-state",
+        "interactive",
+      );
       await section.locator(".homepage-film-transcript summary").click();
       await expect(section.locator(".homepage-film-transcript p")).toHaveText(
         script.narrations[0].cues.map((cue) => cue.text).join(" "),

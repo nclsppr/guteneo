@@ -243,6 +243,9 @@ test("app entry links resolve privately and reach the existing preview router", 
     });
   }
   await page.goto("/");
+  await expect(
+    page.locator('.public-header[data-render-state="interactive"]'),
+  ).toBeVisible();
   const menu = page.locator(".public-menu-toggle");
   if (await menu.isVisible()) {
     await menu.click();
@@ -509,6 +512,9 @@ test("localized navigation stays shareable when preference storage is unavailabl
     }
   });
   await page.goto("/?lang=de");
+  await expect(
+    page.locator('.public-header[data-render-state="interactive"]'),
+  ).toBeVisible();
   const menu = page.locator(".public-menu-toggle");
   if (await menu.isVisible()) await menu.click();
   const assistants = page

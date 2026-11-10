@@ -25,6 +25,10 @@ test("public design and every workspace page render without server data or overf
     fullPage: true,
     scale: "css",
   });
+  await expect(page.locator(".public-header")).toHaveAttribute(
+    "data-render-state",
+    "interactive",
+  );
   const menu = page.getByRole("button", { name: "Menu", exact: true });
   if (await menu.isVisible()) await menu.click();
   await page

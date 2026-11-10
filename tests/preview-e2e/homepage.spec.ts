@@ -148,6 +148,10 @@ test("support keeps all essential answers and keyboard disclosure", async ({
   page,
 }) => {
   await page.goto("/support/#faq");
+  await expect(page.locator(".public-header")).toHaveAttribute(
+    "data-render-state",
+    "interactive",
+  );
   const questions = page.locator(".faq-questions details");
   await expect(questions.locator("summary")).toHaveText([
     "Mon PDF original est-il modifié ?",
@@ -225,6 +229,10 @@ test("the example supports keyboard steps and only simulates validation", async 
   });
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/how-it-works/");
+  await expect(page.locator(".public-header")).toHaveAttribute(
+    "data-render-state",
+    "interactive",
+  );
   const example = page.locator("#how");
   const steps = example.getByRole("tablist", {
     name: "Étapes de la démonstration",
@@ -370,6 +378,10 @@ test("homepage product and help links remain in the keyboard sequence", async ({
   browserName,
 }) => {
   await page.goto("/?lang=en");
+  await expect(page.locator(".public-header")).toHaveAttribute(
+    "data-render-state",
+    "interactive",
+  );
   await page.locator(".skip-link").focus();
   const reached = new Set<string>();
   for (let step = 0; step < 60; step++) {
