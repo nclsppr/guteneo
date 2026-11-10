@@ -252,156 +252,176 @@ export function PrepareDispatch({
     if (submitting.current || sourceCopy.pending) return;
     const isCurrent = currentView();
     submitting.current = true;
-    await action.run(async (view) => {
-      if (documentUnavailable)
-        throw new Error(msg("Check the PDF before preparing the delivery."));
-      if (ceilingMinor === null) throw new Error(t.dispatch.ceilingInvalid);
-      const target =
-        channel === "fax"
-          ? { phone: normalizeFaxNumber(recipient.phone ?? "") }
-          : channel === "email"
-            ? { email: recipient.email ?? "" }
-            : postalRecipientFromDraft(recipient, usesAddressBlock);
-      if (channel === "postal" && !simulation) {
-        if (destinations.loading || destinations.error || !destinations.data)
-          throw new Error(
-            msg(
-              "Postal destination availability could not be checked. Try again before preparing the letter.",
-            ),
-          );
-        if (postalDestinationUnavailable)
-          throw new Error(
-            msg("Postal delivery to this country is currently unavailable."),
-          );
-        if (requirements.loading || requirements.error || !selectedPosition)
-          throw new Error(
-            msg(
-              "Letter options are not available yet. Try loading them again.",
-            ),
-          );
-        if (addsAddressPage && !generated) {
-          setGenerationAttempted(true);
-          const result = await view.wait(
-            api<PostalAddressPageResult>("/postal/address-pages", {
-              method: "POST",
-              key: generationKey.current,
-              body: {
-                documentId,
-                recipient: target,
-                printMode,
-                addressPosition: selectedPosition,
-              },
-            }),
-          );
-          if (!isCurrent()) return;
-          setGenerated(result);
-          setContinueGenerated(true);
-          return;
-        }
-        if (addsAddressPage && !generatedReady)
-          throw new Error(
-            msg(
-              "Wait for the final PDF to be verified before the postal check.",
-            ),
-          );
-        const review = await view.wait(
-          api<PostalReview>("/postal/preflights", {
-            method: "POST",
-            key: key.current,
-            body: {
-              documentId: addsAddressPage ? finalDocument!.id : documentId,
-              senderId: selectedSender,
-              recipient: target,
-              options: {
-                printMode,
-                printSpectrum,
-                deliveryProduct,
-                addressPosition: selectedPosition,
-              },
-              ceilingMinor,
-            },
-          }),
-          (receipt) => ({
-            kind: "saved",
-            resourceId: receipt.id,
-            route: `/app/postal/${encodeURIComponent(receipt.id)}`,
-          }),
-        );
-        if (!isCurrent()) return;
-        go(`/app/postal/${encodeURIComponent(review.id)}`);
-        return;
-      }
-      if (
-        channel === "email" &&
-        documentId &&
-        emailDeliveryMode === "my_documents"
-      ) {
-        let distribution: SecureDistributionView;
+    try {
+      await action.run(async (view) => {
         try {
-          distribution = await view.wait(
-            api<SecureDistributionView>("/secure-distributions", {
+          if (documentUnavailable)
+            throw new Error(
+              msg("Check the PDF before preparing the delivery."),
+            );
+          if (ceilingMinor === null) throw new Error(t.dispatch.ceilingInvalid);
+          const target =
+            channel === "fax"
+              ? { phone: normalizeFaxNumber(recipient.phone ?? "") }
+              : channel === "email"
+                ? { email: recipient.email ?? "" }
+                : postalRecipientFromDraft(recipient, usesAddressBlock);
+          if (channel === "postal" && !simulation) {
+            if (
+              destinations.loading ||
+              destinations.error ||
+              !destinations.data
+            )
+              throw new Error(
+                msg(
+                  "Postal destination availability could not be checked. Try again before preparing the letter.",
+                ),
+              );
+            if (postalDestinationUnavailable)
+              throw new Error(
+                msg(
+                  "Postal delivery to this country is currently unavailable.",
+                ),
+              );
+            if (requirements.loading || requirements.error || !selectedPosition)
+              throw new Error(
+                msg(
+                  "Letter options are not available yet. Try loading them again.",
+                ),
+              );
+            if (addsAddressPage && !generated) {
+              setGenerationAttempted(true);
+              const result = await view.wait(
+                api<PostalAddressPageResult>("/postal/address-pages", {
+                  method: "POST",
+                  key: generationKey.current,
+                  body: {
+                    documentId,
+                    recipient: target,
+                    printMode,
+                    addressPosition: selectedPosition,
+                  },
+                }),
+              );
+              if (!isCurrent()) return;
+              setGenerated(result);
+              setContinueGenerated(true);
+              return;
+            }
+            if (addsAddressPage && !generatedReady)
+              throw new Error(
+                msg(
+                  "Wait for the final PDF to be verified before the postal check.",
+                ),
+              );
+            const review = await view.wait(
+              api<PostalReview>("/postal/preflights", {
+                method: "POST",
+                key: key.current,
+                body: {
+                  documentId: addsAddressPage ? finalDocument!.id : documentId,
+                  senderId: selectedSender,
+                  recipient: target,
+                  options: {
+                    printMode,
+                    printSpectrum,
+                    deliveryProduct,
+                    addressPosition: selectedPosition,
+                  },
+                  ceilingMinor,
+                },
+              }),
+              (receipt) => ({
+                kind: "saved",
+                resourceId: receipt.id,
+                route: `/app/postal/${encodeURIComponent(receipt.id)}`,
+              }),
+            );
+            if (!isCurrent()) return;
+            go(`/app/postal/${encodeURIComponent(review.id)}`);
+            return;
+          }
+          if (
+            channel === "email" &&
+            documentId &&
+            emailDeliveryMode === "my_documents"
+          ) {
+            let distribution: SecureDistributionView;
+            try {
+              distribution = await view.wait(
+                api<SecureDistributionView>("/secure-distributions", {
+                  method: "POST",
+                  key: key.current,
+                  body: {
+                    documentId,
+                    senderId: selectedSender,
+                    recipient: { address: recipient.email },
+                    retentionDays,
+                    allowOriginalDownload,
+                    recipientBinding: "verified_email",
+                    ...(subject.trim() ? { subject } : {}),
+                    ...(text.trim() ? { message: text } : {}),
+                    ...(html.trim() ? { html } : {}),
+                    notificationLocale: emailLocale,
+                    costCeilingMinor: ceilingMinor,
+                  },
+                }),
+                (receipt) => ({
+                  kind: "saved",
+                  resourceId: receipt.id,
+                  route: `/app/secure-distribution/${encodeURIComponent(receipt.id)}`,
+                }),
+              );
+            } catch (error) {
+              view.checkpoint();
+              if (!isCurrent()) return;
+              if (sourceCopy.offer(error, documentId)) return;
+              throw error;
+            }
+            if (!isCurrent()) return;
+            go(
+              `/app/secure-distribution/${encodeURIComponent(distribution.id)}`,
+            );
+            return;
+          }
+          const dispatch = await view.wait(
+            api<Dispatch>("/dispatches", {
               method: "POST",
               key: key.current,
               body: {
-                documentId,
+                channel,
+                recipient: target,
+                documentId: documentId || undefined,
                 senderId: selectedSender,
-                recipient: { address: recipient.email },
-                retentionDays,
-                allowOriginalDownload,
-                recipientBinding: "verified_email",
-                ...(subject.trim() ? { subject } : {}),
-                ...(text.trim() ? { message: text } : {}),
-                ...(html.trim() ? { html } : {}),
-                notificationLocale: emailLocale,
-                costCeilingMinor: ceilingMinor,
+                subject:
+                  channel === "email" && subject.trim() ? subject : undefined,
+                html: channel === "email" && html.trim() ? html : undefined,
+                text: channel === "email" && text.trim() ? text : undefined,
+                options:
+                  channel === "email" && documentId
+                    ? { emailDeliveryMode: "attachment" }
+                    : undefined,
+                ceilingMinor,
               },
             }),
             (receipt) => ({
-              kind: "saved",
+              kind: "dispatch_prepared",
               resourceId: receipt.id,
-              route: `/app/secure-distribution/${encodeURIComponent(receipt.id)}`,
+              route: `/app/dispatch/${encodeURIComponent(receipt.id)}`,
             }),
           );
-        } catch (error) {
-          view.checkpoint();
           if (!isCurrent()) return;
-          if (sourceCopy.offer(error, documentId)) return;
-          throw error;
+          go(`/app/dispatch/${dispatch.id}`);
+        } finally {
+          // Release before useAction publishes pending=false. A verified final
+          // PDF may already be ready when that render resumes the same intent.
+          submitting.current = false;
         }
-        if (!isCurrent()) return;
-        go(`/app/secure-distribution/${encodeURIComponent(distribution.id)}`);
-        return;
-      }
-      const dispatch = await view.wait(
-        api<Dispatch>("/dispatches", {
-          method: "POST",
-          key: key.current,
-          body: {
-            channel,
-            recipient: target,
-            documentId: documentId || undefined,
-            senderId: selectedSender,
-            subject:
-              channel === "email" && subject.trim() ? subject : undefined,
-            html: channel === "email" && html.trim() ? html : undefined,
-            text: channel === "email" && text.trim() ? text : undefined,
-            options:
-              channel === "email" && documentId
-                ? { emailDeliveryMode: "attachment" }
-                : undefined,
-            ceilingMinor,
-          },
-        }),
-        (receipt) => ({
-          kind: "dispatch_prepared",
-          resourceId: receipt.id,
-          route: `/app/dispatch/${encodeURIComponent(receipt.id)}`,
-        }),
-      );
-      if (!isCurrent()) return;
-      go(`/app/dispatch/${dispatch.id}`);
-    });
-    submitting.current = false;
+      });
+    } finally {
+      // The action can refuse before invoking its callback on a stale visit.
+      submitting.current = false;
+    }
   }
   useEffect(() => {
     if (

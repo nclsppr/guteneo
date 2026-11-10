@@ -1287,3 +1287,12 @@ Local browsers fail before page creation (Chromium MachPort permission and
 WebKit abort); loopback servers are also refused. Consequently loading latency,
 actual transferred bytes, visual geometry and physical-device behavior remain
 unqualified for this combined candidate. No Cloudflare cost saving is claimed.
+
+### Personal session refresh ordering
+
+A visible-tab return starts personal-session revalidation before child focus
+refresh listeners. Private body content remains mounted but hidden and inert
+until the parent session read succeeds; failures expose retry outside that
+barrier. This preserves unsent state for the same identity and remounts it for a
+changed account. The initial entry read does not consume the focus coalescing
+window. Hosted delayed-session evidence remains distinct from source review.

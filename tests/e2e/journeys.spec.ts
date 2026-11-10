@@ -48,8 +48,13 @@ test("admin empty DLQ and contract fixture navigate to the real dispatch without
   page,
 }) => {
   await login(page);
-  // Operator diagnostics moved to Administration → Settings.
+  // Operator diagnostics have a separate administrator-only Operations page.
   await page.goto("/#/app/administration/settings");
+  await page
+    .locator("main")
+    .getByRole("link", { name: "Exploitation", exact: true })
+    .click();
+  await expect(page).toHaveURL(/#\/app\/administration\/operations$/);
   await expect(
     page.getByRole("heading", { name: "Messages en file d’échec" }),
   ).toBeVisible();
@@ -97,8 +102,7 @@ test("admin empty DLQ and contract fixture navigate to the real dispatch without
     }),
   );
   await page
-    .locator(".section-toolbar")
-    .filter({ hasText: "Exploitation" })
+    .locator("main .page-heading")
     .getByRole("button", { name: "Actualiser", exact: true })
     .click();
   await expect(

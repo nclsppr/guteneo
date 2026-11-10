@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { expect, test, type Page } from "./fixtures";
+import { expectUnreviewedServerError } from "../helpers/browser-error-notice";
 import { PDFDocument } from "pdf-lib";
 import type { DocumentRecord, Session } from "../../apps/web/src/api";
 import { documentAnalysis } from "../../packages/contracts/src/document-analysis";
@@ -288,8 +289,11 @@ test("legacy quarantine stays manually recoverable with an honest failure and no
     name: "Relancer la vérification",
   });
   await retry.click();
-  await expect(page.getByRole("alert")).toContainText(
-    "momentanément indisponible",
+  await expectUnreviewedServerError(
+    page.getByRole("alert"),
+    "SCANNER_UNAVAILABLE",
+    "Le service de vérification est momentanément indisponible.",
+    "fr",
   );
   await expect(retry).toBeEnabled();
   await expectNotUsable(page);

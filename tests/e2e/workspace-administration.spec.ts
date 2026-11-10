@@ -306,8 +306,12 @@ test("an administrator manages the workspace in Administration, not in the profi
   await expect(
     page.getByLabel("Nom de l’espace de travail", { exact: true }),
   ).toHaveCount(0);
+  const accountAccess = page.locator("details.account-access-details");
+  await expect(accountAccess).not.toHaveAttribute("open");
+  await accountAccess.locator("summary").click();
+  await expect(accountAccess).toHaveAttribute("open", "");
   await expect(
-    page.getByRole("link", {
+    accountAccess.getByRole("link", {
       name: "Gérer cet espace de travail dans Administration",
     }),
   ).toHaveAttribute("href", "#/app/administration");
@@ -760,16 +764,16 @@ test("Consumption has one refresh action for its summary and the embedded ledger
   expect(state.writes).toEqual([]);
 });
 
-for (const [locale, resolveLabel, resolvedLabel] of [
-  ["en", "Resolve incident", "Resolved"],
-  ["fr", "Résoudre l’incident", "Résolu"],
-  ["de", "Vorfall abschließen", "Erledigt"],
-  ["lb", "Virfall léisen", "Geléist"],
+for (const [locale, resolveLabel, resolvedLabel, operationsLabel] of [
+  ["en", "Resolve incident", "Resolved", "Operations"],
+  ["fr", "Résoudre l’incident", "Résolu", "Exploitation"],
+  ["de", "Vorfall abschließen", "Erledigt", "Betrieb"],
+  ["lb", "Virfall léisen", "Geléist", "Betrib"],
 ] as const)
   test(`queue incident resolution requires a deliberate browser action in ${locale}`, async ({
     page,
   }) => {
-    await fixture(page, "admin", locale);
+    const state = await fixture(page, "admin", locale);
     const id = "dead_synthetic_fixture";
     let resolvedAt: string | null = null;
     const requests: { body: unknown; csrf: string | undefined }[] = [];
@@ -807,6 +811,13 @@ for (const [locale, resolveLabel, resolvedLabel] of [
       },
     );
     await page.goto("/#/app/administration/settings");
+    expect(state.reads.includes("/admin")).toBe(false);
+    await page
+      .locator("main")
+      .getByRole("link", { name: operationsLabel, exact: true })
+      .click();
+    await expect(page).toHaveURL(/#\/app\/administration\/operations$/);
+    await expect(page.locator("main h1")).toHaveText(operationsLabel);
     const incident = page.locator(".dead-letters");
     await expect(incident.getByText(id, { exact: true })).toBeVisible();
     expect(requests).toEqual([]);

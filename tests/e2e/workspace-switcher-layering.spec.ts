@@ -132,9 +132,7 @@ test("workspace and application choices remain clickable beside the closed accou
     // The new workspace is already active, but the older Overview transition
     // still has its real code held. Its commit cannot dismiss this newer choice.
     releaseOverview();
-    await expect(page.locator("main h1")).toHaveText(
-      "Votre correspondance, au clair.",
-    );
+    await expect(page.locator("main h1")).toHaveText("Vue d’ensemble");
     await expect(page.locator("main")).not.toHaveAttribute("aria-busy", "true");
     await expect(applications).toBeVisible();
     await expect(application).toHaveAttribute("aria-expanded", "true");
@@ -240,9 +238,7 @@ test("a same-address workspace authority replacement closes the old workspace ch
 }) => {
   const { writes, unexpected } = await installWorkspaceFixture(page);
   await page.goto("/#/app");
-  await expect(page.locator("main h1")).toHaveText(
-    "Votre correspondance, au clair.",
-  );
+  await expect(page.locator("main h1")).toHaveText("Vue d’ensemble");
   const workspace = page.locator(".sidebar .workspace-switcher > button");
   const choices = page.getByRole("navigation", {
     name: "Espaces de travail",

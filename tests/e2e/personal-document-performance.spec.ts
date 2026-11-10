@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { expectUnreviewedServerError } from "../helpers/browser-error-notice";
 import type { PersonalSession } from "../../apps/web/src/personal-api";
 
 // Read-only browser fixtures: no account, document or audit event is written.
@@ -261,7 +262,9 @@ test("a failed personal list can be retried without reloading the account", asyn
   const state = await fixture(page);
   state.failList(true);
   await page.goto("/#/app/my-documents");
-  await expect(page.getByRole("alert")).toContainText(
+  await expectUnreviewedServerError(
+    page.getByRole("alert"),
+    "TEMPORARILY_UNAVAILABLE",
     "Synthetic document service unavailable",
   );
   state.failList(false);
@@ -595,5 +598,74 @@ test("personal account utilities share the menu, dismiss accessibly and follow t
   await expect(menu).toBeHidden();
   await page.goBack();
   await expect(menu).toBeHidden();
+  expect(state.writes).toEqual([]);
+});
+
+test("a focus refresh keeps another account's list hidden until its delayed identity is verified", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.goto("/#/app/my-documents");
+  await expect(
+    page.getByRole("heading", {
+      name: "Document for personal-performance-a",
+      exact: true,
+    }),
+  ).toBeVisible();
+  const sessionReads = state.reads.filter(
+    (path) => path === "/api/personal/session",
+  ).length;
+  await page.getByRole("searchbox", { name: "Search my documents" }).focus();
+  // Capturing a tab wake must not turn ordinary field focus into a session read.
+  expect(
+    state.reads.filter((path) => path === "/api/personal/session"),
+  ).toHaveLength(sessionReads);
+
+  let releaseSession!: () => void;
+  const sessionGate = new Promise<void>((resolve) => {
+    releaseSession = resolve;
+  });
+  let sessionRequested!: () => void;
+  const pendingSession = new Promise<void>((resolve) => {
+    sessionRequested = resolve;
+  });
+  await page.route("**/api/personal/session", async (route) => {
+    sessionRequested();
+    await sessionGate;
+    await route.fallback();
+  });
+  state.switchAccount();
+  try {
+    await refreshSession(page);
+    await pendingSession;
+    const incomingDocument = page.getByRole("heading", {
+      name: "Document for personal-performance-b",
+      exact: true,
+      includeHidden: true,
+    });
+    // The independently refreshed list has arrived before the parent identity.
+    await expect(incomingDocument).toHaveCount(1);
+    const privateBody = page.locator(".personal-session-content");
+    await expect(privateBody).toHaveAttribute("hidden", "");
+    await expect(privateBody).toHaveAttribute("inert", "");
+    await expect(incomingDocument).toBeHidden();
+    await expect(page.locator(".workspace-identity-email")).toHaveText(
+      "personal-performance-a@example.invalid",
+    );
+  } finally {
+    releaseSession();
+  }
+  await expect(page.locator(".workspace-identity-email")).toHaveText(
+    "personal-performance-b@example.invalid",
+  );
+  await expect(
+    page.getByRole("heading", {
+      name: "Document for personal-performance-b",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("personal-performance-a@example.invalid", { exact: false }),
+  ).toHaveCount(0);
   expect(state.writes).toEqual([]);
 });

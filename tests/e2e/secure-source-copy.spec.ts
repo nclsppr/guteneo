@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { expectUnreviewedServerError } from "../helpers/browser-error-notice";
 import {
   secureDistributionCatalog,
   secureDistributionQuote,
@@ -320,9 +321,11 @@ test("copy failure retries the same operation and blocks duplicate clicks", asyn
   await fill(page, "secure");
   await prepareButton(page, "secure").click();
   await copyButton(page).click();
-  await expect(
-    page.getByText("Service temporarily unavailable.", { exact: true }),
-  ).toBeVisible();
+  await expectUnreviewedServerError(
+    page.getByRole("alert").filter({ hasText: "TEMPORARY_FAILURE" }),
+    "TEMPORARY_FAILURE",
+    "Service temporarily unavailable.",
+  );
   await expect(copyButton(page)).toBeEnabled();
   await copyButton(page).evaluate((button: HTMLButtonElement) => {
     button.click();
@@ -375,16 +378,19 @@ test("switching email delivery mode clears copy recovery and its previous error"
   await fill(page, "email");
   await prepareButton(page, "email").click();
   await copyButton(page).click();
-  await expect(
-    page.getByText("Service temporarily unavailable.", { exact: true }),
-  ).toBeVisible();
+  const copyFailure = page
+    .getByRole("alert")
+    .filter({ hasText: "TEMPORARY_FAILURE" });
+  await expectUnreviewedServerError(
+    copyFailure,
+    "TEMPORARY_FAILURE",
+    "Service temporarily unavailable.",
+  );
   await page
     .getByLabel("Document access", { exact: true })
     .selectOption("attachment");
   await expect(copyButton(page)).toHaveCount(0);
-  await expect(
-    page.getByText("Service temporarily unavailable.", { exact: true }),
-  ).toHaveCount(0);
+  await expect(copyFailure).toHaveCount(0);
   await expect(documentSelect(page, "email")).toHaveValue(original.id);
   expect(writes).toHaveLength(2);
 });

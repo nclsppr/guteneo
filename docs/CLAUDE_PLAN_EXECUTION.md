@@ -133,3 +133,34 @@ The [completion-pass receipt](evidence/clarity-completion-2026-11-10.json) separ
 the latest successful source builds, 102 focused UI/foundation assertions,
 14 backend clock assertions and 109 release guard assertions from the original
 whole-suite environment failures. These are separate test invocations.
+
+## First hosted qualification and repair batch
+
+PR [162](https://github.com/nclsppr/guteneo/pull/162) publishes the exact local
+source tree through the GitHub connector; its initial head is `2db156da`, with
+Git tree `73c197bdfabfbfaa850c142fc18815763fc87750`. The first complete
+[CI run](https://github.com/nclsppr/guteneo/actions/runs/42886760472) failed.
+Twelve jobs passed, including security, private PDF/scanner checks, engineering,
+build and three Vitest shards. The application browser stages recorded 1,264
+passes, 148 failures and 19 declared skips across 1,431 discovered identities;
+downstream suites did not complete their entire inventory. This is failed
+qualification, not release proof.
+
+The repair batch updates actual renamed controls, Access/Operations disclosures,
+priced decisions, folded technical-code notices and localized navigation
+confirmations while retaining the approval, identity, stale-response, no-retry
+and fixture transport assertions. A historical populated-pricing fixture now
+applies index migration 0082 only after its deferred PDF schema exists.
+
+Production-source repairs address personal document ID double encoding, first
+focus session revalidation and hidden/inert personal content until that identity
+read succeeds. A delayed-session browser regression protects against refreshed
+documents appearing under another account's frame. Postal preparation releases
+its busy latch before publishing action completion, so an already-verified final
+PDF can continue the same preparation intent to review. The existing exact
+content, destination, pricing and human consent gates are unchanged.
+
+Unresolved email/postal browser failures keep their original assertions and gain
+finite failure-only diagnostics from synthetic fixtures, excluding entered
+content/recipient values. Fresh hosted CI must qualify these repairs. No
+production schema or runtime has been changed.

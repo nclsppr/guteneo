@@ -337,6 +337,7 @@ test("the former member address keeps Administration navigation in view at 1280 
     "#/app/administration/audit",
     "#/app/administration/webhooks",
     "#/app/administration/billing",
+    "#/app/administration/operations",
     "#/app/administration/settings",
   ]);
   expect(state.writes).toEqual([]);
@@ -603,13 +604,11 @@ test("returning to Studio libraries rereads their lists and preserves unsubmitte
         .getByLabel("Nom du modèle", { exact: true })
         .fill("Unsubmitted template name");
     } else if (path === "datasets") {
-      await page
-        .locator('main input[type="file"]')
-        .setInputFiles({
-          name: "unsubmitted.csv",
-          mimeType: "text/csv",
-          buffer: Buffer.from("name\nFictional\n"),
-        });
+      await page.locator('main input[type="file"]').setInputFiles({
+        name: "unsubmitted.csv",
+        mimeType: "text/csv",
+        buffer: Buffer.from("name\nFictional\n"),
+      });
     }
     await page.route(
       (url) => url.pathname === `/api${endpoint}`,

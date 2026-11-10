@@ -116,7 +116,7 @@ export async function loginWorkshop(
   // The same simulation notice is already visible on the sign-in screen.
   // Await the authenticated view before another app.open can abandon sign-in.
   await expect(
-    screen.getByRole("heading", "Votre correspondance, au clair."),
+    screen.getByRole("heading", "Vue d’ensemble"),
   ).toBeVisible();
 }
 

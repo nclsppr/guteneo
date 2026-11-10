@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { expectUnreviewedServerError } from "../helpers/browser-error-notice";
 import type { SavedRecipientView } from "../../packages/contracts/src/saved-recipients";
 import { en } from "../../apps/web/src/locales/en";
 
@@ -216,7 +217,11 @@ test("a saved recipient conflict preserves edits and requires explicit reload", 
   await page
     .getByRole("button", { name: "Save recipient", exact: true })
     .click();
-  await expect(page.getByRole("alert")).toContainText("newer revision");
+  await expectUnreviewedServerError(
+    page.getByRole("alert"),
+    "RECIPIENT_CHANGED",
+    "Synthetic newer revision; reload required.",
+  );
   await expect(page.getByLabel("Recipient label", { exact: true })).toHaveValue(
     "Unsaved fictional edit",
   );
@@ -315,7 +320,16 @@ test("observer commands exclude preparation, saved recipients and administration
 test("saved table views survive reload but store no search text or recipient rows", async ({
   page,
 }) => {
-  await fixture(page);
+  const state = await fixture(page);
+  // Exercise search privacy on a list large enough to offer search controls.
+  for (let index = 0; index < 3; index++)
+    state.contacts.push({
+      ...state.contacts[0],
+      id: `contact_extra_${index}`,
+      label: `Additional fictional contact ${index + 1}`,
+      channel: "fax",
+      recipient: { phone: `+3522000000${index + 5}` },
+    });
   await page.goto("/#/app/recipients");
   const views = page.locator(".data-table__views");
   await views.locator("summary").click();

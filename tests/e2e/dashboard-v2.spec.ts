@@ -534,10 +534,10 @@ test("V2 prepares through the existing API and requires explicit consent before 
 
   const consent = page.locator(".approval-panel input[type=checkbox]").first();
   const approve = page.getByRole("button", {
-    name: "Approuver et simuler l’envoi",
-    exact: true,
+    name: /^Approuver et simuler l’envoi.*€/u,
   });
   await expect(consent).not.toBeChecked();
+  await expect(approve).toContainText("€");
   await expect(approve).toBeDisabled();
   await saveProfileLanguage(settings);
   await returnToWorkspace(page);

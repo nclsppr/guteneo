@@ -168,6 +168,7 @@ beforeAll(async () => {
           "0078_saved_recipients.sql",
           "0079_customer_lifecycle_webhooks.sql",
           "0080_dispatch_schedules.sql",
+          "0082_pdf_validation_history.sql",
         ].includes(f),
     )
     .sort())
@@ -346,8 +347,16 @@ beforeAll(async () => {
   // Deletion guards reference personal/secure session tables, which this
   // populated pricing-upgrade fixture intentionally installs in later phases.
   // Only after the populated financial upgrade proof install the remaining
-  // source-copy/deletion dependencies and lifecycle tables in their real order.
-  for (const filename of ["0073_secure_document_source_copies.sql", "0077_account_deletion.sql", "0078_saved_recipients.sql", "0079_customer_lifecycle_webhooks.sql", "0080_dispatch_schedules.sql"])
+  // source-copy/deletion dependencies, lifecycle tables and PDF history index
+  // in their real order, after the deferred PDF validation tables exist.
+  for (const filename of [
+    "0073_secure_document_source_copies.sql",
+    "0077_account_deletion.sql",
+    "0078_saved_recipients.sql",
+    "0079_customer_lifecycle_webhooks.sql",
+    "0080_dispatch_schedules.sql",
+    "0082_pdf_validation_history.sql",
+  ])
     await sql(readFileSync(new URL(filename, dir), "utf8"));
   historicalSchema = false;
 });

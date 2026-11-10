@@ -47,12 +47,41 @@
     "action": "Stopped further local browser-launch probes"
   },
   "productionEffects": {
-    "pushed": false,
-    "pullRequest": false,
+    "pushed": true,
+    "pullRequest": true,
     "merged": false,
     "schemaChanged": false,
     "deployed": false,
     "realCommunication": false,
     "paidProvisioning": false
+  },
+  "firstHostedCi": {
+    "head": "2db156dac69eba3b4845eadd5cd087eb847e6dac",
+    "tree": "73c197bdfabfbfaa850c142fc18815763fc87750",
+    "pullRequest": 162,
+    "runId": 42886760472,
+    "result": "failed",
+    "passedJobs": 12,
+    "applicationBrowser": {
+      "passed": 1264,
+      "failed": 148,
+      "declaredSkipped": 19,
+      "discovered": 1431
+    },
+    "note": "Downstream browser suites did not complete; no merge/deployment. Repair batch retains actual security/consent assertions."
+  },
+  "repairBatchChecks": {
+    "typecheck": "passed",
+    "lint": "passed",
+    "docs": "build/check passed",
+    "build": "passed; Worker dry run only",
+    "pureTests": {
+      "passed": 116,
+      "failed": 0,
+      "files": 8,
+      "report": "reports/clarity-ci-repair-pure.json"
+    },
+    "integrations": "1.2.3 fingerprints matched",
+    "browser": "not run locally; fresh exact-source hosted run required"
   }
 }

@@ -270,12 +270,17 @@ test("template edits remain protected before and during a cold route transition"
       () =>
         new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
     );
-    const dialog = page.waitForEvent("dialog").then(async (confirmation) => {
-      expect(confirmation.message()).toContain("unsaved changes");
-      await confirmation.dismiss();
-    });
     await (await profileLink(page)).click();
-    await dialog;
+    const confirmation = page.getByRole("dialog", {
+      name: "Leave this template and lose unsaved changes?",
+      exact: true,
+    });
+    await expect(confirmation).toBeVisible();
+    await expect(
+      confirmation.getByRole("button", { name: "Cancel", exact: true }),
+    ).toBeFocused();
+    await confirmation.press("Escape");
+    await expect(confirmation).toBeHidden();
     await expect(page).toHaveURL(
       /#\/app\/studio\/template\/transition-template$/,
     );

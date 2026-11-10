@@ -7,6 +7,7 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
+import { flushSync } from "react-dom";
 import {
   ArrowRight,
   Files,
@@ -252,12 +253,16 @@ export function PersonalSpace({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error>();
   const [version, setVersion] = useState(0);
+  const [sessionRevalidating, setSessionRevalidating] = useState(false);
+  const sessionRevalidation = useRef(false);
   const sessionReadRevision = useRef(0);
   const entryReadConsumed = useRef(false);
   const action = useAction(sessionAuthorityKey(session));
   const page = route.split("?")[0] ?? "/app/my-documents";
   const onSessionInvalid = useCallback(() => {
     sessionReadRevision.current += 1;
+    sessionRevalidation.current = false;
+    setSessionRevalidating(false);
     setPersonalSession(null);
     initializeLocale(true);
   }, []);
@@ -268,12 +273,12 @@ export function PersonalSpace({
     const controller = new AbortController();
     let pending = false;
     let revalidateAfterRead = false;
-    let lastRead = 0;
+    let lastFocus = 0;
     const read = async () => {
-      if (pending || isPageHidden() || Date.now() - lastRead < 1000) return;
+      if (pending || isPageHidden()) return;
       pending = true;
-      lastRead = Date.now();
       const revision = sessionReadRevision.current;
+      let verified = false;
       try {
         let current: PersonalSession;
         if (
@@ -284,7 +289,6 @@ export function PersonalSpace({
           entryReadConsumed.current = true;
           const result = await initialSession.result;
           if (initialSession.signal.aborted) {
-            lastRead = 0;
             if (isPageHidden()) return;
             current = await personalApi<PersonalSession>(
               "/personal/session",
@@ -316,6 +320,7 @@ export function PersonalSpace({
         );
         applyAccountLocale(current.user.preferredLocale);
         setError(undefined);
+        verified = true;
       } catch (cause) {
         if (
           controller.signal.aborted ||
@@ -323,34 +328,60 @@ export function PersonalSpace({
         )
           return;
         if (cause instanceof ApiError && [401, 403].includes(cause.status)) {
+          sessionRevalidation.current = false;
+          setSessionRevalidating(false);
           setPersonalSession(null);
           initializeLocale(true);
         } else setError(cause as Error);
       } finally {
         pending = false;
+        if (
+          sessionRevalidation.current &&
+          revision !== sessionReadRevision.current
+        )
+          revalidateAfterRead = true;
         if (!controller.signal.aborted && revalidateAfterRead) {
           revalidateAfterRead = false;
-          lastRead = 0;
           void read();
-        } else if (!controller.signal.aborted && !isPageHidden())
+        } else if (!controller.signal.aborted && !isPageHidden()) {
           setLoading(false);
+          if (verified) {
+            sessionRevalidation.current = false;
+            setSessionRevalidating(false);
+          }
+        }
       }
     };
-    const onFocus = () => {
+    const onFocus = (event: Event) => {
+      // Capture the window wake before child list listeners, not field focus.
+      if (event.type === "focus" && event.target !== window) return;
       if (isPageHidden()) {
-        lastRead = 0;
+        lastFocus = 0;
         return;
       }
+      // Coalesce the focus/visibility pair, not the initial session read. A
+      // first return must revalidate even when the entry read just completed;
+      // otherwise document focus reads can already belong to another account.
+      const now = Date.now();
+      if (lastFocus && now - lastFocus < 1000) return;
+      lastFocus = now;
+      sessionRevalidation.current = true;
+      // Keep editor/list state mounted while making private data unavailable
+      // before an independently refreshed list can resolve for another account.
+      flushSync(() => {
+        setSessionRevalidating(true);
+        setError(undefined);
+      });
       if (pending) revalidateAfterRead = true;
       else void read();
     };
     void read();
-    window.addEventListener("focus", onFocus);
-    document.addEventListener("visibilitychange", onFocus);
+    window.addEventListener("focus", onFocus, true);
+    document.addEventListener("visibilitychange", onFocus, true);
     return () => {
       controller.abort();
-      window.removeEventListener("focus", onFocus);
-      document.removeEventListener("visibilitychange", onFocus);
+      window.removeEventListener("focus", onFocus, true);
+      document.removeEventListener("visibilitychange", onFocus, true);
     };
   }, [version, initialSession]);
   if (loading)
@@ -367,6 +398,8 @@ export function PersonalSpace({
           invitationStorageBlocked={invitationStorageBlocked}
           onSignedIn={(current) => {
             sessionReadRevision.current += 1;
+            sessionRevalidation.current = false;
+            setSessionRevalidating(false);
             setPersonalSession(current);
             setError(undefined);
           }}
@@ -456,46 +489,56 @@ export function PersonalSpace({
         tabIndex={-1}
         className="personal-space-main"
         key={session.user.id}
+        aria-busy={sessionRevalidating || undefined}
       >
         <DateTimezone />
-        <ApplicationTimeScope>
-          {session.simulation && (
-            <div className="notice info" role="note">
-              <p>
-                {msg("Local simulation: accounts and documents are fictional.")}
-              </p>
-            </div>
-          )}
-          <ErrorNotice
-            error={error ?? action.error}
-            retry={() => setVersion((n) => n + 1)}
-          />
-          {page === "/app/services" ? (
-            <PersonalServices
-              key={route}
-              session={session}
-              next={new URLSearchParams(route.split("?")[1]).get("next")}
-            />
-          ) : page === "/app/personal-account" ? (
-            <PersonalAccount
-              session={session}
-              onUpdated={(current) => {
-                // An already running focus read may contain the pre-save profile.
-                // Adopt the PATCH session without adding another read waterfall.
-                sessionReadRevision.current += 1;
-                setError(undefined);
-                setPersonalSession((previous) =>
-                  previous?.user.id === session.user.id &&
-                  previous.csrfToken === session.csrfToken
-                    ? current
-                    : previous,
-                );
-              }}
-            />
-          ) : (
-            documents(session, onSessionInvalid)
-          )}
-        </ApplicationTimeScope>
+        <ErrorNotice
+          error={error ?? action.error}
+          retry={() => setVersion((n) => n + 1)}
+        />
+        {sessionRevalidating && !error && <Loading />}
+        <div
+          className="personal-session-content"
+          hidden={sessionRevalidating}
+          inert={sessionRevalidating}
+        >
+          <ApplicationTimeScope>
+            {session.simulation && (
+              <div className="notice info" role="note">
+                <p>
+                  {msg(
+                    "Local simulation: accounts and documents are fictional.",
+                  )}
+                </p>
+              </div>
+            )}
+            {page === "/app/services" ? (
+              <PersonalServices
+                key={route}
+                session={session}
+                next={new URLSearchParams(route.split("?")[1]).get("next")}
+              />
+            ) : page === "/app/personal-account" ? (
+              <PersonalAccount
+                session={session}
+                onUpdated={(current) => {
+                  // An already running focus read may contain the pre-save profile.
+                  // Adopt the PATCH session without adding another read waterfall.
+                  sessionReadRevision.current += 1;
+                  setError(undefined);
+                  setPersonalSession((previous) =>
+                    previous?.user.id === session.user.id &&
+                    previous.csrfToken === session.csrfToken
+                      ? current
+                      : previous,
+                  );
+                }}
+              />
+            ) : (
+              documents(session, onSessionInvalid)
+            )}
+          </ApplicationTimeScope>
+        </div>
       </main>
       <footer className="personal-space-footer">
         <LegalLinks />

@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { expectUnreviewedServerError } from "../helpers/browser-error-notice";
 import { mkdir } from "node:fs/promises";
 import type { ExpertApprovalSettings } from "../../apps/web/src/api";
 
@@ -299,8 +300,11 @@ test("a rejected write never displays an active delegation", async ({
     .check();
   await region.getByRole("button", { name: "Confirmer l’activation" }).click();
   await expect(region.getByRole("alert")).toBeFocused();
-  await expect(region.getByRole("alert")).toContainText(
-    "Cette connexion a été révoquée",
+  await expectUnreviewedServerError(
+    region.getByRole("alert"),
+    "CONNECTION_REVOKED",
+    "Cette connexion a été révoquée. Rechargez vos autorisations.",
+    "fr",
   );
   await expect(
     region.getByText("Délégation active", { exact: true }),

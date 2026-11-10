@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { expectUnreviewedServerError } from "../helpers/browser-error-notice";
 import type { PersonalSession } from "../../apps/web/src/personal-api";
 
 const session: PersonalSession = {
@@ -609,7 +610,9 @@ for (const status of [401, 403])
     });
     try {
       await page.goto("/#/app/my-documents");
-      await expect(page.getByRole("alert")).toContainText(
+      await expectUnreviewedServerError(
+        page.getByRole("alert"),
+        "UNAUTHENTICATED",
         "Session no longer authorized.",
       );
       const listResponse = page.waitForResponse("**/api/personal/documents?**");

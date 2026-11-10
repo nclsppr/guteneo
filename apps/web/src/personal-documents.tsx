@@ -45,9 +45,15 @@ export function PersonalDocuments({
         }}
       />
     );
-  const id = page.startsWith("/app/my-documents/")
+  let id = page.startsWith("/app/my-documents/")
     ? page.slice("/app/my-documents/".length)
     : "";
+  try {
+    // Links encode the opaque ID; the reader encodes its API path separately.
+    id = decodeURIComponent(id);
+  } catch {
+    // Keep malformed escapes opaque for the normal scoped lookup refusal.
+  }
   if (!id) listRoute.current = { user: session.user.id, route };
   const remembered =
     listRoute.current?.user === session.user.id

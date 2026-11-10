@@ -528,7 +528,19 @@ test("a dirty workspace switch waits for discard and cancellation preserves its 
   await expect(other).toBeEnabled();
   await other.click();
   await expect(leaveDialog(page)).toBeVisible();
-  await other.evaluate((button) => (button as HTMLButtonElement).click());
+  // Moving focus into the modal closes the menu. Its existing choice is still
+  // mounted but hidden from the accessibility tree and disabled while pending.
+  const pendingChoice = page
+    .locator(".workspace-switcher")
+    .getByRole("button", {
+      name: "Other workspace",
+      exact: true,
+      includeHidden: true,
+    });
+  await expect(pendingChoice).toBeDisabled();
+  await pendingChoice.evaluate((button) =>
+    (button as HTMLButtonElement).click(),
+  );
   expect(switches).toEqual([]);
   await discardChanges(page);
   await expect(workspace).toContainText("Other workspace");
@@ -816,21 +828,42 @@ test("coalesced A to B to A hash events never revive the earlier preparation rep
     });
     await submit.click();
     await expect.poll(() => state.writes.length).toBe(1);
-    await page.evaluate(async () => {
-      const original = window.location.hash;
-      await new Promise<void>((resolve) => {
-        let events = 0;
-        const observed = () => {
-          if (++events === 2) {
-            window.removeEventListener("hashchange", observed);
-            resolve();
-          }
-        };
-        window.addEventListener("hashchange", observed);
-        window.location.hash = "/app/studio/templates";
-        window.location.hash = original;
-      });
+    const hashEvents: { oldURL: string; newURL: string }[] = [];
+    await page.exposeFunction(
+      "recordHandoffHashChange",
+      (event: { oldURL: string; newURL: string }) => hashEvents.push(event),
+    );
+    // Let evaluate finish before waiting for browser navigation tasks. Keep the
+    // exact native event inventory observable from the test's bounded wait.
+    const visit = await page.evaluate(() => {
+      const observer = window as typeof window & {
+        recordHandoffHashChange: (event: {
+          oldURL: string;
+          newURL: string;
+        }) => Promise<void>;
+      };
+      const original = window.location.href;
+      const target = new URL(original);
+      target.hash = "/app/studio/templates";
+      let events = 0;
+      const observed = (event: HashChangeEvent) => {
+        void observer.recordHandoffHashChange({
+          oldURL: event.oldURL,
+          newURL: event.newURL,
+        });
+        if (++events === 2) window.removeEventListener("hashchange", observed);
+      };
+      window.addEventListener("hashchange", observed);
+      window.location.hash = target.hash;
+      window.location.hash = new URL(original).hash;
+      return { original, target: target.href };
     });
+    await expect
+      .poll(() => hashEvents)
+      .toEqual([
+        { oldURL: visit.original, newURL: visit.target },
+        { oldURL: visit.target, newURL: visit.original },
+      ]);
     releasePost();
     await expect(submit).toBeEnabled();
     await expect(page).toHaveURL(/#\/app\/distribution\/new\?/);

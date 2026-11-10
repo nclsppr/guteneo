@@ -218,9 +218,16 @@ test("operator can prepare while approval and report interfaces stay restricted"
     page.locator('a[href="#/app/prepare"]:visible').first(),
   ).toBeVisible();
   await page.goto("/#/app/dispatch/request");
-  await expect(
-    page.getByText("Votre rôle ne permet pas cette action.", { exact: false }),
-  ).toBeVisible();
+  const refusal = page.getByRole("alert").filter({ hasText: "FORBIDDEN" });
+  await expect(refusal).toContainText(
+    "Cette action n’est pas autorisée pour votre compte.",
+  );
+  const technicalCode = refusal.getByText("FORBIDDEN", { exact: true });
+  await expect(technicalCode).toBeHidden();
+  await refusal.getByText("Détails", { exact: true }).click();
+  await expect(technicalCode).toBeVisible();
+  await refusal.getByText("Détails", { exact: true }).click();
+  await expect(technicalCode).toBeHidden();
   await expect(page.locator(".approval-panel")).toHaveCount(0);
   await expect(page.locator(".cancel-button")).toHaveCount(0);
   await page.goto("/#/app/usage");

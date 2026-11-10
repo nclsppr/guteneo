@@ -414,24 +414,44 @@ test("a late draft receipt cannot navigate an abandoned view", async ({
   page,
 }) => {
   const state = await fixture(page, { delayCreate: true });
-  await page.goto("/#/app/schedules/new?dispatch=dsp_schedule_ui");
-  await fillSchedule(page);
-  await page
-    .getByRole("button", { name: "Create schedule", exact: true })
-    .click();
-  await expect.poll(() => state.writes.length).toBe(1);
-  await page.evaluate(() => {
-    location.hash = "#/app/documents";
-  });
-  const response = page.waitForResponse(
-    (result) =>
-      new URL(result.url()).pathname === "/api/dispatch-schedules" &&
-      result.request().method() === "POST",
-  );
-  state.release();
-  await response;
-  await expect(page).toHaveURL(/#\/app\/documents$/);
-  expect(state.writes).toHaveLength(1);
+  try {
+    await page.goto("/#/app/schedules/new?dispatch=dsp_schedule_ui");
+    await fillSchedule(page);
+    await page
+      .getByRole("button", { name: "Create schedule", exact: true })
+      .click();
+    await expect.poll(() => state.writes.length).toBe(1);
+    await page.evaluate(() => {
+      location.hash = "#/app/documents";
+    });
+    const confirmation = page.getByRole("dialog", {
+      name: "Leave this preparation and lose unsaved changes?",
+      exact: true,
+    });
+    await expect(confirmation).toBeVisible();
+    await confirmation
+      .getByRole("button", { name: "Discard", exact: true })
+      .click();
+    await expect(page).toHaveURL(/#\/app\/documents$/);
+    const response = page.waitForResponse(
+      (result) =>
+        new URL(result.url()).pathname === "/api/dispatch-schedules" &&
+        result.request().method() === "POST",
+    );
+    state.release();
+    await response;
+    await expect(page.locator(".action-outcomes__count")).toHaveText("1");
+    await page.locator(".action-outcomes > summary").click();
+    const receipt = page
+      .locator(".action-outcomes")
+      .getByRole("link", { name: /Scheduled dispatch created/ });
+    await expect(receipt).toHaveAttribute("href", "#/app/schedules/sch_ui");
+    await expect(receipt).toContainText("sch_ui");
+    await expect(page).toHaveURL(/#\/app\/documents$/);
+    expect(state.writes).toHaveLength(1);
+  } finally {
+    state.release();
+  }
 });
 
 test("an expired future approval stays closed without cancelling or approving the original", async ({

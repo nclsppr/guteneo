@@ -184,7 +184,7 @@ test("uncertain or failed sends are surfaced on the overview", async ({
     page.getByRole("button", { name: "Importer un PDF", exact: true }),
   ).toBeVisible();
   await page.goto("/#/app");
-  const queue = page.getByRole("region", { name: "Nécessite votre attention" });
+  const queue = page.getByRole("region", { name: "À traiter" });
   await expect(queue).toBeVisible();
   await expect(
     queue.getByRole("link", { name: /^Résultat à rapprocher/ }),
@@ -207,7 +207,9 @@ test("an expired session offers a reconnection back to the same page", async ({
     page.getByRole("navigation", { name: "Afficher" }),
   ).toBeVisible();
   await context.clearCookies();
-  await page.getByRole("button", { name: "Actualiser" }).click();
+  // The first loaded page revalidates on return; the explicit refresh appears
+  // after additional pages have been loaded.
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
   const expired = page
     .getByRole("alert")
     .filter({ hasText: "Votre session a expiré." });
@@ -235,7 +237,7 @@ test("a reconnection to another workshop in another tab starts from its overview
     page.getByRole("navigation", { name: "Afficher" }),
   ).toBeVisible();
   await context.clearCookies();
-  await page.getByRole("button", { name: "Actualiser", exact: true }).click();
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
   await expect(
     page.getByRole("alert").filter({ hasText: "Votre session a expiré." }),
   ).toBeVisible();
@@ -337,7 +339,7 @@ test("coming back to the tab re-reads the list once and keeps loaded pages", asy
   ).json()) as { dispatches: { total: number } };
   await page.goto("/#/app/dispatches");
   await expect(
-    page.getByRole("heading", { name: "Le fil des envois.", exact: true }),
+    page.getByRole("heading", { name: "Envois", exact: true }),
   ).toBeVisible();
   // The outgoing overview has the same selector while navigation is pending.
   const main = page.locator("#main-content");
@@ -517,12 +519,12 @@ test("dashboard filters, confirmations and expiry copy follow the saved account 
       }),
     );
     await page.goto("/#/app/dispatches?group=approval");
-    // Returning can reuse the bounded list cache. Explicit refresh exercises
-    // the current server refusal, rather than waiting for an arbitrary TTL.
-    await page
-      .getByRole("main")
-      .getByRole("button", { name: copy.refresh, exact: true })
-      .click();
+    // The first page revalidates on focus even while the collection cache is
+    // warm. Exercise that read rather than waiting for an arbitrary TTL.
+    await expect(
+      page.getByRole("navigation", { name: copy.filter, exact: true }),
+    ).toBeVisible();
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
     await expect(page.locator(".session-expired")).toContainText(copy.expiry);
     await page.unroute("**/api/dispatches?group=approval");
   }

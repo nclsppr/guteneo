@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { expectUnreviewedServerError } from "../helpers/browser-error-notice";
 import type { PersonalSession } from "../../apps/web/src/personal-api";
 import type { DashboardAppearance } from "../../packages/contracts/src/dashboard-appearance";
 import type { SupportedLocale } from "../../packages/contracts/src/locale";
@@ -607,7 +608,9 @@ test("personal preferences persist across reload, the layout fills the width and
   await page
     .getByRole("button", { name: "Save preferences", exact: true })
     .click();
-  await expect(page.getByRole("alert")).toContainText(
+  await expectUnreviewedServerError(
+    page.getByRole("alert"),
+    "TEMPORARILY_UNAVAILABLE",
     "Synthetic profile service unavailable",
   );
   await expect(name).toHaveValue("Unsaved synthetic reader");

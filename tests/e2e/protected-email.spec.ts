@@ -1,3 +1,4 @@
+import { preparationDiagnostics } from "../helpers/preparation-diagnostics";
 import { expect, test, type Page } from "@playwright/test";
 import { PDFDocument } from "pdf-lib";
 import { cleanEmailHtml } from "../../packages/contracts/src/content";
@@ -1159,9 +1160,9 @@ for (const mode of ["message", "attachment", "protected_link"] as const) {
     );
     await page.goto("/#/app/dispatch/dispatch_protected_ui");
     const send = page.getByRole("button", {
-      name: "Approuver et envoyer",
-      exact: true,
+      name: /^Approuver et envoyer.*€/,
     });
+    await expect(send).toContainText("€");
     await expect(send).toBeDisabled();
     await page
       .getByRole("checkbox", { name: /J’ai vérifié le contenu/ })
@@ -1172,13 +1173,17 @@ for (const mode of ["message", "attachment", "protected_link"] as const) {
       .check();
     await send.click();
     const resume = page.getByRole("button", {
-      name: "Confirmer l’envoi",
-      exact: true,
+      name: /^Confirmer l’envoi.*€/,
     });
     await expect(resume).toBeVisible();
-    await expect(page.getByRole("alert")).toContainText(
-      "Reprenez ce même envoi",
-    );
+    await expect(resume).toContainText("€");
+    const failure = page.getByRole("alert");
+    await expect(failure).toContainText("L’opération n’a pas pu aboutir");
+    await expect(failure).not.toContainText("Reprenez ce même envoi");
+    const details = failure.locator(".error-details");
+    await expect(details).not.toHaveAttribute("open");
+    await details.locator("summary").click();
+    await expect(details.getByText("NETWORK", { exact: true })).toBeVisible();
     expect(requests.map((request) => request.action)).toEqual([
       "approve",
       "confirm",
@@ -1246,3 +1251,8 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
       });
   });
 }
+
+// Retain the failing assertions and expose only finite synthetic form diagnostics.
+test.afterEach(async ({ page }, testInfo) => {
+  await preparationDiagnostics(page, testInfo);
+});
