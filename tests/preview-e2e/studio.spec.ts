@@ -27,6 +27,7 @@ test("public Studio exposes read-only libraries and details without business req
   const studioNavigation = page.getByRole("navigation", {
     name: "Studio navigation",
     exact: true,
+    includeHidden: true,
   });
   const openStudioNavigation = () =>
     test.step("Open the current Studio navigation", async () => {
