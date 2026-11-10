@@ -218,38 +218,6 @@ export function TemplateLibrary({
           </button>
         </form>
       )}
-      <h2>{msg("Demo templates")}</h2>
-      <p className="studio-demo-intro">
-        {msg(
-          "These examples contain only fictional data. Create a private copy, edit it in the studio and delete it when you no longer need it.",
-        )}
-      </p>
-      <div className="studio-gallery">
-        {templateGallery().map(({ id, envelope }) => (
-          <article key={id}>
-            <div className="studio-miniature" aria-hidden="true">
-              <FileText size={17} />
-              <span />
-              <span />
-              <span />
-            </div>
-            <h3>{msg(envelope.name)}</h3>
-            <p>{msg(envelope.description ?? "")}</p>
-            <button
-              className="button"
-              disabled={action.pending || !canPrepare}
-              aria-label={msg(
-                "Create my private copy of {0}",
-                msg(envelope.name),
-              )}
-              onClick={() => void create(galleryCopy(envelope))}
-            >
-              {msg("Create my private copy ")}
-              <ArrowRight size={17} />
-            </button>
-          </article>
-        ))}
-      </div>
       <div className="section-toolbar">
         <h2 ref={libraryHeading} tabIndex={-1}>
           {msg("Your templates")}
@@ -361,6 +329,38 @@ export function TemplateLibrary({
           )}
         </form>
       )}
+      <h2>{msg("Demo templates")}</h2>
+      <p className="studio-demo-intro">
+        {msg(
+          "These examples contain only fictional data. Create a private copy, edit it in the studio and delete it when you no longer need it.",
+        )}
+      </p>
+      <div className="studio-gallery">
+        {templateGallery().map(({ id, envelope }) => (
+          <article key={id}>
+            <div className="studio-miniature" aria-hidden="true">
+              <FileText size={17} />
+              <span />
+              <span />
+              <span />
+            </div>
+            <h3>{msg(envelope.name)}</h3>
+            <p>{msg(envelope.description ?? "")}</p>
+            <button
+              className="button"
+              disabled={action.pending || !canPrepare}
+              aria-label={msg(
+                "Create my private copy of {0}",
+                msg(envelope.name),
+              )}
+              onClick={() => void create(galleryCopy(envelope))}
+            >
+              {msg("Create my private copy ")}
+              <ArrowRight size={17} />
+            </button>
+          </article>
+        ))}
+      </div>
     </>
   );
 }
