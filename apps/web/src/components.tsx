@@ -42,6 +42,7 @@ import {
 import { useCurrentClientView } from "./client-write-recovery";
 import {
   BEFORE_WORKSPACE_NAVIGATION,
+  clientNavigationRevision,
   subscribeClientNavigation,
 } from "./client-navigation";
 import {
@@ -133,12 +134,16 @@ export function WorkspaceRouteProvider({
 export function useRouteState() {
   const [route, setRoute] = useState(readRoute);
   const [pending, startTransition] = useTransition();
+  const focusClaim = useRef<
+    { route: string; authority: string; cancelled: boolean } | undefined
+  >({ route, authority: sessionAuthorityKey(), cancelled: false });
   useEffect(() => {
     const unsubscribeNavigation = subscribeClientNavigation(() => undefined);
     let acceptedHash = window.location.hash;
     let acceptedRoute = readRoute();
-    const update = () => {
+    const update = (event?: Event) => {
       const nextRoute = readRoute();
+      const fragmentChanged = window.location.hash !== acceptedHash;
       if (nextRoute !== acceptedRoute) {
         // Let the current screen veto navigation before React replaces it.
         // This covers links, programmatic navigation and browser history alike.
@@ -151,31 +156,93 @@ export function useRouteState() {
           window.history.replaceState(window.history.state, "", restore);
           return;
         }
+        focusClaim.current = {
+          route: nextRoute,
+          authority: sessionAuthorityKey(),
+          cancelled: false,
+        };
       }
       acceptedHash = window.location.hash;
       acceptedRoute = nextRoute;
+      // Guard the earlier history event, then let the native fragment change
+      // settle before starting the route transition and its eventual focus.
+      if (event?.type === "popstate" && fragmentChanged) return;
       startTransition(() => setRoute(nextRoute));
     };
+    const newerInteraction = () => {
+      if (focusClaim.current) focusClaim.current.cancelled = true;
+    };
     window.addEventListener("hashchange", update);
+    // A fragment history entry can emit popstate before hashchange. Run the
+    // same synchronous veto before the navigation clock observes that entry.
+    window.addEventListener("popstate", update);
+    // A delayed route commit must not steal a newer interaction. Safari may
+    // open a clicked panel without moving focus, so focus comparison is not enough.
+    document.addEventListener("pointerdown", newerInteraction, true);
+    document.addEventListener("keydown", newerInteraction, true);
+    document.addEventListener("focusin", newerInteraction, true);
+    document.addEventListener(NAVIGATION_PANEL_OPEN, newerInteraction);
     // A fragment may change after the first render but before this effect.
     // Catch up after subscribing without changing the initial scroll position.
     setRoute(readRoute());
     return () => {
       unsubscribeNavigation();
       window.removeEventListener("hashchange", update);
+      window.removeEventListener("popstate", update);
+      document.removeEventListener("pointerdown", newerInteraction, true);
+      document.removeEventListener("keydown", newerInteraction, true);
+      document.removeEventListener("focusin", newerInteraction, true);
+      document.removeEventListener(NAVIGATION_PANEL_OPEN, newerInteraction);
     };
   }, [startTransition]);
   useLayoutEffect(() => {
-    if (!route.startsWith("/app")) return;
+    const claim = focusClaim.current;
+    if (!route.startsWith("/app")) {
+      if (claim?.route === route) focusClaim.current = undefined;
+      return;
+    }
+    if (!claim || pending || claim.route !== route) return;
     // Wait for the requested screen to commit before scrolling its content.
     window.scrollTo(0, 0);
-    // Route changes replace the content without a browser navigation. Keep
-    // keyboard and screen-reader users at the newly opened workspace page.
-    if (document.activeElement?.closest('[role="alert"]')) return;
-    const content = document.getElementById("main-content");
-    if (!content?.contains(document.activeElement))
-      content?.focus({ preventScroll: true });
-  }, [route]);
+    if (claim.cancelled || readRoute() !== route) {
+      if (focusClaim.current === claim) focusClaim.current = undefined;
+      return;
+    }
+    const owned = claim;
+    let cancelled = false;
+    let frame: number | undefined;
+    // Let this event's navigation-clock microtasks settle, then cross one
+    // render boundary after pending/inert clears. This is one owned attempt.
+    queueMicrotask(() => {
+      if (cancelled || focusClaim.current !== owned) return;
+      const navigation = clientNavigationRevision();
+      frame = requestAnimationFrame(() => {
+        if (focusClaim.current !== owned) return;
+        focusClaim.current = undefined;
+        if (
+          cancelled ||
+          owned.cancelled ||
+          owned.authority !== sessionAuthorityKey() ||
+          navigation !== clientNavigationRevision() ||
+          readRoute() !== route ||
+          document.activeElement?.closest('[role="alert"]')
+        )
+          return;
+        const content = document.getElementById("main-content");
+        if (
+          content?.isConnected &&
+          !content.inert &&
+          content.getAttribute("aria-busy") !== "true" &&
+          !content.contains(document.activeElement)
+        )
+          content.focus({ preventScroll: true });
+      });
+    });
+    return () => {
+      cancelled = true;
+      if (frame !== undefined) cancelAnimationFrame(frame);
+    };
+  }, [route, pending]);
   return { route, pending };
 }
 export function useRoute() {

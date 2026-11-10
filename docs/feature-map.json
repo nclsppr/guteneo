@@ -50,7 +50,8 @@
         "Account deletion request and separate default-off private operator processing: a frozen reviewed plan blocks unsafe workspace closure and unresolved liabilities, revokes all authentication, verifies exact storage/identity erasure and delivered completion-notice evidence, minimizes the retained historical skeleton, and never calls a disabled profile completed deletion; no public or MCP processor authority",
         "Browser session-expiry events carry their request session revision; a stale 401 after session replacement cannot expire the current account, while current-session failures still trigger recovery",
         "The shared browser authority identity includes person, workspace, effective role/options, credential revision and document-policy facts, with an opaque in-memory key; A→B→A visits cannot revive obsolete requests or private cache entries",
-        "Account deletion explicitly purges attributed saved contacts, retires pending schedules/future grants and crypto-shreds webhook configuration under reviewed retention; accepted or uncertain provider liabilities remain genuine blockers, not a blanket ban on new feature owners"
+        "Account deletion explicitly purges attributed saved contacts, retires pending schedules/future grants and crypto-shreds webhook configuration under reviewed retention; accepted or uncertain provider liabilities remain genuine blockers, not a blanket ban on new feature owners",
+        "Application and workspace panels own the accepted monotonic navigation revision and current authority. A delayed page commit cannot close a newly opened menu or steal its newer focus; accepted leave-and-return or authority replacement closes obsolete panels, while a vetoed intent preserves them. Safari pointer opening, Escape, outside/peer dismissal and normal destination focus remain available without extra account requests."
       ],
       "status": "Unified personal account and optional workspace implementation; migrations, aligned document policy, Auth0 configuration and connected production qualification require separate evidence.",
       "tests": [
@@ -80,7 +81,8 @@
         "tests/integration/account-deletion.test.ts",
         "tests/security/account-deletion-operator.test.mjs",
         "tests/unit/client-foundations.test.ts",
-        "tests/unit/action-outcomes.test.ts"
+        "tests/unit/action-outcomes.test.ts",
+        "tests/e2e/workspace-switcher-layering.spec.ts"
       ],
       "surfaces": "Personal browser authority and workspace/native sessions; REST/MCP resource OAuth with explicit same-tenant issuer trust, independently selected discovery and canonical identity/connection/mandate keys.",
       "id": "identity",
@@ -2000,10 +2002,10 @@
       "id": "J54",
       "title": "Continue browser work under current identity and visit",
       "actor": "Browser user or developer maintaining an asynchronous flow",
-      "steps": "Start one synchronously locked action → cross every continuation through view.wait → observe shared authority/navigation revisions → invalidate obsolete results after leave-and-return or identity/policy replacement → share only allowlisted bounded collection reads → pause hidden-page reads and use bounded progress backoff → explicitly recover through the owning current view.",
+      "steps": "Start one synchronously locked action → cross every continuation through view.wait → observe shared authority/navigation revisions → invalidate obsolete results after leave-and-return or identity/policy replacement → share only allowlisted bounded collection reads → pause hidden-page reads and use bounded progress backoff → explicitly recover through the owning current view. During a pending page load, open a workspace/application panel under the already accepted navigation; let the older route commit while keeping the newer panel and its focus usable.",
       "branch": "Shared client foundations; server authority remains final",
       "doc": "WEB_APPLICATIONS.md",
-      "failure": "The action lock is not send idempotency. Cache is memory-only, five seconds, sixty-four entries and bounded value size; detail/readiness/approval models bypass it. Mutations and authority changes invalidate it, refusals clear private data, and no polling loop retries a business mutation or uncertain provider outcome."
+      "failure": "The action lock is not send idempotency. Cache is memory-only, five seconds, sixty-four entries and bounded value size; detail/readiness/approval models bypass it. Mutations and authority changes invalidate it, refusals clear private data, and no polling loop retries a business mutation or uncertain provider outcome. Menu ownership uses accepted navigation and current authority rather than a delayed committed route. Accepted A→B→A or identity replacement closes obsolete panels; a veto preserves them. Destination focus cannot override a newer user interaction, including a Safari pointer-opened panel."
     },
     {
       "id": "J55",

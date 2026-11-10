@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**28 domains · 503 features · 55 journeys · 96 documented REST operations · 92 MCP tools**
+**28 domains · 504 features · 55 journeys · 96 documented REST operations · 92 MCP tools**
 Updated 2026-11-10.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -14,7 +14,7 @@ Start here to find a feature, its authority and its technical owner. Read [repos
 mindmap
   root((Guteneo))
     Access
-      Access and identity (42)
+      Access and identity (43)
       Team and responsibilities (12)
       Workspace administration and reports (18)
     Create
@@ -51,7 +51,7 @@ mindmap
 
 ### Access
 
-- [Access and identity](#identity) — 42 features; browser-session.
+- [Access and identity](#identity) — 43 features; browser-session.
 - [Team and responsibilities](#team) — 12 features; browser-session.
 - [Workspace administration and reports](#administration) — 18 features; browser-session.
 
@@ -228,10 +228,11 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Browser session-expiry events carry their request session revision; a stale 401 after session replacement cannot expire the current account, while current-session failures still trigger recovery
 - The shared browser authority identity includes person, workspace, effective role/options, credential revision and document-policy facts, with an opaque in-memory key; A→B→A visits cannot revive obsolete requests or private cache entries
 - Account deletion explicitly purges attributed saved contacts, retires pending schedules/future grants and crypto-shreds webhook configuration under reviewed retention; accepted or uncertain provider liabilities remain genuine blockers, not a blanket ban on new feature owners
+- Application and workspace panels own the accepted monotonic navigation revision and current authority. A delayed page commit cannot close a newly opened menu or steal its newer focus; accepted leave-and-return or authority replacement closes obsolete panels, while a vetoed intent preserves them. Safari pointer opening, Escape, outside/peer dismissal and normal destination focus remain available without extra account requests.
 
 **Contract:** [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · **Implementation:** [apps/api/src/auth.ts](../apps/api/src/auth.ts)
 
-**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/mcp-auth0-domain.test.ts](../tests/unit/mcp-auth0-domain.test.ts), [tests/unit/postal-authority.test.ts](../tests/unit/postal-authority.test.ts), [tests/integration/expert-status.test.ts](../tests/integration/expert-status.test.ts), [tests/unit/workspace-entry.test.ts](../tests/unit/workspace-entry.test.ts), [tests/integration/workspace-invitations.test.ts](../tests/integration/workspace-invitations.test.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/unit/api-async.test.ts](../tests/unit/api-async.test.ts), [tests/security/auth0-email-branding.test.mjs](../tests/security/auth0-email-branding.test.mjs), [tests/auth0-email-e2e/email.spec.ts](../tests/auth0-email-e2e/email.spec.ts), [tests/integration/account-deletion.test.ts](../tests/integration/account-deletion.test.ts), [tests/security/account-deletion-operator.test.mjs](../tests/security/account-deletion-operator.test.mjs), [tests/unit/client-foundations.test.ts](../tests/unit/client-foundations.test.ts), [tests/unit/action-outcomes.test.ts](../tests/unit/action-outcomes.test.ts)
+**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/mcp-auth0-domain.test.ts](../tests/unit/mcp-auth0-domain.test.ts), [tests/unit/postal-authority.test.ts](../tests/unit/postal-authority.test.ts), [tests/integration/expert-status.test.ts](../tests/integration/expert-status.test.ts), [tests/unit/workspace-entry.test.ts](../tests/unit/workspace-entry.test.ts), [tests/integration/workspace-invitations.test.ts](../tests/integration/workspace-invitations.test.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/unit/api-async.test.ts](../tests/unit/api-async.test.ts), [tests/security/auth0-email-branding.test.mjs](../tests/security/auth0-email-branding.test.mjs), [tests/auth0-email-e2e/email.spec.ts](../tests/auth0-email-e2e/email.spec.ts), [tests/integration/account-deletion.test.ts](../tests/integration/account-deletion.test.ts), [tests/security/account-deletion-operator.test.mjs](../tests/security/account-deletion-operator.test.mjs), [tests/unit/client-foundations.test.ts](../tests/unit/client-foundations.test.ts), [tests/unit/action-outcomes.test.ts](../tests/unit/action-outcomes.test.ts), [tests/e2e/workspace-switcher-layering.spec.ts](../tests/e2e/workspace-switcher-layering.spec.ts)
 
 
 
@@ -1854,9 +1855,9 @@ Open Commands with Cmd/Ctrl+K → search permitted static destinations → use k
 
 **Actor:** Browser user or developer maintaining an asynchronous flow. **Branch:** Shared client foundations; server authority remains final.
 
-Start one synchronously locked action → cross every continuation through view.wait → observe shared authority/navigation revisions → invalidate obsolete results after leave-and-return or identity/policy replacement → share only allowlisted bounded collection reads → pause hidden-page reads and use bounded progress backoff → explicitly recover through the owning current view.
+Start one synchronously locked action → cross every continuation through view.wait → observe shared authority/navigation revisions → invalidate obsolete results after leave-and-return or identity/policy replacement → share only allowlisted bounded collection reads → pause hidden-page reads and use bounded progress backoff → explicitly recover through the owning current view. During a pending page load, open a workspace/application panel under the already accepted navigation; let the older route commit while keeping the newer panel and its focus usable.
 
-**Failure/recovery:** The action lock is not send idempotency. Cache is memory-only, five seconds, sixty-four entries and bounded value size; detail/readiness/approval models bypass it. Mutations and authority changes invalidate it, refusals clear private data, and no polling loop retries a business mutation or uncertain provider outcome.
+**Failure/recovery:** The action lock is not send idempotency. Cache is memory-only, five seconds, sixty-four entries and bounded value size; detail/readiness/approval models bypass it. Mutations and authority changes invalidate it, refusals clear private data, and no polling loop retries a business mutation or uncertain provider outcome. Menu ownership uses accepted navigation and current authority rather than a delayed committed route. Accepted A→B→A or identity replacement closes obsolete panels; a veto preserves them. Destination focus cannot override a newer user interaction, including a Safari pointer-opened panel.
 
 [Detailed contract](WEB_APPLICATIONS.md).
 

@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "date": "2026-11-10",
+  "baseMain": "fe4384a9ef86a1526efd72e1052c8c79a50d8dd0",
+  "qualification": "Local synthetic browser fixtures and unit assertions; hosted correction and production publication remain separate.",
+  "failure": {
+    "run": "https://github.com/nclsppr/guteneo/actions/runs/42747940371",
+    "job": 129605353488,
+    "case": "workspace and application choices remain clickable beside the closed account control",
+    "evidence": "Menu opens while old Documents is inert; deferred Overview commit closes it. Held-module reproduction fails before correction without another hashchange."
+  },
+  "candidateBuild": {
+    "mode": "production-style SSR",
+    "sourceDirty": true,
+    "assets": 422,
+    "sourceSnapshotSha256": "adf9c1fc5086c5af60767cf7a1fb3038d60c75a90ad6694ced85884fca4076d5",
+    "assetsSha256": "767b7c37c1b61b786a911756fee5e6df1545a46315cf81437f973a88542bfc24"
+  },
+  "localBrowserChecks": [
+    {
+      "scope": "focused_browser",
+      "passed": 57,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "automaticRetries": 0,
+      "rawReportSha256": "4a01f62aa11a778e6e60c84a192d6535de1f500279052860d3dbe11392004f67"
+    },
+    {
+      "scope": "iphone_independent_repetitions",
+      "passed": 20,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "automaticRetries": 0,
+      "rawReportSha256": "78385939c2dddb6363ed22b908ad44da7b41293cf657026365e03a220407ea79"
+    }
+  ],
+  "focusedUnitAssertions": 36,
+  "boundaries": [
+    "Delayed real Overview module; newer menu survives and normal Studio focus works",
+    "Accepted A-B-A and real Back/Forward close obsolete panels",
+    "Router veto precedes native popstate observation and preserves current panel",
+    "Same-address authority replacement closes obsolete panel",
+    "New input cancels one owned render-frame focus claim; retired claims never revive on a no-op acknowledgement",
+    "No extra account reads, unexpected routes or duplicate workspace writes"
+  ],
+  "native": {
+    "run": "https://github.com/nclsppr/guteneo/actions/runs/42747940148/attempts/2",
+    "sourceCommit": "fe4384a9ef86a1526efd72e1052c8c79a50d8dd0",
+    "nativeTree": "a81f97703b91e49a3c833492c38ee5a8041d9f94",
+    "workflowBlob": "62e06f81d8ad6a21634dedb0fff7445d04666d78",
+    "unitPassed": 46,
+    "uiPassed": 10,
+    "archive": "unsigned",
+    "failedFirstAttemptPreserved": true,
+    "distributionProven": false
+  },
+  "limits": [
+    "No real communication or authenticated hosted journey",
+    "No production schema/runtime mutation before this candidate qualification",
+    "A source tag or unsigned archive is not deployed/activated/App Store proof"
+  ]
+}

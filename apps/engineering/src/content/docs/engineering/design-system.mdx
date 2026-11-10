@@ -109,6 +109,16 @@ the cancelable workspace-navigation event. The
 [workspace contract](https://github.com/nclsppr/guteneo/blob/main/docs/DASHBOARD_V2.md#compact-sidebar-and-account-menu--29-october-2026-candidate)
 records the measurements.
 
+An opened application or workspace panel belongs to the accepted navigation and
+current account authority. A delayed page commit must not close a panel the
+person opened afterward, nor reclaim focus from their newer interaction. This
+also applies when Safari leaves a pointer-clicked button unfocused. Use the
+shared monotonic navigation clock: accepted leave-and-return closes old panels,
+while a refused dirty-form navigation preserves them. Keep normal destination
+focus, Escape, outside press and peer-panel dismissal. Regression tests hold the
+actual requested module until the panel opens, then release it and verify the
+same pointer and keyboard path without timing sleeps or extra account reads.
+
 Start the requested workshop screen's code alongside its initial session read.
 Keep private data and useful content behind the authenticated authority gate;
 downloading a static UI module grants no access. Do not import speculative

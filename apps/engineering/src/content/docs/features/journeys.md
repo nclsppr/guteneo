@@ -437,9 +437,9 @@ Open Commands with Cmd/Ctrl+K → search permitted static destinations → use k
 
 **Actor:** Browser user or developer maintaining an asynchronous flow · **Branch:** Shared client foundations; server authority remains final
 
-Start one synchronously locked action → cross every continuation through view.wait → observe shared authority/navigation revisions → invalidate obsolete results after leave-and-return or identity/policy replacement → share only allowlisted bounded collection reads → pause hidden-page reads and use bounded progress backoff → explicitly recover through the owning current view.
+Start one synchronously locked action → cross every continuation through view.wait → observe shared authority/navigation revisions → invalidate obsolete results after leave-and-return or identity/policy replacement → share only allowlisted bounded collection reads → pause hidden-page reads and use bounded progress backoff → explicitly recover through the owning current view. During a pending page load, open a workspace/application panel under the already accepted navigation; let the older route commit while keeping the newer panel and its focus usable.
 
-**Failure and recovery:** The action lock is not send idempotency. Cache is memory-only, five seconds, sixty-four entries and bounded value size; detail/readiness/approval models bypass it. Mutations and authority changes invalidate it, refusals clear private data, and no polling loop retries a business mutation or uncertain provider outcome.
+**Failure and recovery:** The action lock is not send idempotency. Cache is memory-only, five seconds, sixty-four entries and bounded value size; detail/readiness/approval models bypass it. Mutations and authority changes invalidate it, refusals clear private data, and no polling loop retries a business mutation or uncertain provider outcome. Menu ownership uses accepted navigation and current authority rather than a delayed committed route. Accepted A→B→A or identity replacement closes obsolete panels; a veto preserves them. Destination focus cannot override a newer user interaction, including a Safari pointer-opened panel.
 
 ## J55: Qualify the shared interface and independent modules
 
