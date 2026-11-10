@@ -57,6 +57,24 @@ lint, production-style build and documentation/engineering checks passed. The
 labels the local candidate dirty build honestly; these are synthetic local
 results, not production or fresh hosted qualification.
 
+Fresh [PR #159 qualification](https://github.com/nclsppr/guteneo/actions/runs/42752541710)
+then identified two test-driver ordering assumptions without another production
+code defect. One mobile harness froze every application frame but expected the
+new owned route-focus frame to have run. It now advances one real callback batch,
+keeps nested callbacks held, and retains both positive main focus and newer
+summary-focus precedence. The same-destination, probe-count and empty-queue checks
+remain. The other trace showed `selectOption` targeting the outgoing inert
+Overview's page-size control before Dispatches committed; the test now waits for
+the actual Dispatches heading and interactive main, then keeps every row-count,
+one-read and loaded-page retention assertion.
+
+The test-only correction passed the full mobile preview file (10 passes and four
+unchanged desktop exclusions), all 57 navigation cases, twenty independent iPhone
+switcher repetitions, five amended frame-test repetitions and the dashboard case
+on all three profiles. No production source changed, no test identity or skip was
+added, and neither failed hosted shard was relabeled as passing. The next exact
+head's hosted report owns final qualification.
+
 Separately, the first native UI test on that main run timed out inside Xcode's
 application-launch helper before its assertions; all 46 unit and nine remaining
 UI tests passed. The preceding PR run had passed all 56 tests and unsigned

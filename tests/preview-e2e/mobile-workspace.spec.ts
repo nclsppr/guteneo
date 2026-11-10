@@ -211,11 +211,16 @@ test("mobile navigation preserves restored summary focus after deferred route fr
     await expect(page.locator("main h1")).toHaveText("Qui prend la plume ?");
     await expect(nav).toBeHidden();
     await frames.settle();
+    // The route's legitimate focus now owns an application RAF. Advance one
+    // frame explicitly; the helper's nested probe must remain held afterward.
+    const advanced = await frames.stepOneFrame();
+    expect(advanced.probes).toBe(1);
+    expect(advanced.pending).toBeGreaterThanOrEqual(1);
     await expect(page.locator("main")).toBeFocused();
     await toggle.focus();
     await expect(toggle).toBeFocused();
     const resumed = await frames.resume();
-    expect(resumed.executed).toBeGreaterThanOrEqual(2);
+    expect(advanced.executed + resumed.executed).toBeGreaterThanOrEqual(2);
     expect(resumed.probes).toBe(2);
     expect(resumed.pending).toBe(0);
     await expect(toggle).toBeFocused();
@@ -233,6 +238,29 @@ test("mobile navigation preserves restored summary focus after deferred route fr
   await toggle.focus();
   await page.keyboard.press("Enter");
   await expect(nav).toBeVisible();
+
+  await test.step("new summary focus cancels a still-held route focus", async () => {
+    const staleFrames = await deferAnimationFrames(page);
+    try {
+      await nav.getByRole("link", { name: "Documents", exact: true }).click();
+      await expect(page.locator("main h1")).toHaveText("La matière première.");
+      await expect(nav).toBeHidden();
+      await staleFrames.settle();
+      // No application callback has run. Newer focus owns the summary before
+      // both the legitimate route frame and any older callbacks are released.
+      await toggle.focus();
+      await expect(toggle).toBeFocused();
+      const resumed = await staleFrames.resume();
+      expect(resumed.executed).toBeGreaterThanOrEqual(3);
+      expect(resumed.probes).toBe(2);
+      expect(resumed.pending).toBe(0);
+      await expect(toggle).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(nav).toBeVisible();
+    } finally {
+      await staleFrames.restore();
+    }
+  });
 });
 
 test("mobile tables retain all fields without horizontal scrolling at 320px and in landscape", async ({
