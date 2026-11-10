@@ -28,6 +28,8 @@ export function FileInput({
   const selectionId = `${id ?? generatedId}-selection`;
   const input = useRef<HTMLInputElement>(null);
   const [names, setNames] = useState<string[]>([]);
+  // The native input covers the zone, so a dropped file is a normal selection.
+  const [dragging, setDragging] = useState(false);
   useImperativeHandle(ref, () => input.current!, []);
   useEffect(() => {
     const form = input.current?.form;
@@ -39,6 +41,10 @@ export function FileInput({
     <span
       className={["file-input", className].filter(Boolean).join(" ")}
       data-disabled={disabled || undefined}
+      data-dragging={dragging || undefined}
+      onDragEnter={() => setDragging(true)}
+      onDragLeave={() => setDragging(false)}
+      onDrop={() => setDragging(false)}
     >
       <input
         {...props}
@@ -67,6 +73,11 @@ export function FileInput({
       >
         {names.length ? names.join(", ") : t.fileInput.empty}
       </span>
+      {!names.length && (
+        <span className="file-input-drop" aria-hidden="true">
+          {t.fileInput.drop}
+        </span>
+      )}
     </span>
   );
 }

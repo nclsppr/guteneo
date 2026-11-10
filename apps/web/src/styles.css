@@ -1029,11 +1029,21 @@ ol {
   min-width: 0;
   min-height: var(--control-height);
   padding: 8px;
-  border: 1px solid var(--control-line);
+  border: 1px dashed var(--control-line);
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--ink);
   cursor: pointer;
+}
+/* Every file field is a drop zone. */
+.file-input[data-dragging] {
+  border-color: var(--blue);
+  background: var(--blue-tint);
+}
+.file-input-drop {
+  flex-basis: 100%;
+  font-size: var(--text-xs);
+  color: var(--muted);
 }
 .file-input .file-input-native {
   position: absolute;
@@ -1240,11 +1250,13 @@ ol {
 }
 .channel-selector span {
   display: flex;
-  min-height: 45px;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 76px;
   align-items: center;
   justify-content: center;
   border: 1px solid var(--line);
-  font-size: 12px;
+  font-size: 14px;
   border-radius: var(--radius);
   background: var(--surface);
 }

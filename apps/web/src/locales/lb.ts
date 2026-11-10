@@ -18,6 +18,7 @@ export const lb: Copy = {
   preview: "Virschau",
   download: "PDF opmaachen",
   fileInput: {
+    drop: "Dir kënnt d’Datei och hei ofleeën.",
     choose: "Eng Datei wielen",
     chooseMultiple: "Dateie wielen",
     empty: "Keng Datei ausgewielt",

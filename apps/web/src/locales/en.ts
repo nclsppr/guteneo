@@ -18,6 +18,7 @@ export const en: Copy = {
   preview: "Preview",
   download: "Open PDF",
   fileInput: {
+    drop: "You can also drop the file here.",
     choose: "Choose a file",
     chooseMultiple: "Choose files",
     empty: "No file selected",

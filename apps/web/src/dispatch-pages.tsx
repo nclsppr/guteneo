@@ -37,6 +37,9 @@ import {
   ArrowLeft,
   ShieldCheck,
   WarningCircle,
+  Printer,
+  EnvelopeSimple,
+  Mailbox,
 } from "@phosphor-icons/react";
 import {
   api,
@@ -860,7 +863,7 @@ export function PrepareDispatch({
       new URLSearchParams(route.split("?")[1]).get("channel") ?? "",
     )
       ? (new URLSearchParams(route.split("?")[1]).get("channel") as Channel)
-      : "fax",
+      : lastChannel(),
   );
   const [documentId, setDocumentId] = useState(initialDocument);
   const [emailDeliveryMode, setEmailDeliveryMode] = useState<DocumentEmailMode>(
@@ -1201,10 +1204,20 @@ export function PrepareDispatch({
                   checked={channel === c}
                   onChange={() => {
                     setChannel(c);
+                    rememberChannel(c);
                     setSenderId("");
                   }}
                 />
-                <span>{t.channels[c]}</span>
+                <span>
+                  {c === "fax" ? (
+                    <Printer size={22} weight="light" aria-hidden="true" />
+                  ) : c === "email" ? (
+                    <EnvelopeSimple size={22} weight="light" aria-hidden="true" />
+                  ) : (
+                    <Mailbox size={22} weight="light" aria-hidden="true" />
+                  )}
+                  {t.channels[c]}
+                </span>
               </label>
             ))}
           </fieldset>
@@ -2783,4 +2796,22 @@ function DispatchSteps({
       ))}
     </ol>
   );
+}
+
+// The last channel a person chose opens first next time; it names no content.
+const LAST_CHANNEL_KEY = "guteneo.prepare.channel";
+function lastChannel(): Channel {
+  try {
+    const stored = window.localStorage.getItem(LAST_CHANNEL_KEY);
+    return stored === "email" || stored === "postal" ? stored : "fax";
+  } catch {
+    return "fax";
+  }
+}
+function rememberChannel(channel: Channel) {
+  try {
+    window.localStorage.setItem(LAST_CHANNEL_KEY, channel);
+  } catch {
+    // Storage can be unavailable; the default channel then applies.
+  }
 }

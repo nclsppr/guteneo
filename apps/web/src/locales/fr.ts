@@ -16,6 +16,7 @@ export const fr = {
   preview: "Aperçu",
   download: "Ouvrir le PDF",
   fileInput: {
+    drop: "Vous pouvez aussi déposer le fichier ici.",
     choose: "Choisir un fichier",
     chooseMultiple: "Choisir des fichiers",
     empty: "Aucun fichier sélectionné",
