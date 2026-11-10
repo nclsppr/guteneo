@@ -252,7 +252,8 @@ export function Overview({ session }: { session: Session }) {
   const contacts = (
     <WorkspaceContacts key="contacts" session={session} compact />
   );
-  const attentionNotice = attention > 0 && (
+  // With report access the amber figure already carries this alert.
+  const attentionNotice = attention > 0 && !permissions.viewReports && (
     <div
       key="attention"
       className="notice warning overview-attention"
@@ -271,16 +272,9 @@ export function Overview({ session }: { session: Session }) {
   );
   const assistantStart =
     permissions.prepareDispatches &&
-    (dailyOverview ? (
-      <div className="dashboard-daily-shortcuts" key="assistant">
-        <a className="text-link" href="#/app/connection">
-          {msg("View my connections")}
-          <ArrowRight size={17} aria-hidden="true" />
-        </a>
-      </div>
-    ) : (
+    !dailyOverview && (
       <OverviewAssistantStart key="assistant" session={session} />
-    ));
+    );
   const studioLinks = !isPublicPreview && permissions.prepareDispatches && (
     <nav
       key="studio"

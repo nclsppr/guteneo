@@ -1,5 +1,4 @@
 import { msg } from "./messages";
-import { DistributionRoadmap } from "./email-composer";
 import { ArrowRight } from "@phosphor-icons/react";
 import { t } from "./locale";
 import { workspaceEntryHref } from "./auth-navigation";
@@ -126,7 +125,6 @@ export function WelcomePricing({
           </table>
         </div>
         <p className="price-qualification">{customerPricing.note}</p>
-        <DistributionRoadmap />
         <PdfCheckPublicOffer availability={pdfChecks} />
       </div>
     </section>

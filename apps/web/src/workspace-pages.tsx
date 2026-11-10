@@ -23,7 +23,7 @@ import {
 } from "./api";
 import { t } from "./locale";
 import { ProtectedDocumentChoice } from "./protected-document";
-import { DistributionRoadmap, EmailComposer } from "./email-composer";
+import { EmailComposer } from "./email-composer";
 import type { PostalSetup } from "../../../packages/contracts/src/postal-setup";
 import { PostalSetupPanel } from "./postal-setup-panel";
 import {
@@ -149,7 +149,6 @@ export function Campaigns({
   return (
     <>
       <PageHeading title={t.nav.campaigns} />
-      <DistributionRoadmap />
       {!isPublicPreview && canPrepare && (
         <p className="notice info">
           {msg("For a personalised PDF per customer,")}{" "}
