@@ -104,6 +104,7 @@
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "13.1.0",
+    "@axe-core/playwright": "^4.14.0",
     "@cloudflare/workers-types": "^5.20261023.1",
     "@e2e-dev/web": "0.15.3",
     "@playwright/test": "^1.64.1",
