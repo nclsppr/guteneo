@@ -104,7 +104,7 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
       }),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: copy(locale, "Le monde de guteneo.") }),
+      page.getByRole("heading", { name: copy(locale, "Géographie") }),
     ).toBeVisible();
     const languageAssets = await page.evaluate(() =>
       performance
@@ -357,7 +357,7 @@ test("automatic account language and denied reads use client-owned messages", as
   );
   await expect(page.getByRole("alert")).not.toContainText("Synthèse");
   await expect(
-    page.getByRole("heading", { name: copy("en", "Le monde de guteneo.") }),
+    page.getByRole("heading", { name: copy("en", "Géographie") }),
   ).toHaveCount(0);
 });
 

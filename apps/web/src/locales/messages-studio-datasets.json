@@ -19,11 +19,6 @@
     "D’Datei ass méi grouss wéi 5 MB."
   ],
   "Données": ["Data", "Daten", "Donnéeën"],
-  "Importez votre fichier tel qu’il est. Choisissez les feuilles, les colonnes et les regroupements avant de générer vos documents.": [
-    "Import your file as it is. Choose sheets, columns and groups before generating your documents.",
-    "Importieren Sie Ihre Datei unverändert. Wählen Sie Blätter, Spalten und Gruppierungen aus, bevor Sie Ihre Dokumente erstellen.",
-    "Importéiert Är Datei esou wéi se ass. Wielt Blieder, Kolonnen a Gruppéierungen, ier Dir Är Dokumenter erstellt."
-  ],
   "CSV, Excel .xlsx, XML ou JSON. Le fichier original reste privé. L’import n’appelle aucune IA et ne prépare aucun envoi.": [
     "CSV, Excel .xlsx, XML or JSON. The original file stays private. Importing does not call AI or prepare any sends.",
     "CSV, Excel .xlsx, XML oder JSON. Die Originaldatei bleibt privat. Der Import ruft keine KI auf und bereitet keinen Versand vor.",
@@ -90,11 +85,6 @@
     "Datenzouuerdnung"
   ],
   "Feuille de l’aperçu": ["Preview sheet", "Vorschaublatt", "Virschau-Blat"],
-  "Parcourez toutes les feuilles sans modifier votre correspondance.": [
-    "Browse all sheets without changing your mapping.",
-    "Sehen Sie alle Blätter an, ohne Ihre Zuordnung zu ändern.",
-    "Kuckt all Blieder un, ouni Är Zouuerdnung ze änneren."
-  ],
   "(masquée)": ["(hidden)", "(ausgeblendet)", "(verstoppt)"],
   "Aperçu original —": [
     "Original preview —",
@@ -137,11 +127,6 @@
     "Dateierkennung",
     "Dateierkennung"
   ],
-  "Le fichier original est conservé séparément de son interprétation.": [
-    "The original file is stored separately from its interpretation.",
-    "Die Originaldatei wird getrennt von ihrer Auswertung gespeichert.",
-    "D’Originaldatei gëtt getrennt vun hirer Auswäertung gespäichert."
-  ],
   "Vérification de votre fichier": [
     "Checking your file",
     "Ihre Datei wird geprüft",
@@ -161,11 +146,6 @@
     "Analysis is in progress. The original file is retained; please wait before refreshing.",
     "Die Analyse läuft. Die Originaldatei bleibt gespeichert; warten Sie vor dem Aktualisieren.",
     "D’Analys leeft. D’Originaldatei bleift gespäichert; waart virum Aktualiséieren."
-  ],
-  "L’analyse du fichier n’a pas abouti. Cette étape protège la génération ; un état de vérification ne signifie pas à lui seul que le fichier contient un virus.": [
-    "The file analysis did not complete. This step protects generation; a verification status alone does not mean the file contains a virus.",
-    "Die Dateianalyse wurde nicht abgeschlossen. Dieser Schritt schützt die Dokumenterstellung; der Prüfstatus allein bedeutet nicht, dass die Datei einen Virus enthält.",
-    "D’Dateianalys gouf net ofgeschloss. Dëse Schrëtt schützt d’Dokumenterstellung; e Kontrollstatus eleng bedeit net, datt d’Datei e Virus enthält."
   ],
   "tentative(s) sur": ["attempt(s) of", "Versuch(e) von", "Versich vu"],
   "Relancer l’analyse du même fichier": [
@@ -199,11 +179,6 @@
     "Exakt Dezimalwäerter brauchen en Textfeld an der Virlag. Passt déi markéiert Felder virun der Validatioun un."
   ],
   "← Données": ["← Data", "← Daten", "← Donnéeën"],
-  "Vérifiez les données reconnues, puis leur correspondance avec votre modèle. Chaque client peut regrouper plusieurs lignes.": [
-    "Check the recognised data, then their mapping to your template. Each customer can group several rows.",
-    "Prüfen Sie die erkannten Daten und anschließend deren Zuordnung zur Vorlage. Mehrere Zeilen können zu einem Kunden gehören.",
-    "Préift déi erkannt Donnéeën an duerno hir Zouuerdnung zu Ärer Virlag. Méi Zeile kënnen zu engem Client gehéieren."
-  ],
   "Original privé ·": [
     "Private original ·",
     "Privates Original ·",
@@ -618,5 +593,10 @@
     "Wait {0} second(s).",
     "Warten Sie {0} Sekunde(n).",
     "Waart {0} Sekonn(en)."
+  ],
+  "L’analyse du fichier n’a pas abouti.": [
+    "The file analysis did not complete.",
+    "Die Dateianalyse wurde nicht abgeschlossen.",
+    "D’Dateianalys gouf net ofgeschloss."
   ]
 }

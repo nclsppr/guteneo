@@ -95,6 +95,15 @@ visitor can start without interpreting an empty activity screen. Returning
 users can dismiss this invitation through the reversible direct-send
 preference. The ordinary navigation still exposes both routes.
 
+Overview chooses its initial arrangement only after its required reads settle,
+scoped to the current session authority and visit. Summary links precede growing
+attention/contact panels. Empty-workspace assistant loading settles before its
+summary appears; recent controls wait for attention's first data or error while
+all reads start in parallel. Ordinary refresh retains the chosen order and
+mounted controls. Initial read failures keep explicit recovery instead of
+claiming an empty workspace. The dated [regression receipt](evidence/overview-navigation-correction-2026-11-10.json)
+records synthetic touch/keyboard and authority-replacement proof.
+
 The public directory and private workspace share one
 [assistant catalog](../apps/web/src/assistant-catalog.ts) and the same
 [picker and guide components](../apps/web/src/assistant-guides.tsx). A logo is a

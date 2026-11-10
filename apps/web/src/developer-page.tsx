@@ -61,11 +61,7 @@ export function DeveloperPage() {
       <PublicHeader activePage="developers" />
       <main id="developer-main" tabIndex={-1}>
         <div className="developer-intro">
-          <h1>
-            {msg("Your documents.")}
-            <br />
-            <em>{msg("Your way to send them.")}</em>
-          </h1>
+          <h1>{msg("Developers")}</h1>
           <p className="developer-dek">
             {msg(
               "Connect your app to Guteneo: a PDF faithful to the original, a preparation you can check and the final say left to the person sending it.",
@@ -519,14 +515,14 @@ export function DeveloperPage() {
           <div className="developer-reference-heading">
             <div>
               <h2 id="reference-title">
-                {msg("Every route, every response.")}
+                {msg("API reference")}
               </h2>
             </div>
             <FilePdf size={38} weight="thin" aria-hidden="true" />
           </div>
           <p>
             {msg(
-              "23 operations: documents, postal checks, dispatches, campaigns, recipients, senders, usage and service status. Explore the schemas in read-only mode. No execution button, no OAuth sign-in and no token sent from the explorer.",
+              "Browse the API schemas in read-only mode.",
             )}
           </p>
           <div className="developer-reference-actions">
@@ -557,17 +553,19 @@ export function DeveloperPage() {
               )}
             </p>
           </noscript>
-          <p role="status" className="developer-reference-status">
-            {reference === "error"
-              ? msg(
-                  "The reference could not be loaded. Try again or download the OpenAPI file.",
-                )
-              : reference === "open"
-                ? msg("Reference loaded. You can expand the operations below.")
-                : reference === "loading"
-                  ? msg("Loading read-only schemas.")
-                  : msg("The explorer loads only when you request it.")}
-          </p>
+          <div role="status">
+            {reference !== "closed" && (
+              <p className="developer-reference-status">
+                {reference === "error"
+                  ? msg(
+                      "The reference could not be loaded. Try again or download the OpenAPI file.",
+                    )
+                  : reference === "open"
+                    ? msg("Reference loaded. You can expand the operations below.")
+                    : msg("Loading read-only schemas.")}
+              </p>
+            )}
+          </div>
           <div
             id="swagger-reference"
             ref={explorer}

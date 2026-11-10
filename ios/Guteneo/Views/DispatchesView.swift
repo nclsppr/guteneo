@@ -19,13 +19,9 @@ struct DispatchesWorkspaceView: View {
                             Image(systemName: "paperplane")
                                 .font(.largeTitle).foregroundStyle(Brand.cobalt)
                                 .accessibilityHidden(true)
-                            Text("The journey\nof every dispatch.")
+                            Text("Choose a dispatch.")
                                 .font(.system(.largeTitle, design: .serif))
                                 .foregroundStyle(Brand.ink)
-                            Text("Choose a dispatch to find its recipient, attached document and latest known events.")
-                                .font(.title3).foregroundStyle(.secondary)
-                            Text("The “Awaiting approval only” filter helps you find preparations waiting for your review.")
-                                .foregroundStyle(.secondary)
                         }
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: 460, alignment: .leading).padding(32)
@@ -81,7 +77,7 @@ struct DispatchesView: View {
         Section { Toggle("Awaiting approval only", isOn: $needsReview) }
         if let error = model.errorMessage { Section { Notice(text: error, symbol: "exclamationmark.circle") } }
         if dispatches.isEmpty && !model.isLoading {
-            ContentUnavailableView("No dispatches to display", systemImage: "paperplane", description: Text("Your dispatches will appear here with their latest known status."))
+            ContentUnavailableView("No dispatches to display", systemImage: "paperplane")
                 .listRowBackground(Color.clear)
         }
         ForEach(dispatches) { dispatch in
@@ -192,7 +188,7 @@ struct DispatchDetailView: View {
                         catch { self.error = APIError.safeMessage(for: error) }
                     }
                 }
-            } message: { Text("A dispatch already accepted cannot be cancelled. The server will check its status.") }
+            } message: { Text("A dispatch already accepted cannot be cancelled.") }
     }
     private func openReview(_ url: URL) {
         guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return }

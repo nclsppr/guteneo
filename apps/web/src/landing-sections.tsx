@@ -21,11 +21,6 @@ export function Installation() {
     >
       <div className="installation-heading">
         <h2 id="installation-title">{msg("Choose your starting point")}</h2>
-        <p>
-          {msg(
-            "Prepare your first dispatch from a conversation or directly with your document. In both cases, check the details before confirming.",
-          )}
-        </p>
       </div>
       <div className="start-choice">
         <div>
@@ -57,7 +52,6 @@ export function Installation() {
         </div>
       </div>
       <div className="start-assistant-guides">
-        <p>{msg("Already know your assistant? Open its guide.")}</p>
         <AssistantPicker />
       </div>
     </section>

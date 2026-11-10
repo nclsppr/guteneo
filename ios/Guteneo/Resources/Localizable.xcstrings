@@ -407,35 +407,6 @@
         }
       }
     },
-    "Native app for iPhone and iPad.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Application native pour iPhone et iPad."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Native app for iPhone and iPad."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Native App für iPhone und iPad."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nativ App fir iPhone an iPad."
-          }
-        }
-      }
-    },
     "Support": {
       "extractionState": "manual",
       "localizations": {
@@ -1045,93 +1016,6 @@
         }
       }
     },
-    "You control every dispatch": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chaque envoi sous votre contrôle"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "You control every dispatch"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Jede Sendung unter Ihrer Kontrolle"
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "All Sendung ënner Ärer Kontroll"
-          }
-        }
-      }
-    },
-    "Every dispatch under your control.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chaque envoi sous votre contrôle."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Every dispatch under your control."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Jede Sendung unter Ihrer Kontrolle."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "All Sendung ënner Ärer Kontroll."
-          }
-        }
-      }
-    },
-    "Every original,\nin its place.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chaque original,\nà sa place."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Every original,\nin its place."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Jedes Original\nan seinem Platz."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "All Original\nop senger Plaz."
-          }
-        }
-      }
-    },
     "Loading dispatch…": {
       "extractionState": "manual",
       "localizations": {
@@ -1277,60 +1161,60 @@
         }
       }
     },
-    "Choose a document from the list to check its verification, read the original PDF or prepare a fax.": {
+    "Choose a document.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choisissez un document dans la liste pour consulter sa vérification, lire le PDF original ou préparer un fax."
+            "value": "Choisissez un document."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose a document from the list to check its verification, read the original PDF or prepare a fax."
+            "value": "Choose a document."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wählen Sie ein Dokument aus der Liste, um seine Prüfung anzusehen, das Original-PDF zu lesen oder ein Fax vorzubereiten."
+            "value": "Wählen Sie ein Dokument."
           }
         },
         "lb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wielt en Dokument aus der Lëscht, fir seng Iwwerpréiwung ze kucken, den Original-PDF ze liesen oder e Fax virzebereeden."
+            "value": "Wielt en Dokument."
           }
         }
       }
     },
-    "Choose a dispatch to find its recipient, attached document and latest known events.": {
+    "Choose a dispatch.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choisissez un envoi pour retrouver son destinataire, le document joint et les derniers événements connus."
+            "value": "Choisissez un envoi."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose a dispatch to find its recipient, attached document and latest known events."
+            "value": "Choose a dispatch."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wählen Sie eine Sendung, um ihren Empfänger, das beigefügte Dokument und die letzten bekannten Ereignisse anzuzeigen."
+            "value": "Wählen Sie eine Sendung."
           }
         },
         "lb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wielt eng Sendung, fir hiren Empfänger, dat bäigefüügt Dokument an déi lescht bekannt Evenementer ze gesinn."
+            "value": "Wielt eng Sendung."
           }
         }
       }
@@ -3133,31 +3017,31 @@
         }
       }
     },
-    "Import a PDF from Files. Its original will be preserved and verified before use.": {
+    "Import a PDF from Files.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Importez un PDF depuis Fichiers. Son original sera conservé et vérifié avant utilisation."
+            "value": "Importez un PDF depuis Fichiers."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Import a PDF from Files. Its original will be preserved and verified before use."
+            "value": "Import a PDF from Files."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Importieren Sie eine PDF aus Dateien. Das Original wird unverändert aufbewahrt und vor der Verwendung geprüft."
+            "value": "Importieren Sie eine PDF-Datei aus Dateien."
           }
         },
         "lb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Importéiert e PDF aus Dateien. D’Original bleift erhalen a gëtt virum Gebrauch gepréift."
+            "value": "Importéiert eng PDF-Datei aus Dateien."
           }
         }
       }
@@ -3510,64 +3394,6 @@
         }
       }
     },
-    "The original PDF is preserved. It is verified before use.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le PDF original est conservé. Sa vérification précède son utilisation."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The original PDF is preserved. It is verified before use."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Das Original-PDF bleibt erhalten. Es wird vor der Verwendung geprüft."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Den Original-PDF gëtt erhalen. E gëtt virum Gebrauch iwwerpréift."
-          }
-        }
-      }
-    },
-    "The right document.\nThe right recipient.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le bon document.\nLe bon destinataire."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The right document.\nThe right recipient."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Das richtige Dokument.\nDer richtige Empfänger."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dat richtegt Dokument.\nDe richtegen Empfänger."
-          }
-        }
-      }
-    },
     "Your account has not been deleted yet. Processing must take into account ongoing dispatches, your organisation and retention requirements. You will receive confirmation once processing is complete.": {
       "extractionState": "manual",
       "localizations": {
@@ -3593,35 +3419,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Äre Kont gouf nach net geläscht. Lafend Sendungen, Är Organisatioun an Opbewarungsflichte musse berücksichtegt ginn. Dir kritt eng Bestätegung nom Ofschloss."
-          }
-        }
-      }
-    },
-    "The content, options and quote.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le contenu, les options et le devis."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The content, options and quote."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Der Inhalt, die Optionen und das Angebot."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Den Inhalt, d’Optiounen an den Devis."
           }
         }
       }
@@ -3713,35 +3510,6 @@
         }
       }
     },
-    "The document sent matches the imported PDF. Guteneo does not modify its pages.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le document envoyé correspond au PDF importé. Guteneo ne modifie pas ses pages."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The document sent matches the imported PDF. Guteneo does not modify its pages."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Das versandte Dokument entspricht der importierten PDF. Guteneo verändert ihre Seiten nicht."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dat geschéckt Dokument entsprécht dem importéierte PDF. Guteneo ännert seng Säiten net."
-          }
-        }
-      }
-    },
     "The file could not be opened. Select the PDF again in Files.": {
       "extractionState": "manual",
       "localizations": {
@@ -3771,35 +3539,6 @@
         }
       }
     },
-    "The “Awaiting approval only” filter helps you find preparations waiting for your review.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le filtre « À valider uniquement » vous aide à retrouver les préparations qui attendent votre vérification."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The “Awaiting approval only” filter helps you find preparations waiting for your review."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Der Filter „Nur zur Freigabe“ zeigt Ihnen Vorbereitungen, die auf Ihre Prüfung warten."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "De Filter „Nëmmen ze bestätegen“ hëlleft Iech Virbereedungen ze fannen, déi op Är Iwwerpréiwung waarden."
-          }
-        }
-      }
-    },
     "The provider has not confirmed the outcome. Do not create a second dispatch: refresh tracking or contact support.": {
       "extractionState": "manual",
       "localizations": {
@@ -3825,35 +3564,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "De Fournisseur huet d’Resultat net bestätegt. Erstellt keng zweet Sendung: aktualiséiert de Status oder kontaktéiert d’Hëllef."
-          }
-        }
-      }
-    },
-    "The journey\nof every dispatch.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le parcours\nde chaque envoi."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The journey\nof every dispatch."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Der Weg\njeder Sendung."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "De Wee\nvun all Sendung."
           }
         }
       }
@@ -3945,60 +3655,31 @@
         }
       }
     },
-    "PDFs remain private to your organisation. Verification may take a few minutes.": {
+    "PDFs remain private to your organisation.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les PDF restent privés à votre organisation. Leur vérification peut prendre quelques minutes."
+            "value": "Les PDF restent privés à votre organisation."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "PDFs remain private to your organisation. Verification may take a few minutes."
+            "value": "PDFs remain private to your organisation."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "PDFs bleiben nur für Ihre Organisation zugänglich. Die Prüfung kann einige Minuten dauern."
+            "value": "PDFs bleiben nur für Ihre Organisation zugänglich."
           }
         },
         "lb": {
           "stringUnit": {
             "state": "translated",
-            "value": "PDFen bleiwen nëmme fir Är Organisatioun zougänglech. D’Préiwen kann e puer Minutten daueren."
-          }
-        }
-      }
-    },
-    "Documents are downloaded on demand. Your session is kept in this device’s secure Keychain.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Les documents sont téléchargés à la demande. La session est conservée dans le trousseau sécurisé de cet appareil."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Documents are downloaded on demand. Your session is kept in this device’s secure Keychain."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dokumente werden bei Bedarf heruntergeladen. Ihre Sitzung wird im sicheren Schlüsselbund dieses Geräts gespeichert."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dokumenter gi bei Bedarf erofgelueden. Är Sessioun gëtt am séchere Schlësselbond vun dësem Apparat gespäichert."
+            "value": "PDFen bleiwen nëmme fir Är Organisatioun zougänglech."
           }
         }
       }
@@ -4496,35 +4177,6 @@
         }
       }
     },
-    "Original preserved": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Original conservé"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Original preserved"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Original aufbewahrt"
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Original erhale"
-          }
-        }
-      }
-    },
     "Opening your workspace…": {
       "extractionState": "manual",
       "localizations": {
@@ -4786,35 +4438,6 @@
         }
       }
     },
-    "Personally, in your secure workspace.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Personnellement, dans votre espace sécurisé."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Personally, in your secure workspace."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Persönlich in Ihrem sicheren Arbeitsbereich."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Perséinlech, an Ärem sécheren Atelier."
-          }
-        }
-      }
-    },
     "Limit": {
       "extractionState": "manual",
       "localizations": {
@@ -4927,35 +4550,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Eng Fro iwwer Är Donnéeë stellen"
-          }
-        }
-      }
-    },
-    "To add a document, use “Import a PDF” in the list.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pour ajouter un document, utilisez « Importer un PDF » dans la liste."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "To add a document, use “Import a PDF” in the list."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Um ein Dokument hinzuzufügen, verwenden Sie „PDF importieren“ in der Liste."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fir en Dokument dobäizesetzen, benotzt „E PDF importéieren“ an der Lëscht."
           }
         }
       }
@@ -5221,60 +4815,31 @@
         }
       }
     },
-    "Prepare here. Personally review and approve each dispatch in your secure workspace.": {
+    "Review and approve each dispatch in your browser.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Préparez ici. Vérifiez puis validez personnellement chaque envoi dans votre espace sécurisé."
+            "value": "Vérifiez puis validez chaque envoi dans votre navigateur."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prepare here. Personally review and approve each dispatch in your secure workspace."
+            "value": "Review and approve each dispatch in your browser."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bereiten Sie hier alles vor. Prüfen und bestätigen Sie jede Sendung persönlich in Ihrem sicheren Arbeitsbereich."
+            "value": "Prüfen und bestätigen Sie jede Sendung in Ihrem Browser."
           }
         },
         "lb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bereet hei alles vir. Préift a bestätegt all Sendung perséinlech an Ärem sécheren Aarbechtsberäich."
-          }
-        }
-      }
-    },
-    "Prepare documents and follow your Guteneo workspace’s dispatches.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Préparez vos documents et retrouvez le suivi de votre atelier Guteneo."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prepare documents and follow your Guteneo workspace’s dispatches."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bereiten Sie Ihre Dokumente vor und verfolgen Sie die Sendungen Ihres Guteneo-Arbeitsbereichs."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bereet Är Dokumenter vir a verfollegt d’Sendunge vun Ärem Guteneo-Aarbechtsberäich."
+            "value": "Préift a bestätegt all Sendung an Ärem Browser."
           }
         }
       }
@@ -5420,35 +4985,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Un d’Post iwwerreecht"
-          }
-        }
-      }
-    },
-    "Find your PDFs, prepare dispatches and track their progress.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Retrouvez vos PDF, préparez vos envois et suivez leur parcours."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Find your PDFs, prepare dispatches and track their progress."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Finden Sie Ihre PDFs, bereiten Sie Sendungen vor und verfolgen Sie ihren Weg."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fannt Är PDFen, bereet Sendunge vir a verfollegt hire Wee."
           }
         }
       }
@@ -6091,89 +5627,31 @@
         }
       }
     },
-    "A PDF and its recipient.": {
+    "A dispatch already accepted cannot be cancelled.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un PDF et son destinataire."
+            "value": "Un envoi déjà pris en charge ne peut plus être annulé."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A PDF and its recipient."
+            "value": "A dispatch already accepted cannot be cancelled."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ein PDF und sein Empfänger."
+            "value": "Eine bereits angenommene Sendung kann nicht mehr storniert werden."
           }
         },
         "lb": {
           "stringUnit": {
             "state": "translated",
-            "value": "E PDF a säin Empfänger."
-          }
-        }
-      }
-    },
-    "A dispatch already accepted cannot be cancelled. The server will check its status.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Un envoi déjà pris en charge ne peut plus être annulé. Le serveur vérifiera son état."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A dispatch already accepted cannot be cancelled. The server will check its status."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Eine bereits angenommene Sendung kann nicht mehr storniert werden. Der Server prüft ihren Status."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Eng schonn ugeholl Sendung kann net méi annuléiert ginn. De Server kontrolléiert hire Status."
-          }
-        }
-      }
-    },
-    "Tracking shared with your workspace": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Un suivi partagé avec votre atelier"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tracking shared with your workspace"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gemeinsame Sendungsverfolgung für Ihren Arbeitsbereich"
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "E gemeinsame Suivi fir Ären Aarbechtsberäich"
+            "value": "Eng schonn ugeholl Sendung kann net méi annuléiert ginn."
           }
         }
       }
@@ -6323,64 +5801,6 @@
         }
       }
     },
-    "Your PDFs will find their place here.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vos PDF trouveront leur place ici."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your PDFs will find their place here."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hier finden Ihre PDFs ihren Platz."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hei fannen Är PDFen hir Plaz."
-          }
-        }
-      }
-    },
-    "Your PDFs, here": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vos PDF, ici"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your PDFs, here"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ihre PDFs, hier"
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Är PDFen, hei"
-          }
-        }
-      }
-    },
     "Your choices": {
       "extractionState": "manual",
       "localizations": {
@@ -6435,35 +5855,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Är Dokumenter"
-          }
-        }
-      }
-    },
-    "Your documents, unchanged": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vos documents, sans les modifier"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your documents, unchanged"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ihre Dokumente, unverändert"
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Är Dokumenter, onverännert"
           }
         }
       }
@@ -6551,35 +5942,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Är Rechter hu sech geännert. En Administrateur vun Ärer Organisatioun kann d’Préiwen nei starten."
-          }
-        }
-      }
-    },
-    "Your dispatches will appear here with their latest known status.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vos envois apparaîtront ici avec leur dernier état connu."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your dispatches will appear here with their latest known status."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ihre Sendungen erscheinen hier mit ihrem letzten bekannten Status."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Är Sendungen erschéngen hei mat hirem leschte bekannte Status."
           }
         }
       }
@@ -6729,35 +6091,6 @@
         }
       }
     },
-    "Your workspace,\nwithin reach.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Votre atelier,\nà portée de main."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your workspace,\nwithin reach."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ihr Arbeitsbereich,\nimmer zur Hand."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ären Aarbechtsberäich,\nëmmer bei Iech."
-          }
-        }
-      }
-    },
     "Your account does not have permission for this action.": {
       "extractionState": "manual",
       "localizations": {
@@ -6874,31 +6207,31 @@
         }
       }
     },
-    "Your preference is shared between the website and the app. Your documents and messages remain unchanged.": {
+    "Your preference is shared between the website and the app.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Votre préférence est partagée entre le site et l’application. Le contenu de vos documents et messages reste inchangé."
+            "value": "Votre préférence est partagée entre le site et l’application."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your preference is shared between the website and the app. Your documents and messages remain unchanged."
+            "value": "Your preference is shared between the website and the app."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ihre Einstellung gilt für die Website und die App. Der Inhalt Ihrer Dokumente und Nachrichten bleibt unverändert."
+            "value": "Ihre Einstellung gilt für die Website und die App."
           }
         },
         "lb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Är Astellung gëllt fir de Site an d’App. Den Inhalt vun Ären Dokumenter a Messagë bleift onverännert."
+            "value": "Är Astellung gëllt fir de Site an d’App."
           }
         }
       }
@@ -7305,35 +6638,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Fir ze kucken"
-          }
-        }
-      }
-    },
-    "Close at hand": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "À portée de main"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Close at hand"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Griffbereit"
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bei der Hand"
           }
         }
       }

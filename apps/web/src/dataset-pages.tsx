@@ -114,12 +114,7 @@ export function DatasetLibrary({ session }: { session: Session }) {
   }
   return (
     <>
-      <PageHeading
-        title={msg("Data")}
-        intro={msg(
-          "Import your file as it is. Choose sheets, columns and groups before generating your documents.",
-        )}
-      />
+      <PageHeading title={msg("Data")} />
       <ErrorNotice error={action.error ?? resource.error} />
       {!canPrepare && <RolePermissionNotice />}
       {canPrepare && (
@@ -430,10 +425,7 @@ function DatasetPreview({
   const pagination = current?.pagination;
   return (
     <>
-      <Field
-        label={msg("Preview sheet")}
-        hint={msg("Browse all sheets without changing your mapping.")}
-      >
+      <Field label={msg("Preview sheet")}>
         <select
           value={sheet}
           onChange={(event) => {
@@ -595,12 +587,7 @@ export function DatasetMapper({
   if (!resource.data)
     return (
       <>
-        <PageHeading
-          title={msg("File recognition")}
-          intro={msg(
-            "The original file is stored separately from its interpretation.",
-          )}
-        />
+        <PageHeading title={msg("File recognition")} />
         <ErrorNotice error={resource.error} retry={resource.refresh} />
         {resource.loading && <Loading />}
         {resource.error && (
@@ -672,9 +659,7 @@ function DatasetRecovery({
                   ? msg(
                       "Analysis is in progress. The original file is retained; please wait before refreshing.",
                     )
-                  : msg(
-                      "The file analysis did not complete. This step protects generation; a verification status alone does not mean the file contains a virus.",
-                    )}
+                  : msg("The file analysis did not complete.")}
           </p>
           <p>
             {status.data.analysis.attempts} {msg("attempt(s) of")}{" "}
@@ -1103,12 +1088,7 @@ function MappingEditor({
       <a className="back-link" href={`#${studioRoutes.datasets}`}>
         {msg("← Data ")}
       </a>
-      <PageHeading
-        title={dataset.name}
-        intro={msg(
-          "Check the recognised data, then their mapping to your template. Each customer can group several rows.",
-        )}
-      />
+      <PageHeading title={dataset.name} />
       <ErrorNotice
         error={
           action.error ??
@@ -1708,7 +1688,8 @@ function MappingEditor({
                 "expected document(s). The structure and a synthetic example have been checked by the server. ",
               )}
             </p>
-            <DataTable viewId="proposed-mapping-fields"
+            <DataTable
+              viewId="proposed-mapping-fields"
               label={msg("Proposed fields and source columns")}
               items={schemaProposal.schemaSuggestion.fields}
               getRowKey={(field) => field.path}

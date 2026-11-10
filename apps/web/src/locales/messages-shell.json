@@ -1,10 +1,5 @@
 {
   "État du service": ["Service status", "Systemstatus", "Servicestatus"],
-  "Préparez votre premier envoi depuis une conversation ou directement avec votre document. Dans les deux cas, vous vérifiez les détails avant de confirmer.": [
-    "Prepare your first dispatch from a conversation or directly with your document. In both cases, check the details before confirming.",
-    "Bereiten Sie Ihre erste Sendung aus einem Gespräch oder direkt mit Ihrem Dokument vor. In beiden Fällen prüfen Sie die Details vor der Bestätigung.",
-    "Bereet Är éischt Sendung aus engem Gespréich oder direkt mat Ärem Dokument vir. A béide Fäll kontrolléiert Dir d’Detailer, ier Dir bestätegt."
-  ],
   "Navigation principale": [
     "Main navigation",
     "Hauptnavigation",
@@ -129,11 +124,6 @@
     "D’Konten an d’Zougrëffer an dëser Virschau si fiktiv. Dir kënnt se an Ärem ageloggten Aarbechtsberäich änneren."
   ],
   "Mon compte": ["My account", "Mein Konto", "Mäi Kont"],
-  "Votre identité, les autorisations de vos assistants et vos sessions dans l’atelier.": [
-    "Your identity, assistant permissions and workspace sessions.",
-    "Ihre Identität, die Berechtigungen Ihrer Assistenten und Ihre Sitzungen im Arbeitsbereich.",
-    "Är Identitéit, d’Autorisatioune vun Ären Assistenten an Är Sessiounen am Aarbechtsberäich."
-  ],
   "Profil et atelier": [
     "Profile and workspace",
     "Profil und Arbeitsbereich",
@@ -294,11 +284,6 @@
     "Send from Guteneo",
     "Aus Guteneo versenden",
     "Aus Guteneo verschécken"
-  ],
-  "Vous connaissez déjà votre assistant ? Ouvrez son guide.": [
-    "Already know your assistant? Open its guide.",
-    "Sie kennen Ihren Assistenten bereits? Öffnen Sie die Anleitung.",
-    "Kennt Dir Ären Assistent schonn? Maacht säi Guide op."
   ],
   "Le journal": ["The journal", "Das Journal", "De Journal"],
   "Développeurs": ["Developers", "Entwickler", "Entwéckler"],

@@ -456,9 +456,7 @@ export function DispatchDetailPage({
             : t.dispatch.listTitle
         }
         intro={
-          pendingApproval || approved
-            ? t.dispatch.reviewIntro
-            : t.dispatch.deliveryNote
+          pendingApproval || approved ? undefined : t.dispatch.deliveryNote
         }
         action={
           <RefreshButton

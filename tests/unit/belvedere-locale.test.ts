@@ -111,7 +111,7 @@ describe("Belvédère account-language interface", () => {
           distribution: [],
         }),
       );
-      expect(html).toContain(bmsg("Le monde de guteneo."));
+      expect(html).toContain(bmsg("Géographie"));
       expect(html).toContain(countryName("DE"));
       expect(html).toContain(bmsg("Tourner le globe vers l’ouest"));
       expect(html).toContain(number(1234));

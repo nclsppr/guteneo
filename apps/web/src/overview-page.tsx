@@ -1,11 +1,22 @@
 import { msg } from "./messages";
 import { studioRoutes } from "./app-routes";
 import { WorkspaceContacts } from "./workspace-contacts";
-import { WorkspaceAttention } from "./workspace-attention";
-import { Fragment, useCallback } from "react";
+import {
+  WorkspaceAttention,
+  useWorkspaceAttention,
+} from "./workspace-attention";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { type DispatchOverview } from "../../../packages/contracts/src/dispatch-groups";
 import { ArrowRight, Plus, WarningCircle } from "@phosphor-icons/react";
 import {
+  getSessionAuthorityKey,
+  subscribeSessionAuthority,
   permissionsFor,
   isPublicPreview,
   type Dispatch,
@@ -13,6 +24,7 @@ import {
   type Session,
 } from "./api";
 import { OverviewAssistantStart } from "./assistant-workspace";
+import { useAssistantConnections, useDirectChoice } from "./assistant-state";
 import { t } from "./locale";
 import {
   DispatchTable,
@@ -24,12 +36,45 @@ import {
   useResource,
 } from "./components";
 
+type OverviewLayout = "pending" | "empty" | "active" | "recovery";
+
 export function Overview({ session }: { session: Session }) {
   const permissions = permissionsFor(session);
+  const authority = useSyncExternalStore(
+    subscribeSessionAuthority,
+    getSessionAuthorityKey,
+    getSessionAuthorityKey,
+  );
+  const [layout, setLayout] = useState<{
+    authority: string;
+    mode: OverviewLayout;
+  }>({
+    authority,
+    mode: "pending",
+  });
+  const mode = layout.authority === authority ? layout.mode : "pending";
+  const directChoice = useDirectChoice(session);
+  const connections = useAssistantConnections(
+    permissions.prepareDispatches &&
+      (mode === "pending" || mode === "empty") &&
+      !directChoice.direct,
+  );
   const overview = useResource<DispatchOverview>(
     permissions.viewReports ? "/overview" : null,
   );
   const dispatches = useResource<Page<Dispatch>>("/dispatches?limit=6");
+  const attentionQueue = useWorkspaceAttention(!isPublicPreview);
+  const [attentionReadyOwner, setAttentionReadyOwner] = useState<string | null>(
+    null,
+  );
+  const attentionReadSettled =
+    !attentionQueue.loading ||
+    Boolean(attentionQueue.data || attentionQueue.error);
+  useEffect(() => {
+    if (attentionReadSettled && authority === getSessionAuthorityKey())
+      setAttentionReadyOwner(authority);
+  }, [authority, attentionReadSettled]);
+  const initialAttentionPending = attentionReadyOwner !== authority;
   const refreshOverview = overview.refresh;
   const refreshDispatches = dispatches.refresh;
   const refresh = useCallback(() => {
@@ -39,9 +84,41 @@ export function Overview({ session }: { session: Session }) {
   useRefreshOnFocus(refresh);
   const counts = overview.data;
   const attention = counts?.dispatches.attention ?? 0;
-  const dailyOverview =
+  const hasDispatches =
     (counts?.dispatches.total ?? 0) > 0 ||
     (dispatches.data?.items.length ?? 0) > 0;
+  const initialReadPending =
+    (overview.loading && !overview.data && !overview.error) ||
+    (dispatches.loading && !dispatches.data && !dispatches.error);
+  const initialReadFailed = Boolean(overview.error || dispatches.error);
+  const introductionPending =
+    permissions.prepareDispatches &&
+    !directChoice.direct &&
+    connections.loading &&
+    !connections.data &&
+    !connections.error;
+  const nextLayout: OverviewLayout = initialReadPending
+    ? "pending"
+    : initialReadFailed
+      ? "recovery"
+      : hasDispatches
+        ? "active"
+        : introductionPending
+          ? "pending"
+          : "empty";
+  useEffect(() => {
+    if (authority !== getSessionAuthorityKey()) return;
+    setLayout((current) => {
+      if (current.authority === authority && current.mode !== "pending")
+        return current;
+      if (current.authority === authority && current.mode === nextLayout)
+        return current;
+      return { authority, mode: nextLayout };
+    });
+  }, [authority, nextLayout]);
+  // The first resolved order belongs to this authority and visit. Revalidation
+  // keeps that order while counts, errors and permission checks stay live.
+  const dailyOverview = mode === "active" || mode === "recovery";
   const stats = [
     {
       href: "#/app/documents",
@@ -88,7 +165,7 @@ export function Overview({ session }: { session: Session }) {
   const attentionNotice = isPublicPreview ? (
     legacyAttentionNotice
   ) : (
-    <WorkspaceAttention key="attention" />
+    <WorkspaceAttention key="attention" queue={attentionQueue} />
   );
   const assistantStart =
     permissions.prepareDispatches &&
@@ -100,7 +177,12 @@ export function Overview({ session }: { session: Session }) {
         </a>
       </div>
     ) : (
-      <OverviewAssistantStart key="assistant" session={session} />
+      <OverviewAssistantStart
+        key="assistant"
+        connections={connections}
+        direct={directChoice.direct}
+        chooseDirect={directChoice.chooseDirect}
+      />
     ));
   const studioLinks = !isPublicPreview && permissions.prepareDispatches && (
     <nav
@@ -119,8 +201,8 @@ export function Overview({ session }: { session: Session }) {
       </a>
     </nav>
   );
-  const activity = (
-    <Fragment key="activity">
+  const summary = (
+    <Fragment key="summary">
       {permissions.viewReports && (
         <ul className="overview-stats" aria-label={t.overview.statsLabel}>
           {stats.map((stat) => (
@@ -136,7 +218,10 @@ export function Overview({ session }: { session: Session }) {
           ))}
         </ul>
       )}
-      <ErrorNotice error={overview.error ?? dispatches.error} retry={refresh} />
+    </Fragment>
+  );
+  const activity = (
+    <Fragment key="activity">
       <div className="section-toolbar">
         <h2>{t.overview.recent}</h2>
         <a href="#/app/dispatches" className="text-link">
@@ -148,7 +233,7 @@ export function Overview({ session }: { session: Session }) {
         <Loading />
       ) : dispatches.data?.items.length ? (
         <DispatchTable items={dispatches.data.items.slice(0, 6)} />
-      ) : (
+      ) : dispatches.error ? null : (
         <EmptyState
           title={t.overview.emptyTitle}
           text={t.overview.emptyBody}
@@ -164,18 +249,33 @@ export function Overview({ session }: { session: Session }) {
       )}
     </Fragment>
   );
-  // Keyed regions move without remounting the contact directory. Existing
-  // workshops lead with their work; classic and empty workshops retain the
-  // full introductory order (docs/ASSISTANT_HUB.md).
+  const readError = (
+    <ErrorNotice
+      key="errors"
+      error={overview.error ?? dispatches.error}
+      retry={refresh}
+    />
+  );
+  const details = (
+    <div key="details" hidden={initialAttentionPending}>
+      {activity}
+      {dailyOverview && assistantStart}
+      {studioLinks}
+      {contacts}
+    </div>
+  );
+  // Summary links precede asynchronously growing panels. Empty workspaces keep
+  // their initial assistant choice first (docs/ASSISTANT_HUB.md). Children mount
+  // while hidden so their independent reads still start in parallel. Recent
+  // links wait for the attention panel's first height; refresh keeps them mounted.
   const regions = dailyOverview
-    ? [attentionNotice, activity, assistantStart, studioLinks, contacts]
-    : [contacts, attentionNotice, assistantStart, studioLinks, activity];
+    ? [summary, readError, attentionNotice, details]
+    : [assistantStart, summary, readError, attentionNotice, details];
   return (
     <>
       <div className="dashboard-editorial-heading">
         <PageHeading
           title={t.overview.title}
-          intro={t.overview.intro}
           action={
             permissions.prepareDispatches && (
               <a
@@ -189,7 +289,10 @@ export function Overview({ session }: { session: Session }) {
           }
         />
       </div>
-      {regions}
+      {mode === "pending" && <Loading />}
+      <div hidden={mode === "pending"} data-overview-layout={mode}>
+        {regions}
+      </div>
     </>
   );
 }

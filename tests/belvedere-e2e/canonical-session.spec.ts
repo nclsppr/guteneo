@@ -52,7 +52,7 @@ async function canonicalApplication(page: Page, initialView?: "finance") {
   await page.goto(`/belvedere${initialView ? `#${initialView}` : ""}`);
   await expect(
     page.getByRole("heading", {
-      name: initialView ? "Finances" : "Le monde de guteneo.",
+      name: initialView ? "Finances" : "Géographie",
       exact: true,
     }),
   ).toBeVisible();
@@ -137,7 +137,7 @@ test("canonical entry keeps every view, the globe and the shared application/acc
     await expect(page.locator("#belvedere-main .bv-loading")).toHaveCount(0);
   }
   await expect(
-    page.getByRole("heading", { name: "Le monde de guteneo." }),
+    page.getByRole("heading", { name: "Géographie" }),
   ).toBeVisible();
   expect(state.reads.some((path) => path.startsWith("/auth/"))).toBe(false);
   expect(state.reads).not.toContain("/api/documents");
@@ -159,7 +159,7 @@ test("returning after capability revocation removes previously displayed platfor
     "Votre accès à Belvédère a expiré ou n’est plus autorisé.",
   );
   await expect(
-    page.getByRole("heading", { name: "Le monde de guteneo." }),
+    page.getByRole("heading", { name: "Géographie" }),
   ).toHaveCount(0);
   await expect(
     page.getByRole("link", { name: "Vérifier mon accès" }),
@@ -208,7 +208,7 @@ test("direct finance entry defers globe resources until the overview is requeste
   const nav = await openNavigation(page);
   await nav.getByRole("link", { name: "Synthèse", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "Le monde de guteneo." }),
+    page.getByRole("heading", { name: "Géographie" }),
   ).toBeVisible();
   expect(state.reads.some((path) => /belvedere-globe.*\.js$/.test(path))).toBe(
     true,

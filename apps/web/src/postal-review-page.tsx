@@ -355,7 +355,6 @@ export function PostalReviewPage({
                 </p>
                 <details className="postal-integrity">
                   <summary>{msg("Identify this PDF version")}</summary>
-                  <p>{msg("This fingerprint identifies the checked file.")}</p>
                   <code>{review.document.sha256}</code>
                 </details>
               </section>

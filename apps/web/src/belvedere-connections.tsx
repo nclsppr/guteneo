@@ -52,7 +52,7 @@ export function Connections({
         </section>
         <section className="bv-panel bv-telemetry">
           <GlobeHemisphereWest size={36} weight="light" />
-          <h2>{bmsg("Observed geography, never guessed.")}</h2>
+          <h2>{bmsg("Location source")}</h2>
           <p>
             {bmsg(
               "Cloudflare provides the country when the connection is established. Older sessions without a measurement keep an unspecified country.",

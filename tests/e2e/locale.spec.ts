@@ -81,8 +81,8 @@ test("the home language follows navigation to the film, survives reload and work
   await expect(page.locator(".homepage-film-transcript summary")).toHaveText(
     "Filmtext lesen",
   );
-  await expect(page.getByRole("heading", { level: 1 })).not.toContainText(
-    "Votre assistant",
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "So funktioniert es",
   );
   await page.reload();
   picker = await publicLanguagePicker(page);
@@ -98,8 +98,8 @@ test("the home language follows navigation to the film, survives reload and work
   await page.reload();
   picker = await publicLanguagePicker(page);
   await expect(picker).toHaveValue("lb");
-  await expect(page.getByRole("heading", { level: 1 })).not.toContainText(
-    "Votre assistant",
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Esou funktionéiert et",
   );
   await picker.focus();
   await page.keyboard.press("Escape");
@@ -110,7 +110,7 @@ test("the home language follows navigation to the film, survives reload and work
     ),
   ).toBe(true);
   await page.screenshot({
-    path: `reports/locale-home-${test.info().project.name}.png`,
+    path: test.info().outputPath("locale-home.png"),
     fullPage: false,
   });
 });

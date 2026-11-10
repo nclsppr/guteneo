@@ -263,7 +263,7 @@ function CreateSchedule({
           <SourceReview detail={source.data} />
           {!supported && (
             <p className="notice info">
-              {msg("Scheduling supports fax and message-only email.")}
+              {msg("This type of dispatch cannot be scheduled.")}
             </p>
           )}
           <ErrorNotice error={previous.error} retry={previous.refresh} />

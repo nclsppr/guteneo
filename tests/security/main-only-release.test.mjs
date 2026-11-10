@@ -176,6 +176,66 @@ async function advanceOrigin(f) {
   git(other, "push", "origin", "main");
 }
 
+async function withVerificationConcurrency(value, action) {
+  const key = "GUTENEO_RELEASE_VERIFY_CONCURRENCY";
+  const previous = process.env[key];
+  try {
+    process.env[key] = value;
+    return await action();
+  } finally {
+    if (previous === undefined) delete process.env[key];
+    else process.env[key] = previous;
+  }
+}
+
+test("invalid live verification concurrency refuses before source checks or any build or publication", async () => {
+  let executed = 0;
+  for (const value of ["", "0", "5", "1.5", " 1", "1 ", "1\n"])
+    await withVerificationConcurrency(value, async () => {
+      await assert.rejects(
+        deployPublic("live", {
+          // A source check would fail with a different error before this code.
+          root: "/nonexistent-release-preflight-fixture",
+          execute() {
+            executed++;
+            assert.fail(
+              "Invalid concurrency must not run build or publication.",
+            );
+          },
+        }),
+        { message: "RELEASE_VERIFY_CONCURRENCY_INVALID" },
+      );
+    });
+  assert.equal(executed, 0);
+});
+
+test("live verification receives the preflight concurrency despite a later environment change", async (t) => {
+  const f = await fixture(t);
+  await withVerificationConcurrency("1", async () => {
+    const runner = executor(f.root, "live", {
+      afterBuild() {
+        process.env.GUTENEO_RELEASE_VERIFY_CONCURRENCY = "invalid";
+      },
+    });
+    await deployPublic("live", { root: f.root, execute: runner.execute });
+    assert.equal(runner.calls.length, 3);
+    assert.equal(
+      runner.calls[2].options.env.GUTENEO_RELEASE_VERIFY_CONCURRENCY,
+      "1",
+    );
+  });
+});
+
+test("preview ignores the live-only verification concurrency environment", async (t) => {
+  const f = await fixture(t);
+  await withVerificationConcurrency("invalid", async () => {
+    const runner = executor(f.root, "preview");
+    await deployPublic("preview", { root: f.root, execute: runner.execute });
+    assert.equal(runner.calls.length, 2);
+    assert.ok(runner.calls.every((call) => call.options.env === undefined));
+  });
+});
+
 for (const target of ["live", "preview"]) {
   test(`${target} publishes only a clean exact main with verified fresh artifacts`, async (t) => {
     const f = await fixture(t);

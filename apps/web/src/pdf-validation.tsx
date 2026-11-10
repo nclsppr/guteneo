@@ -226,10 +226,7 @@ export function PdfValidation({
           onSubmit={(event) => void validate(event)}
           className="pdf-validation-form pdf-check-consent"
         >
-          <Field
-            label={msg("Validation profile")}
-            hint={msg("Choose the standard required for your document.")}
-          >
+          <Field label={msg("Validation profile")}>
             <select
               value={profile}
               onChange={(event) => {
@@ -380,7 +377,8 @@ export function PdfReport({
         </div>
       </dl>
       {report.findings.length > 0 && (
-        <DataTable viewId="pdf-rule-references"
+        <DataTable
+          viewId="pdf-rule-references"
           label={msg("References for rules to fix")}
           items={report.findings.map((finding, index) => ({
             ...finding,

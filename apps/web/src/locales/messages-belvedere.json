@@ -465,11 +465,6 @@
     "Versanddetails",
     "Versanddetailer"
   ],
-  "D’où l’on se connecte.": [
-    "Where connections come from.",
-    "Woher die Verbindungen kommen.",
-    "Wou d’Verbindungen hierkommen."
-  ],
   "E": ["E", "O", "O"],
   "Effacer la recherche": ["Clear search", "Suche löschen", "Sich läschen"],
   "Email": ["Email", "E-Mail", "E-Mail"],
@@ -704,11 +699,6 @@
     "Belvédère beobachtet. Geschäftsaktionen bleiben in den Werkstätten.",
     "Belvédère observéiert. Geschäftsaktioune bleiwen an den Atelieren."
   ],
-  "Le monde de guteneo.": [
-    "The world of guteneo.",
-    "Die Welt von guteneo.",
-    "D’Welt vu guteneo."
-  ],
   "Le pays est fourni par Cloudflare lors de la connexion. Une session ancienne sans mesure conserve un pays non renseigné.": [
     "Cloudflare provides the country when the connection is established. Older sessions without a measurement keep an unspecified country.",
     "Cloudflare liefert das Land beim Verbindungsaufbau. Ältere Sitzungen ohne Messwert behalten ein nicht erfasstes Land.",
@@ -830,11 +820,6 @@
     "Datenpunkte erscheinen, sobald Cloudflare Messwerte liefert.",
     "Datepunkte erschéngen, wann Cloudflare Messwäerter liwwert."
   ],
-  "Les points du globe et la liste partagent la même sélection.": [
-    "Globe points and the list share the same selection.",
-    "Globuspunkte und Liste teilen dieselbe Auswahl.",
-    "Globuspunkten an d’Lëscht deelen déiselwecht Auswiel."
-  ],
   "Les états apparaîtront lorsque des envois seront créés sur la période.": [
     "Statuses will appear when dispatches are created in this period.",
     "Statuswerte erscheinen, sobald Sendungen im Zeitraum erstellt werden.",
@@ -847,25 +832,10 @@
     "Der Zugriff auf Messwerte muss geprüft werden.",
     "Den Zougang zu Messwäerter muss kontrolléiert ginn."
   ],
-  "L’activité de guteneo, des ateliers aux connexions.": [
-    "guteneo activity, from workshops to connections.",
-    "Die Aktivität von guteneo, von Werkstätten bis zu Verbindungen.",
-    "D’Aktivitéit vu guteneo, vun den Atelieren bis bei d’Verbindungen."
-  ],
   "L’activité se dessinera ici.": [
     "Activity will appear here.",
     "Die Aktivität wird hier sichtbar.",
     "D’Aktivitéit gëtt hei siichtbar."
-  ],
-  "L’activité, les membres et le détail des opérations de cet atelier.": [
-    "Activity, members and operation details for this workshop.",
-    "Aktivität, Mitglieder und Vorgangsdetails dieser Werkstatt.",
-    "Aktivitéit, Memberen an Operatiounsdetailer vun dësem Atelier."
-  ],
-  "L’état des services et les mesures disponibles chez Cloudflare.": [
-    "Service status and available Cloudflare measurements.",
-    "Dienststatus und verfügbare Cloudflare-Messwerte.",
-    "Servicestatus an disponibel Cloudflare-Messwäerter."
   ],
   "Membre": ["Member", "Mitglied", "Member"],
   "Membres": ["Members", "Mitglieder", "Memberen"],
@@ -955,11 +925,6 @@
     "How are dispatches progressing?",
     "Wie steht es um die Sendungen?",
     "Wéi steet et mat de Sendungen?"
-  ],
-  "Où vont les envois.": [
-    "Where dispatches go.",
-    "Wohin die Sendungen gehen.",
-    "Wou d’Sendungen higinn."
   ],
   "Page": ["Page", "Seite", "Säit"],
   "Page précédente": ["Previous page", "Vorherige Seite", "Vireg Säit"],
@@ -1088,11 +1053,6 @@
     "Back to guteneo",
     "Zurück zu guteneo",
     "Zréck bei guteneo"
-  ],
-  "Retrouvez chaque équipe, ses usages et sa consommation.": [
-    "Find every team, its usage and consumption.",
-    "Jedes Team, seine Nutzung und seinen Verbrauch finden.",
-    "Fannt all Ekipp, hir Notzung an hire Verbrauch."
   ],
   "Rien à signaler": [
     "Nothing to report",
@@ -1224,17 +1184,7 @@
     "Alle Sendungen und ihre Kosten",
     "All Sendungen an hir Käschten"
   ],
-  "Tous les jobs, leur destination, leur état et leur coût détaillé.": [
-    "All dispatches, their destination, status and detailed costs.",
-    "Alle Sendungen, ihre Ziele, ihr Status und ihre detaillierten Kosten.",
-    "All Sendungen, hir Destinatioun, hire Status an hir detailléiert Käschten."
-  ],
   "Tous les membres": ["All members", "Alle Mitglieder", "All Memberen"],
-  "Tous les membres, leurs ateliers et leurs accès.": [
-    "All members, their workshops and access.",
-    "Alle Mitglieder, ihre Werkstätten und Zugänge.",
-    "All Memberen, hir Atelieren an hiren Zougang."
-  ],
   "Tous les pays observés": [
     "All observed countries",
     "Alle beobachteten Länder",
@@ -1260,16 +1210,6 @@
     "A connection represents a session or authorisation, not each request or real-time presence.",
     "Eine Verbindung entspricht einer Sitzung oder Autorisierung, nicht jeder Anfrage oder einer Anwesenheit in Echtzeit.",
     "Eng Verbindung entsprécht enger Sessioun oder Autorisatioun, net all Ufro oder enger Präsenz an Echtzäit."
-  ],
-  "Une géographie observée, jamais devinée.": [
-    "Observed geography, never guessed.",
-    "Beobachtete Geografie, niemals geschätzt.",
-    "Observéiert Geografie, ni geroden."
-  ],
-  "Une vue, pays par pays.": [
-    "A view, country by country.",
-    "Eine Ansicht, Land für Land.",
-    "Eng Vue, Land fir Land."
   ],
   "Usage déclaré": ["Reported usage", "Gemeldete Nutzung", "Gemellt Notzung"],
   "Usage facturable Cloudflare par service": [
@@ -1561,5 +1501,11 @@
     "Supplier costs, Cloudflare invoices and complete receipts are unavailable.",
     "Lieferantenkosten, Cloudflare-Rechnungen und vollständige Zahlungseingänge sind nicht verfügbar.",
     "Fournisseurskäschten, Cloudflare-Rechnungen an déi vollstänneg Bezuelungsagäng sinn net disponibel."
+  ],
+  "Géographie": ["Geography", "Geografie", "Geografie"],
+  "Source de localisation": [
+    "Location source",
+    "Standortquelle",
+    "Standuertquell"
   ]
 }

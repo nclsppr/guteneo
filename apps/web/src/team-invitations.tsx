@@ -155,9 +155,7 @@ export function TeamInvitations() {
     >
       <h2 id="team-invitations-title">{msg("Invite members")}</h2>
       <p className="field-hint">
-        {msg(
-          "The person who creates a workspace becomes its administrator. Then invite colleagues by email, individually or from a CSV. The chosen role applies to every address in this batch.",
-        )}
+        {msg("The chosen role applies to every address in this batch.")}
       </p>
       <form
         onSubmit={(event) => void prepare(event)}

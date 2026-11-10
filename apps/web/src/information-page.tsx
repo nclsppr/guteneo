@@ -81,12 +81,7 @@ export function getInformationPages(): Record<string, InformationPageContent> {
     "/privacy/": {
       label: msg("Privacy"),
       updated: msg("Updated on 23 October 2026"),
-      title: (
-        <>
-          {msg("Your data, ")}
-          <em>{msg("your rights.")}</em>
-        </>
-      ),
+      title: msg("Privacy"),
       description: msg(
         "The data Guteneo uses, who receives it, how long it is kept and how to exercise your rights.",
       ),
@@ -383,12 +378,7 @@ export function getInformationPages(): Record<string, InformationPageContent> {
     "/terms/": {
       label: msg("Terms of use"),
       updated: msg("Updated on 23 October 2026"),
-      title: (
-        <>
-          {msg("A framework ")}
-          <em>{msg("for your dispatches.")}</em>
-        </>
-      ),
+      title: msg("Terms of use"),
       description: msg(
         "Guteneo beta terms of use: access, documents, authorisations, trial credit and dispatch limits.",
       ),
@@ -558,12 +548,7 @@ export function getInformationPages(): Record<string, InformationPageContent> {
     "/support/": {
       faq: true,
       label: msg("Support"),
-      title: (
-        <>
-          {msg("Need ")}
-          <em>{msg("a helping hand?")}</em>
-        </>
-      ),
+      title: msg("Support"),
       description: msg(
         "Contact Guteneo support about a document, dispatch, connection or data-related request.",
       ),

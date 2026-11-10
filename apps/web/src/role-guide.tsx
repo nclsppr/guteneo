@@ -73,7 +73,7 @@ export function RolePermissionNotice({
 export function getRoleGuide() {
   return {
     label: msg("Roles and permissions"),
-    title: msg("A clear role for every member."),
+    title: msg("Roles and permissions"),
     description: msg(
       "Choose who prepares correspondence, who authorizes dispatches and who reads your workspace reports.",
     ),
@@ -151,11 +151,6 @@ export function getRoleGuide() {
             <p>
               {msg(
                 "In your workspace, open Administration → Workspace members. Choose the role, set the two supervisor options, then save. Changing permissions disconnects the member’s sessions and assistants; they must sign in again. The last administrator cannot give up their role.",
-              )}
-            </p>
-            <p>
-              {msg(
-                "Existing operators keep preparation rights but must now leave approval to an administrator or authorized supervisor. Report access must also be explicitly granted through the Supervisor role.",
               )}
             </p>
           </>

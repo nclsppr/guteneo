@@ -159,7 +159,7 @@ export function Campaigns({
   const locked = !!campaignId.current;
   return (
     <>
-      <PageHeading title={t.campaigns.title} intro={t.campaigns.intro} />
+      <PageHeading title={t.campaigns.title} />
       <DistributionRoadmap />
       {!isPublicPreview && canPrepare && (
         <p className="notice info">
@@ -252,7 +252,8 @@ export function Campaigns({
                   </Definition>
                 </dl>
                 {validated.rows.length > 0 && (
-                  <DataTable viewId="campaign-validation"
+                  <DataTable
+                    viewId="campaign-validation"
                     label={t.campaigns.validationTitle}
                     items={validated.rows}
                     getRowKey={(row) => row.line}
@@ -277,7 +278,8 @@ export function Campaigns({
                       },
                     ]}
                     filters={[
-                      { saveValue: true,
+                      {
+                        saveValue: true,
                         id: "channel",
                         label: t.channel,
                         value: (row) => row.channel,
@@ -419,7 +421,8 @@ export function Campaigns({
       ) : !campaigns.data?.items.length ? (
         <EmptyState title={t.campaigns.empty} />
       ) : (
-        <DataTable viewId="campaigns"
+        <DataTable
+          viewId="campaigns"
           label={t.campaigns.list}
           items={campaigns.data.items}
           getRowKey={(campaign) => campaign.id}
@@ -467,7 +470,8 @@ export function Campaigns({
             },
           ]}
           filters={[
-            { saveValue: true,
+            {
+              saveValue: true,
               id: "status",
               label: t.status,
               value: (campaign) => campaign.status,
@@ -545,7 +549,6 @@ export function Senders({
     <>
       <PageHeading
         title={t.senders.title}
-        intro={t.senders.intro}
         action={
           <RefreshButton
             onClick={() => {
@@ -577,7 +580,8 @@ export function Senders({
       ) : !resource.data?.items.length ? (
         !postalSetup?.available && <EmptyState title={t.senders.empty} />
       ) : (
-        <DataTable viewId="senders"
+        <DataTable
+          viewId="senders"
           label={t.senders.title}
           items={resource.data.items}
           getRowKey={(sender) => sender.id}
@@ -643,7 +647,8 @@ export function Senders({
             },
           ]}
           filters={[
-            { saveValue: true,
+            {
+              saveValue: true,
               id: "channel",
               label: t.channel,
               value: (sender) => sender.channel,

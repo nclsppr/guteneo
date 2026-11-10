@@ -80,7 +80,7 @@ export const en: Copy = {
         "Your organisation receives a one-off €50 welcome credit when its account is created. The price or spending limit for each dispatch is shown before approval.",
       welcomeTitle: "Included when you open your account.",
       welcomeBody:
-        "Your organisation receives a one-off €50 welcome credit when its account is created. This balance is shared across enabled channels: fax, email and postal mail.",
+        "This balance is shared across enabled channels: fax, email and postal mail.",
       welcomeTerms:
         "No monthly renewal. Dispatches stop when the available balance no longer covers their cost.",
       rateLabel: "Indicative customer rates for all three channels",
@@ -191,8 +191,6 @@ export const en: Copy = {
   },
   overview: {
     title: "Your correspondence, at a glance.",
-    intro:
-      "Prepare a document, choose its destination and follow its progress.",
     new: "Prepare a dispatch",
     recent: "Recent dispatches",
     all: "View all dispatches",
@@ -214,8 +212,7 @@ export const en: Copy = {
     attentionAction: "View dispatches to check",
   },
   documents: {
-    title: "The raw material.",
-    intro: "Your original PDFs and generated documents, kept by version.",
+    title: "Documents",
     import: "Import a PDF",
     render: "Compose a letter",
     uploadTitle: "Import the exact document",
@@ -269,11 +266,9 @@ export const en: Copy = {
   },
   dispatch: {
     title: "Prepare your correspondence.",
-    intro:
-      "One document, one recipient, one channel. The dispatch will await your approval.",
+    intro: "The dispatch will await your approval.",
     new: "New dispatch",
     listTitle: "Your dispatch history.",
-    listIntro: "Each row corresponds to one recipient and one channel.",
     chooseDocument: "Choose a document",
     noDocument:
       "No document available. Import or generate a PDF before preparing this dispatch.",
@@ -305,7 +300,6 @@ export const en: Copy = {
     prepare: "Check and prepare",
     preparing: "Preparing…",
     reviewTitle: "Ready for your approval.",
-    reviewIntro: "Check this version before giving your approval.",
     approvalCheck:
       "I have checked the content, recipient, channel and spending limit for this version.",
     approve: "Approve this version",
@@ -360,9 +354,7 @@ export const en: Copy = {
     cancelConfirm: "Yes, request cancellation",
   },
   campaigns: {
-    title: "One letter. Many destinations.",
-    intro:
-      "Check your list, then prepare individual dispatches within a shared campaign.",
+    title: "Campaigns",
     name: "Campaign name",
     namePlaceholder: "September correspondence",
     csv: "Recipient list in CSV format",
@@ -472,9 +464,7 @@ export const en: Copy = {
     revokeConfirm: "Yes, revoke",
   },
   senders: {
-    title: "Who is putting pen to paper?",
-    intro:
-      "Each channel uses an authorised sender specific to your organisation.",
+    title: "Senders",
     empty: "No sender profiles configured.",
     note: "Simulation profiles cannot send real dispatches. For postal mail, an administrator declares the organisation’s authorised sender. Other channels retain their own verification processes.",
     profile: "Profile",

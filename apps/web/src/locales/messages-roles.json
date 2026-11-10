@@ -42,11 +42,6 @@
     "Rollen und Rechte",
     "Rollen a Rechter"
   ],
-  "Un rôle clair pour chaque membre.": [
-    "A clear role for every member.",
-    "Eine klare Rolle für jedes Mitglied.",
-    "Eng kloer Roll fir all Member."
-  ],
   "Choisissez qui prépare la correspondance, qui autorise les envois et qui consulte les rapports de votre atelier.": [
     "Choose who prepares correspondence, who authorizes dispatches and who reads your workspace reports.",
     "Bestimmen Sie, wer die Korrespondenz vorbereitet, Sendungen genehmigt und die Berichte Ihres Arbeitsbereichs liest.",
@@ -112,11 +107,6 @@
     "In your workspace, open Administration → Workspace members. Choose the role, set the two supervisor options, then save. Changing permissions disconnects the member’s sessions and assistants; they must sign in again. The last administrator cannot give up their role.",
     "Öffnen Sie im Arbeitsbereich Verwaltung → Mitglieder des Arbeitsbereichs. Wählen Sie die Rolle, stellen Sie die beiden Supervisor-Optionen ein und speichern Sie. Geänderte Rechte trennen Sitzungen und Assistenten des Mitglieds; eine erneute Anmeldung ist erforderlich. Der letzte Administrator kann seine Rolle nicht abgeben.",
     "Maacht am Atelier Administratioun → Membere vum Atelier op. Wielt d’Roll, passt déi zwou Supervisor-Optiounen un a späichert. Geännert Rechter trennen dem Member seng Sessiounen an Assistenten; hie muss sech nei umellen. De leschten Administrateur kann seng Roll net ofginn."
-  ],
-  "Les opérateurs existants conservent la préparation mais doivent désormais confier l’approbation à un administrateur ou à un superviseur autorisé. L’accès aux rapports doit également être attribué explicitement via le rôle Superviseur.": [
-    "Existing operators keep preparation rights but must now leave approval to an administrator or authorized supervisor. Report access must also be explicitly granted through the Supervisor role.",
-    "Bestehende Sachbearbeiter behalten die Vorbereitung, müssen die Genehmigung aber künftig einem Administrator oder berechtigten Supervisor überlassen. Der Berichtszugriff muss ebenfalls ausdrücklich über die Rolle Supervisor vergeben werden.",
-    "Besteeënd Operateure behalen d’Virbereedung, mussen d’Geneemegung awer elo engem Administrateur oder berechtegte Supervisor iwwerloossen. Den Zougang zu de Rapporte muss och ausdrécklech iwwer d’Roll Supervisor verginn ginn."
   ],
   "Les assistants et les limites": [
     "Assistants and limits",
@@ -248,11 +238,6 @@
     "Invite members",
     "Mitglieder einladen",
     "Memberen invitéieren"
-  ],
-  "La personne qui crée un atelier en devient administrateur. Invitez ensuite vos collaborateurs par e-mail, un par un ou depuis un CSV. Le rôle choisi s’applique à toutes les adresses de ce lot.": [
-    "The person who creates a workspace becomes its administrator. Then invite colleagues by email, individually or from a CSV. The chosen role applies to every address in this batch.",
-    "Wer einen Arbeitsbereich erstellt, wird dessen Administrator. Laden Sie anschließend Mitarbeitende einzeln oder per CSV ein. Die gewählte Rolle gilt für alle Adressen dieser Gruppe.",
-    "Wien en Atelier erstellt, gëtt säin Administrateur. Invitéiert duerno Är Mataarbechter per E-Mail, eenzel oder iwwer eng CSV-Datei. Déi gewielte Roll gëllt fir all Adress an dëser Grupp."
   ],
   "Destinataires et rôle des invitations": [
     "Invitation recipients and role",
@@ -446,5 +431,10 @@
     "You already belong to this workspace. Sign in and select it in My account.",
     "Sie sind bereits Mitglied dieses Arbeitsbereichs. Melden Sie sich an und wählen Sie ihn unter Mein Konto aus.",
     "Dir sidd scho Member vun dësem Atelier. Mellt Iech un a wielt en ënner Mäi Kont aus."
+  ],
+  "Le rôle choisi s’applique à toutes les adresses de ce lot.": [
+    "The chosen role applies to every address in this batch.",
+    "Die gewählte Rolle gilt für alle Adressen dieser Gruppe.",
+    "Déi gewielte Roll gëllt fir all Adress an dëser Grupp."
   ]
 }

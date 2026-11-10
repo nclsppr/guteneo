@@ -159,11 +159,6 @@
     "Validierungsprofil",
     "Validatiounsprofil"
   ],
-  "Choisissez le standard attendu pour votre document.": [
-    "Choose the standard required for your document.",
-    "Wählen Sie den für Ihr Dokument erforderlichen Standard.",
-    "Wielt de Standard, dee fir Äert Dokument erwaart gëtt."
-  ],
   "Contrôle en cours…": ["Checking…", "Prüfung läuft…", "Kontroll leeft…"],
   "Contrôler ce PDF": [
     "Check this PDF",
@@ -288,21 +283,11 @@
     "Prüfen Sie Ihren Arbeitsbereich",
     "Kuckt an Ärem Atelier"
   ],
-  "Repérez les obstacles dans vos PDF avant de les partager.": [
-    "Find barriers in your PDFs before sharing them.",
-    "Erkennen Sie Barrieren in Ihren PDFs, bevor Sie sie teilen.",
-    "Fannt Barrièren an Äre PDFen, ier Dir se deelt."
-  ],
   "Contrôles PDF": ["PDF checks", "PDF-Prüfungen", "PDF-Kontrollen"],
   "Vérification d’accessibilité PDF": [
     "PDF accessibility checks",
     "PDF-Prüfungen zur Barrierefreiheit",
     "PDF-Kontrolle fir Accessibilitéit"
-  ],
-  "Vérifiez les règles techniques d’accessibilité ou d’archivage d’un document, selon vos besoins.": [
-    "Check a document’s technical accessibility or archival rules, when you need it.",
-    "Prüfen Sie bei Bedarf die technischen Regeln für Barrierefreiheit oder Archivierung eines Dokuments.",
-    "Kontrolléiert bei Bedarf déi technesch Reegele fir Accessibilitéit oder Archivatioun vun engem Dokument."
   ],
   "Un contrôle à la demande": [
     "Pay for the check you need",

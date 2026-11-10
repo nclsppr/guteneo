@@ -307,3 +307,12 @@ commit `5296838` binary: 25 unit tests and 8 UI scenarios on iPhone 17 Pro Max/
 iOS 27.0, zero failures. It is distinguished from the official script, whose
 initial Xcode check still returns 69. Exact result:
 `/tmp/guteneo-native-direct-xctests-20261002.xcresult`.
+
+## Interface-copy review
+
+Follow the repository [interface-copy contract](../docs/INTERFACE_COPY.md) when
+changing a native label, caption or empty state. Keep source keys and all four
+translations synchronized, preserving formatting placeholders, privacy, real
+consequences and browser-only review. The [dated audit](../docs/CLEAN_COPY_AUDIT.md)
+records the 1.2.1 source cleanup. Simulator/archive qualification and App Store
+distribution remain separate proof.

@@ -419,13 +419,7 @@ export function PrepareDispatch({
         title={
           channel === "postal" ? msg("Prepare your letter.") : t.dispatch.title
         }
-        intro={
-          channel === "postal"
-            ? msg(
-                "Choose the PDF, its recipient and the envelope window. You will then check the document and price before sending.",
-              )
-            : t.dispatch.intro
-        }
+        intro={t.dispatch.intro}
       />
       <ErrorNotice
         error={
@@ -512,12 +506,7 @@ export function PrepareDispatch({
             </select>
           </Field>
           {!isPublicPreview && (
-            <Field
-              label={msg("Or import a PDF")}
-              hint={msg(
-                "Your file is checked here, without leaving preparation.",
-              )}
-            >
+            <Field label={msg("Or import a PDF")}>
               <FileInput
                 accept="application/pdf,.pdf"
                 onChange={(event) =>
@@ -788,9 +777,7 @@ export function PrepareDispatch({
               </summary>
               <Field
                 label={msg("Maximum budget in euros")}
-                hint={msg(
-                  "The exact price will be shown before sending. Adjust this cap if needed.",
-                )}
+                hint={msg("The exact price will be shown before sending.")}
               >
                 <input
                   type="text"
@@ -980,13 +967,6 @@ export function PrepareDispatch({
                     : emailDraftHtml(text, html)
                 }
               />
-              {!!documentId && emailDeliveryMode === "my_documents" && (
-                <p className="field-hint">
-                  {msg(
-                    "The final button will open My documents for the recipient’s account.",
-                  )}
-                </p>
-              )}
             </>
           ) : documentId && !documentUnavailable ? (
             <PdfPreview id={documentId} />

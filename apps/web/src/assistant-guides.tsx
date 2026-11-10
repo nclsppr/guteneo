@@ -236,11 +236,6 @@ function GuideArticle({
           </ul>
           {!inDashboard ? (
             <div className="assistant-guide-account">
-              <p>
-                {msg(
-                  "You can read this guide without an account. Find it in your workspace to continue.",
-                )}
-              </p>
               <a
                 className="assistant-guide-account-link"
                 href={workspaceEntryHref(`/#/app/connection/${assistant.id}`)}
@@ -249,13 +244,7 @@ function GuideArticle({
                 <ArrowRight size={18} aria-hidden="true" />
               </a>
             </div>
-          ) : (
-            <p className="assistant-guide-account-note">
-              {msg(
-                "Keep this guide open while adding the connection in your app.",
-              )}
-            </p>
-          )}
+          ) : null}
         </aside>
 
         <section

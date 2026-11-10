@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import test from "node:test";
-import { verifyRelease } from "../../scripts/verify-release.mjs";
+import {
+  parseReleaseVerifyConcurrency,
+  verifyRelease,
+} from "../../scripts/verify-release.mjs";
 import site from "../../packages/contracts/src/public-site.json" with { type: "json" };
 import mcpUiProbeManifest from "../../packages/contracts/src/mcp-ui-probe-resource.json" with { type: "json" };
 import mcpDocumentUploadManifest from "../../packages/contracts/src/mcp-document-upload-resource.json" with { type: "json" };
@@ -141,6 +144,8 @@ for (const origin of [primary, fallback]) {
     assert.deepEqual(result.configurationFiles, ["/_headers"]);
     assert.deepEqual(result.dynamicResources, ["/robots.txt"]);
     assert.equal(result.robotsPolicyVerified, true);
+    assert.equal(result.downloadConcurrency, 4);
+    assert.equal(result.requestDeadlineMs, 30_000);
     assert.ok(!f.requests.includes("/index.html"));
     assert.ok(!f.requests.includes("/_headers"));
   });
@@ -160,6 +165,115 @@ test("release proof rejects permissive fallback robots and blocked canonical rob
     );
   }
 });
+
+test("CLI concurrency accepts only literal 1 through 4 and defaults only when absent", () => {
+  assert.equal(parseReleaseVerifyConcurrency(undefined), 4);
+  for (const value of ["1", "2", "3", "4"])
+    assert.equal(parseReleaseVerifyConcurrency(value), Number(value));
+  for (const value of [
+    "",
+    "0",
+    "5",
+    "1.5",
+    "4.0",
+    "01",
+    "+1",
+    "-1",
+    "1e0",
+    " 1",
+    "1 ",
+    "1\n",
+    "\n1",
+    "Infinity",
+    "NaN",
+    1,
+    null,
+    true,
+  ])
+    assert.throws(
+      () => parseReleaseVerifyConcurrency(value),
+      /GUTENEO_RELEASE_VERIFY_CONCURRENCY/,
+    );
+});
+
+test("invalid programmatic concurrency fails before any fetch", async () => {
+  let requests = 0;
+  for (const concurrency of [0, 5, -1, 1.5, NaN, Infinity, "1", null, true])
+    await assert.rejects(
+      verifyRelease(
+        primary,
+        manifest,
+        () => {
+          requests++;
+          throw new Error("Unexpected request");
+        },
+        { concurrency },
+      ),
+      /Download concurrency/,
+    );
+  assert.equal(requests, 0);
+});
+
+for (const concurrency of [1, 4])
+  test(`concurrency ${concurrency} verifies every asset with the same request deadline`, async (t) => {
+    const deadlines = [];
+    t.mock.method(AbortSignal, "timeout", (milliseconds) => {
+      deadlines.push(milliseconds);
+      return new AbortController().signal;
+    });
+    const additional = Array.from({ length: 8 }, (_, index) => ({
+      path: `/videos/synthetic-${index}.mp4`,
+      body: `Synthetic video bytes ${index}`,
+    }));
+    const local = {
+      ...manifest,
+      assets: [
+        ...manifest.assets,
+        ...additional.map(({ path, body }) => asset(path, body)),
+      ],
+    };
+    const base = fixture(primary, { remote: local });
+    const requests = [];
+    let active = 0,
+      peak = 0;
+    const fetcher = async (url, options) => {
+      requests.push(url.pathname);
+      const entry = additional.find((item) => item.path === url.pathname);
+      const response = entry
+        ? new Response(entry.body)
+        : await base.fetcher(url, options);
+      const read = response.arrayBuffer.bind(response);
+      response.arrayBuffer = async () => {
+        active++;
+        peak = Math.max(peak, active);
+        assert.ok(active <= concurrency);
+        try {
+          // Keep the complete body read pending across one event-loop turn.
+          await new Promise((resolve) => setImmediate(resolve));
+          return await read();
+        } finally {
+          active--;
+        }
+      };
+      return response;
+    };
+    const result = await verifyRelease(primary, local, fetcher, {
+      concurrency,
+    });
+    assert.equal(peak, concurrency);
+    assert.equal(active, 0);
+    assert.equal(result.publicAssetsVerified, 2 + additional.length);
+    assert.deepEqual(result.configurationFiles, ["/_headers"]);
+    assert.deepEqual(result.dynamicResources, ["/robots.txt"]);
+    assert.equal(result.robotsPolicyVerified, true);
+    assert.equal(result.securityHeadersVerified, true);
+    assert.equal(result.downloadConcurrency, concurrency);
+    assert.equal(result.requestDeadlineMs, 30_000);
+    assert.equal(deadlines.length, requests.length);
+    assert.ok(deadlines.every((value) => value === 30_000));
+    for (const entry of additional)
+      assert.equal(requests.filter((path) => path === entry.path).length, 1);
+  });
 
 test("release proof rejects an indexed fallback or a noindex canonical page", async () => {
   for (const [origin, pageNoindex] of [

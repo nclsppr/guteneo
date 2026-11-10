@@ -238,15 +238,7 @@ const showToc = headings !== false && (hasToc || headings.length > 0);
                       </div>
                     )}
                     {(markdownUrl || audience === "human") && (
-                      audience === "human" ? (
-                        <div class="mt-3 mb-6 flex items-center gap-3" role="none">
-                          <div class="h-px flex-1 bg-border"></div>
-                          <Badge text="For humans" variant="success" size="small" class="font-mono uppercase border border-success/15" />
-                          <div class="h-px flex-1 bg-border"></div>
-                        </div>
-                      ) : (
-                        <div class={`mt-3 mb-6 h-px w-full bg-border ${hasMobileToc ? "hidden xl:block" : ""}`} role="none" />
-                      )
+                      <div class={`mt-3 mb-6 h-px w-full bg-border ${hasMobileToc && audience !== "human" ? "hidden xl:block" : ""}`} role="none" />
                     )}
                     {!description && !markdownUrl && audience !== "human" && <div class="mb-4" />}
                   </Fragment>

@@ -99,23 +99,18 @@ const navigation = [
   { id: "infrastructure", label: "Infrastructure", icon: Cloud },
 ] as const;
 
-const pageCopy: Record<View, { title: string; description: string }> = {
+const pageCopy: Record<View, { title: string; description?: string }> = {
   overview: {
     title: "Overview",
-    description: "guteneo activity, from workshops to connections.",
   },
   workshops: {
     title: "Workshops",
-    description: "Find every team, its usage and consumption.",
   },
   jobs: {
     title: "Dispatches",
-    description:
-      "All dispatches, their destination, status and detailed costs.",
   },
   members: {
     title: "Members",
-    description: "All members, their workshops and access.",
   },
   connections: {
     title: "Connections",
@@ -127,7 +122,6 @@ const pageCopy: Record<View, { title: string; description: string }> = {
   },
   infrastructure: {
     title: "Infrastructure",
-    description: "Service status and available Cloudflare measurements.",
   },
 };
 
@@ -447,13 +441,9 @@ export default function Belvedere({
                     ? workshop.name || bmsg("Workshop details")
                     : bmsg(pageCopy[view].title)}
                 </h1>
-                <p>
-                  {workshop
-                    ? bmsg(
-                        "Activity, members and operation details for this workshop.",
-                      )
-                    : bmsg(pageCopy[view].description)}
-                </p>
+                {!workshop && pageCopy[view].description && (
+                  <p>{bmsg(pageCopy[view].description)}</p>
+                )}
               </div>
               <div className="bv-heading-actions">
                 {!integrated && <ThemeToggle />}

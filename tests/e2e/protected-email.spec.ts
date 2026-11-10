@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { PDFDocument } from "pdf-lib";
 import { cleanEmailHtml } from "../../packages/contracts/src/content";
+import { deliveryText } from "../../packages/contracts/src/delivery-messages";
 import {
   documentEmailDefaults,
   renderTransactionalEmail,
@@ -1225,6 +1226,8 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
     if (isMobile) await page.setViewportSize({ width: 320, height: 812 });
     const workspaceName = "Atelier de contrôle";
     const url = `https://guteneo.example/?lang=${locale}#/app/my-documents?invitation=synthetic`;
+    const preferencesUrl =
+      "https://guteneo.example/?lang=fr#/email-preferences?token=synthetic";
     const html = cleanEmailHtml(
       renderTransactionalEmail({
         text: documentEmailDefaults(workspaceName, "my_documents", locale).text,
@@ -1232,8 +1235,7 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
         locale,
         accountDocument: { url, retentionDays: 7 },
         documentTitle: "Attestation — Atelier de contrôle.pdf",
-        preferencesUrl:
-          "https://guteneo.example/?lang=fr#/email-preferences?token=synthetic",
+        preferencesUrl,
       }),
     ).html;
     const requests: string[] = [];
@@ -1242,11 +1244,17 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
       `<!doctype html><html lang="${locale}"><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0;background:#f6f5ef">${html}</body></html>`,
     );
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect(page.getByRole("link")).toHaveCount(3);
+    await expect(page.getByRole("link")).toHaveCount(2);
     await expect(page.locator('a[href*="/app/my-documents"]')).toHaveAttribute(
       "href",
       url,
     );
+    await expect(
+      page.getByRole("link", {
+        name: deliveryText("Unsubscribe or report this email", locale),
+        exact: true,
+      }),
+    ).toHaveAttribute("href", preferencesUrl);
     await expect(page.locator("blockquote")).toContainText(
       "Attestation — Atelier de contrôle.pdf",
     );

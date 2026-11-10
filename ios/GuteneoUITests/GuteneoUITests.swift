@@ -399,6 +399,7 @@ final class GuteneoUITests: XCTestCase {
 
     func testAccountSwitchesGermanAndLuxembourgishWithoutLeavingTheProfile() {
         let app = launch(arguments: ["--uitesting-preview"])
+        XCTAssertTrue(app.buttons["prepareDispatch"].waitForExistence(timeout: 10))
         selectTab("Compte", in: app)
         selectAccountLanguage("Deutsch", in: app)
         XCTAssertTrue(app.navigationBars["Konto"].waitForExistence(timeout: 5))

@@ -78,12 +78,7 @@ export default function Administration({
     case administrationRoutes.members:
       return (
         <>
-          <PageHeading
-            title={msg("Members and invitations")}
-            intro={msg(
-              "Roles, approval and report permissions, access and invitations of this workspace.",
-            )}
-          />
+          <PageHeading title={msg("Members and invitations")} />
           <TeamAdmin session={session} onUpdated={onUpdated} />
           {!isPublicPreview && <TeamInvitations />}
           <AdministrationMemberActivity route={route} />

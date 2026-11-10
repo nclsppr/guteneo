@@ -19,7 +19,7 @@ Native candidate; physical-device, signing and distribution qualification remain
 
 <ol>
 <li id="feature-b36c4429bd66">System authentication with dedicated mobile sessions</li>
-<li id="feature-de79d451e881">Adaptive iPhone/iPad navigation and accessibility; English source keys with 261 preserved four-language native translations</li>
+<li id="feature-811ada6a6a16">Adaptive iPhone/iPad navigation and accessibility; direct functional headings and context-reviewed copy with 258 four-language native source keys; browser review, draft recovery, spending limits and real consequences remain explicit</li>
 <li id="feature-fc891a249816">Profile, language and account-deletion request</li>
 <li id="feature-7f4db052e580">PDF import, inspection and search</li>
 <li id="feature-f0840562e65c">Fax/email preparation and tracking</li>

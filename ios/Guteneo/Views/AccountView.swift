@@ -31,22 +31,18 @@ struct AccountView: View {
                 }.accessibilityIdentifier("accountLanguage").disabled(model.isSavingLanguage)
                 if model.isSavingLanguage { ProgressView("Saving language…") }
             } header: { Text("Language") } footer: {
-                Text("Your preference is shared between the website and the app. Your documents and messages remain unchanged.")
+                Text("Your preference is shared between the website and the app.")
             }
             Section("Privacy settings") {
                 NavigationLink("Your data in the app") { PrivacyView() }
                 Link("Privacy policy", destination: Brand.siteURL("/privacy/", locale: locale))
-                Text("Documents are downloaded on demand. Your session is kept in this device’s secure Keychain.")
-                    .font(.footnote).foregroundStyle(.secondary)
             }
             Section("Need help?") {
                 Link(destination: Brand.supportURL) { Label("Contact support", systemImage: "envelope") }
                 NavigationLink("About Guteneo") {
                     List {
                         Wordmark().padding(.vertical)
-                        Text("Prepare documents and follow your Guteneo workspace’s dispatches.")
                         LabeledContent("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")
-                        Text("Native app for iPhone and iPad.")
                         Link("Legal notice", destination: Brand.siteURL("/legal/", locale: locale))
                     }.paperList().navigationTitle("About")
                 }

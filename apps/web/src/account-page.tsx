@@ -108,12 +108,7 @@ export function Account({ session, onUpdated }: Props) {
   }
   return (
     <>
-      <PageHeading
-        title={msg("My account")}
-        intro={msg(
-          "Your identity, assistant permissions and workspace sessions.",
-        )}
-      />
+      <PageHeading title={msg("My account")} />
       <section
         className="form-panel account-identity"
         aria-labelledby="account-identity-title"
@@ -300,7 +295,8 @@ export function Account({ session, onUpdated }: Props) {
               <Loading />
             ) : (
               sessions.data && (
-                <DataTable viewId="active-sessions"
+                <DataTable
+                  viewId="active-sessions"
                   label={msg("Your active sessions")}
                   items={sessions.data.items}
                   getRowKey={(item) => item.id}

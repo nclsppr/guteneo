@@ -206,9 +206,6 @@ export function TemplateLibrary({
     <>
       <PageHeading
         title={msg("Templates")}
-        intro={msg(
-          "One page, your variables, as many documents as you need. You can keep editing your templates on the web, through the API and with your assistant.",
-        )}
         action={
           canPrepare && (
             <button
@@ -1011,9 +1008,7 @@ function EditorBody({
                 </Suspense>
               ) : (
                 <p className="notice info">
-                  {msg(
-                    "This template is read-only. Your permissions allow the actions shown above. ",
-                  )}
+                  {msg("This template is read-only.")}
                 </p>
               )}
             </div>

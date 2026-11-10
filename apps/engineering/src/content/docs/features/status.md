@@ -18,7 +18,7 @@ Customer UI independently published from 03daa4136de8999cc79018f33f2a22038917c62
 ## Capabilities
 
 <ol>
-<li id="feature-6073730fee4e">Independent status.guteneo.com service with fourteen bounded anonymous canonical checks every fifteen minutes and no business bindings/secrets</li>
+<li id="feature-f5c3b1eb851d">Independent status.guteneo.com service with fourteen bounded anonymous canonical checks every fifteen minutes and no business bindings/secrets; customer copy names public access and retains state-specific unknown, stale and error recovery</li>
 <li id="feature-73023a9aec7f">Actual 7/30/365-day history defaults to thirty days, separates received success from expected-slot coverage and renders unknown/precollection days without reconstruction; annual calendar-month aggregates retain all 365 daily rows and explicit partial-data counts</li>
 <li id="feature-a4fd73ace852">Only complete fresh and internally consistent public observations show availability; actual failed checks identify their group, while missing, invalid, unreadable, future, stale or contradictory evidence makes current availability unknown and removes earlier green badges</li>
 <li id="feature-075a0f31b171">Customer-only public interface presents observation time, Public website, Service response, Access protection and accessible history; technical probe, provider/engine qualification, local-proof, GitHub-report and Operations tabs are removed without changing backend evidence or business activation</li>

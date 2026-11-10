@@ -139,11 +139,6 @@
     "Verfügbarkeit und Preis werden durch das Angebot bestätigt.",
     "D'Verfügbarkeet an de Präis ginn duerch d'Devis bestätegt."
   ],
-  "Le prix exact vous sera présenté avant l’envoi. Modifiez ce plafond si nécessaire.": [
-    "The exact price will be shown before sending. Adjust this cap if needed.",
-    "Der genaue Preis wird Ihnen vor dem Versand angezeigt. Ändern Sie diesen Höchstbetrag bei Bedarf.",
-    "De geneeë Präis gëtt Iech virum Versand gewisen. Ännert dësen Héchstbetrag wann néideg."
-  ],
   "Distribution rapide": [
     "Priority delivery",
     "Schnelle Zustellung",
@@ -788,11 +783,6 @@
     "Diese PDF-Version identifizieren",
     "Dës PDF-Versioun identifizéieren"
   ],
-  "Cette empreinte correspond au fichier contrôlé.": [
-    "This fingerprint identifies the checked file.",
-    "Dieser Fingerabdruck entspricht der geprüften Datei.",
-    "Dëse Fangerofdrock entsprécht dem iwwerpréifte Fichier."
-  ],
   "La fenêtre de l’enveloppe": [
     "The envelope window",
     "Das Umschlagfenster",
@@ -1172,11 +1162,6 @@
     "Prepare your letter.",
     "Bereiten Sie Ihren Brief vor.",
     "Bereet Äre Bréif vir."
-  ],
-  "Choisissez le PDF, son destinataire et la fenêtre de l’enveloppe. Vous vérifierez ensuite le document et le prix avant l’envoi.": [
-    "Choose the PDF, its recipient and the envelope window. You will then check the document and price before sending.",
-    "Wählen Sie das PDF, den Empfänger und das Umschlagfenster. Anschließend prüfen Sie das Dokument und den Preis vor dem Versand.",
-    "Wielt de PDF, säin Empfänger an d'Fënster vun der Enveloppe. Duerno iwwerpréift Dir d'Dokument an de Präis virum Versand."
   ],
   "Préparation de l’envoi": [
     "Delivery preparation",
@@ -3302,5 +3287,10 @@
     "The active schedule still owns this original command. Open and cancel that schedule itself.",
     "Der aktive Zeitplan steuert weiterhin den ursprünglichen Versand. Öffnen und stornieren Sie diesen Zeitplan selbst.",
     "Den aktiven Zäitplang kontrolléiert nach ëmmer den urspréngleche Versand. Maacht dësen Zäitplang op an annuléiert en direkt."
+  ],
+  "Le prix exact vous sera présenté avant l’envoi.": [
+    "The exact price will be shown before sending.",
+    "Der genaue Preis wird Ihnen vor dem Versand angezeigt.",
+    "De geneeë Präis gëtt Iech virum Versand gewisen."
   ]
 }
