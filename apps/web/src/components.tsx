@@ -318,7 +318,13 @@ export function ErrorNotice({
         </p>
         {error instanceof ApiError &&
           !authenticationRecovery &&
-          !quoteRecovery && <small className="mono">{error.code}</small>}
+          !quoteRecovery && (
+            // The code helps support; it stays out of the sentence a person reads.
+            <details className="error-details">
+              <summary>{msg("Details")}</summary>
+              <small className="mono">{error.code}</small>
+            </details>
+          )}
         {authenticationRecovery && (
           <a
             className="button primary"

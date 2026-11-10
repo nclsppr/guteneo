@@ -3521,3 +3521,18 @@ ol {
     top: 16px;
   }
 }
+
+/* Error reference, folded under the message. */
+.error-details {
+  margin-top: 6px;
+}
+.error-details > summary {
+  width: fit-content;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.error-details > small {
+  display: block;
+  margin-top: 4px;
+  user-select: all;
+}
