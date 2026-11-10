@@ -101,6 +101,63 @@ final class GuteneoUITests: XCTestCase {
         attachScreenshot(app, name: "Reference quote — no approval")
     }
 
+    func testDeviceDraftSurvivesTerminationAndRequiresExplicitResume() {
+        let arguments = ["--uitesting-preview", "--uitesting-draft-storage", UUID().uuidString]
+        let app = launch(arguments: arguments)
+        XCTAssertTrue(app.buttons["prepareDispatch"].waitForExistence(timeout: 10))
+        app.buttons["prepareDispatch"].tap()
+        let recipient = app.textFields["recipient"]
+        XCTAssertTrue(recipient.waitForExistence(timeout: 5))
+        recipient.tap(); recipient.typeText("+33123456789")
+        let save = app.buttons["saveDraft"]
+        for _ in 0..<6 where !save.isHittable { app.swipeUp() }
+        XCTAssertTrue(save.isHittable)
+        save.tap()
+        XCTAssertTrue(app.buttons["prepareDispatch"].waitForExistence(timeout: 5))
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(app.buttons["prepareDispatch"].waitForExistence(timeout: 10))
+        app.buttons["prepareDispatch"].tap()
+        XCTAssertTrue(app.buttons["resumeDraft"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.textFields["recipient"].exists, "Opening composition must not silently restore or submit a draft")
+        attachScreenshot(app, name: "Saved draft — explicit resume")
+        app.buttons["resumeDraft"].tap()
+        XCTAssertTrue(app.textFields["recipient"].waitForExistence(timeout: 5))
+        XCTAssertEqual(app.textFields["recipient"].value as? String, "+33123456789")
+        app.buttons["Fermer"].tap()
+        XCTAssertTrue(app.buttons["prepareDispatch"].waitForExistence(timeout: 5))
+        app.buttons["prepareDispatch"].tap()
+        XCTAssertTrue(app.buttons["discardSavedDraft"].waitForExistence(timeout: 5))
+        app.buttons["discardSavedDraft"].tap()
+        XCTAssertTrue(app.buttons["confirmDiscardDraft"].firstMatch.waitForExistence(timeout: 5))
+        app.buttons["confirmDiscardDraft"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["prepareDispatch"].waitForExistence(timeout: 5))
+        app.buttons["prepareDispatch"].tap()
+        XCTAssertTrue(app.textFields["recipient"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["resumeDraft"].exists)
+        XCTAssertNotEqual(app.textFields["recipient"].value as? String, "+33123456789")
+        assertNoPurchaseCallToAction(in: app)
+    }
+
+    func testScheduledSourceOffersOnlyBrowserScheduleNavigation() {
+        let app = launch(arguments: ["--uitesting-preview"])
+        XCTAssertTrue(app.buttons["prepareDispatch"].waitForExistence(timeout: 10))
+        selectTab("Envois", in: app)
+        let scheduled = element("dispatch.row.preview-dispatch-4", in: app)
+        for _ in 0..<3 where !scheduled.exists { app.swipeUp() }
+        XCTAssertTrue(scheduled.waitForExistence(timeout: 5))
+        XCTAssertTrue(scheduled.staticTexts["Retenu par une programmation"].exists)
+        scheduled.tap()
+        let openSchedule = app.buttons["openDispatchSchedule"]
+        for _ in 0..<4 where !openSchedule.exists { app.swipeUp() }
+        XCTAssertTrue(openSchedule.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["Ouvrir la validation sécurisée"].exists)
+        XCTAssertFalse(app.buttons["Annuler cet envoi"].exists)
+        XCTAssertFalse(app.staticTexts["Votre validation"].exists)
+        attachScreenshot(app, name: "Scheduled source — browser navigation only")
+        assertNoPurchaseCallToAction(in: app)
+    }
+
     func testAccessibilityTextSizeKeepsAccountNavigationAvailable() {
         let app = launch(arguments: [
             "--uitesting-preview",

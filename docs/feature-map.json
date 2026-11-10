@@ -1,8 +1,8 @@
 {
   "title": "Guteneo feature tree and developer atlas",
-  "updated": "2026-11-09",
+  "updated": "2026-11-10",
   "scope": "Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.",
-  "roleNote": "Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards. Personal account authority is separate from workspace membership. Template/default email copy and link placeholders grant no approval or recipient consent. Sensitive approval and recipient association always require the browser under the active document policy; an expert mandate cannot replace them.",
+  "roleNote": "Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards. Personal account authority is separate from workspace membership. Template/default email copy and link placeholders grant no approval or recipient consent. Sensitive approval and recipient association always require the browser under the active document policy; an expert mandate cannot replace them. Future_browser spending approval is separate from ordinary approval and expert delegation and has no assistant/native grant surface. Saved recipients require current preparation rights; webhook configuration/secrets require an actual current administrator browser session. Browser presentation and device-local drafts grant no authority.",
   "groups": [
     {
       "title": "Access and identity",
@@ -48,7 +48,9 @@
         "Authenticated account reads and independent login/callback digests overlap while retaining saved appearance, canonical invitation validation, transaction-bound issuer, nonce and subject checks before session writes",
         "Four-language Auth0 account email candidates with normalized request language and English fallback; current owned application IDs scope body, subject and sender while exact prior Liquid fields preserve other or missing clients. Offline Liquid/browser proof, remote application and real delivery remain separate; enabled flags, redirect and expiry are unchanged",
         "Account deletion request and separate default-off private operator processing: a frozen reviewed plan blocks unsafe workspace closure and unresolved liabilities, revokes all authentication, verifies exact storage/identity erasure and delivered completion-notice evidence, minimizes the retained historical skeleton, and never calls a disabled profile completed deletion; no public or MCP processor authority",
-        "Browser session-expiry events carry their request session revision; a stale 401 after session replacement cannot expire the current account, while current-session failures still trigger recovery"
+        "Browser session-expiry events carry their request session revision; a stale 401 after session replacement cannot expire the current account, while current-session failures still trigger recovery",
+        "The shared browser authority identity includes person, workspace, effective role/options, credential revision and document-policy facts, with an opaque in-memory key; A→B→A visits cannot revive obsolete requests or private cache entries",
+        "Account deletion explicitly purges attributed saved contacts, retires pending schedules/future grants and crypto-shreds webhook configuration under reviewed retention; accepted or uncertain provider liabilities remain genuine blockers, not a blanket ban on new feature owners"
       ],
       "status": "Unified personal account and optional workspace implementation; migrations, aligned document policy, Auth0 configuration and connected production qualification require separate evidence.",
       "tests": [
@@ -76,7 +78,9 @@
         "tests/security/auth0-email-branding.test.mjs",
         "tests/auth0-email-e2e/email.spec.ts",
         "tests/integration/account-deletion.test.ts",
-        "tests/security/account-deletion-operator.test.mjs"
+        "tests/security/account-deletion-operator.test.mjs",
+        "tests/unit/client-foundations.test.ts",
+        "tests/unit/action-outcomes.test.ts"
       ],
       "surfaces": "Personal browser authority and workspace/native sessions; REST/MCP resource OAuth with explicit same-tenant issuer trust, independently selected discovery and canonical identity/connection/mandate keys.",
       "id": "identity",
@@ -99,7 +103,9 @@
         "Login email distinguishes members with the same name; effective permissions stay readable",
         "Sensitive preparations are visible to their creator and current approvers; operators and observers gain no general access to other preparations",
         "Sensitive approval and recipient/account association require a browser under the current document policy; OAuth confirmation follows recorded browser evidence, with no expert-mandate substitute",
-        "Workspace roles grant no access to another person’s vault; a recipient gains no membership in the sender’s workspace"
+        "Workspace roles grant no access to another person’s vault; a recipient gains no membership in the sender’s workspace",
+        "Future schedule approval is distinct from ordinary browser review and expert mandates: only browser administrators or independently authorized supervisor approvers grant it; preparers can draft and authorized owners can revoke, while assistants/native cannot approve",
+        "Saved destination data is limited to current preparers, and callback configuration/signing secrets to current browser administrators; an observer role or reporting permission alone grants neither contact export nor callback administration"
       ],
       "status": "Implemented; invitations require separately configured delivery.",
       "tests": [
@@ -107,7 +113,10 @@
         "tests/unit/account.test.ts",
         "tests/e2e/account-identity.spec.ts",
         "tests/integration/secure-approval-boundary.test.ts",
-        "tests/unit/mcp-secure-distribution.test.ts"
+        "tests/unit/mcp-secure-distribution.test.ts",
+        "tests/integration/saved-recipients.test.ts",
+        "tests/integration/dispatch-schedules.test.ts",
+        "tests/integration/customer-webhooks.test.ts"
       ],
       "surfaces": "Authenticated browser; invitation emails are authored in English.",
       "id": "team",
@@ -660,16 +669,28 @@
         "Eligible cancellation and review of uncertain operations",
         "Channel/ceiling administration without blind retries",
         "Path-scoped browser refresh prevents stale resources or cancelled 401s from replacing a newer session",
-        "Frozen nonempty campaigns complete automatically only after every immutable member is operationally closed with no execution lease, unresolved invocation or reserved quota/credit; postal handover is execution closure, never recipient receipt, and late ranked facts remain projectable"
+        "Frozen nonempty campaigns complete automatically only after every immutable member is operationally closed with no execution lease, unresolved invocation or reserved quota/credit; postal handover is execution closure, never recipient receipt, and late ranked facts remain projectable",
+        "Reusable tenant-scoped fax, email and postal recipients require current preparation authority even for reads; validated optimistic-revision edits affect the address book only, and immutable dispatch recipients retain their snapshots",
+        "Saved-recipient creation has a durable tenant-scoped idempotency receipt; deletion removes contact data and an old create-key replay cannot resurrect it; bounded pages and a 1,000-contact workspace limit remain explicit",
+        "Scheduled fax and message-only email use a distinct revocable future_browser grant from an actual current browser approver, binding exact source content, destination, sender, options, UTC instant, fifteen-minute acceptance window and integer total cap within thirty days",
+        "Draft schedules hold ordinary approval and immediate acceptance of the original without reserving funds; default-off automatic release refuses approval while disabled, prepares a fresh quote within cap and rechecks both principals, source, provider and funds before atomic quota/outbox acceptance Held originals project into in-progress lists/counts, while draft-schedule approval attention opens its distinct review. Ordinary cancellation also refuses a held original, including an already-cancelled source; future authority is revoked only through its schedule operation.",
+        "A schedule has one immutable release command; current-source and revocation races are fenced in SQL, actual Telnyx/SES/Resend bridges consume separate accepted future evidence, and unknown outcomes never auto-retry",
+        "Secure/protected/PDF-email/postal and review-only fax cannot gain schedule authority; explicit terminal recovery is offered only for known-unsent blocked/cancelled work, with a new cap/time and no inherited approval"
       ],
-      "status": "Implemented; role, exact-document and channel gates apply.",
+      "status": "Implemented tracking and campaign contracts. The 9 November lifecycle candidate adds contacts and separately approved schedules, with migrated-D1 and synthetic production-bridge tests; migrations 0078/0080, release activation, hosted clients and actual future delivery require separate qualification.",
       "tests": [
         "tests/integration/domain-invariants.test.ts",
         "tests/e2e/resource-navigation.spec.ts",
         "tests/unit/web-api-cancellation.test.ts",
-        "tests/integration/campaign-lifecycle.test.ts"
+        "tests/integration/campaign-lifecycle.test.ts",
+        "tests/integration/saved-recipients.test.ts",
+        "tests/integration/dispatch-schedules.test.ts",
+        "tests/helpers/scheduled-production-fixture.ts",
+        "tests/integration/lifecycle-http.test.ts",
+        "tests/e2e/dispatch-schedules.spec.ts",
+        "tests/e2e/lifecycle-workspace.spec.ts"
       ],
-      "surfaces": "Web, REST and MCP; reporting and approval rights are independently checked.",
+      "surfaces": "Web, existing OAuth REST and nine additive MCP contact/schedule tools under existing scopes; future approval is browser-only. Native gains no contact/schedule API or approval surface. Detailed contracts: SCHEDULED_DISPATCHES.md and lifecycle integration routes.",
       "id": "campaigns",
       "category": "Operate",
       "availability": "capability-gated",
@@ -680,7 +701,16 @@
         "get_dispatch_status",
         "list_dispatches",
         "prepare_dispatch",
-        "review_dispatch"
+        "review_dispatch",
+        "list_saved_recipients",
+        "get_saved_recipient",
+        "save_recipient",
+        "update_saved_recipient",
+        "delete_saved_recipient",
+        "list_dispatch_schedules",
+        "get_dispatch_schedule",
+        "prepare_dispatch_schedule",
+        "cancel_dispatch_schedule"
       ],
       "rest": [
         "GET /api/dispatches",
@@ -691,7 +721,18 @@
         "GET /api/campaigns",
         "POST /api/campaigns",
         "GET /api/campaigns/{id}",
-        "POST /api/recipients/validate"
+        "POST /api/recipients/validate",
+        "GET /api/recipients",
+        "POST /api/recipients",
+        "GET /api/recipients/{id}",
+        "PATCH /api/recipients/{id}",
+        "DELETE /api/recipients/{id}",
+        "GET /api/dispatch-schedules/capabilities",
+        "GET /api/dispatch-schedules",
+        "POST /api/dispatch-schedules",
+        "GET /api/dispatch-schedules/{id}",
+        "POST /api/dispatch-schedules/{id}/approve",
+        "POST /api/dispatch-schedules/{id}/cancel"
       ]
     },
     {
@@ -771,7 +812,9 @@
         "MCP bodies limited to 2 MiB and 120,000 elements; existing 100,000-cell business limit remains",
         "Reproducible standalone Claude Code and relative-source local marketplace archives; six workflows without OpenAI metadata or tool preauthorisation",
         "MCP custom-domain discovery and signed issuer snapshot preserve canonical data keys, legacy credentials, current postal/expert fences and unchanged scopes; host consent and refresh remain separately qualified",
-        "Every MCP change reviews and versions the ChatGPT package in the same release; CI/build compare recorded package and MCP direct-import fingerprints, then regenerate the downloadable archive and exact manifest hash; indirect behavior and actual host installation require separate review"
+        "Every MCP change reviews and versions the ChatGPT package in the same release; CI/build compare recorded package and MCP direct-import fingerprints, then regenerate the downloadable archive and exact manifest hash; indirect behavior and actual host installation require separate review",
+        "Nine additive contact/schedule tools expose tenant-scoped contact CRUD and schedule list/read/prepare/cancel under existing dispatch scopes; the actual catalogue is 84 ordinary tools and 92 with the eight existing opt-in tools",
+        "No assistant tool creates, extends or asserts future_browser approval or customer-webhook activation; schedule preparation discloses the original acceptance hold and known-unsent orphan cleanup, while host confirmation never substitutes for current server authority"
       ],
       "status": "Contracts/packages and 1.1.6 publication have bounded actual Claude Desktop selected-original storage/readiness proof, owned by CLAUDE_QUALIFICATION.md. Registered-ID delivery to the model failed; the 1.1.8 source candidate adds text context and receipt resilience with actual-host retest pending. The selected window is closed and general activation remains pending. Other hosts/devices, OAuth refresh, archive installation and marketplace publication retain separate evidence requirements.",
       "tests": [
@@ -792,7 +835,9 @@
         "tests/security/integration-sync.test.mjs",
         "tests/security/preview-release-assets.test.mjs",
         "tests/preview-e2e/assistant-hub.spec.ts",
-        "tests/e2e/assistant-hub.spec.ts"
+        "tests/e2e/assistant-hub.spec.ts",
+        "tests/integration/saved-recipients.test.ts",
+        "tests/integration/dispatch-schedules.test.ts"
       ],
       "surfaces": "Public/account browser guides and generated static downloads; REST/OpenAPI, MCP and host-specific packages. Compatible-host MCP Apps have separately gated no-content diagnostic and selected-local-original transport resources; tool-only workflows remain useful. Archive/App access creates no OAuth consent, membership, mandate or channel activation; native host installation, file payloads and attachment handoff remain separately qualified.",
       "id": "assistants",
@@ -850,15 +895,19 @@
         "Signing, physical-device, TestFlight and App Store qualification remain separate",
         "Read preferredDashboardAppearance in account/session without a native setting/PATCH",
         "Swift opens canonical /auth/mobile/authorize; the server selects the configured browser domain and preserves mobile PKCE return, distinct from the native callback",
-        "Native dispatch preparation owns one immutable submitted draft and stable retry key, locks authoring while pending and rejects duplicate begin; terminal preparation never grants browser send approval"
+        "Native dispatch preparation owns one immutable submitted draft and stable retry key, locks authoring while pending and rejects duplicate begin; terminal preparation never grants browser send approval",
+        "Device-local fax/email composer drafts survive process relaunch in non-synchronizing WhenUnlockedThisDeviceOnly Keychain storage, partitioned by exact user/workspace; at most five drafts and 768 KiB are retained for seven days without silent capacity eviction",
+        "Explicit resume/discard uses optimistic local revisions and current authenticated identity; submitted stable keys and confirmed preparation references survive uncertainty, while storage errors remain visible and unknown preparation recovery never creates a replacement key or browser consent"
       ],
       "status": "Native candidate; physical-device, signing and distribution qualification remain separate.",
       "tests": [
         "tests/e2e/mobile-account.spec.ts",
         "tests/integration/mobile.test.ts",
-        "ios/GuteneoTests/CoreTests.swift"
+        "ios/GuteneoTests/CoreTests.swift",
+        "ios/GuteneoTests/DispatchDraftTests.swift",
+        "ios/GuteneoUITests/GuteneoUITests.swift"
       ],
-      "surfaces": "Native SwiftUI client and versioned mobile API; authenticated browser for final approval.",
+      "surfaces": "Native SwiftUI client and existing versioned mobile API, plus private device-local draft storage; authenticated browser for final approval. No native schedule, future-consent or webhook authority is added.",
       "id": "native",
       "category": "Interfaces",
       "availability": "local-candidate",
@@ -893,7 +942,8 @@
         "Self-hosted interface fonts use optional display and three emitted-asset preloads, preserving the approved type when ready while keeping already-visible text geometry stable when font delivery is slow; delayed-font tests qualify desktop and mobile browsers separately, and shared public heading wrapping and responsive wordmark/action bounds preserve narrow layouts with unavailable-font metrics",
         "Ordinary same-origin links between registered public pages retain one browser document and loaded application; all small public page components are available on the first interactive click without HTML, route-code, session or private-data prefetch. Canonical English URLs, four-language presentation, static direct entries, history, anchors, focus and destination metadata remain coherent; unavailable initial JavaScript retains the complete static page. Pointer route focus does not frame script-focused containers; keyboard route focus underlines the new main title in the brand blue while interactive controls retain their focus indicators",
         "Public film play controls are disabled in server HTML until the client handler mounts; releasing route code starts no movie, and the first enabled click keeps playback/fullscreen in the native gesture with the resolved locale",
-        "Public fixture PDFs initialize concurrently with deterministic order, no business bindings or extra network dependency"
+        "Public fixture PDFs initialize concurrently with deterministic order, no business bindings or extra network dependency",
+        "Active-locale browser code loading keeps inactive translation packs off initial public routes and waits for the chosen catalogue before mounting; unchanged PDF-check pricing metadata is a pure contract module without validation-runtime imports"
       ],
       "status": "The 25 October public hierarchy, four detail routes, shared footer, four-language static generation and appearance were published from main 03daa4136de8999cc79018f33f2a22038917c621. Canonical served assets and four-language public layout/link checks passed. The 27 October stable-language, public-session removal and initial-example-CSS correction is a local candidate; its measured build graph adds 1092 gzip CSS bytes without another initial stylesheet request. Current-source browser checks, CI and publication remain separately evidenced. The separate preview retains an isolated provider asset-delivery failure; indexing, provider and real financial qualification remain separate. The 28 October navigation candidate removes repeated document/app startup between public pages; local measurements, CI and publication remain separate.",
       "tests": [
@@ -921,7 +971,10 @@
         "tests/preview-e2e/font-render-stability.spec.ts",
         "tests/unit/public-navigation.test.ts",
         "tests/preview-e2e/public-navigation.spec.ts",
-        "tests/unit/web-async-preview.test.ts"
+        "tests/unit/web-async-preview.test.ts",
+        "tests/unit/locale-projections.test.ts",
+        "tests/e2e/locale-loading.spec.ts",
+        "tests/e2e/lifecycle-accessibility.spec.ts"
       ],
       "surfaces": "Public browser/static documents and four-language frontend/video catalogues; request-language negotiation adds no REST/MCP operation or native capability. Preview has no business bindings. Authenticated account language, membership and approval remain separately guarded.",
       "id": "public",
@@ -950,7 +1003,7 @@
         "Generation introduction focuses on finding PDFs and makes clear that generation sends nothing",
         "Official identity and real documents, metrics and controls remain; decorative DashboardArtwork panels and swallow styling are retired from overview, empty Documents and assistant introduction, without replacement illustrations",
         "Four-language labels; simulation notices only for simulated sessions",
-        "Same four roles, supervisor options, private access and consents; no new mandate, channel or business API/MCP tool",
+        "Shared layout and presentation retain the four roles, supervisor options, private access and consent gates; the separately documented contact, schedule and callback services own their API/MCP changes",
         "Native account/session reads include appearance without a setter; existing name/language browser PATCH and native language PATCH remain compatible",
         "On screens up to 1024 px the account sits beside the brand as a named 44 px avatar whose menu opens towards the page, and a one-entry personal navigation is hidden; empty Dispatches offer New dispatch and From a generation to members who can prepare",
         "Two separate switchers open the shared V2 sidebar: the application switcher (Studio, Correspondence, My documents; in every application) and, in Studio and Correspondence only, the workspace switcher (current workspace, other memberships, create or join). The workspace list is read only when its panel opens, belongs to one account/workspace/authority identity so a late or earlier list is never shown, is read again after a refused membership, honours the existing unsaved-work veto before switching, and both panels close on Escape (including after a Safari pointer click), an outside pointer or any navigation; triggers are 40/36 px for desktop pointers and 44 px on touch screens; identity actions stay in the account menu",
@@ -968,12 +1021,24 @@
         "All four application import exceptions are removed: personal lazy entry, correspondence preference helper, shared entry-link style and locale-change event replace the former eager/cross-layer dependencies",
         "Explicit route-code recovery refreshes only failed same-origin public JS/CSS assets before reloading, with no credentials/referrer/private query, at most eight requests, an eight-MiB per-response read bound and five-second timeout; no background retry or business endpoint is added",
         "Shared data-table.tsx/model/styles provide accent-insensitive multiword search, optional categorical filters, raw-value column sorting with accessible headers/mobile controls, page-size selection and bounded browser pagination over already authorized loaded rows; container-based 40-rem cards keep consistent padding while wider tables contain horizontal overflow, and static/reference/editable grids retain their specialized behavior",
-        "Table controls reset the browser page after search/filter/sort/page-size changes, clamp shrinking results, offer clear-filter recovery and persist no search or record state; explicit cursor loading stays visible, server-paged Belvédère search/pagination remains authoritative and local column sorting identifies its current-page scope; four human roles, personal isolation and business authority are unchanged",
+        "Table controls reset the browser page after search/filter/sort/page-size changes, clamp shrinking results and offer clear-filter recovery; explicit saved presets persist only bounded presentation options in a person/workspace/table/area partition, while searches, rows and cursor state remain transient and server paging stays authoritative",
         "DEV + public-preview + loopback-only simulation controls select four fictional membership roles and a separate observer platform-access hint; unsaved-navigation veto, scenario identity remount and scoped IDs/cursors preserve account separation without Auth0, memberships or business authority",
         "Reproducible seeded Small/Large/Huge/Extreme metadata profiles expose up to one billion logical documents, dispatches, templates, datasets and generations while generating at most fifty records per read; generated volumes and fictional personal documents are read-only, bounded PDF caches materialize only requested bytes and fixture failures never fall through to production",
-        "Shared table regions have distinct accessible names and source-range captions retain table naming; keyboard journeys traverse added search/sort controls, pagination tests inspect all loaded rows, and responsive assertions distinguish active cards from intentionally scrollable wider tables"
+        "Shared table regions have distinct accessible names and source-range captions retain table naming; keyboard journeys traverse added search/sort controls, pagination tests inspect all loaded rows, and responsive assertions distinguish active cards from intentionally scrollable wider tables",
+        "A metadata-only outcome tray retains up to twenty confirmed action receipts for fifteen minutes when a view is abandoned; it never guesses success, replays a write, stores content/recipients/secrets or survives an authority change",
+        "Overview attention is a browser-only SQL-derived authorized queue across the full dataset, with stable priority/cursor pagination for unknown submissions, blocked/unknown schedules, expiring quotes/protected links and eligible ordinary and distinct future-schedule approvals; it is independent of the first dispatch page",
+        "A localized Cmd/Ctrl+K command palette searches up to thirty permitted navigation destinations with keyboard selection, modal focus and existing unsaved-navigation guards; it performs no remote search or business action",
+        "Opt-in saved table views retain at most eight named presentation presets per authenticated person/workspace/table and application area: schema-validated sort, categorical filters and page size only, never rows, recipients, free-text searches, cursors, credentials or authority",
+        "Default useAction continuations cross view.wait checkpoints and synchronously exclude same-turn re-entry before React renders; obsolete replies may publish only confirmed metadata receipts and cannot perform dependent writes, reveal secrets or navigate",
+        "One shared navigation revision records leave-and-return and A→B→A visits, while the canonical authority key invalidates action ownership, read resources and bounded list sharing across person/workspace/permission/credential/policy changes",
+        "Visibility-aware read polling pauses hidden pages, performs one eligible read on return and backs off unchanged progress within a thirty-second default ceiling without replacing in-flight reads or retrying mutations",
+        "Allowlisted collection reads share a five-second memory-only cache bounded to sixty-four entries and 32,768 serialized characters per value; identity/locale scope and mutation-attempt invalidation protect data, while detail/readiness/approval reads bypass it and authority refusals clear stale private models",
+        "Browser locale packs load only the active French, English, German or Luxembourgish catalogue before mounting translated content; SSR retains synchronous source catalogues and Belvédère has independent per-locale packs, with transfer/first-content evidence recorded separately",
+        "Shared chart colors, elevation and frame geometry use design-system tokens; the applications manifest has zero import and zero design exceptions, preserving application ownership rather than adding exemptions",
+        "Automated Axe journeys cover four locales and both themes with keyboard, modal, responsive and authority fixtures; these are bounded browser/synthetic checks, not a claim of complete accessibility or physical-device certification",
+        "Dispatch routes are split into overview/documents/prepare/list/detail modules with compatibility exports; the former shared stylesheet is ordered foundation/workspace/documents/operations/responsive/public/adaptation modules, and Belvédère routes lazily load independent views with shared typed data/components"
       ],
-      "status": "The 29 October 2026 Studio space, the application/workspace switchers and the four-application ownership check are a local source candidate requiring CI and publication evidence. The 29 October 2026 Classic retirement is a local source candidate requiring CI and publication evidence: every account sees V2, and the stored preference stays accepted without changing the web layout. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority. The shared outlined personal-context navigation refinement is a local source candidate requiring its own rendered and publication evidence. The 29 October compact V2 navigation and account-menu refinement is a local source candidate requiring CI and publication evidence. The 30 October shared operational-table refinement is locally qualified with synthetic model/browser checks and measured loading recorded in docs/FRONTEND_PERFORMANCE.md; hosted CI and publication remain separate.",
+      "status": "Current source uses the single V2 layout across five independently owned applications with zero import/design exceptions. The 9 November lifecycle candidate adds outcomes, full-dataset attention, navigation and bounded presentation presets, shared continuation/identity/navigation/poll/cache foundations, active-locale loading and three module splits. Exact-source tests, rendered accessibility, transfer and first-content evidence belong in LIFECYCLE_EXPERIENCE_EXECUTION.md and FRONTEND_PERFORMANCE.md; implementation alone establishes no hosted publication or physical-device qualification.",
       "tests": [
         "tests/unit/account.test.ts",
         "tests/integration/mobile.test.ts",
@@ -1003,14 +1068,26 @@
         "tests/unit/local-preview-scenarios.test.ts",
         "tests/unit/local-preview-personal.test.ts",
         "tests/unit/local-preview-controls.test.ts",
-        "tests/local-preview-e2e/scenarios.spec.ts"
+        "tests/local-preview-e2e/scenarios.spec.ts",
+        "tests/unit/action-outcomes.test.ts",
+        "tests/unit/client-foundations.test.ts",
+        "tests/unit/table-views.test.ts",
+        "tests/unit/locale-projections.test.ts",
+        "tests/security/client-action-boundaries.test.mjs",
+        "tests/integration/attention-queue.test.ts",
+        "tests/e2e/lifecycle-workspace.spec.ts",
+        "tests/e2e/locale-loading.spec.ts",
+        "tests/e2e/lifecycle-accessibility.spec.ts",
+        "tests/security/check-applications.test.mjs"
       ],
-      "surfaces": "Authenticated web V2 only; native reads the stored preference without a setter; no new business API/MCP authority.",
+      "surfaces": "Shared authenticated browser frame and application-owned lazy modules. Attention uses a new browser-only metadata read; outcomes, navigation commands and saved presentation presets grant no business authority. Native local drafts and backend contact/schedule/callback surfaces are documented separately.",
       "id": "dashboard",
       "category": "Operate",
       "availability": "browser-session",
       "tools": [],
-      "rest": []
+      "rest": [
+        "GET /api/attention"
+      ]
     },
     {
       "title": "PDF verification",
@@ -1148,7 +1225,9 @@
         "Session responses expose only canAccessBelvedere for shared application navigation, never a private slug or token; personal projection additionally checks the matching current workspace browser session/evidence",
         "Canonical entry uses shared application/account controls, demand-loaded seven-view UI and interactive globe; observation filters never switch operational membership",
         "All operational and chart-detail tables reuse shared column sorting and responsive presentation; server-paged lists preserve existing server search/filter/pagination and label local sorting as current-page only, while complete chart/monthly/service arrays use client search and pagination without new reads or platform authority",
-        "The loopback fictional platform account opens a separate GET/HEAD-only Belvedere fixture with seeded bounded pages, arithmetic totals and preserved locale; the default fixture remains compatible and no real platform access, credentials, provider or backend mutation is created"
+        "The loopback fictional platform account opens a separate GET/HEAD-only Belvedere fixture with seeded bounded pages, arithmetic totals and preserved locale; the default fixture remains compatible and no real platform access, credentials, provider or backend mutation is created",
+        "The platform shell uses the same frame/theme and independently lazy overview/workshops/members/jobs/connections/finance/infrastructure views with active-locale packs; every platform read retains its distinct signed browser authority",
+        "Saved platform table presentation is partitioned by the authenticated principal and platform area, never a synthetic shared account; the HTML-escaped shell principal hint is cosmetic only, adds no query and cannot grant platform or workspace access"
       ],
       "status": "Dedicated-host release and authenticated overview verified on 25 October from 03daa4136de8999cc79018f33f2a22038917c621; later 06d92 V2 publication and seven-section native Safari navigation are dated proof. Public routing/refusals were observed on f946 at 26 October 01:47 UTC; an authenticated journey on that newer source is not claimed. Private read-only authority remains separate from workshop roles. The 30 October shared-table migration passed local desktop Chromium and iPhone WebKit regressions; hosted CI, authenticated platform access and publication remain separate.",
       "tests": [
@@ -1160,7 +1239,9 @@
         "tests/belvedere-e2e/locale.spec.ts",
         "tests/unit/belvedere-locale.test.ts",
         "tests/belvedere-e2e/canonical-session.spec.ts",
-        "tests/unit/local-belvedere.test.ts"
+        "tests/unit/local-belvedere.test.ts",
+        "tests/unit/table-views.test.ts",
+        "tests/e2e/lifecycle-accessibility.spec.ts"
       ],
       "surfaces": "Private verified Watchkeeper browser only; no workshop/native/OAuth/MCP authority.",
       "id": "belvedere",
@@ -1394,7 +1475,11 @@
         "My documents and Use Guteneo offer Administration from a server-computed per-membership report right in the personal session; selecting it from an already open workspace form applies the new URL destination and eligible membership filter; removal hides it and the API refuses meanwhile",
         "PDF exports embed the pinned Roboto font only when a drawn string is outside WinAnsi, size columns from content, wrap headers, share the 500-row budget across tables and localize header dates; the Excel summary stores typed numbers, money and date-time",
         "The public preview renders Administration over its fictional workspace with the server's permission split, validates date and pagination bounds, and groups consumption by confirmation day and month; sign-in history follows the selected range and exports stay disabled",
-        "Browser administrators explicitly resolve an already operationally and financially closed dead-letter incident through a current-session and current-membership fenced transaction; one retained resolution audit/timestamp survives replay, with no dispatch mutation, credit release, queue replay or provider invocation"
+        "Browser administrators explicitly resolve an already operationally and financially closed dead-letter incident through a current-session and current-membership fenced transaction; one retained resolution audit/timestamp survives replay, with no dispatch mutation, credit release, queue replay or provider invocation",
+        "Browser administrators manage signed metadata-only customer lifecycle webhooks with current session/CSRF and tenant authority; configuration creates no recipient communication, sending approval or provider callback authority",
+        "Default-off webhook delivery requires encrypted signing secrets and hosted strictly-public HTTPS egress; direct destinations forbid credentials, queries, fragments, custom ports, private addresses and redirects, while one-time secrets stay browser-only",
+        "Prospective dispatch-status triggers atomically append bounded endpoint-revision outbox records; 500 pending items per endpoint expose overflow, pending/history retention is bounded, and an invoked unknown callback is never automatically repeated",
+        "Changing endpoint revision supersedes pending callbacks; rotation pauses delivery, revocation removes signing material, and losing owner-admin membership or production mode permanently pauses the old grant until a fresh explicit browser enablement"
       ],
       "status": "4 November 2026 continuation of the 3 November recovered source candidate. Current local qualification and limits are recorded in the administration contract; hosted CI, production-data and physical-device qualification remain separate.",
       "tests": [
@@ -1410,15 +1495,24 @@
         "tests/unit/preview-administration.test.ts",
         "tests/unit/workspace-entry.test.ts",
         "tests/unit/personal-auth.test.ts",
-        "tests/integration/dead-letter-resolution.test.ts"
+        "tests/integration/dead-letter-resolution.test.ts",
+        "tests/integration/customer-webhooks.test.ts",
+        "tests/integration/lifecycle-http.test.ts",
+        "tests/e2e/customer-webhooks.spec.ts"
       ],
-      "surfaces": "Authenticated browser membership only; OAuth, MCP and native callers are refused.",
+      "surfaces": "Authenticated browser membership only; OAuth, MCP and native callers are refused. Customer lifecycle callbacks are configured only through current administrator browser sessions; MCP, OAuth integration tokens and native clients cannot manage endpoints or reveal secrets.",
       "id": "administration",
       "category": "Access",
       "availability": "browser-session",
       "tools": [],
       "rest": [
-        "POST /api/admin/dead-letters/{id}/resolution"
+        "POST /api/admin/dead-letters/{id}/resolution",
+        "GET /api/customer-webhooks",
+        "POST /api/customer-webhooks",
+        "PATCH /api/customer-webhooks/{id}",
+        "POST /api/customer-webhooks/{id}/revoke",
+        "POST /api/customer-webhooks/{id}/rotate-secret",
+        "GET /api/customer-webhooks/{id}/deliveries"
       ]
     }
   ],
@@ -1517,10 +1611,10 @@
       "id": "J11",
       "title": "Use iPhone or iPad",
       "actor": "Authenticated native reader with current preparation permission when composing",
-      "steps": "Start system authentication on the canonical backend → use dedicated mobile session → import/inspect/search PDFs → prepare fax/email with one captured draft/key and disabled authoring while pending → open authenticated browser for final review → read tracking.",
+      "steps": "Start canonical system authentication → read the dedicated mobile session → import/inspect/search PDFs → save a bounded device-local fax/email draft in its exact account/workspace → explicitly resume after relaunch or discard → prepare with one captured draft/key and disabled authoring while pending → open authenticated browser for final review → read tracking.",
       "branch": "Interfaces",
       "doc": "IOS_API.md",
-      "failure": "Native sessions cannot approve or send. Account erasure processing, physical-device sign-in, signing, TestFlight and App Store distribution require separate qualification. A second queued tap cannot begin another preparation. Failed or interrupted responses retain the same key until an intentional edit; success retains its server-issued reference in that composer. A late response after sign-out cannot populate the dispatch list. Native preparation never grants human send approval."
+      "failure": "Native sessions cannot approve or send. Account erasure processing, physical-device sign-in, signing, TestFlight and App Store distribution require separate qualification. A second queued tap cannot begin another preparation. Failed or interrupted responses retain the same key until an intentional edit; success retains its server-issued reference in that composer. A late response after sign-out cannot populate the dispatch list. Native preparation never grants human send approval. Local draft retention is seven days, at most five identities and 768 KiB; unavailable Keychain, capacity and revision conflicts are visible. Unknown preparation preserves its original key/reference and recovery does not automatically resend. Device-only storage is not account synchronization or a new API authority."
     },
     {
       "id": "J12",
@@ -1796,10 +1890,10 @@
       "id": "J42",
       "title": "Find and organize authorized table rows",
       "actor": "Authenticated browser reader with the current page’s data authority; Belvédère retains separate platform access",
-      "steps": "Open an authorized operational list → search the loaded rows or use the existing server search → apply an available categorical filter → select a column and direction from its header or narrow-layout control → choose the browser page size and navigate results → explicitly load older cursor records when needed. Server-paged Belvédère lists retain their existing paginator and identify current-page sorting. Cards follow the available container width; surrounding page controls reflow.",
+      "steps": "Open an authorized operational list → search the loaded rows or use the existing server search → apply an available categorical filter → select a column and direction from its header or narrow-layout control → choose the browser page size and navigate results → explicitly load older cursor records when needed. Server-paged Belvédère lists retain their existing paginator and identify current-page sorting. Cards follow the available container width; surrounding page controls reflow. Optionally save, apply or delete a named presentation preset for this authenticated person, workspace, table and application area.",
       "branch": "Operate",
       "doc": "WEB_APPLICATIONS.md",
-      "failure": "Unloaded records are not silently fetched or included in local search. Changing controls resets the browser page, shrinking results clamps it, and empty results retain a clear-filters action. Loading/denial/error and account/tenant guards remain the owning page’s responsibility; no state persistence, new read scope, approval, send, paid action, mandate or REST/MCP/native capability is added."
+      "failure": "Unloaded records are not silently fetched or included in local search. Changing controls resets the browser page, shrinking results clamps it, and empty results retain a clear-filters action. At most eight bounded presets store validated sort, categorical filter choices and page size, without rows, recipient fields, searches, cursors or credentials; unsupported/absent identity or invalid storage cannot create a shared preference partition. Loading/denial/error and tenant guards remain the owning page’s responsibility. Presentation persistence grants no read scope, approval, send, paid action, mandate or REST/MCP/native authority."
     },
     {
       "id": "J43",
@@ -1836,6 +1930,87 @@
       "branch": "Private default-off operator RPC and offline private-file CLI; no new browser, MCP, native processor or Belvédère authority",
       "doc": "ACCOUNT_DELETION.md",
       "failure": "Request acceptance is not erasure. Last-administrator/unsupported ownership, unresolved execution/storage debt, missing individual retention review or changed snapshot blocks beginning. Expired/lost leases cannot publish checkpoints. Unknown storage or Auth0 effects remain processing and recover only against the same exact targets. Completion requires fresh no-auth/no-content checks, preserved shared/financial integrity and delivered request/plan-bound notice evidence; the processor sends no message. Retained backup/processor evidence has reviewed exceptions and no global anonymity claim. Local tests do not establish real Auth0 deletion, real email receipt or production activation."
+    },
+    {
+      "id": "J47",
+      "title": "Recover a confirmed result after leaving its view",
+      "actor": "Authenticated browser principal in the same current authority",
+      "steps": "Start an explicit action → leave its originating view → let the server response settle → if a valid success receipt arrives, inspect the metadata-only outcome tray → follow its canonical internal link or dismiss it.",
+      "branch": "Browser presentation only",
+      "doc": "WEB_APPLICATIONS.md",
+      "failure": "An obsolete view cannot perform a dependent write, reveal a secret or navigate. Failed/unknown responses never become a success receipt. Up to twenty receipts expire after fifteen minutes and clear on authority replacement; they contain no content, destination, token or private URL."
+    },
+    {
+      "id": "J48",
+      "title": "Review the complete authorized attention queue",
+      "actor": "Current browser workspace member; individual actions retain their own permissions",
+      "steps": "Open Overview → read the independent prioritized attention queue → inspect unknown submissions, blocked/unknown schedules, expiring quotes/protected links and eligible approvals → explicitly load the next cursor page → open the original authorized resource before taking an action.",
+      "branch": "Metadata read across authorized SQL rows, not a first-page approximation",
+      "doc": "WEB_APPLICATIONS.md",
+      "failure": "The queue grants no approval or send authority and omits inaccessible resources. Cursor truncation stays explicit, and each destination rereads current rights and state. No message, recipient, document title, credential or signed URL is returned; observers receive no added contact or approval rights."
+    },
+    {
+      "id": "J49",
+      "title": "Configure a signed lifecycle callback",
+      "actor": "Current authenticated browser workspace administrator",
+      "steps": "Open Administration → Customer webhooks → create a paused public-HTTPS endpoint with a stable key and explicit one-time secret reveal → save the secret in the receiving service → under separately configured runtime/strict-public-network gates explicitly enable → verify bounded delivery metadata → pause, rotate or revoke when required.",
+      "branch": "Browser-only configuration; prospective metadata callbacks",
+      "doc": "CUSTOMER_WEBHOOKS.md",
+      "failure": "No historical backfill, sending consent or provider callback authority is created. Role/removal/mode loss permanently pauses the old grant; restoration requires explicit enablement at the new revision. Old pending revisions supersede, overflow is visible, unknown invocations never auto-retry and a lost secret needs explicit rotation rather than replay exposure. Local synthetic HTTP proof is not a real callback."
+    },
+    {
+      "id": "J50",
+      "title": "Reuse an exact saved destination",
+      "actor": "Current workspace preparer through browser or appropriately scoped OAuth/MCP",
+      "steps": "Open Recipients → explicitly save a validated fax/email/postal destination with one key → read its current revision → select it into a new preparation → review the independent frozen recipient snapshot → explicitly update or remove the address-book entry under its exact revision.",
+      "branch": "Contact data, preparation and consent remain separate",
+      "doc": "API_CONTRACT.md",
+      "failure": "Observers cannot export contacts. Tenant/current-credential/role fences and optimistic revisions reject stale edits; deleting a contact cannot change an existing dispatch or let an old create key resurrect it. Saving or selecting an address proves neither recipient request nor spending approval."
+    },
+    {
+      "id": "J51",
+      "title": "Approve one bounded future dispatch",
+      "actor": "Current preparer; separate actual browser administrator or authorized supervisor approver",
+      "steps": "Prepare an exact fax or message-only email → choose an instant from one minute to thirty days ahead and an integer cost cap → create a held draft with a stable key → browser approver reviews exact content/time/cap and email recipient-request evidence → explicitly grant separate future_browser authority → at due time release prepares a fresh quote and atomically accepts only within the cap and fifteen-minute window → track the linked ordinary dispatch or revoke before acceptance.",
+      "branch": "Distinct future grant; no assistant/native approval or expert-mandate substitute",
+      "doc": "SCHEDULED_DISPATCHES.md",
+      "failure": "Disabled release refuses approval without cancelling the source. Secure/protected/PDF-email/postal and review-only fax remain unsupported. Current actors/source/provider/funds and revocation races are rechecked at acceptance; the window bounds queue acceptance, not delivery. Unknown/released work cannot be replaced. Explicit known-unsent terminal recovery requires a new draft and new approval, never revives old consent."
+    },
+    {
+      "id": "J52",
+      "title": "Resume a private device-local composer draft",
+      "actor": "Authenticated native user in the original workspace",
+      "steps": "Edit a fax/email composer → save into non-synchronizing device-only Keychain storage → leave or relaunch → authenticate into the same person/workspace → explicitly resume or discard the saved revision → recover an uncertain preparation using the same stable key/reference → use the existing browser handoff for final review.",
+      "branch": "Local native storage only; no synchronization or new mobile endpoint",
+      "doc": "IOS_API.md",
+      "failure": "Seven-day retention, five-draft and 768-KiB bounds are explicit. Storage, capacity, revision and identity failures stay visible; a different account/workspace cannot load the draft. Relaunch or repeated taps never grants consent or automatically creates a replacement preparation/send. Simulator proof remains distinct from physical-device distribution."
+    },
+    {
+      "id": "J53",
+      "title": "Navigate and reuse a presentation preset",
+      "actor": "Authenticated browser principal with current navigation/resource rights",
+      "steps": "Open Commands with Cmd/Ctrl+K → search permitted static destinations → use keyboard selection or Escape and preserved focus → navigate through the existing unsaved-work veto → configure an authorized table → explicitly save/apply/delete one of eight local named sort/filter/page-size presets in the current identity/area/table partition.",
+      "branch": "Navigation and local presentation only",
+      "doc": "WEB_APPLICATIONS.md",
+      "failure": "Commands perform no remote record search or mutation. Saved presets exclude rows, recipient fields, searches and cursors and are validated against the current table schema. Unknown/demo identity disables persistence rather than sharing a synthetic account; platform hints never replace platform authorization."
+    },
+    {
+      "id": "J54",
+      "title": "Continue browser work under current identity and visit",
+      "actor": "Browser user or developer maintaining an asynchronous flow",
+      "steps": "Start one synchronously locked action → cross every continuation through view.wait → observe shared authority/navigation revisions → invalidate obsolete results after leave-and-return or identity/policy replacement → share only allowlisted bounded collection reads → pause hidden-page reads and use bounded progress backoff → explicitly recover through the owning current view.",
+      "branch": "Shared client foundations; server authority remains final",
+      "doc": "WEB_APPLICATIONS.md",
+      "failure": "The action lock is not send idempotency. Cache is memory-only, five seconds, sixty-four entries and bounded value size; detail/readiness/approval models bypass it. Mutations and authority changes invalidate it, refusals clear private data, and no polling loop retries a business mutation or uncertain provider outcome."
+    },
+    {
+      "id": "J55",
+      "title": "Qualify the shared interface and independent modules",
+      "actor": "Repository contributor and browser qualification runner",
+      "steps": "Change application-owned route/view/style modules under the shared frame → load only the active locale catalogue before translated content → preserve lazy dispatch and Belvédère views plus ordered stylesheet modules → use chart/elevation/frame tokens with zero design/import exceptions → run keyboard/responsive and Axe fixtures across four languages and both themes → record actual request/transfer/first-content and test evidence separately.",
+      "branch": "Engineering qualification; no account or production activation",
+      "doc": "WEB_APPLICATIONS.md",
+      "failure": "A module split or local Axe result establishes neither an accessibility certification nor hosted/physical-device/provider performance. Shared caches contain no persistent private data, generated locale projections must stay current, and application/authority boundaries cannot be bypassed by a design exception."
     }
   ],
   "roles": [
@@ -2309,6 +2484,78 @@
       "No",
       "No",
       "No"
+    ],
+    [
+      "Read saved recipient data",
+      "Current preparation authority",
+      "Current preparation authority",
+      "Current preparation authority",
+      "No",
+      "dispatches:read plus current preparer role/connection authority; no recipient consent"
+    ],
+    [
+      "Create, update or delete a saved recipient",
+      "Current preparation authority; exact revision for edit/delete",
+      "Same",
+      "Same",
+      "No",
+      "dispatches:prepare plus current preparer/tenant authority; stable create key and exact edit/delete revision"
+    ],
+    [
+      "Prepare or read a future schedule",
+      "Current preparation/source rights",
+      "Current preparation/source rights; only own unless approver",
+      "Own preparations and current source rights",
+      "No",
+      "Existing dispatches:prepare/read scopes and current creator/approver visibility; no approval, native endpoint or funds reservation"
+    ],
+    [
+      "Grant or extend future spending approval",
+      "Actual current browser only; exact immutable cap/time/snapshot",
+      "Actual current browser and approval option only",
+      "No",
+      "No",
+      "No MCP/OAuth/native or expert-mandate authority; no extension operation, changed terms require new explicit browser approval"
+    ],
+    [
+      "Cancel an unaccepted future schedule",
+      "Current browser/OAuth authority",
+      "Only preparer or recorded approver with current rights",
+      "Only own preparation with current rights",
+      "No",
+      "dispatches:send plus current preparer/approver/admin and exact revision; accepted releases retain ordinary lifecycle"
+    ],
+    [
+      "Configure lifecycle webhook or reveal/rotate its secret",
+      "Actual current browser, Origin/CSRF and exact revision",
+      "No",
+      "No",
+      "No",
+      "No MCP/OAuth/native tool; default-off runtime, encryption and strict-public egress gates remain separate"
+    ],
+    [
+      "Read attention metadata or own outcome receipts",
+      "Browser; current resource authority",
+      "Browser; current resource authority",
+      "Browser; current resource authority",
+      "Browser; current operational visibility only",
+      "No attention endpoint or outcome-tray MCP/native capability; no consent from a suggestion/receipt"
+    ],
+    [
+      "Use commands or save table presentation",
+      "Browser; current navigation/row rights",
+      "Same",
+      "Same",
+      "Same",
+      "No business REST/MCP/native authority; local presentation only, partitioned by authenticated person/workspace/area/table"
+    ],
+    [
+      "Save or resume a native composer draft",
+      "Own native identity/workspace",
+      "Own native identity/workspace",
+      "Own native identity/workspace",
+      "No composition permission",
+      "No assistant access; device-only seven-day Keychain storage grants no API or browser approval authority"
     ]
   ],
   "schemaVersion": 2

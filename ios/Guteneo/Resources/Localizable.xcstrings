@@ -7569,6 +7569,615 @@
           }
         }
       }
+    },
+    "Close without saving": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fermer sans enregistrer"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close without saving"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ohne Speichern schließen"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouni Späicheren zoumaachen"
+          }
+        }
+      }
+    },
+    "Discard saved draft": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer le brouillon enregistré"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discard saved draft"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeicherten Entwurf verwerfen"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespäicherten Entworf läschen"
+          }
+        }
+      }
+    },
+    "Discard saved draft?": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer le brouillon enregistré ?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discard saved draft?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeicherten Entwurf verwerfen?"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespäicherten Entworf läschen?"
+          }
+        }
+      }
+    },
+    "Draft storage is full. Discard a saved workspace draft before saving another.": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le stockage des brouillons est plein. Supprimez un brouillon enregistré dans un espace avant d’en enregistrer un autre."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Draft storage is full. Discard a saved workspace draft before saving another."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Entwurfsspeicher ist voll. Verwerfen Sie einen gespeicherten Arbeitsbereichsentwurf, bevor Sie einen weiteren speichern."
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den Entworfsspäicher ass voll. Läscht e gespäicherten Aarbechtsraumentworf, éier Dir en anere späichert."
+          }
+        }
+      }
+    },
+    "Drafts stay on this device for seven days. Resuming does not send anything.": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les brouillons restent sur cet appareil pendant sept jours. Les reprendre ne déclenche aucun envoi."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drafts stay on this device for seven days. Resuming does not send anything."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entwürfe bleiben sieben Tage auf diesem Gerät. Beim Fortsetzen wird nichts versendet."
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entwërf bleiwen siwen Deeg op dësem Apparat. Beim Weiderféiere gëtt näischt verschéckt."
+          }
+        }
+      }
+    },
+    "Preparation was interrupted. Recover the same quote before editing this draft.": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La préparation a été interrompue. Récupérez le même devis avant de modifier ce brouillon."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparation was interrupted. Recover the same quote before editing this draft."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Vorbereitung wurde unterbrochen. Stellen Sie dasselbe Angebot wieder her, bevor Sie diesen Entwurf ändern."
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "D’Virbereedung gouf ënnerbrach. Rufft déi selwecht Devis erëm of, éier Dir dësen Entworf ännert."
+          }
+        }
+      }
+    },
+    "Recover quote": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Récupérer le devis"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recover quote"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Angebot wiederherstellen"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devis erëm ofruffen"
+          }
+        }
+      }
+    },
+    "Resume draft": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reprendre le brouillon"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resume draft"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entwurf fortsetzen"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entworf weiderféieren"
+          }
+        }
+      }
+    },
+    "Retry draft storage": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réessayer le stockage sécurisé"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry draft storage"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entwurfsspeicher erneut öffnen"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entworfsspäicher nach eng Kéier opmaachen"
+          }
+        }
+      }
+    },
+    "Save draft and close": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer le brouillon et fermer"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save draft and close"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entwurf speichern und schließen"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entworf späicheren an zoumaachen"
+          }
+        }
+      }
+    },
+    "Saved draft": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brouillon enregistré"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved draft"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeicherter Entwurf"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespäicherten Entworf"
+          }
+        }
+      }
+    },
+    "This draft changed in another window. Close and reopen it before continuing.": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce brouillon a changé dans une autre fenêtre. Fermez-le et rouvrez-le avant de continuer."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This draft changed in another window. Close and reopen it before continuing."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Entwurf wurde in einem anderen Fenster geändert. Schließen und öffnen Sie ihn erneut, bevor Sie fortfahren."
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dësen Entworf gouf an enger anerer Fënster geännert. Maacht en zou an erëm op, éier Dir weiderfuert."
+          }
+        }
+      }
+    },
+    "This removes the saved draft from this device. A prepared dispatch remains in tracking.": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le brouillon enregistré sera supprimé de cet appareil. Un envoi déjà préparé reste dans le suivi."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This removes the saved draft from this device. A prepared dispatch remains in tracking."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der gespeicherte Entwurf wird von diesem Gerät entfernt. Eine vorbereitete Sendung bleibt in der Übersicht."
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De gespäicherten Entworf gëtt vun dësem Apparat geläscht. Eng virbereet Sendung bleift an der Verfolgung."
+          }
+        }
+      }
+    },
+    "Your account changed. Reopen the draft in its original workspace.": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre compte a changé. Rouvrez le brouillon dans son espace d’origine."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your account changed. Reopen the draft in its original workspace."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ihr Konto hat sich geändert. Öffnen Sie den Entwurf in seinem ursprünglichen Arbeitsbereich."
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Äre Kont huet geännert. Maacht den Entworf a sengem ursprénglechen Aarbechtsraum erëm op."
+          }
+        }
+      }
+    },
+    "Your draft could not be saved securely. Unlock your device and try again before closing.": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre brouillon n’a pas pu être enregistré de manière sécurisée. Déverrouillez votre appareil et réessayez avant de fermer."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your draft could not be saved securely. Unlock your device and try again before closing."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ihr Entwurf konnte nicht sicher gespeichert werden. Entsperren Sie Ihr Gerät und versuchen Sie es vor dem Schließen erneut."
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ären Entworf konnt net sécher gespäichert ginn. Späert Ären Apparat op a probéiert et nach eng Kéier, éier Dir zoumaacht."
+          }
+        }
+      }
+    },
+    "Held by schedule": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retenu par une programmation"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Held by schedule"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Durch einen Zeitplan zurückgehalten"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duerch eng Plangung zeréckgehalen"
+          }
+        }
+      }
+    },
+    "Scheduled dispatch": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoi programmé"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scheduled dispatch"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geplanter Versand"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geplangte Versand"
+          }
+        }
+      }
+    },
+    "Scheduled for": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Programmé pour"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scheduled for"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geplant für"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geplangt fir"
+          }
+        }
+      }
+    },
+    "Maximum future cost": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coût futur maximal"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximum future cost"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximale künftige Kosten"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximal zukünfteg Käschten"
+          }
+        }
+      }
+    },
+    "Open schedule": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir la programmation"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open schedule"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitplan öffnen"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plangung opmaachen"
+          }
+        }
+      }
+    },
+    "Immediate sending is held by this schedule. Review or cancel the schedule in your secure workspace to change future authority.": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’envoi immédiat est bloqué par cette programmation. Consultez ou annulez la programmation dans votre espace sécurisé pour modifier l’autorisation future."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Immediate sending is held by this schedule. Review or cancel the schedule in your secure workspace to change future authority."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der sofortige Versand wird durch diesen Zeitplan zurückgehalten. Prüfen oder stornieren Sie den Zeitplan in Ihrem sicheren Arbeitsbereich, um die künftige Freigabe zu ändern."
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den direkten Versand gëtt duerch dës Plangung zeréckgehalen. Kuckt d’Plangung an Ärem sécheren Aarbechtsberäich un oder annuléiert se, fir déi zukünfteg Erlaabnis ze änneren."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

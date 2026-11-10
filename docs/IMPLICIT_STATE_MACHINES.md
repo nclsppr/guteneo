@@ -844,3 +844,28 @@ no application behavior, migration, API/MCP contract or provider gate is changed
   browser checks and match the local dirty-build manifest. This is local artifact
   integrity evidence, not release eligibility or hosted verification.
 - `git diff --check` passed. No production publication was performed.
+
+
+## Additive lifecycle experience — 10 November 2026
+
+The historical 113-group discovery count above remains attached to its audited
+base. The [new implementation ledger](LIFECYCLE_EXPERIENCE_EXECUTION.md) owns the
+following additive/replaced mechanisms from main `77a7570b`; this does not silently
+reclassify the old discovery snapshot as a current exhaustive recount.
+
+| Family | State and transition authority | Source and proof |
+| --- | --- | --- |
+| Saved workspace recipient | Active/tombstoned identity, immutable creation key and conditional revision; copying a destination grants no consent and cannot mutate a prepared command. | `saved-recipients.ts`, migration 0078, saved-recipient/HTTP tests; J50. |
+| Capped future dispatch | Draft→approved→releasing→released/blocked/unknown/cancelled; immutable distinct browser approval, source hold, permanent revocation and explicit terminal recovery; fresh quote and atomic ordinary acceptance. | `dispatch-schedules.ts`, migration 0080, actual D1/production-mode injected provider tests; J51. |
+| Customer endpoint grant | Paused/enabled/revoked plus configuration revision and encrypted secret; authority loss permanently pauses even after regrant. | `customer-webhooks.ts`, migration 0079, migrated authority/secret tests; J49. |
+| Customer notification outbox | Pending→sending→sent/failed/unknown/superseded, lease/invocation fuse, deadline, explicit overflow and bounded retention. Unknown never automatically replays. | Same service/migration, webhook integration tests; J49. |
+| Durable native preparation | Exact account/workspace draft with conditional revision, seven-day expiry, bounded capacity, interrupted prepare key and explicit resume/recover/discard. | `DispatchDraftStorage.swift`, `KeychainDispatchDrafts.swift`, native unit/UI tests; J52. |
+| Browser continuation and list/poll ownership | Canonical authority epoch, shared accepted-navigation revision, same-turn exclusion, per-await checkpoints; subscriber abort/dedup/cache invalidation; visibility/no-overlap/backoff. | `client-action.ts`, `client-navigation.ts`, `client-resources.ts`, `client-polling.ts`, foundation/AST/browser regressions; J54. |
+| Deferred action receipts | Definite metadata receipts only, opaque current authority, canonical route, dedupe, 20-item cap and 15-minute expiry; no stale navigation or success inferred from uncertainty. | `action-outcomes.ts`, unit and browser fixtures; J47. |
+| Attention projection | Current tenant/actor/source visibility plus real quote/link deadlines, future draft/blocked states and submission uncertainty; full authorized SQL dataset, bounded cursor page. | `attentionQueue`, real D1 and browser fixtures; J48. |
+| Navigation and presentation | Palette open/query/selection stays local; native dialog/keyboard and dirty-view veto. Named table views store only explicitly entered name and allowlisted sort/filter/page size, partitioned by principal/workspace/area; never automatically collect row, recipient, search or cursor values. | `command-palette.tsx`, `table-views.ts`, serialized-model and rendered tests; J53. |
+
+Small presentation states remain ordinary React/native controls where that is
+sufficient. Durable spending, outgoing invocation and conditional ownership use
+explicit contracts and real transactional tests; no new runtime state-machine
+framework is required.

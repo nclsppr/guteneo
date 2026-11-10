@@ -54,6 +54,70 @@ Consequences:
   ship in its own chunks and one application's growth does not slow another.
 - A new source file must be added to the manifest; an unowned file fails the check.
 
+## Lifecycle tools and shared client foundations — 9 November 2026 candidate
+
+Correspondence owns recipients, schedules and attention; Administration owns
+customer-webhook configuration. The [roles matrix](WORKSPACE_ROLES.md),
+[schedule contract](SCHEDULED_DISPATCHES.md) and
+[callback contract](CUSTOMER_WEBHOOKS.md) own their server authority. Contact
+selection takes an immutable snapshot, a schedule draft grants no future consent,
+and callback configuration grants no provider sending authority. Source detail
+projects its active schedule hold so ordinary approval/sending cannot appear
+available while that hold exists. The future release window bounds acceptance
+into the queue, with delivery timing determined separately by the provider.
+
+The frame offers a navigation-only command palette and a metadata-only outcome
+tray. Cmd/Ctrl+K searches permitted static destinations, with keyboard selection,
+Escape/focus recovery and the existing unsaved-work veto. It performs no remote
+search or mutation. An abandoned view can publish at most twenty confirmed
+receipt references for fifteen minutes, never a guessed success, content,
+recipient, credential or private URL. Authority replacement clears the tray.
+Overview attention comes from its own authorized SQL queue and explicit cursor,
+independently of the first dispatch page; links reread the actual resource.
+
+`client-action.ts` synchronously excludes re-entry and makes every continuation
+cross `view.wait()` before dependent writes, feedback, secrets or navigation.
+`client-navigation.ts` owns one revision clock, including leave-and-return and
+A→B→A visits. The canonical opaque authority identity includes person, workspace,
+effective role/options, credential and document-policy facts. Route identity is
+not a substitute for that authority revision. A stale failure cannot expire a
+replacement session, and current authority refusals clear private UI models.
+
+`client-resources.ts` shares only allowlisted collection reads in memory: five
+seconds, at most sixty-four entries and 32,768 serialized characters per stored
+value, partitioned by authority/locale/path. Every mutation attempt, including
+an uncertain failure, invalidates lists. Identity changes abort obsolete readers;
+each subscriber can cancel without cancelling another live subscriber. Detail,
+readiness and approval models bypass this cache. Session bootstrap has a separate
+entry-only handoff rather than becoming a long-lived authentication cache.
+`client-polling.ts` pauses hidden pages, reads once on eligible visibility return
+and backs off unchanged progress within its thirty-second default ceiling while
+preserving an in-flight read. It polls observations, never business mutations.
+
+Browser locale packs are generated from maintained source catalogues and load
+only the active French/English/German/Luxembourgish language before translated
+content mounts. SSR and tooling retain synchronous source access; Belvédère has
+independent per-locale packs. A catalog or route-load failure retains explicit
+recovery instead of rendering another language as a successful replacement.
+The [performance contract](FRONTEND_PERFORMANCE.md) records actual transfer,
+requests and first useful content separately from this implementation boundary.
+
+Three oversized areas now have explicit modules. `dispatch-pages.tsx` keeps
+compatibility exports while routed overview/documents/prepare/list/detail entries
+load their own module. `belvedere.tsx` composes lazy overview, workshops, members,
+jobs, connections, finance and infrastructure views through shared typed data and
+view components; every API read still applies platform authority. `styles.css`
+imports ordered foundation, workspace, documents, operations, responsive, public
+and adaptation styles. The shared frame remains shared and applications retain
+their own components/styles. These splits create no server permission or request.
+
+The manifest currently has zero import exceptions and zero design exceptions.
+Chart colors, elevation and V2 frame geometry use shared tokens. Automated Axe
+fixtures cover four languages and both themes alongside keyboard, modal and
+responsive journeys; their actual run scope belongs in the
+[lifecycle execution record](LIFECYCLE_EXPERIENCE_EXECUTION.md). Synthetic browser
+checks establish neither complete accessibility nor hosted/physical-device proof.
+
 ## My documents list modules
 
 My documents owns separate route, claim, list, reader and status modules. The
@@ -145,9 +209,17 @@ Administration's report and export routes are server-paged and browser-only;
 its tables disable browser search and pagination like Belvédère's. Controls
 organize rows already supplied by the authorized page; they grant no tenant
 access, approval, paid operation, mandate or new REST/MCP/native capability.
-State stays inside the mounted table and is not written to account preferences,
-URLs or persistent storage. Keep caller identity/unmount guards intact so a new
-account or workspace never inherits prior records.
+Search, loaded rows and cursor state stay transient. Explicit saved views may
+persist at most eight named presentation presets per authenticated person,
+workspace, table and application area in bounded local storage. Each preset has
+only a schema-validated sort, categorical filter choices and page size, plus its
+user-supplied label; it contains no rows, recipient fields, free-text search,
+cursor or credential. A changed schema drops invalid values. Missing/unrecognized
+or fixture identity disables persistence rather than creating a shared account.
+Belvédère's escaped authenticated-principal hint partitions platform presentation
+only; it is never an API authorization input. Keep caller identity/unmount guards
+intact so a new account or workspace never inherits prior records. These local
+preferences are not account synchronization or business state.
 
 The table model's unit tests and `tests/preview-e2e/data-tables.spec.ts` qualify the
 source candidate with synthetic loaded rows. Rendered checks, measured loading,
@@ -176,9 +248,10 @@ new feature pass; fix the boundary instead.
 The 29 October reprise removes all four import exceptions: My documents and
 its session start in parallel, the preference helper belongs to Correspondence,
 the entry-link rule belongs to shared styles and locale presentation uses an
-event observed by public sharing. A few dated chart-color, shadow and V2-radius
-design exceptions remain in Belvédère, the film frame, the language menu and the
-protected reader; the manifest records their exact remaining allowances.
+event observed by public sharing. The 9 November candidate removes the remaining
+chart-color, shadow and V2-radius exceptions in Belvédère, the film frame, the
+language menu and protected reader through shared tokens. Both exception arrays
+are now empty; future work must preserve that boundary.
 
 ## Checking
 

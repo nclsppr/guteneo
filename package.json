@@ -1,6 +1,6 @@
 {
   "name": "guteneo",
-  "version": "1.1.35",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -15,7 +15,7 @@
     "db:migrate": "wrangler d1 migrations apply guteneo-local --local",
     "db:seed": "wrangler d1 execute guteneo-local --local --file scripts/seed.sql && wrangler d1 execute guteneo-local --local --file scripts/seed-content.sql",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . && node scripts/check-applications.mjs",
+    "lint": "eslint . && node scripts/check-applications.mjs && node scripts/build-locale-catalogs.mjs --check",
     "audit:mcp": "node --import tsx scripts/audit-mcp-annotations.ts",
     "audit:dependencies": "npm audit --audit-level=high",
     "test": "vitest run && node --test tests/security/*.test.mjs",
@@ -104,6 +104,7 @@
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "13.1.0",
+    "@axe-core/playwright": "4.14.0",
     "@cloudflare/workers-types": "^5.20261023.1",
     "@e2e-dev/web": "0.15.3",
     "@playwright/test": "^1.64.1",

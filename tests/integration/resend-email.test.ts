@@ -1,4 +1,5 @@
 import { historicalRoleProjection } from "../helpers/historical-role-projection";
+import { seedHistoricalAcceptance } from "../helpers/historical-acceptance";
 import { readFileSync, readdirSync } from "node:fs";
 import {
   beforeAll,
@@ -52,6 +53,7 @@ let mf: Miniflare,
 let identity: LiveDeliveryIdentities;
 let env: LiveProviderEnv & { PROTECTED_DOCUMENTS_KEY: string };
 let pdfBytes: Uint8Array<ArrayBuffer>, documentSha: string;
+let historicalSchema = true;
 let migrationProof: {
   before: string;
   after39: string;
@@ -329,6 +331,7 @@ async function setupFixture(
 }
 async function queue(input = email()) {
   const row = await domain.prepareDispatch(ctx, input, crypto.randomUUID());
+  if (historicalSchema) return seedHistoricalAcceptance(db, ctx, row);
   await domain.approveDispatch(ctx, row.id, row.fingerprint, {
     recipientRequested: true,
   });
@@ -436,6 +439,7 @@ beforeAll(async () => {
     )
     .sort())
     await sql(readFileSync(new URL(filename, dir), "utf8"));
+  historicalSchema = false;
 }, 30_000);
 afterAll(async () => {
   await mf?.dispose();

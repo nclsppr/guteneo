@@ -430,6 +430,47 @@ approval. No workspace tool opens a personal vault or confirms recipient/account
 association. The separate browser owner principal handles receipt, personal copies
 and export. See [secure distribution](/workflows/secure-distribution/).
 
+## Reusable destinations and future schedule drafts
+
+The lifecycle candidate adds nine tools under existing dispatch scopes:
+`list_saved_recipients`, `get_saved_recipient`, `save_recipient`,
+`update_saved_recipient`, `delete_saved_recipient`, `list_dispatch_schedules`,
+`get_dispatch_schedule`, `prepare_dispatch_schedule` and
+`cancel_dispatch_schedule`. Ordinary local discovery has 84 tools; the reviewed
+synthetic profile has 92 with the eight existing opt-in tools. These counts are
+source discovery, not proof of a deployed catalogue or a marketplace scan.
+
+Saved destinations require a current preparer role even for reading. Updates
+and deletion bind the exact contact revision; stable create keys survive deletion
+without resurrecting the old contact. Selecting a contact copies its destination
+into a new immutable preparation. It establishes no recipient request, consent
+or sending approval, and later contact edits cannot change that preparation.
+
+Scheduling supports exact fax and message-only email. Preparation binds source,
+time, fifteen-minute acceptance window and integer cap within thirty days, and
+holds immediate approval/acceptance of the original. It reserves no money and
+creates no future consent. Only an actual current browser administrator or
+authorized supervisor can separately approve immutable `future_browser`
+evidence. There is no assistant/native tool to grant or extend it; an expert
+mandate cannot substitute. Expired windows and disabled release refuse approval.
+
+Release needs a fresh quote within cap, current original preparer and approving
+principal, unchanged source/options/sender, provider gates and funds. Acceptance,
+quota reservation and outbox insertion remain atomic, with one immutable release
+receipt. The window bounds acceptance into the queue rather than delivery.
+Secure/protected/PDF-email/postal and review-only fax remain unsupported. Source
+status reads expose an active hold so recovery can inspect the existing schedule.
+Known-unsent terminal recovery needs a new draft and browser approval; unknown
+or accepted work cannot be bypassed with another key.
+
+Customer lifecycle callback configuration and one-time signing secrets are
+browser-administrator-only, with separate default-off activation and strict
+public-network gates. No new webhook management MCP tool is exposed. Browser
+attention, outcome receipts, commands and saved table views are presentation or
+observation surfaces and confer no assistant approval or recipient authority.
+See [delivery adapters](/workflows/delivery-channels/) and the generated
+[dispatch feature branch](/features/campaigns/) for the related operations.
+
 ## ChatGPT installation archive
 
 The public and account guides offer the current plugin ZIP first, with a manual

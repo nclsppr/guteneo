@@ -1,6 +1,10 @@
 import mcpDocumentUploadManifest from "../../../packages/contracts/src/mcp-document-upload-resource.json";
 import mcpUiProbeManifest from "../../../packages/contracts/src/mcp-ui-probe-resource.json";
 import { emailPreparationDescriptions } from "./email-preparation-contract";
+import { SavedRecipientService } from "./saved-recipients";
+import { DispatchScheduleService } from "./dispatch-schedules";
+import { savedRecipientInput, savedRecipientMutation, savedRecipientDelete } from "../../../packages/contracts/src/saved-recipients";
+import { dispatchScheduleInput, dispatchScheduleCancel } from "../../../packages/contracts/src/dispatch-schedules";
 import {
   assertMcpDocumentUploadCurrent,
   mcpDocumentUploadEnabled,
@@ -423,6 +427,7 @@ const dispatchSchema = z
         "Actual persisted attempt count. A missing field does not mean zero.",
       ),
     approvalUrl: z.string(),
+    activeSchedule: z.object({ id: z.string(), status: z.enum(["draft", "approved", "releasing", "unknown"]), executeAt: z.string(), maxTotalMinor: z.number().int().positive() }).strict().optional(),
     nextActions: z.array(z.string()),
     faxPricing: faxPricingSchema.optional(),
     emailDelivery: z
@@ -794,6 +799,7 @@ export function dispatchSummary(
         }
       : undefined;
   return {
+    ...(dispatch.activeSchedule ? { activeSchedule: dispatch.activeSchedule } : {}),
     id: dispatch.id,
     channel: dispatch.channel,
     status: dispatch.status,
@@ -818,7 +824,9 @@ export function dispatchSummary(
         }
       : {}),
     nextActions:
-      dispatch.faxPricing?.executionScope === "review_prepare_only"
+      dispatch.activeSchedule
+        ? ["Inspect the existing active schedule before any immediate approval or sending; only cancelling that schedule can release its original command's hold."]
+        : dispatch.faxPricing?.executionScope === "review_prepare_only"
         ? [
             dispatch.faxPricing.referenceBasis === "archived_review_reference"
               ? "Review preparation only, using an archived reference: view the PDF and this quote or cancel the draft. No sending, approval, expert mandate or credit use is allowed. approvalUrl opens only this quote’s read-only view. An expired quote can be renewed with the same parameters while continuous review access remains active; no periodic tariff revalidation is required. Revocation or changed account guards require operator recovery."
@@ -1552,6 +1560,26 @@ export function createGuteneoMcpServer(
           "postal_preflight",
         ),
     );
+  }
+  {
+    const recipients = new SavedRecipientService(services.domain);
+    const schedules = () => new DispatchScheduleService({ MODE: services.domain.config.mode, SCHEDULED_DISPATCH_ENABLED: "SCHEDULED_DISPATCH_ENABLED" in env && env.SCHEDULED_DISPATCH_ENABLED === "true" ? "true" : "false" }, services.domain);
+    const ctx = { ...identity.context, ...(identity.connectionObservation ? { authority: identity.connectionObservation } : {}) };
+    const page = z.object({ cursor: z.string().max(200).optional(), limit: z.number().int().min(1).max(100).default(30) }).strict();
+    const id = z.string().min(1).max(200);
+    const lifecycleTool = <S extends z.ZodType>(name: string, title: string, description: string, schema: S, scope: string, read: boolean, operation: (input: z.output<S>) => Promise<unknown>, destructive = false) =>
+      registerTool(name, { title, description, inputSchema: schema, outputSchema: output(z.unknown()),
+        annotations: read ? readOnlyAnnotations : { ...writeAnnotations, destructiveHint: destructive }, _meta: oauthMetadata(scope) },
+      (input) => run(scope, () => operation(input)));
+    lifecycleTool("list_saved_recipients", "List saved recipients", "List this workspace's saved destinations under current preparation rights. Contact data is private workspace data; reading grants no recipient consent or sending approval.", page, "dispatches:read", true, ({ cursor, limit }) => recipients.list(ctx, cursor, limit));
+    lifecycleTool("get_saved_recipient", "Read a saved recipient", "Read one current tenant-scoped saved destination. Prepared dispatches contain independent immutable snapshots.", z.object({ recipientId: id }).strict(), "dispatches:read", true, ({ recipientId }) => recipients.get(ctx, recipientId));
+    lifecycleTool("save_recipient", "Save a recipient", "Save an explicitly requested workspace destination using a stable key. Validates fax/email/postal data; creates no dispatch, consent or communication.", z.object({ value: savedRecipientInput, idempotencyKey: id }).strict(), "dispatches:prepare", false, ({ value, idempotencyKey }) => recipients.create(ctx, value, idempotencyKey));
+    lifecycleTool("update_saved_recipient", "Update a saved recipient", "Update one workspace destination only under its exact current revision. Existing dispatch content and approvals do not change.", z.object({ recipientId: id, ...savedRecipientMutation.shape }).strict(), "dispatches:prepare", false, ({ recipientId, ...value }) => recipients.update(ctx, recipientId, value), true);
+    lifecycleTool("delete_saved_recipient", "Delete a saved recipient", "Delete a saved destination only on request and exact current revision. Existing dispatch records remain unchanged; retrying the old create key cannot resurrect the contact.", z.object({ recipientId: id, ...savedRecipientDelete.shape }).strict(), "dispatches:prepare", false, ({ recipientId, ...value }) => recipients.remove(ctx, recipientId, value), true);
+    lifecycleTool("list_dispatch_schedules", "List dispatch schedules", "Read accessible schedule metadata. Future spending authority is a distinct browser-human grant; no assistant can create or extend it.", page, "dispatches:read", true, ({ cursor, limit }) => schedules().list(ctx, cursor, limit));
+    lifecycleTool("get_dispatch_schedule", "Read a dispatch schedule", "Read the same immutable schedule after uncertainty. Never create a new key or release command to bypass a blocked, revoked or unknown outcome.", z.object({ scheduleId: id }).strict(), "dispatches:read", true, ({ scheduleId }) => schedules().get(ctx, scheduleId));
+    lifecycleTool("prepare_dispatch_schedule", "Prepare a future dispatch", "On explicit request, prepare a schedule draft for an exact existing fax or message-only email, future instant and integer EUR-cent total cap. This holds ordinary approval and immediate acceptance of the original and, during explicit terminal recovery, cancels prior unsubmitted release preparations. This grants no future spending approval: the human must separately review and approve in the browser. Secure/protected/PDF email/postal remain unsupported and require their existing freshness/consent paths. Release requires default-off runtime activation, fresh quote within cap, current actors/source/provider/funds and atomic acceptance. Do not promise a send from draft or preparation status.", z.object({ ...dispatchScheduleInput.shape, idempotencyKey: id }).strict(), "dispatches:prepare", false, ({ idempotencyKey, ...input }) => schedules().create(ctx, input, idempotencyKey), true);
+    lifecycleTool("cancel_dispatch_schedule", "Cancel a future dispatch", "Revoke an explicitly selected unaccepted schedule under its current revision. This never retracts an already accepted release or retries an unknown provider outcome; inspect the linked dispatch if release already occurred.", z.object({ scheduleId: id, ...dispatchScheduleCancel.shape }).strict(), "dispatches:send", false, ({ scheduleId, ...input }) => schedules().cancel(ctx, scheduleId, input), true);
   }
   if (services.workflow) {
     const workflow = services.workflow;
@@ -2801,11 +2829,12 @@ export function createGuteneoMcpServer(
           identity.context,
           dispatchId,
         );
-        return dispatchSummary(
+        const summary = dispatchSummary(
           detail.dispatch,
           env.APP_ORIGIN,
           detail.attempts.length,
         );
+        return detail.activeSchedule ? { ...summary, activeSchedule: detail.activeSchedule, nextActions: ["Inspect the existing active schedule before any immediate approval or sending; only cancelling that schedule can release its original command's hold."] } : summary;
       }),
   );
   registerTool(
@@ -2858,7 +2887,7 @@ export function createGuteneoMcpServer(
     {
       title: "Cancel a pending dispatch",
       description:
-        "Cancels a dispatch still prepared or queued in Guteneo without contacting its provider. Submissions already started, uncertain or transmitted are refused. Cancellation establishes no physical recovery or recall of material already sent.",
+        "Cancels a dispatch still prepared or queued in Guteneo without contacting its provider. An original held by an active future schedule is refused; cancel the schedule to revoke that separate future authority. Submissions already started, uncertain or transmitted are refused. Cancellation establishes no physical recovery or recall of material already sent.",
       inputSchema: z.object({ dispatchId: id }).strict(),
       outputSchema: output(dispatchSchema),
       annotations: {

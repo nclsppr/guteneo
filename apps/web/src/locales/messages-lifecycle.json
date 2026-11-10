@@ -1,0 +1,622 @@
+{
+  "Résultats des actions": [
+    "Action outcomes",
+    "Aktionsergebnisse",
+    "Aktiounsresultater"
+  ],
+  "Aucun résultat récent.": [
+    "No recent outcomes.",
+    "Keine aktuellen Ergebnisse.",
+    "Keng rezent Resultater."
+  ],
+  "Accès au lien révoqué": [
+    "Link access revoked",
+    "Linkzugriff widerrufen",
+    "Zougang zum Link zréckgezunn"
+  ],
+  "Envoi préparé": [
+    "Dispatch prepared",
+    "Sendung vorbereitet",
+    "Sendung virbereet"
+  ],
+  "Envoi annulé": [
+    "Dispatch cancelled",
+    "Sendung storniert",
+    "Sendung annuléiert"
+  ],
+  "Modifications enregistrées": [
+    "Changes saved",
+    "Änderungen gespeichert",
+    "Ännerunge gespäichert"
+  ],
+  "Mise à jour enregistrée": [
+    "Update saved",
+    "Aktualisierung gespeichert",
+    "Aktualiséierung gespäichert"
+  ],
+  "Envoi programmé créé": [
+    "Scheduled dispatch created",
+    "Geplante Sendung erstellt",
+    "Geplangte Sendung erstallt"
+  ],
+  "Destinataire enregistré": [
+    "Recipient saved",
+    "Empfänger gespeichert",
+    "Empfänger gespäichert"
+  ],
+  "Webhook enregistré": [
+    "Webhook saved",
+    "Webhook gespeichert",
+    "Webhook gespäichert"
+  ],
+  "Profil enregistré": [
+    "Profile saved",
+    "Profil gespeichert",
+    "Profil gespäichert"
+  ],
+  "Modèle enregistré": [
+    "Template saved",
+    "Vorlage gespeichert",
+    "Virlag gespäichert"
+  ],
+  "Génération créée": [
+    "Generation created",
+    "Generierung erstellt",
+    "Generatioun erstallt"
+  ],
+  "Document enregistré": [
+    "Document saved",
+    "Dokument gespeichert",
+    "Dokument gespäichert"
+  ],
+  "Ouvrir le résultat": [
+    "Open outcome",
+    "Ergebnis öffnen",
+    "Resultat opmaachen"
+  ],
+  "Masquer le résultat": [
+    "Dismiss outcome",
+    "Ergebnis ausblenden",
+    "Resultat ausblenden"
+  ],
+  "Tout masquer": [
+    "Dismiss all",
+    "Alle ausblenden",
+    "Alles ausblenden"
+  ],
+  "Rechercher une commande": [
+    "Search commands",
+    "Befehle suchen",
+    "Kommandoe sichen"
+  ],
+  "Commandes": [
+    "Commands",
+    "Befehle",
+    "Kommandoen"
+  ],
+  "Aucune commande correspondante.": [
+    "No matching commands.",
+    "Keine passenden Befehle.",
+    "Keng passend Kommandoen."
+  ],
+  "Fermer les commandes": [
+    "Close commands",
+    "Befehle schließen",
+    "Kommandoen zoumaachen"
+  ],
+  "Nécessite votre attention": [
+    "Needs attention",
+    "Handlungsbedarf",
+    "Braucht Är Opmierksamkeet"
+  ],
+  "Aucun élément ne nécessite votre attention.": [
+    "Nothing needs attention.",
+    "Kein Handlungsbedarf.",
+    "Näischt brauch Är Opmierksamkeet."
+  ],
+  "Approbation en attente": [
+    "Waiting for approval",
+    "Genehmigung ausstehend",
+    "Waart op Approbatioun"
+  ],
+  "Devis bientôt expiré": [
+    "Quote expiring soon",
+    "Angebot läuft bald ab",
+    "Devis leeft geschwënn of"
+  ],
+  "Résultat à rapprocher": [
+    "Outcome needs reconciliation",
+    "Ergebnis muss abgeglichen werden",
+    "Resultat muss ofgeglach ginn"
+  ],
+  "Lien protégé bientôt expiré": [
+    "Protected link expiring soon",
+    "Geschützter Link läuft bald ab",
+    "Geschützte Link leeft geschwënn of"
+  ],
+  "Programmation bloquée": [
+    "Schedule blocked",
+    "Zeitplanung blockiert",
+    "Plang blockéiert"
+  ],
+  "Afficher plus d’éléments": [
+    "Show more attention items",
+    "Weitere Hinweise anzeigen",
+    "Méi Hiweiser weisen"
+  ],
+  "Vues enregistrées": [
+    "Saved views",
+    "Gespeicherte Ansichten",
+    "Gespäichert Usichten"
+  ],
+  "Vue actuelle": [
+    "Current view",
+    "Aktuelle Ansicht",
+    "Aktuell Usicht"
+  ],
+  "Nom de la vue": [
+    "View name",
+    "Ansichtsname",
+    "Numm vun der Usicht"
+  ],
+  "Enregistrer le tri et les filtres": [
+    "Save sort and filters",
+    "Sortierung und Filter speichern",
+    "Sortéierung a Filtere späicheren"
+  ],
+  "Supprimer la vue": [
+    "Delete view",
+    "Ansicht löschen",
+    "Usicht läschen"
+  ],
+  "Cette vue n’a pas pu être enregistrée dans ce navigateur.": [
+    "This browser could not save the view.",
+    "Die Ansicht konnte in diesem Browser nicht gespeichert werden.",
+    "D’Usicht konnt an dësem Browser net gespäichert ginn."
+  ],
+  "Destinataires enregistrés": [
+    "Saved recipients",
+    "Gespeicherte Empfänger",
+    "Gespäichert Empfänger"
+  ],
+  "Nouveau destinataire": [
+    "New recipient",
+    "Neuer Empfänger",
+    "Neien Empfänger"
+  ],
+  "Modifier le destinataire": [
+    "Edit recipient",
+    "Empfänger bearbeiten",
+    "Empfänger änneren"
+  ],
+  "Nom du destinataire": [
+    "Recipient label",
+    "Empfängerbezeichnung",
+    "Bezeechnung vum Empfänger"
+  ],
+  "Enregistrer le destinataire": [
+    "Save recipient",
+    "Empfänger speichern",
+    "Empfänger späicheren"
+  ],
+  "Supprimer le destinataire": [
+    "Delete recipient",
+    "Empfänger löschen",
+    "Empfänger läschen"
+  ],
+  "Choisir un destinataire enregistré": [
+    "Choose a saved recipient",
+    "Gespeicherten Empfänger auswählen",
+    "E gespäicherten Empfänger wielen"
+  ],
+  "Adresse postale, une ligne par ligne": [
+    "Postal address, one line per line",
+    "Postanschrift, eine Zeile pro Zeile",
+    "Postadress, eng Linn pro Zeil"
+  ],
+  "Aucun destinataire enregistré.": [
+    "No saved recipients.",
+    "Keine gespeicherten Empfänger.",
+    "Keng gespäichert Empfänger."
+  ],
+  "Recharger le destinataire": [
+    "Reload recipient",
+    "Empfänger neu laden",
+    "Empfänger nei lueden"
+  ],
+  "Envois programmés": [
+    "Scheduled dispatches",
+    "Geplante Sendungen",
+    "Geplangte Sendungen"
+  ],
+  "Programmer cet envoi": [
+    "Schedule this dispatch",
+    "Diese Sendung planen",
+    "Dës Sendung plangen"
+  ],
+  "Nouvelle programmation": [
+    "New schedule",
+    "Neue Zeitplanung",
+    "Neie Plang"
+  ],
+  "Heure d’exécution": [
+    "Dispatch time",
+    "Ausführungszeit",
+    "Ausféierungszäit"
+  ],
+  "Plafond total en euros hors taxes": [
+    "Maximum total cost in euros excluding tax",
+    "Gesamtkostenobergrenze in Euro ohne Steuern",
+    "Maximal Gesamtkäschten an Euro ouni Steieren"
+  ],
+  "Créer la programmation": [
+    "Create schedule",
+    "Zeitplanung erstellen",
+    "Plang erstellen"
+  ],
+  "Approuver la dépense programmée": [
+    "Approve scheduled spending",
+    "Geplante Ausgaben genehmigen",
+    "Geplangten Ausgaben zoustëmmen"
+  ],
+  "Annuler la programmation": [
+    "Cancel schedule",
+    "Zeitplanung stornieren",
+    "Plang annuléieren"
+  ],
+  "Aucun envoi programmé.": [
+    "No scheduled dispatches.",
+    "Keine geplanten Sendungen.",
+    "Keng geplangte Sendungen."
+  ],
+  "La programmation est disponible pour les fax et les e-mails sans document.": [
+    "Scheduling supports fax and message-only email.",
+    "Zeitplanung unterstützt Fax und E-Mails ohne Dokument.",
+    "Plange gëtt fir Faxen an E-Maile ouni Dokument ënnerstëtzt."
+  ],
+  "Les fonds et les autorisations sont vérifiés à l’exécution.": [
+    "Funds and authority are checked at release.",
+    "Guthaben und Berechtigungen werden bei Ausführung geprüft.",
+    "Guthaben a Berechtegunge gi bei der Ausféierung gepréift."
+  ],
+  "L’exécution automatique n’est pas activée.": [
+    "Automatic release is not enabled.",
+    "Automatische Ausführung ist nicht aktiviert.",
+    "Automatesch Ausféierung ass net aktivéiert."
+  ],
+  "Je demande explicitement cet e-mail au destinataire.": [
+    "The recipient explicitly requested this email.",
+    "Der Empfänger hat diese E-Mail ausdrücklich angefordert.",
+    "Den Empfänger huet dës E-Mail ausdrécklech ugefrot."
+  ],
+  "J’approuve cet envoi exact pour une dépense future automatique dans la limite du plafond et de la période affichés.": [
+    "I approve this exact dispatch for automatic future spending within the displayed cap and release window.",
+    "Ich genehmige diese genaue Sendung für automatische zukünftige Ausgaben innerhalb der angezeigten Obergrenze und des Ausführungszeitraums.",
+    "Ech approuvéieren dës genee Sendung fir automatesch zukünfteg Ausgaben am ugewisene Plafong an Ausféierungszäitraum."
+  ],
+  "Période d’exécution": [
+    "Release window",
+    "Ausführungszeitraum",
+    "Ausféierungszäitraum"
+  ],
+  "Approbation future distincte": [
+    "Separate future approval",
+    "Separate zukünftige Genehmigung",
+    "Separat zukünfteg Approbatioun"
+  ],
+  "Ouvrir l’envoi exécuté": [
+    "Open released dispatch",
+    "Ausgeführte Sendung öffnen",
+    "Ausgeféiert Sendung opmaachen"
+  ],
+  "Webhooks clients": [
+    "Customer webhooks",
+    "Kunden-Webhooks",
+    "Client-Webhooks"
+  ],
+  "Nouvel endpoint": [
+    "New endpoint",
+    "Neuer Endpunkt",
+    "Neien Endpoint"
+  ],
+  "Nom de l’endpoint": [
+    "Endpoint name",
+    "Endpunktname",
+    "Numm vum Endpoint"
+  ],
+  "Adresse HTTPS": [
+    "HTTPS endpoint",
+    "HTTPS-Endpunkt",
+    "HTTPS-Endpoint"
+  ],
+  "Enregistrer l’endpoint": [
+    "Save endpoint",
+    "Endpunkt speichern",
+    "Endpoint späicheren"
+  ],
+  "Secret de signature": [
+    "Signing secret",
+    "Signaturschlüssel",
+    "Signaturschlëssel"
+  ],
+  "Ce secret n’est affiché qu’une fois.": [
+    "This secret is shown only once.",
+    "Dieser Schlüssel wird nur einmal angezeigt.",
+    "Dëse Schlëssel gëtt nëmmen eemol gewisen."
+  ],
+  "Suspendre l’endpoint": [
+    "Pause endpoint",
+    "Endpunkt pausieren",
+    "Endpoint pauséieren"
+  ],
+  "Activer l’endpoint": [
+    "Enable endpoint",
+    "Endpunkt aktivieren",
+    "Endpoint aktivéieren"
+  ],
+  "Supprimer l’endpoint": [
+    "Delete endpoint",
+    "Endpunkt löschen",
+    "Endpoint läschen"
+  ],
+  "Aucun webhook configuré.": [
+    "No configured webhooks.",
+    "Keine Webhooks konfiguriert.",
+    "Keng Webhooks konfiguréiert."
+  ],
+  "Les notifications contiennent uniquement des identifiants et des états, jamais le document ni le destinataire.": [
+    "Notifications contain identifiers and states, never the document or recipient.",
+    "Benachrichtigungen enthalten Kennungen und Zustände, niemals Dokumente oder Empfänger.",
+    "Notifikatiounen enthalen Identifikatiounen a Statussen, ni Dokumenter oder Empfänger."
+  ],
+  "Livraisons du webhook": [
+    "Webhook deliveries",
+    "Webhook-Zustellungen",
+    "Webhook-Liwwerungen"
+  ],
+  "Notification acceptée": [
+    "Notification acknowledged",
+    "Benachrichtigung bestätigt",
+    "Notifikatioun bestätegt"
+  ],
+  "Résultat inconnu, examen requis": [
+    "Unknown outcome, review required",
+    "Unbekanntes Ergebnis, Prüfung erforderlich",
+    "Onbekannt Resultat, Iwwerpréiwung néideg"
+  ],
+  "La configuration des webhooks n’est pas disponible.": [
+    "Webhook configuration is unavailable.",
+    "Webhook-Konfiguration ist nicht verfügbar.",
+    "Webhook-Konfiguratioun ass net disponibel."
+  ],
+  "La date ou le plafond est invalide.": [
+    "The time or cap is invalid.",
+    "Zeitpunkt oder Obergrenze ist ungültig.",
+    "Den Zäitpunkt oder de Plafong ass ongëlteg."
+  ],
+  "Cette modification est en conflit avec une version plus récente. Rechargez-la.": [
+    "This change conflicts with a newer version. Reload it.",
+    "Diese Änderung steht im Konflikt mit einer neueren Version. Laden Sie sie neu.",
+    "Dës Ännerung steet am Konflikt mat enger méi neier Versioun. Lued se nei."
+  ],
+  "Vérifiez les coordonnées du destinataire.": [
+    "Check the recipient details.",
+    "Prüfen Sie die Empfängerdaten.",
+    "Iwwerpréift d’Donnéeë vum Empfänger."
+  ],
+  "Supprimer ce destinataire enregistré ? Les envois préparés conservent leur destinataire d’origine.": [
+    "Delete this saved recipient? Prepared dispatches keep their original recipient.",
+    "Diesen gespeicherten Empfänger löschen? Vorbereitete Sendungen behalten ihren ursprünglichen Empfänger.",
+    "Dëse gespäicherten Empfänger läschen? Virbereet Sendunge behalen hiren ursprénglechen Empfänger."
+  ],
+  "Numéro de fax": [
+    "Fax number",
+    "Faxnummer",
+    "Faxnummer"
+  ],
+  "L’approbation remplace l’envoi immédiat par cette programmation. Un nouveau devis doit respecter le plafond et la période d’exécution. Annuler cette programmation ne rétablit pas l’envoi préparé d’origine.": [
+    "Approval replaces immediate sending with this schedule. A fresh quote must fit the cap and release window. Cancelling this schedule does not restore the original prepared dispatch.",
+    "Die Genehmigung ersetzt den sofortigen Versand durch diesen Zeitplan. Ein neues Angebot muss Obergrenze und Ausführungszeitraum einhalten. Eine Stornierung stellt die ursprüngliche vorbereitete Sendung nicht wieder her.",
+    "D’Approbatioun ersetzt den direkten Versand duerch dëse Plang. En neien Devis muss de Plafong an den Ausféierungszäitraum respektéieren. D’Annulatioun stellt déi ursprénglech virbereet Sendung net erëm hier."
+  ],
+  "Annuler cette programmation ? Un envoi déjà accepté doit être examiné séparément.": [
+    "Cancel this schedule? An already accepted dispatch must be reviewed separately.",
+    "Diesen Zeitplan stornieren? Eine bereits angenommene Sendung muss separat geprüft werden.",
+    "Dëse Plang annuléieren? Eng schonn akzeptéiert Sendung muss separat iwwerpréift ginn."
+  ],
+  "Vérification des conditions d’exécution": [
+    "Checking release conditions",
+    "Ausführungsbedingungen werden geprüft",
+    "Ausféierungsbedéngunge ginn iwwerpréift"
+  ],
+  "Envoi figé": [
+    "Frozen dispatch",
+    "Festgelegte Sendung",
+    "Festgeluecht Sendung"
+  ],
+  "Ouvrir l’envoi d’origine": [
+    "Open source dispatch",
+    "Ursprüngliche Sendung öffnen",
+    "Ursprénglech Sendung opmaachen"
+  ],
+  "Préparer d’abord un envoi": [
+    "Prepare a dispatch first",
+    "Zuerst eine Sendung vorbereiten",
+    "Fir d’éischt eng Sendung virbereeden"
+  ],
+  "Les conditions d’exécution n’ont pas pu être confirmées. Vérifiez l’envoi d’origine et les autorisations avant une nouvelle préparation.": [
+    "Release conditions could not be confirmed. Review the source dispatch and current permissions before preparing again.",
+    "Die Ausführungsbedingungen konnten nicht bestätigt werden. Prüfen Sie die ursprüngliche Sendung und die aktuellen Berechtigungen vor einer neuen Vorbereitung.",
+    "D’Ausféierungsbedéngunge konnten net bestätegt ginn. Iwwerpréift déi ursprénglech Sendung an déi aktuell Berechtegunge virun enger neier Virbereedung."
+  ],
+  "Accepté dans la file d’envoi": [
+    "Released for dispatch",
+    "In die Versandwarteschlange aufgenommen",
+    "An d’Versandwaardeschlaang opgeholl"
+  ],
+  "Programmation annulée": [
+    "Schedule cancelled",
+    "Zeitplan storniert",
+    "Plang annuléiert"
+  ],
+  "Dépense programmée approuvée": [
+    "Scheduled spending approved",
+    "Geplante Ausgaben genehmigt",
+    "Geplangten Ausgaben zougestëmmt"
+  ],
+  "La période d’exécution approuvée est terminée. Préparez une nouvelle programmation.": [
+    "The approved release window has ended. Prepare a new schedule.",
+    "Der genehmigte Ausführungszeitraum ist abgelaufen. Erstellen Sie einen neuen Zeitplan.",
+    "Den approuvéierten Ausféierungszäitraum ass eriwwer. Bereet en neie Plang vir."
+  ],
+  "Le nouveau devis dépasse le plafond approuvé. Préparez une nouvelle programmation pour examiner un plafond supérieur.": [
+    "The fresh quote exceeds the approved cap. Prepare a new schedule to review a higher cap.",
+    "Das neue Angebot überschreitet die genehmigte Obergrenze. Erstellen Sie einen neuen Zeitplan, um eine höhere Grenze zu prüfen.",
+    "Den neien Devis iwwerschreit den approuvéierte Plafong. Bereet en neie Plang vir, fir e méi héije Plafong ze iwwerpréiwen."
+  ],
+  "L’autorisation d’origine a changé. Une nouvelle préparation et une nouvelle approbation sont nécessaires.": [
+    "The original authority changed. A new preparation and approval are required.",
+    "Die ursprüngliche Berechtigung hat sich geändert. Eine neue Vorbereitung und Genehmigung sind erforderlich.",
+    "Déi ursprénglech Berechtegung huet geännert. Eng nei Virbereedung an Approbatioun sinn néideg."
+  ],
+  "Choisissez une heure entre une minute et 30 jours à l’avance. L’acceptation dans la file d’envoi est autorisée pendant les 15 minutes suivantes. Le délai de livraison dépend du prestataire. Créer ce brouillon n’approuve aucune dépense.": [
+    "Choose a time from one minute to 30 days ahead. Acceptance into the dispatch queue is allowed for 15 minutes after that time. Delivery time depends on the provider. Creating this draft does not approve spending.",
+    "Wählen Sie einen Zeitpunkt zwischen einer Minute und 30 Tagen im Voraus. Die Aufnahme in die Versandwarteschlange ist danach 15 Minuten lang zulässig. Die Zustellzeit hängt vom Anbieter ab. Das Erstellen dieses Entwurfs genehmigt keine Ausgaben.",
+    "Wielt en Zäitpunkt tëscht enger Minutt an 30 Deeg am Viraus. D’Opnam an d’Versandwaardeschlaang ass duerno 15 Minutte laang erlaabt. D’Liwwerzäit hänkt vum Ubidder of. Dësen Entworf approuvéiert keng Ausgaben."
+  ],
+  "Créer une nouvelle programmation pour cet envoi figé": [
+    "Create a new schedule for this frozen dispatch",
+    "Neuen Zeitplan für diese festgelegte Sendung erstellen",
+    "En neie Plang fir dës festgeluecht Sendung erstellen"
+  ],
+  "Créer l’endpoint et afficher le secret de signature": [
+    "Create endpoint and show signing secret",
+    "Endpunkt erstellen und Signaturschlüssel anzeigen",
+    "Endpoint erstellen an de Signaturschlëssel weisen"
+  ],
+  "Masquer le secret": [
+    "Dismiss secret",
+    "Schlüssel ausblenden",
+    "Schlëssel verstoppen"
+  ],
+  "État de l’envoi": [
+    "Dispatch status",
+    "Sendungsstatus",
+    "Status vun der Sendung"
+  ],
+  "Modifier l’endpoint": [
+    "Edit endpoint",
+    "Endpunkt bearbeiten",
+    "Endpoint änneren"
+  ],
+  "Endpoint activé": [
+    "Endpoint enabled",
+    "Endpunkt aktiviert",
+    "Endpoint aktivéiert"
+  ],
+  "Endpoint suspendu": [
+    "Endpoint paused",
+    "Endpunkt pausiert",
+    "Endpoint pauséiert"
+  ],
+  "Endpoint révoqué": [
+    "Endpoint revoked",
+    "Endpunkt widerrufen",
+    "Endpoint zréckgezunn"
+  ],
+  "Les nouveaux endpoints sont suspendus. Enregistrez le secret dans votre service destinataire avant d’activer les notifications. Modifier l’adresse ou le secret suspend à nouveau les notifications.": [
+    "New endpoints are paused. Save the signing secret in your receiving service before enabling delivery. Changes to the address or secret pause delivery again.",
+    "Neue Endpunkte sind pausiert. Speichern Sie den Schlüssel im empfangenden Dienst, bevor Sie die Zustellung aktivieren. Änderungen an Adresse oder Schlüssel pausieren die Zustellung erneut.",
+    "Nei Endpoints si pauséiert. Späichert de Schlëssel am empfänkenden Déngscht, éier Dir d’Liwwerung aktivéiert. Ännerungen un der Adress oder dem Schlëssel pauséieren d’Liwwerung nees."
+  ],
+  "Aucune livraison de webhook.": [
+    "No webhook deliveries.",
+    "Keine Webhook-Zustellungen.",
+    "Keng Webhook-Liwwerungen."
+  ],
+  "Notification échouée": [
+    "Notification failed",
+    "Benachrichtigung fehlgeschlagen",
+    "Notifikatioun feelgeschloen"
+  ],
+  "Notification en cours": [
+    "Notification in progress",
+    "Benachrichtigung läuft",
+    "Notifikatioun leeft"
+  ],
+  "État de la notification": [
+    "Notification status",
+    "Benachrichtigungsstatus",
+    "Status vun der Notifikatioun"
+  ],
+  "Notification remplacée": [
+    "Notification superseded",
+    "Benachrichtigung überholt",
+    "Notifikatioun ersat"
+  ],
+  "Remplacer et afficher le secret de signature": [
+    "Replace and show signing secret",
+    "Signaturschlüssel ersetzen und anzeigen",
+    "Signaturschlëssel ersetzen a weisen"
+  ],
+  "Remplacer le secret de signature ? Cette action suspend les notifications et invalide l’ancien secret.": [
+    "Replace the signing secret? This pauses delivery and invalidates the previous secret.",
+    "Signaturschlüssel ersetzen? Dies pausiert die Zustellung und macht den bisherigen Schlüssel ungültig.",
+    "De Signaturschlëssel ersetzen? Dëst pauséiert d’Liwwerung a mécht den ale Schlëssel ongëlteg."
+  ],
+  "Révoquer cet endpoint et détruire son secret de signature ?": [
+    "Revoke this endpoint and destroy its signing secret?",
+    "Diesen Endpunkt widerrufen und seinen Signaturschlüssel vernichten?",
+    "Dësen Endpoint zréckzéien a säi Signaturschlëssel zerstéieren?"
+  ],
+  "Révoquer l’endpoint": [
+    "Revoke endpoint",
+    "Endpunkt widerrufen",
+    "Endpoint zréckzéien"
+  ],
+  "La limite de notifications en attente a été atteinte. Certains événements ont été omis. Rapprochez le suivi des envois avant de vous fier à ce flux.": [
+    "The pending notification limit was reached. Some events were omitted. Reconcile dispatch tracking before relying on this stream.",
+    "Das Limit ausstehender Benachrichtigungen wurde erreicht. Einige Ereignisse wurden ausgelassen. Gleichen Sie die Sendungsverfolgung ab, bevor Sie sich auf diesen Datenstrom verlassen.",
+    "D’Limitt vun de waarden Notifikatioune gouf erreecht. E puer Evenementer goufen ausgelooss. Gläicht d’Sendungsverfolgung of, éier Dir Iech op dëse Stroum verloosst."
+  ],
+  "Cet endpoint existe déjà. Remplacez son secret de signature si la première réponse a été perdue.": [
+    "This endpoint already exists. Replace its signing secret if the first response was lost.",
+    "Dieser Endpunkt existiert bereits. Ersetzen Sie seinen Schlüssel, falls die erste Antwort verloren ging.",
+    "Dësen Endpoint gëtt et schonn. Ersetzt säi Schlëssel, wann déi éischt Äntwert verluer goung."
+  ],
+  "Les notifications au résultat inconnu ne sont pas retentées automatiquement. L’accusé de réception confirme la réception par l’endpoint, pas la livraison de l’envoi d’origine.": [
+    "Unknown webhook outcomes are not retried automatically. Acknowledgement confirms receipt by the endpoint, not delivery of the original dispatch.",
+    "Webhook-Aufrufe mit unbekanntem Ergebnis werden nicht automatisch wiederholt. Die Bestätigung belegt den Empfang am Endpunkt, nicht die Zustellung der ursprünglichen Sendung.",
+    "Webhook-Ufroe mat onbekanntem Resultat ginn net automatesch widderholl. D’Bestätegung beleeëgt den Empfang um Endpoint, net d’Liwwerung vun der ursprénglecher Sendung."
+  ],
+  "Notification en attente": [
+    "Waiting for notification",
+    "Benachrichtigung ausstehend",
+    "Notifikatioun waart"
+  ],
+  "La livraison des webhooks n’est pas activée. Les endpoints existants restent visibles ; leur activation nécessite une configuration opérationnelle.": [
+    "Webhook delivery is not enabled. Existing endpoints stay visible; enabling an endpoint requires operational configuration.",
+    "Die Webhook-Zustellung ist nicht aktiviert. Vorhandene Endpunkte bleiben sichtbar; ihre Aktivierung erfordert die betriebliche Konfiguration.",
+    "D’Webhook-Liwwerung ass net aktivéiert. Bestoend Endpoints bleiwe siichtbar; hir Aktivatioun erfuerdert déi operationell Konfiguratioun."
+  ],
+  "L’envoi immédiat est suspendu par cette programmation. Consultez-la ou annulez-la pour modifier l’autorisation future.": [
+    "Immediate sending is held by this schedule. Review or cancel the schedule to change future authority.",
+    "Der sofortige Versand ist durch diesen Zeitplan gesperrt. Prüfen oder stornieren Sie ihn, um die zukünftige Berechtigung zu ändern.",
+    "Den direkten Versand ass duerch dëse Plang gespaart. Iwwerpréift oder annuléiert en, fir déi zukünfteg Berechtegung ze änneren."
+  ],
+  "Ouvrir la programmation": [
+    "Open schedule",
+    "Zeitplan öffnen",
+    "Plang opmaachen"
+  ],
+  "Approbation de la dépense programmée en attente": [
+    "Waiting for scheduled spending approval",
+    "Genehmigung der geplanten Ausgaben ausstehend",
+    "Approbatioun vun de geplangten Ausgabe steet aus"
+  ],
+  "Recharger": [
+    "Reload",
+    "Neu laden",
+    "Nei lueden"
+  ]
+}

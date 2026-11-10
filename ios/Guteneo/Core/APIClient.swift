@@ -81,6 +81,13 @@ actor APIClient {
         components.path = "/auth/mobile/review/\(dispatchID)"
         return components.url
     }
+    nonisolated static func scheduleURL(scheduleID: String) -> URL? {
+        guard validIdentifier(scheduleID) else { return nil }
+        var components = URLComponents(url: website, resolvingAgainstBaseURL: false)!
+        components.path = "/"
+        components.fragment = "/app/schedules/\(scheduleID)"
+        return components.url
+    }
     nonisolated static func validIdentifier(_ value: String) -> Bool {
         !value.isEmpty && value.count <= 128 && value.unicodeScalars.allSatisfy {
             CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_").contains($0)

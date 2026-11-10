@@ -19,6 +19,13 @@ For distribution through a recipient account with a retention term, use
 under the active document authentication policy even with an expert mandate.
 Never implicitly replace it with the legacy password-protected email link.
 
+For an explicitly requested saved destination, use `saved-recipients`. Saving or
+choosing an address grants no recipient consent or approval. For a requested
+future fax or message-only email, use `scheduled-dispatch`: a draft may be
+prepared by the assistant, but fixed-cap future spending requires its distinct
+human browser approval. Customer webhook configuration and signing secrets are
+browser-administrator controls and have no assistant tool.
+
 For ChatGPT setup, the current ZIP declares Guteneo's public OAuth client in
 `mcp.json`; use the host's Connect action and let the person sign in at
 `auth.guteneo.com`. Do not ask the person to create an Auth0 application or supply

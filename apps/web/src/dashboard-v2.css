@@ -55,7 +55,6 @@
   }
 }
 .workspace-v2 {
-  --radius: 7px;
   background: var(--paper);
   grid-template-columns: 258px minmax(0, 1fr);
   font-size: 14px;

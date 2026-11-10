@@ -174,6 +174,53 @@ final class CoreTests: XCTestCase, @unchecked Sendable {
         XCTAssertNotNil(GuteneoDate.parse(object.createdAt))
     }
 
+    func testScheduledSourceListRowsNeverOfferOrdinaryApprovalOrCancellation() throws {
+        let original = try decodeDispatch(recipient: #"{"phone":"+33123456789"}"#)
+        let bytes = try JSONEncoder().encode(original)
+        var row = try XCTUnwrap(JSONSerialization.jsonObject(with: bytes) as? [String: Any])
+        for status in ["draft", "approved", "releasing", "unknown", "future_status"] {
+            row["activeSchedule"] = ["id": "schedule_123", "status": status, "executeAt": "2099-01-01T10:00:00Z", "maxTotalMinor": 500]
+            let held = try JSONDecoder().decode(DispatchRecord.self, from: JSONSerialization.data(withJSONObject: row))
+            XCTAssertEqual(held.status, "prepared", "Scheduling preserves the original command's immutable state")
+            XCTAssertEqual(held.statusTitle, "Held by schedule")
+            XCTAssertFalse(held.canHumanReview)
+            XCTAssertFalse(held.canCancel)
+            XCTAssertEqual(held.activeSchedule?.maxTotalMinor, 500)
+            let detail = DispatchDetail(dispatch: held, approval: nil, events: [], attempts: [], approvalUrl: nil)
+            XCTAssertEqual(detail.schedule?.id, "schedule_123", "Older detail wrappers can reuse row metadata")
+            XCTAssertFalse(detail.canHumanReview)
+            XCTAssertFalse(detail.canCancel)
+        }
+        XCTAssertTrue(original.canHumanReview)
+        XCTAssertTrue(original.canCancel)
+        XCTAssertNil(original.activeSchedule, "Old responses remain compatible")
+    }
+
+    func testTopLevelScheduleHoldOverridesAnOtherwiseOrdinaryDispatchDetail() throws {
+        let dispatch = try decodeDispatch(recipient: #"{"phone":"+33123456789"}"#)
+        let row = try JSONSerialization.jsonObject(with: JSONEncoder().encode(dispatch))
+        let body: [String: Any] = [
+            "dispatch": row, "events": [], "attempts": [],
+            "approvalUrl": "https://guteneo.com/auth/mobile/review/dispatch-123",
+            "activeSchedule": ["id": "schedule_123", "status": "approved", "executeAt": "2099-01-01T10:00:00Z", "maxTotalMinor": 500],
+        ]
+        let detail = try JSONDecoder().decode(DispatchDetail.self, from: JSONSerialization.data(withJSONObject: body))
+        XCTAssertTrue(detail.dispatch.canHumanReview, "The source itself stays prepared")
+        XCTAssertFalse(detail.canHumanReview, "The top-level hold governs available actions")
+        XCTAssertFalse(detail.canCancel)
+        XCTAssertEqual(detail.schedule?.browserURL?.absoluteString, "https://guteneo.com/#/app/schedules/schedule_123")
+        XCTAssertEqual(detail.schedule?.executeAt, "2099-01-01T10:00:00Z")
+    }
+
+    func testScheduleNavigationAcceptsOnlyAnOpaqueIdentifierOnTheFixedWebsite() {
+        XCTAssertEqual(APIClient.scheduleURL(scheduleID: "schedule_123")?.host, "guteneo.com")
+        for invalid in ["", "../billing", "//evil.example", "id?redirect=x", "id#fragment", "id%2Fbilling", String(repeating: "a", count: 129)] {
+            XCTAssertNil(APIClient.scheduleURL(scheduleID: invalid))
+            let schedule = ActiveDispatchSchedule(id: invalid, status: "unknown", executeAt: "2099-01-01T10:00:00Z", maxTotalMinor: 500)
+            XCTAssertNil(schedule.browserURL)
+        }
+    }
+
     func testDeliveryStatusNeverEquatesProviderAcceptanceWithDelivery() throws {
         for (status, expected) in ["accepted": "Accepted by provider", "submission_unknown": "Outcome unconfirmed", "printed": "Printed", "handed_to_post": "Handed to the post", "delivered": "Delivered"] {
             let dispatch = try decodeDispatch(recipient: #"{"phone":"+33123456789"}"#, status: status)
@@ -464,6 +511,40 @@ final class CoreTests: XCTestCase, @unchecked Sendable {
         XCTAssertEqual(model.phase, .signedOut)
         XCTAssertTrue(model.dispatches.isEmpty)
         XCTAssertNil(try credentials.load())
+    }
+
+    @MainActor
+    func testLocalDraftAccessRequiresItsCurrentlyAuthenticatedUserAndWorkspace() async throws {
+        let configuration = APIClient.sessionConfiguration()
+        configuration.protocolClasses = [NativeURLProtocol.self]
+        let network = URLSession(configuration: configuration)
+        defer { network.invalidateAndCancel() }
+        NativeURLProtocol.stub.configureHandler { request in
+            if request.httpMethod == "DELETE" { return (204, Data(), 0) }
+            switch request.url?.lastPathComponent {
+            case "session", "account": return (200, Self.validSession, 0)
+            case "capabilities": return (200, Data(#"{"version":"1","mode":"live","simulation":false,"humanApproval":"authenticated_browser","nativeApproval":false,"channels":[],"limits":{"pdfBytes":10485760}}"#.utf8), 0)
+            case "deletion-request": return (200, Data(#"{"request":null}"#.utf8), 0)
+            default: return (200, Data(#"{"items":[],"nextCursor":null}"#.utf8), 0)
+            }
+        }
+        let credentials = MemoryCredentials()
+        try credentials.save(StoredCredentials(token: "test-token", expiresAt: "2099-01-01T00:00:00Z"))
+        let data = MemoryDispatchDraftData()
+        let model = AppModel(client: APIClient(session: network), credentials: credentials, draftData: data)
+        await model.restoreSession()
+        let owner = try XCTUnwrap(model.dispatchDraftOwner)
+        var fields = DispatchDraftFields(); fields.recipient = "synthetic@example.invalid"
+        let saved = try model.saveDispatchDraft(owner: owner, fields: fields, preparation: DispatchPreparationState().snapshot, replacing: nil)
+        XCTAssertEqual(try model.savedDispatchDraft(owner: owner), saved)
+        let other = DispatchDraftOwner(userID: "another-user", organizationID: owner.organizationID)
+        XCTAssertThrowsError(try model.savedDispatchDraft(owner: other))
+        XCTAssertThrowsError(try model.saveDispatchDraft(owner: other, fields: fields, preparation: saved.preparation, replacing: nil))
+        await model.signOut()
+        XCTAssertNil(model.dispatchDraftOwner)
+        XCTAssertThrowsError(try model.savedDispatchDraft(owner: owner))
+        XCTAssertThrowsError(try model.discardDispatchDraft(owner: owner, revision: saved.revision))
+        XCTAssertEqual(try DispatchDraftStore(data: data).load(owner: owner), saved, "Signing out hides rather than reassigns the protected draft")
     }
 
     #if DEBUG

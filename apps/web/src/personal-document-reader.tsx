@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, DownloadSimple } from "@phosphor-icons/react";
 import type { PersonalDocumentView } from "../../../packages/contracts/src/secure-distribution";
-import { ApiError, date } from "./api";
+import { sessionAuthorityKey, ApiError, date } from "./api";
 import {
   ConfirmAction,
   ErrorNotice,
@@ -51,7 +51,7 @@ export function PersonalDocumentReader({
   }>();
   const [depositPreparing, setDepositPreparing] = useState(false);
   const [depositKey] = useState(() => crypto.randomUUID());
-  const action = useAction();
+  const action = useAction(`${sessionAuthorityKey(session)}:${id}`);
   useEffect(() => {
     const controller = new AbortController();
     setError(undefined);
@@ -95,16 +95,18 @@ export function PersonalDocumentReader({
     };
   }, [awaitingDeposit]);
   async function download() {
-    await action.run(async () => {
-      const blob = await personalBlob(
-        `/personal/documents/${encodeURIComponent(id)}/download`,
-        session,
-        {
-          method: "POST",
-          body: {},
-          key: crypto.randomUUID(),
-          expectedType: "pdf",
-        },
+    await action.run(async (view) => {
+      const blob = await view.wait(
+        personalBlob(
+          `/personal/documents/${encodeURIComponent(id)}/download`,
+          session,
+          {
+            method: "POST",
+            body: {},
+            key: crypto.randomUUID(),
+            expectedType: "pdf",
+          },
+        ),
       );
       const url = URL.createObjectURL(blob);
       const anchor = window.document.createElement("a");
@@ -117,16 +119,18 @@ export function PersonalDocumentReader({
     });
   }
   async function deposit() {
-    await action.run(async () => {
-      const result = await personalApi<{
-        id: string;
-        status: string;
-        expiresAt: string;
-      }>(`/personal/documents/${encodeURIComponent(id)}/deposit`, session, {
-        method: "POST",
-        body: {},
-        key: depositKey,
-      });
+    await action.run(async (view) => {
+      const result = await view.wait(
+        personalApi<{
+          id: string;
+          status: string;
+          expiresAt: string;
+        }>(`/personal/documents/${encodeURIComponent(id)}/deposit`, session, {
+          method: "POST",
+          body: {},
+          key: depositKey,
+        }),
+      );
       if (result.status === "active") {
         setDepositPreparing(false);
         setDeposited({ id: result.id, expiresAt: result.expiresAt });
@@ -351,15 +355,17 @@ export function PersonalDocumentReader({
                       confirmLabel={msg("Confirm deletion")}
                       disabled={action.pending}
                       onConfirm={() =>
-                        void action.run(async () => {
-                          await personalApi(
-                            `/personal/documents/${encodeURIComponent(id)}/delete`,
-                            session,
-                            {
-                              method: "POST",
-                              body: {},
-                              key: crypto.randomUUID(),
-                            },
+                        void action.run(async (view) => {
+                          await view.wait(
+                            personalApi(
+                              `/personal/documents/${encodeURIComponent(id)}/delete`,
+                              session,
+                              {
+                                method: "POST",
+                                body: {},
+                                key: crypto.randomUUID(),
+                              },
+                            ),
                           );
                           onChanged?.();
                           go(

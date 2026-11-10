@@ -48,7 +48,7 @@ type Resource = {
   keys: Record<string, unknown>;
   fingerprint: string;
   resourceRef: string;
-  action: "delete" | "purge" | "retain" | "blocked";
+  action: "delete" | "purge" | "retain" | "retire" | "blocked";
 };
 type RawResource = Resource & {
   row: Record<string, unknown>;
@@ -109,6 +109,7 @@ const unsupportedOwners = new Set([
   "distribution_plans",
 ]);
 const retainedTables = new Set([
+  "saved_recipients",
   "audit_log",
   "approvals",
   "postal_preflights",
@@ -360,6 +361,10 @@ export class AccountDeletionService {
         const action =
           name === "memberships"
             ? "delete"
+            : name === "saved_recipients" && row.created_by === userId
+              ? "delete"
+              : ["dispatch_schedules", "dispatch_schedule_approvals", "customer_webhook_endpoints"].includes(name)
+                ? "retire"
             : name === "documents"
               ? "purge"
               : temporary.has(name)
@@ -418,6 +423,17 @@ export class AccountDeletionService {
           issuer: String(row.issuer),
           subject: String(row.subject),
         });
+      if (item.table === "dispatch_schedules" || item.table === "dispatch_schedule_approvals") {
+        const scheduleId = item.table === "dispatch_schedules" ? row.id : row.schedule_id;
+        const liability = await this.env.DB.prepare("SELECT 1 FROM dispatch_schedule_releases release JOIN dispatches d ON d.organization_id=release.organization_id AND d.id=release.dispatch_id WHERE release.organization_id=? AND release.schedule_id=? AND d.status<>'prepared' AND NOT EXISTS(SELECT 1 FROM operationally_closed_dispatches closed WHERE closed.organization_id=d.organization_id AND closed.dispatch_id=d.id)")
+          .bind(row.organization_id, scheduleId).first();
+        if (liability) blockers.push(`LIABILITY_UNRESOLVED:${item.resourceRef}`);
+      }
+      if (item.table === "customer_webhook_endpoints") {
+        const sending = await this.env.DB.prepare("SELECT 1 FROM customer_webhook_deliveries WHERE organization_id=? AND endpoint_id=? AND status='sending' AND (invoked_at IS NOT NULL OR lease_until>strftime('%Y-%m-%dT%H:%M:%fZ','now'))")
+          .bind(row.organization_id, row.id).first();
+        if (sending) blockers.push(`WORK_UNRESOLVED:${item.resourceRef}`);
+      }
       if (
         (item.table === "private_document_uploads" &&
           ["uploading", "unknown"].includes(String(row.state))) ||
@@ -455,9 +471,9 @@ export class AccountDeletionService {
         if (shared)
           blockers.push(`SHARED_CONTENT_UNSUPPORTED:${item.resourceRef}`);
         const liabilities = await this.env.DB.prepare(
-          "SELECT 1 FROM dispatches WHERE organization_id=? AND document_id=? AND (provider_id IS NOT NULL OR status NOT IN('delivered','failed','cancelled','bounced','complained','handed_to_post'))",
+          "SELECT 1 FROM dispatches d WHERE organization_id=? AND document_id=? AND (provider_id IS NOT NULL OR status NOT IN('delivered','failed','cancelled','bounced','complained','handed_to_post')) AND NOT (d.status='prepared' AND d.provider IS NULL AND d.provider_id IS NULL AND d.active_attempt_id IS NULL AND NOT EXISTS(SELECT 1 FROM attempts x WHERE x.organization_id=d.organization_id AND x.dispatch_id=d.id) AND NOT EXISTS(SELECT 1 FROM outbox x WHERE x.organization_id=d.organization_id AND x.dispatch_id=d.id) AND EXISTS(SELECT 1 FROM dispatch_schedules s LEFT JOIN dispatch_schedule_releases r ON r.organization_id=s.organization_id AND r.schedule_id=s.id WHERE s.organization_id=d.organization_id AND (s.source_dispatch_id=d.id OR r.dispatch_id=d.id) AND (s.created_by=? OR EXISTS(SELECT 1 FROM dispatch_schedule_approvals a WHERE a.organization_id=s.organization_id AND a.schedule_id=s.id AND a.user_id=?))))",
         )
-          .bind(row.organization_id, row.id)
+          .bind(row.organization_id, row.id, request.user_id, request.user_id)
           .first();
         if (liabilities)
           blockers.push(`DELIVERY_RETENTION_UNRESOLVED:${item.resourceRef}`);
@@ -516,7 +532,7 @@ export class AccountDeletionService {
     if (objectKeys.size > 20 || raw.length > 60)
       blockers.push("DELETION_EXECUTION_LIMIT");
     const retained = raw
-      .filter((item) => item.action === "retain" || item.action === "purge")
+      .filter((item) => item.action === "retain" || item.action === "purge" || item.action === "retire")
       .map(({ resourceRef, table }) => ({ resourceRef, kind: table }));
     for (const kind of [
       "profile_evidence",
@@ -607,6 +623,16 @@ export class AccountDeletionService {
         condition: `EXISTS(SELECT 1 FROM ${sqlName(item.table)} WHERE ${whereKeys(item)} AND ${json}=?)`,
         values: [...Object.values(item.keys), canonicalJson(item.row)],
       });
+      if (item.table === "dispatch_schedules" || item.table === "dispatch_schedule_approvals")
+        checks.push({
+          condition: "NOT EXISTS(SELECT 1 FROM dispatch_schedule_releases release JOIN dispatches d ON d.organization_id=release.organization_id AND d.id=release.dispatch_id WHERE release.organization_id=? AND release.schedule_id=? AND d.status<>'prepared' AND NOT EXISTS(SELECT 1 FROM operationally_closed_dispatches closed WHERE closed.organization_id=d.organization_id AND closed.dispatch_id=d.id))",
+          values: [item.row.organization_id, item.table === "dispatch_schedules" ? item.row.id : item.row.schedule_id],
+        });
+      if (item.table === "customer_webhook_endpoints")
+        checks.push({
+          condition: "NOT EXISTS(SELECT 1 FROM customer_webhook_deliveries WHERE organization_id=? AND endpoint_id=? AND status='sending' AND (invoked_at IS NOT NULL OR lease_until>strftime('%Y-%m-%dT%H:%M:%fZ','now')))",
+          values: [item.row.organization_id, item.row.id],
+        });
     }
     for (const scope of built.scopes) {
       checks.push({
@@ -664,6 +690,25 @@ export class AccountDeletionService {
           "INSERT INTO account_deletion_identity_tombstones(issuer,subject,request_id,created_at) VALUES(?,?,?,?)",
         ).bind(identity.issuer, identity.subject, input.requestId, time),
       );
+    const scheduleIds = new Map(built.raw.flatMap((item): [string,string][] => item.table === "dispatch_schedules" ? [[String(item.keys.id),String(item.row.organization_id)]] : item.table === "dispatch_schedule_approvals" ? [[String(item.keys.schedule_id),String(item.row.organization_id)]] : []));
+    for (const [scheduleId,organizationId] of scheduleIds) {
+      writes.push(
+        this.env.DB.prepare("UPDATE dispatch_schedules SET status='cancelled',revision=revision+1,error_code='ACCOUNT_DELETED',updated_at=? WHERE organization_id=? AND id=? AND status IN ('draft','approved','releasing','unknown')")
+          .bind(time, organizationId, scheduleId),
+        this.env.DB.prepare("UPDATE dispatch_schedule_approvals SET revoked_at=? WHERE organization_id=? AND schedule_id=? AND revoked_at IS NULL")
+          .bind(time, organizationId, scheduleId),
+        this.env.DB.prepare("UPDATE dispatches SET status='cancelled',updated_at=? WHERE organization_id=? AND status='prepared' AND provider IS NULL AND provider_id IS NULL AND active_attempt_id IS NULL AND NOT EXISTS(SELECT 1 FROM attempts x WHERE x.organization_id=dispatches.organization_id AND x.dispatch_id=dispatches.id) AND NOT EXISTS(SELECT 1 FROM outbox x WHERE x.organization_id=dispatches.organization_id AND x.dispatch_id=dispatches.id) AND id IN (SELECT source_dispatch_id FROM dispatch_schedules WHERE organization_id=? AND id=? UNION ALL SELECT dispatch_id FROM dispatch_schedule_releases WHERE organization_id=? AND schedule_id=?)")
+          .bind(time,organizationId,organizationId,scheduleId,organizationId,scheduleId),
+      );
+    }
+    for (const item of built.raw.filter((item)=>item.table === "customer_webhook_endpoints")) {
+      writes.push(
+        this.env.DB.prepare("UPDATE customer_webhook_endpoints SET status='revoked',enabled=0,secret_ciphertext=NULL,name='Deleted endpoint',url='https://deleted.invalid/',revision=revision+1,updated_at=? WHERE organization_id=? AND id=?")
+          .bind(time, item.row.organization_id, item.keys.id),
+        this.env.DB.prepare("UPDATE customer_webhook_deliveries SET status='failed',finished_at=?,error_code='endpoint_owner_deleted' WHERE organization_id=? AND endpoint_id=? AND status='sending' AND invoked_at IS NULL")
+          .bind(time, item.row.organization_id, item.keys.id),
+      );
+    }
     writes.push(
       this.env.DB.prepare("DELETE FROM native_sessions WHERE user_id=?").bind(
         built.request.user_id,
@@ -776,12 +821,15 @@ export class AccountDeletionService {
         reviewed.action === "blocked" ||
         (reviewed.action === "retain" &&
           reviewed.fingerprint !== item.fingerprint) ||
+        (reviewed.action === "retire" && !this.retiredResource(item)) ||
         (reviewed.action === "purge" &&
           (item.row.status !== "purged" ||
             item.row.name !== "Deleted document"))
       )
         throw new DeletionProcessorError("DELETION_RESOURCE_UNVERIFIED");
     }
+    if (await this.env.DB.prepare("SELECT 1 FROM dispatch_schedules s WHERE s.status IN ('draft','approved','releasing','unknown') AND (s.created_by=? OR EXISTS(SELECT 1 FROM dispatch_schedule_approvals a WHERE a.organization_id=s.organization_id AND a.schedule_id=s.id AND a.user_id=?))").bind(manifest.userId,manifest.userId).first())
+      throw new DeletionProcessorError("DELETION_RESOURCE_UNVERIFIED");
     if (
       (await this.env.DB.prepare("PRAGMA foreign_key_check").all()).results
         .length
@@ -797,6 +845,12 @@ export class AccountDeletionService {
       )
         throw new DeletionProcessorError("DELETION_INTEGRITY_FAILED");
     return current;
+  }
+  private retiredResource(item: RawResource) {
+    if (item.table === "dispatch_schedules") return ["cancelled","blocked","released"].includes(String(item.row.status));
+    if (item.table === "dispatch_schedule_approvals") return item.row.revoked_at !== null;
+    if (item.table === "customer_webhook_endpoints") return item.row.status === "revoked" && item.row.enabled === 0 && item.row.secret_ciphertext === null && item.row.name === "Deleted endpoint" && item.row.url === "https://deleted.invalid/";
+    return false;
   }
   private async verifyPersonalNamespace(manifest: Manifest) {
     if (

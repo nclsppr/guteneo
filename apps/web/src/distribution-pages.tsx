@@ -18,6 +18,7 @@ import type {
   Page,
 } from "../../../packages/contracts/src/template-workflow";
 import {
+  sessionAuthorityKey,
   api,
   date,
   isPublicPreview,
@@ -64,11 +65,7 @@ export default function DistributionPage({
       </p>
     );
   const permissions = permissionsFor(session);
-  const identity = JSON.stringify([
-    session.organization.id,
-    session.user.id,
-    session.csrfToken,
-  ]);
+  const identity = sessionAuthorityKey(session);
   const [path, search = ""] = route.split("?");
   if (path === "/app/distribution/new") {
     if (!permissions.prepareDispatches) return <RolePermissionNotice />;
@@ -541,7 +538,7 @@ function DistributionForm({
   async function prepare(event: FormEvent) {
     event.preventDefault();
     const isCurrentVisit = currentVisit();
-    await action.run(async () => {
+    await action.run(async (view) => {
       if (postalCatalogueUnavailable)
         throw new Error(
           msg(
@@ -690,11 +687,18 @@ function DistributionForm({
       if (last.current && last.current !== serialized)
         key.current = crypto.randomUUID();
       last.current = serialized;
-      const result = await api<DistributionView>("/distribution-plans", {
-        method: "POST",
-        key: key.current,
-        body,
-      });
+      const result = await view.wait(
+        api<DistributionView>("/distribution-plans", {
+          method: "POST",
+          key: key.current,
+          body,
+        }),
+        (receipt) => ({
+          kind: "saved",
+          resourceId: receipt.id,
+          route: `/app/distribution/${encodeURIComponent(receipt.id)}`,
+        }),
+      );
       if (!isCurrentVisit()) return;
       prepared.current = true;
       go("/app/distribution/" + result.id);
@@ -1374,11 +1378,13 @@ export function DistributionDetail({
                 className="button"
                 disabled={action.pending}
                 onClick={() =>
-                  void action.run(async () => {
+                  void action.run(async (view) => {
                     const isCurrent = currentVisit();
-                    const next = await api<DistributionView>(
-                      `/distribution-plans/${id}/resume`,
-                      { method: "POST", body: { retryFailed: false } },
+                    const next = await view.wait(
+                      api<DistributionView>(
+                        `/distribution-plans/${id}/resume`,
+                        { method: "POST", body: { retryFailed: false } },
+                      ),
                     );
                     if (isCurrent()) resource.setData(next);
                   })
@@ -1393,11 +1399,13 @@ export function DistributionDetail({
                 className="button small"
                 disabled={action.pending}
                 onClick={() =>
-                  void action.run(async () => {
+                  void action.run(async (view) => {
                     const isCurrent = currentVisit();
-                    const next = await api<DistributionView>(
-                      `/distribution-plans/${id}/resume`,
-                      { method: "POST", body: { retryFailed: true } },
+                    const next = await view.wait(
+                      api<DistributionView>(
+                        `/distribution-plans/${id}/resume`,
+                        { method: "POST", body: { retryFailed: true } },
+                      ),
                     );
                     if (isCurrent()) resource.setData(next);
                   })
@@ -1411,12 +1419,12 @@ export function DistributionDetail({
             {msg("Manifest hash: ")}
             <code>{resource.data.manifestHash}</code>
           </p>
-          <DataTable
+          <DataTable viewId="distribution-dispatches"
             label={msg("Distribution prepared")}
             items={resource.data.entries}
             getRowKey={(entry) => entry.entryId}
             filters={[
-              {
+              { saveValue: true,
                 id: "channel",
                 label: msg("Channel / destination"),
                 value: (entry) => entry.channel,
@@ -1529,17 +1537,19 @@ export function DistributionDetail({
                               className="button small"
                               disabled={action.pending}
                               onClick={() =>
-                                void action.run(async () => {
+                                void action.run(async (view) => {
                                   const isCurrentVisit = currentVisit();
                                   keys.current[entry.entryId] ??=
                                     crypto.randomUUID();
-                                  const next = await api<DistributionView>(
-                                    `/distribution-plans/${id}/entries/${encodeURIComponent(entry.entryId)}/postal-preflight`,
-                                    {
-                                      method: "POST",
-                                      key: keys.current[entry.entryId],
-                                      body: {},
-                                    },
+                                  const next = await view.wait(
+                                    api<DistributionView>(
+                                      `/distribution-plans/${id}/entries/${encodeURIComponent(entry.entryId)}/postal-preflight`,
+                                      {
+                                        method: "POST",
+                                        key: keys.current[entry.entryId],
+                                        body: {},
+                                      },
+                                    ),
                                   );
                                   if (!isCurrentVisit()) return;
                                   resource.setData(next);

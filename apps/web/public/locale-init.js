@@ -64,3 +64,28 @@
     location.replace(url.href);
   }
 })();
+
+/* Preload the server-selected public language alongside the entry module.
+ * Private entry waits for authenticated preference; this hint grants no rights. */
+(function () {
+  var root = document.documentElement;
+  if (
+    !root.dataset.publicLocale ||
+    root.dataset.publicPath !== location.pathname ||
+    root.style.visibility === "hidden" ||
+    location.hash.startsWith("#/app") ||
+    document.querySelector('meta[name="guteneo-belvedere"]')
+  )
+    return;
+  var locale = root.dataset.publicLocale;
+  if (!["fr", "en", "de", "lb"].includes(locale)) return;
+  var asset = document.querySelector(
+    'meta[name="guteneo-locale-' + locale + '"]',
+  );
+  if (!asset || !/^\/assets\/[a-zA-Z0-9_.-]+\.js$/.test(asset.content)) return;
+  var link = document.createElement("link");
+  link.rel = "modulepreload";
+  link.href = asset.content;
+  link.crossOrigin = "anonymous";
+  document.head.appendChild(link);
+})();

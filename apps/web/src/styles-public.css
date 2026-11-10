@@ -1,0 +1,706 @@
+/* Homepage extensions inherit the printing-house typography and open rules. */
+.installation-section,
+.pricing-section,
+.faq-section {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 9%;
+  padding: 84px 0;
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 32px;
+}
+.installation-section {
+  row-gap: 55px;
+}
+@media (max-width: 360px) {
+  .landing .site-header {
+    gap: 8px;
+  }
+}
+
+.installation-heading h2,
+.pricing-heading h2,
+.faq-heading h2 {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 4.2vw, 56px);
+  letter-spacing: -0.025em;
+  line-height: 1.06;
+  margin-bottom: 24px;
+}
+.installation-heading h2 em,
+.pricing-heading h2 em,
+.faq-heading h2 em {
+  font-weight: 400;
+  line-height: 1.14;
+}
+.installation-heading > p,
+.pricing-heading > p,
+.faq-heading > p {
+  max-width: 34ch;
+  color: var(--muted);
+  font-size: 15px;
+}
+.installation-heading .text-link {
+  margin-top: 13px;
+  font-size: 13px;
+}
+.installation-guide,
+.pricing-content,
+.faq-questions {
+  min-width: 0;
+}
+
+.host-instructions ol {
+  padding-left: 23px;
+  margin: 0 0 25px;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.host-instructions li {
+  padding-left: 7px;
+  margin-bottom: 15px;
+}
+.host-instructions li::marker {
+  color: var(--blue);
+  font-variant-numeric: tabular-nums;
+}
+.endpoint-copy {
+  border: 1px solid var(--line);
+  padding: 17px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+}
+.endpoint-copy > span:first-child {
+  font-size: 11px;
+  width: 100%;
+  color: var(--muted);
+}
+.endpoint-copy > code {
+  font-size: 12px;
+  margin-right: auto;
+}
+.endpoint-copy .button {
+  padding: 7px 10px;
+  font-size: 11px;
+}
+.landing-copy-control {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+}
+.copy-feedback {
+  font-size: 12px;
+  color: var(--muted);
+}
+.copy-feedback:empty {
+  display: none;
+}
+.installation-links {
+  display: flex;
+  gap: 15px 25px;
+  flex-wrap: wrap;
+  margin: 19px 0 12px;
+}
+.claude-connect {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+  margin-bottom: 24px;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.claude-connect p {
+  margin: 0;
+}
+.claude-client-field {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+  margin-bottom: 0;
+}
+.claude-client-field input {
+  min-width: 0;
+}
+.claude-connect .button {
+  min-height: 44px;
+  max-width: 100%;
+  white-space: normal;
+}
+.claude-open {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+}
+.claude-connect .claude-install-steps {
+  margin: 0;
+  padding-left: 23px;
+}
+.claude-install-steps li {
+  margin-bottom: 12px;
+  padding-left: 7px;
+}
+.claude-install-steps li:last-child {
+  margin-bottom: 0;
+}
+.claude-workspace-setup {
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 30px;
+}
+.claude-workspace-setup > h3 {
+  margin: 0 0 16px;
+}
+.installation-links .text-link {
+  font-size: 12px;
+}
+.installation-caveat,
+.installation-availability,
+.price-qualification {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+.first-prompt {
+  border-top: 1px solid var(--line);
+  margin-top: 30px;
+  padding-top: 26px;
+}
+.first-prompt h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+.first-prompt > p {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.42;
+  margin-bottom: 18px;
+}
+.installation-availability {
+  margin: 23px 0 0;
+}
+.welcome-credit {
+  display: flex;
+  align-items: flex-start;
+  gap: 30px;
+  padding-bottom: 30px;
+}
+.welcome-amount {
+  font-family: var(--font-display);
+  font-size: 94px;
+  letter-spacing: -0.025em;
+  line-height: 0.92;
+  color: var(--blue);
+  white-space: nowrap;
+  margin: 2px 0 0;
+  font-variant-numeric: lining-nums;
+}
+.welcome-amount > span {
+  font-size: 47px;
+  margin-left: 3px;
+}
+.welcome-copy h3 {
+  font-size: 18px;
+  line-height: 1.35;
+  margin: 0 0 9px;
+}
+.welcome-copy p {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+.welcome-copy .welcome-terms {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 0;
+}
+.pricing-table table {
+  font-size: 13px;
+}
+.pricing-table th,
+.pricing-table td {
+  padding: 18px 0;
+  white-space: normal;
+}
+.pricing-table thead th {
+  padding: 13px 0;
+}
+.pricing-table tbody th {
+  width: 45%;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
+  padding-right: 22px;
+}
+.pricing-table tbody th span {
+  display: block;
+  font-weight: 400;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+.pricing-table td strong {
+  font-weight: 500;
+  color: var(--blue);
+  white-space: nowrap;
+}
+.customer-price {
+  margin: 0 0 7px;
+}
+.customer-price strong {
+  font-size: 22px;
+  display: block;
+}
+.customer-price > span {
+  color: var(--muted);
+  font-size: 11px;
+}
+.customer-supplement {
+  margin: 11px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.pricing-table th,
+.pricing-table td {
+  vertical-align: top;
+}
+.price-qualification {
+  margin: 16px 0 25px;
+}
+.topup-unavailable {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.topup-unavailable button {
+  flex-shrink: 0;
+  font-size: 12px;
+  opacity: 0.65;
+}
+.topup-unavailable p {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 0;
+}
+.faq-questions details {
+  border-bottom: 1px solid var(--line);
+}
+.faq-questions details:first-child {
+  border-top: 1px solid var(--line);
+}
+.faq-questions summary {
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 23px;
+  padding: 20px 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.faq-questions summary::-webkit-details-marker {
+  display: none;
+}
+.faq-questions summary svg {
+  color: var(--blue);
+}
+.faq-questions details[open] summary svg {
+  transform: rotate(45deg);
+}
+.faq-questions details > p {
+  margin: 0 28px 23px 0;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.luxembourg-footer {
+  border-top: 1px solid var(--line);
+  padding-top: 56px;
+}
+.footer-invitation {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  align-items: center;
+  gap: 32px;
+  max-width: 920px;
+  margin-inline: auto;
+}
+.footer-invitation-copy > p {
+  font-family: var(--font-display);
+  font-size: clamp(39px, 4.1vw, 57px);
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  margin-bottom: 27px;
+}
+.footer-invitation-copy > p em {
+  font-weight: 400;
+}
+.footer-invitation .button {
+  font-size: 14px;
+  min-height: 50px;
+}
+.footer-postage {
+  position: relative;
+  width: 280px;
+  aspect-ratio: 300 / 230;
+  margin: 0;
+  pointer-events: none;
+  isolation: isolate;
+  background: var(--paper);
+}
+.founding-stamp {
+  position: absolute;
+  width: 58%;
+  height: auto;
+  top: 4%;
+  right: 0;
+  transform: rotate(8deg);
+  mix-blend-mode: multiply;
+}
+.founding-postmark {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--ink);
+  fill: currentColor;
+  opacity: 0.82;
+  transform: rotate(-9deg);
+  mix-blend-mode: multiply;
+}
+.postmark-place,
+.postmark-edition,
+.postmark-post,
+.postmark-date {
+  font-family: var(--font-code);
+  font-weight: 500;
+}
+.postmark-place {
+  font-size: 12px;
+  letter-spacing: 1.7px;
+}
+.postmark-edition {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+}
+.postmark-post {
+  font-size: 8px;
+  letter-spacing: 2px;
+}
+.postmark-date {
+  font-size: 14px;
+}
+.postmark-signature {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+}
+.luxembourg-art {
+  position: relative;
+  margin: 9px -6.45% 0;
+  overflow: hidden;
+}
+.luxembourg-panorama {
+  width: 100%;
+  height: auto;
+  mix-blend-mode: darken;
+}
+.luxembourg-birds {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.footer-bird {
+  position: absolute;
+  display: block;
+  width: 65px;
+  top: 7%;
+  left: -12%;
+  --flight-distance: calc(100vw + 200px);
+  animation: swallow-flight 24s linear infinite;
+  animation-delay: -6s;
+}
+.swallow-wingbeat {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  background-image: url("/luxembourg-blue-swallow-sheet.webp");
+  background-repeat: no-repeat;
+  background-size: 200% 200%;
+  animation: swallow-wingbeat 0.8s steps(1, end) infinite;
+}
+.bird-two {
+  width: 40px;
+  top: 10%;
+  animation-delay: -17s;
+  animation-duration: 30s;
+}
+.bird-three {
+  width: 27px;
+  top: 18%;
+  animation-delay: -22s;
+  animation-duration: 26s;
+}
+.bird-two .swallow-wingbeat {
+  animation-delay: -0.25s;
+  animation-duration: 0.9s;
+}
+.bird-three .swallow-wingbeat {
+  animation-delay: -0.5s;
+  animation-duration: 0.7s;
+}
+@keyframes swallow-flight {
+  0% {
+    transform: translate3d(0, 12px, 0) rotate(-3deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  35% {
+    transform: translate3d(calc(var(--flight-distance) * 0.35), -8px, 0)
+      rotate(1deg);
+  }
+  70% {
+    transform: translate3d(calc(var(--flight-distance) * 0.7), 4px, 0)
+      rotate(-2deg);
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--flight-distance), -12px, 0) rotate(1deg);
+    opacity: 0;
+  }
+}
+@keyframes swallow-wingbeat {
+  0%,
+  100% {
+    background-position: 0% 0%;
+  }
+  25% {
+    background-position: 100% 0%;
+  }
+  50% {
+    background-position: 0% 100%;
+  }
+  75% {
+    background-position: 100% 100%;
+  }
+}
+.footer-colophon {
+  border-top: 1px solid var(--line);
+  padding: 28px 0 32px;
+  display: grid;
+  grid-template-columns: minmax(180px, 0.8fr) minmax(0, 2fr);
+  gap: 24px 48px;
+  align-items: start;
+  color: var(--muted);
+}
+.footer-colophon p {
+  margin: 0;
+  font-size: 12px;
+}
+.footer-colophon a {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.footer-colophon a:hover {
+  text-decoration: underline;
+}
+.footer-navigation {
+  display: grid;
+  gap: 8px;
+}
+.footer-colophon nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 20px;
+  font-size: 13px;
+}
+.footer-colophon .legal-links {
+  padding-block-start: 8px;
+  border-top: 1px solid var(--line);
+}
+.footer-colophon .footer-contact {
+  justify-self: start;
+  min-height: 44px;
+  font-size: 13px;
+}
+.footer-colophon nav a {
+  min-height: 44px;
+}
+@media (max-width: 1000px) {
+  .installation-section,
+  .pricing-section,
+  .faq-section {
+    gap: 6%;
+    grid-template-columns: 0.8fr 1.2fr;
+  }
+  .welcome-credit {
+    gap: 18px;
+  }
+  .welcome-amount {
+    font-size: 76px;
+  }
+  .topup-unavailable {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .site-header nav {
+    gap: 18px;
+  }
+}
+@media (max-width: 767px) {
+  .site-header nav > a:not(.button) {
+    display: none;
+  }
+  .installation-section,
+  .pricing-section,
+  .faq-section {
+    display: block;
+    padding: 52px 0;
+    scroll-margin-top: 20px;
+  }
+  .installation-heading,
+  .pricing-heading,
+  .faq-heading {
+    margin-bottom: 33px;
+  }
+
+  .installation-heading h2,
+  .pricing-heading h2,
+  .faq-heading h2 {
+    font-size: 43px;
+  }
+  .installation-heading > p,
+  .pricing-heading > p,
+  .faq-heading > p {
+    max-width: 43ch;
+    font-size: 14px;
+  }
+
+  .installation-links .text-link {
+    min-height: 44px;
+  }
+  .endpoint-copy {
+    padding: 15px;
+  }
+  .endpoint-copy > code {
+    font-size: 11px;
+    width: 100%;
+  }
+  .endpoint-copy .button {
+    min-height: 36px;
+  }
+  .welcome-credit {
+    gap: 24px;
+  }
+  .welcome-amount {
+    font-size: 77px;
+  }
+  .welcome-amount > span {
+    font-size: 39px;
+  }
+  .welcome-copy h3 {
+    font-size: 17px;
+  }
+  .welcome-copy p {
+    font-size: 13px;
+  }
+  .pricing-table tbody th {
+    width: 33%;
+    font-size: 14px;
+    padding-right: 15px;
+  }
+  .pricing-table td {
+    font-size: 12px;
+  }
+  .topup-unavailable {
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+  }
+  .topup-unavailable .button {
+    min-height: 44px;
+    padding: 11px 13px;
+  }
+  .faq-questions summary {
+    font-size: 14px;
+    padding: 20px 0;
+  }
+  .luxembourg-footer {
+    padding-top: 44px;
+  }
+  .footer-invitation {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 22px;
+  }
+  .footer-invitation-copy > p {
+    font-size: 41px;
+  }
+  .footer-postage {
+    width: 240px;
+  }
+  .luxembourg-art {
+    margin: 22px -22px 0;
+  }
+  .luxembourg-panorama {
+    width: 165%;
+    max-width: none;
+    margin-left: -32%;
+  }
+  .footer-bird {
+    width: 43px;
+    top: 9%;
+  }
+  .bird-two {
+    width: 30px;
+    top: 5%;
+  }
+  .bird-three {
+    width: 22px;
+    top: 13%;
+  }
+  .footer-colophon {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 17px;
+    padding: 22px 0 29px;
+  }
+  .footer-colophon p {
+    line-height: 1.8;
+    font-size: 12px;
+  }
+  .footer-colophon nav {
+    gap: 4px 22px;
+  }
+  .footer-colophon nav a {
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .footer-bird {
+    left: 18%;
+    opacity: 1;
+    transform: none;
+  }
+  .bird-two {
+    left: 66%;
+  }
+  .bird-three {
+    left: 80%;
+  }
+}

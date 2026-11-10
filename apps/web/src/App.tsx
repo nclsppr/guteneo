@@ -2,6 +2,13 @@ import { msg, msgIn } from "./messages";
 import { isAdvancedLocalPreview } from "./local-preview";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
+import { ActionOutcomeTray } from "./action-outcome-tray";
+import { CommandPalette, type NavigationCommand } from "./command-palette";
+import { TableViewScope } from "./table-view-scope";
+import {
+  clientNavigationRevision,
+  createWorkspaceSwitchPreflightEvent,
+} from "./client-navigation";
 import {
   ArrowRight,
   Check,
@@ -27,6 +34,7 @@ import {
   type Icon,
 } from "@phosphor-icons/react";
 import {
+  sessionAuthorityKey,
   api,
   ApiError,
   canAdminister,
@@ -37,6 +45,10 @@ import {
   type Session,
 } from "./api";
 import { t, initializeLocale, useLocale } from "./locale";
+import {
+  readInitialWorkspaceSession,
+  readInitialPersonalSession,
+} from "./client-session-bootstrap";
 import { canonicalPublicLocation } from "../../../packages/contracts/src/public-routes";
 import { PublicHomepage } from "./public-homepage";
 import { PublicSitePage } from "./public-site-pages";
@@ -64,7 +76,6 @@ import {
   type WorkspaceApplication,
 } from "./space-switcher";
 import {
-  BEFORE_WORKSPACE_NAVIGATION,
   ErrorNotice,
   go,
   Loading,
@@ -74,11 +85,7 @@ import {
 } from "./components";
 import { PdfCheckPage } from "./pdf-check-offer";
 import { Login } from "./login-page";
-import {
-  personalApi,
-  type PersonalSession,
-  type PersonalSessionRead,
-} from "./personal-api";
+import { personalApi, type PersonalSessionRead } from "./personal-api";
 import {
   preloadWorkspaceRoute,
   workspaceRouteModules,
@@ -106,7 +113,7 @@ const LocalPreviewControls =
     : null;
 const EmailPreferencesPage = lazy(() => import("./email-preferences"));
 const RememberDirectChoice = lazy(() =>
-  workspaceRouteModules.dispatch().then((module) => ({
+  import("./assistant-state").then((module) => ({
     default: module.RememberDirectChoice,
   })),
 );
@@ -149,9 +156,7 @@ function PersonalEntry({ route }: { route: string }) {
             }),
           { once: true },
         );
-        void personalApi<PersonalSession>("/personal/session", undefined, {
-          signal: controller.signal,
-        }).then(
+        void readInitialPersonalSession(controller.signal).then(
           (session) => resolve({ session }),
           (error: Error) => resolve({ error }),
         );
@@ -179,26 +184,26 @@ function PersonalEntry({ route }: { route: string }) {
 
 const Overview = lazy(() =>
   workspaceRouteModules
-    .dispatch()
+    .overview()
     .then((module) => ({ default: module.Overview })),
 );
 const Documents = lazy(() =>
   workspaceRouteModules
-    .dispatch()
+    .documents()
     .then((module) => ({ default: module.Documents })),
 );
 const PrepareDispatch = lazy(() =>
-  workspaceRouteModules.dispatch().then((module) => ({
+  workspaceRouteModules.prepare().then((module) => ({
     default: module.PrepareDispatch,
   })),
 );
 const DispatchList = lazy(() =>
-  workspaceRouteModules.dispatch().then((module) => ({
+  workspaceRouteModules.dispatchList().then((module) => ({
     default: module.DispatchList,
   })),
 );
 const DispatchDetailPage = lazy(() =>
-  workspaceRouteModules.dispatch().then((module) => ({
+  workspaceRouteModules.dispatchDetail().then((module) => ({
     default: module.DispatchDetailPage,
   })),
 );
@@ -234,6 +239,8 @@ const Connection = lazy(() =>
 );
 const DocumentStudio = lazy(() => workspaceRouteModules.studio());
 const Administration = lazy(() => workspaceRouteModules.administration());
+const RecipientPages = lazy(() => workspaceRouteModules.recipients());
+const SchedulePages = lazy(() => workspaceRouteModules.schedules());
 const DistributionPage = lazy(() => workspaceRouteModules.distribution());
 const SecureDistributionPage = lazy(() =>
   workspaceRouteModules.secureDistribution().then((module) => ({
@@ -299,6 +306,8 @@ const workshopNavigation: readonly NavigationItem<WorkshopEntry>[] = [
   { id: "dispatches", path: "/app/dispatches", Icon: PaperPlaneTilt },
   { id: "campaigns", path: "/app/campaigns", Icon: Stack },
   { id: "senders", path: "/app/senders", Icon: AddressBook },
+  { id: "recipients", path: "/app/recipients", Icon: AddressBook },
+  { id: "schedules", path: "/app/schedules", Icon: ListChecks },
   { id: "pdfChecks", path: "/app/pdf-checks", Icon: Check },
 ];
 // Workspace management, moved out of Correspondence and the personal profile.
@@ -349,6 +358,12 @@ const administrationNavigation: readonly (NavigationItem<AdministrationEntry> & 
     admin: true,
   },
   {
+    id: "administrationWebhooks",
+    path: administrationRoutes.webhooks,
+    Icon: PlugsConnected,
+    admin: true,
+  },
+  {
     id: "administrationBilling",
     path: administrationRoutes.billing,
     Icon: Receipt,
@@ -368,6 +383,7 @@ const administrationLabels: Record<AdministrationEntry, () => string> = {
   administrationReports: () => msg("Reports"),
   administrationMembers: () => msg("Members"),
   administrationConnections: () => msg("Access"),
+  administrationWebhooks: () => msg("Customer webhooks"),
   administrationAudit: () => msg("Audit log"),
   administrationBilling: () => msg("Billing"),
   administrationSettings: () => msg("Settings"),
@@ -441,7 +457,7 @@ function Application() {
     );
     let alive = true;
     const controller = new AbortController();
-    api<Session>("/session", { signal: controller.signal })
+    readInitialWorkspaceSession(controller.signal)
       .then((s) => {
         if (alive) {
           setSession(s, !isPublicPreview);
@@ -627,6 +643,7 @@ function WorkspaceApplication({
       : null,
   );
   const [logoutError, setLogoutError] = useState<Error>();
+  const [logoutNeedsReconnect, setLogoutNeedsReconnect] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
   const lastSessionRead = useRef(0);
   useEffect(() => {
@@ -725,7 +742,15 @@ function WorkspaceApplication({
       </div>
     );
   if (!session)
-    return (
+    return logoutNeedsReconnect ? (
+      <div className="access-page">
+        <main className="access-main" id="main-content" tabIndex={-1}>
+          <SessionExpiredNotice
+            onReconnect={() => setLogoutNeedsReconnect(false)}
+          />
+        </main>
+      </div>
+    ) : (
       <Login
         onLogin={(current) => {
           setSessionExpired(false);
@@ -737,11 +762,14 @@ function WorkspaceApplication({
       />
     );
   const refreshSession = async () => {
+    const authority = sessionAuthorityKey();
     try {
       const updated = await api<Session>("/session");
+      if (sessionAuthorityKey() !== authority) return;
       setSession(updated, !isPublicPreview);
       updateSession(updated);
     } catch (error) {
+      if (sessionAuthorityKey() !== authority) return;
       if (error instanceof ApiError && [401, 403].includes(error.status)) {
         setSession(null);
         updateSession(null);
@@ -776,6 +804,7 @@ function WorkspaceApplication({
     content = (
       <Suspense fallback={<Loading />}>
         <Administration
+          key={sessionAuthorityKey(session)}
           route={route}
           session={session}
           onUpdated={refreshSession}
@@ -784,6 +813,27 @@ function WorkspaceApplication({
     );
   else if (page === "/app/documents")
     content = <Documents canPrepare={permissions.prepareDispatches} />;
+  else if (/^\/app\/recipients(\/|$)/.test(page))
+    content =
+      permissions.prepareDispatches && !isPublicPreview ? (
+        <RecipientPages
+          key={`${sessionAuthorityKey(session)}:${page}`}
+          route={route}
+        />
+      ) : (
+        <RolePermissionNotice />
+      );
+  else if (/^\/app\/schedules(\/|$)/.test(page))
+    content =
+      permissions.prepareDispatches && !isPublicPreview ? (
+        <SchedulePages
+          key={`${sessionAuthorityKey(session)}:${page}`}
+          route={route}
+          session={session}
+        />
+      ) : (
+        <RolePermissionNotice />
+      );
   else if (page === "/app/prepare" && !permissions.prepareDispatches)
     content = <RolePermissionNotice />;
   else if (page === "/app/prepare")
@@ -793,11 +843,7 @@ function WorkspaceApplication({
           <RememberDirectChoice session={session} />
         )}
         <PrepareDispatch
-          identity={JSON.stringify([
-            session.organization.id,
-            session.user.id,
-            session.csrfToken,
-          ])}
+          identity={sessionAuthorityKey(session)}
           simulation={session.simulation}
           workspaceName={session.organization.name}
           emailLocale={session.user.preferredLocale ?? "fr"}
@@ -821,12 +867,8 @@ function WorkspaceApplication({
   else if (page.startsWith("/app/dispatch/"))
     content = (
       <DispatchDetailPage
-        key={`${route}:${session.organization.id}:${session.user.id}:${session.csrfToken}`}
-        identity={JSON.stringify([
-          session.organization.id,
-          session.user.id,
-          session.csrfToken,
-        ])}
+        key={`${route}:${sessionAuthorityKey(session)}`}
+        identity={sessionAuthorityKey(session)}
         id={page.slice("/app/dispatch/".length)}
         simulation={session.simulation}
         canApprove={permissions.approveDispatches}
@@ -868,11 +910,18 @@ function WorkspaceApplication({
   ) =>
     id in administrationLabels
       ? administrationLabels[id as AdministrationEntry]()
-      : id === "secure-distributions"
-        ? msg("Secure distribution")
-        : t.nav[
-            id as Exclude<WorkshopEntry | StudioEntry, "secure-distributions">
-          ];
+      : id === "recipients"
+        ? msg("Saved recipients")
+        : id === "schedules"
+          ? msg("Scheduled dispatches")
+          : id === "secure-distributions"
+            ? msg("Secure distribution")
+            : t.nav[
+                id as Exclude<
+                  WorkshopEntry | StudioEntry,
+                  "secure-distributions" | "recipients" | "schedules"
+                >
+              ];
   const routeSpace = spaceOf(page);
   const space: WorkspaceApplication =
     routeSpace === "personal" ? "workshop" : routeSpace;
@@ -886,9 +935,39 @@ function WorkspaceApplication({
       : space === "administration"
         ? administrationNavigation.filter(
             (entry) =>
-              canOpenAdministration && (!entry.admin || canAdminister(session)),
+              canOpenAdministration &&
+              (!entry.admin || canAdminister(session)) &&
+              (!publicPreview || entry.id !== "administrationWebhooks"),
           )
-        : workshopNavigation;
+        : workshopNavigation.filter(
+            (entry) =>
+              !["recipients", "schedules"].includes(entry.id) ||
+              (permissions.prepareDispatches && !isPublicPreview),
+          );
+  const commandEntries: NavigationCommand[] = [
+    ...workshopNavigation.filter(
+      (entry) =>
+        !["recipients", "schedules"].includes(entry.id) ||
+        (permissions.prepareDispatches && !isPublicPreview),
+    ),
+    ...(!publicPreview ? studioNavigation : []),
+    ...administrationNavigation.filter(
+      (entry) =>
+        canOpenAdministration &&
+        (!entry.admin || canAdminister(session)) &&
+        (!publicPreview || entry.id !== "administrationWebhooks"),
+    ),
+  ].map((entry) => ({
+    id: entry.id,
+    label: navigationLabel(entry.id),
+    route: entry.path,
+  }));
+  if (permissions.prepareDispatches)
+    commandEntries.unshift({
+      id: "prepare",
+      label: t.dispatch.new,
+      route: "/app/prepare",
+    });
   const navigationName =
     space === "studio"
       ? msg("Studio navigation")
@@ -896,37 +975,54 @@ function WorkspaceApplication({
         ? msg("Administration navigation")
         : msg("Correspondence navigation");
   const enterWorkspace = async (id: string, target: WorkspaceApplication) => {
+    const authority = sessionAuthorityKey();
+    const href = window.location.href;
     // Let a screen with unsaved work refuse before the session changes.
-    if (
-      !window.dispatchEvent(
-        new Event(BEFORE_WORKSPACE_NAVIGATION, { cancelable: true }),
-      )
-    )
-      return;
+    if (!window.dispatchEvent(createWorkspaceSwitchPreflightEvent())) return;
+    const navigation = clientNavigationRevision();
     const next = await api<Session>("/account/workspace", {
       method: "POST",
       body: { organizationId: id },
     });
+    if (sessionAuthorityKey() !== authority) return;
+    const redirect =
+      navigation === clientNavigationRevision() &&
+      window.location.href === href;
     setSession(next, !isPublicPreview);
     // Remount the page for the new workspace before routing, so the previous
     // screen cannot ask a second time.
     flushSync(() => updateSession(next));
-    go(spaceHome[target]);
+    if (redirect) go(spaceHome[target]);
   };
   const logout = async () => {
+    const authority = sessionAuthorityKey();
+    const navigation = clientNavigationRevision();
+    const href = window.location.href;
+    const ownsVisit = () =>
+      navigation === clientNavigationRevision() &&
+      window.location.href === href;
     setLogoutError(undefined);
     try {
       await api("/logout", { method: "POST", body: {} });
+      if (sessionAuthorityKey() !== authority) return;
+      const redirect = ownsVisit();
       clearPendingDocumentInvitation();
       setSession(null);
       // Leave the protected route before Login can restart an Auth0 SSO flow.
-      window.location.replace("/");
+      if (redirect) window.location.replace("/");
+      else {
+        // The cookie change still ends this session. Remove private content
+        // without letting Login redirect a visit that the person left behind.
+        setLogoutNeedsReconnect(true);
+        updateSession(null);
+      }
     } catch (e) {
+      if (sessionAuthorityKey() !== authority || !ownsVisit()) return;
       setLogoutError(e as Error);
     }
   };
   return (
-    <div className="workspace workspace-v2">
+    <div className="workspace workspace-v2 app-frame-v2">
       <a
         href="#main-content"
         className="skip-link"
@@ -953,13 +1049,7 @@ function WorkspaceApplication({
             key={session.user.id}
             application={space}
             workspace={session.organization}
-            identity={[
-              session.user.id,
-              session.organization.id,
-              session.user.role,
-              permissions.approveDispatches,
-              permissions.viewReports,
-            ].join(":")}
+            identity={sessionAuthorityKey(session)}
             preview={publicPreview}
             loadWorkspaces={async (signal) => {
               const { items } = await api<{ items?: SwitcherWorkspace[] }>(
@@ -1045,6 +1135,10 @@ function WorkspaceApplication({
         </div>
       </aside>
       <div className="workspace-main">
+        <div className="workspace-tools" key={sessionAuthorityKey(session)}>
+          <CommandPalette commands={commandEntries} />
+          <ActionOutcomeTray />
+        </div>
         {session.simulation && (
           <div className="simulation-banner" role="note">
             <span className="simulation-stamp">{t.simulation}</span>
@@ -1076,18 +1170,26 @@ function WorkspaceApplication({
           />
         )}
         {/* A new identity starts from fresh pages, without the previous state. */}
-        <main
-          id="main-content"
-          tabIndex={-1}
-          inert={routePending}
-          aria-busy={routePending || undefined}
-          key={`${session.organization.id}:${session.user.id}`}
+        <TableViewScope
+          value={{
+            userId: session.user.id,
+            workspaceId: session.organization.id,
+            area: "workspace",
+          }}
         >
-          <ErrorNotice error={logoutError} />
-          <WorkspaceRouteBoundary route={route}>
-            <Suspense fallback={<Loading />}>{content}</Suspense>
-          </WorkspaceRouteBoundary>
-        </main>
+          <main
+            id="main-content"
+            tabIndex={-1}
+            inert={routePending}
+            aria-busy={routePending || undefined}
+            key={`${session.organization.id}:${session.user.id}`}
+          >
+            <ErrorNotice error={logoutError} />
+            <WorkspaceRouteBoundary route={route}>
+              <Suspense fallback={<Loading />}>{content}</Suspense>
+            </WorkspaceRouteBoundary>
+          </main>
+        </TableViewScope>
       </div>
     </div>
   );

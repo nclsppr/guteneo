@@ -106,6 +106,25 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
     await expect(
       page.getByRole("heading", { name: copy(locale, "Le monde de guteneo.") }),
     ).toBeVisible();
+    const languageAssets = await page.evaluate(() =>
+      performance
+        .getEntriesByType("resource")
+        .map((entry) => new URL(entry.name).pathname),
+    );
+    expect(
+      languageAssets.filter((path) =>
+        /\/belvedere-(fr|en|de|lb)-[^/]+\.js$/.test(path),
+      ),
+    ).toEqual([expect.stringMatching(new RegExp(`/belvedere-${locale}-`))]);
+    for (const candidate of ["fr", "en", "de", "lb"]) {
+      const asset = await page
+        .locator(`meta[name="guteneo-locale-${candidate}"]`)
+        .getAttribute("content");
+      expect(asset).toBeTruthy();
+      expect(languageAssets.includes(asset!), candidate).toBe(
+        candidate === locale,
+      );
+    }
     const overview = fixtureResponse(
       new URL(`${fixtureBase}/api/overview`, "http://127.0.0.1"),
     ) as BelvedereOverview;

@@ -1,0 +1,1916 @@
+{
+  "date": "2026-11-10",
+  "base": "77a7570b9d2c463afb968eef7be2bdbf1456dc02",
+  "branch": "codex/lifecycle-experience-20261109",
+  "environment": {
+    "browser": "Optimized local Vite build, intercepted synthetic API fixtures; Chromium/Pixel 7 Chromium/iPhone 13 WebKit; no CPU or network throttle.",
+    "server": "Local workerd/Miniflare D1 and R2 with synthetic injected provider transports; no provider delivery.",
+    "native": "iPhone 17 Pro / iOS 27 local simulator; synthetic fixtures; no physical-device claim."
+  },
+  "authorization": {
+    "merge": false,
+    "deploy": false,
+    "activateSchedules": false,
+    "activateCustomerWebhooks": false,
+    "realCommunications": false,
+    "paidProvisioning": false
+  },
+  "decisions": {
+    "futureSpending": "Explicit separate browser-human future_browser grant within immutable integer EUR cap. Fax and message-only email. Fresh quote, current authority/source/provider/funding and atomic acceptance at release.",
+    "noAutomaticRetryAfterUnknownOutcome": true,
+    "scheduledReleaseDefault": "off",
+    "customerWebhookDeliveryDefault": "off",
+    "nativeDrafts": "Device-local non-synchronizing Keychain, explicit resume/discard, stable uncertain retry key."
+  },
+  "restCompatibility": {
+    "previousOperations": 78,
+    "currentOperations": 96,
+    "existingOperationsUnchanged": true,
+    "previousSchemas": 85,
+    "originalSchemaFieldsPreserved": true,
+    "identicalSchemas": 83,
+    "additivelyExtendedSchemas": [
+      "Dispatch",
+      "DispatchDetail"
+    ]
+  },
+  "unitIntegration": {
+    "method": "Complete 212-file sweep followed by affected-file reruns after fixing historical migration fixtures. Latest result per file; this is not a single all-green invocation.",
+    "files": 212,
+    "cases": 4049,
+    "statuses": {
+      "passed": 4049
+    },
+    "reports": [
+      {
+        "file": "lifecycle-final-full-vitest.json",
+        "sha256": "6bf270c90937edbd1807e23387b58e48201acb6b4293ee9b3b2fcd87843e73bd"
+      },
+      {
+        "file": "lifecycle-fax-pilot-final-20261110.json",
+        "sha256": "14fd8670f5dfa55c3c4acd7146b2b0e7ff6e7050dda399ab43775baff733cb9d"
+      },
+      {
+        "file": "lifecycle-historical-fixtures-final-20261110.json",
+        "sha256": "f2a78479c5418d58bc935ee7b63b110ac6896efa02fcb359a26b69aeaa4d5312"
+      },
+      {
+        "file": "lifecycle-roles-historical-final-20261110.json",
+        "sha256": "1b2443b143cab9bbe8f83165670f19fdaa9b54e636b3e88a1f8e8f5bc3f34ce3"
+      },
+      {
+        "file": "lifecycle-final-source-cancel-20261110.json",
+        "sha256": "0a33022579ed9764dd7f26030c25a4164036abb2721f36ff47cf0cc839735240"
+      },
+      {
+        "file": "lifecycle-final-package-unit.json",
+        "sha256": "d541c763289c9f454dd791f0fa339ffc55fd0e49eced35d191717f910a2450d0"
+      },
+      {
+        "file": "lifecycle-final-focused.json",
+        "sha256": "41dcb30766d0b3d9538e970e724b9e0a1a1ec2c9d30ff531f09f7de547907e19"
+      },
+      {
+        "file": "lifecycle-schedule-source-eligibility-20261110.json",
+        "sha256": "49a5d8e98f2ba1b8ed61d763b346109827e8804fc944b4f0c017d2c1f8977b2a"
+      },
+      {
+        "file": "lifecycle-client-preflight-final.json",
+        "sha256": "d5eda202f28d78d451361f49f3d443c25cc252e0d121cd9c95cce36d363b1d51"
+      },
+      {
+        "file": "lifecycle-final-backend-compatibility.json",
+        "sha256": "5b90f567e372717b85a497e6376d13c958ea7d91eb8cd778847429a47e40b992"
+      },
+      {
+        "file": "lifecycle-final-mcp-compatibility.json",
+        "sha256": "ae398d02964ae887f0c040c1e56c93d4538e43611a67a99629b9ba27c7457406"
+      }
+    ],
+    "filesSha256": "67605dd9148e8c19e6bf37c5d8fa16e51b6f0488353ffe4b159f5c1d134f91ed"
+  },
+  "security": {
+    "tests": 697,
+    "passed": 697,
+    "failed": 0,
+    "skipped": 0,
+    "report": {
+      "file": "lifecycle-security-release-final.log",
+      "sha256": "9af4b4c6bf54bb176d0355bbbdc2e7f8c2254d3b14908353b2a0604692919738"
+    }
+  },
+  "applicationBrowser": {
+    "report": {
+      "file": "lifecycle-release-qualified-browser.json",
+      "sha256": "1462a3735e13d8b723e418f6c57084a0e2b486f7ecfedd0938cc359fc0049a99"
+    },
+    "stats": {
+      "startTime": "2026-11-10T00:37:31.027Z",
+      "duration": 211489.38900000002,
+      "expected": 165,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "cases": 165,
+    "projects": [
+      "chromium",
+      "mobile-chromium",
+      "iphone-webkit"
+    ],
+    "files": [
+      "customer-webhooks.spec.ts",
+      "dispatch-schedules.spec.ts",
+      "lifecycle-accessibility.spec.ts",
+      "lifecycle-workspace.spec.ts",
+      "locale-loading.spec.ts",
+      "session-authority-races.spec.ts"
+    ],
+    "axeStates": 216,
+    "testsSha256": "0a86e0950cdbca292c11984a8979bea57b861a17052ac5b2223100419086307a"
+  },
+  "earlierBrowserAttempts": [
+    {
+      "file": "lifecycle-final-product-browser.json",
+      "sha256": "55be5965777b8f3c7cce6790b7319a563c6fe7c57d6cc10055a827cef7087dee",
+      "stats": {
+        "startTime": "2026-11-09T23:59:53.783Z",
+        "duration": 202808.54499999998,
+        "expected": 103,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      }
+    },
+    {
+      "file": "lifecycle-browser-final-two.json",
+      "sha256": "6ae7d2a62fdf5b0d76e2c59627431525d077c57a7212c959c96c00bd020e822d",
+      "stats": {
+        "startTime": "2026-11-10T00:09:05.502Z",
+        "duration": 34872.198,
+        "expected": 54,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    {
+      "file": "lifecycle-release-qualified-browser-initial.json",
+      "sha256": "cef90323ec1cafa040c6ff0d9fe62836eaa711bf7ae80621796198badbe8e1b7",
+      "stats": {
+        "startTime": "2026-11-10T00:33:16.718Z",
+        "duration": 219476.04,
+        "expected": 162,
+        "skipped": 0,
+        "unexpected": 3,
+        "flaky": 0
+      }
+    }
+  ],
+  "belvedereBrowser": {
+    "report": {
+      "file": "lifecycle-belvedere-final-rerun.json",
+      "sha256": "ceb5962434890a307845ba326c7f68110e84f1714bdb3885255739690b384bb2"
+    },
+    "stats": {
+      "startTime": "2026-11-09T23:01:59.885Z",
+      "duration": 158657.07700000002,
+      "expected": 50,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "cases": 50,
+    "projects": [
+      "desktop",
+      "iphone"
+    ],
+    "files": [
+      "canonical-session.spec.ts",
+      "control-tower.spec.ts",
+      "locale.spec.ts"
+    ],
+    "axeStates": 0,
+    "testsSha256": "21e2995be39a37f512204d912b95e73e5b224916bdeb6403ca1ef76c2ebfcbff"
+  },
+  "native": {
+    "passed": 56,
+    "unit": 46,
+    "ui": 10,
+    "skipped": 0,
+    "failures": 0,
+    "report": {
+      "file": "lifecycle-native-schedule-hold.log",
+      "sha256": "83f5b6fd78e753124d0a75e40138efedfe13f416ee0d2b78c48e9b80cbf8233b"
+    },
+    "xcresult": "ios/.build/TestResults/run-eoEpSR/Tests.xcresult",
+    "screenshots": [
+      "ios/QA/Screenshots/durable-draft-2026-11-09.png",
+      "ios/QA/Screenshots/schedule-hold-2026-11-10.png"
+    ]
+  },
+  "loading": {
+    "scope": "Local cold browser contexts with every API request intercepted; synthetic workspace and public pricing routes. This is transfer and fallback-flash diagnostic evidence, not a production latency benchmark.",
+    "beforeStats": {
+      "startTime": "2026-11-09T22:06:39.599Z",
+      "duration": 23500.170000000002,
+      "expected": 24,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "afterStats": {
+      "startTime": "2026-11-10T00:37:31.027Z",
+      "duration": 211489.38900000002,
+      "expected": 165,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "compared": [
+      {
+        "project": "chromium",
+        "space": "public",
+        "locale": "fr",
+        "status": "passed",
+        "beforeTransferredBytes": 559420,
+        "transferredBytes": 480898,
+        "transferChangePercent": -14.04,
+        "beforeDecodedBytes": 1766358,
+        "decodedBytes": 1476251,
+        "decodedChangePercent": -16.42,
+        "beforeFirstUsefulMs": 475,
+        "firstUsefulMs": 188,
+        "firstContentfulPaintMs": 172,
+        "sessionReads": 0,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/fr-zSDl4YZl.js",
+            "transferredBytes": 156748,
+            "decodedBytes": 514719
+          }
+        ]
+      },
+      {
+        "project": "chromium",
+        "space": "workspace",
+        "locale": "fr",
+        "status": "passed",
+        "beforeTransferredBytes": 603511,
+        "transferredBytes": 519036,
+        "transferChangePercent": -14,
+        "beforeDecodedBytes": 1897333,
+        "decodedBytes": 1599949,
+        "decodedChangePercent": -15.67,
+        "beforeFirstUsefulMs": 551,
+        "firstUsefulMs": 232,
+        "firstContentfulPaintMs": 156,
+        "sessionReads": 1,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/fr-zSDl4YZl.js",
+            "transferredBytes": 156748,
+            "decodedBytes": 514719
+          }
+        ]
+      },
+      {
+        "project": "chromium",
+        "space": "public",
+        "locale": "en",
+        "status": "passed",
+        "beforeTransferredBytes": 559420,
+        "transferredBytes": 477549,
+        "transferChangePercent": -14.63,
+        "beforeDecodedBytes": 1766358,
+        "decodedBytes": 1463524,
+        "decodedChangePercent": -17.14,
+        "beforeFirstUsefulMs": 225,
+        "firstUsefulMs": 205,
+        "firstContentfulPaintMs": 188,
+        "sessionReads": 0,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/en-CLB6juxl.js",
+            "transferredBytes": 153399,
+            "decodedBytes": 501992
+          }
+        ]
+      },
+      {
+        "project": "chromium",
+        "space": "workspace",
+        "locale": "en",
+        "status": "passed",
+        "beforeTransferredBytes": 603511,
+        "transferredBytes": 515687,
+        "transferChangePercent": -14.55,
+        "beforeDecodedBytes": 1897333,
+        "decodedBytes": 1587222,
+        "decodedChangePercent": -16.34,
+        "beforeFirstUsefulMs": 497,
+        "firstUsefulMs": 228,
+        "firstContentfulPaintMs": 152,
+        "sessionReads": 1,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/en-CLB6juxl.js",
+            "transferredBytes": 153399,
+            "decodedBytes": 501992
+          }
+        ]
+      },
+      {
+        "project": "chromium",
+        "space": "public",
+        "locale": "de",
+        "status": "passed",
+        "beforeTransferredBytes": 559420,
+        "transferredBytes": 562302,
+        "transferChangePercent": 0.52,
+        "beforeDecodedBytes": 1766358,
+        "decodedBytes": 1734825,
+        "decodedChangePercent": -1.79,
+        "beforeFirstUsefulMs": 213,
+        "firstUsefulMs": 211,
+        "firstContentfulPaintMs": 196,
+        "sessionReads": 0,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/de-BOHtNnH-.js",
+            "transferredBytes": 238152,
+            "decodedBytes": 773293
+          }
+        ]
+      },
+      {
+        "project": "chromium",
+        "space": "workspace",
+        "locale": "de",
+        "status": "passed",
+        "beforeTransferredBytes": 603511,
+        "transferredBytes": 600440,
+        "transferChangePercent": -0.51,
+        "beforeDecodedBytes": 1897333,
+        "decodedBytes": 1858523,
+        "decodedChangePercent": -2.05,
+        "beforeFirstUsefulMs": 526,
+        "firstUsefulMs": 236,
+        "firstContentfulPaintMs": 184,
+        "sessionReads": 1,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/de-BOHtNnH-.js",
+            "transferredBytes": 238152,
+            "decodedBytes": 773293
+          }
+        ]
+      },
+      {
+        "project": "chromium",
+        "space": "public",
+        "locale": "lb",
+        "status": "passed",
+        "beforeTransferredBytes": 559420,
+        "transferredBytes": 562919,
+        "transferChangePercent": 0.63,
+        "beforeDecodedBytes": 1766358,
+        "decodedBytes": 1732715,
+        "decodedChangePercent": -1.9,
+        "beforeFirstUsefulMs": 213,
+        "firstUsefulMs": 199,
+        "firstContentfulPaintMs": null,
+        "sessionReads": 0,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/lb-OlgR2aiH.js",
+            "transferredBytes": 238769,
+            "decodedBytes": 771183
+          }
+        ]
+      },
+      {
+        "project": "chromium",
+        "space": "workspace",
+        "locale": "lb",
+        "status": "passed",
+        "beforeTransferredBytes": 603511,
+        "transferredBytes": 601057,
+        "transferChangePercent": -0.41,
+        "beforeDecodedBytes": 1897333,
+        "decodedBytes": 1856413,
+        "decodedChangePercent": -2.16,
+        "beforeFirstUsefulMs": 481,
+        "firstUsefulMs": 246,
+        "firstContentfulPaintMs": 168,
+        "sessionReads": 1,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/lb-OlgR2aiH.js",
+            "transferredBytes": 238769,
+            "decodedBytes": 771183
+          }
+        ]
+      },
+      {
+        "project": "mobile-chromium",
+        "space": "public",
+        "locale": "fr",
+        "status": "passed",
+        "beforeTransferredBytes": 559420,
+        "transferredBytes": 480898,
+        "transferChangePercent": -14.04,
+        "beforeDecodedBytes": 1766358,
+        "decodedBytes": 1476251,
+        "decodedChangePercent": -16.42,
+        "beforeFirstUsefulMs": 221,
+        "firstUsefulMs": 201,
+        "firstContentfulPaintMs": 184,
+        "sessionReads": 0,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/fr-zSDl4YZl.js",
+            "transferredBytes": 156748,
+            "decodedBytes": 514719
+          }
+        ]
+      },
+      {
+        "project": "mobile-chromium",
+        "space": "workspace",
+        "locale": "fr",
+        "status": "passed",
+        "beforeTransferredBytes": 603511,
+        "transferredBytes": 519036,
+        "transferChangePercent": -14,
+        "beforeDecodedBytes": 1897333,
+        "decodedBytes": 1599949,
+        "decodedChangePercent": -15.67,
+        "beforeFirstUsefulMs": 506,
+        "firstUsefulMs": 242,
+        "firstContentfulPaintMs": 160,
+        "sessionReads": 1,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/fr-zSDl4YZl.js",
+            "transferredBytes": 156748,
+            "decodedBytes": 514719
+          }
+        ]
+      },
+      {
+        "project": "mobile-chromium",
+        "space": "public",
+        "locale": "en",
+        "status": "passed",
+        "beforeTransferredBytes": 559420,
+        "transferredBytes": 477549,
+        "transferChangePercent": -14.63,
+        "beforeDecodedBytes": 1766358,
+        "decodedBytes": 1463524,
+        "decodedChangePercent": -17.14,
+        "beforeFirstUsefulMs": 203,
+        "firstUsefulMs": 200,
+        "firstContentfulPaintMs": 180,
+        "sessionReads": 0,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/en-CLB6juxl.js",
+            "transferredBytes": 153399,
+            "decodedBytes": 501992
+          }
+        ]
+      },
+      {
+        "project": "mobile-chromium",
+        "space": "workspace",
+        "locale": "en",
+        "status": "passed",
+        "beforeTransferredBytes": 603511,
+        "transferredBytes": 515687,
+        "transferChangePercent": -14.55,
+        "beforeDecodedBytes": 1897333,
+        "decodedBytes": 1587222,
+        "decodedChangePercent": -16.34,
+        "beforeFirstUsefulMs": 486,
+        "firstUsefulMs": 232,
+        "firstContentfulPaintMs": 152,
+        "sessionReads": 1,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/en-CLB6juxl.js",
+            "transferredBytes": 153399,
+            "decodedBytes": 501992
+          }
+        ]
+      },
+      {
+        "project": "mobile-chromium",
+        "space": "public",
+        "locale": "de",
+        "status": "passed",
+        "beforeTransferredBytes": 559420,
+        "transferredBytes": 562302,
+        "transferChangePercent": 0.52,
+        "beforeDecodedBytes": 1766358,
+        "decodedBytes": 1734825,
+        "decodedChangePercent": -1.79,
+        "beforeFirstUsefulMs": 227,
+        "firstUsefulMs": 202,
+        "firstContentfulPaintMs": 184,
+        "sessionReads": 0,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/de-BOHtNnH-.js",
+            "transferredBytes": 238152,
+            "decodedBytes": 773293
+          }
+        ]
+      },
+      {
+        "project": "mobile-chromium",
+        "space": "workspace",
+        "locale": "de",
+        "status": "passed",
+        "beforeTransferredBytes": 603511,
+        "transferredBytes": 600440,
+        "transferChangePercent": -0.51,
+        "beforeDecodedBytes": 1897333,
+        "decodedBytes": 1858523,
+        "decodedChangePercent": -2.05,
+        "beforeFirstUsefulMs": 499,
+        "firstUsefulMs": 244,
+        "firstContentfulPaintMs": 164,
+        "sessionReads": 1,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/de-BOHtNnH-.js",
+            "transferredBytes": 238152,
+            "decodedBytes": 773293
+          }
+        ]
+      },
+      {
+        "project": "mobile-chromium",
+        "space": "public",
+        "locale": "lb",
+        "status": "passed",
+        "beforeTransferredBytes": 559420,
+        "transferredBytes": 562919,
+        "transferChangePercent": 0.63,
+        "beforeDecodedBytes": 1766358,
+        "decodedBytes": 1732715,
+        "decodedChangePercent": -1.9,
+        "beforeFirstUsefulMs": 198,
+        "firstUsefulMs": 213,
+        "firstContentfulPaintMs": null,
+        "sessionReads": 0,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/lb-OlgR2aiH.js",
+            "transferredBytes": 238769,
+            "decodedBytes": 771183
+          }
+        ]
+      },
+      {
+        "project": "mobile-chromium",
+        "space": "workspace",
+        "locale": "lb",
+        "status": "passed",
+        "beforeTransferredBytes": 603511,
+        "transferredBytes": 601057,
+        "transferChangePercent": -0.41,
+        "beforeDecodedBytes": 1897333,
+        "decodedBytes": 1856413,
+        "decodedChangePercent": -2.16,
+        "beforeFirstUsefulMs": 494,
+        "firstUsefulMs": 250,
+        "firstContentfulPaintMs": 168,
+        "sessionReads": 1,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/lb-OlgR2aiH.js",
+            "transferredBytes": 238769,
+            "decodedBytes": 771183
+          }
+        ]
+      },
+      {
+        "project": "iphone-webkit",
+        "space": "public",
+        "locale": "fr",
+        "status": "passed",
+        "beforeTransferredBytes": 560083,
+        "transferredBytes": 481824,
+        "transferChangePercent": -13.97,
+        "beforeDecodedBytes": 1766358,
+        "decodedBytes": 1476251,
+        "decodedChangePercent": -16.42,
+        "beforeFirstUsefulMs": 988,
+        "firstUsefulMs": 213,
+        "firstContentfulPaintMs": 164,
+        "sessionReads": 0,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/fr-zSDl4YZl.js",
+            "transferredBytes": 156858,
+            "decodedBytes": 514719
+          }
+        ]
+      },
+      {
+        "project": "iphone-webkit",
+        "space": "workspace",
+        "locale": "fr",
+        "status": "passed",
+        "beforeTransferredBytes": 604380,
+        "transferredBytes": 520067,
+        "transferChangePercent": -13.95,
+        "beforeDecodedBytes": 1897333,
+        "decodedBytes": 1599949,
+        "decodedChangePercent": -15.67,
+        "beforeFirstUsefulMs": 571,
+        "firstUsefulMs": 248,
+        "firstContentfulPaintMs": 156,
+        "sessionReads": 1,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/fr-zSDl4YZl.js",
+            "transferredBytes": 156858,
+            "decodedBytes": 514719
+          }
+        ]
+      },
+      {
+        "project": "iphone-webkit",
+        "space": "public",
+        "locale": "en",
+        "status": "passed",
+        "beforeTransferredBytes": 560078,
+        "transferredBytes": 478453,
+        "transferChangePercent": -14.57,
+        "beforeDecodedBytes": 1766358,
+        "decodedBytes": 1463524,
+        "decodedChangePercent": -17.14,
+        "beforeFirstUsefulMs": 292,
+        "firstUsefulMs": 200,
+        "firstContentfulPaintMs": 152,
+        "sessionReads": 0,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/en-CLB6juxl.js",
+            "transferredBytes": 153502,
+            "decodedBytes": 501992
+          }
+        ]
+      },
+      {
+        "project": "iphone-webkit",
+        "space": "workspace",
+        "locale": "en",
+        "status": "passed",
+        "beforeTransferredBytes": 604359,
+        "transferredBytes": 516698,
+        "transferChangePercent": -14.5,
+        "beforeDecodedBytes": 1897333,
+        "decodedBytes": 1587222,
+        "decodedChangePercent": -16.34,
+        "beforeFirstUsefulMs": 541,
+        "firstUsefulMs": 211,
+        "firstContentfulPaintMs": 138,
+        "sessionReads": 1,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/en-CLB6juxl.js",
+            "transferredBytes": 153497,
+            "decodedBytes": 501992
+          }
+        ]
+      },
+      {
+        "project": "iphone-webkit",
+        "space": "public",
+        "locale": "de",
+        "status": "passed",
+        "beforeTransferredBytes": 560064,
+        "transferredBytes": 563253,
+        "transferChangePercent": 0.57,
+        "beforeDecodedBytes": 1766358,
+        "decodedBytes": 1734825,
+        "decodedChangePercent": -1.79,
+        "beforeFirstUsefulMs": 245,
+        "firstUsefulMs": 224,
+        "firstContentfulPaintMs": 170,
+        "sessionReads": 0,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/de-BOHtNnH-.js",
+            "transferredBytes": 238302,
+            "decodedBytes": 773293
+          }
+        ]
+      },
+      {
+        "project": "iphone-webkit",
+        "space": "workspace",
+        "locale": "de",
+        "status": "passed",
+        "beforeTransferredBytes": 604353,
+        "transferredBytes": 601512,
+        "transferChangePercent": -0.47,
+        "beforeDecodedBytes": 1897333,
+        "decodedBytes": 1858523,
+        "decodedChangePercent": -2.05,
+        "beforeFirstUsefulMs": 515,
+        "firstUsefulMs": 241,
+        "firstContentfulPaintMs": 195,
+        "sessionReads": 1,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/de-BOHtNnH-.js",
+            "transferredBytes": 238305,
+            "decodedBytes": 773293
+          }
+        ]
+      },
+      {
+        "project": "iphone-webkit",
+        "space": "public",
+        "locale": "lb",
+        "status": "passed",
+        "beforeTransferredBytes": 560077,
+        "transferredBytes": 563891,
+        "transferChangePercent": 0.68,
+        "beforeDecodedBytes": 1766358,
+        "decodedBytes": 1732715,
+        "decodedChangePercent": -1.9,
+        "beforeFirstUsefulMs": 244,
+        "firstUsefulMs": 220,
+        "firstContentfulPaintMs": 178,
+        "sessionReads": 0,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/lb-OlgR2aiH.js",
+            "transferredBytes": 238927,
+            "decodedBytes": 771183
+          }
+        ]
+      },
+      {
+        "project": "iphone-webkit",
+        "space": "workspace",
+        "locale": "lb",
+        "status": "passed",
+        "beforeTransferredBytes": 604348,
+        "transferredBytes": 602129,
+        "transferChangePercent": -0.37,
+        "beforeDecodedBytes": 1897333,
+        "decodedBytes": 1856413,
+        "decodedChangePercent": -2.16,
+        "beforeFirstUsefulMs": 515,
+        "firstUsefulMs": 219,
+        "firstContentfulPaintMs": 145,
+        "sessionReads": 1,
+        "fallbackHeadingObserved": false,
+        "localeAssets": [
+          {
+            "path": "/assets/lb-OlgR2aiH.js",
+            "transferredBytes": 238927,
+            "decodedBytes": 771183
+          }
+        ]
+      }
+    ],
+    "beforeSnapshot": "Pre-locale-split candidate, not clean main; single fresh-context samples on a shared host. Whole entry-graph comparison, not isolated causal attribution or production performance.",
+    "beforeReport": {
+      "file": "lifecycle-locale-before.json",
+      "sha256": "75b6798dd7dada4258dc8a24d7b08f6d04c9efc3d9d188575ae6cbcad77505e1"
+    },
+    "afterReport": {
+      "file": "lifecycle-release-qualified-browser.json",
+      "sha256": "1462a3735e13d8b723e418f6c57084a0e2b486f7ecfedd0938cc359fc0049a99"
+    },
+    "reviewedPriorSnapshot": "defebf60a0e4f2307be433ae199ba93212c9054dacf251e511f1f8efb586350c"
+  },
+  "builtFrontend": {
+    "indexSha256": "c7943a6a464c826d4f4598b7560cb2a7c9db5350779c1c212c76b249410325bc",
+    "assetsSha256": "aecfe1e70bbd25e9918f5e0afa8f7ec0d9782ab5525de28d4110b9e8dc87afad",
+    "assets": [
+      {
+        "path": "/assets/ArrowLeft.es-ayk3peG5.js",
+        "bytes": 1595,
+        "sha256": "1bfbc1f3b6e54904b53d7492a063fe43b9b412f4a968c03c513ebd443d14dec5"
+      },
+      {
+        "path": "/assets/ArrowUpRight.es-XoAw2ngD.js",
+        "bytes": 1535,
+        "sha256": "d8dd0017aa1a3dd74fd5dac93de6b78607cb0ad1e090d524874096d92ac668a1"
+      },
+      {
+        "path": "/assets/CaretRight.es-BnoCxBI0.js",
+        "bytes": 2666,
+        "sha256": "73c504e5b124b37612a3e19446e7d00da3f9a2ac8df82ac7709868283ec6c8cb"
+      },
+      {
+        "path": "/assets/ChartBar.es-BQDHuVl6.js",
+        "bytes": 1870,
+        "sha256": "146c10051844bf46356fc8e56659345330516421419944575811f8ca84d8b14a"
+      },
+      {
+        "path": "/assets/Check.es-a4xZciTi.js",
+        "bytes": 1590,
+        "sha256": "d74a0824f8f7f5868fbb068e7bcd1f4eeddaa38b9ec4fb3480214400d4116a29"
+      },
+      {
+        "path": "/assets/CheckCircle.es-Ct2KnmoB.js",
+        "bytes": 2140,
+        "sha256": "21f8da211d33bf6c84dc74522e87127129a8c27f36e2e4c7a00ddc7d7a94accb"
+      },
+      {
+        "path": "/assets/Cloud.es-sqzEGaSv.js",
+        "bytes": 1992,
+        "sha256": "6b3eaacc9943d5924872fcb8950a4daa97af88dab7a0389fd93b6d51b501d67b"
+      },
+      {
+        "path": "/assets/Copy.es-Cp5VaY2W.js",
+        "bytes": 1844,
+        "sha256": "9ca01c471d3200dae7daf42eb8edfdf22799b988451b1b669c63b81c3733994c"
+      },
+      {
+        "path": "/assets/DownloadSimple.es-C5purzMH.js",
+        "bytes": 2067,
+        "sha256": "34b4fcd3bc741f46f479b6ec132e152db3fdab16072e9d9079a37fd49f14a464"
+      },
+      {
+        "path": "/assets/FileText.es-yoewXdxZ.js",
+        "bytes": 2669,
+        "sha256": "95e137c9d6959c41774faddbbdacd42145a04dcb2448f57df673fefacabfae8f"
+      },
+      {
+        "path": "/assets/GlobeHemisphereWest.es-DqQeJ1JO.js",
+        "bytes": 6554,
+        "sha256": "1cf04068e8840d7d5e6c782a16f2338fbca15d5922900bfdd53d93efc58200ad"
+      },
+      {
+        "path": "/assets/List.es-Bazx2fLd.js",
+        "bytes": 1756,
+        "sha256": "b70850b1e020fa0cedc450c9616ddee900b580f704906ab3e793ecb6aea46c9a"
+      },
+      {
+        "path": "/assets/LockKey.es-_dcH_OTG.js",
+        "bytes": 2636,
+        "sha256": "9ae51f30809ad443dd34c0c377bcbad8018cac8d425299fa4cd3f8870f8741b1"
+      },
+      {
+        "path": "/assets/Monitor.es-2rhaDOhn.js",
+        "bytes": 2159,
+        "sha256": "e4b4e535742923ead47bc35be06f8d8f5e46e39134c2f9502818088b06301315"
+      },
+      {
+        "path": "/assets/Plus.es-DqNYb_eO.js",
+        "bytes": 1589,
+        "sha256": "4a4fcbbb325a48dd766cb4a170ec7abb187605c377733c3d104146942c9d8ffa"
+      },
+      {
+        "path": "/assets/ShieldCheck.es-DOhNbeE4.js",
+        "bytes": 3422,
+        "sha256": "e695be6d4e367f2b25662ee81cae1026550025d1544d12c15b5f236217e36d57"
+      },
+      {
+        "path": "/assets/Sun.es-VCc4mbV9.js",
+        "bytes": 8081,
+        "sha256": "6278853e2626a812d18d118b36db5fcb494d20530538b39c99f460f1539db408"
+      },
+      {
+        "path": "/assets/UPNG-o1QZFQkd.js",
+        "bytes": 199736,
+        "sha256": "c69887606dbbb7c6fc683fa12a2f3dd2881a587c3daeb78f7d8ab45ce234a7c6"
+      },
+      {
+        "path": "/assets/UploadSimple.es-CRbwe-dc.js",
+        "bytes": 2098,
+        "sha256": "f333ab07e82380fd76037e6aa194046ebef3be7c362852c4afbd424fe36560e1"
+      },
+      {
+        "path": "/assets/WarningCircle.es-CA9nc8qJ.js",
+        "bytes": 1902,
+        "sha256": "181a8ecfb0c923c692f20b46a3d7567d8e107238ade7bd5cf3c443dda036d056"
+      },
+      {
+        "path": "/assets/X.es-CbIHU9ug.js",
+        "bytes": 1982,
+        "sha256": "efe9326e29f3732896eb112649643716a776f65e9a78538f3a1371e66524bb2d"
+      },
+      {
+        "path": "/assets/__vite-browser-external-CB9T68pL.js",
+        "bytes": 103,
+        "sha256": "b68658666ff7bd1aef932dcc5316a0de6659f8b31dbcb5ca5c0be2610732dd02"
+      },
+      {
+        "path": "/assets/account-page-BNZ03Mwv.css",
+        "bytes": 1754,
+        "sha256": "fe519a92a175d445083d67d32a9ec588060802dfa4b179a907da18291e08349b"
+      },
+      {
+        "path": "/assets/account-page-C0Drel8I.js",
+        "bytes": 18369,
+        "sha256": "f3b7eaf3287e898e688ffddab128adfe56b71e6a898c955afa7dbb09b0bede28"
+      },
+      {
+        "path": "/assets/administration-Btl2ne-4.css",
+        "bytes": 12739,
+        "sha256": "14dcc1f98072a3747a7779a0aa1161b589ef858d257b295878b9ae564b3e56fe"
+      },
+      {
+        "path": "/assets/administration-WvrHkOz5.js",
+        "bytes": 92189,
+        "sha256": "fbdee6d99d4d48c50d874eae0b79ba3a05e1081bb817462c08cab6d2cd0f919c"
+      },
+      {
+        "path": "/assets/api-BqzR5o8_.js",
+        "bytes": 7641,
+        "sha256": "d1c0fb8c43f0fca0a9d6c6d3e3a56ee1f023690531bb8f5fa24520ff48ea9566"
+      },
+      {
+        "path": "/assets/appearance-preferences-B1fUroYg.js",
+        "bytes": 1085,
+        "sha256": "fbfb09246edcb6fd0b3252f8855402cfbfc7d8093ef344b2ce0ab1eb5a063623"
+      },
+      {
+        "path": "/assets/assistant-state-2_JniYTi.js",
+        "bytes": 769,
+        "sha256": "e18d1f1f4c1eec14db16054c3307a4e9133508a23dffd13c68037580e0a64de3"
+      },
+      {
+        "path": "/assets/assistant-state-K3c0iB3e.js",
+        "bytes": 69,
+        "sha256": "b16866e98eadd635a16c8f6cb77dbbcdf75f812c49ce5792e99c45700533a5a4"
+      },
+      {
+        "path": "/assets/assistant-workspace--ye8JJE3.css",
+        "bytes": 13238,
+        "sha256": "40184ca5295a1e27432ccc177b202b28ead5be3974598a173053eb0e4ab68062"
+      },
+      {
+        "path": "/assets/assistant-workspace-3C9AZqDr.js",
+        "bytes": 37675,
+        "sha256": "1dcd691e9f781359f3c3daf63289bfab9bd710455400323a543daf18fc286376"
+      },
+      {
+        "path": "/assets/assistant-workspace-Cn9uv3F2.js",
+        "bytes": 91,
+        "sha256": "365874da0095632431e3e45b99666ee02e3ec8dcbac5341c460687fa6e8f6c93"
+      },
+      {
+        "path": "/assets/assistant-workspace-itXTrt6G.js",
+        "bytes": 8819,
+        "sha256": "afd35d45605e8d487a414c2db285ba0cb869579cf1fe48744bcc06446b357717"
+      },
+      {
+        "path": "/assets/auth-navigation-vrh3jCxS.js",
+        "bytes": 677,
+        "sha256": "e8ab6c4c6cf327e1a239dfaf40fcda0a8cd9f27dbd61549bd325a085d68b2791"
+      },
+      {
+        "path": "/assets/belvedere-CzS-TfcI.css",
+        "bytes": 31390,
+        "sha256": "955e3498daebbe636b549eeb683ffb880bc53addb6d171f2064a9d5679aa573f"
+      },
+      {
+        "path": "/assets/belvedere-DthUwrpi.js",
+        "bytes": 19818,
+        "sha256": "0a6129e69431869bcad1ecb3a75942065fcd06ab74fa358b05abe26f2f6087ca"
+      },
+      {
+        "path": "/assets/belvedere-connections-B5blTht0.js",
+        "bytes": 5632,
+        "sha256": "abd9973288c433f32daa6a1054ba7842081ab08d5b0c1be494f787fe7e18ed6d"
+      },
+      {
+        "path": "/assets/belvedere-data-DUH9R-Q-.js",
+        "bytes": 4066,
+        "sha256": "73126221d6230d4bacc1660107606c7e1a52e6dba1c8d64f8e31ba7da9edadc9"
+      },
+      {
+        "path": "/assets/belvedere-de-Fpf2AwnB.js",
+        "bytes": 60976,
+        "sha256": "01b1982a001ee1b91e3f3f7afc679d2274010b47cb84feb30701c2600c8f0971"
+      },
+      {
+        "path": "/assets/belvedere-en-BTMc8H58.js",
+        "bytes": 56997,
+        "sha256": "aac9a580b9c1cd5c2150b4771cf20a6da8d57046c12fd888f59d4b6338fd735b"
+      },
+      {
+        "path": "/assets/belvedere-finance-QAksG_4s.js",
+        "bytes": 6882,
+        "sha256": "e8ce67dabad7fabb90066ff4c5978e8ba3bbf4c330dc005aa32f6c7fef02374a"
+      },
+      {
+        "path": "/assets/belvedere-fr-w8_u09ad.js",
+        "bytes": 62113,
+        "sha256": "9ddb5bb1a03c544709f98fe8a5626b836e2b5bb90859e9bb3a8dd0413c4061ff"
+      },
+      {
+        "path": "/assets/belvedere-globe-Dg4wA1tV.css",
+        "bytes": 6418,
+        "sha256": "6ce7468e6640bcbe06a816736bb839564263e912b31adfd2e30145f4e92632f7"
+      },
+      {
+        "path": "/assets/belvedere-globe-SRGcvYws.js",
+        "bytes": 155404,
+        "sha256": "6121bd129392441e049273ecb3564e23d73ff57085325afe1f1364b49ff958ef"
+      },
+      {
+        "path": "/assets/belvedere-infrastructure-N23tHUmw.js",
+        "bytes": 10108,
+        "sha256": "a941c1863dfb5086721a2b6e43a3c7eb929df51787f11d40e9cd15be3cef519e"
+      },
+      {
+        "path": "/assets/belvedere-jobs-mSM4fjay.js",
+        "bytes": 6218,
+        "sha256": "e4d6df2e26d8c6f3374809c2392b1eeed8eb9a665baabf8b215d446c552ad793"
+      },
+      {
+        "path": "/assets/belvedere-lb-kzHNBTuI.js",
+        "bytes": 61079,
+        "sha256": "41e0f61c0273df7250923e3cfad2361154e6be3df38da7c52460f9358cf699de"
+      },
+      {
+        "path": "/assets/belvedere-members-DkVbGvsi.js",
+        "bytes": 2987,
+        "sha256": "8b72f02f4fe982f4d92435b6e436126fc1151762d64b88b7430ddd363ed33828"
+      },
+      {
+        "path": "/assets/belvedere-overview-DxIIMCwr.js",
+        "bytes": 9511,
+        "sha256": "d34204f83214acc32d2bde38299841f1be2c0a9b98d7e3762623170e6158ff68"
+      },
+      {
+        "path": "/assets/belvedere-summary-components-C_00ryI7.js",
+        "bytes": 3617,
+        "sha256": "bd59d4bc27f6598fcc6d3abf40f1d2a3cf701f24792770af5de52f789a28deeb"
+      },
+      {
+        "path": "/assets/belvedere-view-components-B5At5xOo.js",
+        "bytes": 3995,
+        "sha256": "a56085c039b4f32adaabd56411aa4ec768b67f214fe2cb04020f9d0bc8899e34"
+      },
+      {
+        "path": "/assets/belvedere-view-loader-CSi7oVFn.js",
+        "bytes": 2211,
+        "sha256": "c6236b380f5c9f59940f2e98d85046ccca3687a017513bb5c9cde1a6379e33a8"
+      },
+      {
+        "path": "/assets/belvedere-view-loader-CuOU2DHk.js",
+        "bytes": 75,
+        "sha256": "3a12ab54c9f40b890a2b7b079a3ea5551537033291272398e0fdf8a96ef736c3"
+      },
+      {
+        "path": "/assets/belvedere-workshops-DAe9M7pk.js",
+        "bytes": 7950,
+        "sha256": "6c38be072c35f3b3ee3902bc24b837e9e057ccf4202b7144e80f7ac350810d6a"
+      },
+      {
+        "path": "/assets/browser-CNjFROmh.js",
+        "bytes": 179357,
+        "sha256": "ed327295a1b0d59e70b2a2475a12e7273e141ed619e036f276842fb638e74821"
+      },
+      {
+        "path": "/assets/clawpdf-worker-D8--gwJc-B6mjGktn.js",
+        "bytes": 14663114,
+        "sha256": "7a960c4bdb18be03602f0de497ca847378d4dbb5927ef67aee36bdda620723e6"
+      },
+      {
+        "path": "/assets/client-authority-refusal-C8-nrMQL.js",
+        "bytes": 176,
+        "sha256": "bd32f535a3ab927561c6280850cb51903060345b8d7c7c4383ced634526c3fd4"
+      },
+      {
+        "path": "/assets/client-polling-DlGlva5p.js",
+        "bytes": 970,
+        "sha256": "d0bb0702903f1d7299bbcfd1b827a6a0895e9aedce2c47c253b0b308b6a4e674"
+      },
+      {
+        "path": "/assets/components-CHWFILpA.js",
+        "bytes": 35146,
+        "sha256": "59ac4e6acc1b466e1c31f01ee41afe50c03d88a2592ad581cdb3be987302a33c"
+      },
+      {
+        "path": "/assets/data-table-Cy9Jo16M.css",
+        "bytes": 7052,
+        "sha256": "7297178a5bcffbef60429b421051732bb3be896cca814cb23940ce5a8ff92959"
+      },
+      {
+        "path": "/assets/data-table-YRhR3Kjr.js",
+        "bytes": 27888,
+        "sha256": "db3931982ed3f44ca29a554cba7d06989dc3c878da54fc0246ca2983ee1cda9e"
+      },
+      {
+        "path": "/assets/de-BOHtNnH-.js",
+        "bytes": 773293,
+        "sha256": "78f8331de3f604a4207ae0bd77599645f148ea956bc959e0a5fa9363ff8b9a65"
+      },
+      {
+        "path": "/assets/dispatch-detail-page-DqID5j6Z.js",
+        "bytes": 72,
+        "sha256": "b4029c7b85c7de61018d937c93c1c59ae5627dbd2211bcec34705c79703f84ee"
+      },
+      {
+        "path": "/assets/dispatch-detail-page-P6O2LxiG.js",
+        "bytes": 19295,
+        "sha256": "a571c026a145bd0e5bf9f8ab99f9eddea87dedc1bfc91a5ef9f18219e6f7a536"
+      },
+      {
+        "path": "/assets/dispatch-list-page-CKstTSvO.js",
+        "bytes": 2279,
+        "sha256": "d71cc112d32ecc6d3c410577a801c90bb1d5788339e3457842f6da89851faa1e"
+      },
+      {
+        "path": "/assets/dispatch-list-page-Cami5NmV.js",
+        "bytes": 64,
+        "sha256": "3ab4f4cf054394bbc1cb8481ec65b0f9ac1cae314bc73e7c2d0a7215facd2dcd"
+      },
+      {
+        "path": "/assets/dispatch-pages-CZXkFK86.js",
+        "bytes": 432,
+        "sha256": "e68ecd66f3a3752e3cdeb0fe87fd7d280a41673de7edb7608fa1016b7dee5ccd"
+      },
+      {
+        "path": "/assets/distribution-pages-B7GXRi8T.js",
+        "bytes": 24693,
+        "sha256": "a8b326263cca377dec1fdca02117ee546b1c021f35744a4c0b5e24c052009f59"
+      },
+      {
+        "path": "/assets/distribution-pages-Bpkb9jd8.css",
+        "bytes": 1526,
+        "sha256": "1be20484e96c725cab5890c17b9c6013dc5bf7ba37d5043767380a0525ba0b9e"
+      },
+      {
+        "path": "/assets/distribution-roadmap-BlbW54Q_.js",
+        "bytes": 526,
+        "sha256": "e3ddaae7bf46c6cb24a00cbb9d23c7bfed2c011d827f3af5a6717182216ffc90"
+      },
+      {
+        "path": "/assets/document-followup-Bl4hcy43.js",
+        "bytes": 3808,
+        "sha256": "5415ef528a03564bd4f235f2fce977badf23b4053932ea89bb78299e64c7b819"
+      },
+      {
+        "path": "/assets/document-invitation-D7zEojts.js",
+        "bytes": 2409,
+        "sha256": "a553c2f90fe871a4b6a94b65823c186a004dc81a4a24aff4b58b0b76fe3fa713"
+      },
+      {
+        "path": "/assets/document-studio-COFilzfc.css",
+        "bytes": 6724,
+        "sha256": "1d3e0f21a3f890d9c7743adfafb0e813f90d6c1b8419925110992cb4d52e9cba"
+      },
+      {
+        "path": "/assets/document-studio-rGitDVaW.js",
+        "bytes": 110645,
+        "sha256": "7932dd7bf2293f5dbec01dedc25230d76c0dbe0a394d1b225627904753fbf8b2"
+      },
+      {
+        "path": "/assets/documents-page-CkF9NGBB.js",
+        "bytes": 57,
+        "sha256": "55b478a38b0af58093d0b1a3313ac2ca533660d5dba3e9800a93eb773e661531"
+      },
+      {
+        "path": "/assets/documents-page-liOGVT3z.js",
+        "bytes": 19371,
+        "sha256": "c307775f183156376d5e14d0d0ee84c0c25a59c8f93eb2833d359abf5007df32"
+      },
+      {
+        "path": "/assets/email-composer-D8OiMtP_.js",
+        "bytes": 39896,
+        "sha256": "be3d71fcf0a5112cb5a027830d3aa6f9066c7a586f6cf608ec938509668320a2"
+      },
+      {
+        "path": "/assets/email-preferences-DLVF-BpB.js",
+        "bytes": 2188,
+        "sha256": "ce300e6cd322234cd3c114b94ce9b1e2540b99938c542b91d799976e89c99b12"
+      },
+      {
+        "path": "/assets/en-CLB6juxl.js",
+        "bytes": 501992,
+        "sha256": "19fd41c44a56fae3af44362173965716665133fd5a40240c5c85905920559afe"
+      },
+      {
+        "path": "/assets/file-input-C_Gfvyul.js",
+        "bytes": 1126,
+        "sha256": "6edaed001f34924ddfa2ee8670989e25ab5dd839d4710c3bb12682e9c3d43b65"
+      },
+      {
+        "path": "/assets/fr-zSDl4YZl.js",
+        "bytes": 514719,
+        "sha256": "089a442aa228f1263f21f3c4fdce1e2450db82bf9b7a3769dcb5ae1d0e8b10af"
+      },
+      {
+        "path": "/assets/index-D1uAjgU4.js",
+        "bytes": 694763,
+        "sha256": "9cf2594181867d3c30a76cdb179cc49feb28b5ac8ce50505330b4c8bb6384b1d"
+      },
+      {
+        "path": "/assets/index-DONVPSxE.css",
+        "bytes": 110785,
+        "sha256": "7331109fb1742662a0c78a09951a4974512445b9266a29d0eb6841809b0c9766"
+      },
+      {
+        "path": "/assets/jsx-runtime-Caymlcyp.js",
+        "bytes": 18872,
+        "sha256": "4aeb799f4ac6703d92c96e0c64bcd09679e7aee73f5bdf214956d05514ed0448"
+      },
+      {
+        "path": "/assets/language-select-CgIQlSqu.css",
+        "bytes": 1956,
+        "sha256": "418061fb3cbc77dd1912e20829de59f2eb9b38b4d3731356a21778e0b34a2b7a"
+      },
+      {
+        "path": "/assets/language-select-DEoOoLDt.js",
+        "bytes": 7383,
+        "sha256": "b9a6a641c259c3bb948d49afb7028acf558c79c2afcd7ab6d3d0b20cbeba9aec"
+      },
+      {
+        "path": "/assets/lb-OlgR2aiH.js",
+        "bytes": 771183,
+        "sha256": "05958615474227900fc8926388d1130f2ae243db44c215180b494fc6dafe079d"
+      },
+      {
+        "path": "/assets/lifecycle-pages-Dn4MEO1e.css",
+        "bytes": 2016,
+        "sha256": "3af33de5fda51e1764d68a9ab900eecc7cf864fb3e7f8b3282d0018597669e40"
+      },
+      {
+        "path": "/assets/local-preview-IdOQyr4c.js",
+        "bytes": 228,
+        "sha256": "ff19788ccc1d82f27e4293373ebb64da707a2d776503b2c0050cd38668fb529a"
+      },
+      {
+        "path": "/assets/messages-7zXX-BDb.js",
+        "bytes": 496,
+        "sha256": "f55c5dfcdeba4ea6253abc64e010347e6e4d87b91f2ade367ec38c011afd247e"
+      },
+      {
+        "path": "/assets/overview-page-Bn5KILy-.js",
+        "bytes": 5028,
+        "sha256": "e506560853e8bb9b64259174847cc4d16346627f10ffc36c86debb6c4d1c0bd2"
+      },
+      {
+        "path": "/assets/overview-page-CdmEYdq8.js",
+        "bytes": 55,
+        "sha256": "4a403a934035bd077dce742f3a2afe45a457bf0a2f6f3699b09bba7594c94788"
+      },
+      {
+        "path": "/assets/pdf-validation-pricing-3PdIVIMu.css",
+        "bytes": 2956,
+        "sha256": "92fa3f9f6b8c866b0e1ffe1549c077fd9f711b1270b414b140aec9e7c8827d54"
+      },
+      {
+        "path": "/assets/pdf-validation-pricing-CTuvsajr.js",
+        "bytes": 47,
+        "sha256": "7fc37bef579ba3eb8cac0031f2647a91505cbb935976d0e553976dce91e35215"
+      },
+      {
+        "path": "/assets/pdf-viewer-B2oxXT98.js",
+        "bytes": 710516,
+        "sha256": "e7dd808d55019073a81fb948ff9143f0e79587cc7b71f93bc67e08a975eedb78"
+      },
+      {
+        "path": "/assets/personal-area-BYeAF14T.css",
+        "bytes": 2397,
+        "sha256": "47323eabd6b7a4f138f2cb8f0876dd17e0e60ffdc00488de1889b1405339bd3a"
+      },
+      {
+        "path": "/assets/personal-area-CRxPvXVf.js",
+        "bytes": 39921,
+        "sha256": "fccb7c3eefe8d9fcc6f3ca9f79f8b9f1969b32d4e75edcc6950f5b599f49ee39"
+      },
+      {
+        "path": "/assets/postal-address-page-CRFXwDQu.js",
+        "bytes": 2814,
+        "sha256": "b48b11a4095f23213dce6e4afb5e66eef32cad1ed464703f30bd53e8d8e0d0d4"
+      },
+      {
+        "path": "/assets/postal-address-page-DFxl7xTF.css",
+        "bytes": 834,
+        "sha256": "eba1a6e97a652b6951d187675195e817c90a1dcaa41f4d016973e81703dcc6ca"
+      },
+      {
+        "path": "/assets/postal-cutoff-notice-B2bjLO1q.css",
+        "bytes": 340,
+        "sha256": "4161eab5e554f5401150a75f656800bd757b1f47fddace60cfe64f96614afa35"
+      },
+      {
+        "path": "/assets/postal-cutoff-notice-C8Jil-Wr.js",
+        "bytes": 1039,
+        "sha256": "c8788b042bca1fdeed4db5f76db477beb4e0fc006a7b4744dcd94933372a8937"
+      },
+      {
+        "path": "/assets/postal-destinations-D_ZgitPq.js",
+        "bytes": 26136,
+        "sha256": "46d8d1f51d05f33740d88ff189bb25f38b63e077b2470cd63194bb2622fca2f3"
+      },
+      {
+        "path": "/assets/postal-recipient-editor-COqsyi7P.js",
+        "bytes": 4542,
+        "sha256": "5502efdd65da1f46567cbd609cb8eb6be86ed10553ba466dd2d290dd871df519"
+      },
+      {
+        "path": "/assets/postal-review-page-630idM1y.js",
+        "bytes": 13029,
+        "sha256": "54b3ac9543c99ab7dbac9ce3a36b9641295caf05c140d59032a958cdb8a933eb"
+      },
+      {
+        "path": "/assets/postal-review-page-DkWysZcH.css",
+        "bytes": 1920,
+        "sha256": "6068ab4d9c1753d13aeef7488947ad96e0ab4034aa6ef029b5c71582a353ccad"
+      },
+      {
+        "path": "/assets/postal-setup-panel-DcJ_u_SR.js",
+        "bytes": 3847,
+        "sha256": "e589a4a73e53adb853aec54bcd58fad727ff7665158b8ce73d164170bd6c5e5e"
+      },
+      {
+        "path": "/assets/preload-helper-BLdHbfdN.js",
+        "bytes": 1519,
+        "sha256": "8aec9ff75ffa86a03d51268b63126abadb3754aa5a6b6c5bb16e4e2446a63dee"
+      },
+      {
+        "path": "/assets/prepare-dispatch-page-CuilGhV-.js",
+        "bytes": 70,
+        "sha256": "53c5ac0e7108f2ac1bd39a50addcb0ec51b15a4b08fefaee406c3453a56139ec"
+      },
+      {
+        "path": "/assets/prepare-dispatch-page-DQDrioE5.js",
+        "bytes": 20179,
+        "sha256": "b6d63bab8f976746dbf70348ba731a9fa38844000ce359896903e780d194912c"
+      },
+      {
+        "path": "/assets/protected-document-Dasld4oe.js",
+        "bytes": 5848,
+        "sha256": "ca4621d2d84280f0bc8a5296446ace8024b40f26c6013496fc74ff3cadc6da25"
+      },
+      {
+        "path": "/assets/public-routes-04DBHoij.js",
+        "bytes": 1814,
+        "sha256": "a5193bae6aa8e9005b3be0a7dba12d8fe071f870dec054ac15833a55e89699e7"
+      },
+      {
+        "path": "/assets/public-site-pages-B5GQYx7-.js",
+        "bytes": 12442,
+        "sha256": "23c1b8dcbecc50f7441523dedc2112c32c094f60c7a62660e159a147000f4f50"
+      },
+      {
+        "path": "/assets/public-site-pages-BcD7Hxb7.css",
+        "bytes": 10057,
+        "sha256": "657567d391ed4c0b0b45e4b2f3ff20b0ce11f93837f8a85fa2ec73884d8eea81"
+      },
+      {
+        "path": "/assets/recipient-pages-CXZ8FB_U.js",
+        "bytes": 6484,
+        "sha256": "6acef74e6bd8bd1188e35cf7461892eaa5a575fe87648d28d605ae4ead6e2e38"
+      },
+      {
+        "path": "/assets/role-guide-B0J38Mxu.js",
+        "bytes": 25580,
+        "sha256": "b5ee6bf86347ec92f591062af0d1636b73dfead4f8decde137d6131450bd0bac"
+      },
+      {
+        "path": "/assets/role-guide-msm6u3vP.css",
+        "bytes": 5444,
+        "sha256": "b60ee51033338dc465861f7a31884b802e09516215e1eff75a34cecaf3a13e28"
+      },
+      {
+        "path": "/assets/rolldown-runtime-WkwZ5CU-.js",
+        "bytes": 599,
+        "sha256": "2629f2ad3cb75a57d98de697127f5af7d777ef572bbcdfa6e3ce8f438cd4527e"
+      },
+      {
+        "path": "/assets/schedule-eligibility-BVL3EljW.js",
+        "bytes": 411,
+        "sha256": "1c22c0b0ff9e1fdf3b71dcc0964de6673fd08f975cec5f420cbc9f6ecb6cb455"
+      },
+      {
+        "path": "/assets/schedule-pages-BNqJI1pJ.js",
+        "bytes": 13634,
+        "sha256": "9d87f494da5ede1b8e3cb43ebc520135eabca89111df7cc8e999203268ab1330"
+      },
+      {
+        "path": "/assets/schemas-Bf5kQjUT.js",
+        "bytes": 97238,
+        "sha256": "881b603354f8d24bdf13db53a5e4740749a452e79fcf7bb1301ea55f160467f4"
+      },
+      {
+        "path": "/assets/secure-audit-history-BjrolmLk.js",
+        "bytes": 3517,
+        "sha256": "15fbee856e1363d68320bc1620c4e035cd510be0d4efb45257e7746249c9f6fc"
+      },
+      {
+        "path": "/assets/secure-distribution-pages-B7r2BgF-.js",
+        "bytes": 22543,
+        "sha256": "8dc567f683736140f52ae3d7bc469ec37d2d30a66ca45842f34165b6a970641c"
+      },
+      {
+        "path": "/assets/secure-documents-OStU135U.js",
+        "bytes": 2553,
+        "sha256": "58327d371903742f2dd40c8cdd2dec21cce3cc3387445bb616ff0648fa7a53e3"
+      },
+      {
+        "path": "/assets/secure-documents-U7AYqRHb.css",
+        "bytes": 14859,
+        "sha256": "cb14b4e9a2dc5bee5a3c4c602a98cdc03231f67b23691826206fd3e0d8a18c7c"
+      },
+      {
+        "path": "/assets/secure-source-copy-DjUJlrxy.js",
+        "bytes": 3304,
+        "sha256": "5e6ab8a8d851120e591f995d3a208dbc975f8d0cfbab99481e0c1bde4cd208d9"
+      },
+      {
+        "path": "/assets/signature_pad-WSRARgwh.js",
+        "bytes": 15341,
+        "sha256": "be11c289b147dff6e93405936e0f37ab8744c17e4419825e534d1b6f2ad5c7a3"
+      },
+      {
+        "path": "/assets/swagger-loader-D5FBXvwQ.js",
+        "bytes": 1039,
+        "sha256": "57f137c3b58ebb76fe42b4352fffe2d379fb461e46245f2487abf59dac505651"
+      },
+      {
+        "path": "/assets/swagger-ui-DkMVqE0V.css",
+        "bytes": 185373,
+        "sha256": "e442ef3007bf207b65ca099414fe80324e73f5c4649ef21888caf5801c6a0849"
+      },
+      {
+        "path": "/assets/swagger-ui-es-bundle-CfQj5SKd.js",
+        "bytes": 1506317,
+        "sha256": "f1643a29385f40615853dbf570ba02f1aafd1e085736b7189900abba506894d9"
+      },
+      {
+        "path": "/assets/template-designer-CcIX0Idj.js",
+        "bytes": 6536780,
+        "sha256": "1092fecf30496e7488469651db33ebf3bea09c6792ea2531473c100c2ae57aab"
+      },
+      {
+        "path": "/assets/templates-BzdeiNvy.js",
+        "bytes": 16693,
+        "sha256": "6b63933e7fbcd7edb4cd12b28143feb1b78a58182702fc20872e516ea41c7de4"
+      },
+      {
+        "path": "/assets/theme-D5Rw1IMx.js",
+        "bytes": 2352,
+        "sha256": "5dc218bb17a55af0666fa320e7fc4d2a094b752ae210c93befea20bd2d23030a"
+      },
+      {
+        "path": "/assets/theme-toggle-CrxleT88.js",
+        "bytes": 1644,
+        "sha256": "bd176d8f015be023348c75ffcd3e77dd512bfd147c7ed305dc013baf8338dc24"
+      },
+      {
+        "path": "/assets/workspace-contacts-9Kms2A_j.css",
+        "bytes": 1813,
+        "sha256": "43bad54a23a1758e47ce6654abc9e0cf6d5bb90491be74ebe6b53494f7e7393b"
+      },
+      {
+        "path": "/assets/workspace-contacts-MSJ71tz8.js",
+        "bytes": 3354,
+        "sha256": "ce42e4a501d8249c805bfa525fade0f267eb68a4d997357b2082055addf483a2"
+      },
+      {
+        "path": "/assets/workspace-identity-CDUhzKt_.css",
+        "bytes": 6328,
+        "sha256": "4be2602c5eb6cd509f7c424afe69c61811a3c94d98d99d62fdf46b9b3e26a7de"
+      },
+      {
+        "path": "/assets/workspace-identity-CRS4N5wV.js",
+        "bytes": 36926,
+        "sha256": "ea3189925d083f7e423f89f81a7a67477e593cf2926f95bb6d8a98984174615f"
+      },
+      {
+        "path": "/assets/workspace-pages-Ce3ebZL-.js",
+        "bytes": 10957,
+        "sha256": "dd8fd752d70cb17f7602735ade4133a55419c7ac03c02d2f98a4e59f553faeb6"
+      }
+    ]
+  },
+  "inspectedVisualEvidence": [
+    {
+      "file": "docs/evidence/lifecycle-schedule-desktop-2026-11-10.png",
+      "sha256": "d390c935db1b2b201f31e4ec39363c71bdc235bd05e770aa09feaeef79aeca14"
+    },
+    {
+      "file": "docs/evidence/lifecycle-recipient-mobile-2026-11-10.png",
+      "sha256": "fb952a98c2586a8264dd4d59b2540e07742ea5a7202e4a8612769b2f58a68f82"
+    },
+    {
+      "file": "docs/evidence/lifecycle-command-mobile-2026-11-10.png",
+      "sha256": "f829ba2a07f2b26a0a4049efddc0315b39e573582bb082d6a7cb46e5b9150725"
+    }
+  ],
+  "integrationPackage": {
+    "name": "guteneo",
+    "version": "1.2.0",
+    "endpoint": "https://guteneo.com/mcp",
+    "mcpSourceSha256": "e8b7e5b8986d790c31006d1f68001d658162e356608abb21e6d6381cbe1fde70",
+    "archive": "guteneo-plugin.zip",
+    "sha256": "4df40aa0190b1f4d1b2843d31cf19dba723bdab4e3ae6ef717cef004dae7d54f",
+    "bytes": 1351494,
+    "files": [
+      ".claude-plugin/plugin.json",
+      ".cursor-plugin/plugin.json",
+      ".mcp.json",
+      "README.md",
+      "scripts/upload-private-pdf.py",
+      "assets/guteneo-composer.png",
+      "assets/guteneo-mark.png",
+      "mcp.json",
+      "mcp-contract.json",
+      "plugin.json",
+      "skills/email/SKILL.md",
+      "skills/pdf-accessibility/SKILL.md",
+      "skills/pdf-accessibility/agents/openai.yaml",
+      "skills/fax-pdf/SKILL.md",
+      "skills/fax-pdf/agents/openai.yaml",
+      "skills/get-started/SKILL.md",
+      "skills/get-started/references/original-pdf-transfer.md",
+      "skills/get-started/agents/openai.yaml",
+      "skills/postal-pdf/SKILL.md",
+      "skills/postal-pdf/agents/openai.yaml",
+      "skills/document-studio/SKILL.md",
+      "skills/document-studio/references/template-authoring.md",
+      "skills/secure-distribution/SKILL.md",
+      "skills/secure-distribution/agents/openai.yaml",
+      "skills/saved-recipients/SKILL.md",
+      "skills/scheduled-dispatch/SKILL.md"
+    ],
+    "hostQualification": "pending",
+    "publishedToDirectories": false,
+    "claude": {
+      "plugin": {
+        "name": "guteneo",
+        "version": "1.2.0",
+        "endpoint": "https://guteneo.com/mcp",
+        "archive": "guteneo-claude-code.zip",
+        "sha256": "92698493cb7b2f368f8f490157a087a3c4e7b3e41d0bcf7ecbdf9511feac6525",
+        "bytes": 340658,
+        "files": [
+          ".claude-plugin/plugin.json",
+          ".mcp.json",
+          "README.md",
+          "assets/guteneo-mark.png",
+          "references/claude-host.md",
+          "scripts/upload-private-pdf.py",
+          "skills/document-studio/SKILL.md",
+          "skills/email/SKILL.md",
+          "skills/fax-pdf/SKILL.md",
+          "skills/get-started/SKILL.md",
+          "skills/pdf-accessibility/SKILL.md",
+          "skills/postal-pdf/SKILL.md",
+          "skills/secure-distribution/SKILL.md",
+          "skills/saved-recipients/SKILL.md",
+          "skills/scheduled-dispatch/SKILL.md",
+          "skills/document-studio/references/template-authoring.md",
+          "skills/get-started/references/original-pdf-transfer.md"
+        ],
+        "hostQualification": "pending",
+        "publishedToDirectories": false
+      },
+      "marketplace": {
+        "name": "guteneo",
+        "version": "1.2.0",
+        "endpoint": "https://guteneo.com/mcp",
+        "archive": "guteneo-claude-marketplace.zip",
+        "sha256": "75e5f8290b67bed89e299862fae1dbf41df004a6e0bba875eedbdfb8368f9405",
+        "bytes": 344342,
+        "files": [
+          ".claude-plugin/marketplace.json",
+          "README.md",
+          "plugins/guteneo/.claude-plugin/plugin.json",
+          "plugins/guteneo/.mcp.json",
+          "plugins/guteneo/README.md",
+          "plugins/guteneo/assets/guteneo-mark.png",
+          "plugins/guteneo/references/claude-host.md",
+          "plugins/guteneo/scripts/upload-private-pdf.py",
+          "plugins/guteneo/skills/document-studio/SKILL.md",
+          "plugins/guteneo/skills/email/SKILL.md",
+          "plugins/guteneo/skills/fax-pdf/SKILL.md",
+          "plugins/guteneo/skills/get-started/SKILL.md",
+          "plugins/guteneo/skills/pdf-accessibility/SKILL.md",
+          "plugins/guteneo/skills/postal-pdf/SKILL.md",
+          "plugins/guteneo/skills/secure-distribution/SKILL.md",
+          "plugins/guteneo/skills/saved-recipients/SKILL.md",
+          "plugins/guteneo/skills/scheduled-dispatch/SKILL.md",
+          "plugins/guteneo/skills/document-studio/references/template-authoring.md",
+          "plugins/guteneo/skills/get-started/references/original-pdf-transfer.md"
+        ],
+        "hostQualification": "pending",
+        "publishedToDirectories": false
+      }
+    },
+    "note": "Locally built 1.2.0 archives only; unpublished and unqualified on hosted clients."
+  },
+  "checks": {
+    "applicationBuild": {
+      "passed": true,
+      "file": "lifecycle-release-final-build.log",
+      "sha256": "61e31a2b949b7fd4a756b039a1c74ae234562c2216990065ad3c745b9b8410f6"
+    },
+    "finalApiBundle": {
+      "passed": true,
+      "file": "lifecycle-api-build-final.log",
+      "sha256": "3f969989be297724f6396645b90cd359f667e49ea8d3e74fcd114bcf12a18a82"
+    },
+    "restoredIdenticalBrowserArtifacts": {
+      "passed": true,
+      "file": "lifecycle-final-artifact-build.log",
+      "sha256": "f5c2e5d477556c98c2eec1918ee4c086ea80af6b20130f311ae32066f8b2296a"
+    },
+    "finalTypecheck": {
+      "passed": true,
+      "file": "lifecycle-typecheck-final.log",
+      "sha256": "02d3a8bb21e7190a5885470bc5dbe7297e36ec625ded569a3fdeee811531356b"
+    },
+    "lintAndOwnership": {
+      "passed": true,
+      "file": "lifecycle-release-final-lint.log",
+      "sha256": "f9e953aac9f8737487b55494455eba333a1a0b7bde1e695483020e51fe1256e2"
+    },
+    "integrationSynchronization": {
+      "passed": true,
+      "file": "lifecycle-package-check-final.log",
+      "sha256": "ff649a50032b0b9dd9929dc0d3f6bf6f31ee7cd0dbccb2b09a431fb45567f0c8"
+    },
+    "mcpAnnotations": {
+      "passed": true,
+      "file": "lifecycle-mcp-audit-final.log",
+      "sha256": "837c861e580c66d14ba3a6070547ca0c01c7bdc26f40f5f80b1ae6bb3bfe8eae"
+    },
+    "docs": {
+      "passed": true,
+      "file": "lifecycle-docs-check-final.log",
+      "sha256": "53e07e931d8e52e3f24ea11e1673fb362fb3012f2cd53d066e327d1ae45946c1"
+    },
+    "engineeringBuild": {
+      "passed": true,
+      "file": "lifecycle-engineering-build-final.log",
+      "sha256": "c2b173bfa6038d6b01752ff6d64be105dc95cd8247665ff805c8605d765c9d58"
+    },
+    "engineeringChecks": {
+      "passed": true,
+      "file": "lifecycle-engineering-check-final.log",
+      "sha256": "3117898f41c61fc4b1ccdbd924ee96137776d406f2f86bfe3030bf56c87eb669"
+    }
+  },
+  "sourceHashes": {
+    "apps/api/src/account-deletion.ts": "77f2c63e42c3486b56a8dababae14b7e614ab9a80ecafdedc9a9e9ffb6fefbd4",
+    "apps/api/src/belvedere.ts": "c8dd1c64b634fc99e686cb36ac7febc41b87f4fc03cc893161adc54832e697d3",
+    "apps/api/src/customer-webhook-routes.ts": "323704550853633931a447b265c4cc98f29f3b0f1ffbeac04f4946f53998b462",
+    "apps/api/src/customer-webhooks.ts": "9b3ba6c33537f1c165b74ffa3b680605b73f062125d8127d24119a2407a8db8b",
+    "apps/api/src/dispatch-schedules.ts": "0403552a84668461c9ffa67eae9d8f37e2de59b2dbce213398f37c4c4991e87d",
+    "apps/api/src/env.ts": "ebc2f81182227a221614bc63e81a7da7882a4cffe7a5ea0712ce90dc425ddabe",
+    "apps/api/src/index.ts": "551f3b998552f77f4e748de00a0c115637e6cf06fbc9c011a760b2cd62864d99",
+    "apps/api/src/lifecycle-authority.ts": "9e0306b9fe1c013d5c67f4a673a40af92e9f3cc7a4c26bb8ed42ba273fa8961a",
+    "apps/api/src/lifecycle-routes.ts": "9f29c11027f22e8c6895225b792074e5dc430f964c8017cc6c67e48207b3cf83",
+    "apps/api/src/live-providers.ts": "c4295f2db6a4e5b4dfd92b6051cbad08e8fd9acfa8c9ea2dcb4ef3fc07459fde",
+    "apps/api/src/mcp.ts": "fc0ebf1e1c08f4b048b60b379d72d16aeac13db28548e0c3a70ba3f3a6f923a9",
+    "apps/api/src/saved-recipients.ts": "f9bde0f3851e684bc0b63b19ca0a7fc5584942eaa2bba460cbb0d1fb6a0339ae",
+    "apps/web/applications.json": "44e31f6ddc777c6219ea6ba5637996f625f1d8cb403beb08ecc87c996e5e6adb",
+    "apps/web/public/locale-init.js": "0a17a217e33e022de41208b55c0b141255c4f50d9ce3c011a253457cf30c20bb",
+    "apps/web/public/openapi.json": "1aa81d5cf3f1754909be0233de46ce53b2fdb7900184deb5bf63cb2961d55012",
+    "apps/web/src/App.tsx": "10cdeade6532f26ed1ec42fa7c859a7d48566c3b52574d9832263bb80f74be53",
+    "apps/web/src/account-page.tsx": "f9f7235cc6c3925aa7cdf6920b171e84cb82770fbf5d6206233e21f5a6b85844",
+    "apps/web/src/action-outcome-tray.tsx": "8bcf1135d9fdabb057696616cfb8755a7415c6b68d1389051324285ac25cb7a7",
+    "apps/web/src/action-outcomes.ts": "e49d05bd9b3c6dbc3ea7a21b6b1d866a6183b05db3a61370f3c4a561e817d7b5",
+    "apps/web/src/administration-operations.tsx": "9ccb7ba38d911dc2541a8c72fb73a16ddc968d7b9ecf11b554b85e54adbbabc0",
+    "apps/web/src/administration-settings.tsx": "7e12ee29fa56a51c8529a6d56e5c6760b5089986b863852fed2630bd8306fcd0",
+    "apps/web/src/administration-team.tsx": "dcef45b701441d192f84c50d770f38dfba12bda184231683fcdc180e2f9704ba",
+    "apps/web/src/administration-views.tsx": "b5139c891095ad898c20608e795b9b61203f61ff9583d97b167179f93116aacc",
+    "apps/web/src/administration.tsx": "d2c5e4b301781a87f0640369afe34a8017e583c7e54ccf72e4829ccd22b5ca16",
+    "apps/web/src/api.ts": "ca09dacf8ddea63e4c0dc0098630ac87909f638c15fcf459187517dee2fcc710",
+    "apps/web/src/app-routes.ts": "797ba1c6dbcdee98dbfb6e0c51d0fd8e3e21cdc7eb15a918fa64eabfa4c7def7",
+    "apps/web/src/assistant-guides.css": "78586fa17089af861f89752795a3349907864e8e03aaed448c83a4107d622029",
+    "apps/web/src/assistant-workspace.tsx": "df73d7d357cdcef4500f45b919a67306002dc469208143166cd86fa5e6ae9675",
+    "apps/web/src/belvedere-connections.tsx": "ed017262db642660270a271caed9378b9dff77e7dfbb702e2c83c505c0562271",
+    "apps/web/src/belvedere-finance.tsx": "49d53be5dd663488a7f585a56ac8c170545418e58e4523a67a939b48ccc12d98",
+    "apps/web/src/belvedere-globe.css": "79629ec02975388de8b4f3b19ba9bc77f862e76272d9fdf67b63ee505394ed45",
+    "apps/web/src/belvedere-globe.tsx": "9c0c25a0b151129a6c6e0215e00b02f4763190da8419c24451b61802048be714",
+    "apps/web/src/belvedere-i18n.ts": "9887cb521062a6848137728304d372bde5ea45ea549933d67041cc53a9b8b66f",
+    "apps/web/src/belvedere-infrastructure.tsx": "9a9eb20d34d01b756b2e4c08ae80978f2019ef6503a21f8dbfc6d5c926109389",
+    "apps/web/src/belvedere-jobs.tsx": "9c5dad487d4718598ddb0f39390c5a31e96468251304b68ed486fe8629c98625",
+    "apps/web/src/belvedere-members.tsx": "504d3a012990f986fdc94e406bbde2d1858b0bf1ea6c836f1b74ec394504aedd",
+    "apps/web/src/belvedere-overview.tsx": "b3160ae9d31a26a7333d6f1d23171f801a032d1d2d196f2fd4011cb1de3d2637",
+    "apps/web/src/belvedere-summary-components.tsx": "5c61879a5dde7b305624acbd4d80236fddd7813827507188750e5ff9cf73523e",
+    "apps/web/src/belvedere-view-components.tsx": "4a7e15e0593b9ab9ea9e7ad392942af4a423245992a013d99f148ae01b6e639b",
+    "apps/web/src/belvedere-view-loader.ts": "61016154eb951dcb1800d7c9f213cf82cbc66d72ebce884f2ca60e63f28a24ec",
+    "apps/web/src/belvedere-workshops.tsx": "b504eb5fd3f7153847fc5055857fe22c59cf45f8790955f6a374ff97ab52ccda",
+    "apps/web/src/belvedere.css": "a6018badfba18644b42cadd05f88ea684e2c09e5b40181938fdaa308ab4fac80",
+    "apps/web/src/belvedere.tsx": "c655b6482d9b29921a4ee8d71821f67662e2969350106996200a85fec3f8a239",
+    "apps/web/src/billing-page.tsx": "fc3caaab2fcfcf612193a1497125068c240070a0c017de3df27b6518605792a7",
+    "apps/web/src/client-action.ts": "db2ffdf4eb08aeed2f0b6fd02bc79b75a8291a6eb5a1a10225548aa2dcd40763",
+    "apps/web/src/client-authority-refusal.ts": "a35c6983e27119d8c96c2db7773fc1f917742078eec183c2f1039a0e0dc821ab",
+    "apps/web/src/client-navigation.ts": "7a0a41e8c135f68ef924d10a2f615fa7eca90b685a20f69319382699a70a2c32",
+    "apps/web/src/client-polling.ts": "02979af6ee37c8e3c2ef252b735699ebc2ba1ad5ba3976a5471ea59a7974e9e0",
+    "apps/web/src/client-resources.ts": "047bd476b206d13a3c76e138d92d7dba2797dd8e824165018b59b61e5a8a5c60",
+    "apps/web/src/client-session-bootstrap.ts": "5abfaa19cc6db1ee8b49ffc62a53a83a07622c1934db042b97c7ad2aa0d0f2bb",
+    "apps/web/src/client-write-recovery.ts": "59d2b4ae359db14316c0777c095ad00d9136319f811b0a8f303e504ac95c40c9",
+    "apps/web/src/command-palette.tsx": "8edd997dba5dcc713248ebe42e4fabd7ce4d66bb88b9f0f10c554a44db59630f",
+    "apps/web/src/components.tsx": "8a4dd4a9734ed4efa393956d438b850ed6d44af4bc24c7a12775ea4ea0e576a2",
+    "apps/web/src/customer-webhooks-page.tsx": "2cad2387727cf2e3f7d163264f3c17610a0aed214dce33fdb2bc09d1ea578d72",
+    "apps/web/src/dashboard-v2.css": "09e83762382360c703f1ae314ed3b43d727b2f00e114fe351ed27a0b1ddfcfdb",
+    "apps/web/src/data-table.css": "a81e8af3069afd08c74b09dfecdb0ed03e54528a28e75136a36bbc7af13ec7b2",
+    "apps/web/src/data-table.tsx": "3dcb216cc26c4b33d201c49c6142bea9b46b2b807caadcf3c50c24fa2795f942",
+    "apps/web/src/dataset-pages.tsx": "e235d07924831b9c371bd296c97a489e0fa7d91edfc77538e975a0d29e878011",
+    "apps/web/src/dispatch-detail-page.tsx": "5dc272c8883193e267826239ad5067f31fde434877f2cb67f5205ca77399f8d6",
+    "apps/web/src/dispatch-list-page.tsx": "66a8ce6a52721fe6b03b0cfec0e9576bc5f9b08959b1554755079b43e04d56af",
+    "apps/web/src/dispatch-pages.tsx": "1a5334d11454edbaf65b327587fd97af5443409bda118a4024634784c096fd60",
+    "apps/web/src/distribution-pages.tsx": "3c667bffd5a692004ccbebd57583c57023192090b375ffadba1719920f5054da",
+    "apps/web/src/distribution-roadmap.tsx": "0bc964be6e9169fc76d0b20465afc78b666c9b63777b21e450dd409bd69c6773",
+    "apps/web/src/document-followup.tsx": "b5d3800d1a0943397769d537b3998148b4975402a07c1349459eb6cf27d6ec86",
+    "apps/web/src/document-studio.tsx": "6364e84977c481a4004f0a2f3bea60eb01590680524543791700b0ae0042e794",
+    "apps/web/src/documents-page.tsx": "99e23de5b198c3b159c776fb820f44ab2748080d6724888a78708da74417259d",
+    "apps/web/src/email-composer.tsx": "2af6adee683d250a0b457910de471dfd084b931f8a1119caf3a0ea3e759f001d",
+    "apps/web/src/expert-approval.tsx": "c5e87adffbfd6fe60d1e7bc3a43d7466b46a21adf53ae4b9dd7b93038ecedf08",
+    "apps/web/src/generation-pages.tsx": "4d85898a2748a2594cc8b79fdb0882ea8a2721cd8c76bdc2c8f3244fbd2f91f0",
+    "apps/web/src/homepage-film.css": "2eab221dc75b5b48990070dd87f2da2508d2d4df4991bff91b417e29d59af2b6",
+    "apps/web/src/invitation-page.tsx": "4969e1dcb747ed61a05d76e71766ac361e4daee3f93ed1d5336c3a8969b31d7d",
+    "apps/web/src/landing-sections.tsx": "3f5a5f2af8b1084fab4a9774022335a5f44ca2f51f02acb3cad0520aa86de8fa",
+    "apps/web/src/language-select.css": "100b49fbd6c5d85dfe481b3a19b1a62d747ddbc65e5bd8231703693dd14c74af",
+    "apps/web/src/lifecycle-pages.css": "3d949eb1c5fb2c5dc88581322bef0583510bfd9e7fbb6b5c93c2581fdfaf7f52",
+    "apps/web/src/locale-data-server.ts": "10b7e5d0963da775f1235bd29c3580e982e1019360659176febf9ed19b2f0967",
+    "apps/web/src/locale-data.ts": "47b07b5e7098da5bc56efce9976e6b15e03dd1282cec9eacef651da39dbcce3b",
+    "apps/web/src/locale.ts": "02124722095f2ed38d9878a052fdbb457a04953b6924ea63ccd780a555597855",
+    "apps/web/src/locales/messages-lifecycle.json": "5ca6cd8ee10503551bc001e18dcbe202fd13afd0f9cbf41c3dbff7e2e482e79a",
+    "apps/web/src/locales/messages-operations.json": "80f37d811fc78e8a94df72ddaee5af49223bc68b978b3fafc0a0cd21a19dab44",
+    "apps/web/src/locales/runtime/belvedere-de.json": "7c08180cb05b5ed25e9cc5d63e390ad84db3f23c47e927fe61ef232df4d4beaa",
+    "apps/web/src/locales/runtime/belvedere-en.json": "0cdd0c3fa49b3449d2b132f96061b4d69e0b030246f4675b8cf5b312521192b8",
+    "apps/web/src/locales/runtime/belvedere-fr.json": "653e6a2434afc55f250cbdbf5cb5ae7a2f7f6948c6e242d91f47a151a924c9d1",
+    "apps/web/src/locales/runtime/belvedere-lb.json": "e06c02ce7d52e75775fb728de129d9a7075c435489881f147f5425e24196beea",
+    "apps/web/src/locales/runtime/de.json": "4028b13253dcd5f1503ead0dd0c05b0781766b7440aeab265a73a608508e7246",
+    "apps/web/src/locales/runtime/development-de.json": "59808cc1c4d8e73a2ba164656894a1f7b067eaae1fbf1a6e9a0cc43657975960",
+    "apps/web/src/locales/runtime/development-en.json": "0acfc58e11e7b9be8e159908a00f72fa67ffa2fdc1bb795bff4ca971644e4eb4",
+    "apps/web/src/locales/runtime/development-fr.json": "25826b09ff3e6c6d1eab263e4ac2c2575ce7b5e7c45676d2505f48091a9a8862",
+    "apps/web/src/locales/runtime/development-lb.json": "8ad7558aa81258c7236136b4bf7b36f39b1cd90c3d711b484b6900e559bc0d21",
+    "apps/web/src/locales/runtime/en.json": "4fc25a0de38c4692a9b4b780dc718f8f3586cbd491068dbbaaf64c11e551d6ea",
+    "apps/web/src/locales/runtime/fr.json": "4c7bd7a3b467fcc1b676746732f8d929a801ef7c3d07c30ce435b07de67f21ba",
+    "apps/web/src/locales/runtime/lb.json": "7fd40f4267fc025cc4cde3649fd70273f79444a85c609b58bc4b57ade9247a15",
+    "apps/web/src/login-page.tsx": "f80eed090ff3a577d3a4024de9ead00012e47785d6377d13c25f6f7f31b0b150",
+    "apps/web/src/main.tsx": "0a129edc3bf5ae103551e481ae671ed477954587c5dc08be3b95df0e24e2d225",
+    "apps/web/src/message-catalogs-source.ts": "700afadcb09adb377c922db2524697c761b1723471a5bb95e0c504d97babbc39",
+    "apps/web/src/messages.ts": "bd54a95fa33703d902c10f2562e9d1f576a43714f16030930b4deb22f5a0697b",
+    "apps/web/src/overview-page.tsx": "73bdb35c0161fd3b3121844fa9efe1ccf100aa42579499ddeb6b112e7e810e63",
+    "apps/web/src/pdf-check-public.tsx": "805dc06d214bd72cbd383a90975018b6b92cbf71426e7d315e4a80a433268d1c",
+    "apps/web/src/pdf-validation.tsx": "fa0ed2dd86fe94b2b661d8a3c53b4ef6d8a8557fd855a983b05a024f262993f6",
+    "apps/web/src/personal-document-claim.tsx": "157deac85551435d61417443c1757b4504674f95050f30807ca6ec9681947f16",
+    "apps/web/src/personal-document-list.tsx": "c19f0fb76c53f018e267fa88d88b1e68c393761ae8eb828c447c3ace821907ee",
+    "apps/web/src/personal-document-reader.tsx": "0dd890c70b4698ac84fa6fed6666b0121712faf08c992e4633d14ffa171b5d10",
+    "apps/web/src/personal-space.tsx": "cf792d7fd6d35ab1baada3ef3339a0656d6cefc98c7da816ef7a3b1aa4cb61ae",
+    "apps/web/src/postal-review-page.tsx": "0dedb3b57595ac6825b65f74372542688af0326e34218bc3ed888382721ba376",
+    "apps/web/src/postal-setup-panel.tsx": "0f1f72401cd87eb5c9ce876bd270e902bbacad58ce2795ccf1fd89246da2d996",
+    "apps/web/src/prepare-dispatch-page.tsx": "ee9df935789a9280e72ec29453895a81ce00797917ae949e86cb25947e7a09ae",
+    "apps/web/src/protected-document.tsx": "23deec7d913e4c4660cd993f49b27aa032c2b76f134402384378378313dc6796",
+    "apps/web/src/public-sharing.ts": "02e738b82b556e758d9935d0c233a3fa8030ca8cc1388adfb20516098ee36017",
+    "apps/web/src/recipient-pages.tsx": "90760a25530cddd9fa27bea0aa04f70841a8443fa6463be1fff1c16c8036a6f6",
+    "apps/web/src/saved-recipient-picker.tsx": "6e94061b8ee52d3841ad9f7443ae5541198ea592280c60bdc794ec5bd45adcda",
+    "apps/web/src/schedule-eligibility.ts": "dd391976bd7a0dbabf931d2fb8f741db7b3efdd9d8a7adbf4c77c3272510261d",
+    "apps/web/src/schedule-pages.tsx": "14a82f4ed65eccdc23749fb5bfcb3de49efcfc26e03b00bfab16fb9778072daf",
+    "apps/web/src/secure-audit-history.tsx": "5d885e8b5a753d29269254daef853ec56bd06a9adcc996f6f2e81df1597c9aac",
+    "apps/web/src/secure-distribution-pages.tsx": "6fbfc89b2564fc5801cdaaf0226e5e86d280f096a27936ee9c06c9eff29972dc",
+    "apps/web/src/secure-documents.css": "418dd39ed09c6353dd713b15e92c32e1aa34d1b0fa845958a64935e3a14062b3",
+    "apps/web/src/secure-source-copy.tsx": "727ec1c9463d6e043b5c42c39b1bbf24cadc9b058d5b9c2bd278ec5da3d0e0a4",
+    "apps/web/src/space-switcher.tsx": "384f3d71a907715de30b0ad72761c726a656c346d1f637b24843e62f40e00f84",
+    "apps/web/src/styles-adaptations.css": "0e6a7e4c0eecd1dcff36ce9102d94fa5ccd4ef345e3113c3ab1438fadd83d033",
+    "apps/web/src/styles-documents.css": "dfadcfc395a45b8b9f67ed9973e5bceb74d97f43de15b80f9818e2bc951faef3",
+    "apps/web/src/styles-foundation.css": "dccf166b88edb8c90a28f7a2faa9562e042b2ea2215d7b9fc1cd21181b1ce779",
+    "apps/web/src/styles-operations.css": "066f3fcc8380d4e9390eda171a9a911790cb53ff336f108435c5ac416d1726fd",
+    "apps/web/src/styles-public.css": "c3af8cb4d8353337dbd8e7379361a4c9734a8119a5a3f386e33e8a8a5cd74c74",
+    "apps/web/src/styles-responsive.css": "49010440e4c8d61cd50ac256a60e1414219647a29cbacca61d738ba0732826da",
+    "apps/web/src/styles-workspace.css": "10028f5502932d520a1bab475be2606a8f50ca8d330d1ead6bd2b2ae879f6adf",
+    "apps/web/src/styles.css": "20ee020793d002163af66bc97da566ab38e11ad56bf51c4aae6e6cb02769a00e",
+    "apps/web/src/table-view-controls.tsx": "bf8f6900d08ee1b316b736b4ca3f335c323f72737d53dde940a92677c8d59297",
+    "apps/web/src/table-view-scope.tsx": "d09460cdbc81f2a93dd8fbd2e1f26f7234fff2d7cd15b7606f4126a8529e0f7d",
+    "apps/web/src/table-views.ts": "2c702ff14db3875ccb4f739308bd1449cc577b69b65d5decb1c651f363331918",
+    "apps/web/src/team-invitations.tsx": "9e13bc08c264bf186f2ccd59b1ef590c262bc75828d87603a9801c3cf9258375",
+    "apps/web/src/template-pages.tsx": "6e8660d3271136dd7ccffdfa0b1ddd46e1fa6399a0939fb41f4a501efc164767",
+    "apps/web/src/template-settings.tsx": "e1a453e01ae5426ca0d98a3beb73ac34068479c4948f37afd278b3fe2305dd86",
+    "apps/web/src/theme.css": "9e7c34149720e25b63f1e81f818fbe50255803e5c397f77c2ceaad6e9c90fd5a",
+    "apps/web/src/workspace-attention.tsx": "57d94ec8e9c90c13876ec6aab7c8eef7b329fc533bfbb22d662a2166596e5698",
+    "apps/web/src/workspace-pages.tsx": "caa07e22a4b0dbf4e7d99e3845c5ec1440bc73d3359b7585e495b0f0209d9600",
+    "apps/web/src/workspace-route-loader.ts": "39dd3a0619845373bcbc33b6bebe1a88b41812801281d15a627ccf1ac0b2ab72",
+    "apps/web/src/workspace-tools.css": "d1771264b93a81059d914331ba8aadab3c80cf4f217ab031744c3502d03345f3",
+    "apps/web/vite.config.ts": "019e3d8cf3ccee2966e38281815706e74df2f1bc7fcf558325fc53f226588e5f",
+    "integrations/chatgpt/tool-annotations.json": "41e749273318e52d36fa8a64205b58c57d4a55499d60765334094007612f12f3",
+    "integrations/chatgpt/tool-annotations.md": "5dc44ea324a2f82baa6bc82cc540fa2a3bb330908d5b9b78533f750ee7bc7d39",
+    "integrations/claude/package.mjs": "3c8cb655dd0c83fec3cfab287fb563faa9bbc9b3f348173807f40d2cb70be70f",
+    "integrations/claude/plugins/guteneo/.claude-plugin/plugin.json": "0e3fef0f86c75c6cb99ac481cb76c8130709d7a43c4b476c2e34c4a24720413e",
+    "integrations/claude/plugins/guteneo/README.md": "9a8feb927118346ce43a957b97706b230d1ee8cc54db0395745bc97ba7ee93e4",
+    "integrations/claude/plugins/guteneo/skills/get-started/SKILL.md": "f3434fd197eab7b72f58bd2a06977e0b69c4817b94115d69143704b693c66986",
+    "integrations/claude/plugins/guteneo/skills/saved-recipients/SKILL.md": "45f961d3dd77b86f8528f60e35915f712477322abff141c66b8b7f291e699620",
+    "integrations/claude/plugins/guteneo/skills/scheduled-dispatch/SKILL.md": "4bbc0c7d97488cab37c8112e8a0ae10797bc166754b2b73115b6f4f85d921a58",
+    "integrations/guteneo/.claude-plugin/plugin.json": "e9a9feea2c0a88b0626188e2fa8b38225b23a1852f5082bbf67824b40b055705",
+    "integrations/guteneo/.cursor-plugin/plugin.json": "529ad5f155538c4fc70c5759be6872ce2d237735cacb36c55fb75b089485953d",
+    "integrations/guteneo/README.md": "3bfaafbca6878ffa19b2d20589966083ee00b019849d76e41c04446079a31ebb",
+    "integrations/guteneo/mcp-contract.json": "1a91ea4fa415e07dc45ef0c3ed5e4a8459deb1faf3d924eda10741d2f0a7bed3",
+    "integrations/guteneo/plugin.json": "113d6d44f8937d5e53e5f3559ec7cf3ee75fa9ba8f68d62c8384d461f134b961",
+    "integrations/guteneo/skills/get-started/SKILL.md": "ae80140bef7022b6673ecfa6c35b102cd0475823d9a8db3df2a1daa8df826730",
+    "integrations/guteneo/skills/saved-recipients/SKILL.md": "ccdbf6d06581cb67c8f5f931d049c7f09cba40a10d9c8abe47553c4c1ccd5307",
+    "integrations/guteneo/skills/scheduled-dispatch/SKILL.md": "ddd2deb99d505c47df82c422996521eb523a13936acf949c609c9cd3293a7ff8",
+    "integrations/package-files.mjs": "211d2530500715ea7bd8325c752df6bcaa8e2783e4d73ec76c03032e6619b58b",
+    "integrations/sync-claude-workflows.mjs": "3abffe5e5af12cb4ad01aac912f6f54567c8b8d25cb6aa4573f84b718a4b09ce",
+    "ios/Guteneo/Core/APIClient.swift": "12fd99bf6fcdc41715a8d1acd427b23875734f60775e3b15a45959cf2bc8ff9a",
+    "ios/Guteneo/Core/AppModel.swift": "f9298aa20e1008bf4719dd901ae2ce5e3aebd2dce54916c4b1c396da6ff576a0",
+    "ios/Guteneo/Core/DispatchDraftStorage.swift": "e3c69892bc2ed48664d6977103248f6092ac084b1d079327c3171a1d5dacd588",
+    "ios/Guteneo/Core/DispatchPreparation.swift": "3392ec22e477fec9f86b9a0a7f585690d1e75705069ae6541c556f725b865476",
+    "ios/Guteneo/Core/KeychainDispatchDrafts.swift": "1d1fc99ca7a285232e7f80ee7bb26cfbf6dae7a4a9c228dc4658110278a68521",
+    "ios/Guteneo/Core/Models.swift": "578382716da29b4284f8af4e37d387e4ad10cd840520af3d92c758fb68b58ff2",
+    "ios/Guteneo/GuteneoApp.swift": "cc160d06254d2dee526ed017f35a558ec955a5a20040e02a570b79d4f2fe2fb9",
+    "ios/Guteneo/Resources/Localizable.xcstrings": "82788188ee0147c355ea9eceba7ef6c02655e864d0c0479de1eb25fc747d030a",
+    "ios/Guteneo/Views/Components.swift": "cb8d93b2f6f50d252246a8bde270929dfe13272e7bf8d698adf60876ca4888b8",
+    "ios/Guteneo/Views/ComposeView.swift": "abd50dc88a803fcef6c32a62d383aed434622b9563e3b9139c537920f331e08d",
+    "ios/Guteneo/Views/DispatchesView.swift": "66598f43bb383067006a484c4226cb307acad087900af5b7e2f80ff25befe93e",
+    "ios/GuteneoTests/CoreTests.swift": "295ea837a6ee7922710417479e9cafc5f091fcaba3c1af1bbc3ebafd1b08b011",
+    "ios/GuteneoTests/DispatchDraftTests.swift": "34295702a22369290129e080cd6b16c14ac54bc8c7f253840643eb581deeeaff",
+    "ios/GuteneoUITests/GuteneoUITests.swift": "76302fa9306d6d39001df6f5ff497a55bad26f6b4ca54b3e00e0643b840e0465",
+    "ios/QA/Screenshots/durable-draft-2026-11-09.png": "dcc700cc4096ce5df24af70b6af86e678befeacf56cbc218f4033ca3155c6efc",
+    "ios/QA/Screenshots/schedule-hold-2026-11-10.png": "ca34c59c5d9ece7815f3da67fe392725975272ab57b5db8b7f40df951766a57c",
+    "ios/README.md": "52bf4eab4cf564a24bff4b3ec3dbea01d7cbdf8f6aa510e48722c42e090d3ef1",
+    "migrations/0078_saved_recipients.sql": "4196f9942276ef3f61684f5c21411ba4f0e4e3bb2c4ae4c0dfcb2e3b57df68e6",
+    "migrations/0079_customer_lifecycle_webhooks.sql": "dd3037e58fbf0d6d90efabbe7bd65f4a22a2f69ba3d474255a7e04fa262a43a2",
+    "migrations/0080_dispatch_schedules.sql": "7f8fc8185e1cd0ab792ddcd62e3628270946abfaadc771c23df176d0069cb0e1",
+    "packages/contracts/src/attention.ts": "15b62a75ae24b3f4f9db2c58cae88afcc0145d641a6faf432fc13b94d6683172",
+    "packages/contracts/src/customer-webhooks.ts": "8c88e5bd5c80845028a58a867f48005a752ee5d9ce26f04c8fbdf1afdeba86fc",
+    "packages/contracts/src/dispatch-schedules.ts": "c5264ae19acaf7c94fab92186b7f83b56627a83a64f276ce5ff7459acaad45ae",
+    "packages/contracts/src/pdf-validation-pricing.ts": "a8188fe5436e1f86e10f9ad795eabe8962ad0223b2e57a3a5cac0facf699672c",
+    "packages/contracts/src/pdf-validation.ts": "4df70fa4ab6280132c8d1008e890a821bb389dfa15ee4c12527dac953d806321",
+    "packages/contracts/src/saved-recipients.ts": "a2b17fc4caefdad82668c2bf043964d2af302336c75a3e69bef9ec58f5b741af",
+    "packages/domain/src/index.ts": "e1655966aaa664a81bc5d8854bc6e0d4fbd73f44b3088fbf6396376391900553",
+    "scripts/build-locale-catalogs.mjs": "54231852c02906ffefd6c2d81494e60bb42c1fb8f4a1d79dbd9ccc42f837727d",
+    "scripts/build-social-card.mjs": "051dc5aeb3f48493f1d648681522a28be0456c35b53ccd8513168067b9d14389",
+    "scripts/update-lifecycle-openapi.ts": "1cfb8fc12aea2de33db8cc2f6e51bc11abce779b81b580ce2b84b228b76ac8f0",
+    "tests/belvedere-e2e/control-tower.spec.ts": "13031289931b51927d55b04536010dbca15dfe9fe3ff2d356a1d8e2bc2825948",
+    "tests/belvedere-e2e/locale.spec.ts": "e977911f8bacbd4d2d8f7930e42582df98fc8b0a054d5b42e5ab06923769e169",
+    "tests/e2e/customer-webhooks.spec.ts": "18af738134f7814390ce7f554e0a1323ce2f4f1e236274a44c0e94e2c80d5ca5",
+    "tests/e2e/dispatch-schedules.spec.ts": "dcc40936a747f95bc37bfe7bb0c201892a135094e21dca5d4243be76973e57c8",
+    "tests/e2e/lifecycle-accessibility.spec.ts": "a4b8a85b393ba64d95cf66033271c89a7edd1aee91df5013d1054dfa9faee5a0",
+    "tests/e2e/lifecycle-workspace.spec.ts": "436aed653bd6c30a283a52a731918eb232f9e946440b87bbf9d2776dfc41aa20",
+    "tests/e2e/locale-loading.spec.ts": "3c6810b45a820307992b2ad3593f765283163dce972f161c9ab2fad9601f5c76",
+    "tests/e2e/session-authority-races.spec.ts": "c56c2c66e736d1f6f9f2dfafcd812791c93686b4c0fa8f25a97bdfffeb1a009e",
+    "tests/helpers/historical-acceptance.ts": "84bd017bf20f19225b84facd0299f228d8f26cdd6806061dde78bc39d71db30e",
+    "tests/helpers/scheduled-production-fixture.ts": "353c2fae37dd78b5e0e553673aa92ba89bff1e0081ef496de3e4cada3e83fdc6",
+    "tests/integration/account-deletion.test.ts": "dce3a8763eb344937e27528996f62176bff90aef4edb98f953fa09421b0be69c",
+    "tests/integration/attention-queue.test.ts": "f407f9e72e75a91612b65bc9a9ce6ec58022eca99f3d1f3e6eb298bd90f8563c",
+    "tests/integration/customer-webhooks.test.ts": "06d6ad27e74601ccc533c6ab8f478bbc58cb1a90ef4c761e87349f0e46161111",
+    "tests/integration/dispatch-schedules.test.ts": "4815467d80709a460c3a1b45d7dd96cd1ee2f983e3183d79edc96048251c310d",
+    "tests/integration/fax-pilot-extension.test.ts": "0feac87fc8e04c999a8d11c8c9c9d60d258b46c0cff69b6e2cc184d52c2263f0",
+    "tests/integration/lifecycle-http.test.ts": "68b742d64c4c5dd9e29f892aff771ee6a1f7c4e55a4b83b1188c5424598afe4c",
+    "tests/integration/live-delivery-quotes.test.ts": "6a0df0dea6c14b2a977963ad4bde8da47e944891b689ba1f7203f6f985b2a7fa",
+    "tests/integration/luxembourg-coverage-migration.test.ts": "2738237f75b98460da10f339b57ed147cf33b001b9fa51da02d9f0bea4517083",
+    "tests/integration/resend-email.test.ts": "f5539e35b9f4dbb9690ff8af2b794c929c1c7e0943dd6960e9824e957f66de33",
+    "tests/integration/saved-recipients.test.ts": "8b5245b00be074d9b97f9ac5ab985a3792a9053c5345577347f6e3be0045ade8",
+    "tests/integration/secure-approval-boundary.test.ts": "705891956cdb48ded13a0b02ae91fc1b60a0fe42028f4b64032c2b2bd8cef862",
+    "tests/integration/workspace-roles-migration.test.ts": "f258427b821494e5bdfc304fd24d49942c778d118b2b4569812af264821157bb",
+    "tests/security/client-action-boundaries.test.mjs": "01715f67db723828a1ea57bddb6f6f428f7b1fb6d3fee8c8f5597626239d698e",
+    "tests/security/openapi.test.mjs": "1d00eaec89d348737c5a15d1f2f8e7a583ba75a9db729da8b5018c24592200f1",
+    "tests/unit/action-outcomes.test.ts": "3c68d860187ada3a401705495b6dbeb6d5f6d951ab4ff48b68dcca14844191df",
+    "tests/unit/belvedere-locale.test.ts": "fe0b55d368958731960e85063f670511dd61cd91c106527a52d19c3e1792ba09",
+    "tests/unit/belvedere.test.ts": "664ab4450541f2d635e9d67957b0fa11235a24e362f98190a366f6d526f66bee",
+    "tests/unit/client-foundations.test.ts": "a8e52d60881629fe5644ea79861b9009128f87a3d8d864be54528a7dbe1e13c9",
+    "tests/unit/client-session-bootstrap.test.ts": "6a75c9b269db55e684efbbb5ac65876b75c0071a3f9c24dc54e31949d5e29e05",
+    "tests/unit/locale-projections.test.ts": "130733ae3efd5a73de4b3b990b01fa358fe4a918090d7e7db4e44a1af18786b1",
+    "tests/unit/mcp-annotation-audit.test.ts": "e9e8804988b98bf73d8ddb051f9af652e2f41c1430aa6c3a14eaadad47deefc4",
+    "tests/unit/mcp-integrations.test.ts": "5326b181852d27b4747a8f0b8a412b642c5823574537f860c0c6e3315fce6fc5",
+    "tests/unit/table-views.test.ts": "fe92a71cdc1f44cb866c77188c2ded59ff1a1088066ce355d31c051cbb8ea538",
+    "tests/unit/web-api-cancellation.test.ts": "c4542f644affcb2de0a3b1be818bd3c029bc487728e39925a6d82cf84c18d323"
+  },
+  "sourceHashesSha256": "5f76d22ae9ce6f2d13fa0021b657eb8aa420e58733d38cd3e2b1ec8d92e43b24",
+  "limitations": [
+    "No production deployment, activation, external webhook delivery, real provider send, marketplace publication or paid resource provisioning.",
+    "Scheduling excludes postal, protected/secure distribution and PDF-email flows that retain contemporaneous consent gates.",
+    "Automated WCAG A/AA scans and rendered keyboard/layout fixtures are not a complete manual assistive-technology certification.",
+    "Local loading timings are diagnostics, not a latency benchmark; public DE/LB transferred JavaScript has a small increase versus the pre-split candidate.",
+    "Local browser qualification is focused on changed surfaces; hosted exact-head CI must separately cover the complete repository suite."
+  ]
+}

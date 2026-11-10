@@ -29,6 +29,10 @@ import {
 } from "../../apps/api/src/auth";
 import { authenticateNative } from "../../apps/api/src/mobile";
 import { DomainService } from "../../packages/domain/src/index";
+import { SavedRecipientService } from "../../apps/api/src/saved-recipients";
+import { DispatchScheduleService } from "../../apps/api/src/dispatch-schedules";
+import { CustomerWebhookService } from "../../apps/api/src/customer-webhooks";
+import { FUTURE_SPENDING_ACKNOWLEDGEMENT } from "../../packages/contracts/src/dispatch-schedules";
 
 let mf: Miniflare, db: D1Database, bucket: R2Bucket;
 const issuer = "https://account-deletion-fixture.auth0.com/",
@@ -309,6 +313,64 @@ async function fixture(lastAdmin = false) {
 }
 
 describe("reviewed private account erasure with migrated D1, real R2 and synthetic processors", () => {
+  it("rolls back deletion if a callback invocation starts after the final reviewed resource read",async()=>{
+    const f=await fixture();
+    await db.prepare("UPDATE memberships SET role='admin' WHERE organization_id=? AND user_id=?").bind(f.orgs[0],f.user).run();
+    const ctx={...f.login.session.context,role:"admin" as const,documentSessionHash:f.login.session.tokenHash},domain=new DomainService(db,{mode:"simulation"});
+    await db.prepare("INSERT INTO senders(id,organization_id,channel,name,address,status,mode,created_at) VALUES(?,?,'email','Synthetic sender','sender@example.invalid','verified','simulation',?)").bind(`sender_${f.id}`,f.orgs[0],now()).run();
+    const source=await domain.prepareDispatch(ctx,{channel:"email",recipient:{email:"recipient@example.invalid"},subject:"Synthetic source",text:"Synthetic callback metadata source"},crypto.randomUUID());
+    const endpoint=await new CustomerWebhookService({...f.env,CUSTOMER_WEBHOOK_ENCRYPTION_KEY:"a".repeat(64)},domain).create(ctx,{name:"Synthetic callback",url:"https://example.com/lifecycle",revealSigningSecret:true},crypto.randomUUID());
+    const reviewed=await f.review();
+    expect(reviewed.plan.blockers).toEqual([]);
+    let raced=false;
+    const racingDB=new Proxy(db,{get(target,property){
+      if(property==="batch")return async(statements:D1PreparedStatement[])=>{
+        if(!raced){raced=true;await db.prepare("INSERT INTO customer_webhook_deliveries(id,organization_id,endpoint_id,endpoint_revision,event_id,dispatch_id,dispatch_status,channel,occurred_at,status,lease_token,lease_until,invoked_at) VALUES(?,?,?,1,?,?,'prepared','email',?,'sending','synthetic-lease',?,?)")
+          .bind(`delivery_${f.id}`,f.orgs[0],endpoint.endpoint.id,`event_${f.id}`,source.id,now(),new Date(Date.now()+30_000).toISOString(),now()).run();}
+        return target.batch(statements);
+      };
+      const value=Reflect.get(target,property);return typeof value==="function"?value.bind(target):value;
+    }});
+    await expect(new AccountDeletionService({...f.env,DB:racingDB},f.fetcher as typeof fetch).begin(reviewed.input)).rejects.toThrow("CHECK constraint failed");
+    expect(await db.prepare("SELECT status FROM account_deletion_requests WHERE id=?").bind(f.requestId).first()).toEqual({status:"requested"});
+    expect(await db.prepare("SELECT count(*) AS n FROM account_deletion_plans WHERE request_id=?").bind(f.requestId).first()).toEqual({n:0});
+    const next=await f.review();
+    expect(next.plan.blockers.some(code=>code.startsWith("WORK_UNRESOLVED:"))).toBe(true);
+  });
+  it("retires future authority and callback secrets, purges owned contacts and completes deletion without runnable new features", async () => {
+    const f = await fixture();
+    await db.prepare("UPDATE memberships SET role='admin' WHERE organization_id=? AND user_id=?").bind(f.orgs[0],f.user).run();
+    const ctx={...f.login.session.context,role:"admin" as const,documentSessionHash:f.login.session.tokenHash};
+    const domain=new DomainService(db,{mode:"simulation"});
+    await db.prepare("INSERT INTO senders(id,organization_id,channel,name,address,status,mode,created_at) VALUES(?,?,'email','Synthetic sender','sender@example.invalid','verified','simulation',?)").bind(`sender_${f.id}`,f.orgs[0],now()).run();
+    const contacts=new SavedRecipientService(domain);
+    const contact=await contacts.create(ctx,{label:"Synthetic saved contact",channel:"email",recipient:{email:"recipient@example.invalid"}},crypto.randomUUID());
+    const source=await domain.prepareDispatch(ctx,{channel:"email",recipient:{email:"recipient@example.invalid"},subject:"Synthetic scheduled fixture",text:"Synthetic future message"},crypto.randomUUID());
+    const scheduled=new DispatchScheduleService({MODE:"simulation",SCHEDULED_DISPATCH_ENABLED:"true"},domain);
+    const draft=await scheduled.create(ctx,{dispatchId:source.id,executeAt:new Date(Date.now()+120_000).toISOString(),maxTotalMinor:100},crypto.randomUUID());
+    await scheduled.approve(ctx,draft.id,{expectedRevision:1,snapshotHash:draft.snapshotHash,acknowledgement:FUTURE_SPENDING_ACKNOWLEDGEMENT,recipientRequested:true});
+    const callbacks=new CustomerWebhookService({...f.env,CUSTOMER_WEBHOOK_ENCRYPTION_KEY:"a".repeat(64)},domain);
+    const callback=await callbacks.create(ctx,{name:"Synthetic callback",url:"https://example.com/lifecycle",revealSigningSecret:true},crypto.randomUUID());
+    const reviewed=await f.review();
+    expect(reviewed.plan.blockers).toEqual([]);
+    expect(reviewed.plan.resources).toEqual(expect.arrayContaining([
+      expect.objectContaining({kind:"saved_recipients",action:"delete"}),
+      expect.objectContaining({kind:"dispatch_schedules",action:"retire"}),
+      expect.objectContaining({kind:"dispatch_schedule_approvals",action:"retire"}),
+      expect.objectContaining({kind:"customer_webhook_endpoints",action:"retire"}),
+    ]));
+    await f.service.begin(reviewed.input);
+    expect(await db.prepare("SELECT status FROM dispatch_schedules WHERE id=?").bind(draft.id).first()).toEqual({status:"cancelled"});
+    expect((await db.prepare("SELECT revoked_at FROM dispatch_schedule_approvals WHERE schedule_id=?").bind(draft.id).first<{revoked_at:string}>())!.revoked_at).toBeTruthy();
+    expect(await db.prepare("SELECT enabled,status,secret_ciphertext,url,name FROM customer_webhook_endpoints WHERE id=?").bind(callback.endpoint.id).first()).toEqual({enabled:0,status:"revoked",secret_ciphertext:null,url:"https://deleted.invalid/",name:"Deleted endpoint"});
+    await f.service.advance(await f.command(reviewed.plan.planHash));
+    expect(await db.prepare("SELECT 1 FROM saved_recipients WHERE id=?").bind(contact.id).first()).toBeNull();
+    expect(await scheduled.processDue()).toMatchObject({processed:0});
+    const notice=await f.service.notice(await f.command(reviewed.plan.planHash));
+    f.setNotice(notice);f.setNoticeEvent("delivered");
+    expect(await f.service.complete({...await f.command(reviewed.plan.planHash),notificationReceiptId:`receipt_${f.id}`})).toMatchObject({status:"completed"});
+    expect(await db.prepare("SELECT count(*) AS n FROM memberships WHERE user_id=?").bind(f.admin).first()).toEqual({n:2});
+  });
   it("requires actual operator capability, exact plan and reviewed resource retention before changing access", async () => {
     const f = await fixture(),
       preliminary = await f.service.plan({ requestId: f.requestId });

@@ -25,7 +25,14 @@ import type {
   Page,
   GenerationJobView,
 } from "../../../packages/contracts/src/template-workflow";
-import { api, bytes, date, permissionsFor, type Session } from "./api";
+import {
+  sessionAuthorityKey,
+  api,
+  bytes,
+  date,
+  permissionsFor,
+  type Session,
+} from "./api";
 import { RolePermissionNotice } from "./role-guide";
 import {
   DateTimezone,
@@ -62,13 +69,7 @@ function withDatasetContext(path: string, context: URLSearchParams) {
 }
 
 export function DatasetLibrary({ session }: { session: Session }) {
-  const currentView = useCurrentClientView(
-    JSON.stringify([
-      session.organization.id,
-      session.user.id,
-      session.csrfToken,
-    ]),
-  );
+  const currentView = useCurrentClientView(sessionAuthorityKey(session));
   const context = datasetContext(useRoute());
   const canPrepare = permissionsFor(session).prepareDispatches;
   const resource = useResource<Page<DatasetView>>("/datasets");
@@ -80,7 +81,7 @@ export function DatasetLibrary({ session }: { session: Session }) {
   async function upload(event: FormEvent) {
     event.preventDefault();
     const isCurrent = currentView();
-    await action.run(async () => {
+    await action.run(async (view) => {
       const selected = file.current?.files?.[0];
       if (!selected)
         throw new Error(msg("Choose a CSV, XLSX, XML or JSON file."));
@@ -101,10 +102,12 @@ export function DatasetLibrary({ session }: { session: Session }) {
         form.set("xmlRecordPath", xmlRecordPath.trim());
         context.set("xmlRecordPath", xmlRecordPath.trim());
       }
-      const dataset = await api<DatasetView>("/datasets", {
-        method: "POST",
-        body: form,
-      });
+      const dataset = await view.wait(
+        api<DatasetView>("/datasets", {
+          method: "POST",
+          body: form,
+        }),
+      );
       if (!isCurrent()) return;
       go(withDatasetContext(studioRoutes.dataset(dataset.id), context));
     });
@@ -688,11 +691,13 @@ function DatasetRecovery({
                 !status.data.analysis.canRetry
               }
               onClick={() =>
-                void action.run(async () => {
+                void action.run(async (view) => {
                   const isCurrent = currentView();
-                  const next = await api<DatasetView>(
-                    `/datasets/${id}/retry-analysis`,
-                    { method: "POST", body: {} },
+                  const next = await view.wait(
+                    api<DatasetView>(`/datasets/${id}/retry-analysis`, {
+                      method: "POST",
+                      body: {},
+                    }),
                   );
                   if (!isCurrent()) return;
                   status.setData(next);
@@ -958,7 +963,7 @@ function MappingEditor({
   async function validate(event: FormEvent) {
     event.preventDefault();
     const isCurrent = currentView();
-    await action.run(async () => {
+    await action.run(async (view) => {
       if (!rowsReviewed)
         throw new Error(
           msg(
@@ -993,18 +998,19 @@ function MappingEditor({
         ...mappingRevision(),
       };
       const attemptKey = generationKey.current;
-      const mapping = await api<MappingView>("/mappings", {
-        method: "POST",
-        body,
-      });
+      const mapping = await view.wait(
+        api<MappingView>("/mappings", {
+          method: "POST",
+          body,
+        }),
+      );
       if (!isCurrent() || generationKey.current !== attemptKey) return;
       setSaved(mapping);
-      const result = await api<ValidationResult>(
-        "/mappings/" + mapping.id + "/validate",
-        {
+      const result = await view.wait(
+        api<ValidationResult>("/mappings/" + mapping.id + "/validate", {
           method: "POST",
           body: { datasetId: dataset.id, version: mapping.version },
-        },
+        }),
       );
       if (!isCurrent() || generationKey.current !== attemptKey) return;
       setValidation(result);
@@ -1013,7 +1019,7 @@ function MappingEditor({
   }
   async function replaceFile() {
     const isCurrent = currentView();
-    await action.run(async () => {
+    await action.run(async (view) => {
       const file = replacement.current?.files?.[0];
       if (!file) throw new Error(msg("Choose a CSV, XLSX, XML or JSON file."));
       if (file.size > 5 * 1024 * 1024)
@@ -1031,13 +1037,15 @@ function MappingEditor({
         context.get("xmlRecordPath")
       )
         form.set("xmlRecordPath", context.get("xmlRecordPath")!);
-      const next = await api<DatasetView>("/datasets", {
-        method: "POST",
-        body: form,
-      });
+      const next = await view.wait(
+        api<DatasetView>("/datasets", {
+          method: "POST",
+          body: form,
+        }),
+      );
       if (!isCurrent()) return;
-      const replacementProfile = await api<PagedProfileView>(
-        `/datasets/${next.id}/profile`,
+      const replacementProfile = await view.wait(
+        api<PagedProfileView>(`/datasets/${next.id}/profile`),
       );
       if (!isCurrent()) return;
       const keepRows = (sheetName: string, rows: number[]) =>
@@ -1068,14 +1076,16 @@ function MappingEditor({
             join.excludeRows.length !==
             (plan.joins[index].excludeRows?.length ?? 0),
         );
-      const mapping = await api<MappingView>("/mappings", {
-        method: "POST",
-        body: {
-          datasetId: next.id,
-          plan: { ...plan, excludeRows: nextRows, joins: nextJoins },
-          ...mappingRevision(),
-        },
-      });
+      const mapping = await view.wait(
+        api<MappingView>("/mappings", {
+          method: "POST",
+          body: {
+            datasetId: next.id,
+            plan: { ...plan, excludeRows: nextRows, joins: nextJoins },
+            ...mappingRevision(),
+          },
+        }),
+      );
       if (!isCurrent()) return;
       const nextContext = new URLSearchParams(context);
       if (needsReview) nextContext.set("reviewRows", "1");
@@ -1588,35 +1598,37 @@ function MappingEditor({
           className="button"
           disabled={action.pending || !aiPolicy.available}
           onClick={() =>
-            void action.run(async () => {
+            void action.run(async (view) => {
               const isCurrent = currentView();
-              const result = await api<{
-                mapping: MappingPlan;
-                ambiguities: string[];
-              }>("/datasets/" + dataset.id + "/analyze", {
-                method: "POST",
-                body: {
-                  instruction: template
-                    ? "Propose a mapping to these business paths in the selected template without inventing values. Tables require grouped or joined rows. Fields: " +
-                      fieldPaths(template.envelope.inputSchema)
-                        .map(
-                          (f) =>
-                            f.path +
-                            ":" +
-                            f.schema.type +
-                            (f.schema.items
-                              ? "[" +
-                                fieldPaths(f.schema.items)
-                                  .map((i) => i.path + ":" + i.schema.type)
-                                  .join(",") +
-                                "]"
-                              : ""),
-                        )
-                        .join("; ")
-                        .slice(0, 1650)
-                    : "Propose a verifiable interpretation of the data; every target path will be reviewed before generation.",
-                },
-              });
+              const result = await view.wait(
+                api<{
+                  mapping: MappingPlan;
+                  ambiguities: string[];
+                }>("/datasets/" + dataset.id + "/analyze", {
+                  method: "POST",
+                  body: {
+                    instruction: template
+                      ? "Propose a mapping to these business paths in the selected template without inventing values. Tables require grouped or joined rows. Fields: " +
+                        fieldPaths(template.envelope.inputSchema)
+                          .map(
+                            (f) =>
+                              f.path +
+                              ":" +
+                              f.schema.type +
+                              (f.schema.items
+                                ? "[" +
+                                  fieldPaths(f.schema.items)
+                                    .map((i) => i.path + ":" + i.schema.type)
+                                    .join(",") +
+                                  "]"
+                                : ""),
+                          )
+                          .join("; ")
+                          .slice(0, 1650)
+                      : "Propose a verifiable interpretation of the data; every target path will be reviewed before generation.",
+                  },
+                }),
+              );
               if (!isCurrent()) return;
               edit(result.mapping);
               setAiMessage(
@@ -1660,19 +1672,21 @@ function MappingEditor({
           className="button"
           disabled={action.pending || !aiPolicy.available}
           onClick={() =>
-            void action.run(async () => {
+            void action.run(async (view) => {
               const isCurrent = currentView();
-              const result = await api<DatasetSchemaResponse>(
-                "/datasets/" + dataset.id + "/analyze",
-                {
-                  method: "POST",
-                  body: {
-                    proposeSchema: true,
-                    ...(schemaGoal.trim()
-                      ? { instruction: schemaGoal.trim() }
-                      : {}),
+              const result = await view.wait(
+                api<DatasetSchemaResponse>(
+                  "/datasets/" + dataset.id + "/analyze",
+                  {
+                    method: "POST",
+                    body: {
+                      proposeSchema: true,
+                      ...(schemaGoal.trim()
+                        ? { instruction: schemaGoal.trim() }
+                        : {}),
+                    },
                   },
-                },
+                ),
               );
               if (!isCurrent()) return;
               setSchemaProposal(result);
@@ -1694,7 +1708,7 @@ function MappingEditor({
                 "expected document(s). The structure and a synthetic example have been checked by the server. ",
               )}
             </p>
-            <DataTable
+            <DataTable viewId="proposed-mapping-fields"
               label={msg("Proposed fields and source columns")}
               items={schemaProposal.schemaSuggestion.fields}
               getRowKey={(field) => field.path}
@@ -1771,29 +1785,38 @@ function MappingEditor({
               className="button primary"
               disabled={action.pending || !schemaReviewed}
               onClick={() =>
-                void action.run(async () => {
+                void action.run(async (view) => {
                   const isCurrent = currentView();
                   // Keep successful partial adoption on retry; neither resource is published.
                   let adoption = schemaAdoption.current;
                   if (adoption.phase === "offered") {
-                    const mapping = await api<MappingView>("/mappings", {
-                      method: "POST",
-                      body: {
-                        datasetId: dataset.id,
-                        plan: schemaProposal.mapping,
-                      },
-                    });
+                    const mapping = await view.wait(
+                      api<MappingView>("/mappings", {
+                        method: "POST",
+                        body: {
+                          datasetId: dataset.id,
+                          plan: schemaProposal.mapping,
+                        },
+                      }),
+                    );
                     if (!isCurrent()) return;
                     adoption = { phase: "mapping_saved", mapping };
                     schemaAdoption.current = adoption;
                   }
                   if (adoption.phase === "mapping_saved") {
-                    const template = await api<TemplateView>("/templates", {
-                      method: "POST",
-                      body: {
-                        envelope: schemaProposal.schemaSuggestion.envelope,
-                      },
-                    });
+                    const template = await view.wait(
+                      api<TemplateView>("/templates", {
+                        method: "POST",
+                        body: {
+                          envelope: schemaProposal.schemaSuggestion.envelope,
+                        },
+                      }),
+                      (receipt) => ({
+                        kind: "saved",
+                        resourceId: receipt.id,
+                        route: `/app/studio/template/${encodeURIComponent(receipt.id)}`,
+                      }),
+                    );
                     if (!isCurrent()) return;
                     adoption = {
                       phase: "draft_saved",
@@ -1883,20 +1906,27 @@ function MappingEditor({
               !!incompatibleNumbers.length
             }
             onClick={() =>
-              void action.run(async () => {
+              void action.run(async (view) => {
                 const isCurrent = currentView();
-                const job = await api<GenerationJobView>("/generation-jobs", {
-                  method: "POST",
-                  key: generationKey.current,
-                  body: {
-                    mode: "generate_only",
-                    templateId,
-                    templateVersion: template!.currentVersion,
-                    datasetId: dataset.id,
-                    mappingId: validation.mapping.id,
-                    mappingVersion: validation.mapping.version,
-                  },
-                });
+                const job = await view.wait(
+                  api<GenerationJobView>("/generation-jobs", {
+                    method: "POST",
+                    key: generationKey.current,
+                    body: {
+                      mode: "generate_only",
+                      templateId,
+                      templateVersion: template!.currentVersion,
+                      datasetId: dataset.id,
+                      mappingId: validation.mapping.id,
+                      mappingVersion: validation.mapping.version,
+                    },
+                  }),
+                  (receipt) => ({
+                    kind: "saved",
+                    resourceId: receipt.id,
+                    route: `/app/studio/generation/${encodeURIComponent(receipt.id)}`,
+                  }),
+                );
                 if (!isCurrent()) return;
                 go(studioRoutes.generation(job.id));
               })
@@ -2083,12 +2113,18 @@ function AiPolicyForm({
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          void action.run(async () =>
+          void action.run(async (view) =>
             onSaved(
-              await api<AiPolicyView>("/dataset-ai-policy", {
-                method: "PUT",
-                body: { enabled, transferApproved: consent, dailyLimit: limit },
-              }),
+              await view.wait(
+                api<AiPolicyView>("/dataset-ai-policy", {
+                  method: "PUT",
+                  body: {
+                    enabled,
+                    transferApproved: consent,
+                    dailyLimit: limit,
+                  },
+                }),
+              ),
             ),
           );
         }}

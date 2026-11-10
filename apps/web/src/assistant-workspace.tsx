@@ -135,15 +135,19 @@ export function Connection({
   const [diagnosticsOpen, setDiagnosticsOpen] = useState(false);
   const assistant = getAssistant(assistantId);
   async function revoke(id: string) {
-    await action.run(async () => {
-      await api(`/connections/${encodeURIComponent(id)}`, { method: "DELETE" });
+    await action.run(async (view) => {
+      await view.wait(
+        api(`/connections/${encodeURIComponent(id)}`, { method: "DELETE" }),
+      );
       connections.refresh();
     });
   }
   async function bind(event: FormEvent) {
     event.preventDefault();
-    await action.run(async () => {
-      await api("/connections", { method: "POST", body: { clientId } });
+    await action.run(async (view) => {
+      await view.wait(
+        api("/connections", { method: "POST", body: { clientId } }),
+      );
       setBindingNotice(t.connection.rebound);
       connections.refresh();
     });

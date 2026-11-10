@@ -1,4 +1,5 @@
 import { historicalRoleProjection } from "../helpers/historical-role-projection";
+import { seedHistoricalAcceptance } from "../helpers/historical-acceptance";
 import { readFileSync, readdirSync } from "node:fs";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { unstable_splitSqlQuery } from "wrangler";
@@ -124,8 +125,7 @@ beforeAll(async () => {
     fixture.input,
     "migration-fr",
   );
-  await fixture.domain.approveDispatch(fixture.ctx, d.id, d.fingerprint);
-  await fixture.domain.confirmDispatch(fixture.ctx, d.id, "migration-confirm");
+  await seedHistoricalAcceptance(db, fixture.ctx, d);
   await fixture.domain.prepareDispatch(
     fixture.ctx,
     {

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ArrowRight } from "@phosphor-icons/react";
-import { ApiError } from "./api";
+import { sessionAuthorityKey, ApiError } from "./api";
 import { ErrorNotice, PageHeading, go, useAction } from "./components";
 import { msg } from "./messages";
 import { personalApi, type PersonalSession } from "./personal-api";
@@ -20,10 +20,10 @@ export function ClaimDocumentInvitation({
   session: PersonalSession;
   onDismiss: () => void;
 }) {
-  const action = useAction();
+  const action = useAction(`${sessionAuthorityKey(session)}:${token}`);
   const [pending, setPending] = useState(false);
   async function claim() {
-    await action.run(async () => {
+    await action.run(async (view) => {
       if (pendingDocumentInvitation() !== token)
         throw new ApiError(
           "INVITATION_HANDOFF_EXPIRED",
@@ -32,10 +32,12 @@ export function ClaimDocumentInvitation({
           ),
           410,
         );
-      const result = await personalApi<{ id: string; status: string }>(
-        "/personal/documents/claim",
-        session,
-        { method: "POST", body: { token }, key: crypto.randomUUID() },
+      const result = await view.wait(
+        personalApi<{ id: string; status: string }>(
+          "/personal/documents/claim",
+          session,
+          { method: "POST", body: { token }, key: crypto.randomUUID() },
+        ),
       );
       clearPendingDocumentInvitation();
       // Invitation secrets are only exchanged in the request body and removed

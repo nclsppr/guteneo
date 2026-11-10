@@ -1,6 +1,10 @@
 import { billingConfigured } from "./billing";
 
 export interface Env {
+  SCHEDULED_DISPATCH_ENABLED?: string;
+  CUSTOMER_WEBHOOKS_ENABLED?: string;
+  CUSTOMER_WEBHOOK_ENCRYPTION_KEY?: string;
+  GLOBAL_FETCH_STRICTLY_PUBLIC?: string;
   WRANGLER_VERSION_METADATA?: { id: string };
   DB: D1Database;
   DOCUMENTS: R2Bucket;

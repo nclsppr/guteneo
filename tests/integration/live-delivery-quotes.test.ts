@@ -1,4 +1,5 @@
 import { readBelvedereFixture } from "../helpers/belvedere-reader";
+import { seedHistoricalAcceptance } from "../helpers/historical-acceptance";
 import {
   createD1IntegrityFixture,
   type D1IntegrityFixture,
@@ -47,6 +48,7 @@ let mf: Miniflare,
   ctx: ActorContext,
   clock: number;
 let postalSupplierMinor: number;
+let historicalSchema = true;
 let integrity: D1IntegrityFixture | undefined;
 const identity = {
   email: { accountId: "123456789012", routeId: "eu-west-1" },
@@ -163,6 +165,9 @@ beforeAll(async () => {
           "0065_verified_account_session_policy.sql",
           "0073_secure_document_source_copies.sql",
           "0077_account_deletion.sql",
+          "0078_saved_recipients.sql",
+          "0079_customer_lifecycle_webhooks.sql",
+          "0080_dispatch_schedules.sql",
         ].includes(f),
     )
     .sort())
@@ -340,7 +345,11 @@ beforeAll(async () => {
   );
   // Deletion guards reference personal/secure session tables, which this
   // populated pricing-upgrade fixture intentionally installs in later phases.
-  await sql(readFileSync(new URL("0077_account_deletion.sql", dir), "utf8"));
+  // Only after the populated financial upgrade proof install the remaining
+  // source-copy/deletion dependencies and lifecycle tables in their real order.
+  for (const filename of ["0073_secure_document_source_copies.sql", "0077_account_deletion.sql", "0078_saved_recipients.sql", "0079_customer_lifecycle_webhooks.sql", "0080_dispatch_schedules.sql"])
+    await sql(readFileSync(new URL(filename, dir), "utf8"));
+  historicalSchema = false;
 });
 afterAll(async () => {
   if (integrity && mf && db) await integrity.dispose(mf, db);
@@ -617,6 +626,7 @@ async function postal(
 }
 async function queue(input = email()) {
   const row = await domain.prepareDispatch(ctx, input, crypto.randomUUID());
+  if (historicalSchema) return seedHistoricalAcceptance(db, ctx, row);
   await domain.approveDispatch(ctx, row.id, row.fingerprint, {
     recipientRequested: true,
   });

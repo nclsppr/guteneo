@@ -221,7 +221,7 @@
   display: block;
   width: 100%;
   height: auto;
-  background: #fff;
+  background: var(--document-paper);
 }
 .secure-document-page figcaption {
   text-align: center;
@@ -390,7 +390,6 @@
   align-items: start;
 }
 .personal-space-v2 {
-  --radius: 7px;
   display: grid;
   grid-template-columns: 258px minmax(0, 1fr);
   grid-template-rows: 1fr auto;

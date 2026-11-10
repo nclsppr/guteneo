@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewedOn": "2026-11-03",
+  "reviewedOn": "2026-11-10",
   "sourceScope": "local_candidate",
   "policySources": [
     {
@@ -200,7 +200,7 @@
         "idempotentHint": false
       },
       "justification": {
-        "readOnlyHint": "Marks an eligible prepared or queued dispatch cancelled, releases associated reservations through existing database transitions and records audit evidence. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
+        "readOnlyHint": "Marks an eligible prepared or queued dispatch cancelled, releases associated reservations through existing database transitions and records audit evidence. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification. Refuses an original held by an active future schedule; that separate future grant must be cancelled through the schedule operation, never inferred revoked from the original status.",
         "destructiveHint": "Prevents that dispatch from continuing. Requests that have begun provider submission or have an uncertain outcome are rejected, and the tool does not promise physical recall.",
         "openWorldHint": "Cancellation occurs inside Guteneo without calling the delivery provider or contacting the recipient.",
         "idempotentHint": "The cancellation path records a new audit entry even when the dispatch is already cancelled. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
@@ -213,6 +213,35 @@
         {
           "path": "packages/domain/src/index.ts",
           "symbol": "async cancelDispatch("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "cancel_dispatch_schedule",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Cancels an explicitly selected unaccepted schedule under its exact revision and current authority, revokes any future grant and records metadata-only audit evidence. A validated successful production call can also advance connection activity; this is connection access metadata rather than a business effect of the tool.",
+        "destructiveHint": "Permanently closes that future authority and does not restore the cancelled original command. It cannot retract a release already accepted into the ordinary queue or resend an unknown provider outcome.",
+        "openWorldHint": "Revokes authority only inside the authenticated Guteneo workspace. It makes no provider cancellation or external recipient request.",
+        "idempotentHint": "Successful cancellation advances the revision and revokes the grant; repeating an old revision cannot repeat or revive authority. Successful production calls can also advance the persisted connection-activity timestamp, so the complete write operation is not guaranteed to have no additional effect on repetition."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"cancel_dispatch_schedule\""
+        },
+        {
+          "path": "apps/api/src/dispatch-schedules.ts",
+          "symbol": "async cancel("
         },
         {
           "path": "apps/api/src/connection-observations.ts",
@@ -515,6 +544,35 @@
       ]
     },
     {
+      "name": "delete_saved_recipient",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Physically removes one tenant-scoped contact under its exact expected revision and records a metadata-only audit. Its create-key receipt is retained. A validated successful production call can also advance connection activity; this is connection access metadata rather than a business effect of the tool.",
+        "destructiveHint": "Permanently deletes the saved destination. Existing immutable dispatches remain, and reusing the original create key cannot restore the contact.",
+        "openWorldHint": "Deletes only the current authorized Guteneo contact; no external address or provider is contacted.",
+        "idempotentHint": "A successful removal consumes that contact revision; repeating the request observes a missing contact rather than deleting a replacement. Successful production calls can also advance the persisted connection-activity timestamp, so the complete write operation is not guaranteed to have no additional effect on repetition."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"delete_saved_recipient\""
+        },
+        {
+          "path": "apps/api/src/saved-recipients.ts",
+          "symbol": "async remove("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
       "name": "delete_template",
       "annotations": {
         "readOnlyHint": false,
@@ -739,6 +797,35 @@
         {
           "path": "apps/api/src/template-workflow.ts",
           "symbol": "async getAiPolicy("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "get_dispatch_schedule",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": true
+      },
+      "justification": {
+        "readOnlyHint": "Reads one accessible immutable schedule and its current lifecycle metadata, including linked release and truthful terminal-recovery capability. Reads do not release work. A validated successful production call can also advance connection activity; this is connection access metadata rather than a business effect of the tool.",
+        "destructiveHint": "Does not revoke, approve, retry or replace any schedule, source command or provider outcome.",
+        "openWorldHint": "Reads an authorized Guteneo schedule only; it makes no provider request and cannot contact its recipient.",
+        "idempotentHint": "Same-ID reads observe the current state after uncertainty without introducing another release or business effect. A validated successful production call can also advance connection activity; this is connection access metadata rather than a business effect of the tool."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_dispatch_schedule\""
+        },
+        {
+          "path": "apps/api/src/dispatch-schedules.ts",
+          "symbol": "async get("
         },
         {
           "path": "apps/api/src/connection-observations.ts",
@@ -1153,6 +1240,35 @@
       ]
     },
     {
+      "name": "get_saved_recipient",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": true
+      },
+      "justification": {
+        "readOnlyHint": "Reads one current tenant-scoped saved destination under current preparation rights. It changes no contact or dispatch. A validated successful production call can also advance connection activity; this is connection access metadata rather than a business effect of the tool.",
+        "destructiveHint": "Returns the existing destination and revision without editing, deleting or approving anything.",
+        "openWorldHint": "Reads one private Guteneo contact; no external recipient, provider or arbitrary endpoint is contacted.",
+        "idempotentHint": "Repeating the same reference returns its current authorized state without another business effect. A validated successful production call can also advance connection activity; this is connection access metadata rather than a business effect of the tool."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_saved_recipient\""
+        },
+        {
+          "path": "apps/api/src/saved-recipients.ts",
+          "symbol": "async get("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
       "name": "get_secure_distribution",
       "annotations": {
         "readOnlyHint": true,
@@ -1501,6 +1617,35 @@
       ]
     },
     {
+      "name": "list_dispatch_schedules",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": true
+      },
+      "justification": {
+        "readOnlyHint": "Reads a bounded page of accessible schedule metadata with current creator, approver or administrator visibility and source authority. Reads do not release work. A validated successful production call can also advance connection activity; this is connection access metadata rather than a business effect of the tool.",
+        "destructiveHint": "Changes no schedule, grant, financial reservation or dispatch. It cannot create browser-human approval.",
+        "openWorldHint": "Reads the authenticated workspace schedule records only; it invokes no provider and accepts no arbitrary network destination.",
+        "idempotentHint": "Repeating a page request reads current authorized lifecycle metadata without approving or releasing it. A validated successful production call can also advance connection activity; this is connection access metadata rather than a business effect of the tool."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"list_dispatch_schedules\""
+        },
+        {
+          "path": "apps/api/src/dispatch-schedules.ts",
+          "symbol": "async list("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
       "name": "list_dispatches",
       "annotations": {
         "readOnlyHint": true,
@@ -1613,6 +1758,35 @@
         {
           "path": "apps/api/src/template-workflow.ts",
           "symbol": "async listMappings("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "list_saved_recipients",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": true
+      },
+      "justification": {
+        "readOnlyHint": "Reads a bounded page of validated saved destinations only after current tenant membership and preparation permission. It changes no contact or dispatch. A validated successful production call can also advance connection activity; this is connection access metadata rather than a business effect of the tool.",
+        "destructiveHint": "Returns contact data to the authorized caller without creating, replacing or removing contacts, approvals or communications.",
+        "openWorldHint": "Reads private destinations inside the authenticated Guteneo workspace; it neither contacts those destinations nor accepts an outbound network target.",
+        "idempotentHint": "Repeating the same page request reads the current workspace state without another business effect. A validated successful production call can also advance connection activity; this is connection access metadata rather than a business effect of the tool."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"list_saved_recipients\""
+        },
+        {
+          "path": "apps/api/src/saved-recipients.ts",
+          "symbol": "async list("
         },
         {
           "path": "apps/api/src/connection-observations.ts",
@@ -1820,6 +1994,35 @@
         {
           "path": "apps/api/src/protected-documents.ts",
           "symbol": "prepareProtectedDocument"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "prepare_dispatch_schedule",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Creates one draft with immutable source, time, release window and spending cap, a stable request key and metadata-only audit. It holds ordinary approval and immediate acceptance of the original. Explicit safe terminal recovery also cancels abandoned unsubmitted release preparations. A validated successful production call can also advance connection activity; this is connection access metadata rather than a business effect of the tool.",
+        "destructiveHint": "A draft holds the original approval/acceptance path, and terminal recovery permanently closes prior known-unsent orphan preparations. It does not grant future approval or reserve funds. Later automatic acceptance is possible only after a separate actual browser-human future grant and all release gates.",
+        "openWorldHint": "This preparation changes only private Guteneo records. It performs no provider call or external communication; no assistant tool can create the separate future browser-human grant.",
+        "idempotentHint": "Same-key requests reuse the exact draft and reject changed arguments. A new explicit terminal-recovery request creates a new draft with no inherited approval; unknown or accepted prior work cannot be replaced. Successful production calls can also advance the persisted connection-activity timestamp, so the complete write operation is not guaranteed to have no additional effect on repetition."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"prepare_dispatch_schedule\""
+        },
+        {
+          "path": "apps/api/src/dispatch-schedules.ts",
+          "symbol": "async create("
         },
         {
           "path": "apps/api/src/connection-observations.ts",
@@ -2283,6 +2486,35 @@
       ]
     },
     {
+      "name": "save_recipient",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Persists a normalized, validated fax, email or postal destination and an immutable tenant-scoped create-key receipt, with a metadata-only audit. A validated successful production call can also advance connection activity; this is connection access metadata rather than a business effect of the tool.",
+        "destructiveHint": "Adds a contact without overwriting an existing contact or changing a prepared dispatch, approval or recipient-consent record.",
+        "openWorldHint": "Stores a workspace contact inside Guteneo. A saved external address is data, not a communication or network destination for this tool.",
+        "idempotentHint": "The same key and payload reuse the original contact; another payload conflicts, and replay after deletion cannot resurrect the contact. Successful production calls can also advance the persisted connection-activity timestamp, so the complete write operation is not guaranteed to have no additional effect on repetition."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"save_recipient\""
+        },
+        {
+          "path": "apps/api/src/saved-recipients.ts",
+          "symbol": "async create("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
       "name": "share_template",
       "annotations": {
         "readOnlyHint": false,
@@ -2370,6 +2602,35 @@
         {
           "path": "migrations/0020_postal_preflights.sql",
           "symbol": "postal_transfer_transition_guard"
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
+      "name": "update_saved_recipient",
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false,
+        "idempotentHint": false
+      },
+      "justification": {
+        "readOnlyHint": "Replaces the saved label, channel and destination under its exact expected revision, advances that revision and records a metadata-only audit. A validated successful production call can also advance connection activity; this is connection access metadata rather than a business effect of the tool.",
+        "destructiveHint": "Overwrites the current contact value without retaining its previous address-book revision. Immutable dispatch snapshots and approvals retain their original recipient.",
+        "openWorldHint": "Changes a validated contact inside the authenticated workspace and makes no request to the stored address or provider.",
+        "idempotentHint": "An accepted update advances the revision; repeating the old revision is refused instead of overwriting a concurrent edit. Successful production calls can also advance the persisted connection-activity timestamp, so the complete write operation is not guaranteed to have no additional effect on repetition."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"update_saved_recipient\""
+        },
+        {
+          "path": "apps/api/src/saved-recipients.ts",
+          "symbol": "async update("
         },
         {
           "path": "apps/api/src/connection-observations.ts",

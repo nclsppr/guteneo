@@ -1,6 +1,6 @@
 ---
 title: "Assistants and API"
-description: "31 capabilities in the interfaces branch of Guteneo."
+description: "33 capabilities in the interfaces branch of Guteneo."
 sidebar:
   order: 14
 ---
@@ -49,6 +49,8 @@ Contracts/packages and 1.1.6 publication have bounded actual Claude Desktop sele
 <li id="feature-bf0d4dc9dfef">Reproducible standalone Claude Code and relative-source local marketplace archives; six workflows without OpenAI metadata or tool preauthorisation</li>
 <li id="feature-f085985ee39b">MCP custom-domain discovery and signed issuer snapshot preserve canonical data keys, legacy credentials, current postal/expert fences and unchanged scopes; host consent and refresh remain separately qualified</li>
 <li id="feature-f0341c481d44">Every MCP change reviews and versions the ChatGPT package in the same release; CI/build compare recorded package and MCP direct-import fingerprints, then regenerate the downloadable archive and exact manifest hash; indirect behavior and actual host installation require separate review</li>
+<li id="feature-4e07fc44ce49">Nine additive contact/schedule tools expose tenant-scoped contact CRUD and schedule list/read/prepare/cancel under existing dispatch scopes; the actual catalogue is 84 ordinary tools and 92 with the eight existing opt-in tools</li>
+<li id="feature-4b7925007b90">No assistant tool creates, extends or asserts future_browser approval or customer-webhook activation; schedule preparation discloses the original acceptance hold and known-unsent orphan cleanup, while host confirmation never substitutes for current server authority</li>
 </ol>
 
 ## REST operations

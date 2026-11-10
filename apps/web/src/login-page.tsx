@@ -93,9 +93,11 @@ export function Login({
   }
 
   async function login(organization: "atelier" | "studio") {
-    await action.run(async () => {
-      await api("/dev/login", { method: "POST", body: { organization } });
-      const session = await api<Session>("/session");
+    await action.run(async (view) => {
+      await view.wait(
+        api("/dev/login", { method: "POST", body: { organization } }),
+      );
+      const session = await view.wait(api<Session>("/session"));
       setSession(session);
       onLogin(session);
     });

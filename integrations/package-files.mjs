@@ -23,4 +23,6 @@ export const packageFiles = [
   "skills/document-studio/references/template-authoring.md",
   "skills/secure-distribution/SKILL.md",
   "skills/secure-distribution/agents/openai.yaml",
+  "skills/saved-recipients/SKILL.md",
+  "skills/scheduled-dispatch/SKILL.md",
 ];

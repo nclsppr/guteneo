@@ -107,6 +107,7 @@ struct DocumentRow: View {
 struct DispatchRow: View {
     @Environment(\.locale) private var locale
     let dispatch: DispatchRecord
+    var heldBySchedule = false
     var body: some View {
         HStack(alignment: .top, spacing: 14) {
             Image(systemName: dispatch.channel.symbol).font(.title2)
@@ -116,7 +117,8 @@ struct DispatchRow: View {
                     .fixedSize(horizontal: false, vertical: true)
                 Text(L10n.text(dispatch.channel.title, locale: locale) + " · " + GuteneoDate.label(dispatch.createdAt, locale: locale))
                     .font(.caption).foregroundStyle(.secondary)
-                StatusLabel(title: dispatch.statusTitle, status: dispatch.status)
+                StatusLabel(title: heldBySchedule ? "Held by schedule" : dispatch.statusTitle,
+                            status: heldBySchedule || dispatch.activeSchedule != nil ? "schedule_held" : dispatch.status)
             }
         }.padding(.vertical, 7)
     }

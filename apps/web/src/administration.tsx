@@ -9,6 +9,7 @@ import { PageHeading } from "./components";
 import { msg } from "./messages";
 import { RolePermissionNotice } from "./role-guide";
 import { Billing } from "./billing-page";
+import { CustomerWebhooksPage } from "./customer-webhooks-page";
 import { TeamAdmin } from "./administration-team";
 import { TeamInvitations } from "./team-invitations";
 import { AdministrationSettings } from "./administration-settings";
@@ -45,6 +46,7 @@ export default function Administration({
   const adminOnly = [
     administrationRoutes.members,
     administrationRoutes.connections,
+    administrationRoutes.webhooks,
     administrationRoutes.audit,
     administrationRoutes.billing,
     administrationRoutes.settings,
@@ -91,6 +93,12 @@ export default function Administration({
       return <AdministrationConnectionsPage route={route} />;
     case administrationRoutes.audit:
       return <AdministrationAuditPage route={route} />;
+    case administrationRoutes.webhooks:
+      return !isPublicPreview ? (
+        <CustomerWebhooksPage />
+      ) : (
+        <RolePermissionNotice />
+      );
     case administrationRoutes.billing:
       return <Billing session={session} />;
     case administrationRoutes.settings:

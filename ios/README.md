@@ -196,29 +196,77 @@ captures: [`QA/Screenshots/multilingual/`](QA/Screenshots/multilingual/README.md
 This proves neither production Auth0, physical-device use nor TestFlight/
 App Store submission.
 
-## Preparation ownership — 9 November 2026 candidate
+## Durable drafts — 9 November 2026 candidate
 
-`Guteneo/Core/DispatchPreparation.swift` owns editing, preparing and the in-memory
-server-issued prepared-dispatch reference. The composer locks its authoring controls during a
-request, and a synchronous transition rejects a second queued tap. A failed or
-interrupted response returns to editing with the same idempotency key; an
-intentional edit then creates a new key. Success is terminal for that composer,
-including its cleanup path. `AppModel.perform` still rejects a response from an
-obsolete session before it can populate the composer or dispatch list. Preparing
-never approves or sends; human approval remains the separate secure-browser
-handoff.
+The composer keeps one draft per authenticated user and workspace in the device
+Keychain, with `WhenUnlockedThisDeviceOnly` protection and synchronization disabled.
+Draft content, recipients, selected source/sender, cost input, exact retry key and
+any known prepared-dispatch reference never enter UserDefaults, logs or network
+caches. Up to five workspace identities can retain a draft on one device. Entries
+expire seven days after their last successful change; expired entries are removed
+on the next access. A full vault refuses new entries rather than evicting an
+unexpired recovery key. Local revision checks prevent another window overwriting
+or discarding a newer draft. Signing out hides saved drafts; only signing into
+the original user/workspace can offer them again. Privacy-sensitive OS backup and
+physical-device behavior require their own qualification.
 
-Local Xcode 27.2 qualification passes the Debug simulator application build and
-`build-for-testing`, including all unit/UI test targets. The two new preparation
-state tests also pass as unchanged XCTest methods in a temporary macOS Swift
-package containing the checked-in state source. The delayed preparation-after-
-sign-out regression compiles with the complete unit target. Simulator execution
-remains unqualified: the standard test script exits 69 on incomplete Xcode setup;
-direct `test-without-building` exits 70 because installed CoreSimulator 1174.9.2
-is older than Xcode's required 1174.21.0, leaving no available simulator device.
-No component, global developer-directory setting or system framework was changed.
-This is compilation and host-state evidence, separate from iOS runtime, physical
-device, production integration and App Store proof.
+Opening composition offers explicit **Resume draft** and **Discard saved draft**
+actions. Edits save automatically; **Save draft and close** confirms secure storage
+before dismissal. Secure-storage errors remain visible, block new preparation and
+offer retry or an explicit close without saving. Discard removes only that
+identity's device draft and does not cancel an already prepared dispatch.
+
+`DispatchPreparationState` remains the sole owner of preparation/key/reference
+phases. The exact fields and pending marker are saved before the API is called.
+After an interrupted response or application termination, explicit resume keeps
+authoring locked until **Recover quote** reuses that same request and key. A known
+prepared reference opens tracking without another preparation. No draft resumes
+by itself, and preparation still cannot approve or send. `AppModel.perform`
+retains the original session-generation fence for late responses. All new
+interface and error strings have French, English, German and Luxembourgish entries.
+
+Local Xcode 27.2 Debug application and full `build-for-testing` compilation pass.
+The final standard iPhone 17 Pro/iOS 27.0 run passes all 43 unit and nine interface
+tests (52 total, no skips). Unit coverage includes Keychain
+protection, exact storage round trip, account isolation/sign-out, expiry, capacity,
+stale-window conflicts, failed secure writes and interrupted same-key recovery.
+The new native interface scenario passes save → process termination → explicit
+resume → exact field restoration → discard. Its first attempt failed on a
+confirmation-dialog XCTest query that matched both native button wrappers;
+selecting the first matching button corrected only the test query. A temporary
+macOS package also passes ten unchanged storage/state tests using checked-in
+sources. An earlier macOS attempt ran the iOS Keychain attribute test against the
+legacy macOS Keychain; that assertion is now explicitly iOS-only and passes on
+the actual iOS simulator. The final result is `ios/.build/TestResults/run-LPPemU/Tests.xcresult`. The
+[unmodified saved-draft capture](QA/Screenshots/durable-draft-2026-11-09.png)
+was visually inspected: resume/discard and expiry information fit without
+showing the stored recipient before explicit resume.
+No system component or global developer setting was changed. These are local
+synthetic/native checks, not production Auth0, physical
+device, real-delivery or Apple publication proof.
+
+## Scheduled-source handoff — 10 November 2026 candidate
+
+Native list rows and dispatch details accept optional `activeSchedule` metadata;
+older responses retain their existing behavior. A present hold takes precedence
+over the original command's unchanged `prepared` or `cancelled` status, including
+an unrecognized future schedule state. Held sources are excluded from the
+ordinary approval filter and offer neither immediate approval nor cancellation.
+The detail shows the planned time and integer-minor-unit cap, then opens only a
+fixed-origin browser schedule route constructed from a bounded opaque identifier.
+This handoff adds no native scheduling, future-spending approval or release API,
+and forwards no native credential. The browser retains its own authentication and
+approval controls. All 282 native catalog entries are present in all four languages.
+
+The full standard local simulator run passes 46 unit and ten interface tests
+(56 total, zero failures/skips), including all durable-draft regressions and three
+new schedule contract/URL cases plus the synthetic held-source interface scenario.
+Result: `ios/.build/TestResults/run-eoEpSR/Tests.xcresult`; log:
+`/tmp/lifecycle-native-schedule-hold.log`. The
+[unmodified schedule-handoff capture](QA/Screenshots/schedule-hold-2026-11-10.png)
+was visually inspected: explanation, planned time, cap and browser control fit,
+with no ordinary source approval/cancel action. This remains local synthetic
+proof, not physical-device, production-authentication or delivery qualification.
 
 ## Archive inspected on the initial native candidate
 

@@ -1,0 +1,136 @@
+.lifecycle-form {
+  max-width: 48rem;
+}
+.lifecycle-form fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+.lifecycle-form label {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.lifecycle-form .field {
+  margin-bottom: 0;
+}
+.lifecycle-form :is(input, select, textarea) {
+  min-width: 0;
+  max-width: 100%;
+}
+.lifecycle-form .checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  line-height: 1.6;
+}
+.lifecycle-form .checkbox input {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  margin-top: 0.35rem;
+  flex: 0 0 auto;
+}
+.lifecycle-form .actions {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+.lifecycle-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.lifecycle-section-heading h2 {
+  margin: 0;
+}
+.lifecycle-attention {
+  margin-block: 1.5rem;
+}
+.lifecycle-attention-list {
+  padding: 0;
+  margin: 1rem 0;
+  list-style: none;
+}
+.lifecycle-attention-list li + li {
+  border-top: 1px solid var(--line);
+}
+.lifecycle-attention-list a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  min-height: 44px;
+}
+.lifecycle-attention-list small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.lifecycle-attention-list time {
+  font-size: 0.85rem;
+  text-align: end;
+  color: var(--muted);
+}
+.saved-recipient-picker {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.7rem 1rem;
+  margin-block: 0.75rem;
+}
+.saved-recipient-picker summary {
+  cursor: pointer;
+  min-height: 24px;
+}
+.saved-recipient-picker .field {
+  margin-block: 0.8rem;
+}
+.lifecycle-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 1rem;
+  margin-block: 1rem;
+}
+.lifecycle-facts dt {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 0.35rem;
+}
+.lifecycle-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.lifecycle-secret {
+  display: grid;
+  gap: 0.75rem;
+  margin-block: 1rem;
+}
+.lifecycle-secret input {
+  font-family: var(--font-code);
+}
+.lifecycle-endpoint {
+  display: grid;
+  gap: 1rem;
+  margin-block: 1.2rem;
+}
+.lifecycle-endpoint h2 {
+  margin: 0;
+}
+.lifecycle-endpoint .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+.lifecycle-endpoint-url {
+  overflow-wrap: anywhere;
+}
+
+.lifecycle-message {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

@@ -201,12 +201,14 @@ export function PostalReviewPage({
     const isCurrent = currentView();
     transferring.current = true;
     recover("write");
-    await action.run(async () => {
+    await action.run(async (view) => {
       try {
-        const next = await api<PostalReview>(`${path}/transfer`, {
-          method: "POST",
-          body: { reviewed: true, consentToTransfer: true },
-        });
+        const next = await view.wait(
+          api<PostalReview>(`${path}/transfer`, {
+            method: "POST",
+            body: { reviewed: true, consentToTransfer: true },
+          }),
+        );
         if (!isCurrent()) {
           recover("uncertain");
           return;
@@ -216,6 +218,7 @@ export function PostalReviewPage({
         polls.current = 0;
         resultHeading.current?.focus();
       } catch (error) {
+        view.checkpoint();
         if (!isCurrent()) {
           recover("uncertain");
           return;

@@ -77,28 +77,32 @@ export function Account({ session, onUpdated }: Props) {
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSaved(false);
-    await action.run(async () => {
-      await api("/account", {
-        method: "PATCH",
-        body: {
-          userName,
-          ...(languageEdited && preferredLocale ? { preferredLocale } : {}),
-        },
-      });
+    await action.run(async (view) => {
+      await view.wait(
+        api("/account", {
+          method: "PATCH",
+          body: {
+            userName,
+            ...(languageEdited && preferredLocale ? { preferredLocale } : {}),
+          },
+        }),
+      );
       if (languageEdited && preferredLocale)
         applyAccountLocale(preferredLocale);
-      await onUpdated();
+      await view.wait(onUpdated());
       setLanguageEdited(false);
       setSaved(true);
     });
   }
   async function revoke(id: string) {
-    await sessionAction.run(async () => {
-      const result = await api<{ currentSession: boolean }>(
-        `/account/sessions/${encodeURIComponent(id)}`,
-        { method: "DELETE" },
+    await sessionAction.run(async (view) => {
+      const result = await view.wait(
+        api<{ currentSession: boolean }>(
+          `/account/sessions/${encodeURIComponent(id)}`,
+          { method: "DELETE" },
+        ),
       );
-      if (result.currentSession) await onUpdated();
+      if (result.currentSession) await view.wait(onUpdated());
       else sessions.refresh();
     });
   }
@@ -296,7 +300,7 @@ export function Account({ session, onUpdated }: Props) {
               <Loading />
             ) : (
               sessions.data && (
-                <DataTable
+                <DataTable viewId="active-sessions"
                   label={msg("Your active sessions")}
                   items={sessions.data.items}
                   getRowKey={(item) => item.id}

@@ -128,6 +128,24 @@ Indirect business/provider changes still require review of their MCP effects;
 a fingerprint does not establish semantic correctness. Package generation and
 CI create no marketplace submission, merge, deployment or human consent.
 
+### Saved recipients and capped schedules — 10 November 2026 candidate
+
+Candidate 1.2.0 adds nine REST-backed MCP tools and two portable workflows for
+saved workspace recipients and explicitly requested ordinary fax/message-only
+email schedules. The full catalogue has 92 tools (default constrained catalogue 84).
+Future spending approval, its email attestation, webhook configuration and signing
+secrets remain authenticated-browser controls. An expert mandate cannot approve
+or extend future spending. Installation enables neither default-off processor.
+The [schedule](SCHEDULED_DISPATCHES.md) and [webhook](CUSTOMER_WEBHOOKS.md) contracts
+separate acceptance, provider execution, transport acknowledgement and delivery.
+
+Portable, Claude and Cursor manifests advance together; original plugin/App
+identities, OAuth configuration, scopes and default prompts are preserved.
+`get-started` links to `saved-recipients` and `scheduled-dispatch`, and the annotation
+matrix covers all 368 explicit hints. Source/package digests and all downloadable
+archives are regenerated after final source review. This is local package proof,
+not installation/OAuth in a host, marketplace submission or publication.
+
 ### Atomic generation retry source synchronization — 9 November 2026
 
 Candidate 1.1.35 synchronizes the application and portable/Claude/Cursor package

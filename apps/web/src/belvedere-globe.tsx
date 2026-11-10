@@ -153,7 +153,8 @@ export function BelvedereGlobe({
     : null;
   const focus = hover ?? selected;
   const focusRow = data.find((row) => row.country === focus);
-  const metric = mode === "connections" ? bmsg("connections") : bmsg("deliveries");
+  const metric =
+    mode === "connections" ? bmsg("connections") : bmsg("deliveries");
   const max = Math.max(...data.map((row) => row.connections), 1);
   const selectCountry = useCallback((country: string) => {
     setSelected(country);
@@ -609,9 +610,7 @@ export function BelvedereGlobe({
                   ? bmsg(
                       "Countries will appear with the next observed connections.",
                     )
-                  : bmsg(
-                      "No destination countries recorded in this period.",
-                    )}
+                  : bmsg("No destination countries recorded in this period.")}
               </p>
             </div>
           )}
@@ -624,9 +623,7 @@ export function BelvedereGlobe({
             <p>
               {selectedRow
                 ? `${format.format(selectedRow.connections)} ${metric}${mode === "distribution" && selectedDistribution ? bmsg(" · {0} delivered", format.format(selectedDistribution.delivered)) : ""}`
-                : bmsg(
-                    "Globe points and the list share the same selection.",
-                  )}
+                : bmsg("Globe points and the list share the same selection.")}
             </p>
             {mode === "distribution" &&
               selectedRow?.country &&

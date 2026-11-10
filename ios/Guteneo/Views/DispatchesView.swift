@@ -115,7 +115,7 @@ struct DispatchDetailView: View {
         List {
             if let error { Section { Notice(text: error, symbol: "exclamationmark.circle") } }
             if let detail {
-                Section { DispatchRow(dispatch: detail.dispatch) }
+                Section { DispatchRow(dispatch: detail.dispatch, heldBySchedule: detail.schedule != nil) }
                 Section("Your dispatch") {
                     LabeledContent("Channel", value: L10n.text(detail.dispatch.channel.title, locale: locale))
                     LabeledContent("Recipient", value: detail.dispatch.recipientLabel)
@@ -130,14 +130,24 @@ struct DispatchDetailView: View {
                     Notice(text: "This limit is not an amount charged. View the detailed quote and its terms in your secure space.")
                     if let expires = detail.dispatch.quoteExpiresAt { LabeledContent("Quote valid until", value: GuteneoDate.label(expires, locale: locale)) }
                 }
-                if detail.dispatch.isReviewPreparation {
+                if let schedule = detail.schedule {
+                    Section("Scheduled dispatch") {
+                        Notice(text: "Immediate sending is held by this schedule. Review or cancel the schedule in your secure workspace to change future authority.", symbol: "calendar")
+                        LabeledContent("Scheduled for", value: GuteneoDate.label(schedule.executeAt, locale: locale))
+                        LabeledContent("Maximum future cost", value: amount(schedule.maxTotalMinor, currency: detail.dispatch.currency, locale: locale))
+                        if let url = schedule.browserURL {
+                            Button { openURL(url) } label: { Label("Open schedule", systemImage: "safari") }
+                                .accessibilityIdentifier("openDispatchSchedule")
+                        }
+                    }
+                } else if detail.dispatch.isReviewPreparation {
                     Section("Reference quote") {
                         Notice(text: "This preparation is only for viewing the document and quote. It cannot be approved or sent and does not reserve any amount.", symbol: "doc.text.magnifyingglass")
                         if let url = detail.reviewURL {
                             Button { openReview(url) } label: { Label("View reference quote", systemImage: "safari") }
                         }
                     }
-                } else if detail.dispatch.canHumanReview && model.session?.canApprove == true {
+                } else if detail.canHumanReview && model.session?.canApprove == true {
                     Section("Your approval") {
                         Notice(text: "Review the content, recipient, options and quote in your secure workspace before confirming sending.", symbol: "checkmark.shield")
                         if let url = detail.reviewURL {
@@ -145,7 +155,7 @@ struct DispatchDetailView: View {
                         }
                     }
                 }
-                if detail.dispatch.canCancel && model.session?.canApprove == true {
+                if detail.canCancel && model.session?.canApprove == true {
                     Section("Actions") {
                         Button("Cancel this dispatch", role: .destructive) { confirmingCancel = true }
                             .disabled(cancelling || model.session?.canApprove != true)
@@ -175,6 +185,7 @@ struct DispatchDetailView: View {
             .confirmationDialog("Cancel this dispatch?", isPresented: $confirmingCancel, titleVisibility: .visible) {
                 Button("Cancel dispatch", role: .destructive) {
                     Task {
+                        guard detail?.canCancel == true, model.session?.canApprove == true, !cancelling else { return }
                         cancelling = true
                         defer { cancelling = false }
                         do { _ = try await model.cancelDispatch(id: id); await load() }

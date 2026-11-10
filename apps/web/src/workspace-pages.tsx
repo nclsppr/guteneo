@@ -90,18 +90,20 @@ export function Campaigns({
   const hasEmail = validated?.rows.some((row) => row.channel === "email");
   const needsDocument = validated?.rows.some((row) => row.channel !== "email");
   async function validate() {
-    await action.run(async () => {
-      const result = await api<CsvResult>("/recipients/validate", {
-        method: "POST",
-        body: { csv },
-      });
+    await action.run(async (view) => {
+      const result = await view.wait(
+        api<CsvResult>("/recipients/validate", {
+          method: "POST",
+          body: { csv },
+        }),
+      );
       setValidated(result);
       setValidatedCsv(csv);
     });
   }
   async function create(event: FormEvent) {
     event.preventDefault();
-    await action.run(async () => {
+    await action.run(async (view) => {
       if (
         !validated ||
         validatedCsv !== csv ||
@@ -111,34 +113,43 @@ export function Campaigns({
       )
         throw new Error(t.campaigns.noValidated);
       if (!campaignId.current) {
-        const campaign = await api<Campaign>("/campaigns", {
-          method: "POST",
-          body: { name },
-          key: `campaign:${requestKey.current}`,
-        });
+        const campaign = await view.wait(
+          api<Campaign>("/campaigns", {
+            method: "POST",
+            body: { name },
+            key: `campaign:${requestKey.current}`,
+          }),
+        );
         campaignId.current = campaign.id;
       }
       for (const row of validated.rows) {
         if (prepared.current.has(row.line)) continue;
-        await api<Dispatch>("/dispatches", {
-          method: "POST",
-          key: `campaign:${requestKey.current}:line:${row.line}`,
-          body: {
-            campaignId: campaignId.current,
-            channel: row.channel,
-            recipient: row.recipient,
-            documentId: documentId || undefined,
-            subject:
-              row.channel === "email" && subject.trim() ? subject : undefined,
-            html: row.channel === "email" && html.trim() ? html : undefined,
-            text: row.channel === "email" && plain.trim() ? plain : undefined,
-            options:
-              row.channel === "email" && documentId && protectedLink
-                ? { emailDeliveryMode: "protected_link", protectedDays }
-                : undefined,
-            ceilingMinor: 500,
-          },
-        });
+        await view.wait(
+          api<Dispatch>("/dispatches", {
+            method: "POST",
+            key: `campaign:${requestKey.current}:line:${row.line}`,
+            body: {
+              campaignId: campaignId.current,
+              channel: row.channel,
+              recipient: row.recipient,
+              documentId: documentId || undefined,
+              subject:
+                row.channel === "email" && subject.trim() ? subject : undefined,
+              html: row.channel === "email" && html.trim() ? html : undefined,
+              text: row.channel === "email" && plain.trim() ? plain : undefined,
+              options:
+                row.channel === "email" && documentId && protectedLink
+                  ? { emailDeliveryMode: "protected_link", protectedDays }
+                  : undefined,
+              ceilingMinor: 500,
+            },
+          }),
+          (receipt) => ({
+            kind: "dispatch_prepared",
+            resourceId: receipt.id,
+            route: `/app/dispatch/${encodeURIComponent(receipt.id)}`,
+          }),
+        );
         prepared.current.add(row.line);
         setProgress(prepared.current.size);
       }
@@ -194,10 +205,10 @@ export function Campaigns({
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file)
-                    void action.run(async () => {
+                    void action.run(async (view) => {
                       if (file.size > 1024 * 1024)
                         throw new Error(t.campaigns.tooLarge);
-                      setCsv(await file.text());
+                      setCsv(await view.wait(file.text()));
                       setValidated(undefined);
                     });
                 }}
@@ -241,7 +252,7 @@ export function Campaigns({
                   </Definition>
                 </dl>
                 {validated.rows.length > 0 && (
-                  <DataTable
+                  <DataTable viewId="campaign-validation"
                     label={t.campaigns.validationTitle}
                     items={validated.rows}
                     getRowKey={(row) => row.line}
@@ -266,7 +277,7 @@ export function Campaigns({
                       },
                     ]}
                     filters={[
-                      {
+                      { saveValue: true,
                         id: "channel",
                         label: t.channel,
                         value: (row) => row.channel,
@@ -408,7 +419,7 @@ export function Campaigns({
       ) : !campaigns.data?.items.length ? (
         <EmptyState title={t.campaigns.empty} />
       ) : (
-        <DataTable
+        <DataTable viewId="campaigns"
           label={t.campaigns.list}
           items={campaigns.data.items}
           getRowKey={(campaign) => campaign.id}
@@ -456,7 +467,7 @@ export function Campaigns({
             },
           ]}
           filters={[
-            {
+            { saveValue: true,
               id: "status",
               label: t.status,
               value: (campaign) => campaign.status,
@@ -566,7 +577,7 @@ export function Senders({
       ) : !resource.data?.items.length ? (
         !postalSetup?.available && <EmptyState title={t.senders.empty} />
       ) : (
-        <DataTable
+        <DataTable viewId="senders"
           label={t.senders.title}
           items={resource.data.items}
           getRowKey={(sender) => sender.id}
@@ -632,7 +643,7 @@ export function Senders({
             },
           ]}
           filters={[
-            {
+            { saveValue: true,
               id: "channel",
               label: t.channel,
               value: (sender) => sender.channel,

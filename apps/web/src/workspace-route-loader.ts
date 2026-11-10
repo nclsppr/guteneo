@@ -11,10 +11,17 @@ function routeModule<T>(load: () => Promise<T>) {
 export const workspaceRouteModules = {
   personal: routeModule(() => import("./personal-area")),
   dispatch: routeModule(() => import("./dispatch-pages")),
+  overview: routeModule(() => import("./overview-page")),
+  documents: routeModule(() => import("./documents-page")),
+  prepare: routeModule(() => import("./prepare-dispatch-page")),
+  dispatchList: routeModule(() => import("./dispatch-list-page")),
+  dispatchDetail: routeModule(() => import("./dispatch-detail-page")),
   workspace: routeModule(() => import("./workspace-pages")),
   postal: routeModule(() => import("./postal-review-page")),
   account: routeModule(() => import("./account-page")),
   administration: routeModule(() => import("./administration")),
+  recipients: routeModule(() => import("./recipient-pages")),
+  schedules: routeModule(() => import("./schedule-pages")),
   connection: routeModule(() => import("./assistant-workspace")),
   studio: routeModule(() => import("./document-studio")),
   distribution: routeModule(() => import("./distribution-pages")),
@@ -24,11 +31,19 @@ export const workspaceRouteModules = {
 /** Start only the requested route's code, independently of its session read. */
 export async function preloadWorkspaceRoute(route: string): Promise<void> {
   const path = route.split("?")[0] ?? "";
-  if (
-    path === "/app" ||
-    /^\/app\/(documents|prepare|dispatches|dispatch)(\/|$)/.test(path)
-  )
-    await workspaceRouteModules.dispatch();
+  if (path === "/app") await workspaceRouteModules.overview();
+  else if (/^\/app\/documents(\/|$)/.test(path))
+    await workspaceRouteModules.documents();
+  else if (/^\/app\/prepare(\/|$)/.test(path))
+    await workspaceRouteModules.prepare();
+  else if (/^\/app\/dispatches(\/|$)/.test(path))
+    await workspaceRouteModules.dispatchList();
+  else if (/^\/app\/dispatch(\/|$)/.test(path))
+    await workspaceRouteModules.dispatchDetail();
+  else if (/^\/app\/recipients(\/|$)/.test(path))
+    await workspaceRouteModules.recipients();
+  else if (/^\/app\/schedules(\/|$)/.test(path))
+    await workspaceRouteModules.schedules();
   else if (/^\/app\/(campaigns|campaign|senders)(\/|$)/.test(path))
     await workspaceRouteModules.workspace();
   // Earlier management addresses are aliases of Administration.

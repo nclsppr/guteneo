@@ -1,6 +1,6 @@
 ---
 title: "iPhone and iPad"
-description: "10 capabilities in the interfaces branch of Guteneo."
+description: "12 capabilities in the interfaces branch of Guteneo."
 sidebar:
   order: 16
 ---
@@ -11,7 +11,7 @@ sidebar:
 
 Native candidate; physical-device, signing and distribution qualification remain separate.
 
-**Surfaces:** Native SwiftUI client and versioned mobile API; authenticated browser for final approval.
+**Surfaces:** Native SwiftUI client and existing versioned mobile API, plus private device-local draft storage; authenticated browser for final approval. No native schedule, future-consent or webhook authority is added.
 
 [Read the engineering guide](/getting-started/repository-map/) · [All features](/features/)
 
@@ -28,4 +28,6 @@ Native candidate; physical-device, signing and distribution qualification remain
 <li id="feature-c830e7574c6e">Read preferredDashboardAppearance in account/session without a native setting/PATCH</li>
 <li id="feature-edfe469d3ddd">Swift opens canonical /auth/mobile/authorize; the server selects the configured browser domain and preserves mobile PKCE return, distinct from the native callback</li>
 <li id="feature-0bbfbd10c46b">Native dispatch preparation owns one immutable submitted draft and stable retry key, locks authoring while pending and rejects duplicate begin; terminal preparation never grants browser send approval</li>
+<li id="feature-708b7e2b870c">Device-local fax/email composer drafts survive process relaunch in non-synchronizing WhenUnlockedThisDeviceOnly Keychain storage, partitioned by exact user/workspace; at most five drafts and 768 KiB are retained for seven days without silent capacity eviction</li>
+<li id="feature-7237e3352699">Explicit resume/discard uses optimistic local revisions and current authenticated identity; submitted stable keys and confirmed preparation references survive uncertainty, while storage errors remain visible and unknown preparation recovery never creates a replacement key or browser consent</li>
 </ol>

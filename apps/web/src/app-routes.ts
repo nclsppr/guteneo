@@ -14,6 +14,8 @@ export type WorkshopEntry =
   | "documents"
   | "pdfChecks"
   | "senders"
+  | "recipients"
+  | "schedules"
   | "connection";
 
 /** Workspace administration: reports, members, billing and settings. */
@@ -24,6 +26,7 @@ export type AdministrationEntry =
   | "administrationReports"
   | "administrationMembers"
   | "administrationConnections"
+  | "administrationWebhooks"
   | "administrationAudit"
   | "administrationBilling"
   | "administrationSettings";
@@ -35,6 +38,7 @@ export const administrationRoutes = {
   reports: "/app/administration/reports",
   members: "/app/administration/members",
   connections: "/app/administration/connections",
+  webhooks: "/app/administration/webhooks",
   audit: "/app/administration/audit",
   billing: "/app/administration/billing",
   settings: "/app/administration/settings",
@@ -156,6 +160,8 @@ export function navigationEntryFor(
   if (path === "/app/documents") return "documents";
   if (path === "/app/pdf-checks" || path === "/app/plan") return "pdfChecks";
   if (path === "/app/senders") return "senders";
+  if (/^\/app\/recipients(\/|$)/.test(path)) return "recipients";
+  if (/^\/app\/schedules(\/|$)/.test(path)) return "schedules";
   if (/^\/app\/connection(\/|$)/.test(path)) return "connection";
   // Correcting a generation's data stays in Generations, where it started.
   if (

@@ -130,6 +130,14 @@ struct DocumentRecord: Codable, Identifiable, Sendable {
     }
 }
 
+struct ActiveDispatchSchedule: Codable, Sendable {
+    let id: String
+    let status: String
+    let executeAt: String
+    let maxTotalMinor: Int
+    var browserURL: URL? { APIClient.scheduleURL(scheduleID: id) }
+}
+
 struct DispatchRecord: Codable, Identifiable, Sendable {
     struct FaxPricing: Codable, Sendable {
         // Only the execution boundary is needed here. Server presentation may
@@ -149,12 +157,13 @@ struct DispatchRecord: Codable, Identifiable, Sendable {
     let ceilingMinor: Int
     let quoteExpiresAt: String?
     let faxPricing: FaxPricing?
+    let activeSchedule: ActiveDispatchSchedule?
     let currency: String
     let fingerprint: String
     let createdAt: String
     let updatedAt: String
     enum CodingKeys: String, CodingKey {
-        case id, channel, subject, text, status, mode, currency, fingerprint, faxPricing
+        case id, channel, subject, text, status, mode, currency, fingerprint, faxPricing, activeSchedule
         case recipient = "recipient_json", documentId = "document_id", senderAddress = "sender_address"
         case estimatedMinor = "estimated_minor", ceilingMinor = "ceiling_minor", quoteExpiresAt = "quote_expires_at"
         case createdAt = "created_at", updatedAt = "updated_at"
@@ -178,6 +187,7 @@ struct DispatchRecord: Codable, Identifiable, Sendable {
         ceilingMinor = try c.decode(Int.self, forKey: .ceilingMinor)
         quoteExpiresAt = try c.decodeIfPresent(String.self, forKey: .quoteExpiresAt)
         faxPricing = try c.decodeIfPresent(FaxPricing.self, forKey: .faxPricing)
+        activeSchedule = try c.decodeIfPresent(ActiveDispatchSchedule.self, forKey: .activeSchedule)
         currency = try c.decode(String.self, forKey: .currency)
         fingerprint = try c.decode(String.self, forKey: .fingerprint)
         createdAt = try c.decode(String.self, forKey: .createdAt)
@@ -187,6 +197,7 @@ struct DispatchRecord: Codable, Identifiable, Sendable {
         recipient["email"] ?? recipient["phone"] ?? [recipient["name"], recipient["city"], recipient["country"]].compactMap { $0 }.joined(separator: ", ")
     }
     var statusTitle: String {
+        if activeSchedule != nil { return "Held by schedule" }
         if isReviewPreparation { return "Reference preparation" }
         if status == "prepared", faxPricing?.executionScope != nil { return "Available to view" }
         return switch status {
@@ -209,8 +220,8 @@ struct DispatchRecord: Codable, Identifiable, Sendable {
     var isReviewPreparation: Bool { faxPricing?.executionScope == "review_prepare_only" }
     // Expired ordinary quotes remain accessible in the browser for renewal.
     // An unrecognized scope cannot introduce a new approval capability.
-    var canHumanReview: Bool { status == "prepared" && faxPricing?.executionScope == nil }
-    var canCancel: Bool { ["prepared", "queued"].contains(status) }
+    var canHumanReview: Bool { activeSchedule == nil && status == "prepared" && faxPricing?.executionScope == nil }
+    var canCancel: Bool { activeSchedule == nil && ["prepared", "queued"].contains(status) }
 }
 
 struct EventRecord: Decodable, Identifiable, Sendable {
@@ -288,6 +299,16 @@ struct DispatchDetail: Decodable, Sendable {
     let events: [EventRecord]
     let attempts: [Attempt]
     let approvalUrl: String?
+    let activeSchedule: ActiveDispatchSchedule?
+    init(dispatch: DispatchRecord, approval: Approval?, events: [EventRecord], attempts: [Attempt], approvalUrl: String?, activeSchedule: ActiveDispatchSchedule? = nil) {
+        self.dispatch = dispatch; self.approval = approval; self.events = events
+        self.attempts = attempts; self.approvalUrl = approvalUrl; self.activeSchedule = activeSchedule
+    }
+    // Detail responses carry the hold beside the immutable original command;
+    // list responses carry it on the row. Neither grants ordinary source actions.
+    var schedule: ActiveDispatchSchedule? { activeSchedule ?? dispatch.activeSchedule }
+    var canHumanReview: Bool { schedule == nil && dispatch.canHumanReview }
+    var canCancel: Bool { schedule == nil && dispatch.canCancel }
     var reviewURL: URL? {
         guard let approvalUrl, let candidate = URL(string: approvalUrl),
               candidate == APIClient.reviewURL(dispatchID: dispatch.id) else { return nil }

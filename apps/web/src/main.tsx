@@ -1,8 +1,26 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./fonts.css";
-import { applyAccountLocale, initializeLocale, t, useLocale } from "./locale";
-import { api, ApiError, setSession, type Session } from "./api";
+import {
+  applyAccountLocale,
+  initializeLocale,
+  t,
+  useLocale,
+  waitForLocale,
+  localeReloadLabel,
+  getRequestedLocale,
+} from "./locale";
+import { loadBelvedereLocaleData } from "./locale-data";
+import {
+  startInitialWorkspaceSession,
+  startInitialPersonalSession,
+  readInitialWorkspaceSession,
+} from "./client-session-bootstrap";
+import {
+  preloadWorkspaceRoute,
+  workspaceRouteModules,
+} from "./workspace-route-loader";
+import { ApiError, setSession, type Session } from "./api";
 import {
   observePublicLinks,
   registerPublicPageMetadata,
@@ -47,22 +65,54 @@ const belvederePath = document.querySelector<HTMLMetaElement>(
 const isBelvedere =
   belvederePath !== undefined &&
   window.location.pathname.replace(/\/$/, "") === belvederePath;
+const belvedereModule = isBelvedere ? import("./belvedere") : undefined;
+void belvedereModule?.catch(() => undefined);
+if (isBelvedere)
+  void import("./belvedere-view-loader")
+    .then((module) => module.preloadBelvedereView(window.location.hash))
+    .catch(() => undefined);
 if (isBelvedere) {
   applyAccountLocale(
     document.querySelector<HTMLMetaElement>(
       'meta[name="guteneo-account-locale"]',
     )?.content,
   );
+  if (belvederePath === "/belvedere") {
+    const initial = await startInitialWorkspaceSession().catch(() => null);
+    if (initial) applyAccountLocale(initial.user.preferredLocale);
+  }
 } else if (
   import.meta.env.VITE_PUBLIC_PREVIEW !== "true" &&
   window.location.hash.startsWith("#/app")
 ) {
-  applyAccountLocale(null, false);
+  const route = window.location.hash.slice(1);
+  const personal =
+    /^\/app\/(my-documents|services|personal-account)(\/|$|\?)/.test(route);
+  if (personal) void workspaceRouteModules.personal().catch(() => undefined);
+  else void preloadWorkspaceRoute(route).catch(() => undefined);
+  const initial =
+    personal && document.visibilityState === "hidden"
+      ? null
+      : await (
+          personal
+            ? startInitialPersonalSession()
+            : startInitialWorkspaceSession()
+        ).catch(() => null);
+  if (initial) applyAccountLocale(initial.user.preferredLocale, false);
+  else initializeLocale(true);
 } else {
   initializeLocale();
 }
+// Keep server-rendered public text until the selected locale is complete.
+const localeReady = await Promise.all([
+  waitForLocale(),
+  ...(isBelvedere ? [loadBelvedereLocaleData(getRequestedLocale())] : []),
+]).then(
+  () => true,
+  () => false,
+);
 observePublicLinks(document.getElementById("root")!);
-const Belvedere = React.lazy(() => import("./belvedere"));
+const Belvedere = React.lazy(() => belvedereModule ?? import("./belvedere"));
 
 function BelvedereEntry({ basePath }: { basePath: string }) {
   useLocale();
@@ -99,7 +149,7 @@ function BelvedereEntry({ basePath }: { basePath: string }) {
       queued = false;
       lastRead = Date.now();
       const currentRevision = revision;
-      api<Session>("/session", { signal: controller.signal })
+      readInitialWorkspaceSession(controller.signal)
         .then((session) => {
           if (alive && currentRevision === revision) {
             applyAccountLocale(session.user.preferredLocale);
@@ -175,11 +225,51 @@ function BelvedereEntry({ basePath }: { basePath: string }) {
 function renderApplication() {
   ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
-      {isBelvedere ? <BelvedereEntry basePath={belvederePath} /> : <App />}
+      <LocaleLoadBoundary>
+        <React.Suspense
+          fallback={<main className="locale-loading" aria-busy="true" />}
+        >
+          {isBelvedere ? <BelvedereEntry basePath={belvederePath} /> : <App />}
+        </React.Suspense>
+      </LocaleLoadBoundary>
     </React.StrictMode>,
   );
   if (!isBelvedere) installPublicNavigation();
 }
 
 // Every public route is ready together; native SSR links work before this mount.
-renderApplication();
+class LocaleLoadBoundary extends React.Component<
+  { children: React.ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    return this.state.failed ? (
+      <main>
+        <button
+          type="button"
+          className="button"
+          onClick={() => location.reload()}
+        >
+          {localeReloadLabel()}
+        </button>
+      </main>
+    ) : (
+      this.props.children
+    );
+  }
+}
+if (localeReady) renderApplication();
+else {
+  // Keep readable SSR content and working native links when a language asset
+  // is unavailable; an explicit reload requests the current release again.
+  const retry = document.createElement("button");
+  retry.type = "button";
+  retry.className = "button";
+  retry.textContent = localeReloadLabel();
+  retry.addEventListener("click", () => location.reload());
+  document.getElementById("root")!.appendChild(retry);
+}

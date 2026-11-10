@@ -87,56 +87,64 @@ export function TeamInvitations() {
   async function prepare(event: FormEvent) {
     event.preventDefault();
     resetReview();
-    try {
-      if (mode === "single") setReview(invitationRecipients([email]));
-      else {
-        const selected = file.current?.files?.[0];
-        if (!selected) throw new Error(msg("Choose a CSV file."));
-        if (selected.size > 1_000_000)
-          throw new Error(msg("The CSV must be smaller than 1 MB."));
-        setReview(parseInvitationCsv(await selected.text()));
+    await action.run(async (view) => {
+      try {
+        if (mode === "single") setReview(invitationRecipients([email]));
+        else {
+          const selected = file.current?.files?.[0];
+          if (!selected) throw new Error(msg("Choose a CSV file."));
+          if (selected.size > 1_000_000)
+            throw new Error(msg("The CSV must be smaller than 1 MB."));
+          setReview(parseInvitationCsv(await view.wait(selected.text())));
+        }
+        requestAnimationFrame(() => {
+          if (view.ownsView()) reviewHeading.current?.focus();
+        });
+      } catch (error) {
+        view.checkpoint();
+        setInputIssue(inputError(error));
       }
-      requestAnimationFrame(() => reviewHeading.current?.focus());
-    } catch (error) {
-      setInputIssue(inputError(error));
-    }
+    });
   }
   async function send() {
     if (!review || uncertain) return;
-    await action.run(async () => {
+    await action.run(async (view) => {
       try {
-        await api("/admin/invitations", {
-          method: "POST",
-          body: {
-            emails: review.emails,
-            role,
-            supervisorCanApprove: role === "supervisor" && canApprove,
-            supervisorCanReport: role === "supervisor" && canReport,
-          },
-        });
+        await view.wait(
+          api("/admin/invitations", {
+            method: "POST",
+            body: {
+              emails: review.emails,
+              role,
+              supervisorCanApprove: role === "supervisor" && canApprove,
+              supervisorCanReport: role === "supervisor" && canReport,
+            },
+          }),
+        );
         setReview(undefined);
         setEmail("");
         setFileVersion((version) => version + 1);
         setMessage(
-          msg(
-            "The invitations have been processed. Check their status below.",
-          ),
+          msg("The invitations have been processed. Check their status below."),
         );
       } catch (error) {
+        view.checkpoint();
         if (!(error instanceof ApiError) || error.status >= 500)
           setUncertain(true);
         throw error;
       } finally {
-        resource.refresh();
+        if (view.ownsView()) resource.refresh();
       }
     });
   }
   async function revoke(id: string) {
-    await action.run(async () => {
-      await api(`/admin/invitations/${encodeURIComponent(id)}/revoke`, {
-        method: "POST",
-        body: {},
-      });
+    await action.run(async (view) => {
+      await view.wait(
+        api(`/admin/invitations/${encodeURIComponent(id)}/revoke`, {
+          method: "POST",
+          body: {},
+        }),
+      );
       resource.refresh();
     });
   }
@@ -163,9 +171,7 @@ export function TeamInvitations() {
             {msg("Invitation recipients and role")}
           </legend>
           <div className="field">
-            <label htmlFor="invitation-mode">
-              {msg("Add recipients")}
-            </label>
+            <label htmlFor="invitation-mode">{msg("Add recipients")}</label>
             <select
               id="invitation-mode"
               value={mode}
@@ -198,9 +204,7 @@ export function TeamInvitations() {
             </div>
           ) : (
             <div className="field">
-              <label htmlFor="invitation-csv">
-                {msg("Members CSV file")}
-              </label>
+              <label htmlFor="invitation-csv">{msg("Members CSV file")}</label>
               <FileInput
                 key={fileVersion}
                 id="invitation-csv"
@@ -218,9 +222,7 @@ export function TeamInvitations() {
             </div>
           )}
           <div className="field">
-            <label htmlFor="invitation-role">
-              {msg("New members’ role")}
-            </label>
+            <label htmlFor="invitation-role">{msg("New members’ role")}</label>
             <select
               id="invitation-role"
               value={role}

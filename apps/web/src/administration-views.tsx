@@ -538,7 +538,7 @@ export function AdministrationActivityPage({ route }: { route: string }) {
             {msg("{0} dispatches", count(resource.data.total))}
           </p>
           <DateTimezone />
-          <DataTable
+          <DataTable viewId="workspace-activity"
             className="administration-table"
             label={msg("Workspace activity")}
             items={resource.data.items}
@@ -733,7 +733,7 @@ export function AdministrationConsumptionPage({ route }: { route: string }) {
             {data.monthly.length > 0 && (
               <section className="administration-panel">
                 <h2>{msg("By month")}</h2>
-                <DataTable
+                <DataTable viewId="monthly-consumption"
                   className="administration-table"
                   label={msg("Consumption by month")}
                   items={data.monthly}
@@ -792,7 +792,7 @@ export function AdministrationMemberActivity({ route }: { route: string }) {
         resource.data && (
           <>
             <DateTimezone />
-            <DataTable
+            <DataTable viewId="member-activity"
               className="administration-table"
               label={msg("Member activity")}
               items={resource.data.items}
@@ -915,7 +915,7 @@ export function AdministrationConnectionsPage({ route }: { route: string }) {
               {data.current.items.length ? (
                 <>
                   <DateTimezone />
-                  <DataTable
+                  <DataTable viewId="current-access"
                     className="administration-table"
                     label={msg("Current access")}
                     items={data.current.items}
@@ -977,7 +977,7 @@ export function AdministrationConnectionsPage({ route }: { route: string }) {
               </p>
               {data.events.items.length ? (
                 <>
-                  <DataTable
+                  <DataTable viewId="sign-ins"
                     className="administration-table"
                     label={msg("Sign-ins")}
                     items={data.events.items}
@@ -1042,7 +1042,7 @@ export function AdministrationAuditPage({ route }: { route: string }) {
       ) : resource.data?.items.length ? (
         <>
           <DateTimezone />
-          <DataTable
+          <DataTable viewId="audit-log"
             className="administration-table"
             label={msg("Audit log")}
             items={resource.data.items}
@@ -1157,20 +1157,23 @@ function ExportCard({
               disabled={action.pending || !available}
               aria-label={msg("Download {0} as {1}", title, label)}
               onClick={() =>
-                void action.run(async () => {
+                void action.run(async (view) => {
                   request.current?.abort();
                   const controller = new AbortController();
                   request.current = controller;
                   setDownloaded(undefined);
                   try {
-                    const name = await downloadExport(
-                      dataset,
-                      format,
-                      period,
-                      controller.signal,
+                    const name = await view.wait(
+                      downloadExport(
+                        dataset,
+                        format,
+                        period,
+                        controller.signal,
+                      ),
                     );
                     if (!controller.signal.aborted) setDownloaded(name);
                   } catch (error) {
+                    view.checkpoint();
                     if (!controller.signal.aborted) throw error;
                   } finally {
                     if (request.current === controller) request.current = null;

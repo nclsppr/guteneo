@@ -17,6 +17,14 @@ const api =
   (await readFile(
     new URL("../../apps/api/src/template-workflow-routes.ts", import.meta.url),
     "utf8",
+  )) +
+  (await readFile(
+    new URL("../../apps/api/src/lifecycle-routes.ts", import.meta.url),
+    "utf8",
+  )) +
+  (await readFile(
+    new URL("../../apps/api/src/customer-webhook-routes.ts", import.meta.url),
+    "utf8",
   ));
 const auth = await readFile(
   new URL("../../apps/api/src/auth.ts", import.meta.url),
@@ -71,7 +79,7 @@ test("OpenAPI is valid, self-contained and never resolves a remote document", as
     for (const child of Object.values(value)) inspect(child);
   }
   inspect(spec);
-  assert.equal(operations.length, 78);
+  assert.equal(operations.length, 96);
   assert.equal(
     new Set(operations.map(({ operation }) => operation.operationId)).size,
     operations.length,
@@ -162,6 +170,24 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     "post /api/campaigns",
     "get /api/campaigns/{id}",
     "post /api/recipients/validate",
+    "get /api/recipients",
+    "post /api/recipients",
+    "get /api/recipients/{id}",
+    "patch /api/recipients/{id}",
+    "delete /api/recipients/{id}",
+    "get /api/dispatch-schedules/capabilities",
+    "get /api/dispatch-schedules",
+    "post /api/dispatch-schedules",
+    "get /api/dispatch-schedules/{id}",
+    "post /api/dispatch-schedules/{id}/approve",
+    "post /api/dispatch-schedules/{id}/cancel",
+    "get /api/attention",
+    "get /api/customer-webhooks",
+    "post /api/customer-webhooks",
+    "patch /api/customer-webhooks/{id}",
+    "post /api/customer-webhooks/{id}/revoke",
+    "post /api/customer-webhooks/{id}/rotate-secret",
+    "get /api/customer-webhooks/{id}/deliveries",
     "get /api/senders",
     "get /api/usage",
     "get /api/usage/activity",
@@ -172,6 +198,8 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     "get /api/secure-distributions/catalog",
     "get /api/secure-distributions/{id}",
     "post /api/secure-distributions/{id}/confirm",
+      "post /api/recipients",
+      "post /api/dispatch-schedules",
     "post /api/secure-distributions/{id}/revoke",
     "post /api/postal/preflights",
     "get /api/postal/preflights/{id}",
@@ -233,7 +261,8 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
     );
     const browserIncident =
       path === "/api/admin/dead-letters/{id}/resolution" && method === "post";
-    if (!browserIncident)
+    const browserLifecycle = path === "/api/attention" || path === "/api/dispatch-schedules/{id}/approve" || path.startsWith("/api/customer-webhooks");
+    if (!browserIncident && !browserLifecycle)
       assert.doesNotMatch(
         path,
         /approve|transfer|admin|billing|session|webhooks|documents\/import/,
@@ -277,7 +306,7 @@ test("documented routes exist and OAuth cannot acquire browser approval or priva
         ? []
         : uploadCapability
           ? [{ DocumentUploadCapability: [] }]
-          : browserPurchase || browserIncident
+          : browserPurchase || browserIncident || browserLifecycle
             ? [{ BrowserSession: [] }]
             : [
                 {
@@ -656,6 +685,9 @@ test("wire contracts retain integer prices, JSON strings, quarantine and require
     "post /api/distribution-plans/{id}/entries/{entryId}/postal-preflight",
     "post /api/secure-distributions",
     "post /api/secure-distributions/{id}/confirm",
+    "post /api/recipients",
+    "post /api/dispatch-schedules",
+    "post /api/customer-webhooks",
   ]);
   assert.equal(spec.components.parameters.IdempotencyKey.required, true);
   assert.equal(

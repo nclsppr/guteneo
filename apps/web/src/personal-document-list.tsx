@@ -17,7 +17,7 @@ import {
   type PersonalDocumentStatusFilter,
   type PersonalDocumentSummary,
 } from "../../../packages/contracts/src/personal-documents";
-import { ApiError, date } from "./api";
+import { sessionAuthorityKey, ApiError, date } from "./api";
 import {
   EmptyState,
   ErrorNotice,
@@ -158,7 +158,9 @@ export function PersonalDocumentList({
   const [version, setVersion] = useState(0);
   const [summary, setSummary] = useState<PersonalDocumentSummary>();
   const [searchInput, setSearchInput] = useState(query.search);
-  const navigation = useAction();
+  const navigation = useAction(
+    `${sessionAuthorityKey(session)}:${JSON.stringify(query)}:${active}`,
+  );
   const clearNavigationError = navigation.clear;
   const generation = useRef(0);
   const paginationRequest = useRef<AbortController | null>(null);
@@ -246,18 +248,20 @@ export function PersonalDocumentList({
     const controller = new AbortController();
     paginationRequest.current = controller;
     const current = generation.current;
-    await navigation.run(async () => {
+    await navigation.run(async (view) => {
       try {
         let next: ListPage;
         let nextStack = stack;
         for (;;) {
           const target = nextStack.at(-1) ?? null;
-          next = await personalApi<ListPage>(
-            target
-              ? `${listPath}&cursor=${encodeURIComponent(target)}`
-              : listPath,
-            session,
-            { signal: controller.signal },
+          next = await view.wait(
+            personalApi<ListPage>(
+              target
+                ? `${listPath}&cursor=${encodeURIComponent(target)}`
+                : listPath,
+              session,
+              { signal: controller.signal },
+            ),
           );
           if (
             controller.signal.aborted ||
@@ -276,6 +280,7 @@ export function PersonalDocumentList({
           .getElementById("personal-document-results")
           ?.focus({ preventScroll: false });
       } catch (cause) {
+        view.checkpoint();
         if (controller.signal.aborted || current !== generation.current) return;
         // A refused page removes everything already shown for this account.
         if (cause instanceof ApiError && [401, 403].includes(cause.status)) {

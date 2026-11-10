@@ -14,7 +14,7 @@ import {
   SlidersHorizontal,
 } from "@phosphor-icons/react";
 import { Brand } from "./brand";
-import { ApiError, date, type Session } from "./api";
+import { sessionAuthorityKey, ApiError, date, type Session } from "./api";
 import {
   ConfirmAction,
   EmptyState,
@@ -82,7 +82,7 @@ export function PersonalSignIn({
   const local = ["localhost", "127.0.0.1", "[::1]"].includes(
     window.location.hostname,
   );
-  const action = useAction();
+  const action = useAction("personal-sign-in");
   const authCode = new URLSearchParams(window.location.search).get("auth");
   const authenticationMessages: Record<string, string> = {
     EMAIL_VERIFICATION_REQUIRED: msg(
@@ -178,11 +178,13 @@ export function PersonalSignIn({
             className="button"
             disabled={action.pending}
             onClick={() =>
-              void action.run(async () => {
-                const session = await personalApi<PersonalSession>(
-                  "/dev/personal-login",
-                  undefined,
-                  { method: "POST", body: { identity: "recipient" } },
+              void action.run(async (view) => {
+                const session = await view.wait(
+                  personalApi<PersonalSession>(
+                    "/dev/personal-login",
+                    undefined,
+                    { method: "POST", body: { identity: "recipient" } },
+                  ),
                 );
                 onSignedIn(session);
               })
@@ -250,7 +252,7 @@ export function PersonalSpace({
   const [version, setVersion] = useState(0);
   const sessionReadRevision = useRef(0);
   const entryReadConsumed = useRef(false);
-  const action = useAction();
+  const action = useAction(sessionAuthorityKey(session));
   const page = route.split("?")[0] ?? "/app/my-documents";
   const onSessionInvalid = useCallback(() => {
     sessionReadRevision.current += 1;
@@ -370,11 +372,13 @@ export function PersonalSpace({
       </>
     );
   async function logout() {
-    await action.run(async () => {
-      await personalApi("/personal/logout", session!, {
-        method: "POST",
-        body: {},
-      });
+    await action.run(async (view) => {
+      await view.wait(
+        personalApi("/personal/logout", session!, {
+          method: "POST",
+          body: {},
+        }),
+      );
       clearPendingDocumentInvitation();
       initializeLocale(true);
       sessionReadRevision.current += 1;
@@ -387,7 +391,7 @@ export function PersonalSpace({
   const currentWorkspace =
     session.workspaces.find((workspace) => workspace.current) ?? null;
   return (
-    <div className="personal-space personal-space-v2">
+    <div className="personal-space personal-space-v2 app-frame-v2">
       <a
         className="skip-link"
         href="#main-content"
@@ -523,10 +527,10 @@ function PersonalServices({
   const [name, setName] = useState("");
   const [entry, setEntry] = useState<"create" | "join">("create");
   const [invitation, setInvitation] = useState("");
-  const action = useAction();
+  const action = useAction(sessionAuthorityKey(session));
   async function enter(event: FormEvent) {
     event.preventDefault();
-    await action.run(async () => {
+    await action.run(async (view) => {
       if (!workspaceId && entry === "join") {
         const invitationPath = workspaceInvitationPath(
           invitation,
@@ -539,18 +543,20 @@ function PersonalServices({
         window.location.assign(invitationPath);
         return;
       }
-      await personalApi<{
-        organization: { id: string; name: string };
-        session: Session;
-      }>(
-        workspaceId ? "/personal/workspace/select" : "/personal/workspace",
-        session,
-        {
-          method: "POST",
-          body: workspaceId
-            ? { organizationId: workspaceId }
-            : { name: name.trim() },
-        },
+      await view.wait(
+        personalApi<{
+          organization: { id: string; name: string };
+          session: Session;
+        }>(
+          workspaceId ? "/personal/workspace/select" : "/personal/workspace",
+          session,
+          {
+            method: "POST",
+            body: workspaceId
+              ? { organizationId: workspaceId }
+              : { name: name.trim() },
+          },
+        ),
       );
       // The workshop cookie has rotated. Remount Application so its session,
       // tenant and CSRF token all come from the new server session.
@@ -772,7 +778,7 @@ function PersonalAccount({
   const [sessionsError, setSessionsError] = useState<Error>();
   const [version, setVersion] = useState(0);
   const saveController = useRef<AbortController | null>(null);
-  const action = useAction();
+  const action = useAction(sessionAuthorityKey(session));
   useEffect(
     () => () => saveController.current?.abort(),
     [session.user.id, session.csrfToken],
@@ -793,20 +799,18 @@ function PersonalAccount({
   async function save(event: FormEvent) {
     event.preventDefault();
     setSaved(false);
-    await action.run(async () => {
+    await action.run(async (view) => {
       const controller = new AbortController();
       saveController.current = controller;
-      const current = await personalApi<PersonalSession>(
-        "/personal/account",
-        session,
-        {
+      const current = await view.wait(
+        personalApi<PersonalSession>("/personal/account", session, {
           method: "PATCH",
           signal: controller.signal,
           body: {
             name: name.trim(),
             preferredLocale: locale || null,
           },
-        },
+        }),
       );
       if (current.user.id !== session.user.id) return;
       onUpdated(current);
@@ -942,11 +946,13 @@ function PersonalAccount({
                       confirmLabel={msg("Close session")}
                       disabled={action.pending}
                       onConfirm={() =>
-                        void action.run(async () => {
-                          await personalApi(
-                            `/personal/account/sessions/${encodeURIComponent(item.id)}/revoke`,
-                            session,
-                            { method: "POST", body: {} },
+                        void action.run(async (view) => {
+                          await view.wait(
+                            personalApi(
+                              `/personal/account/sessions/${encodeURIComponent(item.id)}/revoke`,
+                              session,
+                              { method: "POST", body: {} },
+                            ),
                           );
                           setVersion((n) => n + 1);
                         })

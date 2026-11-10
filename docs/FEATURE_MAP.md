@@ -1,8 +1,8 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**28 domains · 469 features · 46 journeys · 78 documented REST operations · 83 MCP tools**
-Updated 2026-11-09.
+**28 domains · 502 features · 55 journeys · 96 documented REST operations · 92 MCP tools**
+Updated 2026-11-10.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
 
@@ -14,9 +14,9 @@ Start here to find a feature, its authority and its technical owner. Read [repos
 mindmap
   root((Guteneo))
     Access
-      Access and identity (40)
-      Team and responsibilities (10)
-      Workspace administration and reports (14)
+      Access and identity (42)
+      Team and responsibilities (12)
+      Workspace administration and reports (18)
     Create
       Documents and protection (22)
       Template studio (15)
@@ -29,18 +29,18 @@ mindmap
       Sensitive distribution and personal documents (37)
       Dispatch dry run (7)
     Operate
-      Campaigns and tracking (9)
+      Campaigns and tracking (15)
       Credits and billing (10)
-      Workspace layout and browser appearance (37)
+      Workspace layout and browser appearance (49)
       PDF verification (10)
     Interfaces
-      Assistants and API (31)
-      iPhone and iPad (10)
-      Public pages, languages and appearance (24)
+      Assistants and API (33)
+      iPhone and iPad (12)
+      Public pages, languages and appearance (25)
     Operations
       Reviewer OAuth qualification (9)
       Operations and reliability (32)
-      Belvédère platform oversight (14)
+      Belvédère platform oversight (16)
       Public service status (16)
       Engineering documentation (13)
       Codex Cloud development (8)
@@ -51,9 +51,9 @@ mindmap
 
 ### Access
 
-- [Access and identity](#identity) — 40 features; browser-session.
-- [Team and responsibilities](#team) — 10 features; browser-session.
-- [Workspace administration and reports](#administration) — 14 features; browser-session.
+- [Access and identity](#identity) — 42 features; browser-session.
+- [Team and responsibilities](#team) — 12 features; browser-session.
+- [Workspace administration and reports](#administration) — 18 features; browser-session.
 
 ### Create
 
@@ -72,22 +72,22 @@ mindmap
 
 ### Operate
 
-- [Campaigns and tracking](#campaigns) — 9 features; capability-gated.
+- [Campaigns and tracking](#campaigns) — 15 features; capability-gated.
 - [Credits and billing](#billing) — 10 features; partial.
-- [Workspace layout and browser appearance](#dashboard) — 37 features; browser-session.
+- [Workspace layout and browser appearance](#dashboard) — 49 features; browser-session.
 - [PDF verification](#pdf-verification) — 10 features; capability-gated.
 
 ### Interfaces
 
-- [Assistants and API](#assistants) — 31 features; host-qualified.
-- [iPhone and iPad](#native) — 10 features; local-candidate.
-- [Public pages, languages and appearance](#public) — 24 features; public.
+- [Assistants and API](#assistants) — 33 features; host-qualified.
+- [iPhone and iPad](#native) — 12 features; local-candidate.
+- [Public pages, languages and appearance](#public) — 25 features; public.
 
 ### Operations
 
 - [Reviewer OAuth qualification](#reviewer-oauth) — 9 features; operator-gated.
 - [Operations and reliability](#operations) — 32 features; operator-gated.
-- [Belvédère platform oversight](#belvedere) — 14 features; operator-gated.
+- [Belvédère platform oversight](#belvedere) — 16 features; operator-gated.
 - [Public service status](#status) — 16 features; public.
 - [Engineering documentation](#engineering-docs) — 13 features; public.
 - [Codex Cloud development](#cloud-development) — 8 features; local-candidate.
@@ -103,7 +103,7 @@ An availability label describes the access/gating model, never an assertion of l
 
 ## Roles and permissions
 
-Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards. Personal account authority is separate from workspace membership. Template/default email copy and link placeholders grant no approval or recipient consent. Sensitive approval and recipient association always require the browser under the active document policy; an expert mandate cannot replace them.
+Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards. Personal account authority is separate from workspace membership. Template/default email copy and link placeholders grant no approval or recipient consent. Sensitive approval and recipient association always require the browser under the active document policy; an expert mandate cannot replace them. Future_browser spending approval is separate from ordinary approval and expert delegation and has no assistant/native grant surface. Saved recipients require current preparation rights; webhook configuration/secrets require an actual current administrator browser session. Browser presentation and device-local drafts grant no authority.
 
 | Capability | Administrator | Supervisor | Operator | Observer | Connected assistant |
 | --- | --- | --- | --- | --- | --- |
@@ -165,6 +165,15 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Resolve a durably closed queue incident | Browser, current session and CSRF | No | No | No | No |
 | Request deletion of own account | Own authenticated native account or published support channel | Own authenticated native account or published support channel | Own authenticated native account or published support channel | Own authenticated native account or published support channel | No |
 | Process a reviewed account-deletion plan | No workspace-role authority; separate private operator RPC | No | No | No | No |
+| Read saved recipient data | Current preparation authority | Current preparation authority | Current preparation authority | No | dispatches:read plus current preparer role/connection authority; no recipient consent |
+| Create, update or delete a saved recipient | Current preparation authority; exact revision for edit/delete | Same | Same | No | dispatches:prepare plus current preparer/tenant authority; stable create key and exact edit/delete revision |
+| Prepare or read a future schedule | Current preparation/source rights | Current preparation/source rights; only own unless approver | Own preparations and current source rights | No | Existing dispatches:prepare/read scopes and current creator/approver visibility; no approval, native endpoint or funds reservation |
+| Grant or extend future spending approval | Actual current browser only; exact immutable cap/time/snapshot | Actual current browser and approval option only | No | No | No MCP/OAuth/native or expert-mandate authority; no extension operation, changed terms require new explicit browser approval |
+| Cancel an unaccepted future schedule | Current browser/OAuth authority | Only preparer or recorded approver with current rights | Only own preparation with current rights | No | dispatches:send plus current preparer/approver/admin and exact revision; accepted releases retain ordinary lifecycle |
+| Configure lifecycle webhook or reveal/rotate its secret | Actual current browser, Origin/CSRF and exact revision | No | No | No | No MCP/OAuth/native tool; default-off runtime, encryption and strict-public egress gates remain separate |
+| Read attention metadata or own outcome receipts | Browser; current resource authority | Browser; current resource authority | Browser; current resource authority | Browser; current operational visibility only | No attention endpoint or outcome-tray MCP/native capability; no consent from a suggestion/receipt |
+| Use commands or save table presentation | Browser; current navigation/row rights | Same | Same | Same | No business REST/MCP/native authority; local presentation only, partitioned by authenticated person/workspace/area/table |
+| Save or resume a native composer draft | Own native identity/workspace | Own native identity/workspace | Own native identity/workspace | No composition permission | No assistant access; device-only seven-day Keychain storage grants no API or browser approval authority |
 
 Supervisor approval/reporting options are independent and off by default. Resource ownership/context checks still apply. See [workspace roles](WORKSPACE_ROLES.md), [expert approval](EXPERT_APPROVAL.md) and [studio access](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -217,10 +226,12 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Four-language Auth0 account email candidates with normalized request language and English fallback; current owned application IDs scope body, subject and sender while exact prior Liquid fields preserve other or missing clients. Offline Liquid/browser proof, remote application and real delivery remain separate; enabled flags, redirect and expiry are unchanged
 - Account deletion request and separate default-off private operator processing: a frozen reviewed plan blocks unsafe workspace closure and unresolved liabilities, revokes all authentication, verifies exact storage/identity erasure and delivered completion-notice evidence, minimizes the retained historical skeleton, and never calls a disabled profile completed deletion; no public or MCP processor authority
 - Browser session-expiry events carry their request session revision; a stale 401 after session replacement cannot expire the current account, while current-session failures still trigger recovery
+- The shared browser authority identity includes person, workspace, effective role/options, credential revision and document-policy facts, with an opaque in-memory key; A→B→A visits cannot revive obsolete requests or private cache entries
+- Account deletion explicitly purges attributed saved contacts, retires pending schedules/future grants and crypto-shreds webhook configuration under reviewed retention; accepted or uncertain provider liabilities remain genuine blockers, not a blanket ban on new feature owners
 
 **Contract:** [ACCOUNT_IDENTITY.md](ACCOUNT_IDENTITY.md) · **Implementation:** [apps/api/src/auth.ts](../apps/api/src/auth.ts)
 
-**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/mcp-auth0-domain.test.ts](../tests/unit/mcp-auth0-domain.test.ts), [tests/unit/postal-authority.test.ts](../tests/unit/postal-authority.test.ts), [tests/integration/expert-status.test.ts](../tests/integration/expert-status.test.ts), [tests/unit/workspace-entry.test.ts](../tests/unit/workspace-entry.test.ts), [tests/integration/workspace-invitations.test.ts](../tests/integration/workspace-invitations.test.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/unit/api-async.test.ts](../tests/unit/api-async.test.ts), [tests/security/auth0-email-branding.test.mjs](../tests/security/auth0-email-branding.test.mjs), [tests/auth0-email-e2e/email.spec.ts](../tests/auth0-email-e2e/email.spec.ts), [tests/integration/account-deletion.test.ts](../tests/integration/account-deletion.test.ts), [tests/security/account-deletion-operator.test.mjs](../tests/security/account-deletion-operator.test.mjs)
+**Tests:** [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/security/auth0-branding.test.mjs](../tests/security/auth0-branding.test.mjs), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/dashboard.spec.ts](../tests/e2e/dashboard.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/unit/document-invitation.test.ts](../tests/unit/document-invitation.test.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/mcp-auth0-domain.test.ts](../tests/unit/mcp-auth0-domain.test.ts), [tests/unit/postal-authority.test.ts](../tests/unit/postal-authority.test.ts), [tests/integration/expert-status.test.ts](../tests/integration/expert-status.test.ts), [tests/unit/workspace-entry.test.ts](../tests/unit/workspace-entry.test.ts), [tests/integration/workspace-invitations.test.ts](../tests/integration/workspace-invitations.test.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts), [tests/unit/secure-distribution-web.test.ts](../tests/unit/secure-distribution-web.test.ts), [tests/unit/api-async.test.ts](../tests/unit/api-async.test.ts), [tests/security/auth0-email-branding.test.mjs](../tests/security/auth0-email-branding.test.mjs), [tests/auth0-email-e2e/email.spec.ts](../tests/auth0-email-e2e/email.spec.ts), [tests/integration/account-deletion.test.ts](../tests/integration/account-deletion.test.ts), [tests/security/account-deletion-operator.test.mjs](../tests/security/account-deletion-operator.test.mjs), [tests/unit/client-foundations.test.ts](../tests/unit/client-foundations.test.ts), [tests/unit/action-outcomes.test.ts](../tests/unit/action-outcomes.test.ts)
 
 
 
@@ -241,10 +252,12 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Sensitive preparations are visible to their creator and current approvers; operators and observers gain no general access to other preparations
 - Sensitive approval and recipient/account association require a browser under the current document policy; OAuth confirmation follows recorded browser evidence, with no expert-mandate substitute
 - Workspace roles grant no access to another person’s vault; a recipient gains no membership in the sender’s workspace
+- Future schedule approval is distinct from ordinary browser review and expert mandates: only browser administrators or independently authorized supervisor approvers grant it; preparers can draft and authorized owners can revoke, while assistants/native cannot approve
+- Saved destination data is limited to current preparers, and callback configuration/signing secrets to current browser administrators; an observer role or reporting permission alone grants neither contact export nor callback administration
 
 **Contract:** [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md) · **Implementation:** [packages/contracts/src/roles.ts](../packages/contracts/src/roles.ts)
 
-**Tests:** [tests/integration/workspace-roles.test.ts](../tests/integration/workspace-roles.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts)
+**Tests:** [tests/integration/workspace-roles.test.ts](../tests/integration/workspace-roles.test.ts), [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/integration/secure-approval-boundary.test.ts](../tests/integration/secure-approval-boundary.test.ts), [tests/unit/mcp-secure-distribution.test.ts](../tests/unit/mcp-secure-distribution.test.ts), [tests/integration/saved-recipients.test.ts](../tests/integration/saved-recipients.test.ts), [tests/integration/dispatch-schedules.test.ts](../tests/integration/dispatch-schedules.test.ts), [tests/integration/customer-webhooks.test.ts](../tests/integration/customer-webhooks.test.ts)
 
 
 
@@ -686,9 +699,9 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="campaigns"></a>
 ### Campaigns and tracking
 
-**Availability model:** capability-gated. Implemented; role, exact-document and channel gates apply.
+**Availability model:** capability-gated. Implemented tracking and campaign contracts. The 9 November lifecycle candidate adds contacts and separately approved schedules, with migrated-D1 and synthetic production-bridge tests; migrations 0078/0080, release activation, hosted clients and actual future delivery require separate qualification.
 
-**Surfaces:** Web, REST and MCP; reporting and approval rights are independently checked.
+**Surfaces:** Web, existing OAuth REST and nine additive MCP contact/schedule tools under existing scopes; future approval is browser-only. Native gains no contact/schedule API or approval surface. Detailed contracts: SCHEDULED_DISPATCHES.md and lifecycle integration routes.
 
 - Named campaign with CSV recipients
 - Row validation, errors and duplicate detection
@@ -699,10 +712,16 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Channel/ceiling administration without blind retries
 - Path-scoped browser refresh prevents stale resources or cancelled 401s from replacing a newer session
 - Frozen nonempty campaigns complete automatically only after every immutable member is operationally closed with no execution lease, unresolved invocation or reserved quota/credit; postal handover is execution closure, never recipient receipt, and late ranked facts remain projectable
+- Reusable tenant-scoped fax, email and postal recipients require current preparation authority even for reads; validated optimistic-revision edits affect the address book only, and immutable dispatch recipients retain their snapshots
+- Saved-recipient creation has a durable tenant-scoped idempotency receipt; deletion removes contact data and an old create-key replay cannot resurrect it; bounded pages and a 1,000-contact workspace limit remain explicit
+- Scheduled fax and message-only email use a distinct revocable future_browser grant from an actual current browser approver, binding exact source content, destination, sender, options, UTC instant, fifteen-minute acceptance window and integer total cap within thirty days
+- Draft schedules hold ordinary approval and immediate acceptance of the original without reserving funds; default-off automatic release refuses approval while disabled, prepares a fresh quote within cap and rechecks both principals, source, provider and funds before atomic quota/outbox acceptance Held originals project into in-progress lists/counts, while draft-schedule approval attention opens its distinct review. Ordinary cancellation also refuses a held original, including an already-cancelled source; future authority is revoked only through its schedule operation.
+- A schedule has one immutable release command; current-source and revocation races are fenced in SQL, actual Telnyx/SES/Resend bridges consume separate accepted future evidence, and unknown outcomes never auto-retry
+- Secure/protected/PDF-email/postal and review-only fax cannot gain schedule authority; explicit terminal recovery is offered only for known-unsent blocked/cancelled work, with a new cap/time and no inherited approval
 
 **Contract:** [API_CONTRACT.md](API_CONTRACT.md) · **Implementation:** [apps/api/src/index.ts](../apps/api/src/index.ts)
 
-**Tests:** [tests/integration/domain-invariants.test.ts](../tests/integration/domain-invariants.test.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/integration/campaign-lifecycle.test.ts](../tests/integration/campaign-lifecycle.test.ts)
+**Tests:** [tests/integration/domain-invariants.test.ts](../tests/integration/domain-invariants.test.ts), [tests/e2e/resource-navigation.spec.ts](../tests/e2e/resource-navigation.spec.ts), [tests/unit/web-api-cancellation.test.ts](../tests/unit/web-api-cancellation.test.ts), [tests/integration/campaign-lifecycle.test.ts](../tests/integration/campaign-lifecycle.test.ts), [tests/integration/saved-recipients.test.ts](../tests/integration/saved-recipients.test.ts), [tests/integration/dispatch-schedules.test.ts](../tests/integration/dispatch-schedules.test.ts), [tests/helpers/scheduled-production-fixture.ts](../tests/helpers/scheduled-production-fixture.ts), [tests/integration/lifecycle-http.test.ts](../tests/integration/lifecycle-http.test.ts), [tests/e2e/dispatch-schedules.spec.ts](../tests/e2e/dispatch-schedules.spec.ts), [tests/e2e/lifecycle-workspace.spec.ts](../tests/e2e/lifecycle-workspace.spec.ts)
 
 **Documented REST operations**
 
@@ -715,6 +734,17 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - `POST /api/campaigns`
 - `GET /api/campaigns/{id}`
 - `POST /api/recipients/validate`
+- `GET /api/recipients`
+- `POST /api/recipients`
+- `GET /api/recipients/{id}`
+- `PATCH /api/recipients/{id}`
+- `DELETE /api/recipients/{id}`
+- `GET /api/dispatch-schedules/capabilities`
+- `GET /api/dispatch-schedules`
+- `POST /api/dispatch-schedules`
+- `GET /api/dispatch-schedules/{id}`
+- `POST /api/dispatch-schedules/{id}/approve`
+- `POST /api/dispatch-schedules/{id}/cancel`
 
 **MCP tools**
 
@@ -725,6 +755,15 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - `list_dispatches`
 - `prepare_dispatch`
 - `review_dispatch`
+- `list_saved_recipients`
+- `get_saved_recipient`
+- `save_recipient`
+- `update_saved_recipient`
+- `delete_saved_recipient`
+- `list_dispatch_schedules`
+- `get_dispatch_schedule`
+- `prepare_dispatch_schedule`
+- `cancel_dispatch_schedule`
 
 <a id="billing"></a>
 ### Credits and billing
@@ -793,10 +832,12 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Reproducible standalone Claude Code and relative-source local marketplace archives; six workflows without OpenAI metadata or tool preauthorisation
 - MCP custom-domain discovery and signed issuer snapshot preserve canonical data keys, legacy credentials, current postal/expert fences and unchanged scopes; host consent and refresh remain separately qualified
 - Every MCP change reviews and versions the ChatGPT package in the same release; CI/build compare recorded package and MCP direct-import fingerprints, then regenerate the downloadable archive and exact manifest hash; indirect behavior and actual host installation require separate review
+- Nine additive contact/schedule tools expose tenant-scoped contact CRUD and schedule list/read/prepare/cancel under existing dispatch scopes; the actual catalogue is 84 ordinary tools and 92 with the eight existing opt-in tools
+- No assistant tool creates, extends or asserts future_browser approval or customer-webhook activation; schedule preparation discloses the original acceptance hold and known-unsent orphan cleanup, while host confirmation never substitutes for current server authority
 
 **Contract:** [MCP_CLIENT_COMPATIBILITY.md](MCP_CLIENT_COMPATIBILITY.md) · **Implementation:** [apps/api/src/mcp.ts](../apps/api/src/mcp.ts)
 
-**Tests:** [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/unit/mcp-annotation-audit.test.ts](../tests/unit/mcp-annotation-audit.test.ts), [tests/unit/mcp-ui-probe.test.ts](../tests/unit/mcp-ui-probe.test.ts), [tests/unit/mcp-app-upload.test.ts](../tests/unit/mcp-app-upload.test.ts), [tests/unit/mcp-app-upload-contracts.test.ts](../tests/unit/mcp-app-upload-contracts.test.ts), [tests/browser/mcp-document-upload.test.mjs](../tests/browser/mcp-document-upload.test.mjs), [tests/security/mcp-document-upload.test.mjs](../tests/security/mcp-document-upload.test.mjs), [tests/security/mcp-ui-probe.test.mjs](../tests/security/mcp-ui-probe.test.mjs), [tests/integration/expert-approval.test.ts](../tests/integration/expert-approval.test.ts), [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/security/integration-package.test.mjs](../tests/security/integration-package.test.mjs), [tests/security/claude-plugin.test.mjs](../tests/security/claude-plugin.test.mjs), [tests/security/integration-sync.test.mjs](../tests/security/integration-sync.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts)
+**Tests:** [tests/unit/mcp-integrations.test.ts](../tests/unit/mcp-integrations.test.ts), [tests/unit/mcp-annotation-audit.test.ts](../tests/unit/mcp-annotation-audit.test.ts), [tests/unit/mcp-ui-probe.test.ts](../tests/unit/mcp-ui-probe.test.ts), [tests/unit/mcp-app-upload.test.ts](../tests/unit/mcp-app-upload.test.ts), [tests/unit/mcp-app-upload-contracts.test.ts](../tests/unit/mcp-app-upload-contracts.test.ts), [tests/browser/mcp-document-upload.test.mjs](../tests/browser/mcp-document-upload.test.mjs), [tests/security/mcp-document-upload.test.mjs](../tests/security/mcp-document-upload.test.mjs), [tests/security/mcp-ui-probe.test.mjs](../tests/security/mcp-ui-probe.test.mjs), [tests/integration/expert-approval.test.ts](../tests/integration/expert-approval.test.ts), [tests/unit/auth.test.ts](../tests/unit/auth.test.ts), [tests/integration/template-workflow.test.ts](../tests/integration/template-workflow.test.ts), [tests/unit/pdf-validation.test.ts](../tests/unit/pdf-validation.test.ts), [tests/security/integration-package.test.mjs](../tests/security/integration-package.test.mjs), [tests/security/claude-plugin.test.mjs](../tests/security/claude-plugin.test.mjs), [tests/security/integration-sync.test.mjs](../tests/security/integration-sync.test.mjs), [tests/security/preview-release-assets.test.mjs](../tests/security/preview-release-assets.test.mjs), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts), [tests/e2e/assistant-hub.spec.ts](../tests/e2e/assistant-hub.spec.ts), [tests/integration/saved-recipients.test.ts](../tests/integration/saved-recipients.test.ts), [tests/integration/dispatch-schedules.test.ts](../tests/integration/dispatch-schedules.test.ts)
 
 **Documented REST operations**
 
@@ -837,7 +878,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Availability model:** local-candidate. Native candidate; physical-device, signing and distribution qualification remain separate.
 
-**Surfaces:** Native SwiftUI client and versioned mobile API; authenticated browser for final approval.
+**Surfaces:** Native SwiftUI client and existing versioned mobile API, plus private device-local draft storage; authenticated browser for final approval. No native schedule, future-consent or webhook authority is added.
 
 - System authentication with dedicated mobile sessions
 - Adaptive iPhone/iPad navigation and accessibility; English source keys with 261 preserved four-language native translations
@@ -849,10 +890,12 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Read preferredDashboardAppearance in account/session without a native setting/PATCH
 - Swift opens canonical /auth/mobile/authorize; the server selects the configured browser domain and preserves mobile PKCE return, distinct from the native callback
 - Native dispatch preparation owns one immutable submitted draft and stable retry key, locks authoring while pending and rejects duplicate begin; terminal preparation never grants browser send approval
+- Device-local fax/email composer drafts survive process relaunch in non-synchronizing WhenUnlockedThisDeviceOnly Keychain storage, partitioned by exact user/workspace; at most five drafts and 768 KiB are retained for seven days without silent capacity eviction
+- Explicit resume/discard uses optimistic local revisions and current authenticated identity; submitted stable keys and confirmed preparation references survive uncertainty, while storage errors remain visible and unknown preparation recovery never creates a replacement key or browser consent
 
 **Contract:** [IOS_API.md](IOS_API.md) · **Implementation:** [apps/api/src/mobile.ts](../apps/api/src/mobile.ts)
 
-**Tests:** [tests/e2e/mobile-account.spec.ts](../tests/e2e/mobile-account.spec.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [ios/GuteneoTests/CoreTests.swift](../ios/GuteneoTests/CoreTests.swift)
+**Tests:** [tests/e2e/mobile-account.spec.ts](../tests/e2e/mobile-account.spec.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [ios/GuteneoTests/CoreTests.swift](../ios/GuteneoTests/CoreTests.swift), [ios/GuteneoTests/DispatchDraftTests.swift](../ios/GuteneoTests/DispatchDraftTests.swift), [ios/GuteneoUITests/GuteneoUITests.swift](../ios/GuteneoUITests/GuteneoUITests.swift)
 
 
 
@@ -887,19 +930,20 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Ordinary same-origin links between registered public pages retain one browser document and loaded application; all small public page components are available on the first interactive click without HTML, route-code, session or private-data prefetch. Canonical English URLs, four-language presentation, static direct entries, history, anchors, focus and destination metadata remain coherent; unavailable initial JavaScript retains the complete static page. Pointer route focus does not frame script-focused containers; keyboard route focus underlines the new main title in the brand blue while interactive controls retain their focus indicators
 - Public film play controls are disabled in server HTML until the client handler mounts; releasing route code starts no movie, and the first enabled click keeps playback/fullscreen in the native gesture with the resolved locale
 - Public fixture PDFs initialize concurrently with deterministic order, no business bindings or extra network dependency
+- Active-locale browser code loading keeps inactive translation packs off initial public routes and waits for the chosen catalogue before mounting; unchanged PDF-check pricing metadata is a pure contract module without validation-runtime imports
 
 **Contract:** [MULTILINGUAL.md](MULTILINGUAL.md) · **Implementation:** [packages/contracts/src/public-site.json](../packages/contracts/src/public-site.json)
 
-**Tests:** [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/preview-e2e/public-render-stability.spec.ts](../tests/preview-e2e/public-render-stability.spec.ts), [tests/unit/locale-bootstrap.test.ts](../tests/unit/locale-bootstrap.test.ts), [tests/unit/public-locale-negotiation.test.ts](../tests/unit/public-locale-negotiation.test.ts), [tests/preview-e2e/language-navigation.spec.ts](../tests/preview-e2e/language-navigation.spec.ts), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts), [tests/preview-e2e/public-menu-escape.spec.ts](../tests/preview-e2e/public-menu-escape.spec.ts), [tests/unit/public-assets.test.ts](../tests/unit/public-assets.test.ts), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/unit/public-http-error.test.ts](../tests/unit/public-http-error.test.ts), [tests/preview-e2e/homepage.spec.ts](../tests/preview-e2e/homepage.spec.ts), [tests/preview-e2e/homepage-film.spec.ts](../tests/preview-e2e/homepage-film.spec.ts), [tests/preview-e2e/seo.spec.ts](../tests/preview-e2e/seo.spec.ts), [tests/preview-e2e/theme.spec.ts](../tests/preview-e2e/theme.spec.ts), [tests/unit/standalone-theme.test.ts](../tests/unit/standalone-theme.test.ts), [tests/preview-e2e/public-artwork.spec.ts](../tests/preview-e2e/public-artwork.spec.ts), [tests/unit/public-preview.test.ts](../tests/unit/public-preview.test.ts), [tests/preview-e2e/preview.spec.ts](../tests/preview-e2e/preview.spec.ts), [tests/preview-e2e/mobile-workspace.spec.ts](../tests/preview-e2e/mobile-workspace.spec.ts), [tests/unit/public-footer.test.ts](../tests/unit/public-footer.test.ts), [tests/security/brand-icons.test.mjs](../tests/security/brand-icons.test.mjs), [tests/preview-e2e/font-render-stability.spec.ts](../tests/preview-e2e/font-render-stability.spec.ts), [tests/unit/public-navigation.test.ts](../tests/unit/public-navigation.test.ts), [tests/preview-e2e/public-navigation.spec.ts](../tests/preview-e2e/public-navigation.spec.ts), [tests/unit/web-async-preview.test.ts](../tests/unit/web-async-preview.test.ts)
+**Tests:** [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/preview-e2e/public-render-stability.spec.ts](../tests/preview-e2e/public-render-stability.spec.ts), [tests/unit/locale-bootstrap.test.ts](../tests/unit/locale-bootstrap.test.ts), [tests/unit/public-locale-negotiation.test.ts](../tests/unit/public-locale-negotiation.test.ts), [tests/preview-e2e/language-navigation.spec.ts](../tests/preview-e2e/language-navigation.spec.ts), [tests/preview-e2e/assistant-hub.spec.ts](../tests/preview-e2e/assistant-hub.spec.ts), [tests/preview-e2e/public-menu-escape.spec.ts](../tests/preview-e2e/public-menu-escape.spec.ts), [tests/unit/public-assets.test.ts](../tests/unit/public-assets.test.ts), [tests/security/public-assets.test.mjs](../tests/security/public-assets.test.mjs), [tests/unit/public-http-error.test.ts](../tests/unit/public-http-error.test.ts), [tests/preview-e2e/homepage.spec.ts](../tests/preview-e2e/homepage.spec.ts), [tests/preview-e2e/homepage-film.spec.ts](../tests/preview-e2e/homepage-film.spec.ts), [tests/preview-e2e/seo.spec.ts](../tests/preview-e2e/seo.spec.ts), [tests/preview-e2e/theme.spec.ts](../tests/preview-e2e/theme.spec.ts), [tests/unit/standalone-theme.test.ts](../tests/unit/standalone-theme.test.ts), [tests/preview-e2e/public-artwork.spec.ts](../tests/preview-e2e/public-artwork.spec.ts), [tests/unit/public-preview.test.ts](../tests/unit/public-preview.test.ts), [tests/preview-e2e/preview.spec.ts](../tests/preview-e2e/preview.spec.ts), [tests/preview-e2e/mobile-workspace.spec.ts](../tests/preview-e2e/mobile-workspace.spec.ts), [tests/unit/public-footer.test.ts](../tests/unit/public-footer.test.ts), [tests/security/brand-icons.test.mjs](../tests/security/brand-icons.test.mjs), [tests/preview-e2e/font-render-stability.spec.ts](../tests/preview-e2e/font-render-stability.spec.ts), [tests/unit/public-navigation.test.ts](../tests/unit/public-navigation.test.ts), [tests/preview-e2e/public-navigation.spec.ts](../tests/preview-e2e/public-navigation.spec.ts), [tests/unit/web-async-preview.test.ts](../tests/unit/web-async-preview.test.ts), [tests/unit/locale-projections.test.ts](../tests/unit/locale-projections.test.ts), [tests/e2e/locale-loading.spec.ts](../tests/e2e/locale-loading.spec.ts), [tests/e2e/lifecycle-accessibility.spec.ts](../tests/e2e/lifecycle-accessibility.spec.ts)
 
 
 
 <a id="dashboard"></a>
 ### Workspace layout and browser appearance
 
-**Availability model:** browser-session. The 29 October 2026 Studio space, the application/workspace switchers and the four-application ownership check are a local source candidate requiring CI and publication evidence. The 29 October 2026 Classic retirement is a local source candidate requiring CI and publication evidence: every account sees V2, and the stored preference stays accepted without changing the web layout. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority. The shared outlined personal-context navigation refinement is a local source candidate requiring its own rendered and publication evidence. The 29 October compact V2 navigation and account-menu refinement is a local source candidate requiring CI and publication evidence. The 30 October shared operational-table refinement is locally qualified with synthetic model/browser checks and measured loading recorded in docs/FRONTEND_PERFORMANCE.md; hosted CI and publication remain separate.
+**Availability model:** browser-session. Current source uses the single V2 layout across five independently owned applications with zero import/design exceptions. The 9 November lifecycle candidate adds outcomes, full-dataset attention, navigation and bounded presentation presets, shared continuation/identity/navigation/poll/cache foundations, active-locale loading and three module splits. Exact-source tests, rendered accessibility, transfer and first-content evidence belong in LIFECYCLE_EXPERIENCE_EXECUTION.md and FRONTEND_PERFORMANCE.md; implementation alone establishes no hosted publication or physical-device qualification.
 
-**Surfaces:** Authenticated web V2 only; native reads the stored preference without a setter; no new business API/MCP authority.
+**Surfaces:** Shared authenticated browser frame and application-owned lazy modules. Attention uses a new browser-only metadata read; outcomes, navigation commands and saved presentation presets grant no business authority. Native local drafts and backend contact/schedule/callback surfaces are documented separately.
 
 - Full real-web V2 views with the same account, tenant, resources and operations; Classic was retired on 29 October 2026
 - Account at navigation bottom, language and color controls side by side in account customization; mobile identity remains visible with the menu closed; the V2 account row opens a disclosure menu with name/email, profile, the shared labelled light/dark action, account switching, service status and sign-out, closing on Escape with focus returned and keeping 44 px touch targets; role and detailed permissions live on My account; native mobile details closes synchronously on Escape before a queued toggle reaches React, preserving summary focus and keyboard activation
@@ -916,7 +960,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Generation introduction focuses on finding PDFs and makes clear that generation sends nothing
 - Official identity and real documents, metrics and controls remain; decorative DashboardArtwork panels and swallow styling are retired from overview, empty Documents and assistant introduction, without replacement illustrations
 - Four-language labels; simulation notices only for simulated sessions
-- Same four roles, supervisor options, private access and consents; no new mandate, channel or business API/MCP tool
+- Shared layout and presentation retain the four roles, supervisor options, private access and consent gates; the separately documented contact, schedule and callback services own their API/MCP changes
 - Native account/session reads include appearance without a setter; existing name/language browser PATCH and native language PATCH remain compatible
 - On screens up to 1024 px the account sits beside the brand as a named 44 px avatar whose menu opens towards the page, and a one-entry personal navigation is hidden; empty Dispatches offer New dispatch and From a generation to members who can prepare
 - Two separate switchers open the shared V2 sidebar: the application switcher (Studio, Correspondence, My documents; in every application) and, in Studio and Correspondence only, the workspace switcher (current workspace, other memberships, create or join). The workspace list is read only when its panel opens, belongs to one account/workspace/authority identity so a late or earlier list is never shown, is read again after a refused membership, honours the existing unsaved-work veto before switching, and both panels close on Escape (including after a Safari pointer click), an outside pointer or any navigation; triggers are 40/36 px for desktop pointers and 44 px on touch screens; identity actions stay in the account menu
@@ -934,14 +978,30 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - All four application import exceptions are removed: personal lazy entry, correspondence preference helper, shared entry-link style and locale-change event replace the former eager/cross-layer dependencies
 - Explicit route-code recovery refreshes only failed same-origin public JS/CSS assets before reloading, with no credentials/referrer/private query, at most eight requests, an eight-MiB per-response read bound and five-second timeout; no background retry or business endpoint is added
 - Shared data-table.tsx/model/styles provide accent-insensitive multiword search, optional categorical filters, raw-value column sorting with accessible headers/mobile controls, page-size selection and bounded browser pagination over already authorized loaded rows; container-based 40-rem cards keep consistent padding while wider tables contain horizontal overflow, and static/reference/editable grids retain their specialized behavior
-- Table controls reset the browser page after search/filter/sort/page-size changes, clamp shrinking results, offer clear-filter recovery and persist no search or record state; explicit cursor loading stays visible, server-paged Belvédère search/pagination remains authoritative and local column sorting identifies its current-page scope; four human roles, personal isolation and business authority are unchanged
+- Table controls reset the browser page after search/filter/sort/page-size changes, clamp shrinking results and offer clear-filter recovery; explicit saved presets persist only bounded presentation options in a person/workspace/table/area partition, while searches, rows and cursor state remain transient and server paging stays authoritative
 - DEV + public-preview + loopback-only simulation controls select four fictional membership roles and a separate observer platform-access hint; unsaved-navigation veto, scenario identity remount and scoped IDs/cursors preserve account separation without Auth0, memberships or business authority
 - Reproducible seeded Small/Large/Huge/Extreme metadata profiles expose up to one billion logical documents, dispatches, templates, datasets and generations while generating at most fifty records per read; generated volumes and fictional personal documents are read-only, bounded PDF caches materialize only requested bytes and fixture failures never fall through to production
 - Shared table regions have distinct accessible names and source-range captions retain table naming; keyboard journeys traverse added search/sort controls, pagination tests inspect all loaded rows, and responsive assertions distinguish active cards from intentionally scrollable wider tables
+- A metadata-only outcome tray retains up to twenty confirmed action receipts for fifteen minutes when a view is abandoned; it never guesses success, replays a write, stores content/recipients/secrets or survives an authority change
+- Overview attention is a browser-only SQL-derived authorized queue across the full dataset, with stable priority/cursor pagination for unknown submissions, blocked/unknown schedules, expiring quotes/protected links and eligible ordinary and distinct future-schedule approvals; it is independent of the first dispatch page
+- A localized Cmd/Ctrl+K command palette searches up to thirty permitted navigation destinations with keyboard selection, modal focus and existing unsaved-navigation guards; it performs no remote search or business action
+- Opt-in saved table views retain at most eight named presentation presets per authenticated person/workspace/table and application area: schema-validated sort, categorical filters and page size only, never rows, recipients, free-text searches, cursors, credentials or authority
+- Default useAction continuations cross view.wait checkpoints and synchronously exclude same-turn re-entry before React renders; obsolete replies may publish only confirmed metadata receipts and cannot perform dependent writes, reveal secrets or navigate
+- One shared navigation revision records leave-and-return and A→B→A visits, while the canonical authority key invalidates action ownership, read resources and bounded list sharing across person/workspace/permission/credential/policy changes
+- Visibility-aware read polling pauses hidden pages, performs one eligible read on return and backs off unchanged progress within a thirty-second default ceiling without replacing in-flight reads or retrying mutations
+- Allowlisted collection reads share a five-second memory-only cache bounded to sixty-four entries and 32,768 serialized characters per value; identity/locale scope and mutation-attempt invalidation protect data, while detail/readiness/approval reads bypass it and authority refusals clear stale private models
+- Browser locale packs load only the active French, English, German or Luxembourgish catalogue before mounting translated content; SSR retains synchronous source catalogues and Belvédère has independent per-locale packs, with transfer/first-content evidence recorded separately
+- Shared chart colors, elevation and frame geometry use design-system tokens; the applications manifest has zero import and zero design exceptions, preserving application ownership rather than adding exemptions
+- Automated Axe journeys cover four locales and both themes with keyboard, modal, responsive and authority fixtures; these are bounded browser/synthetic checks, not a claim of complete accessibility or physical-device certification
+- Dispatch routes are split into overview/documents/prepare/list/detail modules with compatibility exports; the former shared stylesheet is ordered foundation/workspace/documents/operations/responsive/public/adaptation modules, and Belvédère routes lazily load independent views with shared typed data/components
 
 **Contract:** [DASHBOARD_V2.md](DASHBOARD_V2.md) · **Implementation:** [apps/web/src/account-page.tsx](../apps/web/src/account-page.tsx)
 
-**Tests:** [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/preview-e2e/dashboard-v2.spec.ts](../tests/preview-e2e/dashboard-v2.spec.ts), [tests/e2e/dashboard-v2.spec.ts](../tests/e2e/dashboard-v2.spec.ts), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/team-invitations.spec.ts](../tests/e2e/team-invitations.spec.ts), [tests/e2e/template-images.spec.ts](../tests/e2e/template-images.spec.ts), [tests/preview-e2e/theme.spec.ts](../tests/preview-e2e/theme.spec.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/workspace-route-performance.spec.ts](../tests/e2e/workspace-route-performance.spec.ts), [tests/preview-e2e/mobile-workspace.spec.ts](../tests/preview-e2e/mobile-workspace.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/e2e/studio-space.spec.ts](../tests/e2e/studio-space.spec.ts), [tests/unit/app-routes.test.ts](../tests/unit/app-routes.test.ts), [tests/e2e/personal-entry-race.spec.ts](../tests/e2e/personal-entry-race.spec.ts), [tests/unit/message-terminology.test.ts](../tests/unit/message-terminology.test.ts), [tests/unit/route-code-recovery.test.ts](../tests/unit/route-code-recovery.test.ts), [tests/unit/data-table-model.test.ts](../tests/unit/data-table-model.test.ts), [tests/preview-e2e/data-tables.spec.ts](../tests/preview-e2e/data-tables.spec.ts), [tests/unit/preview-data.test.ts](../tests/unit/preview-data.test.ts), [tests/unit/local-preview-scenarios.test.ts](../tests/unit/local-preview-scenarios.test.ts), [tests/unit/local-preview-personal.test.ts](../tests/unit/local-preview-personal.test.ts), [tests/unit/local-preview-controls.test.ts](../tests/unit/local-preview-controls.test.ts), [tests/local-preview-e2e/scenarios.spec.ts](../tests/local-preview-e2e/scenarios.spec.ts)
+**Tests:** [tests/unit/account.test.ts](../tests/unit/account.test.ts), [tests/integration/mobile.test.ts](../tests/integration/mobile.test.ts), [tests/preview-e2e/dashboard-v2.spec.ts](../tests/preview-e2e/dashboard-v2.spec.ts), [tests/e2e/dashboard-v2.spec.ts](../tests/e2e/dashboard-v2.spec.ts), [tests/e2e/protected-email.spec.ts](../tests/e2e/protected-email.spec.ts), [tests/e2e/account-identity.spec.ts](../tests/e2e/account-identity.spec.ts), [tests/e2e/team-invitations.spec.ts](../tests/e2e/team-invitations.spec.ts), [tests/e2e/template-images.spec.ts](../tests/e2e/template-images.spec.ts), [tests/preview-e2e/theme.spec.ts](../tests/preview-e2e/theme.spec.ts), [tests/e2e/personal-appearance.spec.ts](../tests/e2e/personal-appearance.spec.ts), [tests/e2e/personal-document-performance.spec.ts](../tests/e2e/personal-document-performance.spec.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/e2e/pdf-validation.spec.ts](../tests/e2e/pdf-validation.spec.ts), [tests/e2e/workspace-route-performance.spec.ts](../tests/e2e/workspace-route-performance.spec.ts), [tests/preview-e2e/mobile-workspace.spec.ts](../tests/preview-e2e/mobile-workspace.spec.ts), [tests/e2e/locale-boundaries.spec.ts](../tests/e2e/locale-boundaries.spec.ts), [tests/e2e/login-entry.spec.ts](../tests/e2e/login-entry.spec.ts), [tests/e2e/studio-space.spec.ts](../tests/e2e/studio-space.spec.ts), [tests/unit/app-routes.test.ts](../tests/unit/app-routes.test.ts), [tests/e2e/personal-entry-race.spec.ts](../tests/e2e/personal-entry-race.spec.ts), [tests/unit/message-terminology.test.ts](../tests/unit/message-terminology.test.ts), [tests/unit/route-code-recovery.test.ts](../tests/unit/route-code-recovery.test.ts), [tests/unit/data-table-model.test.ts](../tests/unit/data-table-model.test.ts), [tests/preview-e2e/data-tables.spec.ts](../tests/preview-e2e/data-tables.spec.ts), [tests/unit/preview-data.test.ts](../tests/unit/preview-data.test.ts), [tests/unit/local-preview-scenarios.test.ts](../tests/unit/local-preview-scenarios.test.ts), [tests/unit/local-preview-personal.test.ts](../tests/unit/local-preview-personal.test.ts), [tests/unit/local-preview-controls.test.ts](../tests/unit/local-preview-controls.test.ts), [tests/local-preview-e2e/scenarios.spec.ts](../tests/local-preview-e2e/scenarios.spec.ts), [tests/unit/action-outcomes.test.ts](../tests/unit/action-outcomes.test.ts), [tests/unit/client-foundations.test.ts](../tests/unit/client-foundations.test.ts), [tests/unit/table-views.test.ts](../tests/unit/table-views.test.ts), [tests/unit/locale-projections.test.ts](../tests/unit/locale-projections.test.ts), [tests/security/client-action-boundaries.test.mjs](../tests/security/client-action-boundaries.test.mjs), [tests/integration/attention-queue.test.ts](../tests/integration/attention-queue.test.ts), [tests/e2e/lifecycle-workspace.spec.ts](../tests/e2e/lifecycle-workspace.spec.ts), [tests/e2e/locale-loading.spec.ts](../tests/e2e/locale-loading.spec.ts), [tests/e2e/lifecycle-accessibility.spec.ts](../tests/e2e/lifecycle-accessibility.spec.ts), [tests/security/check-applications.test.mjs](../tests/security/check-applications.test.mjs)
+
+**Documented REST operations**
+
+- `GET /api/attention`
 
 
 
@@ -1049,10 +1109,12 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Canonical entry uses shared application/account controls, demand-loaded seven-view UI and interactive globe; observation filters never switch operational membership
 - All operational and chart-detail tables reuse shared column sorting and responsive presentation; server-paged lists preserve existing server search/filter/pagination and label local sorting as current-page only, while complete chart/monthly/service arrays use client search and pagination without new reads or platform authority
 - The loopback fictional platform account opens a separate GET/HEAD-only Belvedere fixture with seeded bounded pages, arithmetic totals and preserved locale; the default fixture remains compatible and no real platform access, credentials, provider or backend mutation is created
+- The platform shell uses the same frame/theme and independently lazy overview/workshops/members/jobs/connections/finance/infrastructure views with active-locale packs; every platform read retains its distinct signed browser authority
+- Saved platform table presentation is partitioned by the authenticated principal and platform area, never a synthetic shared account; the HTML-escaped shell principal hint is cosmetic only, adds no query and cannot grant platform or workspace access
 
 **Contract:** [BELVEDERE.md](BELVEDERE.md) · **Implementation:** [apps/api/src/belvedere.ts](../apps/api/src/belvedere.ts)
 
-**Tests:** [tests/unit/belvedere.test.ts](../tests/unit/belvedere.test.ts), [tests/unit/belvedere-host.test.ts](../tests/unit/belvedere-host.test.ts), [tests/unit/auth-telemetry.test.ts](../tests/unit/auth-telemetry.test.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/unit/belvedere-finance.test.ts](../tests/unit/belvedere-finance.test.ts), [tests/belvedere-e2e/locale.spec.ts](../tests/belvedere-e2e/locale.spec.ts), [tests/unit/belvedere-locale.test.ts](../tests/unit/belvedere-locale.test.ts), [tests/belvedere-e2e/canonical-session.spec.ts](../tests/belvedere-e2e/canonical-session.spec.ts), [tests/unit/local-belvedere.test.ts](../tests/unit/local-belvedere.test.ts)
+**Tests:** [tests/unit/belvedere.test.ts](../tests/unit/belvedere.test.ts), [tests/unit/belvedere-host.test.ts](../tests/unit/belvedere-host.test.ts), [tests/unit/auth-telemetry.test.ts](../tests/unit/auth-telemetry.test.ts), [tests/belvedere-e2e/control-tower.spec.ts](../tests/belvedere-e2e/control-tower.spec.ts), [tests/unit/belvedere-finance.test.ts](../tests/unit/belvedere-finance.test.ts), [tests/belvedere-e2e/locale.spec.ts](../tests/belvedere-e2e/locale.spec.ts), [tests/unit/belvedere-locale.test.ts](../tests/unit/belvedere-locale.test.ts), [tests/belvedere-e2e/canonical-session.spec.ts](../tests/belvedere-e2e/canonical-session.spec.ts), [tests/unit/local-belvedere.test.ts](../tests/unit/local-belvedere.test.ts), [tests/unit/table-views.test.ts](../tests/unit/table-views.test.ts), [tests/e2e/lifecycle-accessibility.spec.ts](../tests/e2e/lifecycle-accessibility.spec.ts)
 
 
 
@@ -1218,7 +1280,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Availability model:** browser-session. 4 November 2026 continuation of the 3 November recovered source candidate. Current local qualification and limits are recorded in the administration contract; hosted CI, production-data and physical-device qualification remain separate.
 
-**Surfaces:** Authenticated browser membership only; OAuth, MCP and native callers are refused.
+**Surfaces:** Authenticated browser membership only; OAuth, MCP and native callers are refused. Customer lifecycle callbacks are configured only through current administrator browser sessions; MCP, OAuth integration tokens and native clients cannot manage endpoints or reveal secrets.
 
 - Dedicated Administration application for one workspace, offered to administrators and to supervisors with report permission; the server recomputes permissions from the current membership on every read
 - Overview with Belvédère-style figures, daily activity and channel/state breakdowns, limited to the authenticated workspace
@@ -1234,14 +1296,24 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - PDF exports embed the pinned Roboto font only when a drawn string is outside WinAnsi, size columns from content, wrap headers, share the 500-row budget across tables and localize header dates; the Excel summary stores typed numbers, money and date-time
 - The public preview renders Administration over its fictional workspace with the server's permission split, validates date and pagination bounds, and groups consumption by confirmation day and month; sign-in history follows the selected range and exports stay disabled
 - Browser administrators explicitly resolve an already operationally and financially closed dead-letter incident through a current-session and current-membership fenced transaction; one retained resolution audit/timestamp survives replay, with no dispatch mutation, credit release, queue replay or provider invocation
+- Browser administrators manage signed metadata-only customer lifecycle webhooks with current session/CSRF and tenant authority; configuration creates no recipient communication, sending approval or provider callback authority
+- Default-off webhook delivery requires encrypted signing secrets and hosted strictly-public HTTPS egress; direct destinations forbid credentials, queries, fragments, custom ports, private addresses and redirects, while one-time secrets stay browser-only
+- Prospective dispatch-status triggers atomically append bounded endpoint-revision outbox records; 500 pending items per endpoint expose overflow, pending/history retention is bounded, and an invoked unknown callback is never automatically repeated
+- Changing endpoint revision supersedes pending callbacks; rotation pauses delivery, revocation removes signing material, and losing owner-admin membership or production mode permanently pauses the old grant until a fresh explicit browser enablement
 
 **Contract:** [WORKSPACE_ADMINISTRATION.md](WORKSPACE_ADMINISTRATION.md) · **Implementation:** [apps/api/src/administration.ts](../apps/api/src/administration.ts)
 
-**Tests:** [tests/unit/administration.test.ts](../tests/unit/administration.test.ts), [tests/e2e/account-billing.spec.ts](../tests/e2e/account-billing.spec.ts), [tests/e2e/workspace-roles.spec.ts](../tests/e2e/workspace-roles.spec.ts), [tests/e2e/team-invitations.spec.ts](../tests/e2e/team-invitations.spec.ts), [tests/e2e/usage-history.spec.ts](../tests/e2e/usage-history.spec.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/workspace-administration-client.test.ts](../tests/unit/workspace-administration-client.test.ts), [tests/e2e/workspace-administration.spec.ts](../tests/e2e/workspace-administration.spec.ts), [tests/unit/administration-exports.test.ts](../tests/unit/administration-exports.test.ts), [tests/unit/preview-administration.test.ts](../tests/unit/preview-administration.test.ts), [tests/unit/workspace-entry.test.ts](../tests/unit/workspace-entry.test.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/integration/dead-letter-resolution.test.ts](../tests/integration/dead-letter-resolution.test.ts)
+**Tests:** [tests/unit/administration.test.ts](../tests/unit/administration.test.ts), [tests/e2e/account-billing.spec.ts](../tests/e2e/account-billing.spec.ts), [tests/e2e/workspace-roles.spec.ts](../tests/e2e/workspace-roles.spec.ts), [tests/e2e/team-invitations.spec.ts](../tests/e2e/team-invitations.spec.ts), [tests/e2e/usage-history.spec.ts](../tests/e2e/usage-history.spec.ts), [tests/distribution-e2e/personal-account.e2e.ts](../tests/distribution-e2e/personal-account.e2e.ts), [tests/unit/workspace-administration-client.test.ts](../tests/unit/workspace-administration-client.test.ts), [tests/e2e/workspace-administration.spec.ts](../tests/e2e/workspace-administration.spec.ts), [tests/unit/administration-exports.test.ts](../tests/unit/administration-exports.test.ts), [tests/unit/preview-administration.test.ts](../tests/unit/preview-administration.test.ts), [tests/unit/workspace-entry.test.ts](../tests/unit/workspace-entry.test.ts), [tests/unit/personal-auth.test.ts](../tests/unit/personal-auth.test.ts), [tests/integration/dead-letter-resolution.test.ts](../tests/integration/dead-letter-resolution.test.ts), [tests/integration/customer-webhooks.test.ts](../tests/integration/customer-webhooks.test.ts), [tests/integration/lifecycle-http.test.ts](../tests/integration/lifecycle-http.test.ts), [tests/e2e/customer-webhooks.spec.ts](../tests/e2e/customer-webhooks.spec.ts)
 
 **Documented REST operations**
 
 - `POST /api/admin/dead-letters/{id}/resolution`
+- `GET /api/customer-webhooks`
+- `POST /api/customer-webhooks`
+- `PATCH /api/customer-webhooks/{id}`
+- `POST /api/customer-webhooks/{id}/revoke`
+- `POST /api/customer-webhooks/{id}/rotate-secret`
+- `GET /api/customer-webhooks/{id}/deliveries`
 
 
 
@@ -1351,9 +1423,9 @@ Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or
 
 **Actor:** Authenticated native reader with current preparation permission when composing. **Branch:** Interfaces.
 
-Start system authentication on the canonical backend → use dedicated mobile session → import/inspect/search PDFs → prepare fax/email with one captured draft/key and disabled authoring while pending → open authenticated browser for final review → read tracking.
+Start canonical system authentication → read the dedicated mobile session → import/inspect/search PDFs → save a bounded device-local fax/email draft in its exact account/workspace → explicitly resume after relaunch or discard → prepare with one captured draft/key and disabled authoring while pending → open authenticated browser for final review → read tracking.
 
-**Failure/recovery:** Native sessions cannot approve or send. Account erasure processing, physical-device sign-in, signing, TestFlight and App Store distribution require separate qualification. A second queued tap cannot begin another preparation. Failed or interrupted responses retain the same key until an intentional edit; success retains its server-issued reference in that composer. A late response after sign-out cannot populate the dispatch list. Native preparation never grants human send approval.
+**Failure/recovery:** Native sessions cannot approve or send. Account erasure processing, physical-device sign-in, signing, TestFlight and App Store distribution require separate qualification. A second queued tap cannot begin another preparation. Failed or interrupted responses retain the same key until an intentional edit; success retains its server-issued reference in that composer. A late response after sign-out cannot populate the dispatch list. Native preparation never grants human send approval. Local draft retention is seven days, at most five identities and 768 KiB; unavailable Keychain, capacity and revision conflicts are visible. Unknown preparation preserves its original key/reference and recovery does not automatically resend. Device-only storage is not account synchronization or a new API authority.
 
 [Detailed contract](IOS_API.md).
 
@@ -1661,9 +1733,9 @@ Review the supported local Luxembourg fixed +3524 operator-test route, empty opt
 
 **Actor:** Authenticated browser reader with the current page’s data authority; Belvédère retains separate platform access. **Branch:** Operate.
 
-Open an authorized operational list → search the loaded rows or use the existing server search → apply an available categorical filter → select a column and direction from its header or narrow-layout control → choose the browser page size and navigate results → explicitly load older cursor records when needed. Server-paged Belvédère lists retain their existing paginator and identify current-page sorting. Cards follow the available container width; surrounding page controls reflow.
+Open an authorized operational list → search the loaded rows or use the existing server search → apply an available categorical filter → select a column and direction from its header or narrow-layout control → choose the browser page size and navigate results → explicitly load older cursor records when needed. Server-paged Belvédère lists retain their existing paginator and identify current-page sorting. Cards follow the available container width; surrounding page controls reflow. Optionally save, apply or delete a named presentation preset for this authenticated person, workspace, table and application area.
 
-**Failure/recovery:** Unloaded records are not silently fetched or included in local search. Changing controls resets the browser page, shrinking results clamps it, and empty results retain a clear-filters action. Loading/denial/error and account/tenant guards remain the owning page’s responsibility; no state persistence, new read scope, approval, send, paid action, mandate or REST/MCP/native capability is added.
+**Failure/recovery:** Unloaded records are not silently fetched or included in local search. Changing controls resets the browser page, shrinking results clamps it, and empty results retain a clear-filters action. At most eight bounded presets store validated sort, categorical filter choices and page size, without rows, recipient fields, searches, cursors or credentials; unsupported/absent identity or invalid storage cannot create a shared preference partition. Loading/denial/error and tenant guards remain the owning page’s responsibility. Presentation persistence grants no read scope, approval, send, paid action, mandate or REST/MCP/native authority.
 
 [Detailed contract](WEB_APPLICATIONS.md).
 
@@ -1706,6 +1778,96 @@ Request deletion explicitly in native Account, or use the published support chan
 **Failure/recovery:** Request acceptance is not erasure. Last-administrator/unsupported ownership, unresolved execution/storage debt, missing individual retention review or changed snapshot blocks beginning. Expired/lost leases cannot publish checkpoints. Unknown storage or Auth0 effects remain processing and recover only against the same exact targets. Completion requires fresh no-auth/no-content checks, preserved shared/financial integrity and delivered request/plan-bound notice evidence; the processor sends no message. Retained backup/processor evidence has reviewed exceptions and no global anonymity claim. Local tests do not establish real Auth0 deletion, real email receipt or production activation.
 
 [Detailed contract](ACCOUNT_DELETION.md).
+
+### J47 · Recover a confirmed result after leaving its view
+
+**Actor:** Authenticated browser principal in the same current authority. **Branch:** Browser presentation only.
+
+Start an explicit action → leave its originating view → let the server response settle → if a valid success receipt arrives, inspect the metadata-only outcome tray → follow its canonical internal link or dismiss it.
+
+**Failure/recovery:** An obsolete view cannot perform a dependent write, reveal a secret or navigate. Failed/unknown responses never become a success receipt. Up to twenty receipts expire after fifteen minutes and clear on authority replacement; they contain no content, destination, token or private URL.
+
+[Detailed contract](WEB_APPLICATIONS.md).
+
+### J48 · Review the complete authorized attention queue
+
+**Actor:** Current browser workspace member; individual actions retain their own permissions. **Branch:** Metadata read across authorized SQL rows, not a first-page approximation.
+
+Open Overview → read the independent prioritized attention queue → inspect unknown submissions, blocked/unknown schedules, expiring quotes/protected links and eligible approvals → explicitly load the next cursor page → open the original authorized resource before taking an action.
+
+**Failure/recovery:** The queue grants no approval or send authority and omits inaccessible resources. Cursor truncation stays explicit, and each destination rereads current rights and state. No message, recipient, document title, credential or signed URL is returned; observers receive no added contact or approval rights.
+
+[Detailed contract](WEB_APPLICATIONS.md).
+
+### J49 · Configure a signed lifecycle callback
+
+**Actor:** Current authenticated browser workspace administrator. **Branch:** Browser-only configuration; prospective metadata callbacks.
+
+Open Administration → Customer webhooks → create a paused public-HTTPS endpoint with a stable key and explicit one-time secret reveal → save the secret in the receiving service → under separately configured runtime/strict-public-network gates explicitly enable → verify bounded delivery metadata → pause, rotate or revoke when required.
+
+**Failure/recovery:** No historical backfill, sending consent or provider callback authority is created. Role/removal/mode loss permanently pauses the old grant; restoration requires explicit enablement at the new revision. Old pending revisions supersede, overflow is visible, unknown invocations never auto-retry and a lost secret needs explicit rotation rather than replay exposure. Local synthetic HTTP proof is not a real callback.
+
+[Detailed contract](CUSTOMER_WEBHOOKS.md).
+
+### J50 · Reuse an exact saved destination
+
+**Actor:** Current workspace preparer through browser or appropriately scoped OAuth/MCP. **Branch:** Contact data, preparation and consent remain separate.
+
+Open Recipients → explicitly save a validated fax/email/postal destination with one key → read its current revision → select it into a new preparation → review the independent frozen recipient snapshot → explicitly update or remove the address-book entry under its exact revision.
+
+**Failure/recovery:** Observers cannot export contacts. Tenant/current-credential/role fences and optimistic revisions reject stale edits; deleting a contact cannot change an existing dispatch or let an old create key resurrect it. Saving or selecting an address proves neither recipient request nor spending approval.
+
+[Detailed contract](API_CONTRACT.md).
+
+### J51 · Approve one bounded future dispatch
+
+**Actor:** Current preparer; separate actual browser administrator or authorized supervisor approver. **Branch:** Distinct future grant; no assistant/native approval or expert-mandate substitute.
+
+Prepare an exact fax or message-only email → choose an instant from one minute to thirty days ahead and an integer cost cap → create a held draft with a stable key → browser approver reviews exact content/time/cap and email recipient-request evidence → explicitly grant separate future_browser authority → at due time release prepares a fresh quote and atomically accepts only within the cap and fifteen-minute window → track the linked ordinary dispatch or revoke before acceptance.
+
+**Failure/recovery:** Disabled release refuses approval without cancelling the source. Secure/protected/PDF-email/postal and review-only fax remain unsupported. Current actors/source/provider/funds and revocation races are rechecked at acceptance; the window bounds queue acceptance, not delivery. Unknown/released work cannot be replaced. Explicit known-unsent terminal recovery requires a new draft and new approval, never revives old consent.
+
+[Detailed contract](SCHEDULED_DISPATCHES.md).
+
+### J52 · Resume a private device-local composer draft
+
+**Actor:** Authenticated native user in the original workspace. **Branch:** Local native storage only; no synchronization or new mobile endpoint.
+
+Edit a fax/email composer → save into non-synchronizing device-only Keychain storage → leave or relaunch → authenticate into the same person/workspace → explicitly resume or discard the saved revision → recover an uncertain preparation using the same stable key/reference → use the existing browser handoff for final review.
+
+**Failure/recovery:** Seven-day retention, five-draft and 768-KiB bounds are explicit. Storage, capacity, revision and identity failures stay visible; a different account/workspace cannot load the draft. Relaunch or repeated taps never grants consent or automatically creates a replacement preparation/send. Simulator proof remains distinct from physical-device distribution.
+
+[Detailed contract](IOS_API.md).
+
+### J53 · Navigate and reuse a presentation preset
+
+**Actor:** Authenticated browser principal with current navigation/resource rights. **Branch:** Navigation and local presentation only.
+
+Open Commands with Cmd/Ctrl+K → search permitted static destinations → use keyboard selection or Escape and preserved focus → navigate through the existing unsaved-work veto → configure an authorized table → explicitly save/apply/delete one of eight local named sort/filter/page-size presets in the current identity/area/table partition.
+
+**Failure/recovery:** Commands perform no remote record search or mutation. Saved presets exclude rows, recipient fields, searches and cursors and are validated against the current table schema. Unknown/demo identity disables persistence rather than sharing a synthetic account; platform hints never replace platform authorization.
+
+[Detailed contract](WEB_APPLICATIONS.md).
+
+### J54 · Continue browser work under current identity and visit
+
+**Actor:** Browser user or developer maintaining an asynchronous flow. **Branch:** Shared client foundations; server authority remains final.
+
+Start one synchronously locked action → cross every continuation through view.wait → observe shared authority/navigation revisions → invalidate obsolete results after leave-and-return or identity/policy replacement → share only allowlisted bounded collection reads → pause hidden-page reads and use bounded progress backoff → explicitly recover through the owning current view.
+
+**Failure/recovery:** The action lock is not send idempotency. Cache is memory-only, five seconds, sixty-four entries and bounded value size; detail/readiness/approval models bypass it. Mutations and authority changes invalidate it, refusals clear private data, and no polling loop retries a business mutation or uncertain provider outcome.
+
+[Detailed contract](WEB_APPLICATIONS.md).
+
+### J55 · Qualify the shared interface and independent modules
+
+**Actor:** Repository contributor and browser qualification runner. **Branch:** Engineering qualification; no account or production activation.
+
+Change application-owned route/view/style modules under the shared frame → load only the active locale catalogue before translated content → preserve lazy dispatch and Belvédère views plus ordered stylesheet modules → use chart/elevation/frame tokens with zero design/import exceptions → run keyboard/responsive and Axe fixtures across four languages and both themes → record actual request/transfer/first-content and test evidence separately.
+
+**Failure/recovery:** A module split or local Axe result establishes neither an accessibility certification nor hosted/physical-device/provider performance. Shared caches contain no persistent private data, generated locale projections must stay current, and application/authority boundaries cannot be bypassed by a design exception.
+
+[Detailed contract](WEB_APPLICATIONS.md).
 
 ## Required maintenance
 
