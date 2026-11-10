@@ -23,21 +23,30 @@ test("public Studio exposes read-only libraries and details without business req
   });
   await expect(applications.getByRole("link")).toHaveCount(2);
   await applications.getByRole("link", { name: "Studio", exact: true }).click();
+  await expect(page.locator("main h1")).toHaveText("Templates");
   const studioNavigation = page.getByRole("navigation", {
     name: "Studio navigation",
     exact: true,
   });
-  const openStudioNavigation = async () => {
-    if (!(await studioNavigation.isVisible()))
-      await page.locator(".workspace-navigation summary").click();
-  };
+  const openStudioNavigation = () =>
+    test.step("Open the current Studio navigation", async () => {
+      // A pending application route is not a collapsed menu. Desktop hides
+      // the toggle entirely; only mobile's closed native disclosure needs it.
+      await expect(studioNavigation).toBeAttached();
+      const disclosure = page.locator("details.workspace-navigation");
+      if ((await disclosure.getAttribute("open")) === null) {
+        const toggle = disclosure.locator(":scope > summary");
+        await expect(toggle).toBeVisible();
+        await toggle.click();
+      }
+      await expect(studioNavigation).toBeVisible();
+    });
   await openStudioNavigation();
   await expect(studioNavigation.getByRole("link")).toHaveCount(3);
   for (const name of ["Templates", "Data", "Generations"])
     await expect(
       studioNavigation.getByRole("link", { name, exact: true }),
     ).toBeVisible();
-  await expect(page.locator("main h1")).toHaveText("Templates");
   await expect(page.locator(".studio-template-row")).toHaveCount(3);
   await expect(
     page.getByRole("button", { name: "New template", exact: true }),

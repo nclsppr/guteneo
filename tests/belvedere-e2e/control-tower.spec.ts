@@ -209,23 +209,28 @@ test("exact provider decimals sort numerically and retain their source text", as
       json: {
         ...data,
         status: "ok",
-        lineCount: 3,
+        lineCount: 5,
         totals: [
           {
             currency: "USD",
-            amountMinor: 110,
-            reportedAmountDecimal: "1.10000000000000001",
+            amountMinor: 210,
+            reportedAmountDecimal: "2.10000000000000001",
           },
         ],
-        services: ["0.9", "0.10000000000000001", "0.10"].map(
-          (value, index) => ({
-            service: "Synthetic service " + index,
-            currency: "USD",
-            amountMinor: index === 0 ? 90 : 10,
-            reportedAmountDecimal: value,
-            chargePeriods: 1,
-          }),
-        ),
+        // Search remains available on this five-line fictional billing list.
+        services: [
+          ["0.9", 90],
+          ["0.10000000000000001", 10],
+          ["0.10", 10],
+          ["0.00", 0],
+          ["1.00", 100],
+        ].map(([value, amountMinor], index) => ({
+          service: "Synthetic service " + index,
+          currency: "USD",
+          amountMinor,
+          reportedAmountDecimal: value,
+          chargePeriods: 1,
+        })),
       },
     });
   });
@@ -244,6 +249,8 @@ test("exact provider decimals sort numerically and retain their source text", as
     "0.9 USD",
     "0.10000000000000001 USD",
     "0.10 USD",
+    "0.00 USD",
+    "1.00 USD",
   ]);
   const readsBefore = [...reads];
   const mobileSort = table.locator(".data-table__mobile-sort");
@@ -255,9 +262,11 @@ test("exact provider decimals sort numerically and retain their source text", as
   }
   await expect(header).toHaveAttribute("aria-sort", "ascending");
   await expect(values).toHaveText([
+    "0.00 USD",
     "0.10 USD",
     "0.10000000000000001 USD",
     "0.9 USD",
+    "1.00 USD",
   ]);
   if (await mobileSort.isVisible()) {
     await mobileSort.getByRole("button").click();
@@ -266,9 +275,11 @@ test("exact provider decimals sort numerically and retain their source text", as
   }
   await expect(header).toHaveAttribute("aria-sort", "descending");
   await expect(values).toHaveText([
+    "1.00 USD",
     "0.9 USD",
     "0.10000000000000001 USD",
     "0.10 USD",
+    "0.00 USD",
   ]);
   await table.getByRole("searchbox").fill("0.10000000000000001");
   await expect(values).toHaveText(["0.10000000000000001 USD"]);

@@ -196,3 +196,26 @@ session-expiry fixture consistently returns an expired session rather than
 contradicting it with a successful parent read. Workspace authentication policy,
 consent assertions and every required CI gate remain intact. A fresh complete
 hosted result is still required.
+
+### Third hosted pass: application inventory complete
+
+[Run 42894540712](https://github.com/nclsppr/guteneo/actions/runs/42894540712)
+passed all nine application browser stages: 1,415 results passed and 19 declared
+skips accounted for all 1,434 discovered identities. All four Vitest shards,
+security, builds, engineering and both distribution suites passed. The final
+verifier still correctly refused the incomplete downstream inventory.
+
+Only three test files require downstream corrections. The media test now waits
+for the enabled interactive client player before configuring native caption
+observers, because initial SSR is replaced after locale readiness. Existing
+caption, decode and final-card seeking assertions remain. The exact-decimal
+Belvédère fixture uses five internally consistent fictional lines so the compact
+table contract exposes search and mobile sort; precision/order/source-text and
+no-request assertions remain. Public Studio waits for its committed route and
+attached navigation before checking the native disclosure's open state, without
+trying to click the CSS-hidden desktop toggle. Its read-only and zero-business-
+request checks remain.
+
+These three repairs change tests only. No production module, media asset,
+timeout, retry, declared skip or required gate was relaxed. The next complete
+exact-source CI run must pass before merge and production publication.

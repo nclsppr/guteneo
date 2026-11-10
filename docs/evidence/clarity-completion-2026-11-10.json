@@ -101,5 +101,25 @@
       "failed": 2
     },
     "note": "Partial inventories; no complete green claim. Postal continuation passed mobile, while recipient capture-phase reset explained remaining iPhone postal/email failures. Fresh hosted qualification required after repairs."
+  },
+  "thirdHostedCi": {
+    "head": "fd03c1175c9579926a4946e60ae0883955fd0343",
+    "tree": "cf30e3332b0fa84523a5225cb44c173dcb719707",
+    "runId": 42894540712,
+    "result": "failed downstream inventory; application inventory passed",
+    "passedJobs": 19,
+    "applicationBrowser": {
+      "passed": 1415,
+      "failed": 0,
+      "declaredSkipped": 19,
+      "discovered": 1434
+    },
+    "passedGroups": [
+      "All four Vitest shards",
+      "Security and PDF rendering",
+      "Builds and engineering",
+      "Both distribution suites"
+    ],
+    "remaining": "Caption interactive-player readiness, public Studio route readiness, five-row Belvedere decimal fixture; test-only repairs, no timeout/retry/skip relaxation"
   }
 }

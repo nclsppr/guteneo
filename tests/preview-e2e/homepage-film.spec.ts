@@ -552,6 +552,15 @@ test.describe("delivered public media", () => {
         fullscreen: document.fullscreenElement === video,
         nativeFullscreen: video.webkitDisplayingFullscreen ?? false,
         events: video.publicMediaEvents ?? [],
+        tracks: Array.from(video.querySelectorAll("track"))
+          .slice(0, 4)
+          .map((track) => ({
+            source: track.getAttribute("src"),
+            language: track.srclang,
+            mode: track.track.mode,
+            readyState: track.readyState,
+            cues: track.track.cues?.length ?? null,
+          })),
         viewport: { width: innerWidth, height: innerHeight },
         rect: { top: rect.top, bottom: rect.bottom, width: rect.width },
         buffered: Array.from({ length: video.buffered.length }, (_, index) => [
@@ -580,6 +589,11 @@ test.describe("delivered public media", () => {
           film === "introduction" && page.viewportSize()!.width <= 767;
         const format = portrait ? "vertical" : "horizontal";
         const player = section.locator("video");
+        const play = section.locator(".homepage-film-play");
+        // Public SSR is replaced after the locale loads. Configure native
+        // state only on the interactive client player, not that placeholder.
+        await expect(section).toHaveAttribute("data-locale", locale);
+        await expect(play).toBeEnabled();
         const hasCaptions =
           film === "introduction" ||
           Boolean(publicFilmAsset(film, locale, format).captions);
@@ -623,7 +637,6 @@ test.describe("delivered public media", () => {
             });
           }
         });
-        const play = section.locator(".homepage-film-play");
         // Audible playback must begin with the project's actual input gesture.
         if (hasTouch) await play.tap();
         else await play.click();
