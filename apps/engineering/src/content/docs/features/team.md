@@ -28,5 +28,5 @@ Implemented; invitations require separately configured delivery. The 10 November
 <li id="feature-0f4c31854ae1">Sensitive preparations are visible to their creator and current approvers; operators and observers gain no general access to other preparations</li>
 <li id="feature-149da7afd29d">Sensitive approval and recipient/account association require a browser under the current document policy; OAuth confirmation follows recorded browser evidence, with no expert-mandate substitute</li>
 <li id="feature-f4b883cce481">Workspace roles grant no access to another person’s vault; a recipient gains no membership in the sender’s workspace</li>
-<li id="feature-ea866dbcab8b">Approval request: a member who can prepare asks the workspace's approvers to review a dispatch awaiting approval, from a human browser session only; one audit receipt per version (fingerprint), shown to approvers on the dispatch; it approves, reserves, sends and notifies nothing</li>
+<li id="feature-036fe2c3facb">Approval request: a member who can prepare asks the workspace's approvers to review a dispatch awaiting approval, from a human browser session only; one audit receipt per version (fingerprint), shown to approvers on the dispatch and as an "Approval requested" label that leads the Overview queue; it approves, reserves, sends and notifies nothing</li>
 </ol>

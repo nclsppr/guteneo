@@ -79,6 +79,8 @@ export type Dispatch = {
   estimated_minor: number;
   ceiling_minor: number;
   quote_expires_at?: string | null;
+  /** Earliest approval request for the current version, browser lists only. */
+  approval_requested_at?: string | null;
   quote_customer_nanoeur?: number | null;
   faxPricing?: FaxPricing | null;
   quote_pricing_basis?:

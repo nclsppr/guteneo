@@ -960,7 +960,9 @@ financial consent, communication or deployment.
   `/dispatches?group=attention&limit=5` and `/dispatches?group=approval&limit=5`
   only when `/overview` announces a non-zero count; a role without report access
   has no counts, so both lists are read. Every role sees only what the existing
-  dispatch list already authorizes. The former attention banner is removed.
+  dispatch list already authorizes. A dispatch that a preparer asked to have
+  approved carries an "Approval requested" label in every dispatch table and
+  leads the approval part of the queue. The former attention banner is removed.
 - **Dispatch page.** Four progress steps sit under the title for the ordinary
   path; an exceptional outcome keeps its status badge alone. The approval region
   is sticky beside the document from 1025 px. The provider-attempt panel is

@@ -3073,5 +3073,10 @@
     "Only a dispatch awaiting approval can be submitted for approval.",
     "Nur eine Sendung, die auf Freigabe wartet, kann zur Freigabe eingereicht werden.",
     "Nëmmen eng Sendung, déi op Fräigab waart, kann fir d’Fräigab agereecht ginn."
+  ],
+  "Approbation demandée": [
+    "Approval requested",
+    "Freigabe angefragt",
+    "Fräigab ugefrot"
   ]
 }

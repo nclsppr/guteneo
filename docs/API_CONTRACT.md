@@ -186,7 +186,7 @@ contract](PUBLIC_PDF_IMPORT.md); local/private URLs and redirects remain refused
 | Method/path | Input/result |
 | --- | --- |
 | `POST /api/dispatches` | Strict body below and `Idempotency-Key`; `201 Dispatch`, `prepared`. |
-| `GET /api/dispatches?cursor=…&limit=30` | `{items:Dispatch[],nextCursor:string\|null}`; optional organization-wide `group` of `approval`, `in_progress`, `attention`, `done`; otherwise `400 INVALID_GROUP`. Shared groups: `packages/contracts/src/dispatch-groups.ts`. |
+| `GET /api/dispatches?cursor=…&limit=30` | `{items:Dispatch[],nextCursor:string\|null}`; optional organization-wide `group` of `approval`, `in_progress`, `attention`, `done`; otherwise `400 INVALID_GROUP`. Shared groups: `packages/contracts/src/dispatch-groups.ts`. In a human browser session each `prepared` item also carries `approval_requested_at` (earliest request for its current fingerprint, or `null`); REST OAuth, assistant and native lists do not. |
 | `GET /api/dispatches/:id` | `{dispatch,events,attempts,approval}`; a human browser session also receives `approvalRequest` (`{requested_at,requested_by}` or `null`). REST OAuth, assistant and native responses do not include it. |
 | `POST /api/dispatches/:id/approve` | Human browser/CSRF; strict hexadecimal SHA-256 `{fingerprint}`; returns `Dispatch`. |
 | `POST /api/dispatches/:id/confirm` | Required `Idempotency-Key`; no body parameters used; durably accepted `Dispatch`. |

@@ -721,6 +721,11 @@ export function DispatchTable({
             render: (item) => (
               <>
                 <Status status={item.status} channel={item.channel} />
+                {item.status === "prepared" && item.approval_requested_at && (
+                  <small className="sub-label approval-requested">
+                    {msg("Approval requested")}
+                  </small>
+                )}
                 {item.mode === "simulation" && (
                   <small className="sub-label">{t.simulation}</small>
                 )}

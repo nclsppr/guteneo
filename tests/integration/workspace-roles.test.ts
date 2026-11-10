@@ -279,6 +279,23 @@ describe("workspace roles on current D1 membership", () => {
     const detail = await domain.getDispatch(admin.context, dispatch.id);
     expect(detail.approvalRequest).toEqual(first);
     expect(detail.approval).toBeNull();
+    const listed = await domain.listDispatches(
+      admin.context,
+      undefined,
+      30,
+      "approval",
+    );
+    expect(
+      listed.items.find((item) => item.id === dispatch.id)
+        ?.approval_requested_at,
+    ).toBe(first.requested_at);
+    const assistantList = await domain.listDispatches(
+      { ...admin.context, actor: "mcp" },
+      undefined,
+      30,
+      "approval",
+    );
+    expect(assistantList.items[0]).not.toHaveProperty("approval_requested_at");
     // The requester's name stays in the browser workspace.
     for (const actor of ["mcp", "native"] as const)
       expect(

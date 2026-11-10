@@ -242,7 +242,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Sensitive preparations are visible to their creator and current approvers; operators and observers gain no general access to other preparations
 - Sensitive approval and recipient/account association require a browser under the current document policy; OAuth confirmation follows recorded browser evidence, with no expert-mandate substitute
 - Workspace roles grant no access to another person’s vault; a recipient gains no membership in the sender’s workspace
-- Approval request: a member who can prepare asks the workspace's approvers to review a dispatch awaiting approval, from a human browser session only; one audit receipt per version (fingerprint), shown to approvers on the dispatch; it approves, reserves, sends and notifies nothing
+- Approval request: a member who can prepare asks the workspace's approvers to review a dispatch awaiting approval, from a human browser session only; one audit receipt per version (fingerprint), shown to approvers on the dispatch and as an "Approval requested" label that leads the Overview queue; it approves, reserves, sends and notifies nothing
 
 **Contract:** [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md) · **Implementation:** [packages/contracts/src/roles.ts](../packages/contracts/src/roles.ts)
 

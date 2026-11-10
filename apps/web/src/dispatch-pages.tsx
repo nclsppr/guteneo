@@ -242,7 +242,13 @@ export function Overview({ session }: { session: Session }) {
   useRefreshOnFocus(refresh);
   const queue = [
     ...(toCheck.data?.items ?? []),
-    ...(toApprove.data?.items ?? []),
+    // Dispatches someone asked to have approved come first.
+    ...(toApprove.data?.items ?? [])
+      .slice()
+      .sort(
+        (a, b) =>
+          Number(!!b.approval_requested_at) - Number(!!a.approval_requested_at),
+      ),
   ].filter(
     (item, index, all) =>
       all.findIndex((other) => other.id === item.id) === index,

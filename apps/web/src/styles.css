@@ -3635,3 +3635,9 @@ ol {
   color: var(--muted);
   cursor: pointer;
 }
+
+/* A preparer asked for this dispatch to be approved. */
+.sub-label.approval-requested {
+  color: var(--blue-ink);
+  font-weight: 500;
+}

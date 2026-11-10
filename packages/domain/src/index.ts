@@ -134,6 +134,8 @@ export type DocumentRecord = {
   secure_copy_source_id?: string | null;
 };
 export type Dispatch = {
+  /** Browser lists only: earliest approval request for the current version. */
+  approval_requested_at?: string | null;
   recipient_feedback?: "unsubscribed" | "reported" | null;
   faxPricing?: FaxPricing;
   quote_fingerprint?: string | null;
@@ -2101,6 +2103,30 @@ export class DomainService {
       row.quote_expires_at = expiries.get(row.id) ?? null;
       const faxPricing = pricing.get(row.id);
       if (faxPricing) row.faxPricing = faxPricing;
+    }
+    // People in the workspace see which prepared dispatches someone asked to
+    // have approved; REST, assistant and native lists are unchanged.
+    const prepared = page.items.filter((row) => row.status === "prepared");
+    if (ctx.actor === "browser" && prepared.length) {
+      const requests = await this.db
+        .prepare(
+          "SELECT r.resource_id AS id,MIN(r.created_at) AS requested_at FROM audit_log r JOIN json_each(?) j ON json_extract(j.value,'$.id')=r.resource_id AND json_extract(j.value,'$.fingerprint')=json_extract(r.details_json,'$.fingerprint') WHERE r.organization_id=? AND r.action='dispatch.approval_requested' GROUP BY r.resource_id",
+        )
+        .bind(
+          JSON.stringify(
+            prepared.map((row) => ({
+              id: row.id,
+              fingerprint: row.fingerprint,
+            })),
+          ),
+          ctx.organizationId,
+        )
+        .all<{ id: string; requested_at: string }>();
+      const asked = new Map(
+        requests.results.map((request) => [request.id, request.requested_at]),
+      );
+      for (const row of prepared)
+        row.approval_requested_at = asked.get(row.id) ?? null;
     }
     return page;
   }
