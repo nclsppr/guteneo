@@ -233,13 +233,37 @@ export function Overview({ session }: { session: Session }) {
   const refreshDispatches = dispatches.refresh;
   const refreshToCheck = toCheck.refresh;
   const refreshToApprove = toApprove.refresh;
+  const reportCounts = permissions.viewReports;
+  // With report access a returning tab reads the counts and the recent list;
+  // the queue is read again only when those counts change.
   const refresh = useCallback(() => {
     refreshOverview();
     refreshDispatches();
+    if (!reportCounts) {
+      refreshToCheck();
+      refreshToApprove();
+    }
+  }, [
+    reportCounts,
+    refreshOverview,
+    refreshDispatches,
+    refreshToCheck,
+    refreshToApprove,
+  ]);
+  useRefreshOnFocus(refresh);
+  const countsKey = counts
+    ? `${counts.dispatches.total}:${attention}:${counts.dispatches.approval}`
+    : "";
+  const readCounts = useRef("");
+  useEffect(() => {
+    if (!countsKey || readCounts.current === countsKey) return;
+    const first = !readCounts.current;
+    readCounts.current = countsKey;
+    // The first counts open the queue paths, which read the lists themselves.
+    if (first) return;
     refreshToCheck();
     refreshToApprove();
-  }, [refreshOverview, refreshDispatches, refreshToCheck, refreshToApprove]);
-  useRefreshOnFocus(refresh);
+  }, [countsKey, refreshToCheck, refreshToApprove]);
   const queue = [
     ...(toCheck.data?.items ?? []),
     // Dispatches someone asked to have approved come first.
