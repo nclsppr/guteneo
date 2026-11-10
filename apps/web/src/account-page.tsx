@@ -109,7 +109,7 @@ export function Account({ session, onUpdated }: Props) {
         className="form-panel account-identity"
         aria-labelledby="account-identity-title"
       >
-        <h2 id="account-identity-title">{msg("Your account")}</h2>
+        <h2 id="account-identity-title">{msg("Identity")}</h2>
         <dl className="account-identity-details">
           <div>
             <dt>{msg("Your name")}</dt>

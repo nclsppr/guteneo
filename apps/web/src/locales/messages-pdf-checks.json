@@ -499,5 +499,10 @@
     "The check is already in progress. View the reports before retrying.",
     "Die Prüfung läuft bereits. Sehen Sie sich die Berichte an, bevor Sie es erneut versuchen.",
     "D’Kontroll leeft schonn. Kuckt d’Rapporten, ier Dir et nach eng Kéier probéiert."
+  ],
+  "Ce que couvre un contrôle": [
+    "What a check covers",
+    "Was eine Prüfung abdeckt",
+    "Wat eng Kontroll ofdeckt"
   ]
 }

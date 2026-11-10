@@ -375,7 +375,7 @@ test("identity stays visible, switching names the account action and profile cha
   await expect(page.getByRole("main")).toBeFocused();
   const summary = page
     .getByRole("main")
-    .getByRole("region", { name: "Votre compte", exact: true });
+    .getByRole("region", { name: "Identité", exact: true });
   await expect(summary).toContainText(data.session.user.email!);
   await expect(summary).toContainText("Opérateur");
   await expect(

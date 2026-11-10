@@ -96,18 +96,31 @@ export function PdfCheckOffer({
           ? msg("Available in your workspace")
           : msg("PDF checks are currently unavailable")}
       </p>
+      {/* The way in comes first; what is charged stays in view below it. */}
+      <p>
+        {msg(
+          "Open a ready PDF in Documents to choose a profile and confirm one paid check. Only a browser administrator can confirm its payment.",
+        )}
+      </p>
+      <a className="button primary" href="#/app/documents">
+        {msg("Choose a PDF")}
+        <ArrowRight size={18} aria-hidden="true" />
+      </a>
       <PdfCheckCreditTerms />
       <p className="pdf-check-limit">
         {msg(
           "A completed technical report is charged even when issues are found. An interrupted check with no usable report is not charged.",
         )}
       </p>
-      <PdfCheckBenefits />
       <p className="pdf-check-limit">
         {msg(
           "PDFs up to 10 MiB and 100 pages. Each profile is a separate check; the exact price is shown before you confirm.",
         )}
       </p>
+      <details className="disclosure">
+        <summary>{msg("What a check covers")}</summary>
+        <PdfCheckBenefits />
+      </details>
       {pricing.evidence === "simulation" ? (
         <p className="notice info">
           {msg(
@@ -123,15 +136,6 @@ export function PdfCheckOffer({
           )}
         </p>
       ) : null}
-      <p>
-        {msg(
-          "Open a ready PDF in Documents to choose a profile and confirm one paid check. Only a browser administrator can confirm its payment.",
-        )}
-      </p>
-      <a className="button" href="#/app/documents">
-        {msg("Choose a PDF")}
-        <ArrowRight size={18} aria-hidden="true" />
-      </a>
       <p className="pdf-check-limit">
         <ShieldCheck size={18} aria-hidden="true" />
         <span>
