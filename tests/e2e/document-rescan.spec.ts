@@ -48,6 +48,8 @@ async function documentFixture(page: Page) {
   let failRead = false;
   let rescanUnavailable = false;
   let holdRead: Promise<void> | undefined;
+  let holdListRead: Promise<void> | undefined;
+  let listReads = 0;
   let reads = 0;
   let rescans = 0;
   const contentPaths: string[] = [];
@@ -80,12 +82,15 @@ async function documentFixture(page: Page) {
     const request = route.request();
     const pathname = new URL(request.url()).pathname;
     if (pathname === "/api/documents" && request.method() === "GET") {
-      return route.fulfill({
-        json: {
-          items: listIncludesTarget ? [document, other] : [other],
-          nextCursor: null,
-        },
-      });
+      listReads++;
+      const snapshot = {
+        items: listIncludesTarget ? [document, other] : [other],
+        nextCursor: null,
+      };
+      const held = holdListRead;
+      holdListRead = undefined;
+      if (held) await held;
+      return route.fulfill({ json: snapshot });
     }
     if (
       [
@@ -162,6 +167,9 @@ async function documentFixture(page: Page) {
     get reads() {
       return reads;
     },
+    get listReads() {
+      return listReads;
+    },
     get rescans() {
       return rescans;
     },
@@ -185,6 +193,9 @@ async function documentFixture(page: Page) {
     },
     holdNextRead(promise: Promise<void>) {
       holdRead = promise;
+    },
+    holdNextListRead(promise: Promise<void>) {
+      holdListRead = promise;
     },
     async open() {
       await page.goto(`/#/app/documents?document=${document.id}`);
@@ -478,4 +489,64 @@ test("a completed verification remains ready in the library after the detail clo
   );
   expect(fixture.rescans).toBe(0);
   expect(fixture.unexpectedWrites).toEqual([]);
+});
+
+test("a detail completed before the library preserves the pending list and its current status", async ({
+  page,
+}) => {
+  const fixture = await documentFixture(page);
+  let releaseList!: () => void;
+  fixture.holdNextListRead(
+    new Promise<void>((resolve) => {
+      releaseList = resolve;
+    }),
+  );
+  try {
+    await fixture.open();
+    await expect(
+      detailOf(page).locator(".document-analysis").getByRole("status"),
+    ).toContainText("Vérification du PDF en cours");
+    await expect.poll(() => fixture.listReads).toBe(1);
+    const otherDocument = page.getByRole("button", {
+      name: /^Autre document.pdf/,
+    });
+    await expect(otherDocument).toHaveCount(0);
+    fixture.setDocument({
+      status: "ready",
+      pages: 1,
+      analysis: documentAnalysis("ready"),
+    });
+    await page.clock.fastForward(15_001);
+    await expect(
+      detailOf(page).locator(".document-analysis").getByRole("status"),
+    ).toContainText("PDF prêt");
+    expect(fixture.reads).toBe(2);
+    expect(fixture.listReads).toBe(1);
+    releaseList();
+    await expect(otherDocument).toBeVisible();
+    const originalRow = page.getByRole("row").filter({
+      has: page.getByRole("button", { name: /^Mon document original.pdf/ }),
+    });
+    await expect(originalRow).toContainText("PDF prêt");
+    await detailOf(page).getByRole("button", { name: "Fermer" }).click();
+    await expect(detailOf(page)).toHaveCount(0);
+    await expect(originalRow).toContainText("PDF prêt");
+    await expect(
+      originalRow.getByRole("cell", { name: "1", exact: true }),
+    ).toHaveCount(1);
+    await otherDocument.click();
+    await expect(
+      detailOf(page).getByRole("heading", { name: "Autre document.pdf" }),
+    ).toBeVisible();
+    await page.clock.fastForward(30_000);
+    await expect(
+      detailOf(page).getByRole("heading", { name: "Autre document.pdf" }),
+    ).toBeVisible();
+    expect(fixture.reads).toBe(2);
+    expect(fixture.listReads).toBe(1);
+    expect(fixture.rescans).toBe(0);
+    expect(fixture.unexpectedWrites).toEqual([]);
+  } finally {
+    releaseList();
+  }
 });

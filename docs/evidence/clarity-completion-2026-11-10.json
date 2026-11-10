@@ -164,6 +164,37 @@
         "failed": 0
       }
     },
-    "hostedQualification": "A fresh exact-source complete run is required before merge; all production effects remain unchanged."
+    "hostedQualification": "A fresh exact-source complete run is required before merge; all production effects remain unchanged.",
+    "qualification": "Historical GO6 local checks; CI6 passed all six pagination cases but found a no-op setter regression through Documents alias. Superseded by queued read ownership below; not complete qualification."
+  },
+  "sixthHostedCi": {
+    "head": "79b5f5a8624f368c9a0110a701d8738e7e293bce",
+    "tree": "93113907c61930a580d8dea8286e79f3f57dc33e",
+    "runId": 42910566080,
+    "result": "failed",
+    "passedJobs": 20,
+    "failedBrowserJobs": 3,
+    "verifier": "correctly refused incomplete inventory",
+    "applicationBrowser": {
+      "passed": 1416,
+      "failed": 2,
+      "declaredSkipped": 19,
+      "discovered": 1437
+    },
+    "pagination": "All six cases passed (two request-start orders across three application projects).",
+    "failures": [
+      "Mobile documents: functional no-op through Documents setter alias aborted the still-pending initial library read; actual product regression.",
+      "iPhone webhook refusal: post-create configuration read raced test refusal injection before Refresh click.",
+      "Desktop public menu: action targeted SSR toggle before client interactive marker."
+    ],
+    "scope": "No merge, schema or deployment; prevented downstream inventories remain incomplete."
+  },
+  "queuedResourceRepair": {
+    "implementation": "Pending read ownership is part of queued state. Object.is no-op returns unchanged state including loading/read ownership. A real current update clears read ownership; older GET success/error updaters require that same owner plus current identity/scope/live authority. No cancellation side effects in replayable updaters; effect cleanup preserves ordinary subscriber abort.",
+    "expandedAudit": "40 setter references:15direct calls,24callback props,1Documents alias; the prior15-call audit missed that alias.",
+    "documents": "Idempotent selected-row merge leaves undefined/absent/already-identical rows unchanged and reconciles when late library data arrives. New held initial quarantined-list response allows detail-ready first, then requires both rows, persistent ready status after closing and safe other selection with no rescan/write.",
+    "testReadiness": "Await existing public-header interactive marker and committed post-create webhook configuration before original actions; keyboard/focus/authority/secret assertions remain.",
+    "qualification": "Root and independent expanded audit passed. TypeScript via npm run build, full lint/ownership/locales, docs, web/Worker dry-run build,43pureassertions4files and1actionboundary all passed separately. New browser execution awaits a fresh complete exact-source hosted run before merge.",
+    "coverageLimit": "Held-response cases cover already-started reads. An earlier queued refresh intent whose request starts after a manual update has no new browser proof in this lot."
   }
 }

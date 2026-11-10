@@ -519,16 +519,33 @@ for (const refusal of ["configuration", "action"] as const) {
   }) => {
     const state = await fixture(page);
     await open(page);
+    const createdConfiguration =
+      refusal === "configuration"
+        ? page.waitForResponse(
+            (response) =>
+              response.request().method() === "GET" &&
+              new URL(response.url()).pathname === "/api/customer-webhooks" &&
+              response.status() === 200,
+          )
+        : undefined;
     await fillAndCreate(page);
     await expect(
       page.getByRole("textbox", { name: "Signing secret", exact: true }),
     ).toHaveValue(initialSecret);
     if (refusal === "configuration") {
-      state.denyConfiguration();
-      await page
+      await createdConfiguration;
+      await expect(
+        page.getByRole("heading", {
+          name: "Synthetic callback",
+          exact: true,
+        }),
+      ).toBeVisible();
+      const refresh = page
         .getByRole("button", { name: "Refresh", exact: true })
-        .first()
-        .click();
+        .first();
+      await expect(refresh).toBeEnabled();
+      state.denyConfiguration();
+      await refresh.click();
     } else {
       state.denyMutation();
       await page

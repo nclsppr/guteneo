@@ -269,9 +269,6 @@ export function useResource<T>(path: string | null) {
   const [scope, setScope] = useState(() => ({ identity }));
   if (scope.identity !== identity) setScope({ identity });
   const committedScope = useRef<typeof scope | undefined>(scope);
-  const pendingRead = useRef<
-    { scope: typeof scope; controller: AbortController } | undefined
-  >(undefined);
   useLayoutEffect(() => {
     committedScope.current = scope;
     return () => {
@@ -283,6 +280,7 @@ export function useResource<T>(path: string | null) {
     data?: T;
     error?: Error;
     loading: boolean;
+    readOwner?: object;
   }>({ identity, loading: Boolean(path) });
   const [version, setVersion] = useState(0);
   const refresh = useCallback(() => setVersion((v) => v + 1), []);
@@ -293,29 +291,29 @@ export function useResource<T>(path: string | null) {
         sessionAuthorityKey() !== authority
       )
         return;
-      // An explicit current result wins over an older read of this resource.
-      // Abort this hook's subscriber only; other shared readers keep theirs.
-      const read = pendingRead.current;
-      if (read?.scope === scope) {
-        read.controller.abort();
-        pendingRead.current = undefined;
-      }
-      setState((current) =>
-        committedScope.current === scope &&
-        sessionAuthorityKey() === authority &&
-        current.identity === identity
-          ? {
-              ...current,
-              loading: false,
-              data:
-                typeof value === "function"
-                  ? (value as (previous: T | undefined) => T | undefined)(
-                      current.data,
-                    )
-                  : value,
-            }
-          : current,
-      );
+      setState((current) => {
+        if (
+          committedScope.current !== scope ||
+          sessionAuthorityKey() !== authority ||
+          current.identity !== identity
+        )
+          return current;
+        const next =
+          typeof value === "function"
+            ? (value as (previous: T | undefined) => T | undefined)(
+                current.data,
+              )
+            : value;
+        // A no-op preserves its active read. A real current result takes
+        // ownership without side effects inside this replayable updater.
+        if (Object.is(next, current.data)) return current;
+        return {
+          ...current,
+          data: next,
+          loading: false,
+          readOwner: undefined,
+        };
+      });
     },
     [authority, identity, scope],
   );
@@ -325,8 +323,7 @@ export function useResource<T>(path: string | null) {
       return;
     }
     const controller = new AbortController();
-    const owned = { scope, controller };
-    pendingRead.current = owned;
+    const owned = {};
     const isCurrentRead = () =>
       !controller.signal.aborted &&
       committedScope.current === scope &&
@@ -339,6 +336,7 @@ export function useResource<T>(path: string | null) {
             identity,
             data: current.identity === identity ? current.data : undefined,
             loading: true,
+            readOwner: owned,
           }
         : current,
     );
@@ -355,8 +353,10 @@ export function useResource<T>(path: string | null) {
       .then((data) => {
         if (isCurrentRead())
           setState((current) =>
-            isCurrentRead() && current.identity === identity
-              ? { identity, data, loading: false }
+            isCurrentRead() &&
+            current.identity === identity &&
+            current.readOwner === owned
+              ? { identity, data, loading: false, readOwner: owned }
               : current,
           );
       })
@@ -365,7 +365,9 @@ export function useResource<T>(path: string | null) {
         // has already completed. Late successes and failures are both stale.
         if (isCurrentRead())
           setState((current) =>
-            isCurrentRead() && current.identity === identity
+            isCurrentRead() &&
+            current.identity === identity &&
+            current.readOwner === owned
               ? {
                   ...current,
                   data: dataAfterReadFailure(current.data, error),
@@ -374,14 +376,8 @@ export function useResource<T>(path: string | null) {
                 }
               : current,
           );
-      })
-      .finally(() => {
-        if (pendingRead.current === owned) pendingRead.current = undefined;
       });
-    return () => {
-      controller.abort();
-      if (pendingRead.current === owned) pendingRead.current = undefined;
-    };
+    return () => controller.abort();
   }, [path, authority, identity, scope, version]);
   // Effects run after render; hide a different path's data immediately.
   const current = state.identity === identity ? state : undefined;

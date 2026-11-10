@@ -58,17 +58,17 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
   const updateDocumentList = resource.setData;
   useEffect(() => {
     if (!selected || isPublicPreview) return;
-    updateDocumentList((current) =>
-      current
-        ? {
-            ...current,
-            items: current.items.map((item) =>
-              item.id === selected.id ? selected : item,
-            ),
-          }
-        : current,
-    );
-  }, [selected, updateDocumentList]);
+    updateDocumentList((current) => {
+      const listed = current?.items.find((item) => item.id === selected.id);
+      if (!current || !listed || listed === selected) return current;
+      return {
+        ...current,
+        items: current.items.map((item) =>
+          item.id === selected.id ? selected : item,
+        ),
+      };
+    });
+  }, [selected, resource.data, updateDocumentList]);
   const [tab, setTab] = useState<"import" | "render" | null>(null);
   const [name, setName] = useState("");
   const [html, setHtml] = useState(t.documents.defaultHtml);

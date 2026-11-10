@@ -391,16 +391,8 @@ for (const order of ["focus-first", "pagination-first"] as const)
       expect(snapshot.status()).toBe(200);
       (cursor ? cursorReadStarted : firstReadStarted).release();
       await (cursor ? releaseCursorRead : releaseFirstRead).promise;
-      try {
-        await route.fulfill({ response: snapshot });
-      } catch (error) {
-        // A current page append aborts the obsolete first-page subscriber.
-        // Only that transport cancellation is expected, never another error.
-        const failure = route.request().failure()?.errorText ?? "";
-        if (cursor || !/abort|cancel/i.test(failure)) throw error;
-      } finally {
-        if (!cursor) firstReadSettled.release();
-      }
+      await route.fulfill({ response: snapshot });
+      if (!cursor) firstReadSettled.release();
     });
     // Returning to a tab fires both events; one read covers them.
     const comeBack = () =>

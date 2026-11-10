@@ -8,6 +8,10 @@ test("mobile navigation closes on Escape after pointer and keyboard opening", as
     for (const path of ["/", "/developers/"]) {
       await test.step(`${path} at ${width}px`, async () => {
         await page.goto(path);
+        await expect(page.locator(".public-header")).toHaveAttribute(
+          "data-render-state",
+          "interactive",
+        );
         const toggle = page.locator(".public-menu-toggle");
         const navigation = page.locator(".public-mobile-navigation");
 

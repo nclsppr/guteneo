@@ -251,3 +251,41 @@ Scoped and complete lint, TypeScript, web/Worker dry-run build, documentation,
 43 focused action/navigation/cache assertions and the action-boundary guard
 passed. The new browser scenarios await fresh complete hosted qualification;
 no local browser was launched. No production schema or runtime has changed.
+
+### Sixth hosted pass: preserve no-op resource updates
+
+[Run 42910566080](https://github.com/nclsppr/guteneo/actions/runs/42910566080)
+passed 20 jobs and correctly refused three browser failures. Application stages
+recorded 1,416 passes, two failures and 19 declared skips across 1,437 identities.
+All six pagination scenarios passed, covering both request-start orders on all
+three application projects. This still does not qualify the combined candidate.
+
+The eager cancellation introduced by the pagination repair caused one actual
+regression: Documents calls the resource setter through an alias, and its
+functional no-op could abort the initial library read when detail arrived first.
+The original audit of 15 direct calls missed that alias; the expanded review
+covers all 40 references, including 24 callback props and the alias.
+
+Read ownership now lives in queued resource state. An unchanged functional update
+preserves its pending read and loading state; a real data update takes ownership,
+and older successful or failed responses cannot overwrite it. Replayable React
+updaters have no cancellation side effect. Current scope and authority fences
+remain, and normal effect cleanup still aborts obsolete read subscribers.
+Documents applies selected detail only to an existing, different row and also
+reconciles a late library response. A held old-library regression verifies ready
+status after closing detail and safe selection of another document without a
+rescan or write. Pagination now requires the old response to complete normally,
+so its successful payload must be ignored rather than relying on cancellation.
+
+Two independent test readiness races are corrected: public-menu actions await
+the header's existing interactive marker after SSR replacement, and the webhook
+refusal case waits for the committed post-create configuration before injecting
+the refusal. Escape, pointer, keyboard, focus, secret-clearing and authority
+assertions remain. A fresh complete exact-source run is required before merge;
+there has been no production migration or publication.
+
+The combined repair passed independent review, TypeScript, complete lint,
+web/Worker dry-run build, documentation, 43 focused pure assertions and the
+action-boundary guard. Its browser coverage still awaits hosted execution. The
+held-response cases cover already-started reads; an earlier queued refresh intent
+whose request starts after a manual update has no new browser proof in this lot.
