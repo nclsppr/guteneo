@@ -24,11 +24,19 @@ function attentionLabel(kind: AttentionItem["kind"]) {
   }[kind];
 }
 
+export function useWorkspaceAttention(enabled = true) {
+  const queue = useResource<AttentionQueue>(enabled ? "/attention" : null);
+  useRefreshOnFocus(queue.refresh, enabled);
+  return queue;
+}
+
 /** The server selects and orders all visible work, independently of list pages. */
-export function WorkspaceAttention() {
+export function WorkspaceAttention({
+  queue,
+}: {
+  queue: ReturnType<typeof useWorkspaceAttention>;
+}) {
   useLocale();
-  const queue = useResource<AttentionQueue>("/attention");
-  useRefreshOnFocus(queue.refresh);
   return (
     <section
       className="panel lifecycle-attention"

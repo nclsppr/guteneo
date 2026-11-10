@@ -858,7 +858,7 @@
         "file": "apps/web/src/locales/fr.ts",
         "line": 197,
         "key": "overview.intro",
-        "current": "Préparez un document, choisissez sa destination et gardez le fil.",
+        "current": "Pr\u00e9parez un document, choisissez sa destination et gardez le fil.",
         "decision": "cut",
         "replacement": null,
         "rung": 2
@@ -867,7 +867,7 @@
         "file": "apps/web/src/locales/fr.ts",
         "line": 220,
         "key": "documents.intro",
-        "current": "Vos PDF originaux et les documents générés, conservés par version.",
+        "current": "Vos PDF originaux et les documents g\u00e9n\u00e9r\u00e9s, conserv\u00e9s par version.",
         "decision": "cut",
         "replacement": null,
         "rung": 2
@@ -876,7 +876,7 @@
         "file": "apps/web/src/locales/fr.ts",
         "line": 278,
         "key": "dispatch.listIntro",
-        "current": "Chaque ligne correspond à un destinataire et un canal.",
+        "current": "Chaque ligne correspond \u00e0 un destinataire et un canal.",
         "decision": "cut",
         "replacement": null,
         "rung": 2
@@ -885,7 +885,7 @@
         "file": "apps/web/src/locales/fr.ts",
         "line": 363,
         "key": "campaigns.intro",
-        "current": "Vérifiez votre liste, puis préparez des envois individuels dans une campagne commune.",
+        "current": "V\u00e9rifiez votre liste, puis pr\u00e9parez des envois individuels dans une campagne commune.",
         "decision": "cut",
         "replacement": null,
         "rung": 2
@@ -894,7 +894,7 @@
         "file": "apps/web/src/locales/fr.ts",
         "line": 478,
         "key": "senders.intro",
-        "current": "Chaque canal utilise un expéditeur autorisé, propre à votre organisation.",
+        "current": "Chaque canal utilise un exp\u00e9diteur autoris\u00e9, propre \u00e0 votre organisation.",
         "decision": "cut",
         "replacement": null,
         "rung": 2
@@ -903,7 +903,7 @@
         "file": "apps/web/src/locales/fr.ts",
         "line": 317,
         "key": "dispatch.reviewIntro",
-        "current": "Vérifiez cette version avant de donner votre accord.",
+        "current": "V\u00e9rifiez cette version avant de donner votre accord.",
         "decision": "cut",
         "replacement": null,
         "rung": 2
@@ -912,7 +912,7 @@
         "file": "apps/web/src/locales/fr.ts",
         "line": 219,
         "key": "documents.title",
-        "current": "La matière première.",
+        "current": "La mati\u00e8re premi\u00e8re.",
         "decision": "rewrite",
         "replacement": "Documents",
         "rung": 2
@@ -932,25 +932,25 @@
         "key": "senders.title",
         "current": "Qui prend la plume ?",
         "decision": "rewrite",
-        "replacement": "Expéditeurs",
+        "replacement": "Exp\u00e9diteurs",
         "rung": 2
       },
       {
         "file": "apps/web/src/locales/fr.ts",
         "line": 274,
         "key": "dispatch.intro",
-        "current": "Un document, un destinataire, un canal. L’envoi attendra votre approbation.",
+        "current": "Un document, un destinataire, un canal. L\u2019envoi attendra votre approbation.",
         "decision": "rewrite",
-        "replacement": "L’envoi attendra votre approbation.",
+        "replacement": "L\u2019envoi attendra votre approbation.",
         "rung": 2
       },
       {
         "file": "apps/web/src/locales/fr.ts",
         "line": 101,
         "key": "homepage.pricing.welcomeBody",
-        "current": "Votre organisation reçoit 50 € de crédit de bienvenue une seule fois à la création de son compte. Ce solde est partagé entre les canaux activés : fax, e-mail et courrier postal.",
+        "current": "Votre organisation re\u00e7oit 50 \u20ac de cr\u00e9dit de bienvenue une seule fois \u00e0 la cr\u00e9ation de son compte. Ce solde est partag\u00e9 entre les canaux activ\u00e9s : fax, e-mail et courrier postal.",
         "decision": "rewrite",
-        "replacement": "Ce solde est partagé entre les canaux activés : fax, e-mail et courrier postal.",
+        "replacement": "Ce solde est partag\u00e9 entre les canaux activ\u00e9s : fax, e-mail et courrier postal.",
         "rung": 2
       },
       {
@@ -1047,7 +1047,7 @@
         "file": "apps/web/src/locales/en.ts",
         "line": 82,
         "key": "homepage.pricing.welcomeBody",
-        "current": "Your organisation receives a one-off €50 welcome credit when its account is created. This balance is shared across enabled channels: fax, email and postal mail.",
+        "current": "Your organisation receives a one-off \u20ac50 welcome credit when its account is created. This balance is shared across enabled channels: fax, email and postal mail.",
         "decision": "rewrite",
         "replacement": "This balance is shared across enabled channels: fax, email and postal mail.",
         "rung": 2
@@ -1056,7 +1056,7 @@
         "file": "apps/web/src/locales/de.ts",
         "line": 195,
         "key": "overview.intro",
-        "current": "Bereiten Sie ein Dokument vor, wählen Sie sein Ziel und behalten Sie den Überblick.",
+        "current": "Bereiten Sie ein Dokument vor, w\u00e4hlen Sie sein Ziel und behalten Sie den \u00dcberblick.",
         "decision": "cut",
         "replacement": null,
         "rung": 2
@@ -1065,7 +1065,7 @@
         "file": "apps/web/src/locales/de.ts",
         "line": 219,
         "key": "documents.intro",
-        "current": "Ihre ursprünglichen PDF-Dateien und erzeugten Dokumente, nach Versionen gespeichert.",
+        "current": "Ihre urspr\u00fcnglichen PDF-Dateien und erzeugten Dokumente, nach Versionen gespeichert.",
         "decision": "cut",
         "replacement": null,
         "rung": 2
@@ -1074,7 +1074,7 @@
         "file": "apps/web/src/locales/de.ts",
         "line": 278,
         "key": "dispatch.listIntro",
-        "current": "Jede Zeile steht für einen Empfänger und einen Kanal.",
+        "current": "Jede Zeile steht f\u00fcr einen Empf\u00e4nger und einen Kanal.",
         "decision": "cut",
         "replacement": null,
         "rung": 2
@@ -1083,7 +1083,7 @@
         "file": "apps/web/src/locales/de.ts",
         "line": 368,
         "key": "campaigns.intro",
-        "current": "Prüfen Sie Ihre Liste und bereiten Sie anschließend einzelne Sendungen innerhalb einer gemeinsamen Kampagne vor.",
+        "current": "Pr\u00fcfen Sie Ihre Liste und bereiten Sie anschlie\u00dfend einzelne Sendungen innerhalb einer gemeinsamen Kampagne vor.",
         "decision": "cut",
         "replacement": null,
         "rung": 2
@@ -1101,7 +1101,7 @@
         "file": "apps/web/src/locales/de.ts",
         "line": 310,
         "key": "dispatch.reviewIntro",
-        "current": "Prüfen Sie diese Version, bevor Sie zustimmen.",
+        "current": "Pr\u00fcfen Sie diese Version, bevor Sie zustimmen.",
         "decision": "cut",
         "replacement": null,
         "rung": 2
@@ -1137,7 +1137,7 @@
         "file": "apps/web/src/locales/de.ts",
         "line": 274,
         "key": "dispatch.intro",
-        "current": "Ein Dokument, ein Empfänger, ein Kanal. Die Sendung wartet auf Ihre Freigabe.",
+        "current": "Ein Dokument, ein Empf\u00e4nger, ein Kanal. Die Sendung wartet auf Ihre Freigabe.",
         "decision": "rewrite",
         "replacement": "Die Sendung wartet auf Ihre Freigabe.",
         "rung": 2
@@ -1146,16 +1146,16 @@
         "file": "apps/web/src/locales/de.ts",
         "line": 82,
         "key": "homepage.pricing.welcomeBody",
-        "current": "Ihre Organisation erhält bei der Kontoerstellung einmalig 50 € Willkommensguthaben. Dieses Guthaben wird gemeinsam für die aktivierten Kanäle genutzt: Fax, E-Mail und Briefpost.",
+        "current": "Ihre Organisation erh\u00e4lt bei der Kontoerstellung einmalig 50 \u20ac Willkommensguthaben. Dieses Guthaben wird gemeinsam f\u00fcr die aktivierten Kan\u00e4le genutzt: Fax, E-Mail und Briefpost.",
         "decision": "rewrite",
-        "replacement": "Dieses Guthaben wird gemeinsam für die aktivierten Kanäle genutzt: Fax, E-Mail und Briefpost.",
+        "replacement": "Dieses Guthaben wird gemeinsam f\u00fcr die aktivierten Kan\u00e4le genutzt: Fax, E-Mail und Briefpost.",
         "rung": 2
       },
       {
         "file": "apps/web/src/locales/lb.ts",
         "line": 194,
         "key": "overview.intro",
-        "current": "Bereet en Dokument vir, wielt seng Destinatioun a behält den Iwwerbléck.",
+        "current": "Bereet en Dokument vir, wielt seng Destinatioun a beh\u00e4lt den Iwwerbl\u00e9ck.",
         "decision": "cut",
         "replacement": null,
         "rung": 2
@@ -1164,7 +1164,7 @@
         "file": "apps/web/src/locales/lb.ts",
         "line": 218,
         "key": "documents.intro",
-        "current": "Är original PDF-Dateien an erstallt Dokumenter, no Versioun versuergt.",
+        "current": "\u00c4r original PDF-Dateien an erstallt Dokumenter, no Versioun versuergt.",
         "decision": "cut",
         "replacement": null,
         "rung": 2
@@ -1173,7 +1173,7 @@
         "file": "apps/web/src/locales/lb.ts",
         "line": 278,
         "key": "dispatch.listIntro",
-        "current": "All Zeil entsprécht engem Empfänger an engem Kanal.",
+        "current": "All Zeil entspr\u00e9cht engem Empf\u00e4nger an engem Kanal.",
         "decision": "cut",
         "replacement": null,
         "rung": 2
@@ -1182,7 +1182,7 @@
         "file": "apps/web/src/locales/lb.ts",
         "line": 367,
         "key": "campaigns.intro",
-        "current": "Kontrolléiert Är Lëscht a bereet duerno eenzel Sendungen an enger gemeinsamer Campagne vir.",
+        "current": "Kontroll\u00e9iert \u00c4r L\u00ebscht a bereet duerno eenzel Sendungen an enger gemeinsamer Campagne vir.",
         "decision": "cut",
         "replacement": null,
         "rung": 2
@@ -1191,7 +1191,7 @@
         "file": "apps/web/src/locales/lb.ts",
         "line": 482,
         "key": "senders.intro",
-        "current": "All Kanal benotzt en autoriséierten Ofsender vun Ärer Organisatioun.",
+        "current": "All Kanal benotzt en autoris\u00e9ierten Ofsender vun \u00c4rer Organisatioun.",
         "decision": "cut",
         "replacement": null,
         "rung": 2
@@ -1200,7 +1200,7 @@
         "file": "apps/web/src/locales/lb.ts",
         "line": 310,
         "key": "dispatch.reviewIntro",
-        "current": "Kontrolléiert dës Versioun, ier Dir zoustëmmt.",
+        "current": "Kontroll\u00e9iert d\u00ebs Versioun, ier Dir zoust\u00ebmmt.",
         "decision": "cut",
         "replacement": null,
         "rung": 2
@@ -1209,7 +1209,7 @@
         "file": "apps/web/src/locales/lb.ts",
         "line": 217,
         "key": "documents.title",
-        "current": "D’Ausgangsmaterial.",
+        "current": "D\u2019Ausgangsmaterial.",
         "decision": "rewrite",
         "replacement": "Dokumenter",
         "rung": 2
@@ -1218,7 +1218,7 @@
         "file": "apps/web/src/locales/lb.ts",
         "line": 366,
         "key": "campaigns.title",
-        "current": "Ee Bréif. Vill Destinatiounen.",
+        "current": "Ee Br\u00e9if. Vill Destinatiounen.",
         "decision": "rewrite",
         "replacement": "Campagnen",
         "rung": 2
@@ -1227,7 +1227,7 @@
         "file": "apps/web/src/locales/lb.ts",
         "line": 481,
         "key": "senders.title",
-        "current": "Wie gräift zur Fieder?",
+        "current": "Wie gr\u00e4ift zur Fieder?",
         "decision": "rewrite",
         "replacement": "Ofsender",
         "rung": 2
@@ -1236,18 +1236,18 @@
         "file": "apps/web/src/locales/lb.ts",
         "line": 275,
         "key": "dispatch.intro",
-        "current": "En Dokument, en Empfänger, e Kanal. D’Sendung waart op Är Fräigab.",
+        "current": "En Dokument, en Empf\u00e4nger, e Kanal. D\u2019Sendung waart op \u00c4r Fr\u00e4igab.",
         "decision": "rewrite",
-        "replacement": "D’Sendung waart op Är Fräigab.",
+        "replacement": "D\u2019Sendung waart op \u00c4r Fr\u00e4igab.",
         "rung": 2
       },
       {
         "file": "apps/web/src/locales/lb.ts",
         "line": 82,
         "key": "homepage.pricing.welcomeBody",
-        "current": "Är Organisatioun kritt eemoleg 50 € Wëllkommenskredit, wann hire Kont erstallt gëtt. Dëse Saldo gëtt tëscht den aktivéierte Kanäl gedeelt: Fax, E-Mail a Bréifpost.",
+        "current": "\u00c4r Organisatioun kritt eemoleg 50 \u20ac W\u00ebllkommenskredit, wann hire Kont erstallt g\u00ebtt. D\u00ebse Saldo g\u00ebtt t\u00ebscht den aktiv\u00e9ierte Kan\u00e4l gedeelt: Fax, E-Mail a Br\u00e9ifpost.",
         "decision": "rewrite",
-        "replacement": "Dëse Saldo gëtt tëscht den aktivéierte Kanäl gedeelt: Fax, E-Mail a Bréifpost.",
+        "replacement": "D\u00ebse Saldo g\u00ebtt t\u00ebscht den aktiv\u00e9ierte Kan\u00e4l gedeelt: Fax, E-Mail a Br\u00e9ifpost.",
         "rung": 2
       }
     ],
@@ -1264,7 +1264,7 @@
       "| `apps/web/src/workspace-pages.tsx:548` | t.senders.intro | cut | R2: heading and visible controls already identify the task |",
       "| `apps/web/src/prepare-dispatch-page.tsx:425` | Choose the PDF, its recipient and the envelope window. | intro={t.dispatch.intro} | R4: remove the control inventory; retain the shared approval consequence |",
       "| `apps/web/src/dispatch-detail-page.tsx:460` | t.dispatch.reviewIntro | intro={pendingApproval \\|\\| approved ? undefined : t.dispatch.deliveryNote} | R2: mandatory review checkbox supplies the consent instruction; delivery scope stays in other states |",
-      "| `apps/web/src/pdf-check-offer.tsx:50` | Check a document’s technical accessibility or archival rules | cut | R2: heading and visible controls already identify the task |",
+      "| `apps/web/src/pdf-check-offer.tsx:50` | Check a document\u2019s technical accessibility or archival rules | cut | R2: heading and visible controls already identify the task |",
       "| `apps/web/src/template-pages.tsx:210` | One page, your variables, as many documents as you need. | cut | R2: heading and visible controls already identify the task |",
       "| `apps/web/src/generation-pages.tsx:84` | Find your generated PDFs here. Generating a PDF does not send it. | Generating a PDF does not send it. | R4: remove the inventory; retain the generation/sending boundary |",
       "| `apps/web/src/dataset-pages.tsx:120` | Import your file as it is. Choose sheets, columns and groups | cut | R2: heading and visible controls already identify the task |",
@@ -1297,74 +1297,74 @@
       "| `apps/web/src/belvedere-globe.tsx:373` | The world of guteneo. | Geography | R2: replace a brand tagline with the chart subject |",
       "| `apps/web/src/belvedere-connections.tsx:55` | Observed geography, never guessed. | Location source | R3: replace defensive precision claim with the actual metadata source heading |",
       "| `apps/web/src/belvedere-globe.tsx:626` | Globe points and the list share the same selection. | cut (retain selected-country metrics) | R1: implementation synchronization needs no caption; Select a country already supplies the empty-state action |",
-      "| `apps/web/src/prepare-dispatch-page.tsx:986` | The final button will open My documents for the recipient’s account. | cut | R2: rendered button names My documents and the earlier access choice already explains recipient-account requirements |",
+      "| `apps/web/src/prepare-dispatch-page.tsx:986` | The final button will open My documents for the recipient\u2019s account. | cut | R2: rendered button names My documents and the earlier access choice already explains recipient-account requirements |",
       "| `apps/web/src/distribution-roadmap.tsx:7` | One list, all your recipients. | cut | R2: marketing tagline adds no information to the retained concrete feature availability and Coming soon status |"
     ],
     "nativeApi": [
-      "| `ios/Guteneo/Views/WorkshopViews.swift:84` | “Your workspace, within reach.” → “Your workspace” | 4: retain screen identity, cut tagline. |",
-      "| `ios/Guteneo/Views/WorkshopViews.swift:87` | “Find your PDFs, prepare dispatches and track their progress.” → cut element | 2: repeats available application actions. |",
-      "| `ios/Guteneo/Views/WorkshopViews.swift:57` | “Your documents, unchanged”; “You control every dispatch”; “Tracking shared with your workspace” → cut promotional row/helper | 1/2: no choice or consequence in this sign-in row. Browser sign-in notice stays. |",
-      "| `ios/Guteneo/Views/WorkshopViews.swift:182` | “The right document. The right recipient.” → cut; use actual workspace name as heading | 1: value identifies context; slogan adds none. |",
-      "| `ios/Guteneo/Views/WorkshopViews.swift:220` | “Close at hand” → “Documents”; “Your PDFs will find their place here.” → “No documents found” | 4: name actual contents and blank state. |",
-      "| `ios/Guteneo/Views/WorkshopViews.swift:241` | “The original PDF is preserved. It is verified before use.” → cut permanent notice | 3: real verification state and recovery remain on each document. |",
-      "| `ios/Guteneo/Views/WorkshopViews.swift:257` | “Every dispatch under your control.” and three repeated Prepare/Review/Approve captions → one “Review and approve each dispatch in your browser.” | 1/2/4: retain the invisible native/browser capability boundary. |",
-      "| `ios/Guteneo/Views/DocumentsView.swift:23` | “Every original, in its place.” + long selection instructions + “To add a document, use ‘Import a PDF’ in the list.” → one “Choose a document.” | 1/2/4: empty detail needs a next action, not a slogan or narration of the visible import control. |",
-      "| `ios/Guteneo/Views/DocumentsView.swift:108` | “Your PDFs, here” → “No documents found”; “Import a PDF from Files. Its original will be preserved and verified before use.” → “Import a PDF from Files.” | 3/4: retain empty-state recovery; verification state has its own presentation. Search recovery stays distinct. |",
-      "| `ios/Guteneo/Views/DocumentsView.swift:130` | “PDFs remain private to your organisation. Verification may take a few minutes.” → first sentence only | 4: privacy scope stays; timing belongs to actual processing state, where it remains. |",
-      "| `ios/Guteneo/Views/DocumentsView.swift:171` | “Original preserved” and “Guteneo does not modify its pages” notice → cut wrapper/caption; keep Document fingerprint disclosure and actual SHA-256 | 2/3: expose useful value without defensive reassurance. |",
-      "| `ios/Guteneo/Views/DispatchesView.swift:22` | “The journey of every dispatch.” + long selection paragraph → one “Choose a dispatch.” | 1/4: functional empty-state action. |",
-      "| `ios/Guteneo/Views/DispatchesView.swift:27` | “The ‘Awaiting approval only’ filter helps you find preparations waiting for your review.” → cut | 2: repeats the visible filter label. |",
-      "| `ios/Guteneo/Views/DispatchesView.swift:84` | “Your dispatches will appear here with their latest known status.” → cut empty-state description | 2: title already reports no dispatches; create/search/filter controls remain. |",
-      "| `ios/Guteneo/Views/DispatchesView.swift:195` | “A dispatch already accepted cannot be cancelled. The server will check its status.” → first sentence only | 4: real cancellation limit stays; server implementation detail goes. |",
-      "| `ios/Guteneo/Views/AccountView.swift:34` | “Your preference is shared between the website and the app. Your documents and messages remain unchanged.” → first sentence only | 3/4: useful cross-surface behavior stays, unprompted content-edit worry goes. |",
-      "| `ios/Guteneo/Views/AccountView.swift:39` | “Documents are downloaded on demand. Your session is kept in this device’s secure Keychain.” → cut duplicate account-list blurb | 2: same concrete storage/privacy facts remain inside Your data in the app. |",
-      "| `ios/Guteneo/Views/AccountView.swift:47` | “Prepare documents and follow your Guteneo workspace’s dispatches.” + “Native app for iPhone and iPad.” → cut About captions | 1/2: app identity, version and legal action remain. |",
-      "| `ios/AppStore/fr-FR/description.txt:1` | “Vos documents et vos envois, à portée de main.” → cut; “Guteneo vous accompagne…” → direct “Consultez vos PDF, préparez vos envois et suivez leur progression sur iPhone et iPad.” | 1/4: remove promotional repetition; factual requirements/capability/browser approval remain. Four section labels become Documents/Préparation/Validation/Suivi. |",
-      "| `ios/AppStore/fr-FR/promotional-text.txt:1` | “Une interface native pour garder la main sur chaque étape.” → cut clause | 1: repeats the action sentence. No App Store publication. |",
-      "| `apps/api/src/protected-document-page.ts:49` | “The password has been verified. You can view or download your PDF.” → cut paragraph | 2: unlocked heading and actual View/Download controls convey it. Fifteen-minute validity and downloaded-file consequence remain. |",
-      "| `apps/api/src/protected-document-page.ts:65` | “Private document” header caption → cut span | 2: protected-sharing category, password input and actual recipient privacy scope remain. |",
-      "| `apps/api/src/mobile-review.ts:48` | “This page is only for reviewing this dispatch. Close it to return to the app.” → “Close this page to return to the app.” in four languages | 2/4: review heading is visible; return-to-app behavior is not. |",
-      "| `apps/status/public/index.html:109` | “Reading the latest observation.” → cut loading caption | 2: Checking availability already reports loading. Dynamic detail container is hidden until stale/error recovery has content. |",
-      "| `apps/status/public/app.js:155` | “An issue was observed in the services listed below.” / “The latest automatic checks passed.” → cut fresh-state captions | 2: current state title + service badges already report those facts. Unknown, stale and failure instructions remain visible. |",
-      "| `packages/contracts/src/email-template.ts:108` | “Discover guteneo” promotional footer link → cut element | 1: transactional message needs delivery/access action and unsubscribe/report, not promotion. The unsubscribe/report URL and text remain exact. |",
-      "| `scripts/auth0-email-templates.mjs:48` | Empty intro/note output for removed paragraphs → omit complete paragraph/preheader elements conditionally | 4: no empty hint stubs. Escaping, scopes, URLs, fallback checksums and publication behavior unchanged. |",
-      "| `integrations/auth0/emails/locales/messages.json:9` | Verify-email intro repeats Confirm email → purpose-only “Complete your guteneo account setup.” (four languages) | 4: heading/button carry action; intro identifies purpose. |",
-      "| `integrations/auth0/emails/locales/messages.json:16` | Reset-password “Use the link below to choose…” intro → cut | 2: title and Reset password button already provide it. Unrequested-change consequence remains. |",
-      "| `integrations/auth0/emails/locales/messages.json:23` | Welcome “Sign in to access…” intro → cut | 2: Sign in button already gives next action. |",
-      "| `integrations/auth0/emails/locales/messages.json:25` | “Creating an account does not send a document or authorize a payment.” → cut welcome note | 3: no send/payment choice exists in a welcome email. Actual transaction consent/caps and normative agent permissions remain at their choice points. |",
-      "| `integrations/auth0/emails/locales/messages.json:5` | “This email concerns your guteneo account. Replies to this address are not monitored.” → second sentence only | 2/4: keep actionable reply-channel limitation. |",
-      "| `integrations/auth0/emails/locales/messages.json:32` | Blocked sign-in “…Keep your password private.” → cut second clause | 2/4: retain do-not-unblock-unrecognized-activity instruction; shared footer already protects the personal link. |",
+      "| `ios/Guteneo/Views/WorkshopViews.swift:84` | \u201cYour workspace, within reach.\u201d \u2192 \u201cYour workspace\u201d | 4: retain screen identity, cut tagline. |",
+      "| `ios/Guteneo/Views/WorkshopViews.swift:87` | \u201cFind your PDFs, prepare dispatches and track their progress.\u201d \u2192 cut element | 2: repeats available application actions. |",
+      "| `ios/Guteneo/Views/WorkshopViews.swift:57` | \u201cYour documents, unchanged\u201d; \u201cYou control every dispatch\u201d; \u201cTracking shared with your workspace\u201d \u2192 cut promotional row/helper | 1/2: no choice or consequence in this sign-in row. Browser sign-in notice stays. |",
+      "| `ios/Guteneo/Views/WorkshopViews.swift:182` | \u201cThe right document. The right recipient.\u201d \u2192 cut; use actual workspace name as heading | 1: value identifies context; slogan adds none. |",
+      "| `ios/Guteneo/Views/WorkshopViews.swift:220` | \u201cClose at hand\u201d \u2192 \u201cDocuments\u201d; \u201cYour PDFs will find their place here.\u201d \u2192 \u201cNo documents found\u201d | 4: name actual contents and blank state. |",
+      "| `ios/Guteneo/Views/WorkshopViews.swift:241` | \u201cThe original PDF is preserved. It is verified before use.\u201d \u2192 cut permanent notice | 3: real verification state and recovery remain on each document. |",
+      "| `ios/Guteneo/Views/WorkshopViews.swift:257` | \u201cEvery dispatch under your control.\u201d and three repeated Prepare/Review/Approve captions \u2192 one \u201cReview and approve each dispatch in your browser.\u201d | 1/2/4: retain the invisible native/browser capability boundary. |",
+      "| `ios/Guteneo/Views/DocumentsView.swift:23` | \u201cEvery original, in its place.\u201d + long selection instructions + \u201cTo add a document, use \u2018Import a PDF\u2019 in the list.\u201d \u2192 one \u201cChoose a document.\u201d | 1/2/4: empty detail needs a next action, not a slogan or narration of the visible import control. |",
+      "| `ios/Guteneo/Views/DocumentsView.swift:108` | \u201cYour PDFs, here\u201d \u2192 \u201cNo documents found\u201d; \u201cImport a PDF from Files. Its original will be preserved and verified before use.\u201d \u2192 \u201cImport a PDF from Files.\u201d | 3/4: retain empty-state recovery; verification state has its own presentation. Search recovery stays distinct. |",
+      "| `ios/Guteneo/Views/DocumentsView.swift:130` | \u201cPDFs remain private to your organisation. Verification may take a few minutes.\u201d \u2192 first sentence only | 4: privacy scope stays; timing belongs to actual processing state, where it remains. |",
+      "| `ios/Guteneo/Views/DocumentsView.swift:171` | \u201cOriginal preserved\u201d and \u201cGuteneo does not modify its pages\u201d notice \u2192 cut wrapper/caption; keep Document fingerprint disclosure and actual SHA-256 | 2/3: expose useful value without defensive reassurance. |",
+      "| `ios/Guteneo/Views/DispatchesView.swift:22` | \u201cThe journey of every dispatch.\u201d + long selection paragraph \u2192 one \u201cChoose a dispatch.\u201d | 1/4: functional empty-state action. |",
+      "| `ios/Guteneo/Views/DispatchesView.swift:27` | \u201cThe \u2018Awaiting approval only\u2019 filter helps you find preparations waiting for your review.\u201d \u2192 cut | 2: repeats the visible filter label. |",
+      "| `ios/Guteneo/Views/DispatchesView.swift:84` | \u201cYour dispatches will appear here with their latest known status.\u201d \u2192 cut empty-state description | 2: title already reports no dispatches; create/search/filter controls remain. |",
+      "| `ios/Guteneo/Views/DispatchesView.swift:195` | \u201cA dispatch already accepted cannot be cancelled. The server will check its status.\u201d \u2192 first sentence only | 4: real cancellation limit stays; server implementation detail goes. |",
+      "| `ios/Guteneo/Views/AccountView.swift:34` | \u201cYour preference is shared between the website and the app. Your documents and messages remain unchanged.\u201d \u2192 first sentence only | 3/4: useful cross-surface behavior stays, unprompted content-edit worry goes. |",
+      "| `ios/Guteneo/Views/AccountView.swift:39` | \u201cDocuments are downloaded on demand. Your session is kept in this device\u2019s secure Keychain.\u201d \u2192 cut duplicate account-list blurb | 2: same concrete storage/privacy facts remain inside Your data in the app. |",
+      "| `ios/Guteneo/Views/AccountView.swift:47` | \u201cPrepare documents and follow your Guteneo workspace\u2019s dispatches.\u201d + \u201cNative app for iPhone and iPad.\u201d \u2192 cut About captions | 1/2: app identity, version and legal action remain. |",
+      "| `ios/AppStore/fr-FR/description.txt:1` | \u201cVos documents et vos envois, \u00e0 port\u00e9e de main.\u201d \u2192 cut; \u201cGuteneo vous accompagne\u2026\u201d \u2192 direct \u201cConsultez vos PDF, pr\u00e9parez vos envois et suivez leur progression sur iPhone et iPad.\u201d | 1/4: remove promotional repetition; factual requirements/capability/browser approval remain. Four section labels become Documents/Pr\u00e9paration/Validation/Suivi. |",
+      "| `ios/AppStore/fr-FR/promotional-text.txt:1` | \u201cUne interface native pour garder la main sur chaque \u00e9tape.\u201d \u2192 cut clause | 1: repeats the action sentence. No App Store publication. |",
+      "| `apps/api/src/protected-document-page.ts:49` | \u201cThe password has been verified. You can view or download your PDF.\u201d \u2192 cut paragraph | 2: unlocked heading and actual View/Download controls convey it. Fifteen-minute validity and downloaded-file consequence remain. |",
+      "| `apps/api/src/protected-document-page.ts:65` | \u201cPrivate document\u201d header caption \u2192 cut span | 2: protected-sharing category, password input and actual recipient privacy scope remain. |",
+      "| `apps/api/src/mobile-review.ts:48` | \u201cThis page is only for reviewing this dispatch. Close it to return to the app.\u201d \u2192 \u201cClose this page to return to the app.\u201d in four languages | 2/4: review heading is visible; return-to-app behavior is not. |",
+      "| `apps/status/public/index.html:109` | \u201cReading the latest observation.\u201d \u2192 cut loading caption | 2: Checking availability already reports loading. Dynamic detail container is hidden until stale/error recovery has content. |",
+      "| `apps/status/public/app.js:155` | \u201cAn issue was observed in the services listed below.\u201d / \u201cThe latest automatic checks passed.\u201d \u2192 cut fresh-state captions | 2: current state title + service badges already report those facts. Unknown, stale and failure instructions remain visible. |",
+      "| `packages/contracts/src/email-template.ts:108` | \u201cDiscover guteneo\u201d promotional footer link \u2192 cut element | 1: transactional message needs delivery/access action and unsubscribe/report, not promotion. The unsubscribe/report URL and text remain exact. |",
+      "| `scripts/auth0-email-templates.mjs:48` | Empty intro/note output for removed paragraphs \u2192 omit complete paragraph/preheader elements conditionally | 4: no empty hint stubs. Escaping, scopes, URLs, fallback checksums and publication behavior unchanged. |",
+      "| `integrations/auth0/emails/locales/messages.json:9` | Verify-email intro repeats Confirm email \u2192 purpose-only \u201cComplete your guteneo account setup.\u201d (four languages) | 4: heading/button carry action; intro identifies purpose. |",
+      "| `integrations/auth0/emails/locales/messages.json:16` | Reset-password \u201cUse the link below to choose\u2026\u201d intro \u2192 cut | 2: title and Reset password button already provide it. Unrequested-change consequence remains. |",
+      "| `integrations/auth0/emails/locales/messages.json:23` | Welcome \u201cSign in to access\u2026\u201d intro \u2192 cut | 2: Sign in button already gives next action. |",
+      "| `integrations/auth0/emails/locales/messages.json:25` | \u201cCreating an account does not send a document or authorize a payment.\u201d \u2192 cut welcome note | 3: no send/payment choice exists in a welcome email. Actual transaction consent/caps and normative agent permissions remain at their choice points. |",
+      "| `integrations/auth0/emails/locales/messages.json:5` | \u201cThis email concerns your guteneo account. Replies to this address are not monitored.\u201d \u2192 second sentence only | 2/4: keep actionable reply-channel limitation. |",
+      "| `integrations/auth0/emails/locales/messages.json:32` | Blocked sign-in \u201c\u2026Keep your password private.\u201d \u2192 cut second clause | 2/4: retain do-not-unblock-unrecognized-activity instruction; shared footer already protects the personal link. |",
       "| `packages/contracts/src/delivery-messages.json` | Delete five unreferenced source/translation blocks: unlocked narration; Private document; Discover guteneo; One list, all your recipients; final-button narration | 1/2: first three correspond to these cuts; last two coordinated with web owner. Coming soon/roadmap and full verified-account/no-separate-password fact remain as explicitly agreed. |"
     ],
     "public": [
-      "| `apps/web/src/public-homepage.tsx:171` | “Use the same preparation, review and tracking workflow whichever way you start.” → cut paragraph | 2 — repeats the adjacent Prepare/Review/Track steps and the two entry links |",
-      "| `apps/web/src/pdf-check-public.tsx:55` | “Find barriers in your PDFs before sharing them.” → cut paragraph | 2 — repeats the PDF accessibility heading and benefits |",
-      "| `apps/web/src/landing-sections.tsx:26` | “Prepare your first dispatch from a conversation or directly with your document. In both cases, check the details before confirming.” → cut paragraph | 2 — both choice cards already explain their workflow and review |",
-      "| `apps/web/src/landing-sections.tsx:60` | “Already know your assistant? Open its guide.” → cut paragraph | 2 — the labeled assistant picker is immediately below |",
-      "| `apps/web/src/assistants-page.tsx:41` | “Your assistant.” → “Your assistant. Your correspondence.” → “Assistants” | 1/4 — replace a slogan with the existing navigation label |",
-      "| `apps/web/src/assistant-guides.tsx:241` | “You can read this guide without an account. Find it in your workspace to continue.” → cut paragraph; retain Create/open workspace link | 1/2 — the guide is already readable; the prerequisite and action supply account information |",
-      "| `apps/web/src/assistant-guides.tsx:255` | “Keep this guide open while adding the connection in your app.” → cut paragraph | 1 — an unnecessary instruction about keeping the current screen open |",
-      "| `apps/web/src/landing-example.tsx:186` | “This demonstration follows 3 steps: compose your request, check the details in Guteneo to give your approval, then track the dispatch.” → cut paragraph | 2 — repeats all three labeled step tabs and descriptions |",
-      "| `apps/web/src/landing-example.tsx:279` | “Fictional conversation, document and recipient.” → cut paragraph | 2 — the fictional-dispatch heading, no-real-dispatch notice and fictional recipient fields remain |",
-      "| `apps/web/src/editorial/pages.tsx:129` | “Documented stories, contemporary images.” → cut paragraph | 2 — the following provenance sentence explains sources and invented illustrations precisely |",
-      "| `apps/web/src/editorial/pages.tsx:197` | “Through the pages” → cut kicker | 2 — duplicates the article-contents navigation and chapter links |",
-      "| `apps/web/src/editorial/pages.tsx:245` | “Explore further” → cut kicker | 2 — duplicates Sources & further reading |",
-      "| `apps/web/src/editorial/pages.tsx:249` | “The links below lead to the dates, objects and collections discussed in this story.” → cut paragraph | 2 — the source heading and named bibliography already identify the links |",
-      "| `apps/web/src/developer-page.tsx:65` | “Your documents.” → “Your documents. Your way to send them.” → “Developers” | 1/4 — identify the page rather than restate a product slogan |",
-      "| `apps/web/src/developer-page.tsx:522` | “Every route, every response.” → “API reference” | 1/4 — a functional heading identifies the explorer |",
-      "| `apps/web/src/developer-page.tsx:529` | “23 operations: documents, postal checks” → “Browse the API schemas in read-only mode.” | 2/3/4 — remove stale operation enumeration and defensive repetition; retain the invisible read-only scope |",
-      "| `apps/web/src/developer-page.tsx:569` | “The explorer loads only when you request it.” → cut idle caption; retain a stable status region and loading/open/error feedback | 1 — lazy loading is implementation detail; the Open button already describes the action |",
-      "| `apps/web/src/role-guide.tsx:76` | “A clear role for every member.” → “Roles and permissions” | 1/4 — use the existing functional navigation label |",
-      "| `apps/web/src/role-guide.tsx:158` | “Existing operators keep preparation rights but must now leave approval” → cut migration paragraph | 2/3 — current Operator/Supervisor descriptions and options already state these rights; remove historical “now” framing |",
-      "| `apps/web/src/legal-page.tsx:21` | “Information about Guteneo’s publisher, hosting and use of this website.” → cut introduction paragraph | 2 — repeats Legal notice and its adjacent Publisher/Hosting/etc. index; no legal term removed |",
-      "| `apps/web/src/information-page.tsx:86` | “Your data,” → “Your data, your rights.” → “Privacy” | 1/4 — identify the policy with its existing navigation label |",
-      "| `apps/web/src/information-page.tsx:388` | “A framework” → “A framework for your dispatches.” → “Terms of use” | 1/4 — identify the legal document; retain every term and scope fact |",
-      "| `apps/web/src/information-page.tsx:563` | “Need…” → “Need a helping hand?” → “Support” | 1/4 — identify the support page; retain contacts, next steps and deadlines |",
-      "| `apps/engineering/src/components/ConnectMcp.astro:18` | “title=\"Copy MCP server URL\"” → cut redundant title tooltip | 2 — the visible Copy MCP URL button already has its accessible name |",
-      "| `apps/engineering/src/components/ui/search/search.client.ts:109` | “If it persists, ask the site owner to rebuild and deploy the search index.” → cut final clause; retain “Search could not load. Check your connection and reload the page.” | 1/3/4 — remove an operator implementation repair from reader-facing recovery |",
-      "| `apps/engineering/src/layouts/DocsLayout.astro:244` | “<Badge text=\"For humans\"” → cut badge and simplify its decorative divider | 1 — readers do not need a label telling them they are human; Markdown/agent guidance remains |",
-      "| `apps/engineering/src/pages/404.astro:23` | “This page escaped the press.” → “Page not found” | 1/4 — identify the actual state rather than a printing metaphor |",
-      "| `apps/engineering/src/pages/404.astro:26` | “That address does not lead to a published page.” → cut paragraph; retain Return to overview and Search | 2 — Page not found plus the real recovery controls already explain the state and next actions |"
+      "| `apps/web/src/public-homepage.tsx:171` | \u201cUse the same preparation, review and tracking workflow whichever way you start.\u201d \u2192 cut paragraph | 2 \u2014 repeats the adjacent Prepare/Review/Track steps and the two entry links |",
+      "| `apps/web/src/pdf-check-public.tsx:55` | \u201cFind barriers in your PDFs before sharing them.\u201d \u2192 cut paragraph | 2 \u2014 repeats the PDF accessibility heading and benefits |",
+      "| `apps/web/src/landing-sections.tsx:26` | \u201cPrepare your first dispatch from a conversation or directly with your document. In both cases, check the details before confirming.\u201d \u2192 cut paragraph | 2 \u2014 both choice cards already explain their workflow and review |",
+      "| `apps/web/src/landing-sections.tsx:60` | \u201cAlready know your assistant? Open its guide.\u201d \u2192 cut paragraph | 2 \u2014 the labeled assistant picker is immediately below |",
+      "| `apps/web/src/assistants-page.tsx:41` | \u201cYour assistant.\u201d \u2192 \u201cYour assistant. Your correspondence.\u201d \u2192 \u201cAssistants\u201d | 1/4 \u2014 replace a slogan with the existing navigation label |",
+      "| `apps/web/src/assistant-guides.tsx:241` | \u201cYou can read this guide without an account. Find it in your workspace to continue.\u201d \u2192 cut paragraph; retain Create/open workspace link | 1/2 \u2014 the guide is already readable; the prerequisite and action supply account information |",
+      "| `apps/web/src/assistant-guides.tsx:255` | \u201cKeep this guide open while adding the connection in your app.\u201d \u2192 cut paragraph | 1 \u2014 an unnecessary instruction about keeping the current screen open |",
+      "| `apps/web/src/landing-example.tsx:186` | \u201cThis demonstration follows 3 steps: compose your request, check the details in Guteneo to give your approval, then track the dispatch.\u201d \u2192 cut paragraph | 2 \u2014 repeats all three labeled step tabs and descriptions |",
+      "| `apps/web/src/landing-example.tsx:279` | \u201cFictional conversation, document and recipient.\u201d \u2192 cut paragraph | 2 \u2014 the fictional-dispatch heading, no-real-dispatch notice and fictional recipient fields remain |",
+      "| `apps/web/src/editorial/pages.tsx:129` | \u201cDocumented stories, contemporary images.\u201d \u2192 cut paragraph | 2 \u2014 the following provenance sentence explains sources and invented illustrations precisely |",
+      "| `apps/web/src/editorial/pages.tsx:197` | \u201cThrough the pages\u201d \u2192 cut kicker | 2 \u2014 duplicates the article-contents navigation and chapter links |",
+      "| `apps/web/src/editorial/pages.tsx:245` | \u201cExplore further\u201d \u2192 cut kicker | 2 \u2014 duplicates Sources & further reading |",
+      "| `apps/web/src/editorial/pages.tsx:249` | \u201cThe links below lead to the dates, objects and collections discussed in this story.\u201d \u2192 cut paragraph | 2 \u2014 the source heading and named bibliography already identify the links |",
+      "| `apps/web/src/developer-page.tsx:65` | \u201cYour documents.\u201d \u2192 \u201cYour documents. Your way to send them.\u201d \u2192 \u201cDevelopers\u201d | 1/4 \u2014 identify the page rather than restate a product slogan |",
+      "| `apps/web/src/developer-page.tsx:522` | \u201cEvery route, every response.\u201d \u2192 \u201cAPI reference\u201d | 1/4 \u2014 a functional heading identifies the explorer |",
+      "| `apps/web/src/developer-page.tsx:529` | \u201c23 operations: documents, postal checks\u201d \u2192 \u201cBrowse the API schemas in read-only mode.\u201d | 2/3/4 \u2014 remove stale operation enumeration and defensive repetition; retain the invisible read-only scope |",
+      "| `apps/web/src/developer-page.tsx:569` | \u201cThe explorer loads only when you request it.\u201d \u2192 cut idle caption; retain a stable status region and loading/open/error feedback | 1 \u2014 lazy loading is implementation detail; the Open button already describes the action |",
+      "| `apps/web/src/role-guide.tsx:76` | \u201cA clear role for every member.\u201d \u2192 \u201cRoles and permissions\u201d | 1/4 \u2014 use the existing functional navigation label |",
+      "| `apps/web/src/role-guide.tsx:158` | \u201cExisting operators keep preparation rights but must now leave approval\u201d \u2192 cut migration paragraph | 2/3 \u2014 current Operator/Supervisor descriptions and options already state these rights; remove historical \u201cnow\u201d framing |",
+      "| `apps/web/src/legal-page.tsx:21` | \u201cInformation about Guteneo\u2019s publisher, hosting and use of this website.\u201d \u2192 cut introduction paragraph | 2 \u2014 repeats Legal notice and its adjacent Publisher/Hosting/etc. index; no legal term removed |",
+      "| `apps/web/src/information-page.tsx:86` | \u201cYour data,\u201d \u2192 \u201cYour data, your rights.\u201d \u2192 \u201cPrivacy\u201d | 1/4 \u2014 identify the policy with its existing navigation label |",
+      "| `apps/web/src/information-page.tsx:388` | \u201cA framework\u201d \u2192 \u201cA framework for your dispatches.\u201d \u2192 \u201cTerms of use\u201d | 1/4 \u2014 identify the legal document; retain every term and scope fact |",
+      "| `apps/web/src/information-page.tsx:563` | \u201cNeed\u2026\u201d \u2192 \u201cNeed a helping hand?\u201d \u2192 \u201cSupport\u201d | 1/4 \u2014 identify the support page; retain contacts, next steps and deadlines |",
+      "| `apps/engineering/src/components/ConnectMcp.astro:18` | \u201ctitle=\"Copy MCP server URL\"\u201d \u2192 cut redundant title tooltip | 2 \u2014 the visible Copy MCP URL button already has its accessible name |",
+      "| `apps/engineering/src/components/ui/search/search.client.ts:109` | \u201cIf it persists, ask the site owner to rebuild and deploy the search index.\u201d \u2192 cut final clause; retain \u201cSearch could not load. Check your connection and reload the page.\u201d | 1/3/4 \u2014 remove an operator implementation repair from reader-facing recovery |",
+      "| `apps/engineering/src/layouts/DocsLayout.astro:244` | \u201c<Badge text=\"For humans\"\u201d \u2192 cut badge and simplify its decorative divider | 1 \u2014 readers do not need a label telling them they are human; Markdown/agent guidance remains |",
+      "| `apps/engineering/src/pages/404.astro:23` | \u201cThis page escaped the press.\u201d \u2192 \u201cPage not found\u201d | 1/4 \u2014 identify the actual state rather than a printing metaphor |",
+      "| `apps/engineering/src/pages/404.astro:26` | \u201cThat address does not lead to a published page.\u201d \u2192 cut paragraph; retain Return to overview and Search | 2 \u2014 Page not found plus the real recovery controls already explain the state and next actions |"
     ]
   },
   "reviewedModifiedSourceFiles": [
@@ -1444,9 +1444,14 @@
       "sha256": "b86a4bed2c9b58ab0358f36b6f76cfa356e2307419db75f2006677dbea9f6f80"
     },
     {
+      "path": "apps/web/src/assistant-state.ts",
+      "bytes": 1810,
+      "sha256": "1ca81d15cb02330c9b7832530c69408a5b63407b9d3c33befb0a8cdea7522067"
+    },
+    {
       "path": "apps/web/src/assistant-workspace.tsx",
-      "bytes": 12682,
-      "sha256": "c63246cc4af4bd0c2df9694bde3c30b83354e68ff7bc59bbbe704f398ba46b24"
+      "bytes": 12708,
+      "sha256": "0f4fbe545dccbe6d904a222bbcd7fc7fa9306388fef58f7c383228623d07f52c"
     },
     {
       "path": "apps/web/src/assistants-page.tsx",
@@ -1680,8 +1685,8 @@
     },
     {
       "path": "apps/web/src/overview-page.tsx",
-      "bytes": 6192,
-      "sha256": "aa5b1e0647e7ecb51d367ee6a1bebf87454db22b3ec10b0b3d1a89e161dfb773"
+      "bytes": 9502,
+      "sha256": "6f1296717bff51e55580f7da1a80758c23ebe3aed369db17baf81be4c65d647f"
     },
     {
       "path": "apps/web/src/pdf-check-offer.tsx",
@@ -1742,6 +1747,11 @@
       "path": "apps/web/src/usage-activity.tsx",
       "bytes": 12681,
       "sha256": "945f79c80e374c32a0e177e17bab227d97541e8f1f94cb2162d5710e79d252b7"
+    },
+    {
+      "path": "apps/web/src/workspace-attention.tsx",
+      "bytes": 2860,
+      "sha256": "8800d8b3bb355d3b1881c1c6f578f4513d59e5bd76e48bd1361f2700d448ffad"
     },
     {
       "path": "apps/web/src/workspace-pages.tsx",
@@ -1865,7 +1875,8 @@
     "vitest": {
       "files": 213,
       "passed": 4058,
-      "failed": 0
+      "failed": 0,
+      "scope": "Before the separate Overview correction; full fresh-head hosted qualification remains required."
     },
     "nodeSecurity": {
       "passed": 732,
@@ -1881,7 +1892,8 @@
       "passed": 94,
       "declaredDesktopSkips": 4,
       "failed": 0,
-      "flaky": 0
+      "flaky": 0,
+      "scope": "Historical six-file subset only; not the entire preview inventory or final-source qualification."
     },
     "auth0Browser": {
       "passed": 16,
@@ -1895,7 +1907,27 @@
       "passed": 30,
       "failed": 0
     },
-    "native": "Swift parsing/catalog/selector checks only; fresh hosted Xcode qualification pending",
-    "production": "No publication performed by this source review"
+    "native": "Local focused 2/2 and hosted 46 unit + 10 UI tests plus unsigned archive passed at 6a40ce5d; native inputs unchanged by the later web-only correction; final head/main qualification remains required.",
+    "production": "No publication performed by this source review",
+    "previewBrowserFreshBeforeNavigationFix": {
+      "sourceHead": "6a40ce5d1ef7aff520420aa3c2d7a24c40b9ab9b",
+      "passed": 295,
+      "declaredDesktopSkips": 5,
+      "discovered": 300,
+      "failed": 0,
+      "flaky": 0,
+      "scope": "Fresh build and complete preview suite before the separate Overview product correction."
+    },
+    "overviewCorrection": {
+      "passed": 18,
+      "compatibilityPassed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "scope": "Frozen local corrected source; complete hosted qualification remains required."
+    }
+  },
+  "relatedNavigationFix": {
+    "receipt": "docs/evidence/overview-navigation-correction-2026-11-10.json",
+    "scope": "Four web presentation/resource-owner modules; no server/domain/schema or approval change."
   }
 }

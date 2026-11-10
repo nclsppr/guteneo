@@ -97,10 +97,18 @@ test("pricing and PDF pages preserve exact rates, credit and purchase conditions
 }) => {
   await page.goto("/pricing/");
   await expect(page.locator(".welcome-amount")).toHaveText("50€");
-  await expect(page.locator(".welcome-copy")).toContainText(
-    "Votre organisation reçoit 50 €",
+  await expect(page.locator("#pricing .pricing-heading > p")).toHaveText(
+    "Votre organisation reçoit une seule fois 50 € de crédit de bienvenue à l’ouverture de son compte. Le prix ou le plafond de chaque envoi vous est présenté avant validation.",
   );
-  await expect(page.locator(".welcome-copy")).toContainText("une seule fois");
+  await expect(page.locator(".welcome-copy h3")).toHaveText(
+    "Offerts à l’ouverture de votre compte.",
+  );
+  await expect(page.locator(".welcome-copy")).toContainText(
+    "Ce solde est partagé entre les canaux activés : fax, e-mail et courrier postal.",
+  );
+  await expect(page.locator(".welcome-terms")).toHaveText(
+    "Aucun renouvellement mensuel. Les envois s’arrêtent lorsque le solde disponible ne couvre plus leur coût.",
+  );
   await expect(page.locator(".pricing-table tbody tr")).toHaveCount(3);
   await expect(page.locator(".price-qualification")).toContainText(
     "Montants indicatifs hors taxes",

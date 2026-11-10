@@ -43,10 +43,18 @@ reason. Record retained explanations where their consequence or invisible scope
 matters. Update existing positive test expectations when a heading changes;
 preserve the same behavior, authority, accessibility and recovery assertions.
 Search every test family, including standalone browser suites and native tests,
-for removed text in all four languages. If an optional link is removed, assert
+for removed text in all four languages, including partial-string and regular
+expression assertions and the DOM region they select. If an optional link is removed, assert
 the remaining operational destinations positively. Check required localization
 keys and formatting arguments rather than a minimum catalog size.
 
 The [10 November review](CLEAN_COPY_AUDIT.md) records the inspected surfaces,
 changes and qualification. Its source, local fixtures, hosted CI and actual
 production publication remain separate evidence.
+
+State the exact test selection and built-source identity in proof. A selected
+six-file run is not the full browser inventory. Qualify final compiled source
+after the last batch. If asynchronous content can move a control, test its
+original DOM identity, geometry and scroll position across the delayed response,
+then activate the saved coordinates or focused native link. Reacquiring its new
+position before clicking can hide the user-facing race.

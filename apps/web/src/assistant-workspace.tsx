@@ -39,9 +39,15 @@ function ConnectionDiagnostics() {
   );
 }
 
-export function OverviewAssistantStart({ session }: { session: Session }) {
-  const connections = useAssistantConnections();
-  const { direct, chooseDirect } = useDirectChoice(session);
+export function OverviewAssistantStart({
+  connections,
+  direct,
+  chooseDirect,
+}: {
+  connections: ReturnType<typeof useAssistantConnections>;
+  direct: boolean;
+  chooseDirect: (value: boolean) => void;
+}) {
   if (direct) return null;
   if (connections.loading && !connections.data)
     return (

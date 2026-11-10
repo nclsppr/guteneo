@@ -51,10 +51,13 @@ regenerated from the reviewed sources before qualification.
 
 ## Qualification and publication
 
-The complete application suite passes **4,058 assertions across 213 files**. The final complete Node security suite passes **732 cases, without skips**;
+Before the separate Overview correction below, the complete local application
+suite passes **4,058 assertions across 213 files**. The final complete Node security suite passes **732 cases, without skips**;
 its 95 focused publisher/verifier cases also pass independently. Typecheck, full lint and
-documentation checks pass. Local preview-browser qualification passes **94 cases
-with four existing desktop exclusions**; account-email rendering passes **16
+documentation checks pass. An earlier selected six-file preview-browser run passes **94 cases
+with four existing desktop exclusions**; it is not the complete preview inventory.
+A fresh complete preview build at `6a40ce5d` passes **295 cases with five existing
+desktop exclusions**, before the separate Overview product correction below; account-email rendering passes **16
 cases** (available/blocked images, four languages), and status passes **50 cases**.
 Engineering documentation builds successfully and passes **30 browser cases**
 across desktop Chromium, mobile Chromium and iPhone WebKit. These are synthetic
@@ -108,3 +111,41 @@ archive are still required. The simulator was removed after this run.
 The [corrective receipt](evidence/clean-copy-ci-corrections-2026-11-10.json)
 records these actual outcomes and the source/report fingerprints. Failed first
 attempts remain part of the qualification history.
+
+## Second hosted attempt and Overview correction
+
+The second application run
+[42769537677](https://github.com/nclsppr/guteneo/actions/runs/42769537677),
+on `6a40ce5d1ef7aff520420aa3c2d7a24c40b9ab9b`, has three browser failures:
+two pricing tests selected the old duplicate paragraph's container, and one
+iPhone dashboard case exposed an actual native-tap race. The one-off EUR50
+organization credit, account-opening scope and quote-before-approval condition
+remain in the same pricing section's introduction. The corrected test checks
+that exact retained policy and all card terms positively. The full fresh local
+preview inventory passes 295 cases with five declared desktop applicability
+exclusions; a public language flow passes 3/3 with exact current German and
+Luxembourgish headings. Earlier selected-six-file evidence remains historical.
+
+The Overview trace shows its correct summary anchor moving during a native
+gesture when pending data was treated as an empty workspace and 30 attention
+items arrived. Summary navigation now precedes independently growing panels. An
+authority- and visit-owned layout distinguishes pending, empty, active and
+recovery states. Initial assistant loading settles before empty-workspace stats
+become interactive; recent controls wait for attention's first data or error,
+then stay mounted across retry. Reads remain parallel and permissions stay live.
+A failed dispatch-list read no longer invents an empty-state message.
+
+The [navigation receipt](evidence/overview-navigation-correction-2026-11-10.json)
+records an intentional pre-fix failure on all three local profiles: the same
+anchor moved 236.65625 CSS pixels. The corrected frozen source passes 18/18 new
+GET-only browser cases and 15/15 existing onboarding/role cases, with no retries,
+skips or business writes. The preserved local baseline is a dirty candidate
+build; exact-head hosted detection is recorded separately. Synthetic mobile
+onboarding was inspected and retains the first-use choice before statistics.
+
+Native run
+[42769537320](https://github.com/nclsppr/guteneo/actions/runs/42769537320)
+passes 46 unit and 10 UI tests plus unsigned archive on the same `6a40ce5d` head.
+Its native inputs are untouched by the subsequent web correction. A full fresh
+corrected-head and merged-main qualification are still required; this record
+claims no production publication.

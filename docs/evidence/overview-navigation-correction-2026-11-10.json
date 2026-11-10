@@ -1,0 +1,135 @@
+{
+  "schema": 1,
+  "kind": "overview-initial-layout-and-native-navigation-correction",
+  "reviewedAt": "2026-11-10T07:11:42.320076+00:00",
+  "candidateVersion": "1.2.1",
+  "detectedHead": "6a40ce5d1ef7aff520420aa3c2d7a24c40b9ab9b",
+  "hostedDetection": {
+    "applicationRun": 42769537677,
+    "attempt": 1,
+    "test": "tests/e2e/dashboard.spec.ts:448",
+    "project": "iphone-webkit",
+    "finding": "Correct English approval-summary link failed to navigate while initial attention and count responses changed its position during the native gesture; final URL stayed on Overview."
+  },
+  "correction": {
+    "sourceFiles": {
+      "apps/web/src/overview-page.tsx": "6f1296717bff51e55580f7da1a80758c23ebe3aed369db17baf81be4c65d647f",
+      "apps/web/src/assistant-state.ts": "1ca81d15cb02330c9b7832530c69408a5b63407b9d3c33befb0a8cdea7522067",
+      "apps/web/src/assistant-workspace.tsx": "0f4fbe545dccbe6d904a222bbcd7fc7fa9306388fef58f7c383228623d07f52c",
+      "apps/web/src/workspace-attention.tsx": "8800d8b3bb355d3b1881c1c6f578f4513d59e5bd76e48bd1361f2700d448ffad"
+    },
+    "testFile": {
+      "path": "tests/e2e/overview-navigation.spec.ts",
+      "sha256": "a385b08d59ac434fc5db5cb8de83946e2cea67d4044b4d189224caf198487908"
+    },
+    "layoutStates": [
+      "pending",
+      "empty",
+      "active",
+      "recovery"
+    ],
+    "ownership": "Current opaque session authority epoch and current Overview visit; replacement credentials for the same user/workspace reset readiness.",
+    "behavior": [
+      "Initial unknown reads do not select an empty-workspace layout.",
+      "Summary links precede independently growing attention and contact panels; empty-workspace assistant choice settles before the summary appears.",
+      "Lower recent controls wait only for the first attention data/error result; subsequent retries retain their DOM and visibility.",
+      "Independent initial reads remain parallel, including hidden-mounted children.",
+      "Live counts, permission checks, error recovery and native href/touch/keyboard semantics remain.",
+      "An initial failed dispatch read does not claim that the workspace is empty."
+    ]
+  },
+  "localQualification": {
+    "profiles": [
+      "chromium",
+      "mobile-chromium",
+      "iphone-webkit"
+    ],
+    "workers": 1,
+    "retries": 0,
+    "baseline": {
+      "expectedFailureProfiles": 3,
+      "sameAnchorDom": true,
+      "yShiftCssPixels": 236.65625,
+      "scope": "Preserved dirty31a43 candidate build predating product rebuild, not clean6a byte equivalence. Hosted6a mid-tap trace is separate parent-owned exact-head evidence. No failure rerun or assertion weakening."
+    },
+    "final": {
+      "identities": 18,
+      "passed": 18,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0
+    },
+    "existingOnboardingAndRoles": {
+      "identities": 15,
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0
+    },
+    "testAssertions": [
+      "five resource reads start independently before any fixture gate releases",
+      "unknown main data never shows guessed empty summary",
+      "empty introduction settles before summary",
+      "same DOM/bbox/scroll through late attention and contacts",
+      "saved-coordinate phone taps and focused desktop Enter reach approval aria-current",
+      "initial attention failure retry preserves mounted/visible recent controls",
+      "both main reads fail without false empty heading, held retry remains nonempty until successful reads",
+      "same user/workspace credential epoch resets previous daily layout"
+    ],
+    "build": {
+      "kind": "local-unsigned-fixture-client-build",
+      "builtAt": "2026-11-10T07:07:12.915Z",
+      "baseHead": "6a40ce5d1ef7aff520420aa3c2d7a24c40b9ab9b",
+      "workingTreeModified": true,
+      "sourceSnapshotSha256": "966aaa57e21f8760dbab9cbce32eda71eaadc78077d683c12660328a35f6d881",
+      "assetCount": 311,
+      "assetsSha256": "1691062931d1f0a09d097390d283f9f1b55fb6467afab256adb8a0a8ccb39717",
+      "scope": "npm run build:web; fictional browser transport only; no production release manifest, deployment or clean-source claim."
+    },
+    "reports": {
+      "baseline": {
+        "sha256": "bd5088cff9cab6e84163defe79c93870606eddc2b3eb459874ed22342bb8eb18",
+        "bytes": 25062,
+        "stats": {
+          "startTime": "2026-11-10T07:06:28.747Z",
+          "duration": 4272.366,
+          "expected": 0,
+          "skipped": 0,
+          "unexpected": 3,
+          "flaky": 0
+        }
+      },
+      "final": {
+        "sha256": "8d78861470c2538c80c27356cbef00f11c65a5f7415b097a5b2823ae1a431899",
+        "bytes": 27265,
+        "stats": {
+          "startTime": "2026-11-10T07:09:55.724Z",
+          "duration": 11857.803,
+          "expected": 18,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        }
+      },
+      "compatibility": {
+        "sha256": "342a720bf51694845de43b4a19c5dcbe499372ab3f9b02cf9c8911ed92b12e7e",
+        "bytes": 24125,
+        "stats": {
+          "startTime": "2026-11-10T07:08:18.798Z",
+          "duration": 21828.283,
+          "expected": 15,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        }
+      }
+    },
+    "visualReview": "Synthetic mobile onboarding capture inspected: first-use choice precedes summary; no horizontal overflow or hidden settled controls."
+  },
+  "limits": [
+    "Fictional local GET-only browser transports; no real account, database reset, provider or communication.",
+    "Baseline is a preserved dirty candidate build; the separate hosted trace supplies exact-head detection.",
+    "This targets initial panel resolution and summary activation; it is not a guarantee of zero reflow throughout every live screen.",
+    "Full fresh-head hosted application/native and merged-main qualification remain required; no deployment established here."
+  ]
+}

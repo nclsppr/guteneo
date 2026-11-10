@@ -13,11 +13,11 @@ export type AssistantConnection = {
   verification?: "verified" | "unverified";
 };
 
-export function useAssistantConnections() {
+export function useAssistantConnections(enabled = true) {
   const resource = useResource<{ items: AssistantConnection[] }>(
-    "/connections",
+    enabled ? "/connections" : null,
   );
-  useRefreshOnFocus(resource.refresh);
+  useRefreshOnFocus(resource.refresh, enabled);
   return resource;
 }
 
