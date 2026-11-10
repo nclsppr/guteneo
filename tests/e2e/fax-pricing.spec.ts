@@ -80,7 +80,7 @@ test("fax range and firm cap require approval of the exact version at 320px", as
     page.getByText(/Votre consommation ne dépassera pas 1,00/),
   ).toBeVisible();
   const approval = page.getByRole("button", {
-    name: "Approuver cette version",
+    name: /^Approuver (cette version|jusqu’à )/,
   });
   const consent = page.getByRole("checkbox", {
     name: /J’accepte une consommation variable/,
@@ -123,7 +123,7 @@ test("delivery can retain a reservation until verified fractional settlement", a
     0,
   );
   await expect(
-    page.getByRole("button", { name: "Approuver cette version" }),
+    page.getByRole("button", { name: /^Approuver (cette version|jusqu’à )/ }),
   ).toHaveCount(0);
   dispatch.faxPricing!.settlement = {
     status: "settled",
@@ -193,7 +193,7 @@ test("review preparation shows a real estimate without any approval or send cont
     "0,010000001 € à 0,020000009 €",
   );
   await expect(
-    page.getByRole("button", { name: "Approuver cette version" }),
+    page.getByRole("button", { name: /^Approuver (cette version|jusqu’à )/ }),
   ).toHaveCount(0);
   await expect(page.locator(".approval-panel")).toHaveCount(0);
   expect(writes).toEqual([]);

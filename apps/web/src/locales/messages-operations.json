@@ -3078,5 +3078,10 @@
     "Approval requested",
     "Freigabe angefragt",
     "Fräigab ugefrot"
+  ],
+  "Approuver jusqu’à {0}": [
+    "Approve up to {0}",
+    "Bis zu {0} freigeben",
+    "Bis zu {0} fräiginn"
   ]
 }

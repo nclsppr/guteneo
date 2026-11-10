@@ -2298,6 +2298,82 @@ export function DispatchDetailPage({
   ].includes(d.status)
     ? emailErrorMessage(latestAttempt?.error_code)
     : undefined;
+  // After approval, what happened to the dispatch matters more than the
+  // document already reviewed: the log moves above it once it has entries.
+  const timelineFirst = !pendingApproval && events.length > 0;
+  const timeline = (
+    <section className="timeline-section">
+      <h2>{t.dispatch.timeline}</h2>
+      {!events.length ? (
+        <p className="muted">{t.dispatch.noEvents}</p>
+      ) : (
+        <ol className="timeline">
+          {events.map((event) => {
+            const record = event as typeof event & {
+              kind?: string;
+              occurred_at?: string;
+              received_at?: string;
+            };
+            const name =
+              record.kind ??
+              event.type ??
+              event.event_type ??
+              event.status ??
+              t.status;
+            return (
+              <li key={event.id}>
+                <span className="timeline-mark" aria-hidden="true" />
+                <div>
+                  <strong>
+                    {(name === "delivered" && d.channel === "email"
+                      ? t.statuses.email_delivered
+                      : name === "delivered" && d.channel === "fax"
+                        ? t.statuses.fax_delivered
+                        : t.statuses[name]) ??
+                      sentenceCase(
+                        name.replaceAll(".", " · ").replaceAll("_", " "),
+                      )}
+                  </strong>
+                  <time>
+                    {date(
+                      record.occurred_at ??
+                        event.created_at ??
+                        record.received_at,
+                    )}
+                  </time>
+                  {event.detail && <p>{event.detail}</p>}
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      )}
+      {/* Nothing to disclose before the first provider submission. */}
+      <details
+        className="technical-details"
+        hidden={!resource.data?.attempts.length}
+      >
+        <summary>{t.dispatch.attempts}</summary>
+        {!resource.data?.attempts.length ? (
+          <p>{t.dispatch.noAttempts}</p>
+        ) : (
+          <ul className="attempts">
+            {resource.data.attempts.map((attempt) => (
+              <li key={attempt.id}>
+                <span>
+                  {d.channel === "postal"
+                    ? msg("Guteneo postal service")
+                    : attempt.provider}
+                </span>
+                <Status status={attempt.status} />
+                <time>{date(attempt.created_at)}</time>
+              </li>
+            ))}
+          </ul>
+        )}
+      </details>
+    </section>
+  );
   return (
     <>
       <a className="back-link" href="#/app/dispatches">
@@ -2428,6 +2504,7 @@ export function DispatchDetailPage({
           </button>
         </section>
       )}
+      {timelineFirst && timeline}
       <div className="dispatch-detail-layout dispatch-review-regions">
         <section className="dispatch-review-facts">
           <dl className="dispatch-facts">
@@ -2732,7 +2809,13 @@ export function DispatchDetailPage({
                       ? simulation
                         ? msg("Approve and simulate the dispatch")
                         : msg("Approve and send")
-                      : t.dispatch.approve}
+                      : faxPricing
+                        ? // The amount the person accepts sits on the action.
+                          msg(
+                            "Approve up to {0}",
+                            money(faxPricing.ceilingMinor),
+                          )
+                        : t.dispatch.approve}
                 </button>
               </section>
             )}
@@ -2792,75 +2875,7 @@ export function DispatchDetailPage({
           </details>
         </section>
       </div>
-      <section className="timeline-section">
-        <h2>{t.dispatch.timeline}</h2>
-        {!events.length ? (
-          <p className="muted">{t.dispatch.noEvents}</p>
-        ) : (
-          <ol className="timeline">
-            {events.map((event) => {
-              const record = event as typeof event & {
-                kind?: string;
-                occurred_at?: string;
-                received_at?: string;
-              };
-              const name =
-                record.kind ??
-                event.type ??
-                event.event_type ??
-                event.status ??
-                t.status;
-              return (
-                <li key={event.id}>
-                  <span className="timeline-mark" aria-hidden="true" />
-                  <div>
-                    <strong>
-                      {(name === "delivered" && d.channel === "email"
-                        ? t.statuses.email_delivered
-                        : name === "delivered" && d.channel === "fax"
-                          ? t.statuses.fax_delivered
-                          : t.statuses[name]) ??
-                        name.replaceAll(".", " · ").replaceAll("_", " ")}
-                    </strong>
-                    <time>
-                      {date(
-                        record.occurred_at ??
-                          event.created_at ??
-                          record.received_at,
-                      )}
-                    </time>
-                    {event.detail && <p>{event.detail}</p>}
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
-        )}
-        {/* Nothing to disclose before the first provider submission. */}
-        <details
-          className="technical-details"
-          hidden={!resource.data?.attempts.length}
-        >
-          <summary>{t.dispatch.attempts}</summary>
-          {!resource.data?.attempts.length ? (
-            <p>{t.dispatch.noAttempts}</p>
-          ) : (
-            <ul className="attempts">
-              {resource.data.attempts.map((attempt) => (
-                <li key={attempt.id}>
-                  <span>
-                    {d.channel === "postal"
-                      ? msg("Guteneo postal service")
-                      : attempt.provider}
-                  </span>
-                  <Status status={attempt.status} />
-                  <time>{date(attempt.created_at)}</time>
-                </li>
-              ))}
-            </ul>
-          )}
-        </details>
-      </section>
+      {!timelineFirst && timeline}
     </>
   );
 }
@@ -2931,4 +2946,10 @@ function rememberChannel(channel: Channel) {
   } catch {
     // Storage can be unavailable; the default channel then applies.
   }
+}
+
+/** An unlisted provider event keeps its words, in sentence case like badges. */
+function sentenceCase(text: string) {
+  const lower = text.toLocaleLowerCase(formatLocale());
+  return lower.charAt(0).toLocaleUpperCase(formatLocale()) + lower.slice(1);
 }

@@ -96,7 +96,9 @@ test("expiry disables approval and renewal requires a fresh explicit consent", a
   const f = await fixture(page, { controlledClock: true });
   await f.open();
   const consent = page.getByRole("checkbox");
-  const approve = page.getByRole("button", { name: "Approuver cette version" });
+  const approve = page.getByRole("button", {
+    name: /^Approuver (cette version|jusqu’à )/,
+  });
   await expect(
     page.getByText("Ce devis expire dans moins d’une minute.", { exact: true }),
   ).toBeVisible();
@@ -154,7 +156,7 @@ test("campaign renewal is disclosed before creating an individual quote", async 
   await expect(page).toHaveURL(/#\/app\/dispatch\/quote_new$/);
   await expect(page.getByRole("checkbox")).not.toBeChecked();
   await expect(
-    page.getByRole("button", { name: "Approuver cette version" }),
+    page.getByRole("button", { name: /^Approuver (cette version|jusqu’à )/ }),
   ).toBeDisabled();
   expect(f.writes).toEqual([
     { path: "/api/dispatches/quote_old/renew-quote", body: {} },
@@ -169,7 +171,9 @@ test("a live quote rejection offers renewal while preserving a real configuratio
   f.control.unavailableRenewal = true;
   await f.open();
   await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Approuver cette version" }).click();
+  await page
+    .getByRole("button", { name: /^Approuver (cette version|jusqu’à )/ })
+    .click();
   await expect(
     page.getByText("Ce devis n’est plus valable.", { exact: true }),
   ).toBeVisible();
@@ -181,7 +185,7 @@ test("a live quote rejection offers renewal while preserving a real configuratio
   );
   await expect(page).toHaveURL(/quote_old$/);
   await expect(
-    page.getByRole("button", { name: "Approuver cette version" }),
+    page.getByRole("button", { name: /^Approuver (cette version|jusqu’à )/ }),
   ).toBeDisabled();
   expect(f.writes.map((x) => x.path)).toEqual([
     "/api/dispatches/quote_old/approve",
@@ -201,7 +205,7 @@ for (const status of ["queued", "submission_unknown", "failed", "delivered"]) {
       page.getByRole("button", { name: "Renouveler le devis", exact: true }),
     ).toHaveCount(0);
     await expect(
-      page.getByRole("button", { name: "Approuver cette version" }),
+      page.getByRole("button", { name: /^Approuver (cette version|jusqu’à )/ }),
     ).toHaveCount(0);
     expect(f.writes).toEqual([]);
   });

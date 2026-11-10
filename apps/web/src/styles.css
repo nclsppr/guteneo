@@ -3641,3 +3641,14 @@ ol {
   color: var(--blue-ink);
   font-weight: 500;
 }
+
+/* Beside a sticky decision the document keeps its natural height, so the
+   wheel scrolls the page instead of a nested frame; the reserved minimum
+   still holds the place before the PDF loads. */
+@media (min-width: 1025px) {
+  .dispatch-review-regions .pdf-preview-viewport {
+    block-size: auto;
+    min-block-size: clamp(260px, 60svh, 640px);
+    overflow: visible;
+  }
+}

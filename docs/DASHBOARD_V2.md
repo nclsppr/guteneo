@@ -968,7 +968,15 @@ financial consent, communication or deployment.
   is sticky beside the document from 1025 px. The provider-attempt panel is
   hidden while empty. An uncertain outcome says that a workspace administrator
   checks it in Administration and that nothing is resent automatically. A role
-  that cannot approve reads who can.
+  that cannot approve reads who can. From 1025 px the document keeps its
+  natural height beside the sticky decision, so the wheel scrolls the page;
+  narrower screens keep the bounded frame so consent stays reachable. Once a
+  dispatch is approved and has events, its log moves above the document. A
+  priced fax names its accepted ceiling on the button ("Approve up to €…").
+  The three channels keep distinct approval controls on purpose: a fax approval
+  binds the version and its ceiling before a separate acceptance, an email is
+  approved and accepted in one gesture after any recipient attestation, and a
+  letter's single button binds its exact quoted price.
 - **Tables.** A loaded table under five rows hides search, filters and
   pagination. A row with a link opens from anywhere on the row. The dispatch
   list no longer repeats its status groups as a filter.
