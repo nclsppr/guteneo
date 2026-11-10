@@ -162,7 +162,7 @@
   gap: 10px;
   color: var(--bv-muted);
   text-decoration: none;
-  font-size: 13px;
+  font-size: 14px;
   min-height: 44px;
   margin-inline-start: 46px;
 }
@@ -175,7 +175,7 @@
   gap: 10px;
   padding: 6px 0 8px;
   font-weight: 500;
-  font-size: 13px;
+  font-size: 14px;
 }
 .bv-avatar {
   width: 36px;
@@ -242,7 +242,7 @@
 .bv-heading p {
   margin-top: 12px;
   color: var(--bv-muted);
-  font-size: 15px;
+  font-size: 16px;
   max-width: 64ch;
 }
 .bv-button,
@@ -304,7 +304,7 @@
 .bv-filter-fields label > span,
 .bv-infra-window {
   color: var(--bv-muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 .bv-filter-fields select,
 .bv-infra-window select,
@@ -315,7 +315,7 @@
   padding: 10px 36px 10px 12px;
   color: var(--bv-ink);
   max-width: 100%;
-  font-size: 15px;
+  font-size: 16px;
   min-height: 46px;
 }
 .bv-evidence {
@@ -348,7 +348,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: 14px;
 }
 .bv-custom-dates input {
   padding-right: 8px;
@@ -380,7 +380,7 @@
   padding-right: 0;
 }
 .bv-stat > span {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--bv-muted);
 }
 .bv-stat > strong {
@@ -413,7 +413,7 @@
   margin-bottom: 22px;
 }
 .bv-section-heading h2 {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 500;
   line-height: 1.35;
   text-wrap: balance;
@@ -439,7 +439,7 @@
   background: var(--surface-alt);
   border-radius: var(--radius);
   padding: 3px 7px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--bv-muted);
 }
 .bv-count-warning {
@@ -480,7 +480,7 @@
   box-shadow: var(--elevation-card);
 }
 .bv-chart-total {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -581,7 +581,7 @@
   border-bottom: 1px solid var(--line);
   padding: 17px 0;
   text-align: left;
-  font-size: 13px;
+  font-size: 14px;
 }
 .bv-incident-list > button:hover {
   color: var(--bv-blue);
@@ -624,7 +624,7 @@
   margin-bottom: 9px;
 }
 .bv-clear p {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--bv-muted);
 }
 .bv-text-button {
@@ -674,11 +674,11 @@
   display: flex;
   align-items: baseline;
   gap: 12px;
-  font-size: 13px;
+  font-size: 14px;
 }
 .bv-country strong {
   margin-left: auto;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
 }
 .bv-country small {
@@ -813,7 +813,7 @@
   border-radius: 0;
   color: var(--bv-ink);
   outline: none !important;
-  font-size: 15px;
+  font-size: 16px;
 }
 .bv-search input::placeholder {
   color: var(--muted);
@@ -916,7 +916,7 @@
 .bv-mode {
   display: block;
   width: fit-content;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   margin-top: 6px;
   font-weight: 400;
@@ -1022,7 +1022,7 @@
 .bv-workshop-members > div > div strong {
   display: block;
   font-weight: 500;
-  font-size: 13px;
+  font-size: 14px;
 }
 .bv-workshop-members > div > div span {
   display: block;
@@ -1053,7 +1053,7 @@
   margin-bottom: 10px;
 }
 .bv-telemetry p {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--bv-muted);
   max-width: 66ch;
 }
@@ -1090,7 +1090,7 @@
   border-bottom: 2px solid transparent;
   padding: 13px 0;
   color: var(--bv-muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 .bv-tabs button:hover,
 .bv-tabs button[aria-pressed="true"] {
@@ -1128,7 +1128,7 @@
 .bv-finance-label {
   display: block;
   color: var(--bv-muted);
-  font-size: 13px;
+  font-size: 14px;
   margin-bottom: 15px;
 }
 .bv-finance-summary strong {
@@ -1141,7 +1141,7 @@
   color: var(--heading-ink);
 }
 .bv-finance-summary p {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--bv-muted);
   max-width: 58ch;
   margin-top: 16px;
@@ -1192,7 +1192,7 @@
   margin-bottom: 14px;
 }
 .bv-result > p {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--bv-muted);
 }
 .bv-result > .bv-source-note {
@@ -1210,11 +1210,11 @@
 }
 .bv-finance-lines dt {
   color: var(--bv-muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 .bv-finance-lines dd {
   margin: 0;
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 500;
 }
 .bv-notice {
@@ -1259,7 +1259,7 @@
   font-weight: 500;
 }
 .bv-empty p {
-  font-size: 13px;
+  font-size: 14px;
   max-width: 55ch;
 }
 .bv-failure {
@@ -1271,13 +1271,13 @@
   margin-bottom: 14px;
 }
 .bv-failure h2 {
-  font-size: 22px;
+  font-size: 20px;
   color: var(--bv-ink);
   margin-bottom: 12px;
 }
 .bv-failure p {
   margin-bottom: 20px;
-  font-size: 13px;
+  font-size: 14px;
 }
 .bv-loading {
   display: grid;
@@ -1373,7 +1373,7 @@
 .bv-infra-empty > p {
   max-width: 62ch;
   color: var(--bv-muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 .bv-infra-capabilities {
   display: flex;
@@ -1393,7 +1393,7 @@
   margin-top: 23px;
 }
 .bv-prose {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--bv-muted);
   max-width: 65ch;
 }
@@ -1442,7 +1442,7 @@
     grid-template-columns: minmax(0, 1.7fr) minmax(350px, 1fr);
   }
   .bv-chart-label {
-    font-size: 13px;
+    font-size: 14px;
   }
   .bv-stat > strong {
     font-size: 36px;
@@ -1623,7 +1623,7 @@
     font-size: 36px;
   }
   .bv-heading p {
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.6;
   }
   .bv-refresh {
@@ -1697,7 +1697,7 @@
     gap: 10px;
   }
   .bv-section-heading h2 {
-    font-size: 18px;
+    font-size: 20px;
   }
   .bv-section-heading p {
     font-size: 12px;
@@ -1737,7 +1737,7 @@
   .bv-chart-caption {
     flex-wrap: wrap;
     gap: 6px;
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1.5;
     margin-top: 12px;
   }
@@ -1750,7 +1750,7 @@
     margin-bottom: 20px;
   }
   .bv-country > div > span {
-    font-size: 13px;
+    font-size: 14px;
   }
   .bv-incident-list > button {
     min-height: 63px;
@@ -1839,7 +1839,7 @@
     margin-top: -5px;
   }
   .bv-infra-service h2 {
-    font-size: 15px;
+    font-size: 16px;
   }
   .bv-infra-service p {
     font-size: 12px;
@@ -1860,7 +1860,7 @@
     font-size: 27px;
   }
   .bv-infra-empty > p {
-    font-size: 13px;
+    font-size: 14px;
   }
   .bv-infra-capabilities {
     gap: 14px;
@@ -1875,11 +1875,11 @@
     flex-direction: column;
     gap: 7px;
     margin-top: 30px;
-    font-size: 11px;
+    font-size: 12px;
   }
   .bv-freshness {
     align-items: flex-start;
-    font-size: 11px;
+    font-size: 12px;
   }
   .bv-freshness > span {
     margin-top: 6px;
@@ -1941,7 +1941,7 @@
 }
 @media (max-width: 760px) {
   .bv-chart-label {
-    font-size: 18px;
+    font-size: 20px;
   }
 }
 .bv-job-states {
@@ -1963,7 +1963,7 @@
 .bv-job-states strong {
   margin-left: auto;
   font-weight: 500;
-  font-size: 13px;
+  font-size: 14px;
 }
 .bv-job-states small {
   width: 42px;
@@ -2018,7 +2018,7 @@
   border-radius: var(--radius);
   padding: 10px 36px 10px 12px;
   min-height: 46px;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--bv-ink);
   max-width: 215px;
 }
@@ -2093,5 +2093,35 @@
     tbody
     :is(th, td).bv-numeric {
     text-align: left;
+  }
+}
+
+/* Keep reporting controls compact without hiding the evidence mode. */
+.bv-filter-disclosure {
+  flex: 1;
+  min-width: 0;
+}
+.bv-filter-disclosure > summary {
+  display: none;
+}
+@media (min-width: 641px) {
+  .bv-filter-disclosure:not([open]) > .bv-filter-fields {
+    display: flex;
+  }
+}
+@media (max-width: 640px) {
+  .bv-filterbar {
+    align-items: start;
+  }
+  .bv-filter-disclosure {
+    flex-basis: 100%;
+  }
+  .bv-filter-disclosure > summary {
+    display: list-item;
+    padding-block: 10px;
+    cursor: pointer;
+  }
+  .bv-filter-disclosure[open] .bv-filter-fields {
+    padding-block: 10px;
   }
 }

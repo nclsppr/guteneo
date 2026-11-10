@@ -11,6 +11,11 @@
   --font-body: "IBM Plex Sans", sans-serif;
   --font-display: "EB Garamond", Georgia, serif;
   --font-code: "IBM Plex Mono", monospace;
+  /* Application text scale; display titles keep their own sizes. */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-md: 16px;
+  --text-lg: 20px;
   --content-measure: 68ch;
   --control-height: 44px;
 }
@@ -119,7 +124,7 @@ p {
   margin: 16px 0 0;
 }
 h3 {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 500;
 }
 img {
@@ -279,7 +284,7 @@ ol {
 }
 .confirm-action-question {
   flex-basis: 100%;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.45;
   color: var(--ink);
 }
@@ -395,7 +400,7 @@ ol {
 .eyebrow {
   color: var(--blue);
   font-family: var(--font-code);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 1.6px;
   margin-bottom: 29px;
 }

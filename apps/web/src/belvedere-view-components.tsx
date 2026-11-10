@@ -1,4 +1,5 @@
 import { type ReactNode } from "react";
+import { StatTile } from "./activity-chart";
 import {
   ArrowClockwise,
   ArrowRight,
@@ -13,6 +14,10 @@ import {
 import type { BelvedereFilters } from "../../../packages/contracts/src/belvedere";
 import { BelvedereError, number, statusName } from "./belvedere-data";
 import { bmsg } from "./belvedere-i18n";
+import {
+  belvedereCount,
+  type BelvedereCountKind,
+} from "./belvedere-presentation";
 
 export type View =
   | "overview"
@@ -156,11 +161,15 @@ export function Stat({
   accent?: boolean;
 }) {
   return (
-    <div className={`bv-stat${accent ? " bv-stat-accent" : ""}`}>
-      <span>{label}</span>
-      <strong>{value}</strong>
-      <small>{children}</small>
-    </div>
+    <StatTile
+      label={label}
+      value={value}
+      variant="plain"
+      tone={accent ? "accent" : "neutral"}
+      className={`bv-stat${accent ? " bv-stat-accent" : ""}`}
+    >
+      {children}
+    </StatTile>
   );
 }
 
@@ -198,11 +207,11 @@ export function Mode({ mode }: { mode: string }) {
 export function Pagination({
   data,
   onChange,
-  label = bmsg("results"),
+  kind = "results",
 }: {
   data: { total: number; page: number; pageSize: number };
   onChange: (page: number) => void;
-  label?: string;
+  kind?: BelvedereCountKind;
 }) {
   const pages = Math.max(1, Math.ceil(data.total / data.pageSize));
   return (
@@ -210,12 +219,12 @@ export function Pagination({
       <span>
         {data.total > 0
           ? bmsg(
-              "{0}–{1} of ",
+              "{0}–{1} of {2}",
               number((data.page - 1) * data.pageSize + 1),
               number(Math.min(data.page * data.pageSize, data.total)),
+              belvedereCount(kind, data.total),
             )
-          : ""}
-        {number(data.total)} {label}
+          : belvedereCount(kind, data.total)}
       </span>
       <div>
         <button
@@ -226,10 +235,7 @@ export function Pagination({
         >
           <CaretLeft size={17} />
         </button>
-        <span>
-          {bmsg("Page ")}
-          {number(data.page)} / {number(pages)}
-        </span>
+        <span>{bmsg("Page {0} of {1}", number(data.page), number(pages))}</span>
         <button
           className="bv-icon-button"
           aria-label={bmsg("Next page")}

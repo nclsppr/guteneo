@@ -1,0 +1,276 @@
+{
+  "date": "2026-11-10",
+  "version": "1.2.3",
+  "branch": "worktree-trim-helper-copy-20261109",
+  "baseMain": "551ca4c85081bef321410c8b0198c076f3172409",
+  "scope": "Completion pass after initial1b63fd5 candidate; source checks ran before final commit with working changes included. No inherited full-suite green claim.",
+  "checks": {
+    "typecheck": "passed",
+    "lint": "passed;278 owned web files and locale projections current",
+    "docs": "build/check passed;28domains,520capabilities,57journeys,97RESToperations,92MCPtools",
+    "build": "passed;web assets plus Worker dry run only",
+    "previewBuild": "passed;SSR development websocket refused locally, static output completed",
+    "engineering": "build,Astro,authored-doc lint and4security checks passed",
+    "pureTests": {
+      "files": 7,
+      "passed": 102,
+      "failed": 0,
+      "report": "reports/clarity-completion-pure.json"
+    },
+    "backendUtcTests": {
+      "passed": 14,
+      "failed": 0,
+      "file": "tests/unit/application-time.test.ts",
+      "separateInvocation": true
+    },
+    "releaseGuardTests": {
+      "passed": 109,
+      "failed": 0,
+      "separateInvocation": true,
+      "scope": "New manual guards plus unchanged dependency/main publication tests"
+    },
+    "integrations": "1.2.3 MCP/package fingerprints matched"
+  },
+  "unqualified": [
+    "Fresh complete exact-tree hosted CI is required after the independent discovery checkout repair. CI8 passed every executed test but its verifier failed on a missing helper directory; no complete green claim.",
+    "No new rendered screenshots or first-load timings",
+    "Production schema and deployment not performed",
+    "Native simulator/device/distribution qualification unchanged from historical record"
+  ],
+  "browserCrash": {
+    "reportedBy": "user",
+    "engine": "Playwright WebKit",
+    "platform": "macOS27.2arm64",
+    "occurredAt": "2026-11-10T20:04:26+01:00",
+    "signal": "SIGABRT",
+    "frame": "HIServices _RegisterApplication before page creation",
+    "action": "Stopped further local browser-launch probes"
+  },
+  "productionEffects": {
+    "pushed": true,
+    "pullRequest": true,
+    "merged": false,
+    "schemaChanged": false,
+    "deployed": false,
+    "realCommunication": false,
+    "paidProvisioning": false
+  },
+  "firstHostedCi": {
+    "head": "2db156dac69eba3b4845eadd5cd087eb847e6dac",
+    "tree": "73c197bdfabfbfaa850c142fc18815763fc87750",
+    "pullRequest": 162,
+    "runId": 42886760472,
+    "result": "failed",
+    "passedJobs": 12,
+    "applicationBrowser": {
+      "passed": 1264,
+      "failed": 148,
+      "declaredSkipped": 19,
+      "discovered": 1431
+    },
+    "note": "Downstream browser suites did not complete; no merge/deployment. Repair batch retains actual security/consent assertions."
+  },
+  "repairBatchChecks": {
+    "typecheck": "passed",
+    "lint": "passed",
+    "docs": "build/check passed",
+    "build": "passed; Worker dry run only",
+    "pureTests": {
+      "passed": 116,
+      "failed": 0,
+      "files": 8,
+      "report": "reports/clarity-ci-repair-pure.json"
+    },
+    "integrations": "1.2.3 fingerprints matched",
+    "browser": "not run locally; fresh exact-source hosted run required"
+  },
+  "secondHostedCi": {
+    "head": "cd095d641a65b0f011ccce8b586273fab19f5522",
+    "tree": "c97310dfc6698e103a85416e1236153a2f3b9807",
+    "runId": 42891102890,
+    "result": "failed",
+    "passedJobs": 15,
+    "applicationBrowser": {
+      "passed": 1391,
+      "failed": 24,
+      "declaredSkipped": 19,
+      "discovered": 1434
+    },
+    "desktopPreview": {
+      "passed": 53,
+      "failed": 2
+    },
+    "note": "Partial inventories; no complete green claim. Postal continuation passed mobile, while recipient capture-phase reset explained remaining iPhone postal/email failures. Fresh hosted qualification required after repairs."
+  },
+  "thirdHostedCi": {
+    "head": "fd03c1175c9579926a4946e60ae0883955fd0343",
+    "tree": "cf30e3332b0fa84523a5225cb44c173dcb719707",
+    "runId": 42894540712,
+    "result": "failed downstream inventory; application inventory passed",
+    "passedJobs": 19,
+    "applicationBrowser": {
+      "passed": 1415,
+      "failed": 0,
+      "declaredSkipped": 19,
+      "discovered": 1434
+    },
+    "passedGroups": [
+      "All four Vitest shards",
+      "Security and PDF rendering",
+      "Builds and engineering",
+      "Both distribution suites"
+    ],
+    "remaining": "Caption interactive-player readiness, public Studio route readiness, five-row Belvedere decimal fixture; test-only repairs, no timeout/retry/skip relaxation"
+  },
+  "fourthHostedCi": {
+    "head": "10d83b7033c1b0789330563d92bfacf3703e7ba6",
+    "tree": "d2bd2af94491f3bd45647281f22d0bf1a97e2cb8",
+    "runId": 42903335537,
+    "result": "failed",
+    "passedJobs": 22,
+    "remaining": "One iPhone public Studio test used default visibility-filtered getByRole inside a closed disclosure; includeHidden only for attached-navigation lookup, with native opening/visibility/read-only/no-business-request assertions preserved."
+  },
+  "fifthHostedCi": {
+    "head": "0e6510a4c1117443eba49b4b3f006464e3852d1f",
+    "tree": "15d0bcf55d3db8b6d6c5828a3ab71fe90e1ee016",
+    "runId": 42906962716,
+    "result": "failed",
+    "passedJobs": 22,
+    "applicationBrowser": {
+      "passed": 1414,
+      "failed": 1,
+      "declaredSkipped": 19,
+      "discovered": 1434
+    },
+    "publicStudioIphone": "Passed in 3.6 seconds; iPhone shard3 preview54passed",
+    "remaining": "Dashboard pagination real concurrency: older focus first-page response can overwrite additional cursor rows. Keep original assertion; repair resource read ownership and cover held-response completion orders. No merge/deployment; prevented downstream inventories remain incomplete."
+  },
+  "paginationRepair": {
+    "implementation": "An explicit current useResource update aborts only its older owned read subscriber and marks loading false. Committed identity lifetime plus live authority guards run before cancellation and inside queued state updaters, preserving path/account ABA and unmount fencing. Later explicit refresh works; no cache/navigation/consent gate change.",
+    "review": "Root and independent read-only review passed; all15manualdata callers retain current-action/recovery fences.",
+    "browserRegression": "Original loaded-page case now covers both request-start orders with real first-page snapshots held until cursor rows are displayed, exact row/read counts, no extra focus/cursor calls, no error and later explicit refresh. Adds one discovered identity per application project; no retry, timeout or skip relaxation. Hosted execution pending.",
+    "localChecks": {
+      "typecheck": "passed through npm run build",
+      "lint": "passed including278ownedfiles/noexceptions/locales",
+      "docs": "passed28domains520capabilities57journeys97REST92MCP",
+      "webWorkerBuild": "passed; Wrangler dry run only",
+      "pureAssertions": {
+        "passed": 43,
+        "failed": 0,
+        "files": 4
+      },
+      "clientActionBoundary": {
+        "passed": 1,
+        "failed": 0
+      }
+    },
+    "hostedQualification": "A fresh exact-source complete run is required before merge; all production effects remain unchanged.",
+    "qualification": "Historical GO6 local checks; CI6 passed all six pagination cases but found a no-op setter regression through Documents alias. Superseded by queued read ownership below; not complete qualification."
+  },
+  "sixthHostedCi": {
+    "head": "79b5f5a8624f368c9a0110a701d8738e7e293bce",
+    "tree": "93113907c61930a580d8dea8286e79f3f57dc33e",
+    "runId": 42910566080,
+    "result": "failed",
+    "passedJobs": 20,
+    "failedBrowserJobs": 3,
+    "verifier": "correctly refused incomplete inventory",
+    "applicationBrowser": {
+      "passed": 1416,
+      "failed": 2,
+      "declaredSkipped": 19,
+      "discovered": 1437
+    },
+    "pagination": "All six cases passed (two request-start orders across three application projects).",
+    "failures": [
+      "Mobile documents: functional no-op through Documents setter alias aborted the still-pending initial library read; actual product regression.",
+      "iPhone webhook refusal: post-create configuration read raced test refusal injection before Refresh click.",
+      "Desktop public menu: action targeted SSR toggle before client interactive marker."
+    ],
+    "scope": "No merge, schema or deployment; prevented downstream inventories remain incomplete."
+  },
+  "queuedResourceRepair": {
+    "implementation": "Pending read ownership is part of queued state. Object.is no-op returns unchanged state including loading/read ownership. A real current update clears read ownership; older GET success/error updaters require that same owner plus current identity/scope/live authority. No cancellation side effects in replayable updaters; effect cleanup preserves ordinary subscriber abort.",
+    "expandedAudit": "40 setter references:15direct calls,24callback props,1Documents alias; the prior15-call audit missed that alias.",
+    "documents": "Idempotent selected-row merge leaves undefined/absent/already-identical rows unchanged and reconciles when late library data arrives. New held initial quarantined-list response allows detail-ready first, then requires both rows, persistent ready status after closing and safe other selection with no rescan/write.",
+    "testReadiness": "Await existing public-header interactive marker and committed post-create webhook configuration before original actions; keyboard/focus/authority/secret assertions remain.",
+    "qualification": "Root and independent expanded audit passed. TypeScript via npm run build, full lint/ownership/locales, docs, web/Worker dry-run build,43pureassertions4files and1actionboundary all passed separately. New browser execution awaits a fresh complete exact-source hosted run before merge.",
+    "coverageLimit": "Held-response cases cover already-started reads. An earlier queued refresh intent whose request starts after a manual update has no new browser proof in this lot."
+  },
+  "seventhHostedCi": {
+    "head": "bf84ef303c6512d2d539ac63857160727ddf5cb8",
+    "tree": "3ff686b9b640d9aa842b0541979813b65f92ecc0",
+    "runId": 42913974468,
+    "result": "failed; complete application inventory passed",
+    "passedJobs": 22,
+    "applicationBrowser": {
+      "passed": 1421,
+      "failed": 0,
+      "declaredSkipped": 19,
+      "discovered": 1440
+    },
+    "previewBrowser": {
+      "passed": 322,
+      "failed": 1,
+      "declaredSkipped": 5,
+      "discovered": 328
+    },
+    "observedBrowserTotal": {
+      "passed": 1843,
+      "failed": 1,
+      "declaredSkipped": 24,
+      "discovered": 1868
+    },
+    "targetedRegressions": "Six pagination, three late document selections, three held initial libraries and three webhook configuration refusals passed.",
+    "remaining": "Support FAQ keyboard focus targeted initial HTML before client replacement. Final verifier correctly refused; no merge or deployment."
+  },
+  "publicReadinessRepair": {
+    "scope": "Bounded audit of all26previewtestfiles; eight functional marketing test files wait for the existing public-header interactive marker at actual native/client interaction boundaries.",
+    "preserved": "All original pointer/keyboard/focus/locale/archive/authority/no-business-request assertions. Intentional initial HTML, delayed/unavailable/no JavaScript, early theme, native-link, HTTP-only/text/href coverage unchanged.",
+    "source": "No product source change from the application-qualified GO7 candidate; no timeout/retry/skip relaxation.",
+    "localChecks": "TypeScript, complete lint/ownership/locales and formatting passed. Documentation checks and fresh complete hosted qualification required for this final test-only lot."
+  },
+  "eighthHostedCi": {
+    "head": "442ab06d849626ca015012a59ad797a37de40e98",
+    "tree": "f824d61b22abde7e5a5cd0270f545d99c736cca9",
+    "runId": 42917132402,
+    "result": "failed final independent discovery; all23testjobs passed",
+    "passedJobs": 23,
+    "applicationBrowser": {
+      "passed": 1421,
+      "failed": 0,
+      "declaredSkipped": 19,
+      "discovered": 1440
+    },
+    "previewBrowser": {
+      "passed": 323,
+      "failed": 0,
+      "declaredSkipped": 5,
+      "discovered": 328
+    },
+    "observedBrowserTotal": {
+      "passed": 1844,
+      "failed": 0,
+      "declaredSkipped": 24,
+      "discovered": 1868
+    },
+    "verifier": "Failedclosed: sparsecheckout omitted tests/helpers imported by browser tests. This is not a complete green run and grants no release qualification."
+  },
+  "independentDiscoveryCheckoutRepair": {
+    "change": "Add only /tests/helpers/ to verify job non-cone sparse checkout. No verification rule, product module, test assertion, retry, timeout or skip change.",
+    "reproduction": "Actual temporary Git clone at local7ec21cdb with exact verifier patterns plus that directory and matching installed dependencies. Eight canonical Playwright --list --reporter=json commands succeeded without browser/server launch.",
+    "discoveryOnly": {
+      "applicationPerProject": 480,
+      "applicationProjects": 3,
+      "previewPerProject": 164,
+      "previewProjects": 2,
+      "belvederePerProject": 25,
+      "belvedereProjects": 2,
+      "status": 50,
+      "total": 1868
+    },
+    "auditReceipt": "/tmp/guteneo-verify-git-sparse-6jqmzt7g/audit-discovery.json",
+    "eagerFileAudit": "Only OpenAPI is read at import time and already included; execution-only films/images/spreadsheets/build assets remain excluded.",
+    "qualification": "A fresh complete exact-source hosted run is required before merge and publication."
+  }
+}

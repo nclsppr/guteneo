@@ -1,7 +1,14 @@
 import { z } from "zod";
-import { PDF_VALIDATION_PRICE_MINOR, PDF_VALIDATION_TERMS_VERSION } from "./pdf-validation-pricing";
+import {
+  PDF_VALIDATION_PRICE_MINOR,
+  PDF_VALIDATION_TERMS_VERSION,
+} from "./pdf-validation-pricing";
 
-export { PDF_VALIDATION_PRICE_MINOR, PDF_VALIDATION_TERMS_VERSION, type PdfValidationPricing } from "./pdf-validation-pricing";
+export {
+  PDF_VALIDATION_PRICE_MINOR,
+  PDF_VALIDATION_TERMS_VERSION,
+  type PdfValidationPricing,
+} from "./pdf-validation-pricing";
 
 export const pdfValidationProfiles = [
   "ua1",
@@ -141,3 +148,19 @@ export const pdfValidationReportSchema = z
   .strict();
 export type PdfValidationReport = z.infer<typeof pdfValidationReportSchema>;
 export type PdfValidationProfile = (typeof pdfValidationProfiles)[number];
+
+export type PdfValidationHistoryItem = {
+  id: string;
+  documentId: string;
+  documentName: string;
+  profile: PdfValidationProfile;
+  status: "processing" | "error" | PdfValidationReport["status"];
+  evidence: "production" | "simulation";
+  createdAt: string;
+  completedAt: string | null;
+};
+export type PdfValidationHistory = {
+  items: PdfValidationHistoryItem[];
+  nextCursor: string | null;
+};
+export type PdfValidationHistoryPage = PdfValidationHistory;

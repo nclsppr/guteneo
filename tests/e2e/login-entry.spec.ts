@@ -2,6 +2,7 @@ import { mkdir, readFile, realpath } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, test as base, type Page } from "@playwright/test";
+import { expectUnreviewedServerError } from "../helpers/browser-error-notice";
 
 const origin = "https://login-ui.example.test";
 const buildDirectory = fileURLToPath(
@@ -324,7 +325,13 @@ test("explicit sign-out returns to the public site without reopening SSO and kee
     .getByRole("button", { name: "Sign out", exact: true });
   await account.click();
   await logout.click();
-  await expect(page.getByRole("alert")).toContainText("Sign-out unavailable.");
+  const logoutError = page.getByRole("alert");
+  await expect(logoutError).toBeFocused();
+  await expectUnreviewedServerError(
+    logoutError,
+    "LOGOUT_UNAVAILABLE",
+    "Sign-out unavailable.",
+  );
   await expect(page.locator("#account-name")).toHaveValue("Hosted account");
   expect(hosted.authenticated).toBe(true);
   expect(hosted.authRequests).toEqual([]);
@@ -332,7 +339,6 @@ test("explicit sign-out returns to the public site without reopening SSO and kee
 
   hosted.logoutStatus = 200;
   // The focused error closes the menu when focus was inside it.
-  await expect(page.getByRole("alert")).toBeFocused();
   if ((await account.getAttribute("aria-expanded")) !== "true")
     await account.click();
   await logout.click();

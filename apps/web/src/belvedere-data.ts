@@ -1,3 +1,8 @@
+import { formatApplicationTimestamp } from "./application-time";
+import {
+  applicationDay,
+  APPLICATION_DAY_MS,
+} from "../../../packages/contracts/src/application-time";
 import { useEffect, useState } from "react";
 import { bmsg } from "./belvedere-i18n";
 import { formatLocale } from "./locale";
@@ -12,33 +17,15 @@ export const money = (value: number | null, currency = "EUR") =>
         style: "currency",
         currency,
       }).format(value / 100);
-function parsedDate(value: string | null) {
-  if (!value) return null;
-  const normalized = /^\d{4}-\d{2}-\d{2} \d{2}:/.test(value)
-    ? value.replace(" ", "T") + "Z"
-    : value;
-  const date = new Date(normalized);
-  return Number.isNaN(date.getTime()) ? null : date;
-}
-export const dateTime = (value: string | null) => {
-  const date = parsedDate(value);
-  return date
-    ? new Intl.DateTimeFormat(formatLocale(), {
-        dateStyle: "medium",
-        timeStyle: "short",
-      }).format(date)
+export const dateTime = (value: string | null) =>
+  value
+    ? (formatApplicationTimestamp(value) ?? bmsg("Unspecified"))
     : bmsg("Unspecified");
-};
-export const shortDate = (value: string) => {
-  const date = parsedDate(`${value.slice(0, 10)}T12:00:00Z`);
-  return date
-    ? new Intl.DateTimeFormat(formatLocale(), {
-        day: "numeric",
-        month: "short",
-        timeZone: "UTC",
-      }).format(date)
-    : bmsg("Unspecified");
-};
+export const shortDate = (value: string) =>
+  formatApplicationTimestamp(`${value.slice(0, 10)}T12:00:00Z`, {
+    day: "numeric",
+    month: "short",
+  }) ?? bmsg("Unspecified");
 export function countryName(code: string | null) {
   if (!code || code === "XX" || code === "T1")
     return bmsg("Country unspecified");
@@ -103,12 +90,10 @@ export function periodFilters(
   days: number,
   mode: BelvedereFilters["mode"],
 ): BelvedereFilters {
-  const end = new Date();
-  const start = new Date(end);
-  start.setUTCDate(start.getUTCDate() - days + 1);
+  const now = Date.now();
   return {
-    from: start.toISOString().slice(0, 10),
-    to: end.toISOString().slice(0, 10),
+    from: applicationDay(now - (days - 1) * APPLICATION_DAY_MS),
+    to: applicationDay(now),
     mode,
   };
 }

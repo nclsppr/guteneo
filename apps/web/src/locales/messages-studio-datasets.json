@@ -598,5 +598,10 @@
     "The file analysis did not complete.",
     "Die Dateianalyse wurde nicht abgeschlossen.",
     "D’Dateianalys gouf net ofgeschloss."
+  ],
+  "Aucun fichier de données pour le moment": [
+    "No data files yet",
+    "Noch keine Datendateien",
+    "Nach keng Donnéeëndateien"
   ]
 }

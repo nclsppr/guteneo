@@ -12,11 +12,11 @@ document readiness and dispatch approval.
 
 ## Three different questions
 
-| Question | Responsible boundary |
-| --- | --- |
-| Can this exact PDF be used safely under the application's checks? | Document scanning and isolated PDF validation |
-| Which supported machine-checkable conformance rules pass or fail? | PDF verification diagnostic profile and private validator |
-| Is the document usable and appropriate for its real audience? | Human review, including reading order, alternatives and interaction |
+| Question                                                          | Responsible boundary                                                |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Can this exact PDF be used safely under the application's checks? | Document scanning and isolated PDF validation                       |
+| Which supported machine-checkable conformance rules pass or fail? | PDF verification diagnostic profile and private validator           |
+| Is the document usable and appropriate for its real audience?     | Human review, including reading order, alternatives and interaction |
 
 A quarantined document cannot bypass its security gate by requesting a diagnostic.
 A favorable automated report is not a certification, human review or permission
@@ -56,6 +56,23 @@ independent check needs a new explicit purchase.
 Missing required bindings or scanner readiness fail closed; enough credit alone
 does not enable the service. Existing reports retain current document access
 without a subscription, new purchase or broader PDF visibility.
+
+## Workspace history
+
+The browser PDF checks page reads a bounded chronological metadata list under
+the current workspace and the existing document-library access rules. Private
+sources remain private even from another administrator. Shared sources retain
+their existing observer reading rights. Each row identifies the PDF, profile,
+evidence and time; processing or error states cannot be mistaken for a completed
+conformance report. Open the original authorized document to review its full
+report and remaining human checks.
+
+This collection is browser-only and private/no-store. The server fences the
+current session and source visibility in SQL and reauthenticates before returning
+the read; stale cursors cannot widen access. Reading history invokes no engine
+and creates no credit reservation or charge. The chronological index is additive
+and preserves all original reports and purchase evidence. Source and synthetic
+tests do not establish deployed availability or a real customer diagnostic.
 
 ## Corrections create new documents
 

@@ -13,6 +13,12 @@ const assistants = [
   ["cursor", "Cursor"],
 ] as const;
 
+async function interactive(page: Page) {
+  await expect(
+    page.locator('.public-header[data-render-state="interactive"]'),
+  ).toBeVisible();
+}
+
 for (const [locale, label] of [
   ["fr", "Télécharger le plugin Guteneo (ZIP)"],
   ["en", "Download the Guteneo plugin (ZIP)"],
@@ -24,6 +30,7 @@ for (const [locale, label] of [
   }, info) => {
     const calls = observeServiceCalls(page);
     await page.goto(`/assistants/chatgpt/?lang=${locale}`);
+    await interactive(page);
     const link = page.getByRole("link", { name: label, exact: true });
     await expect(link).toBeVisible();
     await expect(link).toHaveAttribute("download", "");
@@ -55,10 +62,14 @@ for (const [locale, label] of [
     expect(mcpPath).toBeDefined();
     const pluginMcp = JSON.parse(strFromU8(archive[mcpPath!]));
     await expect(page.getByText(/auth\.guteneo\.com/)).toBeVisible();
-    await page.locator(".assistant-guide-version-controls button").nth(1).click();
+    await page
+      .locator(".assistant-guide-version-controls button")
+      .nth(1)
+      .click();
     await expect(
       page.getByText(
-        pluginMcp.mcpServers.guteneo.extensions["com.openai"].auth.client.clientId,
+        pluginMcp.mcpServers.guteneo.extensions["com.openai"].auth.client
+          .clientId,
         { exact: true },
       ),
     ).toBeVisible();
@@ -123,6 +134,7 @@ async function capturePublicPage(page: Page, path: string) {
 }
 
 async function expectPublicNavigation(page: Page) {
+  await interactive(page);
   const header = page.locator("header.public-header");
   const toggle = header.locator(".public-menu-toggle");
   const mobile = await toggle.isVisible();
@@ -289,6 +301,7 @@ test("Copilot variants and editor downloads keep their distinct configurations",
 }) => {
   const calls = observeServiceCalls(page);
   await page.goto("/assistants/copilot/");
+  await interactive(page);
   const versions = page.getByRole("group", {
     name: "Choisir la version de GitHub Copilot",
   });
@@ -333,6 +346,7 @@ test("Copilot variants and editor downloads keep their distinct configurations",
     mcpServers: { guteneo: { url: "https://guteneo.com/mcp" } },
   });
   await page.goto("/assistants/microsoft365/");
+  await interactive(page);
   const microsoftVersions = page.getByRole("group", {
     name: "Choisir la version de Microsoft 365 Copilot",
   });
@@ -392,6 +406,7 @@ test("manual plugin variants keep hosted and local OAuth instructions separate",
 }, info) => {
   const calls = observeServiceCalls(page);
   await page.goto("/assistants/claude/");
+  await interactive(page);
   await expect(page.locator(".claude-client-field")).toBeVisible();
   const claudeVersions = page.getByRole("group", {
     name: "Choisir la version de Claude",
@@ -416,6 +431,7 @@ test("manual plugin variants keep hosted and local OAuth instructions separate",
   );
 
   await page.goto("/assistants/grok/");
+  await interactive(page);
   await page
     .getByRole("group", { name: "Choisir la version de Grok" })
     .getByRole("button", { name: "Grok Build", exact: true })
@@ -428,6 +444,7 @@ test("manual plugin variants keep hosted and local OAuth instructions separate",
   );
 
   await page.goto("/assistants/cursor/");
+  await interactive(page);
   await page
     .getByRole("group", { name: "Choisir la version de Cursor" })
     .getByRole("button", { name: "Plugin Cursor local", exact: true })
@@ -468,6 +485,7 @@ test("plugin setup stays localized and usable at 320px in all four languages", a
       await page.evaluate(() => document.documentElement.scrollWidth),
     ).toBe(320);
     await page.goto(`/assistants/claude/?lang=${language}`);
+    await interactive(page);
     await page.getByRole("button", { name: claudePlugin, exact: true }).click();
     await expect(page.locator(".claude-client-field")).toBeVisible();
     expect(

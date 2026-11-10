@@ -1,6 +1,6 @@
 ---
 title: "Public pages, languages and appearance"
-description: "25 capabilities in the interfaces branch of Guteneo."
+description: "26 capabilities in the interfaces branch of Guteneo."
 sidebar:
   order: 17
 ---
@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Public reading surface.
 
-The 25 October public hierarchy, four detail routes, shared footer, four-language static generation and appearance were published from main 03daa4136de8999cc79018f33f2a22038917c621. Canonical served assets and four-language public layout/link checks passed. The 27 October stable-language, public-session removal and initial-example-CSS correction is a local candidate; its measured build graph adds 1092 gzip CSS bytes without another initial stylesheet request. Current-source browser checks, CI and publication remain separately evidenced. The separate preview retains an isolated provider asset-delivery failure; indexing, provider and real financial qualification remain separate. The 28 October navigation candidate removes repeated document/app startup between public pages; local measurements, CI and publication remain separate.
+The 25 October public hierarchy, four detail routes, shared footer, four-language static generation and appearance were published from main 03daa4136de8999cc79018f33f2a22038917c621. Canonical served assets and four-language public layout/link checks passed. The 27 October stable-language, public-session removal and initial-example-CSS correction is a local candidate; its measured build graph adds 1092 gzip CSS bytes without another initial stylesheet request. Current-source browser checks, CI and publication remain separately evidenced. The separate preview retains an isolated provider asset-delivery failure; indexing, provider and real financial qualification remain separate. The 28 October navigation candidate removes repeated document/app startup between public pages; local measurements, CI and publication remain separate. The 10 November ordinary-public-Studio source candidate exposes only bounded read-only fictional libraries/details, with no authenticated backend fallback; final hosted CI and served-preview evidence are separate.
 
 **Surfaces:** Public browser/static documents and four-language frontend/video catalogues; request-language negotiation adds no REST/MCP operation or native capability. Preview has no business bindings. Authenticated account language, membership and approval remain separately guarded.
 
@@ -28,7 +28,7 @@ The 25 October public hierarchy, four detail routes, shared footer, four-languag
 <li id="feature-12f40fd1b2eb">Twelve localised films, posters, captions and actual durations</li>
 <li id="feature-cb0b3433aa5c">Every registered main-site public route has generic and French/English/German/Luxembourgish initial HTML, canonical metadata, language alternatives and sitemap entries from one route registry; internal/private paths stay excluded</li>
 <li id="feature-9dae91565e9d">Public pages make no workshop session probe or late account-language replacement; negotiated static HTML varies on Cookie and Accept-Language with private revalidation caching, while explicit-language cache policy, exact bytes, ETag and no-transform remain intact</li>
-<li id="feature-1c67c1f61e59">Fictional public preview isolated from the backend; tab-only email accepts omitted custom HTML, formats plain text locally and uses the shared template/French fallback for fictional PDF message defaults; custom HTML requires supplied plaintext, without real links, hosting, provider calls or production-sanitizer qualification</li>
+<li id="feature-8cb1122003cf">Fictional public preview is isolated from the backend; its application switcher offers Correspondence and bounded read-only Studio libraries/details with three deterministic viewer-only records each, disabled authoring/import/preview/generation and direct Studio-write refusal. Tab-only email accepts omitted custom HTML, formats plain text locally and uses shared template/French defaults for fictional PDFs; no real links, hosting, provider calls or production-sanitizer qualification</li>
 <li id="feature-c5475b39f98a">Multilingual social cards and reader sharing controls</li>
 <li id="feature-7d0f587da524">Public error documents retain real HTTP status with 17 dedicated four-language messages and 4xx/5xx fallback; only eligible public failures, no status-selector/demo endpoint</li>
 <li id="feature-752307fb5e79">The homepage restores the existing four-language Ideas travel closing invitation, first-dispatch installation link and large stamp/postmark above its exclusive panorama with three original birds. The identical common PublicFooter remains on every public React route, including home, with its compact stamp/postmark, two original decorative swallows, sixteen links and colophon; no decoration enters the logged-in application</li>
@@ -43,4 +43,5 @@ The 25 October public hierarchy, four detail routes, shared footer, four-languag
 <li id="feature-b9b7e6e5ee5d">Public film play controls are disabled in server HTML until the client handler mounts; releasing route code starts no movie, and the first enabled click keeps playback/fullscreen in the native gesture with the resolved locale</li>
 <li id="feature-a34a7135a1b1">Public fixture PDFs initialize concurrently with deterministic order, no business bindings or extra network dependency</li>
 <li id="feature-1535f25daff2">Active-locale browser code loading keeps inactive translation packs off initial public routes and waits for the chosen catalogue before mounting; unchanged PDF-check pricing metadata is a pure contract module without validation-runtime imports</li>
+<li id="feature-36f3829f3259">Home start choices are in the hero and the existing installation fragment remains valid; approved closing invitation, first-dispatch action, panorama and shared footer remain; pricing provenance is under Details and Support has a contact card without a response-time promise</li>
 </ol>

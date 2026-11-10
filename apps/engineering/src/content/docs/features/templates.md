@@ -1,6 +1,6 @@
 ---
 title: "Template studio"
-description: "15 capabilities in the create branch of Guteneo."
+description: "16 capabilities in the create branch of Guteneo."
 sidebar:
   order: 4
 ---
@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Current capability and authority required.
 
-Implemented; AI suggestions require configuration and organisation consent.
+Authenticated authoring is implemented; AI suggestions require configuration and organisation consent. The ordinary public Studio source exposes read-only fictional libraries/details and refuses mutation without backend transport. Exact-source browser/hosted qualification and publication remain separate.
 
 **Surfaces:** Web Studio space under /app/studio/…, REST and MCP; optional configured AI proposal service.
 
@@ -18,7 +18,7 @@ Implemented; AI suggestions require configuration and organisation consent.
 ## Capabilities
 
 <ol>
-<li id="feature-76f2f637ab54">Private, shared and organisation template libraries</li>
+<li id="feature-9a5140496b03">Private, shared and organisation template libraries revalidate authorized lists on a visible-tab return while preserving unsubmitted names and file selections; ordinary public Studio offers a separate bounded viewer-only fixture, never authenticated authoring authority</li>
 <li id="feature-da2b89a1db86">Five synthetic examples: letter, invoice, statement, quote and delivery note</li>
 <li id="feature-dd83001d032c">Private copy or blank creation with the REST/MCP authoring guide</li>
 <li id="feature-8665658cf5b3">Word DOCX content import with explicit layout warnings</li>
@@ -33,6 +33,7 @@ Implemented; AI suggestions require configuration and organisation consent.
 <li id="feature-7ad6848682c7">Document-studio exclusions cover DOCX, text, existing templates and business data; stop known excluded content and request a person-redacted copy without web bypass</li>
 <li id="feature-7da1eb053f33">AI suggestions revalidate edit rights, membership, OAuth connection, revision and transfer consent before inference and before returning; reject stale proposals without automatic application/publication</li>
 <li id="feature-8be5610e9f78">Template writes and chained browser continuations require current identity, view, membership, connection and exact revision after asynchronous work; an obsolete response cannot generate or navigate</li>
+<li id="feature-851cdb463935">Viewport-triggered local first-page sample thumbnails use serialized bounded pdfme rendering with guarded PDF rasterization, no remote resources, server preview mutation, storage or cross-authority cache; complex templates retain a neutral glyph</li>
 </ol>
 
 ## REST operations

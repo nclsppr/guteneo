@@ -36,7 +36,6 @@ import {
 } from "./postal-recipient-editor";
 import { RolePermissionNotice } from "./role-guide";
 import {
-  BEFORE_WORKSPACE_NAVIGATION,
   ErrorNotice,
   DateTimezone,
   Field,
@@ -48,6 +47,7 @@ import {
 } from "./components";
 import "./distribution-pages.css";
 import { useCurrentClientView } from "./client-write-recovery";
+import { useUnsavedNavigation } from "./navigation-confirmation";
 
 export default function DistributionPage({
   route,
@@ -477,27 +477,12 @@ function DistributionForm({
   const initialDraft = useRef(JSON.stringify({ destinations, multi }));
   const dirty =
     JSON.stringify({ destinations, multi }) !== initialDraft.current;
-  useEffect(() => {
-    if (!dirty) return;
-    const warn = (event: BeforeUnloadEvent) => {
-      if (prepared.current) return;
-      event.preventDefault();
-      event.returnValue = "";
-    };
-    const guard = (event: Event) => {
-      if (
-        !prepared.current &&
-        !window.confirm(msg("Leave this preparation and lose unsaved changes?"))
-      )
-        event.preventDefault();
-    };
-    window.addEventListener("beforeunload", warn);
-    window.addEventListener(BEFORE_WORKSPACE_NAVIGATION, guard);
-    return () => {
-      window.removeEventListener("beforeunload", warn);
-      window.removeEventListener(BEFORE_WORKSPACE_NAVIGATION, guard);
-    };
-  }, [dirty]);
+  const navigationConfirmation = useUnsavedNavigation({
+    dirty,
+    scope: JSON.stringify([identity, jobId, recordIds]),
+    question: msg("Leave this preparation and lose unsaved changes?"),
+    completed: () => prepared.current,
+  });
   const applies = (destination: Destination, recordId: string) =>
     destination.records === "all" || destination.records.includes(recordId);
   const associationCount = destinations.reduce(
@@ -706,6 +691,7 @@ function DistributionForm({
   }
   return (
     <form className="distribution-section" onSubmit={(e) => void prepare(e)}>
+      {navigationConfirmation}
       <p>
         {recordIds.length} {msg("PDFs selected · ")}
         {associationCount}{" "}

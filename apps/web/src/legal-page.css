@@ -156,3 +156,67 @@
     font-size: 12px;
   }
 }
+
+.support-document {
+  max-width: 1440px;
+}
+.support-document .legal-layout {
+  grid-template-columns: 160px minmax(0, 1fr) minmax(240px, 280px);
+  gap: 40px;
+}
+.support-contact-card {
+  position: sticky;
+  top: 32px;
+  align-self: start;
+  padding: 26px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  min-width: 0;
+}
+.support-contact-card h2 {
+  font: 500 30px var(--font-display);
+  line-height: 1.1;
+  margin: 0 0 18px;
+}
+.support-contact-card p {
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 18px 0;
+}
+.support-contact-card .support-contact-publisher {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+.support-contact-card .button {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1100px) {
+  .support-document .legal-layout {
+    grid-template-columns: 180px minmax(0, 1fr);
+  }
+  .support-contact-card {
+    position: static;
+    grid-column: 2;
+    grid-row: 1;
+    margin-bottom: 24px;
+  }
+  .support-document .legal-copy {
+    grid-column: 2;
+  }
+  .support-document .legal-index {
+    grid-row: 1 / span 2;
+  }
+}
+@media (max-width: 760px) {
+  .support-document .legal-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+  .support-contact-card {
+    order: -1;
+    width: 100%;
+    margin: 0;
+  }
+}

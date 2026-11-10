@@ -3,6 +3,12 @@ import { publicLanguagePicker } from "../public-language";
 
 test.use({ locale: "en-GB" });
 
+async function interactive(page: Page) {
+  await expect(
+    page.locator('.public-header[data-render-state="interactive"]'),
+  ).toBeVisible();
+}
+
 async function preferGerman(page: Page) {
   // Context locale can override extra headers on navigation. Keep the actual
   // HTTP language list coherent with the navigator fixture below.
@@ -123,6 +129,7 @@ test("narrow public headers keep one row and navigation yields to language selec
   for (const width of [430, 320]) {
     await page.setViewportSize({ width, height: 932 });
     await page.goto("/?lang=lb");
+    await interactive(page);
     const header = page.locator("header.site-header");
     const toggle = header.locator(".public-menu-toggle");
     const brand = header.locator(":scope > .brand");
@@ -191,6 +198,7 @@ test("the desktop language menu opens by keyboard and restores focus on Escape",
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
+  await interactive(page);
   const menu = page.locator("header .language-menu");
   const summary = menu.locator("summary");
   const picker = menu.locator('select[name="language"]');
@@ -225,6 +233,7 @@ test("public subpage language panels remain fully inside narrow phone viewports"
     ]) {
       await test.step(`${path} at ${width}px`, async () => {
         await page.goto(`${path}?lang=lb`);
+        await interactive(page);
         const header = page.locator("header.site-header");
         await expect(header).toBeVisible();
         // Compare the closed/open menu only after font metrics have settled.

@@ -1,3 +1,9 @@
+import { APPLICATION_TIME_ZONE } from "./application-time";
+import {
+  applicationDay,
+  APPLICATION_DAY_MS,
+  isApplicationDay,
+} from "../../../packages/contracts/src/application-time";
 import { ApiError, money } from "./api";
 import { useResource } from "./components";
 import { formatLocale, getLocale } from "./locale";
@@ -7,19 +13,16 @@ import type {
   AdministrationExportFormat,
 } from "../../../packages/contracts/src/administration";
 
-const DAY = 86_400_000;
+const DAY = APPLICATION_DAY_MS;
 export type Period = { from: string; to: string };
 export const PERIOD_PRESETS = [7, 30, 90, 365] as const;
 
-const isoDay = (time: number) => new Date(time).toISOString().slice(0, 10);
+const isoDay = applicationDay;
 export function presetPeriod(days: number, now = Date.now()): Period {
   return { from: isoDay(now - (days - 1) * DAY), to: isoDay(now) };
 }
 const validDay = (value: string | null): value is string =>
-  !!value &&
-  /^\d{4}-\d{2}-\d{2}$/.test(value) &&
-  Number.isFinite(Date.parse(value)) &&
-  isoDay(Date.parse(value)) === value;
+  !!value && isApplicationDay(value);
 
 export function validPeriod(period: Period): boolean {
   return (
@@ -68,13 +71,13 @@ export const day = (value: string) =>
   new Intl.DateTimeFormat(formatLocale(), {
     day: "numeric",
     month: "short",
-    timeZone: "UTC",
+    timeZone: APPLICATION_TIME_ZONE,
   }).format(new Date(`${value.slice(0, 10)}T12:00:00Z`));
 export const month = (value: string) =>
   new Intl.DateTimeFormat(formatLocale(), {
     month: "long",
     year: "numeric",
-    timeZone: "UTC",
+    timeZone: APPLICATION_TIME_ZONE,
   }).format(new Date(`${value}-01T12:00:00Z`));
 
 /**

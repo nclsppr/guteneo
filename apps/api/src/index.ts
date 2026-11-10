@@ -139,9 +139,15 @@ import { reconcileFreshnessAlerts } from "./freshness-alerts";
 import { reconcileFreshnessPrevention } from "./freshness-prevention";
 import { processPreventionNotifications } from "./provider-prevention-notifications";
 import { createLifecycleRoutes } from "./lifecycle-routes";
-import { DispatchScheduleService, scheduleCapabilities } from "./dispatch-schedules";
+import {
+  DispatchScheduleService,
+  scheduleCapabilities,
+} from "./dispatch-schedules";
 import { createCustomerWebhookRoutes } from "./customer-webhook-routes";
-import { customerWebhookCapabilities, processCustomerWebhooks } from "./customer-webhooks";
+import {
+  customerWebhookCapabilities,
+  processCustomerWebhooks,
+} from "./customer-webhooks";
 
 import {
   startObservation,
@@ -164,7 +170,12 @@ function identityConfigured(env: Env) {
 }
 export function getCapabilities(env: Env) {
   return {
-    savedRecipients: { available: true, permission: "prepare_dispatches", channels: ["fax", "email", "postal"], maximumPerWorkspace: 1000 },
+    savedRecipients: {
+      available: true,
+      permission: "prepare_dispatches",
+      channels: ["fax", "email", "postal"],
+      maximumPerWorkspace: 1000,
+    },
     scheduledDispatches: scheduleCapabilities(env),
     customerWebhooks: customerWebhookCapabilities(env),
     name: "Guteneo",
@@ -682,6 +693,21 @@ app.use("/api/billing/*", async (c, next) => {
   if (billing) return billing;
   return next();
 });
+app.get("/api/pdf-validation/history", async (c) => {
+  const authority = await postalBrowserAuthority(c.req.raw, c.env, false);
+  const limited = await limitWorkspaceRequests(
+    c.env,
+    authority.context.organizationId,
+  );
+  if (limited) return limited;
+  const history = await new PdfValidationService(c.env, domain(c.env)).history(
+    authority,
+    c.req.query("cursor"),
+    c.req.query("limit") === undefined ? 30 : Number(c.req.query("limit")),
+  );
+  c.header("Cache-Control", "private, no-store");
+  return c.json(history);
+});
 app.get(
   "/api/pdf-validation/pricing",
   async (c) =>
@@ -741,26 +767,31 @@ app.use("/api/*", async (c, next) => {
     c.set("actor", session.context as ActorContext);
   }
   const actor = c.get("actor");
-  const window = Math.floor(Date.now() / 60000);
-  const row = await c.env.DB.prepare(
-    "INSERT INTO http_limits(organization_id,window_start,count) VALUES(?,?,1) ON CONFLICT(organization_id,window_start) DO UPDATE SET count=count+1 RETURNING count",
-  )
-    .bind(actor.organizationId, window)
-    .first<{ count: number }>();
-  if ((row?.count ?? 0) > 180) {
-    c.header("Retry-After", "60");
-    return c.json(
-      {
-        error: {
-          code: "RATE_LIMITED",
-          message: "Too many requests. Try again in a minute.",
-        },
-      },
-      429,
-    );
-  }
+  const limited = await limitWorkspaceRequests(c.env, actor.organizationId);
+  if (limited) return limited;
   await next();
 });
+async function limitWorkspaceRequests(env: Env, organizationId: string) {
+  const row = await env.DB.prepare(
+    "INSERT INTO http_limits(organization_id,window_start,count) VALUES(?,?,1) ON CONFLICT(organization_id,window_start) DO UPDATE SET count=count+1 RETURNING count",
+  )
+    .bind(organizationId, Math.floor(Date.now() / 60000))
+    .first<{ count: number }>();
+  return (row?.count ?? 0) > 180
+    ? Response.json(
+        {
+          error: {
+            code: "RATE_LIMITED",
+            message: "Too many requests. Try again in a minute.",
+          },
+        },
+        {
+          status: 429,
+          headers: { "Retry-After": "60", "Cache-Control": "no-store" },
+        },
+      )
+    : null;
+}
 const domain = (env: Env) =>
   new DomainService(env.DB, {
     mode: env.MODE,
@@ -1293,6 +1324,16 @@ app.post("/api/dispatches/:id/confirm", async (c) => {
 app.post("/api/dispatches/:id/cancel", async (c) =>
   c.json(await domain(c.env).cancelDispatch(c.get("actor"), c.req.param("id"))),
 );
+app.post("/api/dispatches/:id/request-approval", async (c) => {
+  // Human browser session with CSRF, like approval itself.
+  const session = await authenticateBrowser(c.req.raw, c.env, true);
+  return c.json(
+    await domain(c.env).requestDispatchApproval(
+      session.context as ActorContext,
+      c.req.param("id"),
+    ),
+  );
+});
 app.get("/api/campaigns", async (c) =>
   c.json(await domain(c.env).listCampaigns(c.get("actor"), ...page(c.req.url))),
 );

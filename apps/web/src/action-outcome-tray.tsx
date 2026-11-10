@@ -18,6 +18,12 @@ function outcomeLabel(item: ActionOutcomeReceipt) {
       return msg("Link access revoked");
     case "dispatch_prepared":
       return msg("Dispatch prepared");
+    case "dispatch_approved":
+      return msg("Your approval was recorded after you left the page.");
+    case "quote_renewed":
+      return msg(
+        "A new quote was prepared after you left the page. Review it before approving.",
+      );
     case "dispatch_cancelled":
       return msg("Dispatch cancelled");
     case "schedule_created":

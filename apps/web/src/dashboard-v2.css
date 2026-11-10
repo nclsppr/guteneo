@@ -203,7 +203,7 @@
   line-height: 1.12;
 }
 .workspace-v2 .page-heading p {
-  font-size: 15px;
+  font-size: 16px;
   max-width: 64ch;
   line-height: 1.6;
 }
@@ -281,7 +281,7 @@
   min-height: 44px;
 }
 .workspace-v2 .overview-stats span {
-  font-size: 13px;
+  font-size: 14px;
   margin-bottom: 12px;
 }
 .workspace-v2 .overview-stats strong {
@@ -337,7 +337,7 @@
 .workspace-v2 caption:not(.studio-designer *, .data-table *) {
   padding: 14px 20px 10px;
   color: var(--heading-ink);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 500;
   text-align: start;
 }
@@ -358,14 +358,14 @@
   color: var(--blue-ink);
 }
 .workspace-v2 .reference {
-  font-size: 11px;
+  font-size: 12px;
   margin-top: 5px;
 }
 .workspace-v2 :is(.date-cell, .channel-label) {
-  font-size: 13px;
+  font-size: 14px;
 }
 .workspace-v2 .sub-label {
-  font-size: 11px;
+  font-size: 12px;
 }
 .workspace-v2 .status {
   font-size: 12px;
@@ -374,7 +374,7 @@
   white-space: normal;
 }
 .workspace-v2 .dispatch-filter a {
-  font-size: 13px;
+  font-size: 14px;
   min-height: 40px;
   border-radius: 7px;
 }
@@ -436,7 +436,7 @@
     .protected-document-summary h2
   ) {
   font-family: var(--font-body);
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 500;
   line-height: 1.4;
   letter-spacing: -0.01em;
@@ -459,7 +459,7 @@
   padding: 16px 20px;
 }
 .workspace-v2 .studio-list-row h3 {
-  font-size: 15px;
+  font-size: 16px;
 }
 .workspace-v2
   :is(
@@ -508,10 +508,10 @@
 }
 .workspace-v2 .field-hint,
 .workspace-v2 .field > small {
-  font-size: 13px;
+  font-size: 14px;
 }
 .workspace-v2 .field :is(input, select, textarea) {
-  font-size: 15px;
+  font-size: 16px;
   min-height: 46px;
   padding: 11px 12px;
 }

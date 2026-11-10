@@ -11,21 +11,38 @@ test.beforeEach(async () => {
   await resetRecipientWorkspaceFixture();
 });
 
-test("an expired invitation handoff cannot survive a same-tab reload", async ({ app, screen, browser }) => {
+test("an expired invitation handoff cannot survive a same-tab reload", async ({
+  app,
+  screen,
+  browser,
+}) => {
   await app.open("/#/app/my-documents");
-  await screen.getByRole("button", "Ouvrir le compte destinataire fictif").tap();
+  await screen
+    .getByRole("button", "Ouvrir le compte destinataire fictif")
+    .tap();
   await expect(screen.getByRole("link", "Utiliser Guteneo")).toBeVisible();
   await expect(screen.getByRole("heading", "Mes documents")).toBeVisible();
   const handoff = await browser.evaluate(async () => {
     const token = [...crypto.getRandomValues(new Uint8Array(32))]
-      .map((value) => value.toString(16).padStart(2, "0")).join("");
+      .map((value) => value.toString(16).padStart(2, "0"))
+      .join("");
     location.hash = `/app/my-documents?invitation=${token}`;
     const deadline = Date.now() + 5000;
     while (Date.now() < deadline && location.hash.includes("invitation="))
       await new Promise((resolve) => setTimeout(resolve, 20));
-    const pending = JSON.parse(sessionStorage.getItem("guteneo.pending-document-invitation.v1") ?? "null") as { token?: string; expiresAt?: number } | null;
-    return { clean: location.hash === "#/app/my-documents", stored: pending?.token === token,
-      bounded: Boolean(pending?.expiresAt && pending.expiresAt > Date.now() && pending.expiresAt <= Date.now() + 600000) };
+    const pending = JSON.parse(
+      sessionStorage.getItem("guteneo.pending-document-invitation.v1") ??
+        "null",
+    ) as { token?: string; expiresAt?: number } | null;
+    return {
+      clean: location.hash === "#/app/my-documents",
+      stored: pending?.token === token,
+      bounded: Boolean(
+        pending?.expiresAt &&
+        pending.expiresAt > Date.now() &&
+        pending.expiresAt <= Date.now() + 600000,
+      ),
+    };
   });
   expect(handoff).toEqual({ clean: true, stored: true, bounded: true });
   await expect(screen.getByRole("button", "Ouvrir mon document")).toBeVisible();
@@ -38,8 +55,16 @@ test("an expired invitation handoff cannot survive a same-tab reload", async ({ 
   });
   await browser.reload();
   await expect(screen.getByRole("heading", "Mes documents")).toBeVisible();
-  await expect(screen.getByRole("button", "Ouvrir mon document")).toHaveCount(0);
-  expect(await browser.evaluate(() => sessionStorage.getItem("guteneo.pending-document-invitation.v1") === null)).toBe(true);
+  await expect(screen.getByRole("button", "Ouvrir mon document")).toHaveCount(
+    0,
+  );
+  expect(
+    await browser.evaluate(
+      () =>
+        sessionStorage.getItem("guteneo.pending-document-invitation.v1") ===
+        null,
+    ),
+  ).toBe(true);
 });
 
 test("a recipient has one account, no automatic workshop, and voluntary access to services", async ({
@@ -68,7 +93,9 @@ test("a recipient has one account, no automatic workshop, and voluntary access t
   expect(received.status).toBe(200);
   await screen.getByRole("link", "Utiliser Guteneo").tap();
   await expect(screen.getByRole("heading", "Utiliser Guteneo")).toBeVisible();
-  await expect(screen.getByLabel("Nom de votre espace de travail")).toBeVisible();
+  await expect(
+    screen.getByLabel("Nom de votre espace de travail"),
+  ).toBeVisible();
   await expect(
     screen.getByText(
       "Vos documents reçus restent accessibles sans achat de service.",
@@ -96,7 +123,9 @@ test("a recipient has one account, no automatic workshop, and voluntary access t
     authenticationRedirects += 1;
     await route.abort();
   });
-  await browser.locator(".personal-space-header .workspace-identity-trigger").tap();
+  await browser
+    .locator(".personal-space-header .workspace-identity-trigger")
+    .tap();
   const [signedOut] = await Promise.all([
     browser.waitForResponse("**/api/personal/logout"),
     screen.getByRole("button", "Se déconnecter").tap(),
@@ -107,16 +136,29 @@ test("a recipient has one account, no automatic workshop, and voluntary access t
   const publicAfterLogout = await browser.evaluate(async () => {
     const status = (await fetch("/api/personal/session")).status;
     await new Promise((resolve) => setTimeout(resolve, 750));
-    return { status, publicHome: location.pathname === "/" && location.hash === "",
-      privateShell: document.querySelector(".personal-space") !== null };
+    return {
+      status,
+      publicHome: location.pathname === "/" && location.hash === "",
+      privateShell: document.querySelector(".personal-space") !== null,
+    };
   });
-  expect(publicAfterLogout).toEqual({ status: 401, publicHome: true, privateShell: false });
+  expect(publicAfterLogout).toEqual({
+    status: 401,
+    publicHome: true,
+    privateShell: false,
+  });
   expect(authenticationRedirects).toBe(0);
 
   // Only this explicit action re-enters the private area; it creates no session.
   await app.open("/#/app/my-documents");
-  await expect(screen.getByRole("button", "Ouvrir le compte destinataire fictif")).toBeVisible();
-  expect(await browser.evaluate(async () => (await fetch("/api/personal/session")).status)).toBe(401);
+  await expect(
+    screen.getByRole("button", "Ouvrir le compte destinataire fictif"),
+  ).toBeVisible();
+  expect(
+    await browser.evaluate(
+      async () => (await fetch("/api/personal/session")).status,
+    ),
+  ).toBe(401);
   expect(authenticationRedirects).toBe(0);
 });
 
@@ -148,7 +190,7 @@ test("creating and selecting a workshop reloads its session without changing the
   ]);
   expect(createdResponse.status).toBe(200);
   await expect(browser).toHaveURL(/#\/app\/prepare/);
-  await expect(screen.getByRole("heading", "Préparer une correspondance.")).toBeVisible();
+  await expect(screen.getByRole("heading", "Nouvel envoi")).toBeVisible();
   // A real document reload discards the previous POST response body. Inspect
   // the fresh session instead, without triggering another navigation.
   const created = await localApi<{
@@ -163,18 +205,32 @@ test("creating and selecting a workshop reloads its session without changing the
   // Application's workshop state or the API module's mutation CSRF token.
   // The new administrator manages the workspace in Administration; the
   // personal profile no longer edits it.
-  await browser.evaluate(() => { location.hash = "/app/administration/settings"; return true; });
-  await expect(screen.getByLabel("Nom de l’espace de travail")).toHaveValue("Atelier personnel de test");
-  await browser.evaluate(() => { location.hash = "/app/account"; return true; });
-  await expect(browser.locator(".account-identity-details")).toContainText("Atelier personnel de test");
+  await browser.evaluate(() => {
+    location.hash = "/app/administration/settings";
+    return true;
+  });
+  await expect(screen.getByLabel("Nom de l’espace de travail")).toHaveValue(
+    "Atelier personnel de test",
+  );
+  await browser.evaluate(() => {
+    location.hash = "/app/account";
+    return true;
+  });
+  await expect(browser.locator(".account-identity-details")).toContainText(
+    "Atelier personnel de test",
+  );
   await expect(screen.getByLabel("Nom de l’espace de travail")).toHaveCount(0);
-  await screen.getByLabel("Votre nom", { exact: true }).fill("Destinataire après création");
+  await screen
+    .getByLabel("Votre nom", { exact: true })
+    .fill("Destinataire après création");
   const [createdProfile] = await Promise.all([
     browser.waitForResponse("**/api/account"),
     screen.getByRole("button", "Enregistrer les modifications").tap(),
   ]);
   expect(createdProfile.status).toBe(200);
-  await expect(screen.getByText("Votre profil a été enregistré.")).toBeVisible();
+  await expect(
+    screen.getByText("Votre profil a été enregistré."),
+  ).toBeVisible();
   const after = await localApi<{
     user: { id: string };
     workspaces: { id: string }[];
@@ -186,21 +242,33 @@ test("creating and selecting a workshop reloads its session without changing the
 
   await setRecipientStudioMembershipFixture(true);
   try {
-    await browser.evaluate(() => { location.hash = "/app/my-documents"; return true; });
+    await browser.evaluate(() => {
+      location.hash = "/app/my-documents";
+      return true;
+    });
     await expect(screen.getByRole("heading", "Mes documents")).toBeVisible();
     // Existing members reach services through the workspace navigation. Keep
     // this session-selection check in the mounted document as above.
-    await browser.evaluate(() => { location.hash = "/app/services"; return true; });
+    await browser.evaluate(() => {
+      location.hash = "/app/services";
+      return true;
+    });
     await expect(screen.getByRole("heading", "Utiliser Guteneo")).toBeVisible();
     await screen.getByRole("button", "Nouveau partage").tap();
-    await screen.getByLabel("Espace de travail actif").selectOption({ value: "org_studio" });
+    await screen
+      .getByLabel("Espace de travail actif")
+      .selectOption({ value: "org_studio" });
     const [selectedResponse] = await Promise.all([
       browser.waitForResponse("**/api/personal/workspace/select"),
       screen.getByRole("button", "Ouvrir mon espace de travail").tap(),
     ]);
     expect(selectedResponse.status).toBe(200);
-    await expect(browser).toHaveURL(`${distributionOrigin}/#/app/secure-distributions/new`);
-    await expect(screen.getByRole("heading", "Nouveau partage sécurisé")).toBeVisible();
+    await expect(browser).toHaveURL(
+      `${distributionOrigin}/#/app/secure-distributions/new`,
+    );
+    await expect(
+      screen.getByRole("heading", "Nouveau partage sécurisé"),
+    ).toBeVisible();
     const selected = await localApi<{
       user: { id: string; role: string };
       organization: { id: string };
@@ -209,17 +277,31 @@ test("creating and selecting a workshop reloads its session without changing the
     expect(selected.body.user.id).toBe(before.body.user.id);
     expect(selected.body.organization.id).toBe("org_studio");
     expect(selected.body.user.role).toBe("member");
-    await browser.evaluate(() => { location.hash = "/app/account"; return true; });
-    await expect(browser.locator(".account-identity-details")).toContainText("Studio Papier · Simulation");
-    await expect(screen.getByLabel("Nom de l’espace de travail")).toHaveCount(0);
-    await screen.getByLabel("Votre nom", { exact: true }).fill("Destinataire après sélection");
+    await browser.evaluate(() => {
+      location.hash = "/app/account";
+      return true;
+    });
+    await expect(browser.locator(".account-identity-details")).toContainText(
+      "Studio Papier · Simulation",
+    );
+    await expect(screen.getByLabel("Nom de l’espace de travail")).toHaveCount(
+      0,
+    );
+    await screen
+      .getByLabel("Votre nom", { exact: true })
+      .fill("Destinataire après sélection");
     const [selectedProfile] = await Promise.all([
       browser.waitForResponse("**/api/account"),
       screen.getByRole("button", "Enregistrer les modifications").tap(),
     ]);
     expect(selectedProfile.status).toBe(200);
-    await expect(screen.getByText("Votre profil a été enregistré.")).toBeVisible();
-    await browser.evaluate(() => { location.hash = "/app/my-documents"; return true; });
+    await expect(
+      screen.getByText("Votre profil a été enregistré."),
+    ).toBeVisible();
+    await browser.evaluate(() => {
+      location.hash = "/app/my-documents";
+      return true;
+    });
     await expect(screen.getByRole("heading", "Mes documents")).toBeVisible();
   } finally {
     await setRecipientStudioMembershipFixture(false);
@@ -290,17 +372,19 @@ test("an unavailable document session offers recovery without an automatic sign-
       if (documentReads === 1) {
         await route.fulfill({
           json: {
-            items: [{
-              id: `sd_${"a".repeat(32)}`,
-              kind: "shared",
-              title: privateTitle,
-              sender: privateSender,
-              status: "active",
-              expiresAt: "2030-01-01T00:00:00.000Z",
-              createdAt: "2026-01-01T00:00:00.000Z",
-              allowOriginalDownload: false,
-              allowVaultDeposit: false,
-            }],
+            items: [
+              {
+                id: `sd_${"a".repeat(32)}`,
+                kind: "shared",
+                title: privateTitle,
+                sender: privateSender,
+                status: "active",
+                expiresAt: "2030-01-01T00:00:00.000Z",
+                createdAt: "2026-01-01T00:00:00.000Z",
+                allowOriginalDownload: false,
+                allowVaultDeposit: false,
+              },
+            ],
             nextCursor: "fictional-recovery-next-page",
           },
         });
@@ -309,9 +393,10 @@ test("an unavailable document session offers recovery without an automatic sign-
           status: failureStatus,
           json: {
             error: {
-              code: failureStatus === 401
-                ? "SESSION_EXPIRED"
-                : "STRONG_AUTHENTICATION_REQUIRED",
+              code:
+                failureStatus === 401
+                  ? "SESSION_EXPIRED"
+                  : "STRONG_AUTHENTICATION_REQUIRED",
               message: "Reconnectez-vous pour accéder à vos documents.",
             },
           },
@@ -330,7 +415,9 @@ test("an unavailable document session offers recovery without an automatic sign-
       await browser.reload();
     }
     await expect(screen.getByRole("heading", privateTitle)).toBeVisible();
-    await expect(screen.getByText(privateSender, { exact: false })).toBeVisible();
+    await expect(
+      screen.getByText(privateSender, { exact: false }),
+    ).toBeVisible();
     await screen.getByRole("button", "Afficher les documents suivants").tap();
     if (status === 401) {
       await expect(
@@ -340,10 +427,14 @@ test("an unavailable document session offers recovery without an automatic sign-
       await expect(
         screen.getByRole("heading", "Connexion renforcée nécessaire"),
       ).toBeVisible();
-      await expect(screen.getByRole("link", "Vérifier mon accès")).toBeVisible();
+      await expect(
+        screen.getByRole("link", "Vérifier mon accès"),
+      ).toBeVisible();
     }
     await expect(screen.getByRole("heading", privateTitle)).toHaveCount(0);
-    await expect(screen.getByText(privateSender, { exact: false })).toHaveCount(0);
+    await expect(screen.getByText(privateSender, { exact: false })).toHaveCount(
+      0,
+    );
     await expect(
       screen.getByRole("button", "Afficher les documents suivants"),
     ).toHaveCount(0);

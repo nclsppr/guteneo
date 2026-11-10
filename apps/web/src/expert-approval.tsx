@@ -1,3 +1,7 @@
+import {
+  applicationDateTimeInput,
+  applicationDateTimeInstant,
+} from "./application-time";
 import { msg } from "./messages";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import {
@@ -28,12 +32,6 @@ const getChannelNames = (): Record<Channel, string> => ({
   email: msg("Email"),
   postal: msg("Post"),
 });
-
-function localDateTime(value: Date) {
-  return new Date(value.getTime() - value.getTimezoneOffset() * 60_000)
-    .toISOString()
-    .slice(0, 16);
-}
 
 function ConnectionSettings({
   connection,
@@ -73,7 +71,7 @@ function ConnectionSettings({
   );
   const [count, setCount] = useState(String(policy?.maxDailyCount ?? 20));
   const [expires, setExpires] = useState(
-    localDateTime(
+    applicationDateTimeInput(
       new Date(
         active && policy ? policy.expiresAt : Date.now() + 7 * 86_400_000,
       ),
@@ -119,7 +117,7 @@ function ConnectionSettings({
     setDaily(minorToEuroInput(policy?.maxDailyMinor ?? 2500));
     setCount(String(policy?.maxDailyCount ?? 20));
     setExpires(
-      localDateTime(
+      applicationDateTimeInput(
         new Date(
           active && policy ? policy.expiresAt : Date.now() + 7 * 86_400_000,
         ),
@@ -160,6 +158,16 @@ function ConnectionSettings({
       document.getElementById(`${id}-daily`)?.focus();
       return;
     }
+    const expiresAt = applicationDateTimeInstant(expires);
+    if (
+      !expiresAt ||
+      Date.parse(expiresAt) <= Date.now() ||
+      Date.parse(expiresAt) > Date.now() + 30 * 86_400_000
+    ) {
+      setValidation(msg("Choose a delegation expiry within the next 30 days."));
+      document.getElementById(`${id}-expires`)?.focus();
+      return;
+    }
     if (!acknowledged || (channels.includes("postal") && !postalAcknowledged))
       return;
     await action.run(async (view) => {
@@ -174,7 +182,7 @@ function ConnectionSettings({
               maxPerDispatchMinor: perDispatchMinor,
               maxDailyMinor: dailyMinor,
               maxDailyCount: Number(count),
-              expiresAt: new Date(expires).toISOString(),
+              expiresAt,
               acknowledgement: "delegate-approval-v1",
             },
           },
@@ -426,20 +434,20 @@ function ConnectionSettings({
                 <input
                   id={`${id}-expires`}
                   type="datetime-local"
-                  min={localDateTime(new Date())}
-                  max={localDateTime(new Date(Date.now() + 30 * 86_400_000))}
+                  min={applicationDateTimeInput(new Date())}
+                  max={applicationDateTimeInput(
+                    new Date(Date.now() + 30 * 86_400_000),
+                  )}
                   required
                   value={expires}
-                  aria-describedby={`${id}-expires-help`}
+                  aria-describedby={`${id}-expires-help application-time-context`}
                   onChange={(event) => {
                     changed();
                     setExpires(event.target.value);
                   }}
                 />
                 <small id={`${id}-expires-help`}>
-                  {msg(
-                    "This device’s local time. No more than 30 days from now.",
-                  )}
+                  {msg("No more than 30 days from now.")}
                 </small>
               </div>
             </div>

@@ -9,7 +9,7 @@ async function login(page: Page) {
     .getByRole("button", { name: "Entrer dans l’espace de travail" })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+    page.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
   ).toBeVisible();
   const session = (await (
     await page.request.get("/api/session")
@@ -104,11 +104,11 @@ test("demo copy can be edited, saved and deleted from the library after keyboard
     await expect(
       page.getByRole("heading", { name: heading, exact: true }),
     ).toBeVisible();
-    await expect(page.locator(".studio-gallery article")).toHaveCount(5);
+    await expect(page.locator(".studio-gallery > button")).toHaveCount(5);
     await expect(
       page
         .locator(".studio-gallery")
-        .getByRole("heading", { name: quote, exact: true }),
+        .getByRole("button", { name: new RegExp(quote) }),
     ).toBeVisible();
   }
   await expect(

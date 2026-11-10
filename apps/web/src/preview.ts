@@ -541,6 +541,27 @@ export function createPreviewApi(options: { advancedLocal?: boolean } = {}) {
       );
     return generators.get(key)!;
   };
+  const publicStudioGenerator = () => {
+    if (advancedLocal || !organization) return null;
+    const key = `public-studio:${organization}`;
+    if (!generators.has(key))
+      generators.set(
+        key,
+        createPreviewData({
+          seed: "public-studio-design",
+          workspace: `preview_${organization}`,
+          counts: {
+            documents: 0,
+            dispatches: 0,
+            templates: 3,
+            datasets: 3,
+            generations: 3,
+          },
+          role: "viewer",
+        }),
+      );
+    return generators.get(key)!;
+  };
   const workspace = () => {
     if (!organization)
       fail(
@@ -646,6 +667,17 @@ export function createPreviewApi(options: { advancedLocal?: boolean } = {}) {
         403,
       );
     if (method !== "GET") {
+      if (
+        !advancedLocal &&
+        /^\/(?:templates|datasets|mappings|generation-jobs|dataset-ai-policy)(?:\/|$)/.test(
+          route,
+        )
+      )
+        fail(
+          "PREVIEW_STUDIO_READ_ONLY",
+          "Studio in this public preview contains read-only fictional examples.",
+          403,
+        );
       const ownAccount = route === "/account" || route.startsWith("/account/");
       const approval = /^\/dispatches\/[^/]+\/(approve|confirm)$/.test(route);
       if (
@@ -699,7 +731,11 @@ export function createPreviewApi(options: { advancedLocal?: boolean } = {}) {
       return copy(result);
     };
     if (method === "GET") {
-      const studio = readPreviewStudio(path, generated, fail);
+      const studio = readPreviewStudio(
+        path,
+        generated ?? publicStudioGenerator(),
+        fail,
+      );
       if (studio !== undefined) return copy(studio);
       if (route === "/account/workspaces")
         return {
@@ -787,6 +823,8 @@ export function createPreviewApi(options: { advancedLocal?: boolean } = {}) {
           "Monthly subscriptions are discontinued.",
           410,
         );
+      if (route === "/pdf-validation/history")
+        return { items: [], nextCursor: null };
       if (route === "/pdf-validation/pricing")
         return {
           enabled: false,

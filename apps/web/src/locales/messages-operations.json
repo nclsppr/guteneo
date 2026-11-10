@@ -1158,11 +1158,6 @@
     "Warten Sie vor der Postprüfung auf die Prüfung des endgültigen PDFs.",
     "Waart op d'Iwwerpréiwung vum finale PDF virun der Postkontroll."
   ],
-  "Préparez votre courrier.": [
-    "Prepare your letter.",
-    "Bereiten Sie Ihren Brief vor.",
-    "Bereet Äre Bréif vir."
-  ],
   "Préparation de l’envoi": [
     "Delivery preparation",
     "Versandvorbereitung",
@@ -3292,5 +3287,123 @@
     "The exact price will be shown before sending.",
     "Der genaue Preis wird Ihnen vor dem Versand angezeigt.",
     "De geneeë Präis gëtt Iech virum Versand gewisen."
+  ],
+  "Votre approbation a été enregistrée après votre départ de la page. Ouvrez l’envoi pour terminer l’envoi.": [
+    "Your approval was recorded after you left the page. Open the dispatch to finish sending.",
+    "Ihre Freigabe wurde erfasst, nachdem Sie die Seite verlassen hatten. Öffnen Sie die Sendung, um den Versand abzuschließen.",
+    "Är Fräigab gouf opgeholl, nodeems Dir d’Säit verlooss hat. Maacht d’Sendung op, fir de Versand ofzeschléissen."
+  ],
+  "Votre approbation a été enregistrée après votre départ de la page.": [
+    "Your approval was recorded after you left the page.",
+    "Ihre Freigabe wurde erfasst, nachdem Sie die Seite verlassen hatten.",
+    "Är Fräigab gouf opgeholl, nodeems Dir d’Säit verlooss hat."
+  ],
+  "Un nouveau devis a été préparé après votre départ de la page. Vérifiez-le avant d’approuver.": [
+    "A new quote was prepared after you left the page. Review it before approving.",
+    "Ein neues Angebot wurde erstellt, nachdem Sie die Seite verlassen hatten. Prüfen Sie es vor der Freigabe.",
+    "En neien Devis gouf virbereet, nodeems Dir d’Säit verlooss hat. Préift en, ier Dir fräigitt."
+  ],
+  "Demander l’approbation": [
+    "Ask for approval",
+    "Freigabe anfragen",
+    "Fräigab ufroen"
+  ],
+  "Approbation demandée le {0}.": [
+    "Approval requested on {0}.",
+    "Freigabe angefragt am {0}.",
+    "Fräigab ugefrot den {0}."
+  ],
+  "{0} a demandé l’approbation le {1}.": [
+    "{0} asked for approval on {1}.",
+    "{0} hat am {1} um Freigabe gebeten.",
+    "{0} huet den {1} ëm Fräigab gefrot."
+  ],
+  "Un membre": ["A member", "Ein Mitglied", "E Member"],
+  "Une demande d’approbation est faite par une personne dans le navigateur.": [
+    "An approval request is made by a person in the browser.",
+    "Eine Freigabeanfrage wird von einer Person im Browser gestellt.",
+    "Eng Fräigab-Ufro gëtt vun enger Persoun am Browser gemaach."
+  ],
+  "Seul un envoi en attente d’approbation peut être soumis pour approbation.": [
+    "Only a dispatch awaiting approval can be submitted for approval.",
+    "Nur eine Sendung, die auf Freigabe wartet, kann zur Freigabe eingereicht werden.",
+    "Nëmmen eng Sendung, déi op Fräigab waart, kann fir d’Fräigab agereecht ginn."
+  ],
+  "Rechercher un pays": ["Search countries", "Länder suchen", "Länner sichen"],
+  "Aucun pays correspondant.": [
+    "No matching country.",
+    "Kein passendes Land.",
+    "Kee passend Land."
+  ],
+  "Remplissez ce champ.": [
+    "Fill in this field.",
+    "Füllen Sie dieses Feld aus.",
+    "Fëllt dëst Feld aus."
+  ],
+  "Saisissez une adresse e-mail valide.": [
+    "Enter a valid email address.",
+    "Geben Sie eine gültige E-Mail-Adresse ein.",
+    "Gitt eng valabel E-Mail-Adress an."
+  ],
+  "Vérifiez ce champ.": [
+    "Check this field.",
+    "Prüfen Sie dieses Feld.",
+    "Iwwerpréift dëst Feld."
+  ],
+  "Prix indicatif": [
+    "Indicative price",
+    "Unverbindlicher Preis",
+    "Onverbindleche Präis"
+  ],
+  "jusqu’à {0}": ["up to {0}", "bis zu {0}", "bis zu {0}"],
+  "Copier la référence {0}": [
+    "Copy reference {0}",
+    "Referenz {0} kopieren",
+    "Referenz {0} kopéieren"
+  ],
+  "Référence copiée.": [
+    "Reference copied.",
+    "Referenz kopiert.",
+    "Referenz kopéiert."
+  ],
+  "La mise en page a changé. Vérifiez le document puis réessayez.": [
+    "The layout changed. Check the document and try again.",
+    "Das Layout hat sich geändert. Prüfen Sie das Dokument und versuchen Sie es erneut.",
+    "De Layout huet geännert. Iwwerpréift d’Dokument a probéiert nach eng Kéier."
+  ],
+  "Télécharger un exemple": [
+    "Download example",
+    "Beispiel herunterladen",
+    "E Beispill eroflueden"
+  ],
+  "Coller une liste": [
+    "Paste instead",
+    "Stattdessen einfügen",
+    "Amplaz apechen"
+  ],
+  "Ouvrez Guteneo dans votre navigateur pour consulter l’historique des contrôles.": [
+    "Open Guteneo in your browser to read check history.",
+    "Öffnen Sie Guteneo in Ihrem Browser, um den Prüfverlauf zu lesen.",
+    "Maacht Guteneo an Ärem Browser op, fir de Kontrollverlaf ze liesen."
+  ],
+  "Choisissez entre 1 et 50 contrôles par page.": [
+    "Choose a history page size from 1 to 50.",
+    "Wählen Sie 1 bis 50 Prüfungen pro Seite.",
+    "Wielt tëschent 1 a 50 Kontrollen pro Säit."
+  ],
+  "Le curseur de l’historique des contrôles PDF est invalide.": [
+    "Invalid PDF check history cursor.",
+    "Ungültiger Cursor für den PDF-Prüfverlauf.",
+    "Ongëltege Cursor fir de PDF-Kontrollverlaf."
+  ],
+  "Ouvrez l’envoi programmé actif pour demander son approbation future distincte.": [
+    "Open the active schedule to request its separate future approval.",
+    "Öffnen Sie den aktiven Zeitplan, um die separate zukünftige Genehmigung anzufordern.",
+    "Maacht déi aktiv Planung op, fir hir separat zukünfteg Autorisatioun unzefroen."
+  ],
+  "Cet envoi n’est plus en attente d’approbation.": [
+    "This dispatch is no longer awaiting approval.",
+    "Dieser Versand wartet nicht mehr auf Genehmigung.",
+    "Dës Sendung waart net méi op eng Autorisatioun."
   ]
 }

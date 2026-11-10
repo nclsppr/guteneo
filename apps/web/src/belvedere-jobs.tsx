@@ -1,3 +1,4 @@
+import { Disclosure } from "./components";
 import { jobStatuses } from "./belvedere-summary-components";
 import { useState } from "react";
 import { ArrowUpRight, X } from "@phosphor-icons/react";
@@ -18,6 +19,7 @@ import {
   useDebounced,
 } from "./belvedere-data";
 import { bmsg } from "./belvedere-i18n";
+import { belvedereCount } from "./belvedere-presentation";
 import { formatLocale } from "./locale";
 import { DataTable } from "./data-table";
 import {
@@ -108,7 +110,7 @@ export function Jobs({
           }
         >
           {data
-            ? bmsg("{0} dispatches in this view", number(data.total))
+            ? belvedereCount("deliveries", data.total)
             : bmsg("All dispatches log")}{" "}
           {bmsg("· Created in the selected period")}
         </SectionHeading>
@@ -218,7 +220,7 @@ export function Jobs({
             columns={[
               {
                 id: "dispatch",
-                label: bmsg("Dispatch / workshop"),
+                label: bmsg("Workshop"),
                 value: (job) => `${job.workshopName} ${job.id}`,
                 render: (job) => (
                   <>
@@ -234,10 +236,21 @@ export function Jobs({
                       {job.workshopName}
                       <ArrowUpRight size={13} />
                     </button>
-                    <code>{job.id}</code>
-                    <small>{dateTime(job.createdAt)}</small>
                   </>
                 ),
+              },
+              {
+                id: "reference",
+                label: bmsg("Dispatch"),
+                value: (job) => job.id,
+                render: (job) => <code>{job.id}</code>,
+              },
+              {
+                id: "created",
+                label: bmsg("Date"),
+                value: (job) => job.createdAt,
+                render: (job) => dateTime(job.createdAt),
+                className: "bv-date-cell",
               },
               {
                 id: "channel",
@@ -246,19 +259,14 @@ export function Jobs({
                 render: (job) => (
                   <>
                     <strong>{channelName(job.channel)}</strong>
-                    <Mode mode={job.mode} />
-                    <small>
-                      {job.pages === null
-                        ? bmsg("Page count unspecified")
-                        : bmsg("{0} pages", number(job.pages))}
-                      {job.deliveryMode === "protected_link"
-                        ? bmsg(" · Protected link")
-                        : job.deliveryMode === "attachment"
-                          ? bmsg(" · Attachment")
-                          : ""}
-                    </small>
                   </>
                 ),
+              },
+              {
+                id: "mode",
+                label: bmsg("Data"),
+                value: (job) => job.mode,
+                render: (job) => <Mode mode={job.mode} />,
               },
               {
                 id: "destination",
@@ -288,13 +296,6 @@ export function Jobs({
                     ) : (
                       money(job.customerActualMinor)
                     )}
-                    <small>
-                      {bmsg("Delivery: ")}
-                      {money(job.transportActualMinor ?? null)}
-                      <br />
-                      {bmsg("Hosting: ")}
-                      {money(job.hostingFeeMinor ?? 0)}
-                    </small>
                   </>
                 ),
               },
@@ -303,15 +304,7 @@ export function Jobs({
                 label: bmsg("Reserved"),
                 value: (job) => job.reservedMinor,
                 className: "bv-numeric",
-                render: (job) => (
-                  <>
-                    {money(job.reservedMinor)}
-                    <small>
-                      {bmsg("Limit: ")}
-                      {money(job.ceilingMinor)}
-                    </small>
-                  </>
-                ),
+                render: (job) => <>{money(job.reservedMinor)}</>,
               },
               {
                 id: "provider",
@@ -331,15 +324,53 @@ export function Jobs({
                   </>
                 ),
               },
+              {
+                id: "details",
+                label: bmsg("Details"),
+                value: () => "",
+                sortable: false,
+                render: (job) => (
+                  <Disclosure label={bmsg("Details")}>
+                    <dl className="bv-finance-lines">
+                      <div>
+                        <dt>{bmsg("Pages")}</dt>
+                        <dd>
+                          {job.pages === null
+                            ? bmsg("Page count unspecified")
+                            : number(job.pages)}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>{bmsg("Delivery")}</dt>
+                        <dd>
+                          {job.deliveryMode === "protected_link"
+                            ? bmsg("Protected link")
+                            : job.deliveryMode === "attachment"
+                              ? bmsg("Attachment")
+                              : "—"}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>{bmsg("Delivery cost")}</dt>
+                        <dd>{money(job.transportActualMinor ?? null)}</dd>
+                      </div>
+                      <div>
+                        <dt>{bmsg("Hosting")}</dt>
+                        <dd>{money(job.hostingFeeMinor ?? 0)}</dd>
+                      </div>
+                      <div>
+                        <dt>{bmsg("Limit")}</dt>
+                        <dd>{money(job.ceilingMinor)}</dd>
+                      </div>
+                    </dl>
+                  </Disclosure>
+                ),
+              },
             ]}
           />
         )}
         {data && (
-          <Pagination
-            data={data}
-            onChange={setPage}
-            label={bmsg("deliveries")}
-          />
+          <Pagination data={data} onChange={setPage} kind="deliveries" />
         )}
       </section>
       <p className="bv-source-note">

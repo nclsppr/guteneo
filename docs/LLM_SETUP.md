@@ -159,6 +159,18 @@ are unchanged. Local archive validation grants no activation, host qualification
 marketplace submission or production publication. See the
 [state-machine follow-up](STATE_MACHINE_REAUDIT_2026_11_09.md).
 
+### Approval request source synchronization — 10 November 2026
+
+Candidate 1.2.1 synchronizes the application and portable/Claude/Cursor package
+versions after the shared domain module gained the browser-only approval request
+(`POST /api/dispatches/:id/request-approval`) and the `approvalRequest` field
+of the browser dispatch detail. No assistant tool reads or writes it: an
+assistant cannot raise a request for human consent, and dispatch summaries
+returned to assistants are unchanged. The catalogue, schemas, annotation
+booleans, OAuth scopes, instructions and host confirmations are unchanged. Local
+archive validation grants no activation, host qualification, marketplace
+submission or production publication.
+
 ### Preventive maintenance source synchronization — 7 November 2026
 
 Candidate 1.1.32 synchronizes the application and portable/Claude/Cursor package
@@ -714,3 +726,13 @@ confirmations. The application/package manifests and portable/Claude/Cursor
 versions are synchronized at 1.1.16, with a rebuilt and validated downloadable
 archive. Packaging proves neither installation in the current host nor OAuth
 reconnection, callback success or actual document delivery.
+
+## Clarity continuation candidate 1.2.3 — 10 November 2026
+
+The shared domain now fences browser approval requests at the final write and
+exposes bounded browser-only PDF check history. Neither feature adds an MCP tool,
+scope, host permission, automatic approval or communication. Existing plugin
+instructions, schema/annotation boundaries and browser-only purchase/consent
+requirements were reviewed. All application/plugin versions and the downloadable
+archive are synchronized. This is local package evidence, not marketplace, host,
+merge or deployment qualification. See [the execution record](CLAUDE_PLAN_EXECUTION.md).

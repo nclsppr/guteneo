@@ -343,7 +343,7 @@ test("observer consults studio routes while all preparation controls stay unavai
     }),
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Créer un document", exact: true }),
+    page.getByRole("button", { name: "Nouveau modèle", exact: true }),
   ).toHaveCount(0);
   await expect(page.locator('main input[type="file"]')).toHaveCount(0);
   await expect(page.getByRole("button", { name: /Supprimer/ })).toHaveCount(0);

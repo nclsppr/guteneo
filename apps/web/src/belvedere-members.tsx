@@ -14,6 +14,7 @@ import {
   useDebounced,
 } from "./belvedere-data";
 import { bmsg } from "./belvedere-i18n";
+import { belvedereCount } from "./belvedere-presentation";
 import { DataTable } from "./data-table";
 import {
   type ViewProps,
@@ -56,7 +57,7 @@ export function Members({
           />
         }
       >
-        {data ? bmsg("{0} people", number(data.total)) : bmsg("All members")}
+        {data ? belvedereCount("members", data.total) : bmsg("All members")}
         {bmsg(" · Memberships and connections reflect the current state")}
       </SectionHeading>
       {error ? (
@@ -160,9 +161,7 @@ export function Members({
           ]}
         />
       )}
-      {data && (
-        <Pagination data={data} onChange={setPage} label={bmsg("members")} />
-      )}
+      {data && <Pagination data={data} onChange={setPage} kind="members" />}
     </section>
   );
 }

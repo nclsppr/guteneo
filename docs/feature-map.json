@@ -107,9 +107,10 @@
         "Sensitive approval and recipient/account association require a browser under the current document policy; OAuth confirmation follows recorded browser evidence, with no expert-mandate substitute",
         "Workspace roles grant no access to another person’s vault; a recipient gains no membership in the sender’s workspace",
         "Future schedule approval is distinct from ordinary browser review and expert mandates: only browser administrators or independently authorized supervisor approvers grant it; preparers can draft and authorized owners can revoke, while assistants/native cannot approve",
-        "Saved destination data is limited to current preparers, and callback configuration/signing secrets to current browser administrators; an observer role or reporting permission alone grants neither contact export nor callback administration"
+        "Saved destination data is limited to current preparers, and callback configuration/signing secrets to current browser administrators; an observer role or reporting permission alone grants neither contact export nor callback administration",
+        "Approval request: a member who can prepare asks the workspace's approvers to review a dispatch awaiting approval, from a human browser session only; one audit receipt per version (fingerprint), shown to approvers on the dispatch; it approves, reserves, sends and notifies nothing"
       ],
-      "status": "Implemented; invitations require separately configured delivery.",
+      "status": "Implemented; invitations require separately configured delivery. The 10 November approval-request browser candidate requires migration 0081 and exact-source integration/browser checks; it grants no approval, reservation, sending or assistant authority.",
       "tests": [
         "tests/integration/workspace-roles.test.ts",
         "tests/unit/account.test.ts",
@@ -153,7 +154,8 @@
         "Authenticated documents.originalFilePicker exposes explicit_local_original and conversationAttachmentAccess:false; SDK context updates contain only registered document ID/status and bound original size/SHA, never content/base64/filename/token. Actual 1.1.6 Desktop registered-ID delivery to the model failed; the 1.1.8 source candidate adds standard text alongside structured context plus explicit Use in conversation for the same four-key receipt, with native retests pending and no automatic chat message on import",
         "MCP_DOCUMENT_UPLOAD_APP is off by default: strict existing-connection/revision JSON supports at most one hour of qualification, while explicit enabled mode supports a separately reviewed general production rollout after actual qualification and authorized delivery; both retain current writer/OAuth guards, observer denial and no browser fetch, Origin/network permission, new scope, approval, paid check, mandate or infrastructure",
         "Bounded document-analysis reads and PDF canvas/text extraction overlap; both renderer tasks settle before completion or cleanup, with stale-response and sensitive-source fences retained",
-        "Typed private/MCP upload receipt and lease decisions preserve the same operation through uncertain results; final completion requires the exact nonpurged document in SQL, closing purge-between-read-and-write races"
+        "Typed private/MCP upload receipt and lease decisions preserve the same operation through uncertain results; final completion requires the exact nonpurged document in SQL, closing purge-between-read-and-write races",
+        "First-page thumbnail of a ready PDF in the documents list, read through the guarded viewer loader and drawn only once its row is on screen; nothing is kept after unmount"
       ],
       "status": "Private App transport is published in 1.1.6 at source 147ada, with two actual Claude Desktop selected-original imports, independent exact private R2 bytes, ready/verified one-page analysis and scoped zero associated business effects. The selected window closed with its flag absent. Registered-ID model handoff failed, so general activation and the 1.1.8 native-host correction retest remain pending. Migration 0063 precedes code publication even while the flag is off; other hosts/devices, full retention/confirmation and runtime headroom remain separately qualified.",
       "tests": [
@@ -207,7 +209,7 @@
       "doc": "TEMPLATES_DATA_DISTRIBUTION.md",
       "source": "apps/api/src/template-workflow.ts",
       "features": [
-        "Private, shared and organisation template libraries",
+        "Private, shared and organisation template libraries revalidate authorized lists on a visible-tab return while preserving unsubmitted names and file selections; ordinary public Studio offers a separate bounded viewer-only fixture, never authenticated authoring authority",
         "Five synthetic examples: letter, invoice, statement, quote and delivery note",
         "Private copy or blank creation with the REST/MCP authoring guide",
         "Word DOCX content import with explicit layout warnings",
@@ -221,16 +223,21 @@
         "Owner-only removal preserving historical PDFs and provenance",
         "Document-studio exclusions cover DOCX, text, existing templates and business data; stop known excluded content and request a person-redacted copy without web bypass",
         "AI suggestions revalidate edit rights, membership, OAuth connection, revision and transfer consent before inference and before returning; reject stale proposals without automatic application/publication",
-        "Template writes and chained browser continuations require current identity, view, membership, connection and exact revision after asynchronous work; an obsolete response cannot generate or navigate"
+        "Template writes and chained browser continuations require current identity, view, membership, connection and exact revision after asynchronous work; an obsolete response cannot generate or navigate",
+        "Viewport-triggered local first-page sample thumbnails use serialized bounded pdfme rendering with guarded PDF rasterization, no remote resources, server preview mutation, storage or cross-authority cache; complex templates retain a neutral glyph"
       ],
-      "status": "Implemented; AI suggestions require configuration and organisation consent.",
+      "status": "Authenticated authoring is implemented; AI suggestions require configuration and organisation consent. The ordinary public Studio source exposes read-only fictional libraries/details and refuses mutation without backend transport. Exact-source browser/hosted qualification and publication remain separate.",
       "tests": [
         "tests/unit/template-authoring.test.ts",
         "tests/unit/mcp-integrations.test.ts",
         "tests/integration/template-workflow.test.ts",
         "tests/unit/templates-images.test.ts",
         "tests/e2e/template-images.spec.ts",
-        "tests/e2e/studio-client-lifecycle.spec.ts"
+        "tests/e2e/studio-client-lifecycle.spec.ts",
+        "tests/unit/template-thumbnail-limits.test.ts",
+        "tests/e2e/studio-space.spec.ts",
+        "tests/preview-e2e/studio.spec.ts",
+        "tests/unit/public-preview.test.ts"
       ],
       "surfaces": "Web Studio space under /app/studio/…, REST and MCP; optional configured AI proposal service.",
       "id": "templates",
@@ -280,7 +287,7 @@
       "doc": "DATA_IMPORT.md",
       "source": "apps/api/src/template-workflow.ts",
       "features": [
-        "CSV, XLSX, XML and JSON imports with a private original",
+        "CSV, XLSX, XML and JSON imports with a private original; the browser data library revalidates on visible-tab return without submitting or clearing a selected file, import options or private mapping state",
         "MCP JSON dataset metadata declares arrays of objects or named arrays of objects to match existing parsing; nested values, runtime errors/recovery, request/cell bounds and private ownership remain unchanged, without new host-file or AI-transfer authority",
         "Sheet/header selection and XML record paths",
         "English generated Data sheet names, with provenance-bound legacy aliases; uploaded XLSX and explicitly named JSON tables require exact mapping and join names",
@@ -300,7 +307,9 @@
         "tests/e2e/dataset-mapping-alias.spec.ts",
         "tests/e2e/template-xml-multichannel.spec.ts",
         "tests/unit/mcp-integrations.test.ts",
-        "tests/e2e/studio-client-lifecycle.spec.ts"
+        "tests/e2e/studio-client-lifecycle.spec.ts",
+        "tests/e2e/studio-space.spec.ts",
+        "tests/preview-e2e/studio.spec.ts"
       ],
       "surfaces": "Web Studio space under /app/studio/…, REST and MCP; private source/mapping ownership.",
       "id": "datasets",
@@ -340,7 +349,7 @@
       "features": [
         "Single PDF from a business form",
         "PDF batch from a validated mapping",
-        "Progress, per-record results and source-cell provenance; only local simulation emits finite failure phase/category diagnostics through the captured error channel, never raw errors or customer data; terminal failed/partial XML test results stop polling while preserving both expected exact PDFs and zero sending, and a separate macOS pass does not establish the cause of an earlier Linux failure",
+        "Progress, per-record results and source-cell provenance; the generation library revalidates its list and authorized template names on visible-tab return without starting generation. Only local simulation emits finite failure phase/category diagnostics through the captured error channel, never raw errors or customer data; terminal failed/partial XML test results stop polling while preserving both expected exact PDFs and zero sending, and a separate macOS pass does not establish the cause of an earlier Linux failure",
         "Exact authorized generated-document analysis state distinguishes processing, retryable and blocked results; bounded visible refresh follows pending scans after generation completes without changing readiness, stealing focus or retrying analysis",
         "Generation cancellation and retry of failed records only",
         "PDF selection in Studio opens the single Correspondence-owned preparation form with bounded record IDs; arrival revalidates every selected ready result in 50-record pages, performs no navigation write, and Back/Forward/reload preserve the selection",
@@ -366,7 +375,9 @@
         "tests/unit/mcp-annotation-audit.test.ts",
         "tests/unit/mcp-integrations.test.ts",
         "tests/e2e/studio-continuity.spec.ts",
-        "tests/e2e/studio-distribution-handoff.spec.ts"
+        "tests/e2e/studio-distribution-handoff.spec.ts",
+        "tests/e2e/studio-space.spec.ts",
+        "tests/preview-e2e/studio.spec.ts"
       ],
       "surfaces": "Web Studio under /app/studio/… and Correspondence preparation /app/distribution/new plus frozen detail /app/distribution/:id, REST and MCP; generation is separate from distribution and delivery. Browser-only owner-authorized record-context supplies correction inputs and is excluded from the OAuth OpenAPI paths.",
       "id": "generation",
@@ -432,12 +443,8 @@
       "id": "fax",
       "category": "Deliver",
       "availability": "capability-gated",
-      "tools": [
-        "prepare_fax"
-      ],
-      "rest": [
-        "POST /api/dispatches/{id}/renew-quote"
-      ]
+      "tools": ["prepare_fax"],
+      "rest": ["POST /api/dispatches/{id}/renew-quote"]
     },
     {
       "title": "Postal mail",
@@ -585,7 +592,8 @@
         "A parallel summary provides category counts and at most 100 sender choices; summary failure does not delay the list, filter changes discard old page cursors and authority refusals clear all loaded metadata",
         "Page-by-page My documents navigation and a generic prompt to create a workspace for accounts without one",
         "Returning from a document by link or browser Back restores the same page, scroll position and focus without a new read; deleting or saving a copy rereads the page and counts, and deleting the final copy on a page returns to a valid page; ended rows show their end date",
-        "Typed preparation/deposit and browser write states preserve paid progress across eligible reauthentication, clear stale lease ownership and refuse revoked source authority; late responses cannot activate, copy or navigate from an obsolete account/workspace/view"
+        "Typed preparation/deposit and browser write states preserve paid progress across eligible reauthentication, clear stale lease ownership and refuse revoked source authority; late responses cannot activate, copy or navigate from an obsolete account/workspace/view",
+        "Personal document search commits a debounced URL query and cancels obsolete intent; native title/row links, near-expiry badges and sticky reader controls with optional responsive history retain exact account/document authority"
       ],
       "status": "Implemented candidate with migrations 0055–0059 and separate deterministic strong/verified_account qualification. Source-copy recovery adds migration 0073 after the compatible runtime is published. Default strong, explicitly selected verified_account, aligned environment/D1 policy and human approval remain mandatory; real Auth0, provider delivery, publication and external-client proof are separate.",
       "surfaces": "Workspace and personal web UI in FR/EN/DE/LB with shared V2 primitives; workspace REST/MCP and assistant packages under scopes. Source-copy recovery, recipient access, sensitive approval and explicit quote renewal are browser-only; workspace Bearer tokens cannot create source copies or open the personal vault. Native and real host support need surface-specific qualification.",
@@ -651,12 +659,8 @@
       "id": "dry-run",
       "category": "Deliver",
       "availability": "read-only",
-      "tools": [
-        "dry_run_dispatch"
-      ],
-      "rest": [
-        "GET /api/dispatches/{id}/dry-run"
-      ]
+      "tools": ["dry_run_dispatch"],
+      "rest": ["GET /api/dispatches/{id}/dry-run"]
     },
     {
       "title": "Campaigns and tracking",
@@ -774,10 +778,7 @@
       "category": "Operate",
       "availability": "partial",
       "tools": [],
-      "rest": [
-        "GET /api/usage",
-        "GET /api/usage/activity"
-      ]
+      "rest": ["GET /api/usage", "GET /api/usage/activity"]
     },
     {
       "title": "Assistants and API",
@@ -851,9 +852,7 @@
         "open_mcp_ui_probe",
         "check_mcp_ui_probe_bridge"
       ],
-      "rest": [
-        "GET /api/capabilities"
-      ]
+      "rest": ["GET /api/capabilities"]
     },
     {
       "title": "Reviewer OAuth qualification",
@@ -931,7 +930,7 @@
         "Twelve localised films, posters, captions and actual durations",
         "Every registered main-site public route has generic and French/English/German/Luxembourgish initial HTML, canonical metadata, language alternatives and sitemap entries from one route registry; internal/private paths stay excluded",
         "Public pages make no workshop session probe or late account-language replacement; negotiated static HTML varies on Cookie and Accept-Language with private revalidation caching, while explicit-language cache policy, exact bytes, ETag and no-transform remain intact",
-        "Fictional public preview isolated from the backend; tab-only email accepts omitted custom HTML, formats plain text locally and uses the shared template/French fallback for fictional PDF message defaults; custom HTML requires supplied plaintext, without real links, hosting, provider calls or production-sanitizer qualification",
+        "Fictional public preview is isolated from the backend; its application switcher offers Correspondence and bounded read-only Studio libraries/details with three deterministic viewer-only records each, disabled authoring/import/preview/generation and direct Studio-write refusal. Tab-only email accepts omitted custom HTML, formats plain text locally and uses shared template/French defaults for fictional PDFs; no real links, hosting, provider calls or production-sanitizer qualification",
         "Multilingual social cards and reader sharing controls",
         "Public error documents retain real HTTP status with 17 dedicated four-language messages and 4xx/5xx fallback; only eligible public failures, no status-selector/demo endpoint",
         "The homepage restores the existing four-language Ideas travel closing invitation, first-dispatch installation link and large stamp/postmark above its exclusive panorama with three original birds. The identical common PublicFooter remains on every public React route, including home, with its compact stamp/postmark, two original decorative swallows, sixteen links and colophon; no decoration enters the logged-in application",
@@ -945,9 +944,10 @@
         "Ordinary same-origin links between registered public pages retain one browser document and loaded application; all small public page components are available on the first interactive click without HTML, route-code, session or private-data prefetch. Canonical English URLs, four-language presentation, static direct entries, history, anchors, focus and destination metadata remain coherent; unavailable initial JavaScript retains the complete static page. Pointer route focus does not frame script-focused containers; keyboard route focus underlines the new main title in the brand blue while interactive controls retain their focus indicators",
         "Public film play controls are disabled in server HTML until the client handler mounts; releasing route code starts no movie, and the first enabled click keeps playback/fullscreen in the native gesture with the resolved locale",
         "Public fixture PDFs initialize concurrently with deterministic order, no business bindings or extra network dependency",
-        "Active-locale browser code loading keeps inactive translation packs off initial public routes and waits for the chosen catalogue before mounting; unchanged PDF-check pricing metadata is a pure contract module without validation-runtime imports"
+        "Active-locale browser code loading keeps inactive translation packs off initial public routes and waits for the chosen catalogue before mounting; unchanged PDF-check pricing metadata is a pure contract module without validation-runtime imports",
+        "Home start choices are in the hero and the existing installation fragment remains valid; approved closing invitation, first-dispatch action, panorama and shared footer remain; pricing provenance is under Details and Support has a contact card without a response-time promise"
       ],
-      "status": "The 25 October public hierarchy, four detail routes, shared footer, four-language static generation and appearance were published from main 03daa4136de8999cc79018f33f2a22038917c621. Canonical served assets and four-language public layout/link checks passed. The 27 October stable-language, public-session removal and initial-example-CSS correction is a local candidate; its measured build graph adds 1092 gzip CSS bytes without another initial stylesheet request. Current-source browser checks, CI and publication remain separately evidenced. The separate preview retains an isolated provider asset-delivery failure; indexing, provider and real financial qualification remain separate. The 28 October navigation candidate removes repeated document/app startup between public pages; local measurements, CI and publication remain separate.",
+      "status": "The 25 October public hierarchy, four detail routes, shared footer, four-language static generation and appearance were published from main 03daa4136de8999cc79018f33f2a22038917c621. Canonical served assets and four-language public layout/link checks passed. The 27 October stable-language, public-session removal and initial-example-CSS correction is a local candidate; its measured build graph adds 1092 gzip CSS bytes without another initial stylesheet request. Current-source browser checks, CI and publication remain separately evidenced. The separate preview retains an isolated provider asset-delivery failure; indexing, provider and real financial qualification remain separate. The 28 October navigation candidate removes repeated document/app startup between public pages; local measurements, CI and publication remain separate. The 10 November ordinary-public-Studio source candidate exposes only bounded read-only fictional libraries/details, with no authenticated backend fallback; final hosted CI and served-preview evidence are separate.",
       "tests": [
         "tests/e2e/locale-boundaries.spec.ts",
         "tests/preview-e2e/public-render-stability.spec.ts",
@@ -976,7 +976,9 @@
         "tests/unit/web-async-preview.test.ts",
         "tests/unit/locale-projections.test.ts",
         "tests/e2e/locale-loading.spec.ts",
-        "tests/e2e/lifecycle-accessibility.spec.ts"
+        "tests/e2e/lifecycle-accessibility.spec.ts",
+        "tests/preview-e2e/studio.spec.ts",
+        "tests/preview-e2e/accessibility.spec.ts"
       ],
       "surfaces": "Public browser/static documents and four-language frontend/video catalogues; request-language negotiation adds no REST/MCP operation or native capability. Preview has no business bindings. Authenticated account language, membership and approval remain separately guarded.",
       "id": "public",
@@ -999,7 +1001,7 @@
         "Existing activity/alerts precede introduction, otherwise a complete welcome; content preview precedes approval in reading/tab order",
         "Stable PDF frame above dispatch-review and document-page verification-purchase consent across lazy module loading/render/error, keyboard-accessible internal scrolling and unchanged consent/data authority",
         "Consistent documents, preparation, review, tracking, assistants, account, studio, PDF verification, credits, tables and forms; secure-document price panels retain their padding and consent with a fine one-pixel cobalt side rule; Belvédère shares the V2 visual vocabulary while retaining distinct platform authority and read-only data; recursive diagnostics keep outer key/value columns and stack nested fields without zero-width values or page overflow",
-        "One brand signature, workshop in navigation and no redundant V2 footer; service status in the account menu and browser timezone near dates",
+        "One brand signature, workshop in navigation and no redundant V2 footer; service status remains in the account menu and one application-frame declaration identifies UTC for every browser user across event timestamps, date filters, calendar labels, report/export buckets and entered instants, without a saved or selectable timezone preference",
         "One page title, contextual detail back link and task-specific primary action as the screen's only filled button; global New dispatch keeps one secondary, permission-aware place on every V2 page and is repeated in the Overview/Dispatches heading only on narrow screens",
         "Compact V2 desktop navigation keeps every destination in view from 864 px high with 34 px pointer rows, fades a cut-off entry while the list still scrolls, draws keyboard focus inside clipped rows and gives each destination one distinct icon; touch layouts keep 44 px targets",
         "Generation introduction focuses on finding PDFs and makes clear that generation sends nothing",
@@ -1033,14 +1035,19 @@
         "Opt-in saved table views retain at most eight named presentation presets per authenticated person/workspace/table and application area: schema-validated sort, categorical filters and page size only, never rows, recipients, free-text searches, cursors, credentials or authority",
         "Default useAction continuations cross view.wait checkpoints and synchronously exclude same-turn re-entry before React renders; obsolete replies may publish only confirmed metadata receipts and cannot perform dependent writes, reveal secrets or navigate",
         "One shared navigation revision records leave-and-return and A→B→A visits, while the canonical authority key invalidates action ownership, read resources and bounded list sharing across person/workspace/permission/credential/policy changes",
-        "Visibility-aware read polling pauses hidden pages, performs one eligible read on return and backs off unchanged progress within a thirty-second default ceiling without replacing in-flight reads or retrying mutations",
+        "Visibility-aware read polling pauses hidden pages, performs one eligible read on return and backs off unchanged progress within a thirty-second default ceiling without replacing in-flight reads or retrying mutations; Studio libraries separately revalidate authorized list reads on visible return without resetting or submitting entered form values/files",
         "Allowlisted collection reads share a five-second memory-only cache bounded to sixty-four entries and 32,768 serialized characters per value; identity/locale scope and mutation-attempt invalidation protect data, while detail/readiness/approval reads bypass it and authority refusals clear stale private models",
         "Browser locale packs load only the active French, English, German or Luxembourgish catalogue before mounting translated content; SSR retains synchronous source catalogues and Belvédère has independent per-locale packs, with transfer/first-content evidence recorded separately",
         "Shared chart colors, elevation and frame geometry use design-system tokens; the applications manifest has zero import and zero design exceptions, preserving application ownership rather than adding exemptions",
         "Automated Axe journeys cover four locales and both themes with keyboard, modal, responsive and authority fixtures; these are bounded browser/synthetic checks, not a claim of complete accessibility or physical-device certification",
-        "Dispatch routes are split into overview/documents/prepare/list/detail modules with compatibility exports; the former shared stylesheet is ordered foundation/workspace/documents/operations/responsive/public/adaptation modules, and Belvédère routes lazily load independent views with shared typed data/components"
+        "Dispatch routes are split into overview/documents/prepare/list/detail modules with compatibility exports; the former shared stylesheet is ordered foundation/workspace/documents/operations/responsive/public/adaptation modules, and Belvédère routes lazily load independent views with shared typed data/components",
+        "Dispatch page progress steps (awaiting approval, approved, transmitting, delivered) with the approval region kept in view beside the document on wide screens",
+        "Late ordinary dispatch approvals and renewed quotes publish typed metadata receipts through the same authority-bound action-outcome tray; no second tray, content, recipient or follow-up send is introduced",
+        "Shared clarity components: named loaded/page counts, compact tables preserving active-filter recovery and authority-scoped saved views, shared StatTile variants, shaped accessible loading and reviewed localized server-error fallback. Dirty template/correction/distribution/schedule departures use a localized Stay/Discard dialog after a synchronous router veto; exact one-use continuation, authority/revision/scope checks, safe focus and independent workspace/scenario preflight vetoes remain, while native beforeunload stays browser-controlled",
+        "Report-authorized dispatch status chips read one bounded aggregate in parallel with the list; other roles do not request report metadata and no current page is represented as a global count",
+        "Three-step campaign preparation with a fictional CSV download and optional paste editor; independent channel sender cards; Identity and Preferences with separate expert approval and explicit access/session disclosure"
       ],
-      "status": "Current source uses the single V2 layout across five independently owned applications with zero import/design exceptions. The 9 November lifecycle candidate adds outcomes, full-dataset attention, navigation and bounded presentation presets, shared continuation/identity/navigation/poll/cache foundations, active-locale loading and three module splits. Exact-source tests, rendered accessibility, transfer and first-content evidence belong in LIFECYCLE_EXPERIENCE_EXECUTION.md and FRONTEND_PERFORMANCE.md; implementation alone establishes no hosted publication or physical-device qualification.",
+      "status": "Current source uses the single V2 layout across five independently owned applications with zero import/design exceptions. The 9 November lifecycle candidate adds outcomes, full-dataset attention, navigation and bounded presentation presets, shared continuation/identity/navigation/poll/cache foundations, active-locale loading and three module splits. Exact-source tests, rendered accessibility, transfer and first-content evidence belong in LIFECYCLE_EXPERIENCE_EXECUTION.md and FRONTEND_PERFORMANCE.md; implementation alone establishes no hosted publication or physical-device qualification. The 10 November clarity candidate adds functional page titles, per-page browser titles, unknown-address recovery, a 12 px text floor with a four-step text scale, compact short tables, whole-row links, dispatch progress, file drop zones and on-demand first-page thumbnails; these presentation changes require exact-source test and publication evidence. The remaining B1 dirty-navigation source now uses localized exact-intent dialogs; B2 implements one explicit fixed UTC policy across the five browser apps without changing financial history or advertising an account timezone setter. Ordinary public Studio exposes a separately isolated read-only design fixture. These are implemented source contracts, not a claim of successful final CI, hosted publication or physical-device qualification.",
       "tests": [
         "tests/unit/account.test.ts",
         "tests/integration/mobile.test.ts",
@@ -1080,16 +1087,20 @@
         "tests/e2e/lifecycle-workspace.spec.ts",
         "tests/e2e/locale-loading.spec.ts",
         "tests/e2e/lifecycle-accessibility.spec.ts",
-        "tests/security/check-applications.test.mjs"
+        "tests/security/check-applications.test.mjs",
+        "tests/unit/clarity-foundation.test.ts",
+        "tests/preview-e2e/dispatch-design.spec.ts",
+        "tests/unit/navigation-confirmation.test.ts",
+        "tests/unit/application-time-client.test.ts",
+        "tests/preview-e2e/studio.spec.ts",
+        "tests/preview-e2e/accessibility.spec.ts"
       ],
       "surfaces": "Shared authenticated browser frame and application-owned lazy modules. Attention uses a new browser-only metadata read; outcomes, navigation commands and saved presentation presets grant no business authority. Native local drafts and backend contact/schedule/callback surfaces are documented separately.",
       "id": "dashboard",
       "category": "Operate",
       "availability": "browser-session",
       "tools": [],
-      "rest": [
-        "GET /api/attention"
-      ]
+      "rest": ["GET /api/attention"]
     },
     {
       "title": "PDF verification",
@@ -1105,7 +1116,9 @@
         "Required human review; a valid report with failed conformance checks is billable, while operational failure is not a conformity verdict",
         "One explicit activation flag, private validator and production scanner gates; activation after hosted qualification, never legal certification",
         "PDF-accessibility exclusions apply to originals and existing reports; person-redacted recovery without web bypass",
-        "Same-key recovery for uncertain network responses does not purchase or execute twice; a new independent check requires a new explicit purchase"
+        "Same-key recovery for uncertain network responses does not purchase or execute twice; a new independent check requires a new explicit purchase",
+        "Browser-only workspace check history: at most50 metadata records per keyset page under current document-library visibility, existing rate budget, no-store and final browser authority; migration0082 adds a chronological tenant index. Reading never purchases or performs another check",
+        "Compact price/action offer with purchase conditions in a disclosure and one Choose a PDF action; an empty metadata history does not duplicate that action. History links return to the authorized document and keep operational errors distinct from conformance findings"
       ],
       "status": "Individual-purchase capability enabled in the 25 October release and observed on f946 main at 26 October 01:47 UTC; private hosted corpus, scanner, application configuration and actual customer purchase remain separate evidence. No new subscription or recurring renewal. See PDF_ACCESSIBILITY.md and PDF_VERIFICATION_PRICING.md.",
       "tests": [
@@ -1119,20 +1132,20 @@
         "apps/pdf-validator/tests/container-lifecycle.test.mjs",
         "apps/pdf-validator/tests/worker.test.mjs",
         "apps/pdf-validator/tests/test_server.py",
-        "tests/unit/mcp-integrations.test.ts"
+        "tests/unit/mcp-integrations.test.ts",
+        "tests/offline/clarity-sqlite.mts",
+        "tests/preview-e2e/preview.spec.ts"
       ],
-      "surfaces": "Web browser administrator purchases; REST and MCP retain current document-scoped history reads and cannot create assistant financial consent.",
+      "surfaces": "Web browser administrator purchases; REST and MCP retain current document-scoped history reads and cannot create assistant financial consent. Workspace-wide metadata history is browser-only; existing document-scoped MCP history remains unchanged.",
       "id": "pdf-verification",
       "category": "Operate",
       "availability": "capability-gated",
-      "tools": [
-        "get_pdf_validation",
-        "validate_pdf"
-      ],
+      "tools": ["get_pdf_validation", "validate_pdf"],
       "rest": [
         "GET /api/pdf-validation/pricing",
         "GET /api/documents/{id}/validation",
-        "POST /api/documents/{id}/validation"
+        "POST /api/documents/{id}/validation",
+        "GET /api/pdf-validation/history"
       ]
     },
     {
@@ -1172,9 +1185,10 @@
         "Every PR retains complete 24-job validation; an ordinary main merge may reuse a fresh complete same-repository PR proof only for identical Git trees, trusted CI policy, current locks, exact recorded runtimes and complete successful job/test inventories; missing or uncertain metadata runs full, fresh advisory checks remain, and an independent final gate rejects drift or arbitrary skips.",
         "Same-run static builds deduplicate identical bytes into commit/tree-bound SHA-256 objects, verify full object and selected release/health inventories before reconstruction, narrow only prebuilt browser/distribution source checkouts, preserve authored caption scripts and retain raw debug evidence separately from compact aggregate proof; no LFS migration, test removal or paid provisioning.",
         "Claimed dispatch preflight overlaps independent tenant reads before submission; maintenance cursor reads are combined while deletion, audits and mutation order remain unchanged",
-        "Production application publication requires a fresh remote v<package version> tag resolving to exact clean main and matching authored release notes, checked before build and before deployment. CI emits a portable offline HTML test summary and sanitized JSON with tested source, attempts, declared skips and full/reused provenance; repository screenshots, native qualification and served production receipts remain separate evidence. Version anchors never imply deployment and existing tags must never be moved."
+        "Production application publication requires a fresh remote v<package version> tag resolving to exact clean main and matching authored release notes, checked before build and before deployment. CI emits a portable offline HTML test summary and sanitized JSON with tested source, attempts, declared skips and full/reused provenance; repository screenshots, native qualification and served production receipts remain separate evidence. Version anchors never imply deployment and existing tags must never be moved.",
+        "Separately dispatched manual application publication requires exact current main, the canonical successful complete CI run/attempt and matching immutable version tag; separate existing application and D1 credentials fence schema-first qualification of reviewed additive indexes 0081/0082, exact ledger/schema/constraint checks, pre-write recovery bookmarks and in-flight markers, followed by the unchanged guarded publisher and served-byte verification. Unknown outcomes never auto-retry; no credentials are created or widened, provider activated, private service published or real communication sent. Hosted authorization, schema execution and production publication require their own proof."
       ],
-      "status": "Implemented operational tooling; changes require explicit authority and exact-source proof.",
+      "status": "Implemented operational tooling; changes require explicit authority and exact-source proof. The operator-triggered application workflow is implemented in source; existing credential authorization, exact-current-main hosted CI, same-run schema receipt and actual served publication remain separately qualified.",
       "tests": [
         "tests/security/ci-artifacts.test.mjs",
         "tests/security/ci-results.test.mjs",
@@ -1200,16 +1214,15 @@
         "tests/security/ci-validation-proof.test.mjs",
         "tests/security/sqlite-integrity-proof.test.mjs",
         "tests/unit/domain-async.test.ts",
-        "tests/security/release-evidence.test.mjs"
+        "tests/security/release-evidence.test.mjs",
+        "tests/security/manual-application-release.test.mjs"
       ],
       "surfaces": "Authorised operator/CI tooling and private services; anonymous monitoring has no workshop authority.",
       "id": "operations",
       "category": "Operations",
       "availability": "operator-gated",
       "tools": [],
-      "rest": [
-        "GET /api/health"
-      ]
+      "rest": ["GET /api/health"]
     },
     {
       "title": "Belvédère platform oversight",
@@ -1231,7 +1244,8 @@
         "All operational and chart-detail tables reuse shared column sorting and responsive presentation; server-paged lists preserve existing server search/filter/pagination and label local sorting as current-page only, while complete chart/monthly/service arrays use client search and pagination without new reads or platform authority",
         "The loopback fictional platform account opens a separate GET/HEAD-only Belvedere fixture with seeded bounded pages, arithmetic totals and preserved locale; the default fixture remains compatible and no real platform access, credentials, provider or backend mutation is created",
         "The platform shell uses the same frame/theme and independently lazy overview/workshops/members/jobs/connections/finance/infrastructure views with active-locale packs; every platform read retains its distinct signed browser authority",
-        "Saved platform table presentation is partitioned by the authenticated principal and platform area, never a synthetic shared account; the HTML-escaped shell principal hint is cosmetic only, adds no query and cannot grant platform or workspace access"
+        "Saved platform table presentation is partitioned by the authenticated principal and platform area, never a synthetic shared account; the HTML-escaped shell principal hint is cosmetic only, adds no query and cannot grant platform or workspace access",
+        "Whole translated singular/plural counts, shared StatTile presentation, one financial value per cell with optional breakdown, quiet missing values and mobile filter disclosure; platform authority and hidden-account invariants remain"
       ],
       "status": "Dedicated-host release and authenticated overview verified on 25 October from 03daa4136de8999cc79018f33f2a22038917c621; later 06d92 V2 publication and seven-section native Safari navigation are dated proof. Public routing/refusals were observed on f946 at 26 October 01:47 UTC; an authenticated journey on that newer source is not claimed. Private read-only authority remains separate from workshop roles. The 30 October shared-table migration passed local desktop Chromium and iPhone WebKit regressions; hosted CI, authenticated platform access and publication remain separate.",
       "tests": [
@@ -1353,9 +1367,7 @@
         "Bootstrap and diagnostics grant no expert mandate, communication approval, paid provisioning, billing activation, production mutation or deployment; web, native, REST and MCP product contracts are unchanged"
       ],
       "status": "Development helper implementation. Provider/setup observations are dated 4 October 2026; fresh-task restoration and current provider access remain separately unqualified.",
-      "tests": [
-        "tests/security/codex-cloud-check.test.mjs"
-      ],
+      "tests": ["tests/security/codex-cloud-check.test.mjs"],
       "surfaces": "Repository CLI and development runtime only; no new product browser, native, REST or MCP surface.",
       "tools": [],
       "rest": []
@@ -1483,7 +1495,9 @@
         "Browser administrators manage signed metadata-only customer lifecycle webhooks with current session/CSRF and tenant authority; configuration creates no recipient communication, sending approval or provider callback authority",
         "Default-off webhook delivery requires encrypted signing secrets and hosted strictly-public HTTPS egress; direct destinations forbid credentials, queries, fragments, custom ports, private addresses and redirects, while one-time secrets stay browser-only",
         "Prospective dispatch-status triggers atomically append bounded endpoint-revision outbox records; 500 pending items per endpoint expose overflow, pending/history retention is bounded, and an invoked unknown callback is never automatically repeated",
-        "Changing endpoint revision supersedes pending callbacks; rotation pauses delivery, revocation removes signing material, and losing owner-admin membership or production mode permanently pauses the old grant until a fresh explicit browser enablement"
+        "Changing endpoint revision supersedes pending callbacks; rotation pauses delivery, revocation removes signing material, and losing owner-admin membership or production mode permanently pauses the old grant until a fresh explicit browser enablement",
+        "Separate administrator-only /app/administration/operations route for channel controls, uncertain dispatches and failure-queue resolution; Settings retains workspace identity, with no new permission or automatic operations read",
+        "Compact UTC reporting periods, optional activity columns, useful chart thresholds, format-selectable report rows and allowlisted audit descriptions with raw code under Details; timestamp instants retain their explicitly identified display zone"
       ],
       "status": "4 November 2026 continuation of the 3 November recovered source candidate. Current local qualification and limits are recorded in the administration contract; hosted CI, production-data and physical-device qualification remain separate.",
       "tests": [
@@ -1502,7 +1516,8 @@
         "tests/integration/dead-letter-resolution.test.ts",
         "tests/integration/customer-webhooks.test.ts",
         "tests/integration/lifecycle-http.test.ts",
-        "tests/e2e/customer-webhooks.spec.ts"
+        "tests/e2e/customer-webhooks.spec.ts",
+        "tests/unit/administration-presentation.test.ts"
       ],
       "surfaces": "Authenticated browser membership only; OAuth, MCP and native callers are refused. Customer lifecycle callbacks are configured only through current administrator browser sessions; MCP, OAuth integration tokens and native clients cannot manage endpoints or reveal secrets.",
       "id": "administration",
@@ -1525,10 +1540,10 @@
       "id": "J01",
       "title": "Discover and sign in",
       "actor": "Visitor → verified account owner, with optional workspace membership",
-      "steps": "Open the concise public homepage with its approved browser icon in its preselected URL/cookie/browser language, without a session probe or late translation → choose visitor language or the header appearance icon → read How it works, Getting started, Pricing or PDF checks and the complete Support FAQ through canonical shared navigation with initial styles and same-document page changes preserving language, metadata, focus and browser history → open Engineering documentation from the shared Resources footer for English technical guides → use the existing localized closing invitation and first-dispatch link above the home-only panorama → enter canonical Auth0 → register one personal account with V2 appearance → ordinary /app entry without membership opens Services with create/join workspace choice; explicit personal-document entry stays personal → create a workspace or review and accept an administrator invitation → verify current identity, saved account language and rights before useful private content. Return to the valid destination. Explicit logout opens the public home and restores the separate visitor choice. On workshop entry, download only the requested screen code alongside session verification; mount private content only after current authority resolves.",
+      "steps": "Open the concise public homepage with its approved browser icon in its preselected URL/cookie/browser language, without a session probe or late translation → choose visitor language or the header appearance icon → read How it works, Getting started, Pricing or PDF checks and the complete Support FAQ through canonical shared navigation with initial styles and same-document page changes preserving language, metadata, focus and browser history → open Engineering documentation from the shared Resources footer for English technical guides → use the existing localized closing invitation and first-dispatch link above the home-only panorama → enter canonical Auth0 → register one personal account with V2 appearance → ordinary /app entry without membership opens Services with create/join workspace choice; explicit personal-document entry stays personal → create a workspace or review and accept an administrator invitation → verify current identity, saved account language and rights before useful private content. Return to the valid destination. Explicit logout opens the public home and restores the separate visitor choice. On workshop entry, download only the requested screen code alongside session verification; mount private content only after current authority resolves. As an independent optional design journey, open the isolated public preview → select Studio beside Correspondence → browse three deterministic viewer-only template/data/generation records and read-only details without authenticated backend requests or business writes; DEV-only role/volume controls remain separate.",
       "branch": "Access",
       "doc": "ACCOUNT_IDENTITY.md",
-      "failure": "Refuse invalid callback state, unknown issuer/subject or expired invitation. Recovery retries are explicit. Invalid/duplicate presentation hints fall back safely and grant no identity; explicit public language cannot be replaced by a conflicting late account read. Legacy storage migration excludes private/recovery URLs. Package download, optional Auth0 branding/domain and actual host sign-in each need separate proof. Public route presentation, a localized status link and the fictional example grant no approval or provider activation; failed detail loading retains complete styled static information. Modified/external/private/download links retain native behavior; unavailable initial JavaScript retains complete static HTML and native links without a blank loading page. Failed workshop code keeps the authenticated shell available and offers explicit page reload, with no automatic replay of writes. Public readiness cannot mount private sign-in before session resolution or create a duplicate hosted handoff. A superseded request cannot expire a newly installed browser session; a current-session 401 still opens normal authentication recovery."
+      "failure": "Refuse invalid callback state, unknown issuer/subject or expired invitation. Recovery retries are explicit. Invalid/duplicate presentation hints fall back safely and grant no identity; explicit public language cannot be replaced by a conflicting late account read. Legacy storage migration excludes private/recovery URLs. Package download, optional Auth0 branding/domain and actual host sign-in each need separate proof. Public route presentation, a localized status link and the fictional example grant no approval or provider activation; failed detail loading retains complete styled static information. Modified/external/private/download links retain native behavior; unavailable initial JavaScript retains complete static HTML and native links without a blank loading page. Failed workshop code keeps the authenticated shell available and offers explicit page reload, with no automatic replay of writes. Public readiness cannot mount private sign-in before session resolution or create a duplicate hosted handoff. A superseded request cannot expire a newly installed browser session; a current-session 401 still opens normal authentication recovery. Ordinary public Studio disables authoring/import/preview/publication/generation/AI-policy controls and refuses direct writes with 403 PREVIEW_STUDIO_READ_ONLY; a fixture error never falls through to authenticated APIs. Synthetic preview records grant no personal/Belvedere authority and prove no production data access, payment, provider outcome or hosted deployment."
     },
     {
       "id": "J02",
@@ -1570,19 +1585,19 @@
       "id": "J06",
       "title": "Create a reusable template",
       "actor": "Preparer with current resource rights",
-      "steps": "Read authoring guide or a synthetic example → create/private-copy or import DOCX content → edit schema/layout and optionally embed a local PNG/JPEG logo or image on the selected page → save committed native property edits → inspect warnings/exact PDF preview → review optional AI proposal → publish an immutable version → configure independent sharing rights.",
+      "steps": "Open the authorized template library, whose visible-tab revalidation preserves unsubmitted names/files → read authoring guide or a synthetic example → create/private-copy or import DOCX content → edit schema/layout and optionally embed a local PNG/JPEG logo or image on the selected page → save committed native property edits → inspect warnings/exact PDF preview → review optional AI proposal → publish an immutable version → configure independent sharing rights.",
       "branch": "Create",
       "doc": "TEMPLATES_DATA_DISTRIBUTION.md",
-      "failure": "DOCX is content import, not faithful Word layout reproduction. Invalid/unsupported images preserve the template and permit another choice; pending invalid property edits block saving until corrected. expectedRevision fences concurrent edits. AI requires configured consent and current authority before transfer/return; stale proposals do not apply. Known assistant-excluded content stops processing. An accepted cold-route transition temporarily fences the old editor against new input until commit; existing unsaved-work vetoes still run before acceptance."
+      "failure": "DOCX is content import, not faithful Word layout reproduction. Invalid/unsupported images preserve the template and permit another choice; pending invalid property edits block saving until corrected. expectedRevision fences concurrent edits. AI requires configured consent and current authority before transfer/return; stale proposals do not apply. Known assistant-excluded content stops processing. An accepted cold-route transition temporarily fences the old editor against new input until commit; existing unsaved-work vetoes still run before acceptance. Unsaved browser edits use localized Stay/Discard review; cancellation preserves the draft, and discard resumes only the captured current-authority destination once. Native browser-tab departure retains browser-controlled beforeunload."
     },
     {
       "id": "J07",
       "title": "Turn data into PDFs",
       "actor": "Preparer owning the private source",
-      "steps": "Choose a published template → import CSV/XLSX/XML/JSON while preserving that choice → verify/profile exact original → define versioned field mapping → wait for the exact selected template payload before browser validation → validate each row/cell → generate distinct PDFs → inspect business name/subject/reference and provenance. In the browser, replace compatible source data without losing the mapping; preserve only verifiable exclusions and explicitly review unmatched rows. Correct one result with its exact historical template version, or explicitly create a new template version; each correction creates a new generation and leaves prior PDF bytes/hashes and prepared manifests intact.",
+      "steps": "Choose a published template → import CSV/XLSX/XML/JSON while preserving that choice → verify/profile exact original → define versioned field mapping → wait for the exact selected template payload before browser validation → validate each row/cell → generate distinct PDFs → inspect business name/subject/reference and provenance. In the browser, replace compatible source data without losing the mapping; preserve only verifiable exclusions and explicitly review unmatched rows. Correct one result with its exact historical template version, or explicitly create a new template version; each correction creates a new generation and leaves prior PDF bytes/hashes and prepared manifests intact. Returning to the data or generation library revalidates its current authorized list without submitting input, clearing a selected file or starting another generation.",
       "branch": "Create",
       "doc": "TEMPLATES_DATA_DISTRIBUTION.md",
-      "failure": "Resume the same original after transient analysis failure. Keep browser validation unavailable while the selected template payload is loading or failed; selecting an identifier grants no readiness or new authority. Resolve mapping/type/join issues explicitly. Generation completion does not establish PDF readiness; follow the bounded security-analysis refresh and review retryable or blocked results explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation. An accepted cold-route transition temporarily fences the old editor against new input until commit; existing unsaved-work vetoes still run before acceptance. Private correction input is browser-owner-only under current membership; template sharing and dispatch review do not expose it. Query changes and Back/Forward cannot reuse another record’s unsaved data; leaving an unsaved correction requires explicit review. Final dataset/mapping writes recheck current membership or OAuth authority after analysis. AI adoption preserves a successful mapping receipt after draft failure and retries only the unfinished draft. Leaving and returning to the same view invalidates prior chained writes. Retrying failed records atomically requeues them and promotes the job under the same current authority. If distribution freezes first, generation stays frozen. After an older interrupted retry, explicitly resume the same already-queued records under current authority; retain exact artifacts and never bypass an existing frozen plan."
+      "failure": "Resume the same original after transient analysis failure. Keep browser validation unavailable while the selected template payload is loading or failed; selecting an identifier grants no readiness or new authority. Resolve mapping/type/join issues explicitly. Generation completion does not establish PDF readiness; follow the bounded security-analysis refresh and review retryable or blocked results explicitly. AI is optional and separately consented; generation creates no dispatch or credit reservation. An accepted cold-route transition temporarily fences the old editor against new input until commit; existing unsaved-work vetoes still run before acceptance. Private correction input is browser-owner-only under current membership; template sharing and dispatch review do not expose it. Query changes and Back/Forward cannot reuse another record’s unsaved data; leaving an unsaved correction requires explicit review. Final dataset/mapping writes recheck current membership or OAuth authority after analysis. AI adoption preserves a successful mapping receipt after draft failure and retries only the unfinished draft. Leaving and returning to the same view invalidates prior chained writes. Retrying failed records atomically requeues them and promotes the job under the same current authority. If distribution freezes first, generation stays frozen. After an older interrupted retry, explicitly resume the same already-queued records under current authority; retain exact artifacts and never bypass an existing frozen plan. Localized dirty-navigation decisions do not approve spending, replace an independent workspace veto or permit stale preparation to continue."
     },
     {
       "id": "J08",
@@ -1633,7 +1648,7 @@
       "id": "J13",
       "title": "Purchase a PDF verification",
       "actor": "Current browser administrator for a purchase; current PDF reader for history",
-      "steps": "Read current capability and price → select the ready immutable PDF and PDF/UA or PDF/A profile → explicitly accept this exact purchase → reserve available account credit atomically → run the private engine → settle once for a complete valid report → inspect report/history/JSON and complete human review.",
+      "steps": "Read current capability and price from the single offer action; empty history adds no duplicate selection action → select the ready immutable PDF and PDF/UA or PDF/A profile → explicitly accept this exact purchase → reserve available account credit atomically → run the private engine → settle once for a complete valid report → inspect report/history/JSON and complete human review.",
       "branch": "Operate",
       "doc": "PDF_ACCESSIBILITY.md",
       "failure": "Require current PDF authority, browser administrator purchase consent, available credit and scanner/private validator. Engine failure creates no settled charge; a valid failing-conformance report is billable. Recover uncertain responses with the same key. A new check needs a new purchase. Existing reports retain their document access policy without monthly subscription."
@@ -1651,10 +1666,10 @@
       "id": "J15",
       "title": "Release a change",
       "actor": "Developer and explicitly authorised release operator",
-      "steps": "Update feature tree/developer contracts/source/tests and version-matched human release notes together → regenerate and check atlas → check canonical build assets and compatibility redirects → run exact-source checks and retain portable HTML test evidence → review → obtain explicit merge/release authority → qualify merged main → create an immutable v<package version> tag on that exact commit → publish from clean synchronized main with fresh remote-tag checks → verify public manifest/assets and record the production receipt → publish GitHub Release notes with one-click test report and explicit activation limits; separately qualify authenticated/runtime behavior.",
+      "steps": "Update feature tree/developer contracts/source/tests and version-matched human release notes together → regenerate and check atlas → run exact-source checks and retain portable test evidence → review and obtain explicit merge/release authority → qualify merged main → create an immutable matching version tag → publish from clean synchronized main with fresh remote checks → verify canonical served manifest/assets and record the production receipt. The separate operator-dispatched application workflow additionally qualifies the supplied successful complete CI run/attempt, requires separately authorized existing application/D1 credentials, verifies the exact schema/ledger, and applies only missing reviewed index migrations 0081/0082 before the unchanged publisher. Publish readable GitHub Release notes with linked evidence and explicit activation limits; qualify authenticated/runtime behavior separately.",
       "branch": "Operations",
       "doc": "MAIN_RELEASE.md",
-      "failure": "Dirty source, drift, failing checks, missing configuration/scan or absent authority blocks release. Manual reruns must select the latest same-run evidence deterministically without deleting failed attempts, falling back to older passing reports or bypassing complete-result verification. Private-engine graceful-stop or idle failures keep customer activation closed; explicit force-stop recovery is not qualification. Unexpected redirects or changed/missing advertised bytes fail served verification; correct the source and repeat the reviewed release sequence without weakening verification. CI, local fixtures, production HTTP and real provider/client proof remain distinct. An absent, moved or mismatched remote tag or missing/mismatched human notes stops application publication before build or deployment. Existing tags must never be moved; release a new reviewed version for a new commit. Reused CI reports identify the original tested commit and identical source tree. A source tag or historical release record alone never proves a production rollout."
+      "failure": "Dirty source, drift, failing checks, missing configuration/scan or absent authority blocks release. Manual reruns must select the latest same-run evidence deterministically without deleting failed attempts, falling back to older passing reports or bypassing complete-result verification. Private-engine graceful-stop or idle failures keep customer activation closed; explicit force-stop recovery is not qualification. Unexpected redirects or changed/missing advertised bytes fail served verification; correct the source and repeat the reviewed release sequence without weakening verification. CI, local fixtures, production HTTP and real provider/client proof remain distinct. An absent, moved or mismatched remote tag or missing/mismatched human notes stops application publication before build or deployment. Existing tags must never be moved; release a new reviewed version for a new commit. Reused CI reports identify the original tested commit and identical source tree. A source tag or historical release record alone never proves a production rollout. The manual path refuses missing credentials without creating or widening access or accepting operator-supplied replacement proof. Schema-first publication requires its own successful same-workflow commit/version-bound receipt, enabled constraints, exact ledger/schema, global quick check and zero foreign-key violations. A bookmark and in-flight marker precede each atomic index/ledger batch. Unknown migration/publication outcomes never auto-retry or roll back; inspect the actual ledger and served release before another explicit dispatch. Local guard tests do not qualify hosted credentials, CI, schema execution or deployment."
     },
     {
       "id": "J16",
@@ -1768,7 +1783,7 @@
       "id": "J28",
       "title": "Keep, export and delete a personal copy",
       "actor": "Recipient owner with a recent policy-compliant session, independent of the original workspace",
-      "steps": "In an active share allowing deposit, read independent retention/export terms → explicitly Keep a copy → follow the same bounded persistent operation → wait for active copy → open Saved copies → export with five-minute authentication freshness → view personal history or explicitly confirm deletion. The same account also opens Guteneo services.",
+      "steps": "In an active share allowing deposit, read independent retention/export terms → explicitly Keep a copy → follow the same bounded persistent operation → wait for active copy → open Saved copies → export with five-minute authentication freshness → view personal history or explicitly confirm deletion. The same account also opens Guteneo services. Find entries with cancelable debounced search and native row links; open the optional reader history panel without changing access authority.",
       "branch": "Independent copy funded at share activation and acquired only after durable deposit activation",
       "doc": "SECURE_DISTRIBUTION_JOURNEYS.md",
       "failure": "Revocation before acquisition prevents acquisition; later revocation cannot delete the copy. After timeout/tab closure, resume the same operation without a second copy/charge. No success before activation. Personal deletion removes neither workspace source nor exported files; later private reads are not reported to the workspace. Deletion/expiry prevents redeposit through the same invitation, including direct calls, without fake preparation, recreation or debit. Session loss pauses unfinished paid copy progress and releases its lease; recover under the same eligible account. Source revocation or expiry before acquisition aborts it."
@@ -1921,10 +1936,10 @@
       "id": "J45",
       "title": "Administer a workspace and export its reports",
       "actor": "Workspace administrator; supervisor with report permission for report views",
-      "steps": "Open Administration from the application switcher, including from My documents or Use Guteneo when the current membership allows reports → choose a period preset or a custom UTC range → read the overview, activity, consumption and access → manage members, invitations, billing and workspace settings → download the complete report as Excel or PDF, or one dataset as CSV → find the export recorded in the audit log. In Settings, inspect the original dispatch before explicitly resolving an operationally and financially closed queue incident; the server retains one resolution receipt without replaying a communication.",
+      "steps": "Open Administration from the application switcher, including from My documents or Use Guteneo when the current membership allows reports → choose a period preset or a custom UTC range in the once-declared application context, shared by displayed instants, calendar/report buckets, exports and date/time entry → read the overview, activity, consumption and access → manage members, invitations, billing and workspace settings → download the complete report as Excel or PDF, or one dataset as CSV → find the export recorded in the audit log. In Operations, inspect the original dispatch before explicitly resolving an operationally and financially closed queue incident; the server retains one resolution receipt without replaying a communication. Choose visible activity columns and one report format; administrators open Settings for workspace identity and Operations separately for operational controls.",
       "branch": "Correspondence keeps preparation and tracking; the personal profile keeps the person's own settings; Belvédère stays platform-only",
       "doc": "WORKSPACE_ADMINISTRATION.md",
-      "failure": "Changed membership refuses with MEMBERSHIP_CHANGED; assistants and native clients receive BROWSER_REQUIRED. Invalid dates recover in the browser and are refused by the API; periods over 366 days and export row/text bounds fail explicitly. PDFs disclose global row omissions. Changing a period or identity cancels obsolete downloads. An unresolved dispatch, hold, revoked administrator/session or cross-workspace incident refuses resolution; after an unknown response reread the same diagnostic. Billing-portal navigation and customer feedback remain bound to the current identity and route visit."
+      "failure": "Changed membership refuses with MEMBERSHIP_CHANGED; assistants and native clients receive BROWSER_REQUIRED. Invalid dates recover in the browser and are refused by the API; periods over 366 days and export row/text bounds fail explicitly. PDFs disclose global row omissions. Changing a period or identity cancels obsolete downloads. An unresolved dispatch, hold, revoked administrator/session or cross-workspace incident refuses resolution; after an unknown response reread the same diagnostic. Billing-portal navigation and customer feedback remain bound to the current identity and route visit. Unsupported or conflicting timezone declarations fail with INVALID_FILTERS; the fixed UTC policy grants no account timezone preference and does not regroup immutable financial history."
     },
     {
       "id": "J46",
@@ -1993,10 +2008,10 @@
       "id": "J53",
       "title": "Navigate and reuse a presentation preset",
       "actor": "Authenticated browser principal with current navigation/resource rights",
-      "steps": "Open Commands with Cmd/Ctrl+K → search permitted static destinations → use keyboard selection or Escape and preserved focus → navigate through the existing unsaved-work veto → configure an authorized table → explicitly save/apply/delete one of eight local named sort/filter/page-size presets in the current identity/area/table partition.",
+      "steps": "Open Commands with Cmd/Ctrl+K → search permitted static destinations → use keyboard selection or Escape and preserved focus → resolve any shared localized Stay/Discard dialog after the synchronous unsaved-work veto, with a one-use captured continuation → configure an authorized table → explicitly save/apply/delete one of eight local named sort/filter/page-size presets in the current identity/area/table partition.",
       "branch": "Navigation and local presentation only",
       "doc": "WEB_APPLICATIONS.md",
-      "failure": "Commands perform no remote record search or mutation. Saved presets exclude rows, recipient fields, searches and cursors and are validated against the current table schema. Unknown/demo identity disables persistence rather than sharing a synthetic account; platform hints never replace platform authorization."
+      "failure": "Commands perform no remote record search or mutation. Saved presets exclude rows, recipient fields, searches and cursors and are validated against the current table schema. Unknown/demo identity disables persistence rather than sharing a synthetic account; platform hints never replace platform authorization. Escape/Stay preserves the draft and current action. A stale authority, revision, editor scope or later navigation invalidates discard; an independent workspace/scenario veto wins. The question grants no business consent, and full-document/tab departure retains browser-controlled beforeunload."
     },
     {
       "id": "J54",
@@ -2011,10 +2026,28 @@
       "id": "J55",
       "title": "Qualify the shared interface and independent modules",
       "actor": "Repository contributor and browser qualification runner",
-      "steps": "Change application-owned route/view/style modules under the shared frame → load only the active locale catalogue before translated content → preserve lazy dispatch and Belvédère views plus ordered stylesheet modules → use chart/elevation/frame tokens with zero design/import exceptions → run keyboard/responsive and Axe fixtures across four languages and both themes → record actual request/transfer/first-content and test evidence separately.",
+      "steps": "Change application-owned route/view/style modules under the shared frame → load only the active locale catalogue before translated content → preserve lazy dispatch and Belvédère views plus ordered stylesheet modules → use chart/elevation/frame tokens with zero design/import exceptions → qualify fixed UTC timestamps/filter boundaries/entered instants and localized exact-intent navigation → run keyboard/responsive and Axe fixtures, including ordinary read-only Studio, across four languages and both themes → record actual request/transfer/first-content and test evidence separately.",
       "branch": "Engineering qualification; no account or production activation",
       "doc": "WEB_APPLICATIONS.md",
       "failure": "A module split or local Axe result establishes neither an accessibility certification nor hosted/physical-device/provider performance. Shared caches contain no persistent private data, generated locale projections must stay current, and application/authority boundaries cannot be bypassed by a design exception."
+    },
+    {
+      "id": "J56",
+      "title": "Ask for approval of a prepared dispatch",
+      "actor": "Operator, or any member who can prepare but not approve, in a human browser session; then an administrator or a supervisor with the approval option",
+      "steps": "Open a dispatch awaiting approval → read who can approve it → choose Ask for approval → the server records one audit receipt for the current fingerprint after rechecking membership and preparation permission → the page shows the request date → an approver opens the dispatch from the Overview queue or the dispatch list, reads who asked and when, reviews the exact version and approves or cancels through the unchanged approval path.",
+      "branch": "Web only; no REST OAuth, MCP, native, email or push surface. Nothing is reserved, accepted, sent or notified outside the application",
+      "doc": "API_CONTRACT.md",
+      "failure": "Observers and assistants receive FORBIDDEN; another workspace receives NOT_FOUND; a dispatch that is not awaiting approval receives 409 INVALID_STATE. Asking again returns the first receipt. A new version (new fingerprint) needs its own request. The request never substitutes for approval, and withdrawing preparation permission before the write leaves no receipt. Final SQL rechecks current browser expiry/development status, tenant mode, source visibility, exact prepared fingerprint and absence of a future-schedule hold. A replay cannot bypass revoked authority."
+    },
+    {
+      "id": "J57",
+      "title": "Review PDF check history without a purchase",
+      "actor": "Current browser member with document-library visibility",
+      "steps": "Open PDF checks with one Choose a PDF action in the price offer and no duplicate action in empty history → read bounded metadata history in parallel with pricing → page explicitly using a tenant keyset → open the current authorized document for the exact report. A processing or interrupted check is not a conformance verdict.",
+      "branch": "Operate",
+      "doc": "PDF_VALIDATOR.md",
+      "failure": "Refuse assistant bearer calls, expired/revoked browser authority, invalid cursor/limit, inaccessible documents and exhausted HTTP budget. No content or recipient enters the metadata list; a history read never charges or invokes the validator."
     }
   ],
   "roles": [
@@ -2145,22 +2178,8 @@
       "No",
       "Current role + scopes"
     ],
-    [
-      "Manage workshop or members",
-      "Browser only",
-      "No",
-      "No",
-      "No",
-      "No"
-    ],
-    [
-      "Manage billing",
-      "Current browser administrator",
-      "No",
-      "No",
-      "No",
-      "No"
-    ],
+    ["Manage workshop or members", "Browser only", "No", "No", "No", "No"],
+    ["Manage billing", "Current browser administrator", "No", "No", "No", "No"],
     [
       "Purchase a PDF verification",
       "Current browser administrator + exact purchase + PDF access",
@@ -2560,6 +2579,38 @@
       "Own native identity/workspace",
       "No composition permission",
       "No assistant access; device-only seven-day Keychain storage grants no API or browser approval authority"
+    ],
+    [
+      "Ask approvers to review a dispatch awaiting approval",
+      "Yes",
+      "Yes",
+      "Yes",
+      "No",
+      "Cannot raise a request for human consent; human browser session only"
+    ],
+    [
+      "Read workspace PDF check metadata history",
+      "Current visible documents only",
+      "Current visible documents only",
+      "Current visible documents only",
+      "Current visible documents only",
+      "Browser only, with current membership/document visibility and live credential rechecking; existing document-scoped REST/MCP report reads keep their original authorization. No purchase or sending authority."
+    ],
+    [
+      "Browse ordinary public Studio fixtures",
+      "Public read-only tab fixture; no account privilege",
+      "Public read-only tab fixture; no account privilege",
+      "Public read-only tab fixture; no account privilege",
+      "Public read-only tab fixture; no account privilege",
+      "No new REST/MCP/native tool or business authority; public synthetic metadata only, with no authenticated backend fallback"
+    ],
+    [
+      "Dispatch a reviewed manual application release",
+      "No authority from workspace role",
+      "No authority from workspace role",
+      "No authority from workspace role",
+      "No authority from workspace role",
+      "No business REST/MCP/native tool or expert mandate; distinct explicitly authorized repository/platform operator, exact complete CI/main/tag and separately authorized existing application/D1 credentials"
     ]
   ],
   "schemaVersion": 2

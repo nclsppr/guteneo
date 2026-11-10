@@ -198,7 +198,7 @@ test("a late unauthorized read from the previous account cannot expire the new w
   fixture.switchAccount();
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));
   await expect(
-    page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+    page.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
   ).toBeVisible();
   await expect(page.locator(".workspace")).toContainText(
     "Atelier synthétique B",

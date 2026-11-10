@@ -29,7 +29,8 @@ export type AdministrationEntry =
   | "administrationWebhooks"
   | "administrationAudit"
   | "administrationBilling"
-  | "administrationSettings";
+  | "administrationSettings"
+  | "administrationOperations";
 
 export const administrationRoutes = {
   home: "/app/administration",
@@ -42,6 +43,7 @@ export const administrationRoutes = {
   audit: "/app/administration/audit",
   billing: "/app/administration/billing",
   settings: "/app/administration/settings",
+  operations: "/app/administration/operations",
 } as const;
 
 export type StudioEntry = "templates" | "datasets" | "generations";

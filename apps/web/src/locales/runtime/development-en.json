@@ -10,7 +10,6 @@
   "Important": "Large",
   "Très important": "Huge",
   "Extrême": "Extreme",
-  "jusqu’à {0}": "up to {0}",
   "Les volumes générés sont virtuels et en lecture seule, avec au plus 50 lignes par page ; le scénario par défaut reste interactif.": "Generated volumes are virtual and read-only, with up to 50 rows per page; the default scenario stays interactive.",
   "Données du scénario": "Scenario records",
   "Jeux de données": "Datasets",

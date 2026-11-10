@@ -3,6 +3,8 @@ import { getSessionAuthorityKey, subscribeSessionAuthority } from "./api";
 export type ActionOutcomeKind =
   | "access_revoked"
   | "dispatch_prepared"
+  | "dispatch_approved"
+  | "quote_renewed"
   | "dispatch_cancelled"
   | "saved"
   | "updated"
@@ -30,6 +32,8 @@ const empty: readonly ActionOutcomeReceipt[] = [];
 const kinds = new Set<ActionOutcomeKind>([
   "access_revoked",
   "dispatch_prepared",
+  "dispatch_approved",
+  "quote_renewed",
   "dispatch_cancelled",
   "saved",
   "updated",

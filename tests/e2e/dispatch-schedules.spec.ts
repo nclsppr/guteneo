@@ -192,8 +192,8 @@ async function fillSchedule(page: Page) {
   const time = await page.evaluate(() => {
     const date = new Date(Date.now() + 86400_000);
     date.setSeconds(0, 0);
-    const value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}T${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
-    return { value, instant: new Date(value).toISOString() };
+    const value = date.toISOString().slice(0, 16);
+    return { value, instant: new Date(`${value}:00.000Z`).toISOString() };
   });
   await page.getByLabel("Dispatch time", { exact: true }).fill(time.value);
   await page
@@ -201,6 +201,36 @@ async function fillSchedule(page: Page) {
     .fill("2.35");
   return time.instant;
 }
+
+test("an unsaved schedule requires discard before navigation and Escape preserves its cap", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.goto("/#/app/schedules/new?dispatch=dsp_schedule_ui");
+  await fillSchedule(page);
+  const leave = () =>
+    page.evaluate(() => {
+      window.location.hash = "/app/schedules/sch_ui";
+    });
+  await leave();
+  const dialog = page.locator("dialog.navigation-confirmation");
+  await expect(dialog).toBeVisible();
+  await expect(
+    dialog.getByRole("button", { name: "Cancel", exact: true }),
+  ).toBeFocused();
+  expect(state.writes).toEqual([]);
+  await dialog.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(
+    page.getByLabel("Maximum total cost in euros excluding tax", {
+      exact: true,
+    }),
+  ).toHaveValue("2.35");
+  await leave();
+  await dialog.getByRole("button", { name: "Discard", exact: true }).click();
+  await expect(page).toHaveURL(/#\/app\/schedules\/sch_ui$/);
+  expect(state.writes).toEqual([]);
+});
 
 test("creates an exact future-cap draft then requires both human attestations before separate approval", async ({
   page,
@@ -296,6 +326,9 @@ test("shows revision/hash conflict without pretending approval succeeded or retr
     .getByRole("button", { name: "Approve scheduled spending", exact: true })
     .click();
   await expect(page.getByRole("alert")).toContainText(
+    "The operation could not be completed",
+  );
+  await expect(page.getByRole("alert")).not.toContainText(
     "Synthetic schedule changed; refresh required.",
   );
   await expect(
@@ -313,8 +346,22 @@ test("cancels only the selected schedule after explicit confirmation", async ({
 }) => {
   const state = await fixture(page);
   await page.goto("/#/app/schedules/sch_ui");
-  page.once("dialog", (dialog) => dialog.accept());
   await page
+    .getByRole("button", { name: "Cancel schedule", exact: true })
+    .click();
+  const confirmation = page.getByRole("group", {
+    name: "Cancel this schedule? An already accepted dispatch must be reviewed separately.",
+    exact: true,
+  });
+  await expect(confirmation).toBeVisible();
+  expect(state.writes).toEqual([]);
+  await confirmation.press("Escape");
+  await expect(confirmation).toBeHidden();
+  expect(state.writes).toEqual([]);
+  await page
+    .getByRole("button", { name: "Cancel schedule", exact: true })
+    .click();
+  await confirmation
     .getByRole("button", { name: "Cancel schedule", exact: true })
     .click();
   await expect(
@@ -367,24 +414,44 @@ test("a late draft receipt cannot navigate an abandoned view", async ({
   page,
 }) => {
   const state = await fixture(page, { delayCreate: true });
-  await page.goto("/#/app/schedules/new?dispatch=dsp_schedule_ui");
-  await fillSchedule(page);
-  await page
-    .getByRole("button", { name: "Create schedule", exact: true })
-    .click();
-  await expect.poll(() => state.writes.length).toBe(1);
-  await page.evaluate(() => {
-    location.hash = "#/app/documents";
-  });
-  const response = page.waitForResponse(
-    (result) =>
-      new URL(result.url()).pathname === "/api/dispatch-schedules" &&
-      result.request().method() === "POST",
-  );
-  state.release();
-  await response;
-  await expect(page).toHaveURL(/#\/app\/documents$/);
-  expect(state.writes).toHaveLength(1);
+  try {
+    await page.goto("/#/app/schedules/new?dispatch=dsp_schedule_ui");
+    await fillSchedule(page);
+    await page
+      .getByRole("button", { name: "Create schedule", exact: true })
+      .click();
+    await expect.poll(() => state.writes.length).toBe(1);
+    await page.evaluate(() => {
+      location.hash = "#/app/documents";
+    });
+    const confirmation = page.getByRole("dialog", {
+      name: "Leave this preparation and lose unsaved changes?",
+      exact: true,
+    });
+    await expect(confirmation).toBeVisible();
+    await confirmation
+      .getByRole("button", { name: "Discard", exact: true })
+      .click();
+    await expect(page).toHaveURL(/#\/app\/documents$/);
+    const response = page.waitForResponse(
+      (result) =>
+        new URL(result.url()).pathname === "/api/dispatch-schedules" &&
+        result.request().method() === "POST",
+    );
+    state.release();
+    await response;
+    await expect(page.locator(".action-outcomes__count")).toHaveText("1");
+    await page.locator(".action-outcomes > summary").click();
+    const receipt = page
+      .locator(".action-outcomes")
+      .getByRole("link", { name: /Scheduled dispatch created/ });
+    await expect(receipt).toHaveAttribute("href", "#/app/schedules/sch_ui");
+    await expect(receipt).toContainText("sch_ui");
+    await expect(page).toHaveURL(/#\/app\/documents$/);
+    expect(state.writes).toHaveLength(1);
+  } finally {
+    state.release();
+  }
 });
 
 test("an expired future approval stays closed without cancelling or approving the original", async ({
@@ -426,4 +493,26 @@ test("a held original points to its schedule and offers no ordinary approval, ca
       .getByText("Waiting for scheduled spending approval", { exact: true })
       .first(),
   ).toBeVisible();
+});
+
+test.describe("explicit application time on a different device clock", () => {
+  test.use({ timezoneId: "America/New_York" });
+  test("submits the UTC field value without a device offset and declares it once", async ({
+    page,
+  }) => {
+    const state = await fixture(page);
+    await page.goto("/#/app/schedules/new?dispatch=dsp_schedule_ui");
+    await expect(page.locator(".timestamp-context")).toHaveCount(1);
+    await expect(page.locator(".timestamp-context")).toHaveText(
+      "Times shown in: UTC",
+    );
+    const instant = await fillSchedule(page);
+    await page
+      .getByRole("button", { name: "Create schedule", exact: true })
+      .click();
+    await expect(page).toHaveURL(/#\/app\/schedules\/sch_ui$/);
+    expect(state.writes).toHaveLength(1);
+    expect(state.writes[0].body.executeAt).toBe(instant);
+    expect(state.writes[0].path).toBe("/api/dispatch-schedules");
+  });
 });

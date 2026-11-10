@@ -10,7 +10,7 @@ async function login(page: Page): Promise<Session> {
     .getByRole("button", { name: "Entrer dans l’espace de travail" })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+    page.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
   ).toBeVisible();
   const response = await page.request.get("/api/session");
   expect(response.status()).toBe(200);
@@ -85,6 +85,7 @@ test("profile changes persist through the browser and current-session revocation
     });
     expect(restored.status()).toBe(200);
   }
+  await page.locator(".account-access-details > summary").click();
   await page
     .getByRole("button", { name: /^Me déconnecter de la session/ })
     .click();

@@ -1,3 +1,4 @@
+import { preparationDiagnostics } from "../helpers/preparation-diagnostics";
 import { expect, test, type Page } from "@playwright/test";
 import { PDFDocument, StandardFonts } from "pdf-lib";
 import { mkdir } from "node:fs/promises";
@@ -511,3 +512,8 @@ for (const variant of ["lost", "processing"] as const)
     expect(fixture.mutations[2].body.documentId).toBe("generated-ui-1");
     expect(fixture.unmatched).toEqual([]);
   });
+
+// Retain the failing assertions and expose only finite synthetic form diagnostics.
+test.afterEach(async ({ page }, testInfo) => {
+  await preparationDiagnostics(page, testInfo);
+});

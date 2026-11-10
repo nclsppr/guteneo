@@ -22,6 +22,13 @@ import type {
 import { getBelvedereCloudflareMetrics } from "./belvedere-cloudflare";
 import { getBelvedereCloudflareBilling } from "./belvedere-cloudflare-billing";
 import {
+  APPLICATION_DAY_MS,
+  applicationDay,
+  applicationPeriodBounds,
+  applicationTimeZoneQuerySupported,
+  isApplicationDay,
+} from "../../../packages/contracts/src/application-time";
+import {
   isSupportedLocale,
   type SupportedLocale,
 } from "../../../packages/contracts/src/locale";
@@ -39,12 +46,13 @@ const json = (data: unknown, status = 200) =>
     headers: { ...headers, "Content-Type": "application/json; charset=utf-8" },
   });
 const absent = () => new Response("Not found", { status: 404, headers });
-const htmlAttribute = (value: string) => value
-  .replaceAll("&", "&amp;")
-  .replaceAll('"', "&quot;")
-  .replaceAll("'", "&#39;")
-  .replaceAll("<", "&lt;")
-  .replaceAll(">", "&gt;");
+const htmlAttribute = (value: string) =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
 interface Filters extends BelvedereFilters {
   start: string;
   end: string;
@@ -54,24 +62,21 @@ interface Filters extends BelvedereFilters {
   q: string;
 }
 export function belvedereFilters(url: URL, now = new Date()): Filters {
-  const to = url.searchParams.get("to") ?? now.toISOString().slice(0, 10);
+  const to = url.searchParams.get("to") ?? applicationDay(now);
   const from =
     url.searchParams.get("from") ??
-    new Date(now.getTime() - 29 * 86400000).toISOString().slice(0, 10);
-  const validDate = (value: string) =>
-    /^\d{4}-\d{2}-\d{2}$/.test(value) &&
-    Number.isFinite(Date.parse(value)) &&
-    new Date(value).toISOString().slice(0, 10) === value;
+    applicationDay(now.getTime() - 29 * APPLICATION_DAY_MS);
   const mode = url.searchParams.get("mode") ?? "production";
   const page = Number(url.searchParams.get("page") ?? "1");
   const pageSize = Number(url.searchParams.get("pageSize") ?? "25");
   const membersPage = Number(url.searchParams.get("membersPage") ?? "1");
   const q = (url.searchParams.get("q") ?? "").trim();
   if (
-    !validDate(from) ||
-    !validDate(to) ||
+    !applicationTimeZoneQuerySupported(url.searchParams) ||
+    !isApplicationDay(from) ||
+    !isApplicationDay(to) ||
     from > to ||
-    Date.parse(to) - Date.parse(from) > 365 * 86400000 ||
+    Date.parse(to) - Date.parse(from) > 365 * APPLICATION_DAY_MS ||
     !["production", "simulation"].includes(mode) ||
     !Number.isInteger(page) ||
     page < 1 ||
@@ -93,8 +98,7 @@ export function belvedereFilters(url: URL, now = new Date()): Filters {
     from,
     to,
     mode: mode as BelvedereMode,
-    start: `${from}T00:00:00.000Z`,
-    end: new Date(Date.parse(to) + 86400000).toISOString(),
+    ...applicationPeriodBounds(from, to),
     page,
     pageSize,
     membersPage,

@@ -20,7 +20,8 @@ async function expectNoPageOverflow(page: Page) {
 }
 
 function history(page: Page) {
-  return page.locator("#main-content .data-table").first();
+  // The queue of dispatches needing attention can precede the history.
+  return page.locator("#main-content .data-table.overview-recent");
 }
 
 function rowValues(table: Locator, column: string) {
@@ -153,14 +154,14 @@ test("desktop header sorting and phone sorting use the same chronological order"
   });
   await created.getByRole("button").click();
   await expect(created).toHaveAttribute("aria-sort", "ascending");
-  await expect(rowValues(table, "recipient").first()).toContainText(
-    "preview_atelier_dispatch_5",
-  );
+  await expect(
+    rowValues(table, "recipient").first().locator("a"),
+  ).toHaveAttribute("href", /preview_atelier_dispatch_5$/);
   await created.getByRole("button").click();
   await expect(created).toHaveAttribute("aria-sort", "descending");
-  await expect(rowValues(table, "recipient").first()).toContainText(
-    "preview_atelier_dispatch_1",
-  );
+  await expect(
+    rowValues(table, "recipient").first().locator("a"),
+  ).toHaveAttribute("href", /preview_atelier_dispatch_1$/);
   await page.setViewportSize({ width: 390, height: 844 });
   const sort = table.getByRole("combobox", {
     name: "Sort by column",
@@ -173,9 +174,9 @@ test("desktop header sorting and phone sorting use the same chronological order"
     .getByRole("button", { name: "Sort ascending", exact: true })
     .click();
   await expect(created).toHaveAttribute("aria-sort", "ascending");
-  await expect(rowValues(table, "recipient").first()).toContainText(
-    "preview_atelier_dispatch_5",
-  );
+  await expect(
+    rowValues(table, "recipient").first().locator("a"),
+  ).toHaveAttribute("href", /preview_atelier_dispatch_5$/);
   await sort.selectOption("recipient");
   await expect(table.locator('thead [aria-sort="ascending"]')).toContainText(
     "Recipient",
@@ -198,6 +199,7 @@ test("validated CSV rows paginate, resize and search across all loaded rows", as
         `email,participant-${String(index + 1).padStart(2, "0")}@example.invalid`,
     ),
   ].join("\n");
+  await page.getByText("Paste instead", { exact: true }).click();
   await page
     .getByLabel("Recipient list in CSV format", { exact: true })
     .fill(csv);
@@ -315,5 +317,47 @@ test("table controls follow all four languages and dark appearance", async ({
     fullPage: true,
     scale: "css",
   });
+  expect(requests).toEqual([]);
+});
+
+test("short document lists retain counts, saved views and filter recovery", async ({
+  page,
+}) => {
+  const requests = observeBusinessRequests(page);
+  await page.goto("/?lang=en#/app/documents");
+  const table = page.locator("#main-content .data-table").first();
+  await expect(table.locator("tbody tr")).toHaveCount(2);
+  await expect(table.getByRole("searchbox")).toBeHidden();
+  await expect(table.locator(".data-table__count")).toBeVisible();
+  await expect(table.locator(".data-table__count")).toContainText("Documents");
+  const saved = table.locator(".data-table__views");
+  await saved.locator("summary").click();
+  await saved
+    .getByRole("textbox", { name: "View name", exact: true })
+    .fill("Ready documents");
+  await saved
+    .getByRole("button", { name: "Save sort and filters", exact: true })
+    .click();
+  // The presentation fixture contains no document or recipient values.
+  await page.evaluate(() => {
+    const key = Object.keys(localStorage).find((key) =>
+      key.startsWith("guteneo.table-views.v1:"),
+    );
+    if (!key) throw new Error("Expected the saved presentation fixture");
+    const saved = JSON.parse(localStorage.getItem(key)!);
+    saved.views[0].filters = { status: "ready" };
+    localStorage.setItem(key, JSON.stringify(saved));
+  });
+  await page.reload();
+  await expect(table.locator("tbody tr")).toHaveCount(2);
+  await saved.locator("summary").click();
+  await saved
+    .getByRole("combobox", { name: "Saved views", exact: true })
+    .selectOption({ label: "Ready documents" });
+  await expect(table.getByRole("searchbox")).toBeVisible();
+  await expect(table.locator(".data-table__reset")).toBeVisible();
+  await table.locator(".data-table__reset").click();
+  await expect(table.getByRole("searchbox")).toBeHidden();
+  await expect(table.locator(".data-table__count")).toBeVisible();
   expect(requests).toEqual([]);
 });

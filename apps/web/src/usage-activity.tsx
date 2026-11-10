@@ -1,3 +1,4 @@
+import { APPLICATION_TIME_ZONE } from "./application-time";
 import {
   useEffect,
   useId,
@@ -84,15 +85,15 @@ export function UsageActivityCalendar({
     data?.availableYears ?? (knownYears.length ? knownYears : [year]);
   const longDate = new Intl.DateTimeFormat(formatLocale(), {
     dateStyle: "full",
-    timeZone: "UTC",
+    timeZone: APPLICATION_TIME_ZONE,
   });
   const monthDate = new Intl.DateTimeFormat(formatLocale(), {
     month: "short",
-    timeZone: "UTC",
+    timeZone: APPLICATION_TIME_ZONE,
   });
   const weekdayDate = new Intl.DateTimeFormat(formatLocale(), {
     weekday: "short",
-    timeZone: "UTC",
+    timeZone: APPLICATION_TIME_ZONE,
   });
   const dateLabel = (value: string) =>
     longDate.format(new Date(`${value}T00:00:00Z`));

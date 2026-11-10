@@ -9,6 +9,7 @@ import type {
 import { api, date, type Page } from "./api";
 import { DataTable, tableTimestamp } from "./data-table";
 import {
+  ConfirmAction,
   EmptyState,
   ErrorNotice,
   Loading,
@@ -359,19 +360,15 @@ function EndpointEditor({
                 ? msg("Pause endpoint")
                 : msg("Enable endpoint")}
             </button>
-            <button
+            <ConfirmAction
+              label={msg("Replace and show signing secret")}
+              confirmLabel={msg("Replace and show signing secret")}
+              question={msg(
+                "Replace the signing secret? This pauses delivery and invalidates the previous secret.",
+              )}
               className="button subtle"
-              type="button"
               disabled={action.pending}
-              onClick={() => {
-                if (
-                  !window.confirm(
-                    msg(
-                      "Replace the signing secret? This pauses delivery and invalidates the previous secret.",
-                    ),
-                  )
-                )
-                  return;
+              onConfirm={() => {
                 void action.run(async (view) => {
                   const result = await view.wait(
                     authorityAware(
@@ -398,20 +395,16 @@ function EndpointEditor({
                   onSaved();
                 });
               }}
-            >
-              {msg("Replace and show signing secret")}
-            </button>
-            <button
+            />
+            <ConfirmAction
+              label={msg("Revoke endpoint")}
+              confirmLabel={msg("Revoke endpoint")}
+              question={msg(
+                "Revoke this endpoint and destroy its signing secret?",
+              )}
               className="button danger"
-              type="button"
               disabled={action.pending}
-              onClick={() => {
-                if (
-                  !window.confirm(
-                    msg("Revoke this endpoint and destroy its signing secret?"),
-                  )
-                )
-                  return;
+              onConfirm={() => {
                 void action.run(async (view) => {
                   await view.wait(
                     authorityAware(
@@ -435,9 +428,7 @@ function EndpointEditor({
                   onSaved();
                 });
               }}
-            >
-              {msg("Revoke endpoint")}
-            </button>
+            />
           </div>
         </>
       )}
@@ -487,7 +478,7 @@ function DeliveryHistory({ id, onRefusal }: { id: string; onRefusal: Refuse }) {
         )}
       </p>
       <ErrorNotice error={deliveries.error} retry={deliveries.refresh} />
-      {deliveries.loading && !deliveries.data && <Loading />}
+      {deliveries.loading && !deliveries.data && <Loading shape="table" />}
       {deliveries.data && (
         <DataTable
           viewId="webhook-deliveries"

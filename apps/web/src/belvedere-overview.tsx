@@ -99,7 +99,6 @@ export function Overview(
             {shortDate(filters.from)}
             {bmsg(" to ")}
             {shortDate(filters.to)}
-            {bmsg(" · Daily aggregation in UTC")}
           </SectionHeading>
           <ActivityChart data={data.trend} />
         </section>
@@ -167,7 +166,7 @@ export function Overview(
         </section>
         <section className="bv-panel">
           <SectionHeading
-            title={bmsg("How are dispatches progressing?")}
+            title={bmsg("Dispatch states")}
             aside={
               <button className="bv-text-button" onClick={() => openJobs()}>
                 {bmsg("All dispatches")}
@@ -184,7 +183,7 @@ export function Overview(
         </section>
         <section className="bv-panel">
           <SectionHeading
-            title={bmsg("What is being sent")}
+            title={bmsg("Dispatches by channel")}
             aside={
               <span className="bv-subtle">
                 {number(totals.documents)}

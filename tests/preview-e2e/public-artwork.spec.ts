@@ -157,6 +157,10 @@ test("the home panorama follows the selected theme while other pages keep the co
     );
   }
   await page.goto("/?lang=fr");
+  await expect(page.locator(".public-header")).toHaveAttribute(
+    "data-render-state",
+    "interactive",
+  );
   await page.locator(".public-home-closing").getByRole("link").click();
   await expect(page.locator("#installation")).toBeFocused();
   await page.goto("/?lang=en#/app/account");

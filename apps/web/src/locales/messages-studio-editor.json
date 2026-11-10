@@ -742,5 +742,15 @@
     "This template is read-only.",
     "Diese Vorlage ist schreibgeschützt.",
     "Dës Virlag ass nëmme fir ze liesen."
+  ],
+  "Aucun modèle pour le moment": [
+    "No templates yet",
+    "Noch keine Vorlagen",
+    "Nach keng Virlagen"
+  ],
+  "Partez d’une page vierge ou copiez un exemple.": [
+    "Start with a blank page or copy an example.",
+    "Beginnen Sie mit einer leeren Seite oder kopieren Sie ein Beispiel.",
+    "Fänkt mat enger eideler Säit un oder kopéiert e Beispill."
   ]
 }

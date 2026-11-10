@@ -48,8 +48,13 @@ test("admin empty DLQ and contract fixture navigate to the real dispatch without
   page,
 }) => {
   await login(page);
-  // Operator diagnostics moved to Administration → Settings.
+  // Operator diagnostics have a separate administrator-only Operations page.
   await page.goto("/#/app/administration/settings");
+  await page
+    .locator("main")
+    .getByRole("link", { name: "Exploitation", exact: true })
+    .click();
+  await expect(page).toHaveURL(/#\/app\/administration\/operations$/);
   await expect(
     page.getByRole("heading", { name: "Messages en file d’échec" }),
   ).toBeVisible();
@@ -97,8 +102,7 @@ test("admin empty DLQ and contract fixture navigate to the real dispatch without
     }),
   );
   await page
-    .locator(".section-toolbar")
-    .filter({ hasText: "Exploitation" })
+    .locator("main .page-heading")
     .getByRole("button", { name: "Actualiser", exact: true })
     .click();
   await expect(
@@ -129,7 +133,7 @@ async function login(
     })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+    page.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
   ).toBeVisible();
   await expect(page.locator(".simulation-banner")).toContainText(
     "Aucun fax, e-mail ou courrier réel",
@@ -209,7 +213,7 @@ test("landing and workspace fit desktop and iPhone widths, keyboard navigation r
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/#/app/prepare");
   await expect(
-    page.getByRole("heading", { name: "Préparer une correspondance." }),
+    page.getByRole("heading", { name: "Nouvel envoi", exact: true }),
   ).toBeVisible();
   await expect
     .poll(() =>
@@ -360,7 +364,7 @@ test("imports exact PDF bytes and rejects cross-organization preview access", as
     .getByRole("button", { name: "Entrer dans le Studio" })
     .click();
   await expect(
-    otherPage.getByRole("heading", { name: "Votre correspondance, au clair." }),
+    otherPage.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
   ).toBeVisible();
   const denied = await otherPage.request.get(
     `http://localhost:8787/api/documents/${document.id}/content`,
@@ -381,6 +385,7 @@ test("CSV duplicate checks precede a campaign with individual frozen preparation
   });
   await campaignNameInput.fill(name);
   await expect(campaignNameInput).toHaveValue(name);
+  await page.locator(".campaign-step .disclosure > summary").click();
   await page
     .getByLabel("Liste des destinataires au format CSV")
     .fill(

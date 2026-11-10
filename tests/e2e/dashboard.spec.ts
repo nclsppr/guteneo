@@ -10,7 +10,7 @@ async function login(page: Page) {
     .getByRole("button", { name: "Entrer dans l’espace de travail" })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+    page.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
   ).toBeVisible();
 }
 
@@ -184,7 +184,7 @@ test("uncertain or failed sends are surfaced on the overview", async ({
     page.getByRole("button", { name: "Importer un PDF", exact: true }),
   ).toBeVisible();
   await page.goto("/#/app");
-  const queue = page.getByRole("region", { name: "Nécessite votre attention" });
+  const queue = page.getByRole("region", { name: "À traiter" });
   await expect(queue).toBeVisible();
   await expect(
     queue.getByRole("link", { name: /^Résultat à rapprocher/ }),
@@ -207,7 +207,9 @@ test("an expired session offers a reconnection back to the same page", async ({
     page.getByRole("navigation", { name: "Afficher" }),
   ).toBeVisible();
   await context.clearCookies();
-  await page.getByRole("button", { name: "Actualiser" }).click();
+  // The first loaded page revalidates on return; the explicit refresh appears
+  // after additional pages have been loaded.
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
   const expired = page
     .getByRole("alert")
     .filter({ hasText: "Votre session a expiré." });
@@ -235,7 +237,7 @@ test("a reconnection to another workshop in another tab starts from its overview
     page.getByRole("navigation", { name: "Afficher" }),
   ).toBeVisible();
   await context.clearCookies();
-  await page.getByRole("button", { name: "Actualiser", exact: true }).click();
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
   await expect(
     page.getByRole("alert").filter({ hasText: "Votre session a expiré." }),
   ).toBeVisible();
@@ -323,80 +325,136 @@ test("the send ceiling is typed in euros and fax separators are removed", async 
   expect(body.ceilingMinor).toBe(150);
 });
 
-test("coming back to the tab re-reads the list once and keeps loaded pages", async ({
-  page,
-}) => {
-  await login(page);
-  const before = (await (await page.request.get("/api/overview")).json()) as {
-    dispatches: { total: number };
-  };
-  for (let index = before.dispatches.total; index < 32; index++)
-    await prepareEmail(page, `focus-${index}`);
-  const { dispatches } = (await (
-    await page.request.get("/api/overview")
-  ).json()) as { dispatches: { total: number } };
-  await page.goto("/#/app/dispatches");
-  await expect(
-    page.getByRole("heading", { name: "Le fil des envois.", exact: true }),
-  ).toBeVisible();
-  // The outgoing overview has the same selector while navigation is pending.
-  const main = page.locator("#main-content");
-  await expect(main).not.toHaveAttribute("inert", "");
-  await expect(main).not.toHaveAttribute("aria-busy", "true");
-  const rows = page.locator("tbody tr");
-  const pageSize = main.getByRole("combobox", {
-    name: "Lignes par page",
-    exact: true,
+function readGate() {
+  let release!: () => void;
+  const promise = new Promise<void>((resolve) => {
+    release = resolve;
   });
-  await pageSize.selectOption("50");
-  await expect(pageSize).toHaveValue("50");
-  await expect(rows).toHaveCount(30);
-  const firstPageReads: string[] = [];
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (url.pathname === "/api/dispatches" && !url.searchParams.has("cursor"))
-      firstPageReads.push(url.search);
-  });
-  // Returning to a tab fires both events; one read covers them.
-  const comeBack = () =>
-    page.evaluate(() => {
-      document.dispatchEvent(new Event("visibilitychange"));
-      window.dispatchEvent(new Event("focus"));
+  return { promise, release };
+}
+
+for (const order of ["focus-first", "pagination-first"] as const)
+  test(`coming back to the tab keeps loaded pages when reads overlap (${order})`, async ({
+    page,
+  }) => {
+    await login(page);
+    const before = (await (await page.request.get("/api/overview")).json()) as {
+      dispatches: { total: number };
+    };
+    for (let index = before.dispatches.total; index < 32; index++)
+      await prepareEmail(page, `focus-${index}`);
+    const { dispatches } = (await (
+      await page.request.get("/api/overview")
+    ).json()) as { dispatches: { total: number } };
+    await page.goto("/#/app/dispatches");
+    await expect(
+      page.getByRole("heading", { name: "Envois", exact: true }),
+    ).toBeVisible();
+    // The outgoing overview has the same selector while navigation is pending.
+    const main = page.locator("#main-content");
+    await expect(main).not.toHaveAttribute("inert", "");
+    await expect(main).not.toHaveAttribute("aria-busy", "true");
+    const rows = page.locator("tbody tr");
+    const pageSize = main.getByRole("combobox", {
+      name: "Lignes par page",
+      exact: true,
     });
-  await comeBack();
-  await expect.poll(() => firstPageReads.length).toBe(1);
+    await pageSize.selectOption("50");
+    await expect(pageSize).toHaveValue("50");
+    await expect(rows).toHaveCount(30);
+    const firstPageReads: string[] = [];
+    let cursorReads = 0;
+    page.on("request", (request) => {
+      const url = new URL(request.url());
+      if (url.pathname !== "/api/dispatches") return;
+      if (url.searchParams.has("cursor")) cursorReads++;
+      else firstPageReads.push(url.search);
+    });
+    const firstReadStarted = readGate();
+    const releaseFirstRead = readGate();
+    const firstReadSettled = readGate();
+    const cursorReadStarted = readGate();
+    const releaseCursorRead = readGate();
+    let holdFirstRead = true;
+    let holdCursorRead = order === "pagination-first";
+    await page.route("**/api/dispatches*", async (route) => {
+      const url = new URL(route.request().url());
+      const cursor = url.searchParams.has("cursor");
+      if (
+        url.pathname !== "/api/dispatches" ||
+        (cursor ? !holdCursorRead : !holdFirstRead)
+      )
+        return route.continue();
+      if (cursor) holdCursorRead = false;
+      else holdFirstRead = false;
+      const snapshot = await route.fetch();
+      expect(snapshot.status()).toBe(200);
+      (cursor ? cursorReadStarted : firstReadStarted).release();
+      await (cursor ? releaseCursorRead : releaseFirstRead).promise;
+      await route.fulfill({ response: snapshot });
+      if (!cursor) firstReadSettled.release();
+    });
+    // Returning to a tab fires both events; one read covers them.
+    const comeBack = () =>
+      page.evaluate(() => {
+        document.dispatchEvent(new Event("visibilitychange"));
+        window.dispatchEvent(new Event("focus"));
+      });
+    const loaded = Math.min(dispatches.total, 60);
+    const loadedRows = async () => {
+      await expect(rows).toHaveCount(Math.min(loaded, 50));
+      const content = await rows.allTextContents();
+      if (loaded > 50) {
+        await page
+          .getByRole("button", { name: "Page suivante", exact: true })
+          .click();
+        await expect(rows).toHaveCount(loaded - 50);
+        content.push(...(await rows.allTextContents()));
+        await page
+          .getByRole("button", { name: "Page précédente", exact: true })
+          .click();
+        await expect(rows).toHaveCount(50);
+      }
+      expect(content).toHaveLength(loaded);
+      return content;
+    };
+    try {
+      const loadMore = page.getByRole("button", { name: "Afficher la suite" });
+      if (order === "pagination-first") {
+        await loadMore.click();
+        await cursorReadStarted.promise;
+      }
+      await comeBack();
+      await firstReadStarted.promise;
+      await expect.poll(() => firstPageReads.length).toBe(1);
+      if (order === "focus-first") await loadMore.click();
+      else releaseCursorRead.release();
+      const beforeBackgroundRead = await loadedRows();
+      expect(cursorReads).toBe(1);
+      // Release the older snapshot only after all appended rows are visible.
+      releaseFirstRead.release();
+      await firstReadSettled.promise;
+      expect(await loadedRows()).toEqual(beforeBackgroundRead);
+      await expect(main.getByRole("alert")).toHaveCount(0);
+      await page.waitForTimeout(1100);
+      await comeBack();
+      // Absence check: the extra rows must survive another tab wake.
+      await page.waitForTimeout(500);
+      expect(firstPageReads).toHaveLength(1);
+      expect(cursorReads).toBe(1);
+      expect(await loadedRows()).toEqual(beforeBackgroundRead);
 
-  await page.getByRole("button", { name: "Afficher la suite" }).click();
-  const loaded = Math.min(dispatches.total, 60);
-  const loadedRows = async () => {
-    await expect(rows).toHaveCount(Math.min(loaded, 50));
-    const content = await rows.allTextContents();
-    if (loaded > 50) {
       await page
-        .getByRole("button", { name: "Page suivante", exact: true })
+        .getByRole("button", { name: "Actualiser", exact: true })
         .click();
-      await expect(rows).toHaveCount(loaded - 50);
-      content.push(...(await rows.allTextContents()));
-      await page
-        .getByRole("button", { name: "Page précédente", exact: true })
-        .click();
-      await expect(rows).toHaveCount(50);
+      await expect(rows).toHaveCount(30);
+      expect(firstPageReads).toHaveLength(2);
+      expect(cursorReads).toBe(1);
+    } finally {
+      releaseFirstRead.release();
+      releaseCursorRead.release();
     }
-    expect(content).toHaveLength(loaded);
-    return content;
-  };
-  const beforeBackgroundRead = await loadedRows();
-  await page.waitForTimeout(1100);
-  await comeBack();
-  // Absence check: the extra rows must survive a background re-read.
-  await page.waitForTimeout(500);
-  expect(firstPageReads).toHaveLength(1);
-  expect(await loadedRows()).toEqual(beforeBackgroundRead);
-
-  await page.getByRole("button", { name: "Actualiser", exact: true }).click();
-  await expect(rows).toHaveCount(30);
-  expect(firstPageReads).toHaveLength(2);
-});
+  });
 
 test("assistants read filtered lists but not the workspace summary", async ({
   page,
@@ -508,6 +566,12 @@ test("dashboard filters, confirmations and expiry copy follow the saved account 
       page.getByRole("button", { name: copy.confirm, exact: true }),
     ).toBeVisible();
     await page.getByRole("button", { name: copy.dismiss, exact: true }).click();
+    await page.goto("/#/app/dispatches?group=approval");
+    await expect(
+      page.getByRole("navigation", { name: copy.filter, exact: true }),
+    ).toBeVisible();
+    // A genuinely expired session refuses both the collection and the session
+    // recheck. A concurrent healthy session response would correctly recover it.
     await page.route("**/api/dispatches?group=approval", (route) =>
       route.fulfill({
         status: 401,
@@ -516,14 +580,64 @@ test("dashboard filters, confirmations and expiry copy follow the saved account 
         },
       }),
     );
-    await page.goto("/#/app/dispatches?group=approval");
-    // Returning can reuse the bounded list cache. Explicit refresh exercises
-    // the current server refusal, rather than waiting for an arbitrary TTL.
-    await page
-      .getByRole("main")
-      .getByRole("button", { name: copy.refresh, exact: true })
-      .click();
+    await page.route("**/api/session", (route) =>
+      route.fulfill({
+        status: 401,
+        json: {
+          error: { code: "UNAUTHENTICATED", message: "Session expired" },
+        },
+      }),
+    );
+    let listRejected = false;
+    let sessionRejected = false;
+    const listRead = page
+      .waitForResponse(
+        (response) =>
+          response.url().endsWith("/api/dispatches?group=approval") &&
+          response.request().method() === "GET" &&
+          response.status() === 401,
+      )
+      .then((response) => {
+        listRejected = true;
+        return response;
+      });
+    const sessionRead = page
+      .waitForResponse(
+        (response) =>
+          response.url().endsWith("/api/session") &&
+          response.request().method() === "GET" &&
+          response.status() === 401,
+      )
+      .then((response) => {
+        sessionRejected = true;
+        return response;
+      });
+    // Register observers before activation: iPhone WebKit can start its native
+    // focus read while bringToFront is still completing.
+    await page.bringToFront();
+    await expect
+      .poll(() => page.evaluate(() => document.visibilityState))
+      .toBe("visible");
+    // The first page revalidates on focus even while the collection cache is
+    // warm. Repeated wakes may coalesce for one second; observe the actual reads.
+    await expect(async () => {
+      await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+      expect(listRejected).toBe(true);
+      expect(sessionRejected).toBe(true);
+    }).toPass();
+    expect((await listRead).status()).toBe(401);
+    expect((await sessionRead).status()).toBe(401);
     await expect(page.locator(".session-expired")).toContainText(copy.expiry);
     await page.unroute("**/api/dispatches?group=approval");
+    await page.unroute("**/api/session");
+    const recovered = page.waitForResponse(
+      (response) =>
+        response.url().endsWith("/api/session") &&
+        response.request().method() === "GET" &&
+        response.status() === 200,
+    );
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    expect((await recovered).status()).toBe(200);
+    await expect(page.locator(".session-expired")).toHaveCount(0);
   }
 });

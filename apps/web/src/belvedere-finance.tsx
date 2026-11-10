@@ -1,3 +1,4 @@
+import { APPLICATION_TIME_ZONE } from "./application-time";
 import { Channels } from "./belvedere-summary-components";
 import type { BelvedereFinance } from "../../../packages/contracts/src/belvedere";
 import {
@@ -53,8 +54,14 @@ export function Finance({ basePath, filters, revision, refresh }: ViewProps) {
           <span className="bv-finance-label">{bmsg("Verified receipts")}</span>
           <div className="bv-finance-cash">
             {data.cashStatus === "unconfigured" ? (
-              <strong className="bv-unavailable">
-                {bmsgIn("belvedere-plural", "Not configured")}
+              <strong
+                className="bv-unavailable"
+                title={bmsgIn("belvedere-plural", "Not configured")}
+              >
+                <span aria-hidden="true">—</span>
+                <span className="sr-only">
+                  {bmsgIn("belvedere-plural", "Not configured")}
+                </span>
               </strong>
             ) : data.cashReceived.length ? (
               data.cashReceived.map((item) => (
@@ -99,10 +106,14 @@ export function Finance({ basePath, filters, revision, refresh }: ViewProps) {
           <Notice
             tone={data.supplierUnverifiedDispatches > 0 ? "warning" : "neutral"}
           >
-            {number(data.supplierUnverifiedDispatches)}
-            {bmsg(
-              " dispatches created in this period without verified provider costs. A missing value does not mean zero cost.",
-            )}
+            {data.supplierUnverifiedDispatches === 1
+              ? bmsg(
+                  "1 dispatch created in this period has no verified provider cost. A missing value does not mean zero cost.",
+                )
+              : bmsg(
+                  "{0} dispatches created in this period have no verified provider costs. A missing value does not mean zero cost.",
+                  number(data.supplierUnverifiedDispatches),
+                )}
           </Notice>
         </section>
         <section className="bv-panel bv-result">
@@ -131,13 +142,13 @@ export function Finance({ basePath, filters, revision, refresh }: ViewProps) {
             </div>
           </dl>
           <p className="bv-source-note">
-            {number(data.legacyPlanCharges)}{" "}
             {data.legacyPlanCharges === 1
               ? bmsg(
-                  "subscription debit recorded in this period, included in total consumption. It is not counted as a dispatch.",
+                  "1 subscription debit recorded in this period, included in total consumption. It is not counted as a dispatch.",
                 )
               : bmsg(
-                  "subscription debits recorded in this period, included in total consumption. They are not counted as dispatches.",
+                  "{0} subscription debits recorded in this period, included in total consumption. They are not counted as dispatches.",
+                  number(data.legacyPlanCharges),
                 )}
           </p>
         </section>
@@ -189,7 +200,7 @@ export function Finance({ basePath, filters, revision, refresh }: ViewProps) {
                   new Intl.DateTimeFormat(formatLocale(), {
                     month: "long",
                     year: "numeric",
-                    timeZone: "UTC",
+                    timeZone: APPLICATION_TIME_ZONE,
                   }).format(
                     new Date(`${month.month.slice(0, 7)}-01T12:00:00Z`),
                   ),
@@ -198,7 +209,7 @@ export function Finance({ basePath, filters, revision, refresh }: ViewProps) {
                     {new Intl.DateTimeFormat(formatLocale(), {
                       month: "long",
                       year: "numeric",
-                      timeZone: "UTC",
+                      timeZone: APPLICATION_TIME_ZONE,
                     }).format(
                       new Date(`${month.month.slice(0, 7)}-01T12:00:00Z`),
                     )}

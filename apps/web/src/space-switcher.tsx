@@ -169,7 +169,7 @@ export function ApplicationSwitcher({
   canAdministerWorkspace?: boolean;
   /** Server-projected hint only; the protected route checks authority again. */
   canAccessBelvedere?: boolean;
-  /** The fictional public preview offers no other application. */
+  /** The ordinary public fixture offers read-only Studio and Correspondence. */
   preview?: boolean;
 }) {
   const panel = usePanel();
@@ -185,14 +185,6 @@ export function ApplicationSwitcher({
       </span>
     </>
   );
-  if (preview && !isAdvancedLocalPreview)
-    return (
-      <div className="space-switcher application-switcher">
-        <div className="space-switcher-trigger space-switcher-static">
-          {label}
-        </div>
-      </div>
-    );
   return (
     <div
       ref={panel.area}
@@ -223,6 +215,9 @@ export function ApplicationSwitcher({
           {applications
             .filter(
               (item) =>
+                (!preview ||
+                  isAdvancedLocalPreview ||
+                  ["studio", "workshop"].includes(item.id)) &&
                 (item.id !== "belvedere" || canAccessBelvedere) &&
                 // Without an active workspace the entry leads to choosing one.
                 (item.id !== "administration" || canAdministerWorkspace),

@@ -44,6 +44,10 @@ for (const slug of slugs) {
         `editorial/${slug}-${testInfo.project.name}.png`,
       ),
     });
+    await expect(page.locator(".public-header")).toHaveAttribute(
+      "data-render-state",
+      "interactive",
+    );
     const firstChapter = page.locator(".article-copy section").first();
     const firstId = await firstChapter.getAttribute("id");
     await page.locator(`.article-contents a[href="#${firstId}"]`).click();

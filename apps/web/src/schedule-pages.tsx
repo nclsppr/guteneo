@@ -1,3 +1,7 @@
+import {
+  applicationDateTimeInstant,
+  formatApplicationTimestamp,
+} from "./application-time";
 import { Field } from "./components";
 import { useEffect, useId, useRef, useState } from "react";
 import {
@@ -20,6 +24,7 @@ import {
 } from "./api";
 import { DataTable, tableTimestamp } from "./data-table";
 import {
+  ConfirmAction,
   EmailPreview,
   EmptyState,
   ErrorNotice,
@@ -37,18 +42,18 @@ import { useAdaptiveReadPolling } from "./client-polling";
 import { scheduleSourceSupported } from "./schedule-eligibility";
 import { observeAuthorityRefusal } from "./client-authority-refusal";
 import { msg } from "./messages";
-import { formatLocale, t } from "./locale";
+import { t } from "./locale";
 import "./lifecycle-pages.css";
+import { useUnsavedNavigation } from "./navigation-confirmation";
 
-// Approval must distinguish repeated local times when daylight saving ends.
+// Review renders the immutable instant with the application's explicit UTC zone.
 function scheduledTime(value: string) {
-  const instant = new Date(value);
-  return Number.isFinite(instant.getTime())
-    ? new Intl.DateTimeFormat(formatLocale(), {
-        dateStyle: "medium",
-        timeStyle: "long",
-      }).format(instant)
-    : t.unknown;
+  return (
+    formatApplicationTimestamp(value, {
+      dateStyle: "medium",
+      timeStyle: "long",
+    }) ?? t.unknown
+  );
 }
 
 function statusLabel(status: DispatchScheduleStatus) {
@@ -135,7 +140,7 @@ function ScheduleList() {
         {msg("Funds and authority are checked at release.")}
       </p>
       <ErrorNotice error={schedules.error} retry={schedules.refresh} />
-      {!schedules.data && schedules.loading && <Loading />}
+      {!schedules.data && schedules.loading && <Loading shape="table" />}
       {schedules.data && (
         <DataTable
           viewId="schedules"
@@ -200,14 +205,8 @@ function ScheduleList() {
   );
 }
 
-/** Reject browser-normalized nonexistent local times, including spring DST gaps. */
-export function scheduleInstant(value: string): string | null {
-  if (!/^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(value)) return null;
-  const instant = new Date(value);
-  if (!Number.isFinite(instant.getTime())) return null;
-  const local = `${instant.getFullYear()}-${String(instant.getMonth() + 1).padStart(2, "0")}-${String(instant.getDate()).padStart(2, "0")}T${String(instant.getHours()).padStart(2, "0")}:${String(instant.getMinutes()).padStart(2, "0")}`;
-  return local === value ? instant.toISOString() : null;
-}
+/** The field is UTC even when the device crosses a daylight-saving transition. */
+export const scheduleInstant = applicationDateTimeInstant;
 
 function CreateSchedule({
   sourceId,
@@ -222,6 +221,13 @@ function CreateSchedule({
   const action = useAction(sourceId);
   const [refusal, setRefusal] = useState<Error>();
   const request = useRef<{ body: string; key: string } | undefined>(undefined);
+  const created = useRef(false);
+  const navigationConfirmation = useUnsavedNavigation({
+    dirty: !refusal && Boolean(time || cap),
+    scope: `schedule:${sourceId}:${previousId}`,
+    question: msg("Leave this preparation and lose unsaved changes?"),
+    completed: () => created.current,
+  });
   const source = useResource<DispatchDetail>(
     sourceId ? `/dispatches/${encodeURIComponent(sourceId)}` : null,
   );
@@ -247,6 +253,7 @@ function CreateSchedule({
     );
   return (
     <>
+      {navigationConfirmation}
       <PageHeading
         title={msg("New schedule")}
         intro={msg("Scheduling supports fax and message-only email.")}
@@ -257,7 +264,7 @@ function CreateSchedule({
           <a href="#/app/dispatches">{msg("Prepare a dispatch first")}</a>
         </p>
       )}
-      {source.loading && <Loading />}
+      {source.loading && <Loading shape="form" />}
       {source.data && !source.error && (
         <>
           <SourceReview detail={source.data} />
@@ -307,6 +314,7 @@ function CreateSchedule({
                     route: `/app/schedules/${result.id}`,
                   }),
                 );
+                created.current = true;
                 go(`/app/schedules/${saved.id}`);
               });
             }}
@@ -319,18 +327,12 @@ function CreateSchedule({
                   value={time}
                   onChange={(event) => setTime(event.target.value)}
                   required
-                  aria-describedby={`${id}-zone`}
+                  aria-describedby="application-time-context"
                 />
               </Field>
-              <p className="field-hint" id={`${id}-zone`}>
-                {Intl.DateTimeFormat().resolvedOptions().timeZone}
-                {instant && (
-                  <>
-                    {" "}
-                    · {date(instant)} · UTC {instant.slice(11, 16)}
-                  </>
-                )}
-              </p>
+              {instant && (
+                <p className="field-hint">{scheduledTime(instant)}</p>
+              )}
               <Field label={msg("Maximum total cost in euros excluding tax")}>
                 <input
                   id={`${id}-cap`}
@@ -396,7 +398,7 @@ function ScheduleDetail({
         }
       />
       <ErrorNotice error={resource.error} retry={resource.refresh} />
-      {!resource.data && resource.loading && <Loading />}
+      {!resource.data && resource.loading && <Loading shape="document" />}
       {resource.data && (
         <ScheduleReview
           key={`${resource.data.id}:${resource.data.revision}:${resource.data.snapshotHash}`}
@@ -614,19 +616,15 @@ function ScheduleReview({
         schedule.status,
       ) && (
         <p>
-          <button
-            type="button"
+          <ConfirmAction
+            label={msg("Cancel schedule")}
+            confirmLabel={msg("Cancel schedule")}
+            question={msg(
+              "Cancel this schedule? An already accepted dispatch must be reviewed separately.",
+            )}
             className="button subtle"
             disabled={action.pending}
-            onClick={() => {
-              if (
-                !window.confirm(
-                  msg(
-                    "Cancel this schedule? An already accepted dispatch must be reviewed separately.",
-                  ),
-                )
-              )
-                return;
+            onConfirm={() => {
               void action.run(async (view) => {
                 const saved = await view.wait(
                   observeAuthorityRefusal(
@@ -649,9 +647,7 @@ function ScheduleReview({
                 onSaved(saved);
               });
             }}
-          >
-            {msg("Cancel schedule")}
-          </button>
+          />
         </p>
       )}
       <ErrorNotice error={action.error} retry={onRefresh} />

@@ -32,6 +32,13 @@ import {
 import type { Env } from "./env";
 import { authenticationPolicy } from "./auth";
 import { renderAdministrationExport } from "./administration-exports";
+import {
+  APPLICATION_DAY_MS,
+  applicationDay,
+  applicationPeriodBounds,
+  applicationTimeZoneQuerySupported,
+  isApplicationDay,
+} from "../../../packages/contracts/src/application-time";
 
 /*
  * Workspace administration reads. Every statement binds the authenticated
@@ -41,7 +48,7 @@ import { renderAdministrationExport } from "./administration-exports";
  * platform-wide view under its own authority).
  */
 
-const DAY = 86_400_000;
+const DAY = APPLICATION_DAY_MS;
 const CONNECTION_RETENTION_DAYS = 90;
 const DISPATCH_STATUSES = [
   "prepared",
@@ -157,26 +164,22 @@ export interface AdministrationFilters {
   status?: (typeof DISPATCH_STATUSES)[number];
   attention: boolean;
 }
-const validDate = (value: string) =>
-  /^\d{4}-\d{2}-\d{2}$/.test(value) &&
-  Number.isFinite(Date.parse(value)) &&
-  new Date(value).toISOString().slice(0, 10) === value;
 export function administrationFilters(
   url: URL,
   now = new Date(),
 ): AdministrationFilters {
-  const to = url.searchParams.get("to") ?? now.toISOString().slice(0, 10);
+  const to = url.searchParams.get("to") ?? applicationDay(now);
   const from =
-    url.searchParams.get("from") ??
-    new Date(now.getTime() - 29 * DAY).toISOString().slice(0, 10);
+    url.searchParams.get("from") ?? applicationDay(now.getTime() - 29 * DAY);
   const page = Number(url.searchParams.get("page") ?? "1");
   const pageSize = Number(url.searchParams.get("pageSize") ?? "25");
   const q = (url.searchParams.get("q") ?? "").trim();
   const channel = url.searchParams.get("channel") ?? undefined;
   const status = url.searchParams.get("status") ?? undefined;
   if (
-    !validDate(from) ||
-    !validDate(to) ||
+    !applicationTimeZoneQuerySupported(url.searchParams) ||
+    !isApplicationDay(from) ||
+    !isApplicationDay(to) ||
     from > to ||
     Date.parse(to) - Date.parse(from) > 365 * DAY ||
     !Number.isInteger(page) ||
@@ -198,8 +201,7 @@ export function administrationFilters(
   return {
     from,
     to,
-    start: `${from}T00:00:00.000Z`,
-    end: new Date(Date.parse(to) + DAY).toISOString(),
+    ...applicationPeriodBounds(from, to),
     page,
     pageSize,
     q,

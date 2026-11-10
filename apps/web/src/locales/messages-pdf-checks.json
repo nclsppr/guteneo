@@ -489,5 +489,35 @@
     "The check is already in progress. View the reports before retrying.",
     "Die Prüfung läuft bereits. Sehen Sie sich die Berichte an, bevor Sie es erneut versuchen.",
     "D’Kontroll leeft schonn. Kuckt d’Rapporten, ier Dir et nach eng Kéier probéiert."
+  ],
+  "Conditions et limites": [
+    "Conditions and limits",
+    "Bedingungen und Grenzen",
+    "Konditiounen a Grenzen"
+  ],
+  "Contrôles techniques réussis": [
+    "Technical checks passed",
+    "Technische Prüfungen bestanden",
+    "Technesch Kontrollen bestanen"
+  ],
+  "Problèmes détectés": [
+    "Issues found",
+    "Probleme gefunden",
+    "Problemer fonnt"
+  ],
+  "Contrôle interrompu": [
+    "Check interrupted",
+    "Prüfung unterbrochen",
+    "Kontroll ënnerbrach"
+  ],
+  "Contrôles précédents": [
+    "Past checks",
+    "Bisherige Prüfungen",
+    "Fréier Kontrollen"
+  ],
+  "Aucun contrôle PDF": [
+    "No PDF checks yet",
+    "Noch keine PDF-Prüfungen",
+    "Nach keng PDF-Kontrollen"
   ]
 }

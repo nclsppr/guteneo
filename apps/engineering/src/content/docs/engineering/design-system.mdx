@@ -69,7 +69,8 @@ languages. `npm run lint` enforces it: application and shared stylesheets use
 theme tokens for color, the three font tokens for type, never redefine a root
 token and never restyle the shared frame, and no application imports another.
 `docs/WEB_APPLICATIONS.md` owns the ownership manifest, the rules and their
-dated exceptions. Compare navigation, theme actions, typography, forms, tables and
+dated exceptions, including the 12 px floor for application text, which is not
+lint-enforced yet. Compare navigation, theme actions, typography, forms, tables and
 account customization against the shared components before changing any of them.
 Keep authority and loading independent: visual consistency never justifies
 importing another space's session bootstrap or granting its permissions.
@@ -530,6 +531,25 @@ focus. Keep navigation distinct from actions, and provide an alternative to
 drag-only interactions. Never make color, a canvas, motion or a hover tooltip the
 only route to information.
 
+Keep unreviewed API response text out of translated error notices. The shared
+notice prefers its known recovery code, then exact maintained catalogue text;
+otherwise its localized generic heading and closed support-code disclosure are
+sufficient. Local interpolated field validation retains its own message. Do not
+infer that a failed response means a write was rejected or may be repeated.
+
+Use the shared `Loading` page, table, form or document shape for a pending screen.
+The skeleton is decorative, with one translated status, theme tokens, responsive
+geometry and a reduced-motion alternative. It grants no readiness or authority.
+Consequential record actions use `ConfirmAction`: the initial gesture opens the
+question, dismissal performs no request, and the explicit confirmation enters the
+existing guarded action. Dirty editors use the shared localized navigation dialog
+with a synchronous router veto and exact one-use resume. Default focus and Escape
+choose cancellation; workspace changes await the decision, retain independent
+hard vetoes and recheck identity and navigation before changing membership.
+Browser-tab close retains native `beforeunload`. These presentation decisions
+grant no sending or spending consent. Repository `docs/CLARITY_FOUNDATION.md` records these
+boundaries and local qualification scope.
+
 The [WCAG 2.2 quick reference](https://www.w3.org/WAI/WCAG22/quickref/) is the
 review baseline. Check contrast, text alternatives, keyboard access, focus,
 reflow, labels, status messages and accessible authentication. A passing automated
@@ -720,3 +740,45 @@ Maintain all four product languages through their source catalogs. Verify the
 rendered layout and existing positive behavior, keyboard and accessibility checks
 after a text change. The [AI contribution guide](/engineering/ai-contributions/)
 explains this review workflow; repository `docs/INTERFACE_COPY.md` owns the rule.
+
+## Shared application clock
+
+The five browser applications declare UTC once per frame. Reuse
+`application-time.tsx` for instant formatting and datetime-local input conversion,
+and the shared contracts calendar helpers for date-only filters and report
+boundaries. Device timezone and daylight-saving transitions must not shift a
+reviewed scheduled instant or mandate expiry. Nested date notes inherit the frame
+context; preserve financial posting/confirmation semantics and exact stored
+instants. This is one fixed application policy, not a selectable profile
+preference. The
+[clock contract](https://github.com/nclsppr/guteneo/blob/main/docs/APPLICATION_TIME.md)
+owns scope, API declarations, qualification and future IANA-preference boundaries.
+
+## Clarity candidate — 10 November 2026
+
+Reuse `StatTile` for label/value/detail figures. Its card and plain variants
+share markup, colors and type; Belvédère retains its independent authorized
+read path. Short loaded tables may hide search and pagination, but retain
+named loaded/page counts and explicit saved views. Never hide active filters or
+reset recovery when a result shrinks. A table count remains the supplied loaded
+or page range, never an invented dataset total.
+
+Correspondence status chips use one existing `/overview` aggregate read only
+for current reporting authority, in parallel with the list. This bounded metadata
+request makes navigation counts truthful across the complete authorized dataset;
+it is not a second list read or polling loop. Operators/observers without report
+permission receive no aggregate read or inferred total. Preserve focus refresh
+and explicit recovery after extended cursor pagination.
+
+Administration places period and refresh beside the title, omits an unhelpful
+single-service chart, and uses text or rows for fewer than three daily values.
+Each report row has one format choice and download action. Audit descriptions
+use reviewed labels, with diagnostic codes disclosed separately. Belvédère
+finance keeps one amount per cell and moves detailed breakdowns under a shared
+disclosure. Counts use complete translated forms, while phone filters collapse
+without hiding the current evidence mode. See the repository
+`docs/CLARITY_ADMINISTRATION.md` for the source contract and proof limits.
+
+These changes are browser presentation candidates. Tests and actual loading
+measurements must qualify the exact candidate separately from hosted publication,
+provider behavior and physical-device accessibility.

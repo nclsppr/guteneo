@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+import { getCustomerPricing } from "./customer-pricing";
 import { SavedRecipientPicker } from "./saved-recipient-picker";
 import { useCurrentClientView } from "./client-write-recovery";
 import { FileInput } from "./file-input";
@@ -8,7 +9,14 @@ import {
   renderTransactionalEmail,
 } from "../../../packages/contracts/src/email-template";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowRight, FileText, ShieldCheck } from "@phosphor-icons/react";
+import {
+  ArrowRight,
+  FileText,
+  ShieldCheck,
+  Printer,
+  EnvelopeSimple,
+  Mailbox,
+} from "@phosphor-icons/react";
 import {
   api,
   EURO_INPUT_PATTERN,
@@ -88,12 +96,17 @@ export function PrepareDispatch({
   const action = useAction();
   const route = useRoute();
   const key = useRef(crypto.randomUUID());
+  const [validationError, setValidationError] = useState<string>();
+  const invalidControl = useRef<
+    HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | undefined
+  >(undefined);
+  const customerPricing = getCustomerPricing();
   const [channel, setChannel] = useState<Channel>(() =>
     ["postal", "email"].includes(
       new URLSearchParams(route.split("?")[1]).get("channel") ?? "",
     )
       ? (new URLSearchParams(route.split("?")[1]).get("channel") as Channel)
-      : "fax",
+      : lastChannel(),
   );
   const [documentId, setDocumentId] = useState(initialDocument);
   const [emailDeliveryMode, setEmailDeliveryMode] = useState<DocumentEmailMode>(
@@ -239,156 +252,176 @@ export function PrepareDispatch({
     if (submitting.current || sourceCopy.pending) return;
     const isCurrent = currentView();
     submitting.current = true;
-    await action.run(async (view) => {
-      if (documentUnavailable)
-        throw new Error(msg("Check the PDF before preparing the delivery."));
-      if (ceilingMinor === null) throw new Error(t.dispatch.ceilingInvalid);
-      const target =
-        channel === "fax"
-          ? { phone: normalizeFaxNumber(recipient.phone ?? "") }
-          : channel === "email"
-            ? { email: recipient.email ?? "" }
-            : postalRecipientFromDraft(recipient, usesAddressBlock);
-      if (channel === "postal" && !simulation) {
-        if (destinations.loading || destinations.error || !destinations.data)
-          throw new Error(
-            msg(
-              "Postal destination availability could not be checked. Try again before preparing the letter.",
-            ),
-          );
-        if (postalDestinationUnavailable)
-          throw new Error(
-            msg("Postal delivery to this country is currently unavailable."),
-          );
-        if (requirements.loading || requirements.error || !selectedPosition)
-          throw new Error(
-            msg(
-              "Letter options are not available yet. Try loading them again.",
-            ),
-          );
-        if (addsAddressPage && !generated) {
-          setGenerationAttempted(true);
-          const result = await view.wait(
-            api<PostalAddressPageResult>("/postal/address-pages", {
-              method: "POST",
-              key: generationKey.current,
-              body: {
-                documentId,
-                recipient: target,
-                printMode,
-                addressPosition: selectedPosition,
-              },
-            }),
-          );
-          if (!isCurrent()) return;
-          setGenerated(result);
-          setContinueGenerated(true);
-          return;
-        }
-        if (addsAddressPage && !generatedReady)
-          throw new Error(
-            msg(
-              "Wait for the final PDF to be verified before the postal check.",
-            ),
-          );
-        const review = await view.wait(
-          api<PostalReview>("/postal/preflights", {
-            method: "POST",
-            key: key.current,
-            body: {
-              documentId: addsAddressPage ? finalDocument!.id : documentId,
-              senderId: selectedSender,
-              recipient: target,
-              options: {
-                printMode,
-                printSpectrum,
-                deliveryProduct,
-                addressPosition: selectedPosition,
-              },
-              ceilingMinor,
-            },
-          }),
-          (receipt) => ({
-            kind: "saved",
-            resourceId: receipt.id,
-            route: `/app/postal/${encodeURIComponent(receipt.id)}`,
-          }),
-        );
-        if (!isCurrent()) return;
-        go(`/app/postal/${encodeURIComponent(review.id)}`);
-        return;
-      }
-      if (
-        channel === "email" &&
-        documentId &&
-        emailDeliveryMode === "my_documents"
-      ) {
-        let distribution: SecureDistributionView;
+    try {
+      await action.run(async (view) => {
         try {
-          distribution = await view.wait(
-            api<SecureDistributionView>("/secure-distributions", {
+          if (documentUnavailable)
+            throw new Error(
+              msg("Check the PDF before preparing the delivery."),
+            );
+          if (ceilingMinor === null) throw new Error(t.dispatch.ceilingInvalid);
+          const target =
+            channel === "fax"
+              ? { phone: normalizeFaxNumber(recipient.phone ?? "") }
+              : channel === "email"
+                ? { email: recipient.email ?? "" }
+                : postalRecipientFromDraft(recipient, usesAddressBlock);
+          if (channel === "postal" && !simulation) {
+            if (
+              destinations.loading ||
+              destinations.error ||
+              !destinations.data
+            )
+              throw new Error(
+                msg(
+                  "Postal destination availability could not be checked. Try again before preparing the letter.",
+                ),
+              );
+            if (postalDestinationUnavailable)
+              throw new Error(
+                msg(
+                  "Postal delivery to this country is currently unavailable.",
+                ),
+              );
+            if (requirements.loading || requirements.error || !selectedPosition)
+              throw new Error(
+                msg(
+                  "Letter options are not available yet. Try loading them again.",
+                ),
+              );
+            if (addsAddressPage && !generated) {
+              setGenerationAttempted(true);
+              const result = await view.wait(
+                api<PostalAddressPageResult>("/postal/address-pages", {
+                  method: "POST",
+                  key: generationKey.current,
+                  body: {
+                    documentId,
+                    recipient: target,
+                    printMode,
+                    addressPosition: selectedPosition,
+                  },
+                }),
+              );
+              if (!isCurrent()) return;
+              setGenerated(result);
+              setContinueGenerated(true);
+              return;
+            }
+            if (addsAddressPage && !generatedReady)
+              throw new Error(
+                msg(
+                  "Wait for the final PDF to be verified before the postal check.",
+                ),
+              );
+            const review = await view.wait(
+              api<PostalReview>("/postal/preflights", {
+                method: "POST",
+                key: key.current,
+                body: {
+                  documentId: addsAddressPage ? finalDocument!.id : documentId,
+                  senderId: selectedSender,
+                  recipient: target,
+                  options: {
+                    printMode,
+                    printSpectrum,
+                    deliveryProduct,
+                    addressPosition: selectedPosition,
+                  },
+                  ceilingMinor,
+                },
+              }),
+              (receipt) => ({
+                kind: "saved",
+                resourceId: receipt.id,
+                route: `/app/postal/${encodeURIComponent(receipt.id)}`,
+              }),
+            );
+            if (!isCurrent()) return;
+            go(`/app/postal/${encodeURIComponent(review.id)}`);
+            return;
+          }
+          if (
+            channel === "email" &&
+            documentId &&
+            emailDeliveryMode === "my_documents"
+          ) {
+            let distribution: SecureDistributionView;
+            try {
+              distribution = await view.wait(
+                api<SecureDistributionView>("/secure-distributions", {
+                  method: "POST",
+                  key: key.current,
+                  body: {
+                    documentId,
+                    senderId: selectedSender,
+                    recipient: { address: recipient.email },
+                    retentionDays,
+                    allowOriginalDownload,
+                    recipientBinding: "verified_email",
+                    ...(subject.trim() ? { subject } : {}),
+                    ...(text.trim() ? { message: text } : {}),
+                    ...(html.trim() ? { html } : {}),
+                    notificationLocale: emailLocale,
+                    costCeilingMinor: ceilingMinor,
+                  },
+                }),
+                (receipt) => ({
+                  kind: "saved",
+                  resourceId: receipt.id,
+                  route: `/app/secure-distribution/${encodeURIComponent(receipt.id)}`,
+                }),
+              );
+            } catch (error) {
+              view.checkpoint();
+              if (!isCurrent()) return;
+              if (sourceCopy.offer(error, documentId)) return;
+              throw error;
+            }
+            if (!isCurrent()) return;
+            go(
+              `/app/secure-distribution/${encodeURIComponent(distribution.id)}`,
+            );
+            return;
+          }
+          const dispatch = await view.wait(
+            api<Dispatch>("/dispatches", {
               method: "POST",
               key: key.current,
               body: {
-                documentId,
+                channel,
+                recipient: target,
+                documentId: documentId || undefined,
                 senderId: selectedSender,
-                recipient: { address: recipient.email },
-                retentionDays,
-                allowOriginalDownload,
-                recipientBinding: "verified_email",
-                ...(subject.trim() ? { subject } : {}),
-                ...(text.trim() ? { message: text } : {}),
-                ...(html.trim() ? { html } : {}),
-                notificationLocale: emailLocale,
-                costCeilingMinor: ceilingMinor,
+                subject:
+                  channel === "email" && subject.trim() ? subject : undefined,
+                html: channel === "email" && html.trim() ? html : undefined,
+                text: channel === "email" && text.trim() ? text : undefined,
+                options:
+                  channel === "email" && documentId
+                    ? { emailDeliveryMode: "attachment" }
+                    : undefined,
+                ceilingMinor,
               },
             }),
             (receipt) => ({
-              kind: "saved",
+              kind: "dispatch_prepared",
               resourceId: receipt.id,
-              route: `/app/secure-distribution/${encodeURIComponent(receipt.id)}`,
+              route: `/app/dispatch/${encodeURIComponent(receipt.id)}`,
             }),
           );
-        } catch (error) {
-          view.checkpoint();
           if (!isCurrent()) return;
-          if (sourceCopy.offer(error, documentId)) return;
-          throw error;
+          go(`/app/dispatch/${dispatch.id}`);
+        } finally {
+          // Release before useAction publishes pending=false. A verified final
+          // PDF may already be ready when that render resumes the same intent.
+          submitting.current = false;
         }
-        if (!isCurrent()) return;
-        go(`/app/secure-distribution/${encodeURIComponent(distribution.id)}`);
-        return;
-      }
-      const dispatch = await view.wait(
-        api<Dispatch>("/dispatches", {
-          method: "POST",
-          key: key.current,
-          body: {
-            channel,
-            recipient: target,
-            documentId: documentId || undefined,
-            senderId: selectedSender,
-            subject:
-              channel === "email" && subject.trim() ? subject : undefined,
-            html: channel === "email" && html.trim() ? html : undefined,
-            text: channel === "email" && text.trim() ? text : undefined,
-            options:
-              channel === "email" && documentId
-                ? { emailDeliveryMode: "attachment" }
-                : undefined,
-            ceilingMinor,
-          },
-        }),
-        (receipt) => ({
-          kind: "dispatch_prepared",
-          resourceId: receipt.id,
-          route: `/app/dispatch/${encodeURIComponent(receipt.id)}`,
-        }),
-      );
-      if (!isCurrent()) return;
-      go(`/app/dispatch/${dispatch.id}`);
-    });
-    submitting.current = false;
+      });
+    } finally {
+      // The action can refuse before invoking its callback on a stale visit.
+      submitting.current = false;
+    }
   }
   useEffect(() => {
     if (
@@ -415,12 +448,7 @@ export function PrepareDispatch({
   };
   return (
     <>
-      <PageHeading
-        title={
-          channel === "postal" ? msg("Prepare your letter.") : t.dispatch.title
-        }
-        intro={t.dispatch.intro}
-      />
+      <PageHeading title={t.dispatch.new} />
       <ErrorNotice
         error={
           documents.error ?? initial.error ?? senders.error ?? action.error
@@ -442,8 +470,54 @@ export function PrepareDispatch({
         )}
       <form
         className="prepare-layout"
+        noValidate
+        // Let the target's controlled onChange capture its new value before
+        // clearing an earlier validation error triggers another render.
+        onChange={() => {
+          invalidControl.current?.removeAttribute("aria-invalid");
+          invalidControl.current?.removeAttribute("aria-errormessage");
+          invalidControl.current = undefined;
+          setValidationError(undefined);
+        }}
         onSubmit={(event) => {
           event.preventDefault();
+          let invalid:
+            | HTMLInputElement
+            | HTMLSelectElement
+            | HTMLTextAreaElement
+            | undefined;
+          for (const control of Array.from(event.currentTarget.elements)) {
+            if (
+              (control instanceof HTMLInputElement ||
+                control instanceof HTMLSelectElement ||
+                control instanceof HTMLTextAreaElement) &&
+              control.willValidate &&
+              !control.validity.valid
+            ) {
+              invalid = control;
+              break;
+            }
+          }
+          if (invalid) {
+            invalidControl.current?.removeAttribute("aria-invalid");
+            invalidControl.current?.removeAttribute("aria-errormessage");
+            invalidControl.current = invalid;
+            invalid.setAttribute("aria-invalid", "true");
+            invalid.setAttribute(
+              "aria-errormessage",
+              "prepare-validation-error",
+            );
+            const label = invalid.labels?.[0]?.textContent?.trim();
+            const message = invalid.validity.valueMissing
+              ? msg("Fill in this field.")
+              : invalid instanceof HTMLInputElement && invalid.type === "email"
+                ? msg("Enter a valid email address.")
+                : invalid.getAttribute("title") || msg("Check this field.");
+            setValidationError([label, message].filter(Boolean).join(": "));
+            invalid.focus();
+            return;
+          }
+          setValidationError(undefined);
           void prepare();
         }}
         aria-busy={action.pending || sourceCopy.pending}
@@ -454,6 +528,15 @@ export function PrepareDispatch({
           onChange={changed}
         >
           <legend className="sr-only">{msg("Delivery preparation")}</legend>
+          {validationError && (
+            <p
+              id="prepare-validation-error"
+              className="notice warning"
+              role="alert"
+            >
+              {validationError}
+            </p>
+          )}
           <fieldset className="channel-selector">
             <legend>{t.channel}</legend>
             {(["fax", "email", "postal"] as const).map((c) => (
@@ -461,14 +544,43 @@ export function PrepareDispatch({
                 <input
                   type="radio"
                   name="channel"
+                  aria-label={t.channels[c]}
+                  aria-describedby={`prepare-channel-${c}-price`}
                   value={c}
                   checked={channel === c}
                   onChange={() => {
                     setChannel(c);
+                    rememberChannel(c);
                     setSenderId("");
                   }}
                 />
-                <span>{t.channels[c]}</span>
+                <span>
+                  {c === "fax" ? (
+                    <Printer size={22} weight="light" aria-hidden="true" />
+                  ) : c === "email" ? (
+                    <EnvelopeSimple
+                      size={22}
+                      weight="light"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <Mailbox size={22} weight="light" aria-hidden="true" />
+                  )}
+                  {t.channels[c]}
+                  <small
+                    className="channel-price"
+                    id={`prepare-channel-${c}-price`}
+                  >
+                    {
+                      customerPricing.rates.find((rate) => rate.id === c)
+                        ?.prices[0]?.amount
+                    }{" "}
+                    {
+                      customerPricing.rates.find((rate) => rate.id === c)
+                        ?.prices[0]?.unit
+                    }
+                  </small>
+                </span>
               </label>
             ))}
           </fieldset>
@@ -767,6 +879,33 @@ export function PrepareDispatch({
               </p>
             </fieldset>
           )}
+          <details className="prepare-price-indication">
+            <summary>
+              {msg("Indicative price")}
+              {": "}
+              {
+                customerPricing.rates.find((rate) => rate.id === channel)
+                  ?.prices[0]?.amount
+              }{" "}
+              {
+                customerPricing.rates.find((rate) => rate.id === channel)
+                  ?.prices[0]?.unit
+              }
+            </summary>
+            {customerPricing.rates
+              .filter((rate) => rate.id === channel)
+              .map((rate) => (
+                <div key={rate.id}>
+                  {rate.prices.map((price) => (
+                    <p key={price.unit}>
+                      <strong>{price.amount}</strong> {price.unit}
+                    </p>
+                  ))}
+                  <p className="field-hint">{rate.supplement}</p>
+                </div>
+              ))}
+            <p className="field-hint">{customerPricing.note}</p>
+          </details>
           {channel === "postal" && !simulation ? (
             <details className="postal-budget">
               <summary>
@@ -984,4 +1123,22 @@ export function PrepareDispatch({
       </form>
     </>
   );
+}
+
+// The last channel a person chose opens first next time; it names no content.
+const LAST_CHANNEL_KEY = "guteneo.prepare.channel";
+function lastChannel(): Channel {
+  try {
+    const stored = window.localStorage.getItem(LAST_CHANNEL_KEY);
+    return stored === "email" || stored === "postal" ? stored : "fax";
+  } catch {
+    return "fax";
+  }
+}
+function rememberChannel(channel: Channel) {
+  try {
+    window.localStorage.setItem(LAST_CHANNEL_KEY, channel);
+  } catch {
+    // Storage can be unavailable; the default channel then applies.
+  }
 }

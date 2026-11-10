@@ -1,3 +1,4 @@
+import { Disclosure } from "./components";
 import { Channels } from "./belvedere-summary-components";
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowUpRight, CheckCircle } from "@phosphor-icons/react";
@@ -19,6 +20,7 @@ import {
   useDebounced,
 } from "./belvedere-data";
 import { bmsg } from "./belvedere-i18n";
+import { belvedereCount } from "./belvedere-presentation";
 import { DataTable } from "./data-table";
 import {
   type ViewProps,
@@ -67,7 +69,7 @@ export function Workshops({
         }
       >
         {data
-          ? bmsg("{0} workshops in this view", number(data.total))
+          ? belvedereCount("workshops", data.total)
           : bmsg("Browsing workshops")}{" "}
         {bmsg("· Activity filtered by period")}
       </SectionHeading>
@@ -110,9 +112,14 @@ export function Workshops({
                   >
                     {item.name}
                   </button>
-                  <Mode mode={item.mode} />
                 </>
               ),
+            },
+            {
+              id: "mode",
+              label: bmsg("Data"),
+              value: (item) => item.mode,
+              render: (item) => <Mode mode={item.mode} />,
             },
             {
               id: "members",
@@ -126,30 +133,28 @@ export function Workshops({
               label: bmsg("Dispatches"),
               value: (item) => item.dispatches,
               className: "bv-numeric",
-              render: (item) => (
-                <>
-                  {number(item.dispatches)}
-                  <small>
-                    {number(item.pages)}
-                    {bmsg(" pages")}
-                  </small>
-                </>
-              ),
+              render: (item) => <>{number(item.dispatches)}</>,
+            },
+            {
+              id: "pages",
+              label: bmsg("Pages"),
+              value: (item) => item.pages,
+              className: "bv-numeric",
+              render: (item) => number(item.pages),
+            },
+            {
+              id: "reserved",
+              label: bmsg("Reserved"),
+              value: (item) => item.reservedMinor,
+              className: "bv-numeric",
+              render: (item) => money(item.reservedMinor),
             },
             {
               id: "consumption",
               label: bmsg("Consumption"),
               value: (item) => item.consumptionMinor,
               className: "bv-numeric bv-emphasis",
-              render: (item) => (
-                <>
-                  {money(item.consumptionMinor)}
-                  <small>
-                    {money(item.reservedMinor)}
-                    {bmsg(" reserved")}
-                  </small>
-                </>
-              ),
+              render: (item) => <>{money(item.consumptionMinor)}</>,
             },
             {
               id: "attention",
@@ -159,8 +164,7 @@ export function Workshops({
                 <>
                   {item.attention > 0 ? (
                     <span className="bv-status bv-status-warning">
-                      {number(item.attention)}
-                      {bmsg(" deliveries")}
+                      {belvedereCount("deliveries", item.attention)}
                     </span>
                   ) : (
                     <span className="bv-table-ok">
@@ -198,9 +202,7 @@ export function Workshops({
           ]}
         />
       )}
-      {data && (
-        <Pagination data={data} onChange={setPage} label={bmsg("workshops")} />
-      )}
+      {data && <Pagination data={data} onChange={setPage} kind="workshops" />}
     </section>
   );
 }
@@ -328,7 +330,7 @@ export function WorkshopDetail({
                     pageSize: data.membersPageSize,
                   }}
                   onChange={setMembersPage}
-                  label={bmsg("members")}
+                  kind="members"
                 />
               )}
             </section>
@@ -357,18 +359,29 @@ export function WorkshopDetail({
                     render: (dispatch) => (
                       <>
                         <code title={dispatch.id}>{dispatch.id}</code>
-                        <small>{dateTime(dispatch.createdAt)}</small>
                       </>
                     ),
                   },
                   {
+                    id: "created",
+                    label: bmsg("Date"),
+                    value: (dispatch) => dispatch.createdAt,
+                    render: (dispatch) => dateTime(dispatch.createdAt),
+                    className: "bv-date-cell",
+                  },
+                  {
+                    id: "mode",
+                    label: bmsg("Data"),
+                    value: (dispatch) => dispatch.mode,
+                    render: (dispatch) => <Mode mode={dispatch.mode} />,
+                  },
+                  {
                     id: "channel",
-                    label: bmsg("Channel / mode"),
+                    label: bmsg("Channel"),
                     value: (dispatch) => channelName(dispatch.channel),
                     render: (dispatch) => (
                       <>
                         <strong>{channelName(dispatch.channel)}</strong>
-                        <Mode mode={dispatch.mode} />
                       </>
                     ),
                   },
@@ -407,19 +420,6 @@ export function WorkshopDetail({
                         ) : (
                           money(dispatch.customerActualMinor)
                         )}
-                        <small>
-                          {bmsg("Delivery:")}{" "}
-                          {money(dispatch.transportActualMinor ?? null)}
-                          {bmsg(" · Hosting: ")}
-                          {money(dispatch.hostingFeeMinor ?? 0)}
-                        </small>
-                        <small>
-                          {bmsg("Quote: ")}
-                          {money(dispatch.estimatedMinor)}
-                          <br />
-                          {bmsg("Limit: ")}
-                          {money(dispatch.ceilingMinor)}
-                        </small>
                       </>
                     ),
                   },
@@ -450,6 +450,36 @@ export function WorkshopDetail({
                       </>
                     ),
                   },
+                  {
+                    id: "details",
+                    label: bmsg("Details"),
+                    value: () => "",
+                    sortable: false,
+                    render: (dispatch) => (
+                      <Disclosure label={bmsg("Details")}>
+                        <dl className="bv-finance-lines">
+                          <div>
+                            <dt>{bmsg("Delivery cost")}</dt>
+                            <dd>
+                              {money(dispatch.transportActualMinor ?? null)}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt>{bmsg("Hosting")}</dt>
+                            <dd>{money(dispatch.hostingFeeMinor ?? 0)}</dd>
+                          </div>
+                          <div>
+                            <dt>{bmsg("Quote")}</dt>
+                            <dd>{money(dispatch.estimatedMinor)}</dd>
+                          </div>
+                          <div>
+                            <dt>{bmsg("Limit")}</dt>
+                            <dd>{money(dispatch.ceilingMinor)}</dd>
+                          </div>
+                        </dl>
+                      </Disclosure>
+                    ),
+                  },
                 ]}
               />
             ) : (
@@ -460,7 +490,7 @@ export function WorkshopDetail({
             <Pagination
               data={data.dispatches}
               onChange={setPage}
-              label={bmsg("deliveries")}
+              kind="deliveries"
             />
           </section>
         </>

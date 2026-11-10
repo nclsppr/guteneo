@@ -11,16 +11,16 @@ delivery. Keep those layers explicit when choosing tests and reporting results.
 
 ## Start with the affected contract
 
-| Change | Useful evidence |
-| --- | --- |
-| Pure domain or parser behavior | Focused unit cases, malformed inputs and exact numeric/string handling |
-| Persistence or authorization | Local D1 integration cases with populated migrations, multiple workspaces and revoked authority |
-| Approval, billing or dispatch | Immutable fingerprints, concurrent acceptance, atomic reservation/outbox and unknown-outcome cases |
-| Browser behavior | Actual application E2E with local synthetic records; responsive, keyboard and locale checks |
-| Public layout | Separate browser-only preview tests, without implying business-service coverage |
-| Private rendering, scanner or validator | Qualification of the actual installed engine and its runtime boundary |
-| Native client | Native unit and UI checks; physical-device and distribution proof remain separate |
-| Hosted release | Exact-source deployment verification plus the specific authenticated/provider journey being claimed |
+| Change                                  | Useful evidence                                                                                     |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Pure domain or parser behavior          | Focused unit cases, malformed inputs and exact numeric/string handling                              |
+| Persistence or authorization            | Local D1 integration cases with populated migrations, multiple workspaces and revoked authority     |
+| Approval, billing or dispatch           | Immutable fingerprints, concurrent acceptance, atomic reservation/outbox and unknown-outcome cases  |
+| Browser behavior                        | Actual application E2E with local synthetic records; responsive, keyboard and locale checks         |
+| Public layout                           | Separate browser-only preview tests, without implying business-service coverage                     |
+| Private rendering, scanner or validator | Qualification of the actual installed engine and its runtime boundary                               |
+| Native client                           | Native unit and UI checks; physical-device and distribution proof remain separate                   |
+| Hosted release                          | Exact-source deployment verification plus the specific authenticated/provider journey being claimed |
 
 Avoid assertions that merely repeat the implementation. Exercise a failure that
 would violate the contract: a cross-workspace identifier, a changed review hash,
@@ -98,6 +98,12 @@ Application E2E starts the real local service, migrations and seeded fixtures.
 Preview tests exercise an independent public design model with no business
 bindings. Both are useful, but preview success cannot establish tenant isolation,
 approval acceptance or provider behavior.
+
+The preview suite also runs the automated WCAG 2 A/AA rules of axe-core
+(`tests/preview-e2e/accessibility.spec.ts`) on the main Correspondence pages in
+the four languages and both themes. A critical violation fails the suite. The
+check does not replace keyboard and screen-reader review, and it does not yet
+cover Studio, Administration, My documents or Belvédère.
 
 Use the configured desktop Chromium, mobile Chromium and iPhone WebKit projects
 for the relevant change. A Chromium fallback is not evidence for Safari. Preserve

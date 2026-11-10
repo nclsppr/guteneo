@@ -278,6 +278,7 @@ test("an administrator manages the workspace in Administration, not in the profi
     "Journal d’audit",
     "Webhooks clients",
     "Facturation",
+    "Exploitation",
     "Paramètres",
   ]);
   await navigation(page)
@@ -305,8 +306,12 @@ test("an administrator manages the workspace in Administration, not in the profi
   await expect(
     page.getByLabel("Nom de l’espace de travail", { exact: true }),
   ).toHaveCount(0);
+  const accountAccess = page.locator("details.account-access-details");
+  await expect(accountAccess).not.toHaveAttribute("open");
+  await accountAccess.locator(":scope > summary").click();
+  await expect(accountAccess).toHaveAttribute("open", "");
   await expect(
-    page.getByRole("link", {
+    accountAccess.getByRole("link", {
       name: "Gérer cet espace de travail dans Administration",
     }),
   ).toHaveAttribute("href", "#/app/administration");
@@ -507,6 +512,9 @@ test("a late period response cannot replace the current report", async ({
   await page.waitForFunction(() =>
     Boolean(Reflect.get(window, "releaseOldReport")),
   );
+  await page
+    .locator("details.administration-custom")
+    .evaluate((panel) => panel.setAttribute("open", ""));
   await page.getByLabel("Date de début", { exact: true }).fill("2026-10-05");
   await page.getByRole("button", { name: "Appliquer", exact: true }).click();
   await expect(page.locator(".stat-tile").first()).toContainText("2 222");
@@ -756,16 +764,16 @@ test("Consumption has one refresh action for its summary and the embedded ledger
   expect(state.writes).toEqual([]);
 });
 
-for (const [locale, resolveLabel, resolvedLabel] of [
-  ["en", "Resolve incident", "Resolved"],
-  ["fr", "Résoudre l’incident", "Résolu"],
-  ["de", "Vorfall abschließen", "Erledigt"],
-  ["lb", "Virfall léisen", "Geléist"],
+for (const [locale, resolveLabel, resolvedLabel, operationsLabel] of [
+  ["en", "Resolve incident", "Resolved", "Operations"],
+  ["fr", "Résoudre l’incident", "Résolu", "Exploitation"],
+  ["de", "Vorfall abschließen", "Erledigt", "Betrieb"],
+  ["lb", "Virfall léisen", "Geléist", "Betrib"],
 ] as const)
   test(`queue incident resolution requires a deliberate browser action in ${locale}`, async ({
     page,
   }) => {
-    await fixture(page, "admin", locale);
+    const state = await fixture(page, "admin", locale);
     const id = "dead_synthetic_fixture";
     let resolvedAt: string | null = null;
     const requests: { body: unknown; csrf: string | undefined }[] = [];
@@ -803,6 +811,13 @@ for (const [locale, resolveLabel, resolvedLabel] of [
       },
     );
     await page.goto("/#/app/administration/settings");
+    expect(state.reads.includes("/admin")).toBe(false);
+    await page
+      .locator("main")
+      .getByRole("link", { name: operationsLabel, exact: true })
+      .click();
+    await expect(page).toHaveURL(/#\/app\/administration\/operations$/);
+    await expect(page.locator("main h1")).toHaveText(operationsLabel);
     const incident = page.locator(".dead-letters");
     await expect(incident.getByText(id, { exact: true })).toBeVisible();
     expect(requests).toEqual([]);
@@ -823,3 +838,134 @@ for (const [locale, resolveLabel, resolvedLabel] of [
       { body: { confirmed: true }, csrf: "fixture-only" },
     ]);
   });
+
+test("activity columns can be expanded without changing the authorized report", async ({
+  page,
+}) => {
+  const state = await fixture(page, "admin");
+  await page.goto("/#/app/administration/activity");
+  await expect(
+    page.getByText("dispatch-administration-1", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("columnheader", { name: "Pages", exact: true }),
+  ).toHaveCount(0);
+  const readsBefore = state.reads.filter((read) =>
+    read.startsWith("/administration/activity"),
+  ).length;
+  await page.locator("details.administration-column-picker summary").click();
+  await page.getByRole("checkbox", { name: "Pages", exact: true }).check();
+  await expect(
+    page.getByRole("columnheader", { name: "Pages", exact: true }),
+  ).toHaveCount(1);
+  expect(
+    state.reads.filter((read) => read.startsWith("/administration/activity")),
+  ).toHaveLength(readsBefore);
+  expect(state.writes).toEqual([]);
+});
+
+test("audit prose distinguishes delegated approvals and keeps diagnostic codes collapsed", async ({
+  page,
+}) => {
+  const state = await fixture(page, "admin");
+  await page.route("**/api/administration/audit?**", (route) =>
+    route.fulfill({
+      json: {
+        items: [
+          {
+            id: "audit-1",
+            action: "dispatch.approved",
+            actor: "Camille",
+            resourceId: "dispatch-1",
+            createdAt: "2026-11-10T10:00:00Z",
+          },
+          {
+            id: "audit-2",
+            action: "dispatch.expert_approved",
+            actor: "Lou",
+            resourceId: "dispatch-2",
+            createdAt: "2026-11-10T11:00:00Z",
+          },
+        ],
+        total: 2,
+        page: 1,
+        pageSize: 50,
+      },
+    }),
+  );
+  await page.goto("/#/app/administration/audit");
+  await expect(page.getByText("Envoi approuvé", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("Envoi approuvé par délégation", { exact: true }),
+  ).toBeVisible();
+  const code = page
+    .locator("code")
+    .filter({ hasText: /^dispatch\.expert_approved$/ });
+  await expect(code).not.toBeVisible();
+  await code.locator("..").locator("summary").click();
+  await expect(code).toBeVisible();
+  expect(state.writes).toEqual([]);
+});
+
+test("report rows select one format before the guarded download", async ({
+  page,
+}) => {
+  const state = await fixture(page, "admin");
+  await page.goto("/#/app/administration/reports");
+  const report = page.locator(".administration-export").filter({
+    has: page.getByRole("heading", {
+      name: "Rapport complet de l’espace de travail",
+      exact: true,
+    }),
+  });
+  await expect(report.getByRole("button")).toHaveCount(1);
+  const format = report.getByRole("combobox");
+  await expect(format.locator("option")).toHaveText(["Excel", "PDF"]);
+  await format.selectOption("pdf");
+  await expect(report.getByRole("button")).toHaveAccessibleName(
+    "Télécharger Rapport complet de l’espace de travail au format PDF",
+  );
+  expect(state.writes).toEqual([]);
+});
+
+test("identity settings defer operational reads until the administrator opens Operations", async ({
+  page,
+}) => {
+  const state = await fixture(page, "admin");
+  await page.goto("/#/app/administration/settings");
+  await expect(
+    page.getByLabel("Nom de l’espace de travail", { exact: true }),
+  ).toHaveValue("Atelier Alpha");
+  expect(state.reads.some((read) => read === "/admin")).toBe(false);
+  expect(
+    state.reads.some((read) => read.startsWith("/dispatches?group=attention")),
+  ).toBe(false);
+  await page
+    .locator("main")
+    .getByRole("link", { name: "Exploitation", exact: true })
+    .click();
+  await expect(page.locator("main h1")).toHaveText("Exploitation");
+  await expect.poll(() => state.reads.includes("/admin")).toBe(true);
+  expect(state.writes).toEqual([]);
+});
+
+for (const role of ["supervisor", "member", "viewer"] as const) {
+  test(`Operations refuses ${role} before operational reads`, async ({
+    page,
+  }) => {
+    const state = await fixture(page, role);
+    await page.goto("/#/app/administration/operations");
+    await expect(
+      page.getByText("Votre rôle ne permet pas cette action.", {
+        exact: false,
+      }),
+    ).toBeVisible();
+    expect(state.reads.some((read) => read === "/admin")).toBe(false);
+    expect(
+      state.reads.some((read) =>
+        read.startsWith("/dispatches?group=attention"),
+      ),
+    ).toBe(false);
+    expect(state.writes).toEqual([]);
+  });
+}

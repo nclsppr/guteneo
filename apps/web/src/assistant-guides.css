@@ -36,7 +36,7 @@
   text-align: center;
   text-decoration: none;
   line-height: 1.35;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 500;
 }
 
@@ -54,9 +54,17 @@
   background: var(--stamp-paper);
   mask-image:
     radial-gradient(circle at 6px 0, transparent 3px, var(--mask-opaque) 3.5px),
-    radial-gradient(circle at 6px 100%, transparent 3px, var(--mask-opaque) 3.5px),
+    radial-gradient(
+      circle at 6px 100%,
+      transparent 3px,
+      var(--mask-opaque) 3.5px
+    ),
     radial-gradient(circle at 0 6px, transparent 3px, var(--mask-opaque) 3.5px),
-    radial-gradient(circle at 100% 6px, transparent 3px, var(--mask-opaque) 3.5px);
+    radial-gradient(
+      circle at 100% 6px,
+      transparent 3px,
+      var(--mask-opaque) 3.5px
+    );
   mask-size:
     12px 100%,
     12px 100%,
@@ -183,7 +191,7 @@
   max-width: 65ch;
   margin: 0;
   color: var(--muted);
-  font-size: 17px;
+  font-size: 16px;
 }
 
 .assistant-guide-versions {
@@ -196,7 +204,7 @@
 
 .assistant-guide-versions > p {
   margin: 0;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .assistant-guide-version-controls {
@@ -212,7 +220,7 @@
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--ink);
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .assistant-guide-version-controls button:hover {
@@ -259,7 +267,7 @@
   padding-left: 3px;
   margin-bottom: 16px;
   line-height: 1.6;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .assistant-guide-account,
@@ -318,7 +326,7 @@
 
 .assistant-guide-steps :is(h3, h4) {
   margin: 0 0 8px;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 500;
   line-height: 1.4;
 }
@@ -389,7 +397,7 @@
 
 .assistant-copy-feedback {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
 }
 
@@ -428,12 +436,12 @@
   padding: 16px 0;
   cursor: pointer;
   line-height: 1.5;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .assistant-guide-help details > p {
   margin: 0 0 20px;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .assistant-guide-sources ul {

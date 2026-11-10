@@ -4,6 +4,7 @@ import type { PersonalDocumentView } from "../../../packages/contracts/src/secur
 import { sessionAuthorityKey, ApiError, date } from "./api";
 import {
   ConfirmAction,
+  Disclosure,
   ErrorNotice,
   go,
   Loading,
@@ -61,7 +62,9 @@ export function PersonalDocumentReader({
       session,
       { signal: controller.signal },
     )
-      .then(setDocument)
+      .then((value) => {
+        if (!controller.signal.aborted) setDocument(value);
+      })
       .catch((cause: unknown) => {
         if (controller.signal.aborted) return;
         setDocument(undefined);
@@ -149,7 +152,7 @@ export function PersonalDocumentReader({
       setDocument(undefined);
   }, []);
   return (
-    <div className="secure-document-layout">
+    <div className="secure-document-layout personal-document-reader">
       <a
         className="text-link"
         href={`#${
@@ -223,7 +226,11 @@ export function PersonalDocumentReader({
                   >
                     {textMode ? msg("Show pages") : msg("Show accessible text")}
                   </button>
-                  <span>{msg("{0} page(s)", document.pages.length)}</span>
+                  <span>
+                    {document.pages.length === 1
+                      ? msg("1 page")
+                      : msg("{0} pages", document.pages.length)}
+                  </span>
                   <div className="secure-document-actions">
                     {document.allowOriginalDownload && (
                       <ConfirmAction
@@ -252,146 +259,162 @@ export function PersonalDocumentReader({
                     )}
                   </p>
                 )}
-                {textMode ? (
-                  <section
-                    aria-label={msg("Accessible document text")}
-                    className="secure-document-layout"
-                  >
-                    {document.pages.map((page) => (
-                      <AccessiblePage
-                        key={`${page.number}:${version}`}
-                        documentId={id}
-                        page={page}
-                        session={session}
-                        onFailure={contentFailure}
-                      />
-                    ))}
-                  </section>
-                ) : (
-                  <div className="secure-document-pages">
-                    {document.pages.map((page) => (
-                      <PrivatePage
-                        key={`${page.number}:${version}`}
-                        documentId={id}
-                        page={page}
-                        session={session}
-                        onFailure={contentFailure}
-                      />
-                    ))}
-                  </div>
-                )}
-                {document.kind === "shared" &&
-                  document.allowVaultDeposit &&
-                  !document.depositedDocumentId &&
-                  !deposited && (
-                    <section className="secure-document-panel">
-                      <h2>{msg("Save a personal copy")}</h2>
-                      <p>
-                        {msg(
-                          "This copy can be exported and will be retained for {0} days from delivery. The workspace will no longer be able to withdraw it.",
-                          document.policy.personalRetentionDays,
+                <div className="personal-document-content">
+                  <div className="personal-document-main">
+                    {textMode ? (
+                      <section
+                        aria-label={msg("Accessible document text")}
+                        className="secure-document-layout"
+                      >
+                        {document.pages.map((page) => (
+                          <AccessiblePage
+                            key={`${page.number}:${version}`}
+                            documentId={id}
+                            page={page}
+                            session={session}
+                            onFailure={contentFailure}
+                          />
+                        ))}
+                      </section>
+                    ) : (
+                      <div className="secure-document-pages">
+                        {document.pages.map((page) => (
+                          <PrivatePage
+                            key={`${page.number}:${version}`}
+                            documentId={id}
+                            page={page}
+                            session={session}
+                            onFailure={contentFailure}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    {document.kind === "shared" &&
+                      document.allowVaultDeposit &&
+                      !document.depositedDocumentId &&
+                      !deposited && (
+                        <section className="secure-document-panel">
+                          <h2>{msg("Save a personal copy")}</h2>
+                          <p>
+                            {msg(
+                              "This copy can be exported and will be retained for {0} days from delivery. The workspace will no longer be able to withdraw it.",
+                              document.policy.personalRetentionDays,
+                            )}
+                          </p>
+                          {depositPreparing && (
+                            <p role="status">
+                              {msg(
+                                "The copy is being prepared. Refresh its status before trying again.",
+                              )}
+                            </p>
+                          )}
+                          <ConfirmAction
+                            label={
+                              depositPreparing
+                                ? msg("Resume preparation of my copy")
+                                : msg("Save a copy")
+                            }
+                            question={msg(
+                              depositPreparing
+                                ? "Resume this operation without creating another copy?"
+                                : "Accept delivery of this copy to your personal space?",
+                            )}
+                            confirmLabel={
+                              depositPreparing
+                                ? msg("Resume preparation")
+                                : msg("Accept and save")
+                            }
+                            disabled={action.pending}
+                            onConfirm={() => void deposit()}
+                          />
+                        </section>
+                      )}
+                    {(document.depositedDocumentId || deposited) && (
+                      <section className="secure-document-panel" role="status">
+                        <h2>{msg("Copy saved")}</h2>
+                        {deposited && (
+                          <p>
+                            {msg(
+                              "Retained until {0}",
+                              date(deposited.expiresAt),
+                            )}
+                          </p>
                         )}
-                      </p>
-                      {depositPreparing && (
-                        <p role="status">
+                        <a
+                          className="button"
+                          href={`#/app/my-documents/${encodeURIComponent(document.depositedDocumentId || deposited!.id)}`}
+                        >
+                          {msg("Open my personal copy")}
+                        </a>
+                      </section>
+                    )}
+                    {needsAuthentication(action.error) ? (
+                      <PersonalSecurityNotice
+                        mode={session.documentAccessMode}
+                      />
+                    ) : (
+                      <ErrorNotice error={action.error} />
+                    )}
+                    {document.kind === "personal" && (
+                      <section className="secure-document-panel">
+                        <h2>{msg("Manage my personal copy")}</h2>
+                        <p>
                           {msg(
-                            "The copy is being prepared. Refresh its status before trying again.",
+                            "Deleting removes your copy from this space. It does not delete the workspace original or files already downloaded.",
                           )}
                         </p>
-                      )}
-                      <ConfirmAction
-                        label={
-                          depositPreparing
-                            ? msg("Resume preparation of my copy")
-                            : msg("Save a copy")
-                        }
-                        question={msg(
-                          depositPreparing
-                            ? "Resume this operation without creating another copy?"
-                            : "Accept delivery of this copy to your personal space?",
-                        )}
-                        confirmLabel={
-                          depositPreparing
-                            ? msg("Resume preparation")
-                            : msg("Accept and save")
-                        }
-                        disabled={action.pending}
-                        onConfirm={() => void deposit()}
-                      />
-                    </section>
-                  )}
-                {(document.depositedDocumentId || deposited) && (
-                  <section className="secure-document-panel" role="status">
-                    <h2>{msg("Copy saved")}</h2>
-                    {deposited && (
-                      <p>
-                        {msg("Retained until {0}", date(deposited.expiresAt))}
-                      </p>
+                        <ConfirmAction
+                          label={msg("Delete my copy")}
+                          question={msg("Delete this personal copy?")}
+                          confirmLabel={msg("Confirm deletion")}
+                          disabled={action.pending}
+                          onConfirm={() =>
+                            void action.run(async (view) => {
+                              await view.wait(
+                                personalApi(
+                                  `/personal/documents/${encodeURIComponent(id)}/delete`,
+                                  session,
+                                  {
+                                    method: "POST",
+                                    body: {},
+                                    key: crypto.randomUUID(),
+                                  },
+                                ),
+                              );
+                              onChanged?.();
+                              go(
+                                backRoute?.includes("kind=personal")
+                                  ? backRoute
+                                  : "/app/my-documents?kind=personal",
+                              );
+                            })
+                          }
+                        />
+                      </section>
                     )}
-                    <a
-                      className="button"
-                      href={`#/app/my-documents/${encodeURIComponent(document.depositedDocumentId || deposited!.id)}`}
+                  </div>
+                  <aside
+                    className="personal-document-history"
+                    aria-label={msg("My access history")}
+                  >
+                    <Disclosure
+                      className="secure-document-panel"
+                      label={msg("My access history")}
                     >
-                      {msg("Open my personal copy")}
-                    </a>
-                  </section>
-                )}
-                {needsAuthentication(action.error) ? (
-                  <PersonalSecurityNotice mode={session.documentAccessMode} />
-                ) : (
-                  <ErrorNotice error={action.error} />
-                )}
-                {document.kind === "personal" && (
-                  <section className="secure-document-panel">
-                    <h2>{msg("Manage my personal copy")}</h2>
-                    <p>
-                      {msg(
-                        "Deleting removes your copy from this space. It does not delete the workspace original or files already downloaded.",
-                      )}
-                    </p>
-                    <ConfirmAction
-                      label={msg("Delete my copy")}
-                      question={msg("Delete this personal copy?")}
-                      confirmLabel={msg("Confirm deletion")}
-                      disabled={action.pending}
-                      onConfirm={() =>
-                        void action.run(async (view) => {
-                          await view.wait(
-                            personalApi(
-                              `/personal/documents/${encodeURIComponent(id)}/delete`,
-                              session,
-                              {
-                                method: "POST",
-                                body: {},
-                                key: crypto.randomUUID(),
-                              },
-                            ),
-                          );
-                          onChanged?.();
-                          go(
-                            backRoute?.includes("kind=personal")
-                              ? backRoute
-                              : "/app/my-documents?kind=personal",
-                          );
-                        })
-                      }
-                    />
-                  </section>
-                )}
-                <section className="secure-document-panel">
-                  <h2>{msg("My access history")}</h2>
-                  <SecureAuditHistory
-                    key={`${id}:${version}`}
-                    events={document.audit}
-                    nextCursor={document.auditNextCursor}
-                    getOlder={(cursor) =>
-                      personalApi(
-                        `/personal/documents/${encodeURIComponent(id)}/events?cursor=${encodeURIComponent(cursor)}`,
-                        session,
-                      )
-                    }
-                  />
-                </section>
+                      <SecureAuditHistory
+                        key={`${id}:${version}`}
+                        events={document.audit}
+                        nextCursor={document.auditNextCursor}
+                        getOlder={(cursor) =>
+                          personalApi(
+                            `/personal/documents/${encodeURIComponent(id)}/events?cursor=${encodeURIComponent(cursor)}`,
+                            session,
+                          )
+                        }
+                      />
+                    </Disclosure>
+                  </aside>
+                </div>
               </>
             )}
           </>

@@ -3,8 +3,7 @@
   gap: 2rem;
   min-width: 0;
 }
-.postal-review-summary,
-.postal-consent {
+.postal-review-summary {
   border-block: 1px solid var(--line);
   padding-block: 1.5rem;
 }
@@ -15,6 +14,9 @@
 .postal-review-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  grid-template-areas: "document address" "document consent";
+  grid-template-rows: min-content 1fr;
+  align-items: start;
   gap: 2rem;
 }
 .postal-review-grid > section {
@@ -124,5 +126,29 @@
   }
   .postal-address-crop {
     padding: 0.75rem;
+  }
+}
+
+.postal-review-document {
+  grid-area: document;
+}
+.postal-review-address {
+  grid-area: address;
+}
+.postal-consent.approval-panel {
+  grid-area: consent;
+  align-self: start;
+  margin-top: 0;
+}
+@media (min-width: 1025px) {
+  .postal-consent {
+    position: sticky;
+    top: 16px;
+  }
+}
+@media (max-width: 760px) {
+  .postal-review-grid {
+    grid-template-areas: "address" "document" "consent";
+    grid-template-rows: auto;
   }
 }

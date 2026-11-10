@@ -18,6 +18,7 @@ export const de: Copy = {
   preview: "Vorschau",
   download: "PDF öffnen",
   fileInput: {
+    drop: "Sie können die Datei auch hier ablegen.",
     choose: "Datei auswählen",
     chooseMultiple: "Dateien auswählen",
     empty: "Keine Datei ausgewählt",
@@ -191,7 +192,7 @@ export const de: Copy = {
     noLocal: "Die lokale Anmeldung ist der Entwicklungsumgebung vorbehalten.",
   },
   overview: {
-    title: "Ihre Korrespondenz im Blick.",
+    queueTitle: "Zu erledigen",
     new: "Sendung vorbereiten",
     recent: "Letzte Sendungen",
     all: "Alle Sendungen ansehen",
@@ -213,7 +214,6 @@ export const de: Copy = {
     attentionAction: "Zu prüfende Sendungen ansehen",
   },
   documents: {
-    title: "Dokumente",
     import: "PDF importieren",
     render: "Brief verfassen",
     uploadTitle: "Das unveränderte Dokument importieren",
@@ -266,10 +266,11 @@ export const de: Copy = {
       "<h1>Guten Tag,</h1>\n<p>dies ist ein mit Guteneo vorbereiteter Beispielbrief.</p>\n<p>Dieses Dokument dient ausschließlich zum Testen eines simulierten Versands.</p>\n<p>Mit freundlichen Grüßen<br>Die Guteneo-Werkstatt</p>",
   },
   dispatch: {
-    title: "Korrespondenz vorbereiten.",
-    intro: "Die Sendung wartet auf Ihre Freigabe.",
+    stepsLabel: "Fortschritt der Sendung",
+    uncertainNext:
+      "Ein Administrator des Arbeitsbereichs prüft das Ergebnis in der Administration. Nichts wird automatisch erneut gesendet.",
+    versionDetails: "Versionsdetails",
     new: "Neue Sendung",
-    listTitle: "Der Verlauf Ihrer Sendungen.",
     chooseDocument: "Dokument auswählen",
     noDocument:
       "Kein Dokument verfügbar. Importieren oder erstellen Sie eine PDF-Datei, bevor Sie diese Sendung vorbereiten.",
@@ -329,7 +330,7 @@ export const de: Copy = {
       "Die Annahme durch den Anbieter ist keine Zustellung. Der Status zeigt nur die verfügbaren Ergebnisse.",
     uncertain:
       "Ungewisses Übermittlungsergebnis. Keine automatische erneute Übermittlung. Eine Prüfung beim Anbieter ist erforderlich.",
-    documentPreview: "Vorschau des freigegebenen Dokuments",
+    documentPreview: "Dokumentvorschau",
     htmlPreview: "E-Mail-Vorschau",
     textPreview: "Textversion",
     recipientDetails: "Empfängeradresse",
@@ -357,7 +358,6 @@ export const de: Copy = {
     cancelConfirm: "Ja, Stornierung anfordern",
   },
   campaigns: {
-    title: "Kampagnen",
     name: "Kampagnenname",
     namePlaceholder: "Korrespondenz im September",
     csv: "Empfängerliste im CSV-Format",
@@ -470,7 +470,6 @@ export const de: Copy = {
     revokeConfirm: "Ja, widerrufen",
   },
   senders: {
-    title: "Absender",
     empty: "Keine Absenderprofile konfiguriert.",
     note: "Simulationsprofile erlauben keinen echten Versand. Für Briefpost erklärt ein Administrator den autorisierten Absender der Organisation. Für die anderen Kanäle gelten weiterhin die jeweiligen eigenen Prüfverfahren.",
     profile: "Profil",

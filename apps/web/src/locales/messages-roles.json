@@ -436,5 +436,10 @@
     "The chosen role applies to every address in this batch.",
     "Die gewählte Rolle gilt für alle Adressen dieser Gruppe.",
     "Déi gewielte Roll gëllt fir all Adress an dëser Grupp."
+  ],
+  "Cet envoi attend une approbation. Un administrateur ou un superviseur autorisé peut l’approuver.": [
+    "This dispatch is waiting for approval. An administrator or an authorized supervisor can approve it.",
+    "Diese Sendung wartet auf Genehmigung. Ein Administrator oder berechtigter Supervisor kann sie genehmigen.",
+    "Dës Sendung waart op eng Geneemegung. En Administrateur oder e berechtegte Supervisor kann se geneemegen."
   ]
 }

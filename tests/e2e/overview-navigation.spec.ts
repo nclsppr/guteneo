@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
+import { expectUnreviewedServerError } from "../helpers/browser-error-notice";
 import type { Dispatch, Session } from "../../apps/web/src/api";
 import type { DispatchOverview } from "../../packages/contracts/src/dispatch-groups";
 import { workspacePermissions } from "../../packages/contracts/src/roles";
@@ -415,7 +416,9 @@ test("retrying an initial attention failure retains mounted recent controls and 
     await app.open();
     app.releaseAll();
     const failure = page.locator(".lifecycle-attention").getByRole("alert");
-    await expect(failure).toContainText(
+    await expectUnreviewedServerError(
+      failure,
+      "SYNTHETIC_ATTENTION_FAILED",
       "Synthetic attention read unavailable.",
     );
     const recent = page
@@ -458,8 +461,12 @@ test("a failed initial read exposes recovery without inventing an empty workspac
     app.releaseAll();
     const failure = page
       .getByRole("alert")
-      .filter({ hasText: "Synthetic overview read unavailable." });
-    await expect(failure).toBeVisible();
+      .filter({ hasText: "SYNTHETIC_READ_FAILED" });
+    await expectUnreviewedServerError(
+      failure,
+      "SYNTHETIC_READ_FAILED",
+      "Synthetic overview read unavailable.",
+    );
     await expect(page.locator(".assistant-welcome")).toBeHidden();
     const emptyDispatches = page.getByRole("heading", {
       name: "Your first dispatch starts here.",

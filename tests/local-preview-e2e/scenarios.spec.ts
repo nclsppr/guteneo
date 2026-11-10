@@ -333,9 +333,7 @@ test("Studio and My documents read the selected synthetic collections through no
     .locator(".secure-document-list > li")
     .filter({ has: page.getByText("Access available", { exact: true }) })
     .first();
-  await ready
-    .getByRole("link", { name: "Open the document", exact: true })
-    .click();
+  await ready.locator("[data-document-link]").click();
   // The list stays mounted, hidden, so returning restores its page and row.
   await expect(page.locator("main h1:visible")).toContainText(
     "Fictional received preview",

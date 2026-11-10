@@ -1,11 +1,19 @@
 import { expect, test, type Page } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
+import { expectUnreviewedServerError } from "../helpers/browser-error-notice";
 import type { Session } from "../../apps/web/src/api";
 import type { SupportedLocale } from "../../packages/contracts/src/locale";
 import {
   workspacePermissions,
   type WorkspaceRole,
 } from "../../packages/contracts/src/roles";
+
+async function openAccountAccess(page: Page) {
+  const access = page.locator("details.account-access-details");
+  if ((await access.getAttribute("open")) === null)
+    await access.locator(":scope > summary").click();
+  await expect(access).toHaveAttribute("open", "");
+}
 
 // UI evidence only: every API call is intercepted, including all writes.
 // No identity provider, real invitation, communication or billing service is used.
@@ -381,7 +389,7 @@ test("identity stays visible, switching names the account action and profile cha
   await expect(page.getByRole("main")).toBeFocused();
   const summary = page
     .getByRole("main")
-    .getByRole("region", { name: "Votre compte", exact: true });
+    .getByRole("region", { name: "Identité", exact: true });
   await expect(summary).toContainText(data.session.user.email!);
   await expect(summary).toContainText("Opérateur");
   await expect(
@@ -395,7 +403,7 @@ test("identity stays visible, switching names the account action and profile cha
     .getByRole("button", { name: "Enregistrer les modifications", exact: true })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Mein Profil", exact: true }),
+    page.getByRole("heading", { name: "Mein Konto", exact: true }),
   ).toBeVisible();
   await expect(identity).toHaveAttribute("aria-label", "Ihr Konto");
   await expect(identity).toContainText("Camille Profil modifié");
@@ -417,20 +425,20 @@ test("identity stays visible, switching names the account action and profile cha
 for (const [locale, heading, roleLabel, contactsHeading] of [
   [
     "fr",
-    "Mon profil",
+    "Mon compte",
     "Superviseur",
     "Qui contacter dans cet espace de travail ?",
   ],
-  ["en", "My profile", "Supervisor", "Who can help in this workspace?"],
+  ["en", "My account", "Supervisor", "Who can help in this workspace?"],
   [
     "de",
-    "Mein Profil",
+    "Mein Konto",
     "Supervisor",
     "Wer kann in diesem Arbeitsbereich helfen?",
   ],
   [
     "lb",
-    "Mäi Profil",
+    "Mäi Kont",
     "Supervisor",
     "Wien kann an dësem Aarbechtsberäich hëllefen?",
   ],
@@ -449,6 +457,7 @@ for (const [locale, heading, roleLabel, contactsHeading] of [
     await expect(page.locator(".account-identity")).toContainText(
       data.session.user.email!,
     );
+    await openAccountAccess(page);
     const contacts = page.getByRole("region", {
       name: contactsHeading,
       exact: true,
@@ -698,12 +707,16 @@ test("contact failure is recoverable and switching workshops removes the previou
   const data = await fixture(page);
   data.state.failContacts = true;
   await page.goto("/#/app/account");
+  await openAccountAccess(page);
   const contacts = page.getByRole("region", {
     name: "Qui contacter dans cet espace de travail ?",
     exact: true,
   });
-  await expect(contacts.getByRole("alert")).toContainText(
-    "contacts sont temporairement indisponibles",
+  await expectUnreviewedServerError(
+    contacts.getByRole("alert"),
+    "CONTACTS_UNAVAILABLE",
+    "Les contacts sont temporairement indisponibles. Réessayez leur consultation.",
+    "fr",
   );
   await expect(
     contacts.getByRole("link", { name: /validation@example.invalid/ }),
@@ -728,6 +741,7 @@ test("contact failure is recoverable and switching workshops removes the previou
   await page.evaluate(() => {
     location.hash = "#/app/account";
   });
+  await openAccountAccess(page);
   await expect(
     contacts.getByRole("link", { name: /autre.atelier@example.invalid/ }),
   ).toBeVisible();
@@ -770,6 +784,7 @@ for (const failure of ["network", "malformed"] as const) {
       await page.goto(`/#/app/account`);
       await ready;
       const name = page.getByLabel("Votre nom", { exact: true });
+      await openAccountAccess(page);
       const contacts = page.getByRole("region", {
         name: "Qui contacter dans cet espace de travail ?",
         exact: true,
@@ -782,11 +797,22 @@ for (const failure of ["network", "malformed"] as const) {
       await expect(name).toBeFocused();
       await expect(save).toBeEnabled();
       release();
-      await expect(contacts.getByRole("alert")).toContainText(
+      const error = contacts.getByRole("alert");
+      await expect(error).toContainText(
         failure === "network"
-          ? "contacts sont temporairement indisponibles"
+          ? "L’opération n’a pas pu aboutir"
           : "Impossible de vérifier les contacts",
       );
+      if (failure === "network") {
+        await expect(error).not.toContainText(
+          "Les contacts sont temporairement indisponibles.",
+        );
+        const details = error.locator("details.error-details");
+        await expect(details).not.toHaveAttribute("open");
+        await expect(
+          details.getByText("CONTACTS_UNAVAILABLE", { exact: true }),
+        ).toBeHidden();
+      }
       await expect(name).toBeFocused();
       // Use the current keyboard target: refocusing the locator would hide stolen focus.
       await page.keyboard.insertText(" de saisie");
@@ -821,6 +847,7 @@ test("malformed contacts leave the profile usable and support an explicit retry"
   const data = await fixture(page);
   data.state.malformedContacts = "missing-items";
   await page.goto("/#/app/account");
+  await openAccountAccess(page);
   const contacts = page.getByRole("region", {
     name: "Qui contacter dans cet espace de travail ?",
     exact: true,

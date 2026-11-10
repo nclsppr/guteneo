@@ -1,6 +1,6 @@
 ---
 title: "Team and responsibilities"
-description: "12 capabilities in the access branch of Guteneo."
+description: "13 capabilities in the access branch of Guteneo."
 sidebar:
   order: 2
 ---
@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Authenticated browser session.
 
-Implemented; invitations require separately configured delivery.
+Implemented; invitations require separately configured delivery. The 10 November approval-request browser candidate requires migration 0081 and exact-source integration/browser checks; it grants no approval, reservation, sending or assistant authority.
 
 **Surfaces:** Authenticated browser; invitation emails are authored in English.
 
@@ -30,4 +30,5 @@ Implemented; invitations require separately configured delivery.
 <li id="feature-f4b883cce481">Workspace roles grant no access to another person’s vault; a recipient gains no membership in the sender’s workspace</li>
 <li id="feature-6fbc1c3c3a63">Future schedule approval is distinct from ordinary browser review and expert mandates: only browser administrators or independently authorized supervisor approvers grant it; preparers can draft and authorized owners can revoke, while assistants/native cannot approve</li>
 <li id="feature-3d337f51aa47">Saved destination data is limited to current preparers, and callback configuration/signing secrets to current browser administrators; an observer role or reporting permission alone grants neither contact export nor callback administration</li>
+<li id="feature-ea866dbcab8b">Approval request: a member who can prepare asks the workspace's approvers to review a dispatch awaiting approval, from a human browser session only; one audit receipt per version (fingerprint), shown to approvers on the dispatch; it approves, reserves, sends and notifies nothing</li>
 </ol>

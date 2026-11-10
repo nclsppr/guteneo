@@ -1,6 +1,6 @@
 ---
 title: "Belvédère platform oversight"
-description: "16 capabilities in the operations branch of Guteneo."
+description: "17 capabilities in the operations branch of Guteneo."
 sidebar:
   order: 21
 ---
@@ -34,4 +34,5 @@ Dedicated-host release and authenticated overview verified on 25 October from 03
 <li id="feature-900452aea6f4">The loopback fictional platform account opens a separate GET/HEAD-only Belvedere fixture with seeded bounded pages, arithmetic totals and preserved locale; the default fixture remains compatible and no real platform access, credentials, provider or backend mutation is created</li>
 <li id="feature-afdeffdd6087">The platform shell uses the same frame/theme and independently lazy overview/workshops/members/jobs/connections/finance/infrastructure views with active-locale packs; every platform read retains its distinct signed browser authority</li>
 <li id="feature-2babe0c8fb34">Saved platform table presentation is partitioned by the authenticated principal and platform area, never a synthetic shared account; the HTML-escaped shell principal hint is cosmetic only, adds no query and cannot grant platform or workspace access</li>
+<li id="feature-6ef5fc77fdef">Whole translated singular/plural counts, shared StatTile presentation, one financial value per cell with optional breakdown, quiet missing values and mobile filter disclosure; platform authority and hidden-account invariants remain</li>
 </ol>

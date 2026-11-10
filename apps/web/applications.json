@@ -84,6 +84,7 @@
         "legal-links.tsx",
         "file-input.tsx",
         "pdf-viewer.tsx",
+        "pdf-thumbnail.tsx",
         "pdf-check-errors.ts",
         "pdf-check-offer.tsx",
         "pdf-check.css",
@@ -134,7 +135,12 @@
         "styles-adaptations.css",
         "lifecycle-pages.css",
         "distribution-roadmap.tsx",
-        "client-authority-refusal.ts"
+        "client-authority-refusal.ts",
+        "customer-pricing.ts",
+        "application-time.tsx",
+        "navigation-confirmation-state.ts",
+        "navigation-confirmation.tsx",
+        "navigation-confirmation.css"
       ]
     },
     "public": {
@@ -155,7 +161,6 @@
         "landing-example.tsx",
         "landing-example.css",
         "landing-sections.tsx",
-        "customer-pricing.ts",
         "legal-page.tsx",
         "legal-page.css",
         "information-page.tsx",
@@ -187,7 +192,10 @@
         "template-gallery-copy.ts",
         "dataset-pages.tsx",
         "generation-pages.tsx",
-        "studio-ai.tsx"
+        "studio-ai.tsx",
+        "template-thumbnail.tsx",
+        "template-thumbnail-limits.ts",
+        "template-thumbnail-render.ts"
       ]
     },
     "correspondence": {
@@ -263,7 +271,8 @@
         "belvedere-connections.tsx",
         "belvedere-finance.tsx",
         "belvedere-infrastructure.tsx",
-        "belvedere-jobs.tsx"
+        "belvedere-jobs.tsx",
+        "belvedere-presentation.ts"
       ]
     },
     "administration": {
@@ -281,7 +290,8 @@
         "invitation-csv.ts",
         "usage-activity.tsx",
         "usage-activity.css",
-        "customer-webhooks-page.tsx"
+        "customer-webhooks-page.tsx",
+        "administration-presentation.ts"
       ]
     }
   },

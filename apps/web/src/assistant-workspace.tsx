@@ -232,7 +232,7 @@ export function Connection({
                       )}
                     </p>
                   ) : null}
-                  <details className="assistant-connection-reference">
+                  <details className="disclosure assistant-connection-reference">
                     <summary>{msg("Connection reference")}</summary>
                     <code>{connection.client_id}</code>
                     <p className="field-hint">
@@ -334,7 +334,7 @@ export function Connection({
           </p>
         )}
       </section>
-      <details className="assistant-permissions">
+      <details className="disclosure assistant-permissions">
         <summary>{msg("What you authorise")}</summary>
         <p>{t.connection.scopeBody}</p>
         <p>{t.connection.permissions}</p>

@@ -8,7 +8,6 @@ import {
   ArrowLeft,
   Check,
   WarningCircle,
-  ShieldCheck,
 } from "@phosphor-icons/react";
 import {
   api,
@@ -23,13 +22,14 @@ import {
 } from "./api";
 import { t } from "./locale";
 import { ProtectedDocumentChoice } from "./protected-document";
-import { DistributionRoadmap, EmailComposer } from "./email-composer";
+import { EmailComposer } from "./email-composer";
 import type { PostalSetup } from "../../../packages/contracts/src/postal-setup";
 import { PostalSetupPanel } from "./postal-setup-panel";
 import {
   ChannelLabel,
   DateTimezone,
   Definition,
+  Disclosure,
   DispatchTable,
   EmptyState,
   ErrorNotice,
@@ -159,8 +159,7 @@ export function Campaigns({
   const locked = !!campaignId.current;
   return (
     <>
-      <PageHeading title={t.campaigns.title} />
-      <DistributionRoadmap />
+      <PageHeading title={t.nav.campaigns} />
       {!isPublicPreview && canPrepare && (
         <p className="notice info">
           {msg("For a personalised PDF per customer,")}{" "}
@@ -187,7 +186,10 @@ export function Campaigns({
       )}
       {canPrepare && (
         <form className="campaign-layout" onSubmit={(e) => void create(e)}>
-          <section className="form-panel">
+          <section className="form-panel campaign-step">
+            <h2>
+              <span aria-hidden="true">1</span> {t.campaigns.csv}
+            </h2>
             <Field label={t.campaigns.name}>
               <input
                 value={name}
@@ -214,20 +216,29 @@ export function Campaigns({
                 }}
               />
             </Field>
-            <Field label={t.campaigns.csv} hint={t.campaigns.csvHelp}>
-              <textarea
-                className="code-input"
-                rows={8}
-                value={csv}
-                onChange={(e) => {
-                  setCsv(e.target.value);
-                  setValidated(undefined);
-                }}
-                placeholder={t.campaigns.sample}
-                required
-                disabled={locked}
-              />
-            </Field>
+            <a
+              className="campaign-example"
+              download="guteneo-recipients.csv"
+              href={`data:text/csv;charset=utf-8,${encodeURIComponent(t.campaigns.sample)}`}
+            >
+              {msg("Download example")}
+            </a>
+            <Disclosure label={msg("Paste instead")}>
+              <Field label={t.campaigns.csv}>
+                <textarea
+                  className="code-input"
+                  rows={8}
+                  value={csv}
+                  onChange={(e) => {
+                    setCsv(e.target.value);
+                    setValidated(undefined);
+                  }}
+                  placeholder={t.campaigns.sample}
+                  required
+                  disabled={locked}
+                />
+              </Field>
+            </Disclosure>
             <button
               type="button"
               className="button"
@@ -323,8 +334,10 @@ export function Campaigns({
               </section>
             )}
           </section>
-          <section className="form-panel">
-            <h2>{t.campaigns.document}</h2>
+          <section className="form-panel campaign-step">
+            <h2>
+              <span aria-hidden="true">2</span> {t.campaigns.document}
+            </h2>
             <Field label={t.document}>
               <select
                 value={documentId}
@@ -389,6 +402,21 @@ export function Campaigns({
                 />
               </>
             )}
+          </section>
+          <section className="form-panel campaign-step campaign-review">
+            <h2>
+              <span aria-hidden="true">3</span> {msg("Review")}
+            </h2>
+            <dl className="campaign-review-summary">
+              <Definition label={t.campaigns.valid}>
+                {validated?.rows.length ?? 0}
+              </Definition>
+              <Definition label={t.document}>
+                {documents.data?.items.find(
+                  (document) => document.id === documentId,
+                )?.name ?? t.dispatch.chooseDocument}
+              </Definition>
+            </dl>
             <p className="field-hint">{t.campaigns.approvalNote}</p>
             <p className="field-hint">
               {t.campaigns.ceiling} : {money(500)} {t.campaigns.perRecipient}{" "}
@@ -548,7 +576,7 @@ export function Senders({
   return (
     <>
       <PageHeading
-        title={t.senders.title}
+        title={t.nav.senders}
         action={
           <RefreshButton
             onClick={() => {
@@ -558,110 +586,73 @@ export function Senders({
           />
         }
       />
-      <PostalSetupPanel
-        key={setupRevision}
-        onUpdated={resource.refresh}
-        onStatus={setPostalSetup}
-        canManage={canManage}
-        canPrepare={canPrepare}
-      />
-      {(isPublicPreview ||
-        resource.data?.items.some(
-          (sender) => sender.mode === "simulation",
-        )) && (
-        <div className="notice info">
-          <ShieldCheck size={23} />
-          <p>{t.senders.note}</p>
-        </div>
-      )}
       <ErrorNotice error={resource.error} retry={resource.refresh} />
-      {resource.loading && !resource.data ? (
-        <Loading />
-      ) : !resource.data?.items.length ? (
-        !postalSetup?.available && <EmptyState title={t.senders.empty} />
-      ) : (
-        <DataTable
-          viewId="senders"
-          label={t.senders.title}
-          items={resource.data.items}
-          getRowKey={(sender) => sender.id}
-          columns={[
-            {
-              id: "profile",
-              label: t.senders.profile,
-              value: (sender) => `${sender.name ?? ""} ${sender.id}`,
-              render: (sender) => (
-                <>
-                  <strong>{sender.name ?? sender.id}</strong>
-                  <span className="reference mono">{sender.id}</span>
-                </>
-              ),
-            },
-            {
-              id: "channel",
-              label: t.channel,
-              value: (sender) => t.channels[sender.channel],
-              render: (sender) => <ChannelLabel channel={sender.channel} />,
-            },
-            {
-              id: "address",
-              label: t.senders.address,
-              value: (sender) =>
-                sender.address ??
-                sender.email ??
-                sender.phone ??
-                t.senders.unavailable,
-            },
-            {
-              id: "status",
-              label: t.status,
-              value: (sender) =>
-                t.statuses[
-                  sender.status ?? (sender.verified ? "ready" : "pending")
-                ] ??
-                sender.status ??
-                "",
-              render: (sender) => (
-                <>
-                  {sender.id === postalSetup?.sender?.id &&
-                  postalSetup.senderVerification !== null &&
-                  sender.status === "verified" ? (
-                    <span className="status">
-                      {postalSetup.senderVerification ===
-                      "oauth_administrator_submission"
-                        ? t.postalSetup.submittedInChat
-                        : t.postalSetup.declared}
-                    </span>
-                  ) : (
-                    <Status
-                      status={
-                        sender.status ?? (sender.verified ? "ready" : "pending")
-                      }
-                    />
-                  )}
-                  {sender.mode === "simulation" && (
-                    <small className="sub-label">{t.simulation}</small>
-                  )}
-                </>
-              ),
-            },
-          ]}
-          filters={[
-            {
-              saveValue: true,
-              id: "channel",
-              label: t.channel,
-              value: (sender) => sender.channel,
-              options: [
-                ...new Set(resource.data.items.map((sender) => sender.channel)),
-              ].map((channel) => ({
-                value: channel,
-                label: t.channels[channel],
-              })),
-            },
-          ]}
-        />
-      )}
+      {resource.loading && !resource.data && <Loading />}
+      <div className="sender-channel-grid">
+        {(["email", "fax", "postal"] as const).map((channel) => {
+          const senders =
+            resource.data?.items.filter(
+              (sender) => sender.channel === channel,
+            ) ?? [];
+          return (
+            <section
+              className="form-panel sender-channel"
+              key={channel}
+              aria-labelledby={`sender-channel-${channel}`}
+            >
+              <h2 id={`sender-channel-${channel}`}>
+                <ChannelLabel channel={channel} />
+              </h2>
+              {resource.loading && !resource.data ? null : senders.length ? (
+                <ul className="sender-profiles">
+                  {senders.map((sender) => (
+                    <li key={sender.id}>
+                      <h3>{sender.name ?? t.channels[channel]}</h3>
+                      <p className="sender-address">
+                        {sender.address ??
+                          sender.email ??
+                          sender.phone ??
+                          t.senders.unavailable}
+                      </p>
+                      {sender.id === postalSetup?.sender?.id &&
+                      postalSetup.senderVerification !== null &&
+                      sender.status === "verified" ? (
+                        <span className="status">
+                          {postalSetup.senderVerification ===
+                          "oauth_administrator_submission"
+                            ? t.postalSetup.submittedInChat
+                            : t.postalSetup.declared}
+                        </span>
+                      ) : (
+                        <Status
+                          status={
+                            sender.status ??
+                            (sender.verified ? "ready" : "pending")
+                          }
+                        />
+                      )}
+                      {sender.mode === "simulation" && (
+                        <small className="sub-label">{t.simulation}</small>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="sender-empty">{t.senders.empty}</p>
+              )}
+              {channel === "postal" && (
+                <PostalSetupPanel
+                  key={setupRevision}
+                  onUpdated={resource.refresh}
+                  onStatus={setPostalSetup}
+                  canManage={canManage}
+                  canPrepare={canPrepare}
+                />
+              )}
+            </section>
+          );
+        })}
+      </div>
     </>
   );
 }

@@ -226,6 +226,7 @@ test("mobile private account links errors to fields and keeps every session and 
   await expect(page.getByRole("status")).toContainText(
     "Votre profil a été enregistré.",
   );
+  await page.locator(".account-access-details > summary").click();
   await expect(
     page.getByRole("button", { name: /^Me déconnecter de la session/ }),
   ).toBeVisible();

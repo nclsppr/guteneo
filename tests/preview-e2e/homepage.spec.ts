@@ -20,8 +20,8 @@ test("homepage connects concise product information to complete public pages", a
   await expect(page.getByRole("heading", { name: headline })).toBeVisible();
   const hero = page.locator(".public-home-hero");
   await expect(
-    hero.getByRole("link", { name: "Commencer", exact: true }),
-  ).toHaveAttribute("href", "/getting-started/");
+    hero.getByRole("link", { name: "Envoyer depuis Guteneo", exact: true }),
+  ).toHaveAttribute("href", "/app/prepare?entry=direct");
   await expect(
     hero.getByRole("link", { name: "Voir le fonctionnement", exact: true }),
   ).toHaveAttribute("href", "/how-it-works/");
@@ -45,9 +45,11 @@ test("homepage connects concise product information to complete public pages", a
   expect(serviceRequests).toEqual([]);
   expect(mediaRequests).toEqual([]);
   expect(errors).toEqual([]);
-  await hero.getByRole("link", { name: "Commencer", exact: true }).click();
-  await expect(page).toHaveURL(/\/getting-started\/$/);
-  await expect(page.locator("main h1")).toHaveText("Premiers pas");
+  await hero
+    .getByRole("link", { name: "Voir le fonctionnement", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/how-it-works\/$/);
+  await expect(page.locator("main h1")).toBeVisible();
 });
 
 test("the same public footer connects product, help, resources and legal information", async ({
@@ -146,6 +148,10 @@ test("support keeps all essential answers and keyboard disclosure", async ({
   page,
 }) => {
   await page.goto("/support/#faq");
+  await expect(page.locator(".public-header")).toHaveAttribute(
+    "data-render-state",
+    "interactive",
+  );
   const questions = page.locator(".faq-questions details");
   await expect(questions.locator("summary")).toHaveText([
     "Mon PDF original est-il modifié ?",
@@ -223,6 +229,10 @@ test("the example supports keyboard steps and only simulates validation", async 
   });
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/how-it-works/");
+  await expect(page.locator(".public-header")).toHaveAttribute(
+    "data-render-state",
+    "interactive",
+  );
   const example = page.locator("#how");
   const steps = example.getByRole("tablist", {
     name: "Étapes de la démonstration",
@@ -358,7 +368,7 @@ test("legacy homepage fragments remain meaningful and restore focus", async ({
     if (await destination.count())
       await expect(destination).toHaveAttribute(
         "href",
-        /^\/(how-it-works|getting-started|pricing|pdf-checks|support|roles)/,
+        /^\/(how-it-works|getting-started|pricing|pdf-checks|support|roles|app\/prepare)/,
       );
   }
 });
@@ -368,6 +378,10 @@ test("homepage product and help links remain in the keyboard sequence", async ({
   browserName,
 }) => {
   await page.goto("/?lang=en");
+  await expect(page.locator(".public-header")).toHaveAttribute(
+    "data-render-state",
+    "interactive",
+  );
   await page.locator(".skip-link").focus();
   const reached = new Set<string>();
   for (let step = 0; step < 60; step++) {

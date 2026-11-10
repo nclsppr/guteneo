@@ -21,7 +21,7 @@ import {
   WORKSPACE_ROLES,
   type WorkspaceRole,
 } from "../../../packages/contracts/src/roles";
-import { roleLabel, roleDescription, RolesOverview } from "./role-guide";
+import { roleLabel, roleDescription } from "./role-guide";
 
 type Props = { session: Session; onUpdated: () => void | Promise<void> };
 type Member = {
@@ -211,11 +211,6 @@ export function TeamAdmin({ session, onUpdated }: Props) {
       aria-labelledby="team-admin-title"
     >
       <h2 id="team-admin-title">{msg("Workspace members")}</h2>
-      <details className="role-guide-details">
-        <summary>{msg("Understand roles")}</summary>
-        <RolesOverview />
-        <a href="/roles/">{msg("Read the roles and permissions guide")}</a>
-      </details>
       {isPublicPreview ? (
         <PreviewNotice />
       ) : !canAdminister(session) ? (
@@ -248,7 +243,8 @@ export function TeamAdmin({ session, onUpdated }: Props) {
           ) : (
             members.data && (
               <>
-                <DataTable viewId="workspace-members"
+                <DataTable
+                  viewId="workspace-members"
                   label={msg("Workspace members")}
                   items={members.data.items}
                   getRowKey={(member) => member.id}

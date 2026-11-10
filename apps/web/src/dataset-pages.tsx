@@ -36,6 +36,7 @@ import {
 import { RolePermissionNotice } from "./role-guide";
 import {
   DateTimezone,
+  EmptyState,
   ErrorNotice,
   Field,
   go,
@@ -45,6 +46,7 @@ import {
   useAction,
   useResource,
   useRoute,
+  useRefreshOnFocus,
 } from "./components";
 
 function datasetContext(route: string) {
@@ -68,11 +70,18 @@ function withDatasetContext(path: string, context: URLSearchParams) {
   return path + (context.size ? "?" + context.toString() : "");
 }
 
-export function DatasetLibrary({ session }: { session: Session }) {
+export function DatasetLibrary({
+  session,
+  readOnly = false,
+}: {
+  session: Session;
+  readOnly?: boolean;
+}) {
   const currentView = useCurrentClientView(sessionAuthorityKey(session));
   const context = datasetContext(useRoute());
-  const canPrepare = permissionsFor(session).prepareDispatches;
+  const canPrepare = !readOnly && permissionsFor(session).prepareDispatches;
   const resource = useResource<Page<DatasetView>>("/datasets");
+  useRefreshOnFocus(resource.refresh);
   const action = useAction();
   const file = useRef<HTMLInputElement>(null);
   const [encoding, setEncoding] = useState("utf-8");
@@ -191,9 +200,13 @@ export function DatasetLibrary({ session }: { session: Session }) {
       ) : (
         <div className="studio-list">
           {!resource.data?.items.length && (
-            <p className="studio-list-row">
-              {msg("Your files will appear here after import. ")}
-            </p>
+            <EmptyState
+              icon={
+                <UploadSimple size={36} weight="light" aria-hidden="true" />
+              }
+              title={msg("No data files yet")}
+              text={msg("Your files will appear here after import.")}
+            />
           )}
           {resource.data?.items.map((item) => (
             <article key={item.id} className="studio-list-row">
@@ -239,7 +252,7 @@ export function DatasetLibrary({ session }: { session: Session }) {
         data={resource.data}
         onLoaded={resource.setData}
       />
-      {session.user.role === "admin" && <AiPolicy />}
+      {!readOnly && session.user.role === "admin" && <AiPolicy />}
     </>
   );
 }

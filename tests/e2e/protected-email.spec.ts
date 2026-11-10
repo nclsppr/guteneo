@@ -1,3 +1,4 @@
+import { preparationDiagnostics } from "../helpers/preparation-diagnostics";
 import { expect, test, type Page } from "@playwright/test";
 import { PDFDocument } from "pdf-lib";
 import { cleanEmailHtml } from "../../packages/contracts/src/content";
@@ -197,10 +198,9 @@ function gate() {
   return { ready, release };
 }
 
-test(`review keeps consent stationary through PDF loading and a held pointer`, async ({
+test("natural PDF review keeps attestations explicit through loading and page navigation", async ({
   page,
   isMobile,
-  browserName,
 }, testInfo) => {
   if (isMobile) await page.setViewportSize({ width: 320, height: 812 });
   const moduleGate = gate();
@@ -215,93 +215,53 @@ test(`review keeps consent stationary through PDF loading and a held pointer`, a
     await route.continue();
   });
   try {
-    await page.goto(`/#/app/dispatch/dispatch_protected_ui`);
-    const viewport = page.getByRole("region", {
-      name: "Aperçu du document approuvé",
-    });
+    await page.goto("/#/app/dispatch/dispatch_protected_ui");
+    const preview = page.locator(".pdf-preview");
     const contentConsent = page.getByRole("checkbox", {
       name: /J’ai vérifié le contenu/,
     });
     const recipientConsent = page.getByRole("checkbox", {
       name: /ce destinataire a demandé/,
     });
-    const send = page.getByRole("button", {
-      name: "Approuver et envoyer",
-      exact: true,
-    });
-    await expect(viewport.getByRole("status")).toBeVisible();
-    await expect(contentConsent).toBeVisible();
-    await page.evaluate(() => document.fonts.ready);
-    const documentY = () =>
-      recipientConsent.evaluate(
-        (element) => element.getBoundingClientRect().top + window.scrollY,
-      );
-    const frameHeight = () =>
-      viewport.evaluate((element) => element.getBoundingClientRect().height);
-    const initialY = await documentY();
-    const initialHeight = await frameHeight();
+    const send = page.getByRole("button", { name: /^Approuver et envoyer/ });
+    await expect(preview.getByRole("status")).toBeVisible();
+    await expect(page.locator(".pdf-preview-viewport")).toHaveCount(0);
+    await expect(send).toContainText("€");
+    await expect(contentConsent).not.toBeChecked();
+    await expect(recipientConsent).not.toBeChecked();
+    await expect(send).toBeDisabled();
     moduleGate.release();
     await expect(
-      viewport.locator('.pdf-canvas-wrap[aria-busy="true"]'),
+      preview.locator('.pdf-canvas-wrap[aria-busy="true"]'),
     ).toBeVisible();
-    expect(await documentY()).toBeCloseTo(initialY, 0);
-    expect(await frameHeight()).toBeCloseTo(initialHeight, 0);
-    await contentConsent.check();
-    await expect(send).toBeDisabled();
-    await expect(recipientConsent).not.toBeChecked();
-    await recipientConsent.scrollIntoViewIfNeeded();
-    const target = await recipientConsent.boundingBox();
-    if (!target) throw new Error("Recipient consent has no clickable box");
-    await page.mouse.move(
-      target.x + target.width / 2,
-      target.y + target.height / 2,
-    );
-    await page.mouse.down();
     contentGate.release();
     await expect(
-      viewport.locator('.pdf-canvas-wrap[aria-busy="false"]'),
+      preview.locator('.pdf-canvas-wrap[aria-busy="false"]'),
     ).toBeVisible();
-    await expect(viewport.locator("canvas")).toBeVisible();
-    expect(await documentY()).toBeCloseTo(initialY, 0);
-    expect(await frameHeight()).toBeCloseTo(initialHeight, 0);
-    await page.mouse.up();
-    await expect(recipientConsent).toBeChecked();
-    await expect(contentConsent).toBeChecked();
-    await expect(send).toBeEnabled();
-    expect(writes).toEqual([]);
-
-    // The whole long page and its navigation remain reachable without moving consent.
-    await viewport.focus();
-    await expect(viewport).toBeFocused();
-    await page.keyboard.press("End");
-    await expect
-      .poll(() => viewport.evaluate((element) => element.scrollTop))
-      .toBeGreaterThan(0);
-    expect(await documentY()).toBeCloseTo(initialY, 0);
-    await page.keyboard.press("Tab");
-    await expect(viewport).not.toBeFocused();
-    const nextPage = viewport.getByRole("button", { name: "Page suivante" });
-    // Safari's native tab order may skip buttons; verify their activation separately.
-    if (browserName === "webkit") await nextPage.focus();
-    await expect(nextPage).toBeFocused();
+    await expect(preview.locator("canvas")).toBeVisible();
+    await expect(contentConsent).not.toBeChecked();
+    await expect(recipientConsent).not.toBeChecked();
+    // The tall page belongs to the document scroll, with one bounded canvas.
+    const pageBox = await preview.locator("canvas").boundingBox();
+    if (!pageBox) throw new Error("PDF canvas has no natural page dimensions");
+    expect(pageBox.height / pageBox.width).toBeGreaterThan(3);
+    expect(
+      await preview.evaluate((element) => getComputedStyle(element).overflowY),
+    ).not.toMatch(/auto|scroll/);
+    await contentConsent.check();
+    await expect(send).toBeDisabled();
+    const next = preview.getByRole("button", { name: "Page suivante" });
+    await next.focus();
     await page.keyboard.press("Space");
-    await expect(viewport.locator("canvas")).toHaveAccessibleName(
+    await expect(preview.locator("canvas")).toHaveAccessibleName(
       "Aperçu · Page 2",
     );
     await expect(
-      viewport.locator('.pdf-canvas-wrap[aria-busy="false"]'),
+      preview.locator('.pdf-canvas-wrap[aria-busy="false"]'),
     ).toBeVisible();
-    expect(await documentY()).toBeCloseTo(initialY, 0);
-    expect(await frameHeight()).toBeCloseTo(initialHeight, 0);
-    await page.keyboard.press("Tab");
-    expect(
-      await viewport.evaluate((element) =>
-        element.contains(document.activeElement),
-      ),
-    ).toBe(false);
-    if (browserName !== "webkit") await expect(contentConsent).toBeFocused();
-    await expect(contentConsent).toBeChecked();
-    await expect(recipientConsent).toBeChecked();
+    await expect(recipientConsent).not.toBeChecked();
+    await recipientConsent.check();
+    await expect(send).toBeEnabled();
     expect(writes).toEqual([]);
     expect(
       await page.evaluate(
@@ -309,18 +269,51 @@ test(`review keeps consent stationary through PDF loading and a held pointer`, a
       ),
     ).toBe(true);
     await page.screenshot({
-      path: testInfo.outputPath(`stable-review.png`),
+      path: testInfo.outputPath("natural-review.png"),
       fullPage: true,
     });
   } finally {
     moduleGate.release();
     contentGate.release();
-    await page.mouse.up();
     await page.unrouteAll({ behavior: "wait" });
   }
 });
 
-test(`review keeps consent stationary when the PDF fails`, async ({
+test("a decision pointer gesture is rejected if its control moves before release", async ({
+  page,
+}) => {
+  const writes = await fixture(page);
+  await page.goto("/#/app/dispatch/dispatch_protected_ui");
+  const consent = page.getByRole("checkbox", {
+    name: /ce destinataire a demandé/,
+  });
+  await expect(
+    page.locator('.pdf-canvas-wrap[aria-busy="false"]'),
+  ).toBeVisible();
+  await consent.scrollIntoViewIfNeeded();
+  const box = await consent.boundingBox();
+  if (!box) throw new Error("Recipient consent has no clickable box");
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  // Reproduce a late preview height change without relying on browser scroll anchoring.
+  await consent.evaluate((element) => {
+    const region = element.closest<HTMLElement>(".dispatch-review-actions");
+    if (region) region.style.transform = "translateY(30px)";
+  });
+  const moved = await consent.boundingBox();
+  if (!moved) throw new Error("Recipient consent disappeared");
+  await page.mouse.move(moved.x + moved.width / 2, moved.y + moved.height / 2);
+  await page.mouse.up();
+  await expect(consent).not.toBeChecked();
+  await expect(
+    page.getByText(
+      "La mise en page a changé. Vérifiez le document puis réessayez.",
+    ),
+  ).toBeVisible();
+  expect(writes).toEqual([]);
+});
+
+test("PDF failure leaves the exact download available without granting recipient consent", async ({
   page,
   isMobile,
 }, testInfo) => {
@@ -331,10 +324,8 @@ test(`review keeps consent stationary when the PDF fails`, async ({
     unavailable: true,
   });
   try {
-    await page.goto(`/#/app/dispatch/dispatch_protected_ui`);
-    const viewport = page.getByRole("region", {
-      name: "Aperçu du document approuvé",
-    });
+    await page.goto("/#/app/dispatch/dispatch_protected_ui");
+    const preview = page.locator(".pdf-preview");
     const contentConsent = page.getByRole("checkbox", {
       name: /J’ai vérifié le contenu/,
     });
@@ -342,38 +333,23 @@ test(`review keeps consent stationary when the PDF fails`, async ({
       name: /ce destinataire a demandé/,
     });
     await expect(
-      viewport.locator('.pdf-canvas-wrap[aria-busy="true"]'),
+      preview.locator('.pdf-canvas-wrap[aria-busy="true"]'),
     ).toBeVisible();
-    await page.evaluate(() => document.fonts.ready);
-    const documentY = () =>
-      recipientConsent.evaluate(
-        (element) => element.getBoundingClientRect().top + window.scrollY,
-      );
-    const initialY = await documentY();
-    const initialHeight = await viewport.evaluate(
-      (element) => element.getBoundingClientRect().height,
-    );
     await contentConsent.check();
     contentGate.release();
-    await expect(viewport.getByRole("alert")).toBeVisible();
-    expect(await documentY()).toBeCloseTo(initialY, 0);
-    expect(
-      await viewport.evaluate(
-        (element) => element.getBoundingClientRect().height,
-      ),
-    ).toBeCloseTo(initialHeight, 0);
+    await expect(preview.getByRole("alert")).toBeVisible();
     await expect(contentConsent).toBeChecked();
     await expect(recipientConsent).not.toBeChecked();
     await expect(
-      page.getByRole("button", { name: "Approuver et envoyer", exact: true }),
+      page.getByRole("button", { name: /^Approuver et envoyer/ }),
     ).toBeDisabled();
-    await expect(page.locator(".pdf-preview .preview-label a")).toHaveAttribute(
+    await expect(preview.locator(".preview-label a")).toHaveAttribute(
       "href",
       `/api/documents/${sampleDocument.id}/content?dispatchId=${dispatch.id}`,
     );
     expect(writes).toEqual([]);
     await page.screenshot({
-      path: testInfo.outputPath(`stable-review-error.png`),
+      path: testInfo.outputPath("natural-review-error.png"),
       fullPage: true,
     });
   } finally {
@@ -510,6 +486,12 @@ test("email without attachment requires its message and leaves automatic HTML to
   await page.getByRole("button", { name: "Vérifier et préparer" }).click();
   expect(writes).toEqual([]);
   await fillMessage(page);
+  await expect(page.getByLabel("Adresse e-mail", { exact: true })).toHaveValue(
+    "recipient@example.invalid",
+  );
+  await expect(page.getByLabel("Objet", { exact: true })).toHaveValue(
+    "Votre document",
+  );
   await expect(
     page.frameLocator(".email-preview").locator("body"),
   ).toContainText("Bonjour <Camille>");
@@ -1184,9 +1166,9 @@ for (const mode of ["message", "attachment", "protected_link"] as const) {
     );
     await page.goto("/#/app/dispatch/dispatch_protected_ui");
     const send = page.getByRole("button", {
-      name: "Approuver et envoyer",
-      exact: true,
+      name: /^Approuver et envoyer.*€/,
     });
+    await expect(send).toContainText("€");
     await expect(send).toBeDisabled();
     await page
       .getByRole("checkbox", { name: /J’ai vérifié le contenu/ })
@@ -1197,13 +1179,17 @@ for (const mode of ["message", "attachment", "protected_link"] as const) {
       .check();
     await send.click();
     const resume = page.getByRole("button", {
-      name: "Confirmer l’envoi",
-      exact: true,
+      name: /^Confirmer l’envoi.*€/,
     });
     await expect(resume).toBeVisible();
-    await expect(page.getByRole("alert")).toContainText(
-      "Reprenez ce même envoi",
-    );
+    await expect(resume).toContainText("€");
+    const failure = page.getByRole("alert");
+    await expect(failure).toContainText("L’opération n’a pas pu aboutir");
+    await expect(failure).not.toContainText("Reprenez ce même envoi");
+    const details = failure.locator(".error-details");
+    await expect(details).not.toHaveAttribute("open");
+    await details.locator("summary").click();
+    await expect(details.getByText("NETWORK", { exact: true })).toBeVisible();
     expect(requests.map((request) => request.action)).toEqual([
       "approve",
       "confirm",
@@ -1271,3 +1257,8 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
       });
   });
 }
+
+// Retain the failing assertions and expose only finite synthetic form diagnostics.
+test.afterEach(async ({ page }, testInfo) => {
+  await preparationDiagnostics(page, testInfo);
+});

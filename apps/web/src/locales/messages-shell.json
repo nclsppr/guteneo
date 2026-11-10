@@ -457,5 +457,17 @@
     "Reload the page",
     "Seite neu laden",
     "D’Säit nei lueden"
-  ]
+  ],
+  "Cette page n’existe pas.": [
+    "This page does not exist.",
+    "Diese Seite gibt es nicht.",
+    "Dës Säit gëtt et net."
+  ],
+  "Revenir à la vue d’ensemble": [
+    "Back to Overview",
+    "Zurück zur Übersicht",
+    "Zréck op d’Iwwersiicht"
+  ],
+  "Détails": ["Details", "Details", "Detailer"],
+  "Télécharger": ["Download", "Herunterladen", "Eroflueden"]
 }

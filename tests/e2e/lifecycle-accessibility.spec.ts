@@ -5,7 +5,7 @@ import { expect, test, type Page, type TestInfo } from "@playwright/test";
 type Locale = "fr" | "en" | "de" | "lb";
 type Theme = "light" | "dark";
 type RuntimeLocale = {
-  copy: { overview: { title: string } };
+  copy: { nav: { overview: string } };
   messages: Record<string, number | string>;
   strings: string[];
 };
@@ -22,8 +22,11 @@ function copy(locale: Locale) {
       "utf8",
     ),
   ) as RuntimeLocale;
+  const overview = data.copy.nav?.overview;
+  if (typeof overview !== "string" || !overview)
+    throw new Error(`The ${locale} runtime catalog lacks the Overview heading`);
   return {
-    overview: data.copy.overview.title,
+    overview,
     message(source: string) {
       const value = data.messages[source];
       const translated =
@@ -392,7 +395,11 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
       try {
         await page.goto("/#/app");
         await expect(
-          page.getByRole("heading", { name: messages.overview, exact: true }),
+          page.getByRole("heading", {
+            level: 1,
+            name: messages.overview,
+            exact: true,
+          }),
         ).toBeVisible();
         await expect(
           page.getByRole("heading", {

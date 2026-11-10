@@ -17,21 +17,16 @@ export default function DocumentStudio({
 }) {
   const [path, query] = route.split("?");
   const permissions = permissionsFor(session);
+  const readOnly = isPublicPreview && !isAdvancedLocalPreview;
+  const canPrepare = permissions.prepareDispatches && !readOnly;
   const identity = sessionAuthorityKey(session);
-  if (isPublicPreview && !isAdvancedLocalPreview)
-    return (
-      <p className="notice info">
-        {msg(
-          "The document studio is available in your private workspace. This public demo does not process files. ",
-        )}
-      </p>
-    );
   if (path.startsWith(studioRoutes.template("")))
     return (
       <TemplateEditor
         key={`${identity}:${route}`}
         id={path.slice(studioRoutes.template("").length)}
         session={session}
+        readOnly={readOnly}
       />
     );
   if (path.startsWith(studioRoutes.dataset("")))
@@ -40,7 +35,7 @@ export default function DocumentStudio({
         key={`${identity}:${route}`}
         identity={identity}
         id={path.slice(studioRoutes.dataset("").length)}
-        canPrepare={permissions.prepareDispatches}
+        canPrepare={canPrepare}
       />
     );
   if (path.startsWith(studioRoutes.generation("")))
@@ -49,17 +44,17 @@ export default function DocumentStudio({
         key={`${identity}:${route}`}
         identity={identity}
         id={path.slice(studioRoutes.generation("").length)}
-        canPrepare={permissions.prepareDispatches}
+        canPrepare={canPrepare}
       />
     );
   if (path === studioRoutes.datasets)
-    return <DatasetLibrary session={session} />;
+    return <DatasetLibrary session={session} readOnly={readOnly} />;
   if (path === studioRoutes.generations)
-    return <GenerationList canPrepare={permissions.prepareDispatches} />;
+    return <GenerationList canPrepare={canPrepare} />;
   return (
     <TemplateLibrary
       identity={identity}
-      canPrepare={permissions.prepareDispatches}
+      canPrepare={canPrepare}
       startBlank={new URLSearchParams(query).get("new") === "blank"}
     />
   );

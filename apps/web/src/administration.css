@@ -2,7 +2,7 @@
 .administration-period {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 12px 20px;
   margin-bottom: 20px;
 }
@@ -54,7 +54,7 @@
   flex-basis: 100%;
   margin: 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 .administration-stats {
   display: grid;
@@ -71,7 +71,7 @@
   padding-block: 12px;
 }
 .administration-stats-secondary .stat-tile > strong {
-  font-size: 22px;
+  font-size: 20px;
 }
 .administration-panel {
   display: grid;
@@ -176,7 +176,7 @@
 }
 .administration-export h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: 20px;
 }
 .administration-export > p {
   margin: 0;
@@ -196,5 +196,158 @@
   .administration-export-actions .button {
     flex: 1 1 auto;
     justify-content: center;
+  }
+}
+
+/* Custom dates sit beside the presets and unfold under them. */
+.administration-custom {
+  flex: 1 1 220px;
+  border-top: 0;
+}
+.administration-custom > summary {
+  justify-content: flex-start;
+  color: var(--muted);
+}
+.administration-custom[open] > summary {
+  margin-bottom: 8px;
+}
+/* Reports share one title row; opening custom dates retains the URL period. */
+.administration-heading-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.administration-heading-controls .administration-period {
+  margin: 0;
+  gap: 8px;
+}
+.administration-heading-controls .administration-custom {
+  min-width: 180px;
+  max-width: 100%;
+}
+.administration-custom-period {
+  margin-block: 12px;
+}
+.administration-column-picker {
+  margin-block: 8px 16px;
+}
+.administration-column-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  padding-block: 12px;
+}
+.administration-column-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.administration-stats-primary,
+.administration-stats-secondary {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.administration-stats .stat-tile {
+  min-width: 0;
+  height: 100%;
+}
+.administration-exports {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.administration-export {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 24px;
+  border-radius: 0;
+  border-width: 0 0 1px;
+  padding-inline: 0;
+  background: transparent;
+}
+.administration-export-description {
+  min-width: 0;
+}
+.administration-export-description > p {
+  margin-block: 6px 0;
+  color: var(--muted);
+}
+.administration-export-actions {
+  margin: 0;
+}
+.administration-export > [role="status"],
+.administration-export > [role="alert"] {
+  grid-column: 1 / -1;
+}
+@media (max-width: 960px) {
+  .administration-stats-primary,
+  .administration-stats-secondary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .administration-heading-controls {
+    justify-content: flex-start;
+  }
+}
+@media (max-width: 640px) {
+  .administration-export {
+    grid-template-columns: 1fr;
+  }
+  .administration-export-actions {
+    justify-content: flex-start;
+  }
+  .administration-column-options {
+    flex-direction: column;
+  }
+}
+
+.administration-export-actions select {
+  min-height: 44px;
+  padding-inline: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+.administration-single-value {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0;
+}
+.administration-single-value dd {
+  margin: 0;
+  font-weight: 600;
+}
+.billing-profile {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 24px;
+}
+.billing-profile > .section-toolbar {
+  grid-column: 1 / -1;
+  margin-bottom: 0;
+}
+.billing-profile > p {
+  margin: 0;
+}
+.billing-profile > .field-hint {
+  grid-column: 1;
+}
+.billing-profile > .button {
+  grid-column: 2;
+  grid-row: 2 / span 2;
+}
+@media (max-width: 640px) {
+  .billing-profile {
+    grid-template-columns: 1fr;
+  }
+  .billing-profile > .button {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
   }
 }

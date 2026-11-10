@@ -16,6 +16,7 @@ export const fr = {
   preview: "Aperçu",
   download: "Ouvrir le PDF",
   fileInput: {
+    drop: "Vous pouvez aussi déposer le fichier ici.",
     choose: "Choisir un fichier",
     chooseMultiple: "Choisir des fichiers",
     empty: "Aucun fichier sélectionné",
@@ -193,7 +194,7 @@ export const fr = {
       "La connexion locale est réservée à l’environnement de développement.",
   },
   overview: {
-    title: "Votre correspondance, au clair.",
+    queueTitle: "À traiter",
     new: "Préparer un envoi",
     recent: "Derniers envois",
     all: "Voir tous les envois",
@@ -215,7 +216,6 @@ export const fr = {
     connect: "Configurer la connexion",
   },
   documents: {
-    title: "Documents",
     import: "Importer un PDF",
     render: "Composer une lettre",
     uploadTitle: "Importer le document exact",
@@ -268,10 +268,11 @@ export const fr = {
       "<h1>Bonjour,</h1>\n<p>Voici une lettre de démonstration préparée avec Guteneo.</p>\n<p>Ce document sert uniquement à tester un envoi simulé.</p>\n<p>Bien cordialement,<br>L’atelier Guteneo</p>",
   },
   dispatch: {
-    title: "Préparer une correspondance.",
-    intro: "L’envoi attendra votre approbation.",
+    stepsLabel: "Avancement de l’envoi",
+    uncertainNext:
+      "Un administrateur de l’atelier vérifie l’issue dans Administration. Rien n’est renvoyé automatiquement.",
+    versionDetails: "Détails de la version",
     new: "Nouvel envoi",
-    listTitle: "Le fil des envois.",
     filterLabel: "Afficher",
     groups: {
       all: "Tous",
@@ -341,7 +342,7 @@ export const fr = {
       "Une acceptation par le prestataire n’est pas une livraison. Le suivi indique uniquement les résultats disponibles.",
     uncertain:
       "Résultat de soumission incertain. Aucune nouvelle soumission automatique. Une vérification du prestataire est nécessaire.",
-    documentPreview: "Aperçu du document approuvé",
+    documentPreview: "Aperçu du document",
     htmlPreview: "Aperçu de l’e-mail",
     textPreview: "Version texte",
     recipientDetails: "Adresse du destinataire",
@@ -354,7 +355,6 @@ export const fr = {
     noChange: "Le contenu de cette préparation est figé.",
   },
   campaigns: {
-    title: "Campagnes",
     name: "Nom de la campagne",
     namePlaceholder: "Correspondance de septembre",
     csv: "Liste des destinataires au format CSV",
@@ -467,7 +467,6 @@ export const fr = {
       "Association enregistrée. Reconnectez l’assistant pour obtenir une nouvelle autorisation.",
   },
   senders: {
-    title: "Expéditeurs",
     empty: "Aucun profil d’expéditeur configuré.",
     note: "Les profils de simulation ne permettent aucun envoi réel. Pour le courrier, un administrateur déclare l’expéditeur autorisé de l’organisation. Les autres canaux conservent leur vérification propre.",
     profile: "Profil",

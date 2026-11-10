@@ -130,6 +130,11 @@ physical-device proof.
 Seven-, thirty-, ninety-day/custom periods use UTC. Production and simulation
 are viewed separately. Tables use server pagination; missing measures never
 become invented numbers.
+The [shared application-time policy](APPLICATION_TIME.md) also makes displayed
+instants, calendar labels and entered dates use UTC. Unsupported non-UTC
+`timeZone`/`timezone` declarations fail filter validation. This is one explicit
+application policy, not a saved personal preference or a change to historical
+financial grouping.
 
 ## Access
 

@@ -23,6 +23,7 @@ import type { SourceCell } from "../../../packages/contracts/src/datasets";
 import { api, date, isPublicPreview } from "./api";
 import { t } from "./locale";
 import {
+  EmptyState,
   ErrorNotice,
   DateTimezone,
   go,
@@ -33,6 +34,7 @@ import {
   useResource,
   useAction,
   useRoute,
+  useRefreshOnFocus,
 } from "./components";
 
 const stateLabel: Record<string, string> = {
@@ -70,6 +72,8 @@ export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
   const resource = useResource<Page<GenerationJobView>>("/generation-jobs");
   // One read in parallel; a missing name falls back to the template version.
   const templates = useResource<Page<TemplateView>>("/templates?limit=100");
+  useRefreshOnFocus(resource.refresh);
+  useRefreshOnFocus(templates.refresh);
   const templateNames = Object.fromEntries(
     (templates.data?.items ?? []).map((template) => [
       template.id,
@@ -96,9 +100,10 @@ export function GenerationList({ canPrepare }: { canPrepare: boolean }) {
       ) : (
         <div className="studio-list">
           {!resource.data?.items.length && (
-            <p className="studio-list-row">
-              {msg("Generated PDFs will appear here.")}
-            </p>
+            <EmptyState
+              title={msg("No generations yet")}
+              text={msg("Generated PDFs will appear here.")}
+            />
           )}
           {resource.data?.items.map((job) => (
             <article className="studio-list-row" key={job.id}>

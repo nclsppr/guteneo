@@ -115,7 +115,7 @@
 }
 .stat-tile > span {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 .stat-tile > strong {
   color: var(--heading-ink);
@@ -182,4 +182,27 @@
     grid-column: 1 / -1;
     grid-row: 2;
   }
+}
+
+/* Quiet figures share the same label/value/detail structure as report cards. */
+.stat-tile-plain {
+  gap: 8px;
+  padding: 0 24px;
+  border: 0;
+  border-inline-end: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+}
+.stat-tile-plain:first-child {
+  padding-inline-start: 0;
+}
+.stat-tile-plain:last-child {
+  border-inline-end: 0;
+  padding-inline-end: 0;
+}
+.stat-tile-plain > strong {
+  font-size: 32px;
+}
+.stat-tile-plain.stat-tile-warning > :is(span, strong) {
+  color: var(--warning);
 }

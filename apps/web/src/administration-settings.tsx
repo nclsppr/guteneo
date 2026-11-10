@@ -2,9 +2,8 @@ import { useState, type FormEvent } from "react";
 import { api, ApiError, isPublicPreview, type Session } from "./api";
 import { ErrorNotice, PageHeading, useAction } from "./components";
 import { msg } from "./messages";
-import { WorkspaceOperations } from "./administration-operations";
 
-/** Workspace identity and operations; personal profile settings stay in the account. */
+/** Workspace identity; operational controls have their own administrator page. */
 export function AdministrationSettings({
   session,
   onUpdated,
@@ -34,7 +33,14 @@ export function AdministrationSettings({
   }
   return (
     <>
-      <PageHeading title={msg("Workspace settings")} />
+      <PageHeading
+        title={msg("Workspace settings")}
+        action={
+          <a className="button" href="#/app/administration/operations">
+            {msg("Operations")}
+          </a>
+        }
+      />
       <form
         className="form-panel"
         onSubmit={(event) => void save(event)}
@@ -77,7 +83,6 @@ export function AdministrationSettings({
         )}
         <ErrorNotice error={action.error} />
       </form>
-      <WorkspaceOperations />
     </>
   );
 }

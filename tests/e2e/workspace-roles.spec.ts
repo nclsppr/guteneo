@@ -50,7 +50,13 @@ async function fixture(
     else if (path === "/overview")
       body = {
         documents: 3,
-        dispatches: { total: 2, approval: 1, attention: 0 },
+        dispatches: {
+          total: 2,
+          approval: 1,
+          in_progress: 1,
+          attention: 0,
+          done: 0,
+        },
       };
     else if (path === "/account/expert-approval")
       body = {
@@ -202,7 +208,7 @@ test("operator can prepare while approval and report interfaces stay restricted"
   const state = await fixture(page, "member");
   await page.goto("/#/app");
   await expect(
-    page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+    page.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
   ).toBeVisible();
   expect(state.requested).not.toContain("/overview");
   await expect(page.locator(".overview-stats")).toHaveCount(0);
@@ -212,9 +218,20 @@ test("operator can prepare while approval and report interfaces stay restricted"
     page.locator('a[href="#/app/prepare"]:visible').first(),
   ).toBeVisible();
   await page.goto("/#/app/dispatch/request");
+  const approvalNotice = page.getByRole("note").filter({
+    hasText:
+      "Cet envoi attend une approbation. Un administrateur ou un superviseur autorisé peut l’approuver.",
+  });
+  await expect(approvalNotice).toBeVisible();
   await expect(
-    page.getByText("Votre rôle ne permet pas cette action.", { exact: false }),
+    approvalNotice.locator('a[href="#/app/account"]'),
   ).toBeVisible();
+  await expect(
+    approvalNotice.getByRole("link", {
+      name: "Comprendre les rôles",
+      exact: true,
+    }),
+  ).toHaveAttribute("href", "/roles/");
   await expect(page.locator(".approval-panel")).toHaveCount(0);
   await expect(page.locator(".cancel-button")).toHaveCount(0);
   await page.goto("/#/app/usage");
@@ -224,6 +241,12 @@ test("operator can prepare while approval and report interfaces stay restricted"
     }),
   ).toBeVisible();
   expect(state.requested).not.toContain("/usage");
+  expect(state.requested).not.toContain("/overview");
+  expect(
+    state.requested.some((path) =>
+      /^\/dispatches\/request\/(approve|confirm|cancel)$/.test(path),
+    ),
+  ).toBe(false);
 });
 
 test("observer sees documents and tracking without preparation controls", async ({
@@ -263,7 +286,7 @@ for (const [canApprove, canReport] of [
     const state = await fixture(page, "supervisor", canApprove, canReport);
     await page.goto("/#/app");
     await expect(
-      page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+      page.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
     ).toBeVisible();
     await expect(page.locator(".overview-stats")).toHaveCount(
       canReport ? 1 : 0,
@@ -458,4 +481,29 @@ test("an invalid optional workspace response leaves the account form usable", as
     }),
   ).toBeVisible();
   await expect(spaces.getByRole("alert")).toHaveCount(0);
+});
+
+test("dispatch navigation reads one authorized aggregate in parallel with its list", async ({
+  page,
+}) => {
+  const state = await fixture(page, "admin");
+  await page.goto("/#/app/dispatches");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Envois", exact: true }),
+  ).toBeVisible();
+  const chips = page.locator(".dispatch-filter");
+  await expect(chips.locator(".dispatch-filter-count")).toHaveCount(5);
+  await expect(chips.locator(".dispatch-filter-count").first()).toHaveText("2");
+  await expect(
+    chips.locator(
+      'a[href="#/app/dispatches?group=approval"] .dispatch-filter-count',
+    ),
+  ).toHaveText("1");
+  expect(state.requested.filter((path) => path === "/overview")).toHaveLength(
+    1,
+  );
+  expect(state.requested.filter((path) => path === "/dispatches")).toHaveLength(
+    1,
+  );
+  expect(state.writes).toEqual([]);
 });

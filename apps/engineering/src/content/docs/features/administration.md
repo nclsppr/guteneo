@@ -1,6 +1,6 @@
 ---
 title: "Workspace administration and reports"
-description: "18 capabilities in the access branch of Guteneo."
+description: "20 capabilities in the access branch of Guteneo."
 sidebar:
   order: 28
 ---
@@ -36,6 +36,8 @@ sidebar:
 <li id="feature-ee01203cd333">Default-off webhook delivery requires encrypted signing secrets and hosted strictly-public HTTPS egress; direct destinations forbid credentials, queries, fragments, custom ports, private addresses and redirects, while one-time secrets stay browser-only</li>
 <li id="feature-867089be6b1e">Prospective dispatch-status triggers atomically append bounded endpoint-revision outbox records; 500 pending items per endpoint expose overflow, pending/history retention is bounded, and an invoked unknown callback is never automatically repeated</li>
 <li id="feature-6c0a511ac788">Changing endpoint revision supersedes pending callbacks; rotation pauses delivery, revocation removes signing material, and losing owner-admin membership or production mode permanently pauses the old grant until a fresh explicit browser enablement</li>
+<li id="feature-0ec718b63c43">Separate administrator-only /app/administration/operations route for channel controls, uncertain dispatches and failure-queue resolution; Settings retains workspace identity, with no new permission or automatic operations read</li>
+<li id="feature-19ea8e9b64d5">Compact UTC reporting periods, optional activity columns, useful chart thresholds, format-selectable report rows and allowlisted audit descriptions with raw code under Details; timestamp instants retain their explicitly identified display zone</li>
 </ol>
 
 ## REST operations

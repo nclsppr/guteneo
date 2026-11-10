@@ -1,0 +1,340 @@
+# Frontend clarity plan execution — 10 November 2026
+
+## Source and baseline
+
+The user requested continuation of the Claude desktop session **Frontend
+improvements from PR156**, including its plan and both authored audits:
+
+- [Frontend UX audit](https://claude.ai/artifact/Q13adpKNUhfUquVoomWK1L).
+- [Page-by-page design audit](https://claude.ai/artifact/GDy4kd9BtNhqatDkqHVhea).
+
+Both documents were read in the desktop application. Their observations concern
+the fixture preview at `77a7570b`, rather than the current production interface.
+The plan is retained by Claude as `precious-soaring-harbor.md`.
+
+The recovered branch is `worktree-trim-helper-copy-20261109`, originally ending at
+`39375884`. An isolated local checkout replays its work on main `551ca4c8`.
+Nineteen commits were preserved; the redundant command-palette commit was
+superseded by main's authority-scoped implementation. Split dispatch, stylesheet
+and Belvédère modules, session/navigation guards and all newer lifecycle features
+remain intact. The original worktree and unrelated dirty checkout were preserved.
+
+This document records implementation and local qualification. It grants no
+publication, production migration, customer callback, communication or paid
+infrastructure authority. Old Claude/main test results are historical evidence,
+not successful verification of this combined candidate.
+
+## Phase A — design reconciliation
+
+| Lot | Result and deliberate limits                                                                                                                                                                                                                                                                                                                                                                          |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A0  | Preserved the existing copy/title commit rather than inventing two historical commits. Functional titles, unknown-page recovery and the text floor remain.                                                                                                                                                                                                                                            |
+| A1  | Shared text tokens, disclosures, meaningful empty states and StatTile variants; the three applications reuse the same statistic component. Loading placeholders have page, table, form and document shapes. Evidence labels remain where an individual record can have a different mode.                                                                                                              |
+| A2  | Native row navigation, named loaded/page counts, one status filter, accurate chip totals from one parallel report-authorized aggregate read. Compact mode applies below five rows and retains active-filter recovery and scoped saved views; it does not pretend a loaded page is a complete collection. Studio library focus-refresh preserves unsent editor inputs.                                 |
+| A3  | Progress row, copiable reference, sticky priced decision, natural bounded PDF reader, journal before the preview after approval, and a next step for uncertain outcomes. Exact-version review, required attestations and separate postal transfer authority remain.                                                                                                                                   |
+| A4  | File drop zones, remembered channel, channel cards, qualified indicative prices before the spending cap, searchable countries and translated input errors. Indicative catalog prices are not represented as an actual provider quote; no provider read is added for decoration.                                                                                                                       |
+| A5  | Three campaign steps, downloadable fictional CSV example and optional paste editor; independent sender cards; two main account cards with separate expert approval and an access disclosure; compact PDF offer with conditions folded and a bounded private check history.                                                                                                                            |
+| A6  | User templates before compact examples, New template action, drop zones and localized empty states. Actual first-page template thumbnails render locally only on viewport entry through a serialized, bounded renderer; no preview mutation or remote resource is used. Ordinary public preview exposes deterministic, viewer-only Studio lists/details; writes are refused without backend fallback. |
+| A7  | Debounced committed search with stale-intent cancellation, native title/row links, near-expiry badges, sticky reader controls and responsive history aside. Existing useful personal navigation remains.                                                                                                                                                                                              |
+| A8  | Compact period control, activity column choices, useful chart thresholds, report rows with format selection, allowlisted audit descriptions, simpler billing and a separate administrator-only Operations page. Raw audit payloads and recipients remain excluded.                                                                                                                                    |
+| A9  | Complete singular/plural phrases, single-value financial cells with optional breakdown, quiet missing values, shared statistics and mobile filter disclosure. Platform authority remains distinct from workspace administration.                                                                                                                                                                      |
+| A10 | One telling of the home steps; the document/assistant start choices move into the hero while the existing installation fragment remains valid. Internal arrows use the normal direction. Pricing provenance remains available under Details, and Support gains a contact card without a response-time promise. Approved closing artwork and panorama remain.                                          |
+
+## Phase B — frontend foundations
+
+| Lot | Result and deliberate limits                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| B1  | Technical error codes are folded; only reviewed server messages are shown as product copy, with translated fallback otherwise. Recipient deletion, schedule cancellation and webhook secret rotation/revocation use explicit inline confirmation. Dirty application navigation uses a localized, cancel-focused dialog with immutable one-use continuation, exact route/authority/revision binding and deferred workspace preflight; independent hard vetoes still win. Browser beforeunload remains native because it cannot be localized by application code. |
+| B2  | All five applications use one fixed UTC contract for displayed instants, date filters, report buckets and datetime-local schedule/mandate input. Frames declare it once. Non-UTC report query zones are rejected; existing financial aggregation is preserved. The provider's published postal cutoff retains its actual Paris timezone. Units retain their truthful byte basis.                                                                                                                                                                                |
+| B3  | Preserved automated locale/theme accessibility checks and added named controls, distinct links and keyboard-native row actions. Automated and physical-device accessibility remain separate evidence.                                                                                                                                                                                                                                                                                                                                                           |
+| B4  | Inherited main's default continuation fencing, synchronous action latch, canonical authority identity, monotonic navigation clock, visibility-aware polling and bounded authority/locale-scoped collection sharing. No parallel stores were introduced.                                                                                                                                                                                                                                                                                                         |
+| B5  | Inherited main's generated active-language packs and dated before/after measurements. New copy regenerates the same packs; no fresh timing improvement is asserted without a browser measurement.                                                                                                                                                                                                                                                                                                                                                               |
+| B6  | Inherited main's zero design/import exceptions and split dispatch, Belvédère and stylesheet modules. New files have explicit application ownership.                                                                                                                                                                                                                                                                                                                                                                                                             |
+
+## Phase C — feature reconciliation
+
+| Feature                    | Implementation                                                                                                                                                                                                                                                                                                                                      |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| C1 Attention queue         | Main already contains the authorized SQL-backed queue, pagination and source reread. Kept instead of Claude's first-page approximation.                                                                                                                                                                                                             |
+| C2 Late outcomes           | Main's bounded, authority-scoped metadata tray is retained. Approval and quote-renewal receipts now publish confirmed late outcomes into it.                                                                                                                                                                                                        |
+| C3 Request approval        | Browser preparers can record one request for an exact prepared version. Final SQL fences check live browser authority, membership, mode, fingerprint and absence of a schedule hold. It is an in-application signal, not approval, consent, a reservation, a notification email or a send. Migration 0081 avoids main's existing migration numbers. |
+| C4 Saved recipients        | Already implemented on main with tenant and preparation authority. Preserved.                                                                                                                                                                                                                                                                       |
+| C5 Scheduled sending       | Already implemented on main with distinct revocable capped future approval, fresh release quote and atomic acceptance. Existing channel restrictions and activation gates remain.                                                                                                                                                                   |
+| C6 Customer webhooks       | Already implemented on main with minimal signed lifecycle metadata, protected secret handling and separate administrator browser authority. Activation remains independently gated.                                                                                                                                                                 |
+| C7 Native drafts           | Already implemented on main with bounded, non-synchronizing device Keychain storage and recovery keys. Physical-device/distribution qualification remains separate.                                                                                                                                                                                 |
+| C8 Palette and table views | Main's navigation-only palette and explicitly saved, authority-scoped table views are retained. Unscoped automatic localStorage defaults are not reintroduced.                                                                                                                                                                                      |
+
+PDF check history additionally uses migration 0082's tenant chronological index.
+Its browser-only metadata read follows current document-library visibility,
+keyset bounds and the existing HTTP budget, with final authority rechecking and
+no-store responses. It never purchases a check or creates sending authority.
+
+## Phase D — qualification
+
+The initial candidate verification receipt distinguishes completed checks from blocked execution. Its counts and built source snapshot below predate the subsequent UTC, localized navigation, public Studio and manual release additions. They are historical evidence, not the final combined-source result.
+Implementation does not turn a blocked, skipped or historical check into proof.
+
+| Check                                                           | Current evidence                                                                                                                                                                                                                                                                                                                    |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TypeScript, ESLint, application ownership and generated locales | Passed on the final changed source; 274 files owned, no new import/design exception.                                                                                                                                                                                                                                                |
+| Repository/documentation                                        | Standards, atlas and projection checks passed: 28 domains, 519 capabilities, 57 journeys, 97 REST operations and 92 MCP tools.                                                                                                                                                                                                      |
+| Web build and Worker bundle                                     | `npm run build` passed, including Wrangler dry run only. Final preview build passed; its content snapshot matches the current source. The SSR helper's refused development WebSocket does not prevent the static output.                                                                                                            |
+| Plugin                                                          | Candidate 1.2.3 synchronized and ZIP rebuilt/validated; both MCP resource manifests checked. No new MCP tool, scope or permission.                                                                                                                                                                                                  |
+| Native SQLite                                                   | Durable `node --import tsx tests/offline/clarity-sqlite.mts` passed 26 assertions using the actual services, 82 migrations and 2 synthetic engine calls; integrity ok, no foreign-key violations. This is not D1/workerd proof.                                                                                                     |
+| Full Vitest sweep                                               | Final recorded run: 1,998 passed, 57 failed and 2,039 skipped across 215 files / 4,094 tests. Listener refusal causes most failures and setup skips; the renderer fails with the independently observed browser-launch restriction. No whole-suite green result is claimed.                                                         |
+| Additional focused checks                                       | Thumbnail eligibility 4/4; Belvédère locale 8/8; shared table/foundation 34/34; OpenAPI 17/17. These are separate invocations, not counts added to one passing full run.                                                                                                                                                            |
+| Engineering site                                                | Build, Astro check, authored-document lint and four site security checks passed after generating the local routes.                                                                                                                                                                                                                  |
+| Security                                                        | Final serialized run completed: 733 tests, 702 passed, 31 failed, zero skips. The 31 failures are environment-bound (28 listener refusals, one blocked browser, one validator wrapper timeout with confirmed socket denial, one unproven offline-network probe). The six earlier dependency-path/projection failures are corrected. |
+| Browser / visual / fresh loading metrics                        | Normal Chromium pipe launch fails macOS MachPortRendezvousServer permission; installed WebKit aborts before page creation. Loopback servers fail `listen EPERM`. Browser suites and fresh loading observations are unqualified; old-source passes are not substituted.                                                              |
+| Native iOS                                                      | Full Xcode 27.2 was found without changing xcode-select. Unsigned device build failed at Icon Studio asset export after CoreSimulator service denial; no native test or distribution success is claimed.                                                                                                                            |
+
+The two audit documents remain the original observations. This execution matrix
+supersedes their old worktree status for the combined local candidate; the
+UTC and localized dirty-navigation requirements are now implemented above. The earlier local qualification below remains historical until rerun on the combined source.
+
+## Resume and review
+
+The active checkout is
+`/Users/nclsppr/Developer/guteneo/.claude/worktrees/claude-plan-reprise-20261110`,
+on branch `worktree-trim-helper-copy-20261109`. It is an isolated local repository
+because the original repository's Git metadata was not writable in this session.
+Its main baseline is `551ca4c8`; the original Claude branch/worktree still holds
+its original 20 commits. Use this checkout's branch and execution receipt when
+resuming, rather than treating Claude's unchanged final chat summary as current.
+Both original Claude audit documents contain the earlier dated execution update. This repository record supersedes their earlier timezone/dirty-navigation implementation status; hosted qualification is still separate.
+
+The [machine-readable receipt](evidence/clarity-continuation-2026-11-10.json) owns exact counts, source snapshot, archive integrity and qualification limits.
+
+## Completion pass after reconnection
+
+The UTC contract, translated dirty-navigation dialog, safe public Studio fixture
+access, focus-preserving Studio library refresh and PDF action deduplication are
+implemented. Focused pure tests, TypeScript and scoped lint passed for these lots.
+Browser cases now cover Back/Forward, cancelled/confirmed workspace changes,
+unchanged unsent input and host DST independence; they await hosted execution.
+
+A separate operator-triggered application release workflow qualifies exact current
+main, its immutable version tag and complete successful CI. It permits only the
+two reviewed additive index migrations after exact ledger/schema checks, records
+D1 bookmarks, verifies constraints and integrity, and invokes the unchanged live
+publication/served-byte verifier. It requires separate existing application and
+D1 credentials; missing access fails before mutation. Its 109 focused release
+guard tests pass. No new credential, broader permission or production action is
+implied by that implementation.
+
+The user supplied the macOS WebKit crash from 10 November 2026, 20:04:26 CET:
+SIGABRT inside HIServices `_RegisterApplication`, before page creation. This is
+consistent with the earlier local launch restriction, not an application test
+result. Further local browser-launch probes are stopped. A normal browser read
+confirmed production health and served version 1.2.1 at source `551ca4c8`; this
+does not qualify the candidate.
+
+The [completion-pass receipt](evidence/clarity-completion-2026-11-10.json) separates
+the latest successful source builds, 102 focused UI/foundation assertions,
+14 backend clock assertions and 109 release guard assertions from the original
+whole-suite environment failures. These are separate test invocations.
+
+## First hosted qualification and repair batch
+
+PR [162](https://github.com/nclsppr/guteneo/pull/162) publishes the exact local
+source tree through the GitHub connector; its initial head is `2db156da`, with
+Git tree `73c197bdfabfbfaa850c142fc18815763fc87750`. The first complete
+[CI run](https://github.com/nclsppr/guteneo/actions/runs/42886760472) failed.
+Twelve jobs passed, including security, private PDF/scanner checks, engineering,
+build and three Vitest shards. The application browser stages recorded 1,264
+passes, 148 failures and 19 declared skips across 1,431 discovered identities;
+downstream suites did not complete their entire inventory. This is failed
+qualification, not release proof.
+
+The repair batch updates actual renamed controls, Access/Operations disclosures,
+priced decisions, folded technical-code notices and localized navigation
+confirmations while retaining the approval, identity, stale-response, no-retry
+and fixture transport assertions. A historical populated-pricing fixture now
+applies index migration 0082 only after its deferred PDF schema exists.
+
+Production-source repairs address personal document ID double encoding, first
+focus session revalidation and hidden/inert personal content until that identity
+read succeeds. A delayed-session browser regression protects against refreshed
+documents appearing under another account's frame. Postal preparation releases
+its busy latch before publishing action completion, so an already-verified final
+PDF can continue the same preparation intent to review. The existing exact
+content, destination, pricing and human consent gates are unchanged.
+
+Unresolved email/postal browser failures keep their original assertions and gain
+finite failure-only diagnostics from synthetic fixtures, excluding entered
+content/recipient values. Fresh hosted CI must qualify these repairs. No
+production schema or runtime has been changed.
+
+### Second hosted pass
+
+[Run 42891102890](https://github.com/nclsppr/guteneo/actions/runs/42891102890)
+validated the historical populated migration fixture, security and rendering,
+and both distribution suites. Application stages recorded 1,391 passing
+results, 24 failures and 19 declared skips across 1,434 identities. The newly
+reached desktop preview stage passed 53 and failed two. This run also failed
+the final verifier; these partial inventories must not be combined into a
+complete passing browser result.
+
+Failure-only synthetic diagnostics identified controlled recipient fields
+being cleared after the first invalid submit: validation state was changed
+in the input capture phase before the controlled change handler captured its
+value. Validation clearing now bubbles after the target change, and the existing
+single-fill regression explicitly checks that recipient and subject survive.
+The same cause explains the iPhone postal name failure.
+
+Personal list focus refresh now subscribes to the parent verified-identity cycle.
+Every real tab wake closes the private-content barrier before bounded coalescing,
+including a rapid B-to-A return; a timer guarantees the read without another
+focus. Identity replacement mounts its own scoped list rather than notifying
+old-identity subscribers. The held-identity regression checks that no list
+refresh occurs before identity verification.
+
+Remaining presentation tests use actual disclosures, accessibility roles and
+priced controls; the preview CSV journey explicitly opens its paste option.
+Cross-tab language observers register before native reactivation, and the
+session-expiry fixture consistently returns an expired session rather than
+contradicting it with a successful parent read. Workspace authentication policy,
+consent assertions and every required CI gate remain intact. A fresh complete
+hosted result is still required.
+
+### Third hosted pass: application inventory complete
+
+[Run 42894540712](https://github.com/nclsppr/guteneo/actions/runs/42894540712)
+passed all nine application browser stages: 1,415 results passed and 19 declared
+skips accounted for all 1,434 discovered identities. All four Vitest shards,
+security, builds, engineering and both distribution suites passed. The final
+verifier still correctly refused the incomplete downstream inventory.
+
+Only three test files require downstream corrections. The media test now waits
+for the enabled interactive client player before configuring native caption
+observers, because initial SSR is replaced after locale readiness. Existing
+caption, decode and final-card seeking assertions remain. The exact-decimal
+Belvédère fixture uses five internally consistent fictional lines so the compact
+table contract exposes search and mobile sort; precision/order/source-text and
+no-request assertions remain. Public Studio waits for its committed route and
+attached navigation before checking the native disclosure's open state, without
+trying to click the CSS-hidden desktop toggle. Its read-only and zero-business-
+request checks remain.
+
+These three repairs change tests only. No production module, media asset,
+timeout, retry, declared skip or required gate was relaxed. The next complete
+exact-source CI run must pass before merge and production publication.
+
+### Fourth and fifth hosted passes: pagination concurrency
+
+[Run 42903335537](https://github.com/nclsppr/guteneo/actions/runs/42903335537)
+passed 22 jobs. Its only browser failure used a visibility-filtered role locator
+for Studio navigation inside a closed mobile disclosure. Including the attached
+hidden navigation before opening that disclosure corrected the test without
+changing its visible navigation, read-only or zero-business-request assertions.
+
+[Run 42906962716](https://github.com/nclsppr/guteneo/actions/runs/42906962716)
+also passed 22 jobs, including that iPhone Studio case. The application inventory
+recorded 1,414 passes, one failure and 19 declared skips across 1,434 identities.
+The failed dashboard case found an actual concurrency defect: a first-page focus
+read can finish after a cursor page and replace the additional loaded rows. The
+original assertion remains useful; waiting only for its request to start exposed
+the race. This failed complete run remains historical evidence, and downstream
+suites prevented by its failure do not count as passing.
+
+Explicit current resource updates now cancel only that hook's older read and
+retain their loaded rows. Committed per-identity ownership and live authority
+are rechecked before cancellation and inside queued state updates, including
+errors, so an abandoned render, old account or A-to-B-to-A callback cannot alter
+a replacement resource. Other subscribers retain their own reads. A subsequent
+explicit refresh still reads the first page normally.
+
+The original pagination regression now holds real first-page responses for both
+request-start orders, appends the cursor page before releasing the older
+snapshot, and verifies the exact rows, request counts and explicit refresh.
+Scoped and complete lint, TypeScript, web/Worker dry-run build, documentation,
+43 focused action/navigation/cache assertions and the action-boundary guard
+passed. The new browser scenarios await fresh complete hosted qualification;
+no local browser was launched. No production schema or runtime has changed.
+
+### Sixth hosted pass: preserve no-op resource updates
+
+[Run 42910566080](https://github.com/nclsppr/guteneo/actions/runs/42910566080)
+passed 20 jobs and correctly refused three browser failures. Application stages
+recorded 1,416 passes, two failures and 19 declared skips across 1,437 identities.
+All six pagination scenarios passed, covering both request-start orders on all
+three application projects. This still does not qualify the combined candidate.
+
+The eager cancellation introduced by the pagination repair caused one actual
+regression: Documents calls the resource setter through an alias, and its
+functional no-op could abort the initial library read when detail arrived first.
+The original audit of 15 direct calls missed that alias; the expanded review
+covers all 40 references, including 24 callback props and the alias.
+
+Read ownership now lives in queued resource state. An unchanged functional update
+preserves its pending read and loading state; a real data update takes ownership,
+and older successful or failed responses cannot overwrite it. Replayable React
+updaters have no cancellation side effect. Current scope and authority fences
+remain, and normal effect cleanup still aborts obsolete read subscribers.
+Documents applies selected detail only to an existing, different row and also
+reconciles a late library response. A held old-library regression verifies ready
+status after closing detail and safe selection of another document without a
+rescan or write. Pagination now requires the old response to complete normally,
+so its successful payload must be ignored rather than relying on cancellation.
+
+Two independent test readiness races are corrected: public-menu actions await
+the header's existing interactive marker after SSR replacement, and the webhook
+refusal case waits for the committed post-create configuration before injecting
+the refusal. Escape, pointer, keyboard, focus, secret-clearing and authority
+assertions remain. A fresh complete exact-source run is required before merge;
+there has been no production migration or publication.
+
+The combined repair passed independent review, TypeScript, complete lint,
+web/Worker dry-run build, documentation, 43 focused pure assertions and the
+action-boundary guard. Its browser coverage still awaits hosted execution. The
+held-response cases cover already-started reads; an earlier queued refresh intent
+whose request starts after a manual update has no new browser proof in this lot.
+
+### Seventh hosted pass: application qualified, public interaction readiness
+
+[Run 42913974468](https://github.com/nclsppr/guteneo/actions/runs/42913974468)
+passed 22 jobs. All nine application stages completed with 1,421 passes, zero
+failures and 19 declared skips across 1,440 identities. The six pagination cases,
+three late-document selections, three held initial libraries and three webhook
+configuration refusals all passed. Unit/integration, security, builds and both
+distribution suites also passed.
+
+One preview test focused the Support FAQ's initial HTML summary before client
+replacement and then sent Enter after that element lost focus. The preview
+inventory recorded 322 passes, one failure and five declared skips across 328
+identities. Together with Belvedere and status, the observed browser inventory
+was 1,843 passes, one failure and 24 declared skips across 1,868 identities. The
+final verifier correctly refused this complete run; application success does not
+make the whole pipeline green.
+
+A bounded review of all 26 preview test files reconciles functional marketing
+interactions with the existing public-header interactive marker. Eight test
+files now wait at the relevant menu, disclosure, keyboard, version-selector or
+fragment boundary. Existing pointer, keyboard, focus, locale, archive, authority
+and no-business-request assertions remain. Intentional initial-HTML, unavailable
+or delayed JavaScript, no-JavaScript, early theme, native-link and HTTP-only
+coverage stays unchanged. No product source, timeout, retry or declared skip is
+changed by this lot. TypeScript, complete lint and formatting passed; fresh
+complete hosted qualification is required before merge and publication.
+
+### Eighth hosted pass: all tests passed, discovery checkout repaired
+
+[Run 42917132402](https://github.com/nclsppr/guteneo/actions/runs/42917132402)
+passed all 23 test jobs. Application stages recorded 1,421 passes and 19 declared
+skips across 1,440 identities; preview recorded 323 passes and five declared skips
+across 328. Belvedere and status completed the observed browser inventory:
+1,844 passes, zero failures and 24 declared skips across 1,868 identities.
+
+The final verifier correctly refused to certify an inventory it could not load:
+its partial checkout omitted `tests/helpers`, newly imported by application tests.
+This is failed complete qualification even though every executed test passed.
+The workflow now includes that directory without changing verification rules.
+
+An independent temporary Git clone reproduced the exact non-cone checkout plus
+that one directory. All eight canonical Playwright discovery commands succeeded:
+480 application cases per project, 164 preview cases per project, 25 Belvedere
+cases per project and 50 status cases. Only discovery ran, with no browser or
+server; these 1,868 identities are not a second test execution. The eager file
+read audit found no other missing import or asset. Product source and test
+assertions remain unchanged; a fresh full hosted run must certify the repaired
+checkout before merge and publication.

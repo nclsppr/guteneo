@@ -18,7 +18,7 @@ async function login(page: Page) {
     .getByRole("button", { name: "Entrer dans l’espace de travail" })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Votre correspondance, au clair." }),
+    page.getByRole("heading", { name: "Vue d’ensemble", exact: true }),
   ).toBeVisible();
   const session = (await (
     await page.request.get("/api/session")
@@ -649,22 +649,25 @@ test("account language changes in another tab preserve the studio title and unsa
         .selectOption(locale);
       await settings.locator('form.form-panel button[type="submit"]').click();
       await expect(settings.locator("html")).toHaveAttribute("lang", locale);
-    } finally {
+      // Activating the original WebKit tab can revalidate immediately. Observe
+      // that real read before bringing it forward or closing the settings tab.
+      const rechecked = page.waitForResponse(
+        (response) =>
+          new URL(response.url()).pathname === "/api/session" &&
+          response.request().method() === "GET",
+      );
+      await page.bringToFront();
+      await expect
+        .poll(() => page.evaluate(() => document.visibilityState))
+        .toBe("visible");
       await settings.close();
+      await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+      expect((await rechecked).status()).toBe(200);
+      await expect(page.locator("html")).toHaveAttribute("lang", locale);
+      await expect(page.locator('select[name="language"]')).toHaveCount(0);
+    } finally {
+      if (!settings.isClosed()) await settings.close();
     }
-    const rechecked = page.waitForResponse(
-      (response) =>
-        new URL(response.url()).pathname === "/api/session" &&
-        response.request().method() === "GET",
-    );
-    await expect
-      .poll(async () => {
-        await page.evaluate(() => window.dispatchEvent(new Event("focus")));
-        return page.locator("html").getAttribute("lang");
-      })
-      .toBe(locale);
-    expect((await rechecked).status()).toBe(200);
-    await expect(page.locator('select[name="language"]')).toHaveCount(0);
   }
   for (const [locale, label, save] of [
     ["en", "Template name", "Save draft"],
@@ -704,8 +707,11 @@ test("account language changes in another tab preserve the studio title and unsa
     path: `reports/templates-data/studio-lb-${testInfo.project.name}.png`,
     fullPage: true,
   });
-  page.once("dialog", (dialog) => dialog.dismiss());
   await page.locator('a.back-link[href="#/app/studio/templates"]').click();
+  const leave = page.locator("dialog.navigation-confirmation");
+  await expect(leave).toBeVisible();
+  await leave.press("Escape");
+  await expect(leave).toBeHidden();
   await expect(page).toHaveURL(/#\/app\/studio\/template\/locale-studio$/);
   await expect(
     page.getByLabel("Numm vun der Virlag", { exact: true }),

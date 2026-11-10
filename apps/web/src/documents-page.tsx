@@ -23,6 +23,7 @@ import { PdfValidation } from "./pdf-validation";
 import {
   DateTimezone,
   Definition,
+  DocumentThumbnail,
   EmptyState,
   ErrorNotice,
   Field,
@@ -57,17 +58,17 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
   const updateDocumentList = resource.setData;
   useEffect(() => {
     if (!selected || isPublicPreview) return;
-    updateDocumentList((current) =>
-      current
-        ? {
-            ...current,
-            items: current.items.map((item) =>
-              item.id === selected.id ? selected : item,
-            ),
-          }
-        : current,
-    );
-  }, [selected, updateDocumentList]);
+    updateDocumentList((current) => {
+      const listed = current?.items.find((item) => item.id === selected.id);
+      if (!current || !listed || listed === selected) return current;
+      return {
+        ...current,
+        items: current.items.map((item) =>
+          item.id === selected.id ? selected : item,
+        ),
+      };
+    });
+  }, [selected, resource.data, updateDocumentList]);
   const [tab, setTab] = useState<"import" | "render" | null>(null);
   const [name, setName] = useState("");
   const [html, setHtml] = useState(t.documents.defaultHtml);
@@ -165,7 +166,7 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
   return (
     <>
       <PageHeading
-        title={t.documents.title}
+        title={t.nav.documents}
         action={
           canPrepare && (
             <div className="button-group">
@@ -407,7 +408,7 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
       ) : resource.data?.items.length ? (
         <DataTable
           viewId="documents"
-          label={t.documents.title}
+          label={t.nav.documents}
           items={resource.data.items}
           getRowKey={(item) => item.id}
           filters={[
@@ -438,13 +439,21 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
               value: (item) => item.name,
               searchValue: (item) => `${item.name} ${item.id}`,
               render: (item) => (
-                <button
-                  className="row-link text-button"
-                  onClick={(event) => openDocument(item, event.currentTarget)}
-                >
-                  {item.name}
-                  <span className="reference mono">{item.id}</span>
-                </button>
+                <>
+                  <DocumentThumbnail
+                    id={item.id}
+                    ready={
+                      (selected?.id === item.id ? selected : item).status ===
+                      "ready"
+                    }
+                  />
+                  <button
+                    className="row-link text-button"
+                    onClick={(event) => openDocument(item, event.currentTarget)}
+                  >
+                    {item.name}
+                  </button>
+                </>
               ),
             },
             {
