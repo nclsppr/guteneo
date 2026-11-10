@@ -264,6 +264,9 @@ export const de: Copy = {
       "<h1>Guten Tag,</h1>\n<p>dies ist ein mit Guteneo vorbereiteter Beispielbrief.</p>\n<p>Dieses Dokument dient ausschließlich zum Testen eines simulierten Versands.</p>\n<p>Mit freundlichen Grüßen<br>Die Guteneo-Werkstatt</p>",
   },
   dispatch: {
+    stepsLabel: "Fortschritt der Sendung",
+    uncertainNext: "Ein Administrator des Arbeitsbereichs prüft das Ergebnis in der Administration. Nichts wird automatisch erneut gesendet.",
+    versionDetails: "Versionsdetails",
     new: "Neue Sendung",
     chooseDocument: "Dokument auswählen",
     noDocument:

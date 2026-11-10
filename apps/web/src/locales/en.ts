@@ -263,6 +263,9 @@ export const en: Copy = {
       "<h1>Hello,</h1>\n<p>Here is a demonstration letter prepared with Guteneo.</p>\n<p>This document is only for testing a simulated dispatch.</p>\n<p>Kind regards,<br>The Guteneo workshop</p>",
   },
   dispatch: {
+    stepsLabel: "Dispatch progress",
+    uncertainNext: "A workspace administrator checks the outcome in Administration. Nothing is resent automatically.",
+    versionDetails: "Version details",
     new: "New dispatch",
     chooseDocument: "Choose a document",
     noDocument:

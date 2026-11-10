@@ -265,6 +265,9 @@ export const lb: Copy = {
       "<h1>Gudde Moien,</h1>\n<p>Hei ass e Beispillbréif, dee mat Guteneo virbereet gouf.</p>\n<p>Dëst Dokument ass nëmme fir den Test vun enger simuléierter Sendung geduecht.</p>\n<p>Mat beschte Gréiss<br>Den Atelier Guteneo</p>",
   },
   dispatch: {
+    stepsLabel: "Fortschrëtt vun der Sendung",
+    uncertainNext: "En Administrateur vum Atelier préift d’Resultat an der Administratioun. Näischt gëtt automatesch nach eng Kéier geschéckt.",
+    versionDetails: "Detailer vun der Versioun",
     new: "Nei Sendung",
     chooseDocument: "En Dokument wielen",
     noDocument:

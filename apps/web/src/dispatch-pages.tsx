@@ -2223,12 +2223,16 @@ export function DispatchDetailPage({
           />
         }
       />
+      <DispatchSteps
+        status={approved ? "approved" : d.status}
+        channel={d.channel}
+      />
       <div className="dispatch-reference">
-        <code>{d.id}</code>
         <Status status={approved ? "approved" : d.status} channel={d.channel} />
         {d.mode === "simulation" && (
           <span className="simulation-stamp">{t.simulation}</span>
         )}
+        <code>{d.id}</code>
       </div>
       {d.recipient_feedback && (
         <p className="notice info">
@@ -2302,7 +2306,9 @@ export function DispatchDetailPage({
       {uncertain && (
         <div className="notice warning">
           <WarningCircle size={25} />
-          <p>{t.dispatch.uncertain}</p>
+          <p>
+            {t.dispatch.uncertain} {t.dispatch.uncertainNext}
+          </p>
         </div>
       )}
       {postalReadRequired && (
@@ -2639,7 +2645,9 @@ export function DispatchDetailPage({
             </div>
           )}
           <details className="technical-details">
-            <summary>{t.dispatch.version}</summary>
+            <summary>
+              {pendingApproval ? t.dispatch.version : t.dispatch.versionDetails}
+            </summary>
             <p>{t.dispatch.noChange}</p>
             <dl>
               <Definition label={t.dispatch.fingerprint}>
@@ -2698,7 +2706,11 @@ export function DispatchDetailPage({
             })}
           </ol>
         )}
-        <details className="technical-details">
+        {/* Nothing to disclose before the first provider submission. */}
+        <details
+          className="technical-details"
+          hidden={!resource.data?.attempts.length}
+        >
           <summary>{t.dispatch.attempts}</summary>
           {!resource.data?.attempts.length ? (
             <p>{t.dispatch.noAttempts}</p>
@@ -2720,5 +2732,55 @@ export function DispatchDetailPage({
         </details>
       </section>
     </>
+  );
+}
+
+/** Where a dispatch stands, as four steps; exceptional outcomes keep the badge alone. */
+function DispatchSteps({
+  status,
+  channel,
+}: {
+  status: string;
+  channel: Channel;
+}) {
+  const position: Record<string, number> = {
+    draft: 0,
+    prepared: 0,
+    approved: 1,
+    accepted: 2,
+    queued: 2,
+    submitting: 2,
+    submitted: 2,
+    sending: 2,
+    printed: 2,
+    dispatched: 2,
+    delivered: 4,
+  };
+  const current = position[status];
+  if (current === undefined) return null;
+  const steps = [
+    t.statuses.prepared,
+    t.statuses.approved,
+    t.statuses.sending,
+    channel === "email"
+      ? t.statuses.email_delivered
+      : channel === "fax"
+        ? t.statuses.fax_delivered
+        : t.statuses.delivered,
+  ];
+  return (
+    <ol className="dispatch-steps" aria-label={t.dispatch.stepsLabel}>
+      {steps.map((label, index) => (
+        <li
+          key={index}
+          data-state={
+            index < current ? "done" : index === current ? "current" : "todo"
+          }
+          aria-current={index === current ? "step" : undefined}
+        >
+          {label}
+        </li>
+      ))}
+    </ol>
   );
 }

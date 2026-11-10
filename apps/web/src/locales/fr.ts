@@ -266,6 +266,9 @@ export const fr = {
       "<h1>Bonjour,</h1>\n<p>Voici une lettre de démonstration préparée avec Guteneo.</p>\n<p>Ce document sert uniquement à tester un envoi simulé.</p>\n<p>Bien cordialement,<br>L’atelier Guteneo</p>",
   },
   dispatch: {
+    stepsLabel: "Avancement de l’envoi",
+    uncertainNext: "Un administrateur de l’atelier vérifie l’issue dans Administration. Rien n’est renvoyé automatiquement.",
+    versionDetails: "Détails de la version",
     new: "Nouvel envoi",
     filterLabel: "Afficher",
     groups: {
