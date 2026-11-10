@@ -83,15 +83,8 @@ test("Swagger is lazy, does not authorize or execute, and cannot follow query ov
   page,
   context,
 }, testInfo) => {
-  // The preview makes no account requests. Public application pages discover
-  // saved person preferences through one read-only, denied guest session probe.
-  const sessionUrl = new URL("/api/session", baseURL).href;
-  const expectedDenial = (text: string, url: string | undefined) =>
-    publicApplication &&
-    url === sessionUrl &&
-    /^Failed to load resource: the server responded with a status of 401(?:\s|$)/.test(
-      text,
-    );
+  // Public HTML and the browser-only preview resolve visitor presentation
+  // without an account read. Wait for hydration before asserting that boundary.
   const homeContext = await browser.newContext({
     baseURL,
     viewport: testInfo.project.use.viewport,
@@ -106,47 +99,19 @@ test("Swagger is lazy, does not authorize or execute, and cannot follow query ov
       if (message.type() === "error")
         homeErrors.push({ text: message.text(), url: message.location().url });
     });
-    const denial = publicApplication
-      ? home.waitForResponse(
-          (response) =>
-            response.url() === sessionUrl &&
-            response.request().method() === "GET",
-        )
-      : null;
-    const denialConsole = publicApplication
-      ? home.waitForEvent("console", {
-          predicate: (message) =>
-            message.type() === "error" &&
-            expectedDenial(message.text(), message.location().url),
-        })
-      : null;
     await home.goto("/");
-    if (denial && denialConsole) {
-      const response = await denial;
-      expect(response.status()).toBe(401);
-      expect(await response.json()).toMatchObject({
-        error: { code: "AUTHENTICATION_REQUIRED" },
-      });
-      await response.finished();
-      const message = await denialConsole;
-      await testInfo.attach("anonymous-home-session-denial", {
-        body: JSON.stringify({
-          status: response.status(),
-          code: "AUTHENTICATION_REQUIRED",
-          console: { text: message.text(), url: message.location().url },
-        }),
-        contentType: "application/json",
-      });
-    }
+    await expect(
+      home.locator('header[data-render-state="interactive"]'),
+    ).toBeVisible();
     expect(
       homeRequests.filter((url) => /swagger|openapi\.json/.test(url)),
     ).toEqual([]);
     expect(
-      homeErrors.filter(({ text, url }) => !expectedDenial(text, url)),
+      homeRequests.filter((url) =>
+        /^\/(api|auth|oauth|mcp)(?:\/|$)/.test(new URL(url).pathname),
+      ),
     ).toEqual([]);
-    expect(
-      homeErrors.filter(({ text, url }) => expectedDenial(text, url)),
-    ).toHaveLength(publicApplication ? 1 : 0);
+    expect(homeErrors).toEqual([]);
   } finally {
     await homeContext.close();
   }
@@ -163,42 +128,15 @@ test("Swagger is lazy, does not authorize or execute, and cannot follow query ov
     if (message.type() === "error")
       errors.push({ text: message.text(), url: message.location().url });
   });
-  const documentationSession = publicApplication
-    ? page.waitForResponse(
-        (response) =>
-          response.url() === sessionUrl &&
-          response.request().method() === "GET",
-      )
-    : null;
-  const documentationDenial = publicApplication
-    ? page.waitForEvent("console", {
-        predicate: (message) =>
-          message.type() === "error" &&
-          expectedDenial(message.text(), message.location().url),
-      })
-    : null;
   await page.goto(
     "/developers/?url=https://untrusted.invalid/spec.json&config=https://untrusted.invalid/config.json",
   );
-  if (documentationSession && documentationDenial) {
-    const response = await documentationSession;
-    expect(response.status()).toBe(401);
-    expect(await response.json()).toMatchObject({
-      error: { code: "AUTHENTICATION_REQUIRED" },
-    });
-    await response.finished();
-    await documentationDenial;
-  }
+  await expect(
+    page.locator('header[data-render-state="interactive"]'),
+  ).toBeVisible();
   const expectAccountBoundary = () => {
-    expect(accountRequests).toEqual(
-      publicApplication ? [{ url: sessionUrl, method: "GET" }] : [],
-    );
-    expect(
-      errors.filter(({ text, url }) => !expectedDenial(text, url)),
-    ).toEqual([]);
-    expect(
-      errors.filter(({ text, url }) => expectedDenial(text, url)),
-    ).toHaveLength(publicApplication ? 1 : 0);
+    expect(accountRequests).toEqual([]);
+    expect(errors).toEqual([]);
   };
   expectAccountBoundary();
   await expect(page.locator("main h1")).toBeVisible();
@@ -206,8 +144,7 @@ test("Swagger is lazy, does not authorize or execute, and cannot follow query ov
     requested.filter(
       (url) =>
         /\/api\/|swagger|openapi\.json|untrusted\.invalid\//.test(url) &&
-        new URL(url).pathname !== "/developers/" &&
-        !(publicApplication && url === sessionUrl),
+        new URL(url).pathname !== "/developers/",
     ),
   ).toEqual([]);
   await page.screenshot({
