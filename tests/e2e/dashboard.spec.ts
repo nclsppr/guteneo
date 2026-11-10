@@ -325,80 +325,144 @@ test("the send ceiling is typed in euros and fax separators are removed", async 
   expect(body.ceilingMinor).toBe(150);
 });
 
-test("coming back to the tab re-reads the list once and keeps loaded pages", async ({
-  page,
-}) => {
-  await login(page);
-  const before = (await (await page.request.get("/api/overview")).json()) as {
-    dispatches: { total: number };
-  };
-  for (let index = before.dispatches.total; index < 32; index++)
-    await prepareEmail(page, `focus-${index}`);
-  const { dispatches } = (await (
-    await page.request.get("/api/overview")
-  ).json()) as { dispatches: { total: number } };
-  await page.goto("/#/app/dispatches");
-  await expect(
-    page.getByRole("heading", { name: "Envois", exact: true }),
-  ).toBeVisible();
-  // The outgoing overview has the same selector while navigation is pending.
-  const main = page.locator("#main-content");
-  await expect(main).not.toHaveAttribute("inert", "");
-  await expect(main).not.toHaveAttribute("aria-busy", "true");
-  const rows = page.locator("tbody tr");
-  const pageSize = main.getByRole("combobox", {
-    name: "Lignes par page",
-    exact: true,
+function readGate() {
+  let release!: () => void;
+  const promise = new Promise<void>((resolve) => {
+    release = resolve;
   });
-  await pageSize.selectOption("50");
-  await expect(pageSize).toHaveValue("50");
-  await expect(rows).toHaveCount(30);
-  const firstPageReads: string[] = [];
-  page.on("request", (request) => {
-    const url = new URL(request.url());
-    if (url.pathname === "/api/dispatches" && !url.searchParams.has("cursor"))
-      firstPageReads.push(url.search);
-  });
-  // Returning to a tab fires both events; one read covers them.
-  const comeBack = () =>
-    page.evaluate(() => {
-      document.dispatchEvent(new Event("visibilitychange"));
-      window.dispatchEvent(new Event("focus"));
+  return { promise, release };
+}
+
+for (const order of ["focus-first", "pagination-first"] as const)
+  test(`coming back to the tab keeps loaded pages when reads overlap (${order})`, async ({
+    page,
+  }) => {
+    await login(page);
+    const before = (await (await page.request.get("/api/overview")).json()) as {
+      dispatches: { total: number };
+    };
+    for (let index = before.dispatches.total; index < 32; index++)
+      await prepareEmail(page, `focus-${index}`);
+    const { dispatches } = (await (
+      await page.request.get("/api/overview")
+    ).json()) as { dispatches: { total: number } };
+    await page.goto("/#/app/dispatches");
+    await expect(
+      page.getByRole("heading", { name: "Envois", exact: true }),
+    ).toBeVisible();
+    // The outgoing overview has the same selector while navigation is pending.
+    const main = page.locator("#main-content");
+    await expect(main).not.toHaveAttribute("inert", "");
+    await expect(main).not.toHaveAttribute("aria-busy", "true");
+    const rows = page.locator("tbody tr");
+    const pageSize = main.getByRole("combobox", {
+      name: "Lignes par page",
+      exact: true,
     });
-  await comeBack();
-  await expect.poll(() => firstPageReads.length).toBe(1);
+    await pageSize.selectOption("50");
+    await expect(pageSize).toHaveValue("50");
+    await expect(rows).toHaveCount(30);
+    const firstPageReads: string[] = [];
+    let cursorReads = 0;
+    page.on("request", (request) => {
+      const url = new URL(request.url());
+      if (url.pathname !== "/api/dispatches") return;
+      if (url.searchParams.has("cursor")) cursorReads++;
+      else firstPageReads.push(url.search);
+    });
+    const firstReadStarted = readGate();
+    const releaseFirstRead = readGate();
+    const firstReadSettled = readGate();
+    const cursorReadStarted = readGate();
+    const releaseCursorRead = readGate();
+    let holdFirstRead = true;
+    let holdCursorRead = order === "pagination-first";
+    await page.route("**/api/dispatches*", async (route) => {
+      const url = new URL(route.request().url());
+      const cursor = url.searchParams.has("cursor");
+      if (
+        url.pathname !== "/api/dispatches" ||
+        (cursor ? !holdCursorRead : !holdFirstRead)
+      )
+        return route.continue();
+      if (cursor) holdCursorRead = false;
+      else holdFirstRead = false;
+      const snapshot = await route.fetch();
+      expect(snapshot.status()).toBe(200);
+      (cursor ? cursorReadStarted : firstReadStarted).release();
+      await (cursor ? releaseCursorRead : releaseFirstRead).promise;
+      try {
+        await route.fulfill({ response: snapshot });
+      } catch (error) {
+        // A current page append aborts the obsolete first-page subscriber.
+        // Only that transport cancellation is expected, never another error.
+        const failure = route.request().failure()?.errorText ?? "";
+        if (cursor || !/abort|cancel/i.test(failure)) throw error;
+      } finally {
+        if (!cursor) firstReadSettled.release();
+      }
+    });
+    // Returning to a tab fires both events; one read covers them.
+    const comeBack = () =>
+      page.evaluate(() => {
+        document.dispatchEvent(new Event("visibilitychange"));
+        window.dispatchEvent(new Event("focus"));
+      });
+    const loaded = Math.min(dispatches.total, 60);
+    const loadedRows = async () => {
+      await expect(rows).toHaveCount(Math.min(loaded, 50));
+      const content = await rows.allTextContents();
+      if (loaded > 50) {
+        await page
+          .getByRole("button", { name: "Page suivante", exact: true })
+          .click();
+        await expect(rows).toHaveCount(loaded - 50);
+        content.push(...(await rows.allTextContents()));
+        await page
+          .getByRole("button", { name: "Page précédente", exact: true })
+          .click();
+        await expect(rows).toHaveCount(50);
+      }
+      expect(content).toHaveLength(loaded);
+      return content;
+    };
+    try {
+      const loadMore = page.getByRole("button", { name: "Afficher la suite" });
+      if (order === "pagination-first") {
+        await loadMore.click();
+        await cursorReadStarted.promise;
+      }
+      await comeBack();
+      await firstReadStarted.promise;
+      await expect.poll(() => firstPageReads.length).toBe(1);
+      if (order === "focus-first") await loadMore.click();
+      else releaseCursorRead.release();
+      const beforeBackgroundRead = await loadedRows();
+      expect(cursorReads).toBe(1);
+      // Release the older snapshot only after all appended rows are visible.
+      releaseFirstRead.release();
+      await firstReadSettled.promise;
+      expect(await loadedRows()).toEqual(beforeBackgroundRead);
+      await expect(main.getByRole("alert")).toHaveCount(0);
+      await page.waitForTimeout(1100);
+      await comeBack();
+      // Absence check: the extra rows must survive another tab wake.
+      await page.waitForTimeout(500);
+      expect(firstPageReads).toHaveLength(1);
+      expect(cursorReads).toBe(1);
+      expect(await loadedRows()).toEqual(beforeBackgroundRead);
 
-  await page.getByRole("button", { name: "Afficher la suite" }).click();
-  const loaded = Math.min(dispatches.total, 60);
-  const loadedRows = async () => {
-    await expect(rows).toHaveCount(Math.min(loaded, 50));
-    const content = await rows.allTextContents();
-    if (loaded > 50) {
       await page
-        .getByRole("button", { name: "Page suivante", exact: true })
+        .getByRole("button", { name: "Actualiser", exact: true })
         .click();
-      await expect(rows).toHaveCount(loaded - 50);
-      content.push(...(await rows.allTextContents()));
-      await page
-        .getByRole("button", { name: "Page précédente", exact: true })
-        .click();
-      await expect(rows).toHaveCount(50);
+      await expect(rows).toHaveCount(30);
+      expect(firstPageReads).toHaveLength(2);
+      expect(cursorReads).toBe(1);
+    } finally {
+      releaseFirstRead.release();
+      releaseCursorRead.release();
     }
-    expect(content).toHaveLength(loaded);
-    return content;
-  };
-  const beforeBackgroundRead = await loadedRows();
-  await page.waitForTimeout(1100);
-  await comeBack();
-  // Absence check: the extra rows must survive a background re-read.
-  await page.waitForTimeout(500);
-  expect(firstPageReads).toHaveLength(1);
-  expect(await loadedRows()).toEqual(beforeBackgroundRead);
-
-  await page.getByRole("button", { name: "Actualiser", exact: true }).click();
-  await expect(rows).toHaveCount(30);
-  expect(firstPageReads).toHaveLength(2);
-});
+  });
 
 test("assistants read filtered lists but not the workspace summary", async ({
   page,

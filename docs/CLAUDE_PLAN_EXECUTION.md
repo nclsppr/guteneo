@@ -219,3 +219,35 @@ request checks remain.
 These three repairs change tests only. No production module, media asset,
 timeout, retry, declared skip or required gate was relaxed. The next complete
 exact-source CI run must pass before merge and production publication.
+
+### Fourth and fifth hosted passes: pagination concurrency
+
+[Run 42903335537](https://github.com/nclsppr/guteneo/actions/runs/42903335537)
+passed 22 jobs. Its only browser failure used a visibility-filtered role locator
+for Studio navigation inside a closed mobile disclosure. Including the attached
+hidden navigation before opening that disclosure corrected the test without
+changing its visible navigation, read-only or zero-business-request assertions.
+
+[Run 42906962716](https://github.com/nclsppr/guteneo/actions/runs/42906962716)
+also passed 22 jobs, including that iPhone Studio case. The application inventory
+recorded 1,414 passes, one failure and 19 declared skips across 1,434 identities.
+The failed dashboard case found an actual concurrency defect: a first-page focus
+read can finish after a cursor page and replace the additional loaded rows. The
+original assertion remains useful; waiting only for its request to start exposed
+the race. This failed complete run remains historical evidence, and downstream
+suites prevented by its failure do not count as passing.
+
+Explicit current resource updates now cancel only that hook's older read and
+retain their loaded rows. Committed per-identity ownership and live authority
+are rechecked before cancellation and inside queued state updates, including
+errors, so an abandoned render, old account or A-to-B-to-A callback cannot alter
+a replacement resource. Other subscribers retain their own reads. A subsequent
+explicit refresh still reads the first page normally.
+
+The original pagination regression now holds real first-page responses for both
+request-start orders, appends the cursor page before releasing the older
+snapshot, and verifies the exact rows, request counts and explicit refresh.
+Scoped and complete lint, TypeScript, web/Worker dry-run build, documentation,
+43 focused action/navigation/cache assertions and the action-boundary guard
+passed. The new browser scenarios await fresh complete hosted qualification;
+no local browser was launched. No production schema or runtime has changed.

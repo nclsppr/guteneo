@@ -266,6 +266,18 @@ export function useResource<T>(path: string | null) {
     sessionAuthorityKey,
   );
   const identity = `${authority}:${path ?? ""}`;
+  const [scope, setScope] = useState(() => ({ identity }));
+  if (scope.identity !== identity) setScope({ identity });
+  const committedScope = useRef<typeof scope | undefined>(scope);
+  const pendingRead = useRef<
+    { scope: typeof scope; controller: AbortController } | undefined
+  >(undefined);
+  useLayoutEffect(() => {
+    committedScope.current = scope;
+    return () => {
+      if (committedScope.current === scope) committedScope.current = undefined;
+    };
+  }, [scope]);
   const [state, setState] = useState<{
     identity: string;
     data?: T;
@@ -276,10 +288,25 @@ export function useResource<T>(path: string | null) {
   const refresh = useCallback(() => setVersion((v) => v + 1), []);
   const setData = useCallback(
     (value: SetStateAction<T | undefined>) => {
+      if (
+        committedScope.current !== scope ||
+        sessionAuthorityKey() !== authority
+      )
+        return;
+      // An explicit current result wins over an older read of this resource.
+      // Abort this hook's subscriber only; other shared readers keep theirs.
+      const read = pendingRead.current;
+      if (read?.scope === scope) {
+        read.controller.abort();
+        pendingRead.current = undefined;
+      }
       setState((current) =>
+        committedScope.current === scope &&
+        sessionAuthorityKey() === authority &&
         current.identity === identity
           ? {
               ...current,
+              loading: false,
               data:
                 typeof value === "function"
                   ? (value as (previous: T | undefined) => T | undefined)(
@@ -290,7 +317,7 @@ export function useResource<T>(path: string | null) {
           : current,
       );
     },
-    [identity],
+    [authority, identity, scope],
   );
   useEffect(() => {
     if (!path) {
@@ -298,13 +325,23 @@ export function useResource<T>(path: string | null) {
       return;
     }
     const controller = new AbortController();
+    const owned = { scope, controller };
+    pendingRead.current = owned;
+    const isCurrentRead = () =>
+      !controller.signal.aborted &&
+      committedScope.current === scope &&
+      sessionAuthorityKey() === authority;
     // A refresh retains this resource. Navigation must never show an editable
     // model from the previous path while the new request is pending or fails.
-    setState((current) => ({
-      identity,
-      data: current.identity === identity ? current.data : undefined,
-      loading: true,
-    }));
+    setState((current) =>
+      isCurrentRead()
+        ? {
+            identity,
+            data: current.identity === identity ? current.data : undefined,
+            loading: true,
+          }
+        : current,
+    );
     const read = (signal: AbortSignal) => api<T>(path, { signal });
     const request = cacheableListPath(path)
       ? readClientList<T>(
@@ -316,22 +353,36 @@ export function useResource<T>(path: string | null) {
       : read(controller.signal);
     request
       .then((data) => {
-        if (!controller.signal.aborted)
-          setState({ identity, data, loading: false });
+        if (isCurrentRead())
+          setState((current) =>
+            isCurrentRead() && current.identity === identity
+              ? { identity, data, loading: false }
+              : current,
+          );
       })
       .catch((error: unknown) => {
         // Aborting fetch is not sufficient when parsing or another transport
         // has already completed. Late successes and failures are both stale.
-        if (!controller.signal.aborted)
-          setState((current) => ({
-            ...current,
-            data: dataAfterReadFailure(current.data, error),
-            error: error as Error,
-            loading: false,
-          }));
+        if (isCurrentRead())
+          setState((current) =>
+            isCurrentRead() && current.identity === identity
+              ? {
+                  ...current,
+                  data: dataAfterReadFailure(current.data, error),
+                  error: error as Error,
+                  loading: false,
+                }
+              : current,
+          );
+      })
+      .finally(() => {
+        if (pendingRead.current === owned) pendingRead.current = undefined;
       });
-    return () => controller.abort();
-  }, [path, identity, version]);
+    return () => {
+      controller.abort();
+      if (pendingRead.current === owned) pendingRead.current = undefined;
+    };
+  }, [path, authority, identity, scope, version]);
   // Effects run after render; hide a different path's data immediately.
   const current = state.identity === identity ? state : undefined;
   return {

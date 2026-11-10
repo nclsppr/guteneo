@@ -32,7 +32,7 @@
     "integrations": "1.2.3 MCP/package fingerprints matched"
   },
   "unqualified": [
-    "Combined-source complete Vitest/workerd/security/browser suites require hosted CI",
+    "Fresh complete exact-source hosted CI is required after pagination repair; historical failed runs do not substitute.",
     "No new rendered screenshots or first-load timings",
     "Production schema and deployment not performed",
     "Native simulator/device/distribution qualification unchanged from historical record"
@@ -121,5 +121,49 @@
       "Both distribution suites"
     ],
     "remaining": "Caption interactive-player readiness, public Studio route readiness, five-row Belvedere decimal fixture; test-only repairs, no timeout/retry/skip relaxation"
+  },
+  "fourthHostedCi": {
+    "head": "10d83b7033c1b0789330563d92bfacf3703e7ba6",
+    "tree": "d2bd2af94491f3bd45647281f22d0bf1a97e2cb8",
+    "runId": 42903335537,
+    "result": "failed",
+    "passedJobs": 22,
+    "remaining": "One iPhone public Studio test used default visibility-filtered getByRole inside a closed disclosure; includeHidden only for attached-navigation lookup, with native opening/visibility/read-only/no-business-request assertions preserved."
+  },
+  "fifthHostedCi": {
+    "head": "0e6510a4c1117443eba49b4b3f006464e3852d1f",
+    "tree": "15d0bcf55d3db8b6d6c5828a3ab71fe90e1ee016",
+    "runId": 42906962716,
+    "result": "failed",
+    "passedJobs": 22,
+    "applicationBrowser": {
+      "passed": 1414,
+      "failed": 1,
+      "declaredSkipped": 19,
+      "discovered": 1434
+    },
+    "publicStudioIphone": "Passed in 3.6 seconds; iPhone shard3 preview54passed",
+    "remaining": "Dashboard pagination real concurrency: older focus first-page response can overwrite additional cursor rows. Keep original assertion; repair resource read ownership and cover held-response completion orders. No merge/deployment; prevented downstream inventories remain incomplete."
+  },
+  "paginationRepair": {
+    "implementation": "An explicit current useResource update aborts only its older owned read subscriber and marks loading false. Committed identity lifetime plus live authority guards run before cancellation and inside queued state updaters, preserving path/account ABA and unmount fencing. Later explicit refresh works; no cache/navigation/consent gate change.",
+    "review": "Root and independent read-only review passed; all15manualdata callers retain current-action/recovery fences.",
+    "browserRegression": "Original loaded-page case now covers both request-start orders with real first-page snapshots held until cursor rows are displayed, exact row/read counts, no extra focus/cursor calls, no error and later explicit refresh. Adds one discovered identity per application project; no retry, timeout or skip relaxation. Hosted execution pending.",
+    "localChecks": {
+      "typecheck": "passed through npm run build",
+      "lint": "passed including278ownedfiles/noexceptions/locales",
+      "docs": "passed28domains520capabilities57journeys97REST92MCP",
+      "webWorkerBuild": "passed; Wrangler dry run only",
+      "pureAssertions": {
+        "passed": 43,
+        "failed": 0,
+        "files": 4
+      },
+      "clientActionBoundary": {
+        "passed": 1,
+        "failed": 0
+      }
+    },
+    "hostedQualification": "A fresh exact-source complete run is required before merge; all production effects remain unchanged."
   }
 }
