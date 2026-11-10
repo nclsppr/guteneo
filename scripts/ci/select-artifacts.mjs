@@ -64,6 +64,27 @@ function matchesFamily(name, family) {
   throw new Error("CI_ARTIFACT_FAMILY_INVALID");
 }
 
+// Physical names must stay unique across reruns: download-artifact's ID path
+// first deduplicates equal names by highest ID, which is not creation order.
+// Only these reviewed producers may share one logical selection across attempts.
+function logicalArtifactName(name, family, run) {
+  const attempt = name.match(/^(.*)-attempt-([1-9]\d*)$/);
+  const logical = attempt?.[1] ?? name;
+  const recognized = {
+    build: /^guteneo-browser-builds-[a-f0-9]{40}$/,
+    vitest: /^ci-vitest-(?:[1-4]|renderer)$/,
+    evidence:
+      /^ci-evidence-(?:runtime-(?:dependencies|pdf-validator|scanner|build)|checks|security|engineering|vitest-[1-4]|browser-(?:chromium|mobile-chromium|iphone-webkit)-[1-3]|distribution-(?:strong|verified_account))$/,
+  };
+  requireCondition(recognized[family]?.test(logical), "NAME_INVALID");
+  if (attempt)
+    requireCondition(
+      positiveId(Number(attempt[2])) && Number(attempt[2]) <= run.run_attempt,
+      "ATTEMPT_INVALID",
+    );
+  return logical;
+}
+
 /** Select by creation time, never ID ordering or whether a result passed. */
 export function selectArtifacts(artifacts, family, run, revision) {
   const groups = new Map();
@@ -88,14 +109,15 @@ export function selectArtifacts(artifacts, family, run, revision) {
         typeof artifact.expired === "boolean",
       "METADATA_INVALID",
     );
+    const logical = logicalArtifactName(artifact.name, family, run);
     if (family === "build")
       requireCondition(
-        artifact.name === `guteneo-browser-builds-${revision}`,
+        logical === `guteneo-browser-builds-${revision}`,
         "BUILD_REVISION_INVALID",
       );
-    const group = groups.get(artifact.name) ?? [];
+    const group = groups.get(logical) ?? [];
     group.push(artifact);
-    groups.set(artifact.name, group);
+    groups.set(logical, group);
   }
   requireCondition(groups.size > 0, "FAMILY_MISSING");
   return [...groups.entries()]

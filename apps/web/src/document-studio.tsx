@@ -1,7 +1,7 @@
 import { isAdvancedLocalPreview } from "./local-preview";
 import { msg } from "./messages";
 import type { Session } from "./api";
-import { isPublicPreview, permissionsFor } from "./api";
+import { isPublicPreview, permissionsFor, sessionAuthorityKey } from "./api";
 import { TemplateLibrary, TemplateEditor } from "./template-pages";
 import { DatasetLibrary, DatasetMapper } from "./dataset-pages";
 import { GenerationList, GenerationDetail } from "./generation-pages";
@@ -17,11 +17,7 @@ export default function DocumentStudio({
 }) {
   const [path, query] = route.split("?");
   const permissions = permissionsFor(session);
-  const identity = JSON.stringify([
-    session.organization.id,
-    session.user.id,
-    session.csrfToken,
-  ]);
+  const identity = sessionAuthorityKey(session);
   if (isPublicPreview && !isAdvancedLocalPreview)
     return (
       <p className="notice info">

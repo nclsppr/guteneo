@@ -52,7 +52,7 @@
 }
 .homepage-film-video {
   object-fit: contain;
-  background: #0a132d;
+  background: var(--film-backdrop);
 }
 .homepage-film-video[hidden] {
   display: none;
@@ -98,7 +98,7 @@
   height: var(--film-play-height);
   border-radius: 14px;
   background: var(--action);
-  color: #fff;
+  color: var(--film-control-ink);
 }
 .homepage-film-play-icon svg {
   margin-left: 4px;

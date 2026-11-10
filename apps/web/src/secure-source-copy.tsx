@@ -70,11 +70,18 @@ export function useSecureSourceCopy(
     const isCurrent = currentView();
     copying.current = true;
     setState({ ...recovery, phase: "copying" });
-    await action.run(async () => {
+    await action.run(async (view) => {
       try {
-        const document = await api<DocumentRecord>(
-          `/documents/${encodeURIComponent(recovery.documentId)}/secure-copy`,
-          { method: "POST", key: recovery.key, body: {} },
+        const document = await view.wait(
+          api<DocumentRecord>(
+            `/documents/${encodeURIComponent(recovery.documentId)}/secure-copy`,
+            { method: "POST", key: recovery.key, body: {} },
+          ),
+          (receipt) => ({
+            kind: "saved",
+            resourceId: receipt.id,
+            route: "/app/documents",
+          }),
         );
         if (
           !isCurrent() ||

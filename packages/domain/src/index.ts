@@ -85,6 +85,7 @@ import {
   type DispatchGroup,
   type DispatchOverview,
 } from "../../contracts/src/dispatch-groups";
+import type { AttentionItem, AttentionQueue } from "../../contracts/src/attention";
 export { settleFaxUsage, type OperatorFaxUsageProof } from "./live-fax-usage";
 export { validateLiveFaxQuote, type LiveFaxIdentity } from "./live-fax-quotes";
 import {
@@ -134,6 +135,7 @@ export type DocumentRecord = {
   secure_copy_source_id?: string | null;
 };
 export type Dispatch = {
+  activeSchedule?: { id: string; status: "draft" | "approved" | "releasing" | "unknown"; executeAt: string; maxTotalMinor: number };
   recipient_feedback?: "unsubscribed" | "reported" | null;
   faxPricing?: FaxPricing;
   quote_fingerprint?: string | null;
@@ -296,6 +298,10 @@ function browserDocumentApprovalFence(
   };
 }
 function sqlError(error: unknown): never {
+  if (String(error).includes("scheduled_source_locked"))
+    throw new DomainError("SCHEDULE_SOURCE_LOCKED", "Cancel the active schedule before sending this original command immediately.", 409);
+  if (String(error).includes("future_approval_required"))
+    throw new DomainError("FUTURE_APPROVAL_REQUIRED", "The exact future spending approval is no longer valid.", 409);
   if (String(error).includes("postal_preflight_required"))
     throw new DomainError(
       "POSTAL_PREFLIGHT_REQUIRED",
@@ -680,6 +686,7 @@ export class DomainService {
     limit = 30,
     statuses?: readonly string[],
     documentActor?: ActorContext,
+    dispatchGroup?: DispatchGroup,
   ) {
     const size = Math.max(1, Math.min(Number(limit) || 30, 100));
     let after: { created_at: string; id: string } | null = null;
@@ -708,8 +715,13 @@ export class DomainService {
           }
         : this.dispatchVisibility(documentActor)
       : undefined;
+    const held = `EXISTS(SELECT 1 FROM dispatch_schedules held WHERE held.organization_id=${table}.organization_id AND held.source_dispatch_id=${table}.id AND held.status IN ('draft','approved','releasing','unknown'))`;
+    const statusFilter = statuses ? dispatchGroup
+      ? `AND ((status IN (SELECT value FROM json_each(?)) AND NOT (${held})) ${dispatchGroup === "in_progress" ? `OR ${held}` : ""})`
+      : "AND status IN (SELECT value FROM json_each(?))" : "";
+    const scheduleProjection = table === "dispatches" ? ",(SELECT json_object('id',held.id,'status',held.status,'executeAt',held.execute_at,'maxTotalMinor',held.max_total_minor) FROM dispatch_schedules held WHERE held.organization_id=dispatches.organization_id AND held.source_dispatch_id=dispatches.id AND held.status IN ('draft','approved','releasing','unknown') LIMIT 1) AS active_schedule_json" : "";
     const statement = this.db.prepare(
-      `SELECT * FROM ${table} WHERE organization_id=? ${statuses ? "AND status IN (SELECT value FROM json_each(?))" : ""} ${visibility ? `AND ${visibility.condition}` : ""} ${after ? "AND (created_at < ? OR (created_at = ? AND id < ?))" : ""} ORDER BY created_at DESC,id DESC LIMIT ?`,
+      `SELECT *${scheduleProjection} FROM ${table} WHERE organization_id=? ${statusFilter} ${visibility ? `AND ${visibility.condition}` : ""} ${after ? "AND (created_at < ? OR (created_at = ? AND id < ?))" : ""} ORDER BY created_at DESC,id DESC LIMIT ?`,
     );
     const { results } = await statement
       .bind(
@@ -1485,6 +1497,10 @@ export class DomainService {
     }
     return result;
   }
+  private activeSourceSchedule(organizationId: string, id: string) {
+    return this.db.prepare("SELECT id,status,execute_at AS executeAt,max_total_minor AS maxTotalMinor FROM dispatch_schedules WHERE organization_id=? AND source_dispatch_id=? AND status IN ('draft','approved','releasing','unknown') LIMIT 1")
+      .bind(organizationId, id).first<NonNullable<Dispatch["activeSchedule"]>>();
+  }
   async approveDispatch(
     ctx: ActorContext,
     id: string,
@@ -1529,6 +1545,8 @@ export class DomainService {
       values: [...membership.values, ...(proof?.values ?? [])],
     };
     const row = await this.dispatch(ctx, id);
+    if (await this.activeSourceSchedule(ctx.organizationId, id))
+      throw new DomainError("SCHEDULE_SOURCE_LOCKED", "Open and cancel the active schedule before approving this original command for immediate sending.", 409);
     const secure = !!JSON.parse(row.options_json).secureDistribution;
     let secureEvidence:
       | {
@@ -1871,6 +1889,8 @@ export class DomainService {
       );
     key(idempotencyKey);
     const row = await this.dispatch(ctx, id);
+    if (await this.activeSourceSchedule(ctx.organizationId, id))
+      throw new DomainError("SCHEDULE_SOURCE_LOCKED", "Open and cancel the active schedule before sending this original command immediately.", 409);
     const prepared = acceptsDispatchCommand(row.status, "accept");
     await assertFaxDispatchSendable(this.db, row);
     const secure = !!JSON.parse(row.options_json).secureDistribution;
@@ -2022,7 +2042,7 @@ export class DomainService {
   }
   async getDispatch(ctx: ActorContext, id: string) {
     const dispatch = await this.dispatch(ctx, id);
-    const [events, attempts, approval] = await Promise.all([
+    const [events, attempts, approval, activeSchedule] = await Promise.all([
       this.db
         .prepare(
           "SELECT id,provider,kind,payload_json,occurred_at,received_at,dispatch_id FROM provider_events WHERE organization_id=? AND dispatch_id=? ORDER BY occurred_at,id",
@@ -2045,12 +2065,14 @@ export class DomainService {
           expires_at: string;
           approval_kind: "browser" | "expert";
         }>(),
+      this.activeSourceSchedule(ctx.organizationId, id),
     ]);
     return {
       dispatch,
       events: events.results,
       attempts: attempts.results,
       approval,
+      ...(activeSchedule ? { activeSchedule } : {}),
     };
   }
   async listDispatches(
@@ -2072,6 +2094,7 @@ export class DomainService {
       limit,
       group === undefined ? undefined : DISPATCH_GROUPS[group as DispatchGroup],
       ctx,
+      group as DispatchGroup | undefined,
     );
     const [pricing, quotes] = await Promise.all([
       readFaxPricingBatch(
@@ -2092,11 +2115,36 @@ export class DomainService {
       quotes.results.map((quote) => [quote.id, quote.quote_expires_at]),
     );
     for (const row of page.items) {
+      const projected = row as Dispatch & { active_schedule_json?: string | null };
+      if (projected.active_schedule_json) row.activeSchedule = JSON.parse(projected.active_schedule_json);
+      delete projected.active_schedule_json;
       row.quote_expires_at = expiries.get(row.id) ?? null;
       const faxPricing = pricing.get(row.id);
       if (faxPricing) row.faxPricing = faxPricing;
     }
     return page;
+  }
+  /** All accessible organization records for the browser overview, not page-bounded. */
+  async attentionQueue(ctx: ActorContext, cursor?: string, limit = 30): Promise<AttentionQueue> {
+    if (ctx.actor !== "browser") throw new DomainError("BROWSER_REQUIRED", "The attention queue requires the current browser session.", 403);
+    await this.organization(ctx);
+    if (!Number.isInteger(limit) || limit < 1 || limit > 100 || (cursor && !/^[0-4]:[A-Za-z0-9_-]{1,250}$/.test(cursor)))
+      throw new DomainError("INVALID_CURSOR", "Invalid attention page request.");
+    const visibility = this.dispatchVisibility(ctx), observedAt = this.time();
+    const currentAuthority = `EXISTS(SELECT 1 FROM memberships m WHERE m.organization_id=? AND m.user_id=? AND m.role=? AND m.supervisor_can_approve=? AND m.supervisor_can_report=? AND NOT EXISTS(SELECT 1 FROM account_deletion_requests a WHERE a.user_id=m.user_id AND a.status IN ('processing','completed')))`;
+    const rows = await this.db.prepare(`WITH eligible AS (
+      SELECT dispatches.*,COALESCE((SELECT q.expires_at FROM live_delivery_quotes q WHERE q.organization_id=dispatches.organization_id AND q.dispatch_id=dispatches.id),(SELECT q.expires_at FROM live_fax_quotes_v3 q WHERE q.organization_id=dispatches.organization_id AND q.dispatch_id=dispatches.id),(SELECT q.expires_at FROM live_fax_quotes_v2 q WHERE q.organization_id=dispatches.organization_id AND q.dispatch_id=dispatches.id),(SELECT q.expires_at FROM live_fax_quotes q WHERE q.organization_id=dispatches.organization_id AND q.dispatch_id=dispatches.id)) AS quote_deadline
+      FROM dispatches WHERE organization_id=? AND (${visibility.condition}) AND ${currentAuthority}
+    ), attention AS (
+      SELECT 'submission_unknown_'||id AS id,'submission_unknown' AS kind,id AS resource_id,'/app/dispatch/'||id AS route,NULL AS expires_at,channel,0 AS priority FROM eligible WHERE status='submission_unknown' OR (status='submitting' AND lease_until<=?)
+      UNION ALL SELECT CASE WHEN s.status='draft' THEN 'approval_schedule_' ELSE 'schedule_blocked_' END||s.id,CASE WHEN s.status='draft' THEN 'approval' ELSE 'schedule_blocked' END,s.id,'/app/schedules/'||s.id,CASE WHEN s.status='draft' THEN s.release_until ELSE NULL END,s.channel,CASE WHEN s.status='draft' THEN 4 ELSE 1 END FROM dispatch_schedules s JOIN eligible e ON e.organization_id=s.organization_id AND e.id=s.source_dispatch_id WHERE (s.status IN ('blocked','unknown') OR (s.status='draft' AND s.release_until>? AND ?=1)) AND ?=1 AND (s.created_by=? OR ?=1)
+      UNION ALL SELECT 'quote_expiring_'||id,'quote_expiring',id,'/app/dispatch/'||id,quote_deadline,channel,2 FROM eligible WHERE status='prepared' AND quote_deadline>? AND quote_deadline<=? AND NOT EXISTS(SELECT 1 FROM dispatch_schedules s WHERE s.organization_id=eligible.organization_id AND s.source_dispatch_id=eligible.id AND s.status IN ('draft','approved','releasing','unknown'))
+      UNION ALL SELECT 'protected_expiring_'||h.id,'protected_expiring',min(e.id),'/app/dispatch/'||min(e.id),h.expires_at,'email',3 FROM protected_document_hostings h JOIN eligible e ON e.organization_id=h.organization_id AND json_extract(e.options_json,'$.protectedDocument.hostingId')=h.id WHERE h.status='active' AND h.expires_at>? AND h.expires_at<=? GROUP BY h.organization_id,h.id
+      UNION ALL SELECT 'approval_'||id,'approval',id,'/app/dispatch/'||id,NULL,channel,4 FROM eligible WHERE ?=1 AND status='prepared' AND (quote_deadline IS NULL OR quote_deadline>?) AND NOT EXISTS(SELECT 1 FROM approvals a WHERE a.organization_id=eligible.organization_id AND a.dispatch_id=eligible.id AND a.fingerprint=eligible.fingerprint AND a.expires_at>?) AND NOT EXISTS(SELECT 1 FROM dispatch_schedules s WHERE s.organization_id=eligible.organization_id AND s.source_dispatch_id=eligible.id AND s.status IN ('draft','approved','releasing','unknown'))
+    ) SELECT * FROM attention WHERE CAST(priority AS TEXT)||':'||id>? ORDER BY priority,id LIMIT ?`)
+      .bind(ctx.organizationId, ...visibility.values, ctx.organizationId, ctx.userId, ctx.role, Number(Boolean(ctx.supervisorCanApprove)), Number(Boolean(ctx.supervisorCanReport)), observedAt, observedAt, Number(actorPermissions(ctx).approveDispatches), Number(actorPermissions(ctx).prepareDispatches), ctx.userId, Number(actorPermissions(ctx).approveDispatches), observedAt, new Date(Date.parse(observedAt)+86400_000).toISOString(), observedAt, new Date(Date.parse(observedAt)+7*86400_000).toISOString(), Number(actorPermissions(ctx).approveDispatches), observedAt, observedAt, cursor ?? "", limit+1)
+      .all<{ id: string; kind: AttentionItem["kind"]; resource_id: string; route: string; expires_at: string | null; channel: Channel; priority: number }>();
+    return { items: rows.results.slice(0,limit).map((row)=>({id:row.id,kind:row.kind,resourceId:row.resource_id,route:row.route,...(row.expires_at?{expiresAt:row.expires_at}:{}),channel:row.channel})), nextCursor: rows.results.length>limit ? `${rows.results[limit-1].priority}:${rows.results[limit-1].id}` : null, observedAt };
   }
   /** All accessible organization records for the browser overview, not page-bounded. */
   async dispatchOverview(ctx: ActorContext): Promise<DispatchOverview> {
@@ -2116,7 +2164,7 @@ export class DomainService {
         .first<{ n: number }>(),
       this.db
         .prepare(
-          `SELECT status, count(*) AS n FROM dispatches WHERE organization_id=? AND ${visibility.condition} GROUP BY status`,
+          `SELECT CASE WHEN EXISTS(SELECT 1 FROM dispatch_schedules held WHERE held.organization_id=dispatches.organization_id AND held.source_dispatch_id=dispatches.id AND held.status IN ('draft','approved','releasing','unknown')) THEN 'queued' ELSE status END AS status, count(*) AS n FROM dispatches WHERE organization_id=? AND ${visibility.condition} GROUP BY 1`,
         )
         .bind(ctx.organizationId, ...visibility.values)
         .all<{ status: string; n: number }>(),
@@ -2141,6 +2189,8 @@ export class DomainService {
   async cancelDispatch(ctx: ActorContext, id: string): Promise<Dispatch> {
     await this.authorizeApproval(ctx);
     await this.dispatch(ctx, id);
+    if (await this.activeSourceSchedule(ctx.organizationId, id))
+      throw new DomainError("SCHEDULE_SOURCE_LOCKED", "Open and cancel the active schedule itself before cancelling this original command.", 409);
     const now = this.time();
     const authority = membershipPermissionFence(ctx, "approveDispatches");
     const result = await this.db
@@ -2148,8 +2198,10 @@ export class DomainService {
         `UPDATE dispatches SET status='cancelled',updated_at=? WHERE organization_id=? AND id=? AND status IN ('prepared','queued') AND ${authority.condition}`,
       )
       .bind(now, ctx.organizationId, id, ...authority.values)
-      .run();
+      .run().catch(sqlError);
     const row = await this.dispatch(ctx, id);
+    if (await this.activeSourceSchedule(ctx.organizationId, id))
+      throw new DomainError("SCHEDULE_SOURCE_LOCKED", "The active schedule still owns this original command. Open and cancel that schedule itself.", 409);
     if (!result.meta.changes && row.status !== "cancelled")
       throw new DomainError(
         "CANCELLATION_TOO_LATE",

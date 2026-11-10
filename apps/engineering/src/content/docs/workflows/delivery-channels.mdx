@@ -31,6 +31,67 @@ provider semantics. See the [lifecycle](/architecture/dispatch-lifecycle/) for
 These are implementation families, not a statement that every provider or channel
 is enabled for the current account.
 
+## Reusable destinations and bounded future release
+
+The address book stores validated versioned fax, email and postal destinations
+inside one workspace. Current preparation rights are needed even for reading;
+an operational observer cannot export contacts. Creation reuses one durable key,
+and edits/deletion require the current revision. A prepared dispatch owns an
+independent recipient snapshot. Saving an address or choosing it in a composer
+is neither recipient-request evidence nor approval.
+
+The future-release candidate supports fax and message-only email. A draft holds
+the original immediate-approval/acceptance path but reserves no funds. A current
+human browser approver separately reviews exact content, sender/options, time
+and integer cap, with the email recipient-request attestation where required.
+This records `future_browser` evidence rather than synthesizing an ordinary
+browser/expert approval. There is no assistant/native future-approval operation.
+
+Time must be chosen from one minute to thirty days ahead. Approval must commit
+before the fifteen-minute release window closes; the default-off engine refuses
+approval while disabled. At release a fresh quote must fit the cap, and both
+principals, source, provider and funding must remain eligible. One immutable
+release receipt joins ordinary atomic reservation/outbox acceptance; actual
+provider bridges recognize that separate evidence. Queue acceptance within the
+window promises neither immediate provider invocation nor delivery.
+
+Secure/protected/PDF-email/postal workflows retain their existing contemporaneous
+identity, transfer and consent conditions. Review-only fax stays unsendable.
+Cancellation races with acceptance at the database boundary. A known-unsent
+blocked/cancelled schedule may offer explicit new preparation with fresh cap,
+time and approval; an uncertain or accepted outcome cannot be replaced or
+automatically retried. Existing source detail reports an active hold so a user
+can inspect the schedule instead of attempting a conflicting immediate send.
+
+Native composer recovery is separate: bounded device-only, non-synchronizing
+Keychain drafts retain the same person/workspace and preparation key for seven
+days, with explicit resume/discard, capacity/revision errors and no automatic
+send. Final review still uses the authenticated browser.
+
+## Signed customer lifecycle notifications
+
+Optional customer webhooks report prospective production dispatch transitions,
+not content or recipients. Dispatch-status SQL triggers append events atomically
+to a bounded endpoint-revision outbox. A current browser administrator configures
+an endpoint, saves its one-time signing secret and explicitly enables it only
+under separate runtime, encryption and strictly-public HTTPS egress gates.
+These callbacks are distinct from provider signatures, recipient communication
+and sending approval.
+
+Revision changes supersede pending work; rotating a secret pauses the endpoint,
+and revocation destroys the signing material. Losing owner-administrator
+membership or production mode permanently invalidates the old grant until a
+fresh explicit enablement. Collection and invocation recheck current authority.
+One durable invocation marker prevents automatic repetition after an unknown
+outcome. Bounded retention and pending overflow stay visible. A local synthetic
+transport test establishes no live callback or downstream receipt.
+
+The browser attention queue links authorized operational conditions independently
+of a first dispatch page. Confirmed outcome receipts help resume a view after
+navigation, while the command palette and saved table views change navigation
+or presentation only. Each actual action rereads its existing authority and
+exact immutable evidence; none of these aids grants consent or retries a send.
+
 ## Fax: exact content and qualified pricing
 
 A ready PDF and validated recipient/sender are required. The provider may need

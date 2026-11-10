@@ -1,6 +1,6 @@
 ---
 title: "Team and responsibilities"
-description: "10 capabilities in the access branch of Guteneo."
+description: "12 capabilities in the access branch of Guteneo."
 sidebar:
   order: 2
 ---
@@ -28,4 +28,6 @@ Implemented; invitations require separately configured delivery.
 <li id="feature-0f4c31854ae1">Sensitive preparations are visible to their creator and current approvers; operators and observers gain no general access to other preparations</li>
 <li id="feature-149da7afd29d">Sensitive approval and recipient/account association require a browser under the current document policy; OAuth confirmation follows recorded browser evidence, with no expert-mandate substitute</li>
 <li id="feature-f4b883cce481">Workspace roles grant no access to another person’s vault; a recipient gains no membership in the sender’s workspace</li>
+<li id="feature-6fbc1c3c3a63">Future schedule approval is distinct from ordinary browser review and expert mandates: only browser administrators or independently authorized supervisor approvers grant it; preparers can draft and authorized owners can revoke, while assistants/native cannot approve</li>
+<li id="feature-3d337f51aa47">Saved destination data is limited to current preparers, and callback configuration/signing secrets to current browser administrators; an observer role or reporting permission alone grants neither contact export nor callback administration</li>
 </ol>

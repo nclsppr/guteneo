@@ -73,6 +73,57 @@ verifies the served release; it does not start another full application test run
 The engineering release wrapper separately retains its small fresh-build browser
 checks. CI proof reuse grants no merge, deployment, provider or sending authority.
 
+## Portable release test evidence
+
+After the existing full or independently rechecked reused verification succeeds,
+`scripts/ci/release-evidence.mjs` writes `test-proof.html` and `test-proof.json`
+under `test-results/ci/release-evidence/`. Both are retained in the immutable
+`guteneo-verification-attempt-<attempt>` artifact. This dependency-free renderer
+also runs on the reuse path without installing npm dependencies again. It does
+not qualify a run, replace any verifier, create a tag/Release or deploy anything.
+
+Every package version must have authored `docs/releases/<version>.md`, beginning
+with `# Guteneo <version>` or `# Guteneo <version> — <title>`, with meaningful prose
+and at least one second-level section. A missing, empty or wrong-version note
+fails verification. Keep the supported markup simple: paragraphs, headings,
+hyphenated lists, bold text, inline code and credential-free HTTPS links on the
+repository or canonical product/engineering origins. Raw HTML is escaped.
+
+Optional PNG images occupy their own Markdown line. A note may reference
+`../evidence/<file>.png` or a repository-relative
+`ios/QA/Screenshots/<file>.png`. Only flat files in those two approved directories
+are accepted: at most six images, two MiB each and eight MiB combined, with bounded
+PNG dimensions. Absolute/remote/escaping paths, symlinks, unsupported images and
+oversized input are refused. Select synthetic screenshots already cleared for
+publication; a path restriction cannot inspect the privacy of pictured content.
+The verifier's sparse checkout retains notes and these PNG directories only.
+
+The HTML is self-contained: embedded PNGs, local styles, no script, fonts,
+network reads or report server. It preserves the existing complete Vitest/browser
+counts and declared skips, all browser evidence attempts, exact execution SHA and
+tree, reviewed head, run/attempt and qualification limits. A reused main summary
+is cross-checked against the already qualified sealed proof and explicitly shows
+the original tested SHA, prior run/attempt, artifact digest and identical tree.
+Raw sealed data, logs, test bodies, provider responses and secrets are not copied.
+Screenshots are labeled repository illustrations; native, security, hosted and
+real-provider results are never silently added to the inventory counters.
+
+The report is generated during `verify`; the GitHub run still owns the final
+workflow conclusion. Missing or malformed inputs fail report generation, and the
+final artifact upload preserves available diagnostics. Correct the authored note
+or renderer through normal review, then rerun the affected gate without replacing
+failed evidence. Release operators attach the portable files directly under the
+[main release procedure](MAIN_RELEASE.md#version-anchor-readable-notes-and-portable-test-proof),
+which separately requires an exact remote version tag before live publication.
+
+Local qualification on **10 November 2026** covers full/reused provenance and
+counter refusals, note-version gating, escaping, bounded safe image/file reads,
+and offline Chromium at desktop, 390-pixel and 320-pixel widths with zero network
+requests or overflow. These are renderer fixtures, not a new hosted CI result,
+physical-device check or production receipt. Meaningful regressions live in
+`tests/security/release-evidence.test.mjs`; recheck the offline layout and complete
+CI/validation-proof guards when changing the format or input contract.
+
 ## Transfer each static byte once
 
 The build job packages both complete static products through
@@ -317,7 +368,7 @@ owns observed failures, security implications of holds and hosted activation.
 
 ## Evidence and caches
 
-`guteneo-verification` contains the complete merged `reports/vitest.json` on full runs and compact verified inventories/provenance. Original per-job reports, restoration proof, logs and cost model remain in immutable `ci-evidence-*` child artifacts; browser visual proof and traces remain in `ci-debug-browser-*`. Intermediate evidence artifacts are retained for 14 days, including when a job fails; the reusable browser builds expire after one day. Downloaded evidence keeps separate artifact directories to avoid report filename collisions. The historical tracked restoration report is copied only by the shard that actually passed the restoration test. Browser runners remove historical screenshot fixtures before testing so their artifacts contain only images generated in that run.
+`guteneo-verification-attempt-<n>` contains the complete merged `reports/vitest.json` on full runs and compact verified inventories/provenance. Original per-job reports, restoration proof, logs and cost model remain in immutable `ci-evidence-*` child artifacts; browser visual proof and traces remain in `ci-debug-browser-*`. Intermediate evidence artifacts are retained for 14 days, including when a job fails; the reusable browser builds expire after one day. Downloaded evidence keeps separate artifact directories to avoid report filename collisions. The historical tracked restoration report is copied only by the shard that actually passed the restoration test. Browser runners remove historical screenshot fixtures before testing so their artifacts contain only images generated in that run.
 
 ### Manual reruns and artifact identity
 
@@ -332,6 +383,32 @@ artifact. The downloaded browser reports still require the exact execution SHA,
 run ID, valid attempt, original digests and complete independent test inventory.
 For a pull request, GitHub's run head can differ from its synthetic merge SHA;
 metadata provenance and executed-source identity are checked separately.
+
+Main CI producers append `-attempt-<n>` to their physical artifact names. The
+selector groups only reviewed producer families by logical name, accepting
+legacy unsuffixed names and a single terminal positive safe-integer attempt
+suffix no greater than the actual run attempt. Creation time remains the
+selection clock; the suffix does not grant authority or replace provenance.
+Raw physical names and exact selected IDs remain in the selection record.
+
+This also avoids a transport defect observed on 10 November 2026. In run
+`42736475065`, all tests passed after one unchanged WebKit media rerun, but the
+pinned download action `9000827` (8.0.2) deduplicated equal names by descending
+numeric ID before honoring selected IDs. The selector correctly chose newer
+artifact `13727929529`; the downloader retained older `13728221552`, merely
+warned about the missing selected ID, and returned eight browser rows. The
+unchanged nine-row verification gate refused this incomplete evidence.
+Attempt-unique physical names prevent that pre-filter from dropping a selected
+retry while preserving failed observations. Existing same-name uploads cannot
+be retroactively repaired; qualification requires the corrected producer run.
+
+The reusable proof already has a unique `ci-validation-proof-<run>-<attempt>`
+name. Its exact source/runtime checks and rejection of mixed-attempt reuse are
+unchanged, as are all report hashes, suite inventories and test assertions.
+Local qualification passes all 701 Node security checks, including focused
+workflow-producer expansion, lower-ID retries, legacy names, mixed attempts and
+malformed/expired/ambiguous metadata. Fresh hosted qualification is recorded in
+the pull request; no artifact is deleted or report manufactured.
 
 Only the browser, distribution and aggregate jobs receive `actions:read` for
 current-run metadata. Downloads retain the existing action and report formats;

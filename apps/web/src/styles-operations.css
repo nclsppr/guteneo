@@ -1,0 +1,195 @@
+/* Campaigns and operations */
+.campaign-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 24px;
+}
+.campaign-layout > .form-panel {
+  align-self: start;
+}
+.csv-result {
+  margin-top: 27px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.csv-result h3 {
+  font-size: 15px;
+}
+.csv-counts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.csv-counts dd {
+  font-size: 23px;
+}
+.csv-counts dt {
+  font-size: 10px;
+}
+.validation-errors {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--error);
+  max-height: 240px;
+  overflow: auto;
+  overflow-wrap: anywhere;
+}
+.success-copy {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--success);
+  font-size: 12px;
+  margin: 20px 0 0;
+}
+.csv-result > p:not(.success-copy) {
+  font-size: 12px;
+  color: var(--muted);
+}
+.connection-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 60px;
+  margin-top: 40px;
+}
+.connection-setup > svg,
+.permission-panel > svg {
+  color: var(--blue);
+  margin-bottom: 20px;
+}
+.connection-setup > h2,
+.permission-panel > h2 {
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 1.15;
+  margin-bottom: 24px;
+  letter-spacing: -0.5px;
+}
+.connection-steps {
+  font-size: 13px;
+  line-height: 1.65;
+  margin: 32px 0;
+}
+.connection-steps li {
+  margin-bottom: 17px;
+  padding-left: 7px;
+}
+.permission-panel {
+  padding: 0 0 0 30px;
+  border-left: 1px solid var(--line);
+}
+.permission-panel > p {
+  font-size: 13px;
+  color: var(--muted);
+}
+.permission-panel > .field-hint {
+  font-size: 11px;
+}
+.client-matrix {
+  margin-top: 35px;
+}
+.client-matrix h2 {
+  font-size: 22px;
+}
+.client-matrix td {
+  font-size: 12px;
+  min-width: 150px;
+}
+.client-matrix td:last-child {
+  min-width: 210px;
+}
+.diagnostics {
+  margin: 15px 0;
+  min-width: 0;
+}
+.diagnostics > div {
+  display: grid;
+  grid-template-columns: minmax(90px, 1fr) minmax(0, 2fr);
+  border-bottom: 1px solid var(--line);
+  gap: 15px;
+  padding: 14px 0;
+}
+.diagnostics dt {
+  font-family: var(--font-code);
+  font-size: 10px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.diagnostics dd {
+  margin: 0;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.diagnostics .diagnostics {
+  margin: 0;
+}
+.diagnostics .diagnostics > div {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+  padding-top: 0;
+  margin-bottom: 12px;
+}
+.diagnostic-list {
+  padding-left: 15px;
+  margin: 0;
+}
+.diagnostic-list li {
+  margin-bottom: 15px;
+}
+.operations-diagnostics {
+  padding-top: 22px;
+}
+.operations-diagnostics > h2 {
+  font-size: 21px;
+}
+.usage-ledger > section {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 25px;
+  margin-bottom: 27px;
+}
+.usage-ledger dl {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+  margin: 25px 0 0;
+}
+.usage-ledger dd strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 37px;
+  font-weight: 400;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+.usage-ledger dd span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.usage-ledger > .notice {
+  margin-top: 30px;
+}
+/* Session entry */
+
+.organization-button {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid var(--line);
+  padding: 15px;
+  min-height: 74px;
+  background: var(--surface);
+  width: 100%;
+  text-align: left;
+  font-size: 14px;
+}
+.organization-button + .organization-button {
+  margin-top: 13px;
+}
+.organization-button > svg {
+  margin-left: auto;
+  color: var(--blue);
+}
+.organization-button:hover {
+  background: var(--blue-tint);
+  border-color: var(--blue);
+}

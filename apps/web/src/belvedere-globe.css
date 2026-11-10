@@ -42,7 +42,7 @@
 .bv-globe-switch button[aria-pressed="true"] {
   background: var(--surface);
   color: var(--blue-ink);
-  box-shadow: 0 2px 5px #2427220b;
+  box-shadow: var(--elevation-control);
 }
 .bv-globe-layout {
   display: grid;

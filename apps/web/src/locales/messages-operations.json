@@ -3042,5 +3042,265 @@
     "The email qualification could not be checked.",
     "Die E-Mail-Qualifizierung konnte nicht überprüft werden.",
     "D’E-Mail-Qualifikatioun konnt net iwwerpréift ginn."
+  ],
+  "Choisissez une adresse HTTPS publique directe, sans identifiants, paramètres de requête, fragment ni port personnalisé.": [
+    "Choose a direct public HTTPS address without credentials, a query, a fragment or a custom port.",
+    "Wählen Sie eine direkte öffentliche HTTPS-Adresse ohne Zugangsdaten, Abfrageparameter, Fragment oder eigenen Port.",
+    "Wielt eng direkt ëffentlech HTTPS-Adress ouni Zougangsdonnéeën, Ufroparameter, Fragment oder eegene Port."
+  ],
+  "Référence de webhook invalide.": [
+    "Invalid webhook reference.",
+    "Ungültige Webhook-Referenz.",
+    "Ongülteg Webhook-Referenz."
+  ],
+  "La configuration sécurisée des webhooks n’est pas disponible.": [
+    "Secure webhook configuration is unavailable.",
+    "Die sichere Webhook-Konfiguration ist nicht verfügbar.",
+    "Déi sécher Webhook-Konfiguratioun ass net verfügbar."
+  ],
+  "Un administrateur connecté dans le navigateur est requis.": [
+    "A browser administrator is required.",
+    "Ein im Browser angemeldeter Administrator ist erforderlich.",
+    "En Administrateur, deen am Browser ugemellt ass, ass néideg."
+  ],
+  "Les droits actuels de la session navigateur sont requis.": [
+    "Current browser authority is required.",
+    "Aktuelle Berechtigungen der Browsersitzung sind erforderlich.",
+    "Déi aktuell Rechter vun der Browser-Sessioun si néideg."
+  ],
+  "Les notifications de métadonnées ne sont pas activées dans cet environnement.": [
+    "Metadata callbacks are not activated in this environment.",
+    "Metadaten-Benachrichtigungen sind in dieser Umgebung nicht aktiviert.",
+    "Metadaten-Notifikatioune sinn an dësem Ëmfeld net aktivéiert."
+  ],
+  "Endpoint de webhook introuvable.": [
+    "Webhook endpoint not found.",
+    "Webhook-Endpunkt nicht gefunden.",
+    "Webhook-Endpunkt net fonnt."
+  ],
+  "Une clé d’idempotence stable est requise.": [
+    "A stable idempotency key is required.",
+    "Ein stabiler Idempotenzschlüssel ist erforderlich.",
+    "E stabilen Idempotenzschlëssel ass néideg."
+  ],
+  "Cet espace de travail a atteint sa limite d’endpoints de webhook.": [
+    "This workspace has reached its webhook endpoint limit.",
+    "Dieser Arbeitsbereich hat seine Obergrenze für Webhook-Endpunkte erreicht.",
+    "Dësen Aarbechtsberäich huet seng Limit u Webhook-Endpunkten erreecht."
+  ],
+  "Cette clé correspond à une autre configuration d’endpoint.": [
+    "This key belongs to another endpoint configuration.",
+    "Dieser Schlüssel gehört zu einer anderen Endpunktkonfiguration.",
+    "Dëse Schlëssel gehéiert zu enger anerer Endpunktkonfiguratioun."
+  ],
+  "Cet endpoint a changé. Actualisez avant de continuer.": [
+    "This endpoint changed. Refresh before continuing.",
+    "Dieser Endpunkt wurde geändert. Aktualisieren Sie die Ansicht, bevor Sie fortfahren.",
+    "Dësen Endpunkt huet geännert. Aktualiséiert d’Usiicht, éier Dir weiderfuert."
+  ],
+  "Curseur d’historique des notifications invalide.": [
+    "Invalid callback history cursor.",
+    "Ungültiger Cursor für den Benachrichtigungsverlauf.",
+    "Ongültege Cursor fir den Notifikatiounsverlaf."
+  ],
+  "Choisissez une taille de page comprise entre 1 et 50.": [
+    "Choose a page size from 1 to 50.",
+    "Wählen Sie eine Seitengröße von 1 bis 50.",
+    "Wielt eng Säitegréisst tëscht 1 a 50."
+  ],
+  "Référence de programmation invalide.": [
+    "Invalid schedule reference.",
+    "Ungültige Zeitplanreferenz.",
+    "Ongülteg Zäitplangreferenz."
+  ],
+  "Programmation d’envoi introuvable.": [
+    "Dispatch schedule not found.",
+    "Versandzeitplan nicht gefunden.",
+    "Versandzäitplang net fonnt."
+  ],
+  "Choisissez une taille de page comprise entre 1 et 100.": [
+    "Choose a page size from 1 to 100.",
+    "Wählen Sie eine Seitengröße von 1 bis 100.",
+    "Wielt eng Säitegréisst tëscht 1 an 100."
+  ],
+  "Cette clé correspond à une autre programmation.": [
+    "This key belongs to a different schedule.",
+    "Dieser Schlüssel gehört zu einem anderen Zeitplan.",
+    "Dëse Schlëssel gehéiert zu engem aneren Zäitplang."
+  ],
+  "Choisissez une date située entre une minute et trente jours à partir de maintenant.": [
+    "Choose a time from one minute to thirty days in the future.",
+    "Wählen Sie einen Zeitpunkt zwischen einer Minute und dreißig Tagen ab jetzt.",
+    "Wielt en Zäitpunkt tëscht enger Minutt an drësseg Deeg vun elo un."
+  ],
+  "Seul un envoi préparé qui n’a pas encore été soumis peut être programmé.": [
+    "Only an unsubmitted prepared dispatch can be scheduled.",
+    "Nur eine vorbereitete, noch nicht übermittelte Sendung kann eingeplant werden.",
+    "Nëmmen eng virbereet Sendung, déi nach net agereecht gouf, kann ageplangt ginn."
+  ],
+  "Le plafond de dépense future doit couvrir l’estimation actuelle.": [
+    "The future spending cap must cover the current estimate.",
+    "Die künftige Ausgabenobergrenze muss die aktuelle Schätzung abdecken.",
+    "Déi zukünfteg Ausgabelimit muss déi aktuell Schätzung ofdecken."
+  ],
+  "Cet envoi a déjà une programmation active.": [
+    "This dispatch already has an active schedule.",
+    "Für diese Sendung besteht bereits ein aktiver Zeitplan.",
+    "Fir dës Sendung gëtt et schonn en aktiven Zäitplang."
+  ],
+  "La source, les droits actuels ou la limite de programmation ont changé.": [
+    "The source, current authority or schedule limit changed.",
+    "Die Quelle, die aktuellen Berechtigungen oder die Zeitplanobergrenze wurden geändert.",
+    "D’Quell, déi aktuell Rechter oder d’Zäitplanglimit hu geännert."
+  ],
+  "L’approbation pour un envoi futur n’est pas disponible tant que le lancement automatique est désactivé. La programmation reste à l’état de brouillon.": [
+    "Future approval is unavailable while automatic release is disabled. The schedule remains a draft.",
+    "Eine Genehmigung für den künftigen Versand ist bei deaktivierter automatischer Ausführung nicht verfügbar. Der Zeitplan bleibt ein Entwurf.",
+    "Eng Geneemegung fir en zukünftege Versand ass net verfügbar, soulaang déi automatesch Ausféierung ausgeschalt ass. Den Zäitplang bleift en Entworf."
+  ],
+  "L’approbation d’une dépense future doit être donnée par une personne authentifiée dans le navigateur.": [
+    "Future spending approval requires the authenticated human browser.",
+    "Die Genehmigung künftiger Ausgaben muss durch eine im Browser authentifizierte Person erfolgen.",
+    "D’Geneemegung vun zukünftegen Ausgabe muss vun enger Persoun ginn, déi am Browser authentifizéiert ass."
+  ],
+  "Actualisez et vérifiez la programmation exacte avant de l’approuver.": [
+    "Refresh and review the exact schedule before approving.",
+    "Aktualisieren und prüfen Sie den genauen Zeitplan, bevor Sie ihn genehmigen.",
+    "Aktualiséiert an iwwerpréift de genauen Zäitplang, éier Dir en approuvéiert."
+  ],
+  "La période d’exécution de cette programmation est terminée. Préparez une nouvelle programmation pour une nouvelle vérification explicite.": [
+    "This schedule's release window has ended. Prepare a new schedule for a new explicit review.",
+    "Das Ausführungsfenster dieses Zeitplans ist abgelaufen. Erstellen Sie einen neuen Zeitplan für eine erneute ausdrückliche Prüfung.",
+    "D’Ausféierungsfënster vun dësem Zäitplang ass ofgelaf. Bereet en neien Zäitplang fir eng nei ausdrécklech Iwwerpréiwung vir."
+  ],
+  "Confirmez que ce destinataire a demandé l’e-mail programmé.": [
+    "Confirm that this recipient requested the scheduled email.",
+    "Bestätigen Sie, dass dieser Empfänger die geplante E-Mail angefordert hat.",
+    "Bestätegt, datt dësen Empfänger déi geplangten E-Mail ugefrot huet."
+  ],
+  "La période d’exécution de cette programmation s’est terminée avant son approbation. Préparez une nouvelle programmation pour une nouvelle vérification explicite.": [
+    "This schedule's release window ended before approval. Prepare a new schedule for a new explicit review.",
+    "Das Ausführungsfenster dieses Zeitplans ist vor der Genehmigung abgelaufen. Erstellen Sie einen neuen Zeitplan für eine erneute ausdrückliche Prüfung.",
+    "D’Ausféierungsfënster vun dësem Zäitplang ass virun der Geneemegung ofgelaf. Bereet en neien Zäitplang fir eng nei ausdrécklech Iwwerpréiwung vir."
+  ],
+  "La programmation ou les droits d’approbation dans le navigateur ont changé.": [
+    "Schedule or browser approval authority changed.",
+    "Der Zeitplan oder die Genehmigungsberechtigungen im Browser wurden geändert.",
+    "Den Zäitplang oder d’Geneemegungsrechter am Browser hu geännert."
+  ],
+  "Actualisez cette programmation. Une fois le lancement accepté, les règles habituelles d’annulation des envois s’appliquent.": [
+    "Refresh this schedule. An accepted release follows the ordinary dispatch cancellation rules.",
+    "Aktualisieren Sie diesen Zeitplan. Nach Annahme der Ausführung gelten die üblichen Stornierungsregeln für Sendungen.",
+    "Aktualiséiert dësen Zäitplang. Nodeems d’Ausféierung ugeholl gouf, gëllen déi gewéinlech Annulatiounsreegele fir Sendungen."
+  ],
+  "Seule la personne ayant préparé ou approuvé cet envoi, ou un administrateur, peut annuler cette programmation.": [
+    "Only the preparer, approver or administrator may cancel this schedule.",
+    "Nur die vorbereitende oder genehmigende Person oder ein Administrator darf diesen Zeitplan stornieren.",
+    "Nëmmen déi Persoun, déi d’Sendung virbereet oder approuvéiert huet, oder en Administrateur däerf dësen Zäitplang annuléieren."
+  ],
+  "La programmation a changé avant son annulation.": [
+    "The schedule changed before cancellation.",
+    "Der Zeitplan wurde vor der Stornierung geändert.",
+    "Den Zäitplang huet virun der Annulatioun geännert."
+  ],
+  "Le service de transmission en production n’est pas activé pour ce canal programmé.": [
+    "The current production transport is not activated for this scheduled channel.",
+    "Der aktuelle Produktivversand ist für diesen geplanten Versandkanal nicht aktiviert.",
+    "Den aktuelle Produktiounsversand ass fir dëse geplangte Versandkanal net aktivéiert."
+  ],
+  "Le nouveau devis dépasse le plafond total de dépense approuvé.": [
+    "The fresh quote exceeds the approved total spending cap.",
+    "Das neue Angebot überschreitet die genehmigte Gesamtausgabenobergrenze.",
+    "Déi nei Offer iwwerschreit déi geneemegt Gesamtausgabelimit."
+  ],
+  "La nouvelle préparation ne correspond plus à la programmation vérifiée.": [
+    "Fresh preparation no longer matches the reviewed schedule.",
+    "Die neue Vorbereitung entspricht nicht mehr dem geprüften Zeitplan.",
+    "Déi nei Virbereedung entsprécht net méi dem iwwerpréiften Zäitplang."
+  ],
+  "Seuls les fax ordinaires et les e-mails sans pièce jointe permettent l’approbation pour un envoi futur. Les parcours sécurisés, les e-mails avec PDF et les courriers postaux conservent leurs vérifications actuelles de contenu et de validité.": [
+    "Only ordinary fax and message-only email support future approval. Secure, PDF email and postal workflows require their current review and freshness gates.",
+    "Nur gewöhnliche Faxe und E-Mails ohne Anhang unterstützen die Genehmigung für einen künftigen Versand. Sichere Abläufe, E-Mails mit PDF und Postsendungen erfordern weiterhin ihre aktuellen Prüfungen und Gültigkeitskontrollen.",
+    "Nëmme gewéinlech Faxen an E-Mailen ouni Unhang ënnerstëtzen eng Geneemegung fir en zukünftege Versand. Sécher Verleef, E-Maile mat PDF a Postsendunge brauchen hir aktuell Iwwerpréiwungen a Gültegkeetskontrollen."
+  ],
+  "Une préparation destinée uniquement à la vérification ne peut pas être programmée.": [
+    "Review-only preparation cannot be scheduled.",
+    "Eine ausschließlich zur Prüfung bestimmte Vorbereitung kann nicht eingeplant werden.",
+    "Eng Virbereedung, déi nëmme fir d’Iwwerpréiwung geduecht ass, kann net ageplangt ginn."
+  ],
+  "Le compte à l’origine de la programmation n’appartient plus à cet espace de travail.": [
+    "The scheduled actor no longer belongs to this workspace.",
+    "Das für den Zeitplan verantwortliche Konto gehört diesem Arbeitsbereich nicht mehr an.",
+    "De Kont, dee fir den Zäitplang zoustänneg ass, gehéiert net méi zu dësem Aarbechtsberäich."
+  ],
+  "Référence de destinataire invalide.": [
+    "Invalid recipient reference.",
+    "Ungültige Empfängerreferenz.",
+    "Ongülteg Empfängerreferenz."
+  ],
+  "Destinataire enregistré introuvable.": [
+    "Saved recipient not found.",
+    "Gespeicherter Empfänger nicht gefunden.",
+    "Gespäicherten Empfänger net fonnt."
+  ],
+  "Cet espace de travail a atteint sa limite de destinataires enregistrés.": [
+    "This workspace has reached its saved-recipient limit.",
+    "Dieser Arbeitsbereich hat seine Obergrenze für gespeicherte Empfänger erreicht.",
+    "Dësen Aarbechtsberäich huet seng Limit u gespäicherten Empfänger erreecht."
+  ],
+  "Cette clé correspond à un autre destinataire.": [
+    "This key belongs to a different recipient.",
+    "Dieser Schlüssel gehört zu einem anderen Empfänger.",
+    "Dëse Schlëssel gehéiert zu engem aneren Empfänger."
+  ],
+  "Ce destinataire enregistré a changé. Actualisez avant de le modifier.": [
+    "This saved recipient changed. Refresh before editing.",
+    "Dieser gespeicherte Empfänger wurde geändert. Aktualisieren Sie die Ansicht vor dem Bearbeiten.",
+    "Dëse gespäicherten Empfänger huet geännert. Aktualiséiert d’Usiicht, éier Dir en ännert."
+  ],
+  "Ce destinataire enregistré a changé. Actualisez avant de le supprimer.": [
+    "This saved recipient changed. Refresh before deleting.",
+    "Dieser gespeicherte Empfänger wurde geändert. Aktualisieren Sie die Ansicht vor dem Löschen.",
+    "Dëse gespäicherten Empfänger huet geännert. Aktualiséiert d’Usiicht, éier Dir en läscht."
+  ],
+  "Annulez la programmation active avant de lancer immédiatement cet envoi d’origine.": [
+    "Cancel the active schedule before sending this original command immediately.",
+    "Stornieren Sie den aktiven Zeitplan, bevor Sie den ursprünglichen Versand sofort ausführen.",
+    "Annuléiert den aktiven Zäitplang, éier Dir den urspréngleche Versand direkt ausféiert."
+  ],
+  "L’approbation de cette dépense future exacte n’est plus valide.": [
+    "The exact future spending approval is no longer valid.",
+    "Die Genehmigung dieser genauen künftigen Ausgabe ist nicht mehr gültig.",
+    "D’Geneemegung vun dëser geneeër zukünfteger Ausgab ass net méi gülteg."
+  ],
+  "Ouvrez et annulez la programmation active avant d’approuver l’envoi immédiat de cet envoi d’origine.": [
+    "Open and cancel the active schedule before approving this original command for immediate sending.",
+    "Öffnen und stornieren Sie den aktiven Zeitplan, bevor Sie die sofortige Ausführung des ursprünglichen Versands genehmigen.",
+    "Maacht den aktiven Zäitplang op an annuléiert en, éier Dir déi direkt Ausféierung vum urspréngleche Versand approuvéiert."
+  ],
+  "Ouvrez et annulez la programmation active avant de lancer immédiatement cet envoi d’origine.": [
+    "Open and cancel the active schedule before sending this original command immediately.",
+    "Öffnen und stornieren Sie den aktiven Zeitplan, bevor Sie den ursprünglichen Versand sofort ausführen.",
+    "Maacht den aktiven Zäitplang op an annuléiert en, éier Dir den urspréngleche Versand direkt ausféiert."
+  ],
+  "La liste des éléments à traiter nécessite la session navigateur actuelle.": [
+    "The attention queue requires the current browser session.",
+    "Die Liste der zu prüfenden Vorgänge erfordert die aktuelle Browsersitzung.",
+    "D’Lëscht vun den Elementer, déi Opmierksamkeet brauchen, erfuerdert déi aktuell Browser-Sessioun."
+  ],
+  "Demande de page des éléments à traiter invalide.": [
+    "Invalid attention page request.",
+    "Ungültige Seitenanforderung für die zu prüfenden Vorgänge.",
+    "Ongülteg Säitenufro fir d’Elementer, déi Opmierksamkeet brauchen."
+  ],
+  "Ouvrez la programmation active et annulez-la directement avant d’annuler cet envoi d’origine.": [
+    "Open and cancel the active schedule itself before cancelling this original command.",
+    "Öffnen und stornieren Sie den aktiven Zeitplan selbst, bevor Sie den ursprünglichen Versand stornieren.",
+    "Maacht den aktiven Zäitplang op an annuléiert en direkt, éier Dir den urspréngleche Versand annuléiert."
+  ],
+  "La programmation active contrôle encore cet envoi d’origine. Ouvrez-la et annulez-la directement.": [
+    "The active schedule still owns this original command. Open and cancel that schedule itself.",
+    "Der aktive Zeitplan steuert weiterhin den ursprünglichen Versand. Öffnen und stornieren Sie diesen Zeitplan selbst.",
+    "Den aktiven Zäitplang kontrolléiert nach ëmmer den urspréngleche Versand. Maacht dësen Zäitplang op an annuléiert en direkt."
   ]
 }

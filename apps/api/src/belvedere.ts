@@ -39,6 +39,12 @@ const json = (data: unknown, status = 200) =>
     headers: { ...headers, "Content-Type": "application/json; charset=utf-8" },
   });
 const absent = () => new Response("Not found", { status: 404, headers });
+const htmlAttribute = (value: string) => value
+  .replaceAll("&", "&amp;")
+  .replaceAll('"', "&quot;")
+  .replaceAll("'", "&#39;")
+  .replaceAll("<", "&lt;")
+  .replaceAll(">", "&gt;");
 interface Filters extends BelvedereFilters {
   start: string;
   end: string;
@@ -876,7 +882,9 @@ export async function handleBelvedereRoute(
       return new Response("Interface unavailable", { status: 503, headers });
     const html = (await response.text()).replace(
       "<head>",
-      `<head><meta name="guteneo-belvedere" content="${base}"><meta name="guteneo-account-locale" content="${preferredLocale ?? "automatic"}">`,
+      // This principal partitions local presentation preferences only. Every
+      // platform read still repeats the authenticated server access guard.
+      `<head><meta name="guteneo-belvedere" content="${base}"><meta name="guteneo-account-locale" content="${preferredLocale ?? "automatic"}"><meta name="guteneo-belvedere-principal" content="${htmlAttribute(userId)}">`,
     );
     const responseHeaders = new Headers(response.headers);
     for (const [name, value] of Object.entries(headers))

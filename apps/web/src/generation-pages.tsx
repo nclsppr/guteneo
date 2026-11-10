@@ -12,6 +12,7 @@ import {
 import { DataTable } from "./data-table";
 import { useEffect, useRef, useState } from "react";
 import { useCurrentClientView } from "./client-write-recovery";
+import { useAdaptiveReadPolling } from "./client-polling";
 import type {
   GenerationJobView,
   GenerationResultView,
@@ -217,14 +218,26 @@ export function GenerationDetail({
     document.addEventListener("visibilitychange", update);
     return () => document.removeEventListener("visibilitychange", update);
   }, []);
-  useEffect(() => {
-    if (isPublicPreview || !active) return;
-    const timer = setInterval(() => {
+  useAdaptiveReadPolling(
+    () => {
       refreshJob();
       refreshResults();
-    }, 4000);
-    return () => clearInterval(timer);
-  }, [active, refreshJob, refreshResults]);
+    },
+    {
+      enabled: !isPublicPreview && !!active,
+      scope: `${identity}:${id}`,
+      intervalMs: 4_000,
+      loading: job.loading || results.loading,
+      progress: JSON.stringify([
+        job.data,
+        results.data?.items.map((result) => [
+          result.recordId,
+          result.state,
+          result.documentStatus,
+        ]),
+      ]),
+    },
+  );
   useEffect(() => {
     if (
       isPublicPreview ||
@@ -367,12 +380,14 @@ export function GenerationDetail({
               className="button small"
               disabled={action.pending}
               onClick={() =>
-                void action.run(async () => {
+                void action.run(async (view) => {
                   const isCurrent = currentView();
-                  await api("/generation-jobs/" + id + "/cancel", {
-                    method: "POST",
-                    body: {},
-                  });
+                  await view.wait(
+                    api("/generation-jobs/" + id + "/cancel", {
+                      method: "POST",
+                      body: {},
+                    }),
+                  );
                   if (!isCurrent()) return;
                   job.refresh();
                   results.refresh();
@@ -387,16 +402,18 @@ export function GenerationDetail({
               className="button small"
               disabled={action.pending || active}
               onClick={() =>
-                void action.run(async () => {
+                void action.run(async (view) => {
                   const isCurrent = currentView();
                   const recordIds =
                     results.data?.items
                       .filter((r) => r.state === "failed")
                       .map((r) => r.recordId) ?? [];
-                  await api("/generation-jobs/" + id + "/retry", {
-                    method: "POST",
-                    body: { recordIds },
-                  });
+                  await view.wait(
+                    api("/generation-jobs/" + id + "/retry", {
+                      method: "POST",
+                      body: { recordIds },
+                    }),
+                  );
                   if (!isCurrent()) return;
                   job.refresh();
                   results.refresh();
@@ -415,7 +432,7 @@ export function GenerationDetail({
           </p>
         )}
       </section>
-      <DataTable<GenerationResultView>
+      <DataTable<GenerationResultView> viewId="generation-results"
         label={msg("Results of this generation")}
         items={results.data?.items ?? []}
         getRowKey={(result) => result.recordId}
@@ -722,7 +739,7 @@ function GenerationProvenance({
               <code>{trace.data.sourceHash}</code>
             </p>
           )}
-          <DataTable
+          <DataTable viewId="generation-provenance"
             label={msg("Provenance of ") + recordId}
             items={Object.entries(trace.data.provenance)}
             getRowKey={([field]) => field}

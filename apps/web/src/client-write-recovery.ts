@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useRef } from "react";
-import { BEFORE_WORKSPACE_NAVIGATION } from "./components";
+import {
+  clientNavigationRevision,
+  subscribeClientNavigation,
+} from "./client-navigation";
+import { sessionAuthorityKey } from "./api";
 
 export type WriteRecovery =
   "ready" | "writing" | "read_required" | "reading" | "quote_invalid";
@@ -43,60 +47,27 @@ export function useCurrentClientView(scope: string) {
   const currentScope = useRef(scope);
   currentScope.current = scope;
   const mounted = useRef(true);
-  const revision = useRef(0);
-  const activeHref = useRef("");
-  const navigationGuards = useRef(new Map<string, Event>());
+  const lifetime = useRef(0);
   useEffect(() => {
     mounted.current = true;
-    activeHref.current = window.location.href;
-    const acceptedNavigation = (event: Event) => {
-      navigationGuards.current.set(window.location.href, event);
-      queueMicrotask(() => {
-        if (!event.defaultPrevented) {
-          revision.current += 1;
-          activeHref.current = window.location.href;
-        }
-      });
-    };
-    const changedLocation = (event?: Event) => {
-      const observed = event as HashChangeEvent | undefined;
-      queueMicrotask(() => {
-        const guard = observed?.newURL
-          ? navigationGuards.current.get(observed.newURL)
-          : undefined;
-        if (observed?.newURL) navigationGuards.current.delete(observed.newURL);
-        if (guard?.defaultPrevented) return;
-        if (
-          (observed?.oldURL && observed.oldURL !== observed.newURL) ||
-          activeHref.current !== window.location.href
-        ) {
-          revision.current += 1;
-          activeHref.current = window.location.href;
-        }
-      });
-    };
-    const historyChanged = () => setTimeout(changedLocation, 0);
-    window.addEventListener(BEFORE_WORKSPACE_NAVIGATION, acceptedNavigation);
-    window.addEventListener("hashchange", changedLocation);
-    window.addEventListener("popstate", historyChanged);
+    const unsubscribe = subscribeClientNavigation(() => undefined);
     return () => {
       mounted.current = false;
-      revision.current += 1;
-      window.removeEventListener(
-        BEFORE_WORKSPACE_NAVIGATION,
-        acceptedNavigation,
-      );
-      window.removeEventListener("hashchange", changedLocation);
-      window.removeEventListener("popstate", historyChanged);
+      lifetime.current += 1;
+      unsubscribe();
     };
   }, []);
   return useCallback(() => {
-    const startedAt = revision.current;
+    const startedAt = clientNavigationRevision();
+    const mountedAt = lifetime.current;
+    const authority = sessionAuthorityKey();
     const href = window.location.href;
     return () =>
       mounted.current &&
       currentScope.current === scope &&
-      revision.current === startedAt &&
+      lifetime.current === mountedAt &&
+      sessionAuthorityKey() === authority &&
+      clientNavigationRevision() === startedAt &&
       window.location.href === href;
   }, [scope]);
 }

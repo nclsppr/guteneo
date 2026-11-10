@@ -83,7 +83,7 @@ function ConnectionSettings({
   const [postalAcknowledged, setPostalAcknowledged] = useState(false);
   const [validation, setValidation] = useState("");
   const [notice, setNotice] = useState("");
-  const action = useAction();
+  const action = useAction(`${connection.connectionId}:${editable}`);
 
   useEffect(() => {
     if (!selected) {
@@ -162,21 +162,23 @@ function ConnectionSettings({
     }
     if (!acknowledged || (channels.includes("postal") && !postalAcknowledged))
       return;
-    await action.run(async () => {
-      const result = await api<ExpertApprovalSettings>(
-        `/account/expert-approval/${encodeURIComponent(connection.connectionId)}`,
-        {
-          method: "PUT",
-          body: {
-            enabled: true,
-            channels,
-            maxPerDispatchMinor: perDispatchMinor,
-            maxDailyMinor: dailyMinor,
-            maxDailyCount: Number(count),
-            expiresAt: new Date(expires).toISOString(),
-            acknowledgement: "delegate-approval-v1",
+    await action.run(async (view) => {
+      const result = await view.wait(
+        api<ExpertApprovalSettings>(
+          `/account/expert-approval/${encodeURIComponent(connection.connectionId)}`,
+          {
+            method: "PUT",
+            body: {
+              enabled: true,
+              channels,
+              maxPerDispatchMinor: perDispatchMinor,
+              maxDailyMinor: dailyMinor,
+              maxDailyCount: Number(count),
+              expiresAt: new Date(expires).toISOString(),
+              acknowledgement: "delegate-approval-v1",
+            },
           },
-        },
+        ),
       );
       onUpdated(result);
       setEditing(false);
@@ -190,11 +192,13 @@ function ConnectionSettings({
 
   async function disable() {
     if (!editable || action.pending) return;
-    await action.run(async () => {
+    await action.run(async (view) => {
       onUpdated(
-        await api<ExpertApprovalSettings>(
-          `/account/expert-approval/${encodeURIComponent(connection.connectionId)}`,
-          { method: "PUT", body: { enabled: false } },
+        await view.wait(
+          api<ExpertApprovalSettings>(
+            `/account/expert-approval/${encodeURIComponent(connection.connectionId)}`,
+            { method: "PUT", body: { enabled: false } },
+          ),
         ),
       );
       setEditing(false);

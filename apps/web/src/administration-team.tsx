@@ -187,12 +187,14 @@ export function TeamAdmin({ session, onUpdated }: Props) {
     >,
   ) {
     setMessage("");
-    await action.run(async () => {
-      const result = await api<{ self: boolean; sessionsRevoked: boolean }>(
-        `/admin/members/${encodeURIComponent(member.id)}${rights ? "" : "/revoke-access"}`,
-        { method: rights ? "PATCH" : "POST", body: rights ?? {} },
+    await action.run(async (view) => {
+      const result = await view.wait(
+        api<{ self: boolean; sessionsRevoked: boolean }>(
+          `/admin/members/${encodeURIComponent(member.id)}${rights ? "" : "/revoke-access"}`,
+          { method: rights ? "PATCH" : "POST", body: rights ?? {} },
+        ),
       );
-      if (result.self && result.sessionsRevoked) await onUpdated();
+      if (result.self && result.sessionsRevoked) await view.wait(onUpdated());
       else {
         members.refresh();
         setMessage(
@@ -246,7 +248,7 @@ export function TeamAdmin({ session, onUpdated }: Props) {
           ) : (
             members.data && (
               <>
-                <DataTable
+                <DataTable viewId="workspace-members"
                   label={msg("Workspace members")}
                   items={members.data.items}
                   getRowKey={(member) => member.id}

@@ -1,5 +1,32 @@
 # Execution plan and handoff
 
+## Lifecycle experience — 10 November 2026 candidate
+
+The [implementation and qualification ledger](LIFECYCLE_EXPERIENCE_EXECUTION.md)
+starts from merged main `77a7570b` and implements seven product features plus nine
+frontend improvements. Future scheduling uses the user's explicit choice of a
+separate revocable human approval with an immutable time/window and spending cap.
+It supports ordinary fax and message-only email; secure/PDF email and postal keep
+their existing contemporaneous consent and authentication conditions.
+
+Migrations 0078–0080 add tenant contacts, customer metadata callbacks and scheduled
+release evidence. Apply migrations before runtime. The scheduler and outgoing
+callbacks are independently default-off and remain unactivated. Browser-only
+future approval and callback secrets have no assistant tool. Contacts and
+schedules add nine scoped tools; the synchronized portable/Claude/Cursor candidate
+is 1.2.0. Existing package identities, OAuth settings and default prompts remain.
+
+The browser now shares continuation fencing, authority/navigation revisions,
+bounded collection reads and adaptive polling; loads only the selected language;
+and provides an attention queue, outcome tray, navigation commands and bounded
+presentation-only table views. Device-local drafts require explicit resume and
+preserve the exact interrupted key. Dispatch/platform/style modules are split,
+all eight design exceptions are retired, and automated accessibility runs cover
+four languages, both themes and desktop/mobile browsers. Current exact proof,
+remaining qualification and the distinction between code, CI and activation live
+in the linked ledger. Nothing here authorizes a merge, production release, real
+communication, endpoint activation or paid provisioning.
+
 ## Explicit transition contracts — 8 November 2026 implementation
 
 The [static state-machine inventory](IMPLICIT_STATE_MACHINES.md) and

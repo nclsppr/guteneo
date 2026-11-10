@@ -4,12 +4,11 @@ import {
   isSupportedLocale,
   normalizeLocale,
   resolveLocale,
+  supportedLocales,
   type SupportedLocale,
 } from "../../../packages/contracts/src/locale";
-import { fr, type Copy } from "./i18n";
-import { en } from "./locales/en";
-import { de } from "./locales/de";
-import { lb } from "./locales/lb";
+import type { Copy } from "./i18n";
+import { hasLocaleData, loadLocaleData, readLocaleData } from "./locale-data";
 import site from "../../../packages/contracts/src/public-site.json";
 import {
   parsePublicLocaleCookie,
@@ -41,9 +40,18 @@ export const localeTags: Record<SupportedLocale, string> = {
   de: "de-DE",
   lb: "lb-LU",
 };
-export const catalogs: Record<SupportedLocale, Copy> = { fr, en, de, lb };
+export const catalogs = Object.defineProperties(
+  {},
+  Object.fromEntries(
+    supportedLocales.map((locale) => [
+      locale,
+      { enumerable: true, get: () => readLocaleData(locale).copy },
+    ]),
+  ),
+) as Record<SupportedLocale, Copy>;
 export const localeLabels = {
   fr: {
+    reload: "Recharger la page",
     language: "Langue",
     automatic: "Automatique",
     automaticHint:
@@ -58,6 +66,7 @@ export const localeLabels = {
       "Ce choix s’applique à ce navigateur. Connectez-vous pour enregistrer votre préférence dans votre profil.",
   },
   en: {
+    reload: "Reload the page",
     language: "Language",
     automatic: "Automatic",
     automaticHint:
@@ -72,6 +81,7 @@ export const localeLabels = {
       "This choice applies to this browser. Sign in to save your preference in your profile.",
   },
   de: {
+    reload: "Seite neu laden",
     language: "Sprache",
     automatic: "Automatisch",
     automaticHint:
@@ -86,6 +96,7 @@ export const localeLabels = {
       "Diese Auswahl gilt für diesen Browser. Melden Sie sich an, um Ihre Einstellung im Profil zu speichern.",
   },
   lb: {
+    reload: "Säit nei lueden",
     language: "Sprooch",
     automatic: "Automatesch",
     automaticHint:
@@ -104,7 +115,36 @@ const storageKey = "guteneo.locale";
 export type LocaleSource = "browser" | "selection" | "account";
 let current: SupportedLocale = defaultLocale;
 let currentSource: LocaleSource = "browser";
-export let t: Copy = catalogs[current];
+export const t = new Proxy({} as Copy, {
+  get: (_target, key) => Reflect.get(readLocaleData(current).copy, key),
+  ownKeys: () => Reflect.ownKeys(readLocaleData(current).copy),
+  getOwnPropertyDescriptor: (_target, key) => ({
+    ...Object.getOwnPropertyDescriptor(readLocaleData(current).copy, key),
+    configurable: true,
+  }),
+});
+let localeRequestRevision = 0;
+let pendingLocale:
+  | { locale: SupportedLocale; source: LocaleSource; promise: Promise<void> }
+  | undefined;
+export const getRequestedLocale = () => pendingLocale?.locale ?? current;
+type LocalePreparation = {
+  ready: (locale: SupportedLocale) => boolean;
+  load: (locale: SupportedLocale) => Promise<void>;
+};
+const preparations = new Set<LocalePreparation>();
+export function registerLocalePreparation(preparation: LocalePreparation) {
+  preparations.add(preparation);
+  return () => {
+    preparations.delete(preparation);
+  };
+}
+export const localeReloadLabel = () =>
+  localeLabels[pendingLocale?.locale ?? current].reload;
+export async function waitForLocale() {
+  while (pendingLocale) await pendingLocale.promise;
+  await loadLocaleData(current);
+}
 const listeners = new Set<() => void>();
 let selectionVersion = 0;
 export const getLocaleSelectionVersion = () => selectionVersion;
@@ -125,7 +165,10 @@ function subscribe(listener: () => void) {
   };
 }
 export function useLocale() {
-  return useSyncExternalStore(subscribe, getLocale, getLocale);
+  const locale = useSyncExternalStore(subscribe, getLocale, getLocale);
+  if (pendingLocale?.source === "account") throw pendingLocale.promise;
+  readLocaleData(locale);
+  return locale;
 }
 function syncPublicLocaleUrl(locale: SupportedLocale) {
   if (typeof window === "undefined" || !window.history || !window.location.href)
@@ -143,7 +186,13 @@ function syncPublicLocaleUrl(locale: SupportedLocale) {
   window.history.replaceState(window.history.state, "", url);
 }
 export function useLocaleSource() {
-  return useSyncExternalStore(subscribe, getLocaleSource, getLocaleSource);
+  const source = useSyncExternalStore(
+    subscribe,
+    getLocaleSource,
+    getLocaleSource,
+  );
+  if (pendingLocale?.source === "account") throw pendingLocale.promise;
+  return source;
 }
 /** Nonsecret presentation hint only; authentication never trusts this cookie. */
 function syncLocaleCookie(locale: SupportedLocale, source: LocaleSource) {
@@ -163,8 +212,11 @@ export function setLocale(
   rememberPresentation = true,
 ) {
   if (!isSupportedLocale(locale)) return;
-  if (rememberPresentation) syncLocaleCookie(locale, source);
   if (persist) selectionVersion += 1;
+  const request = ++localeRequestRevision;
+  // Presentation persistence stays synchronous: logout can immediately navigate
+  // to another document before this language's asset has finished loading.
+  if (rememberPresentation) syncLocaleCookie(locale, source);
   if (persist && typeof window !== "undefined") {
     syncPublicLocaleUrl(locale);
     try {
@@ -173,13 +225,35 @@ export function setLocale(
       /* Private browsing can disable storage. */
     }
   }
-  if (typeof document !== "undefined") document.documentElement.lang = locale;
-  notifyLocalePresentation();
-  if (current === locale && currentSource === source) return;
-  current = locale;
-  currentSource = source;
-  t = catalogs[locale];
-  for (const listener of listeners) listener();
+  const commit = () => {
+    if (typeof document !== "undefined") document.documentElement.lang = locale;
+    notifyLocalePresentation();
+    if (current === locale && currentSource === source) return;
+    current = locale;
+    currentSource = source;
+    for (const listener of listeners) listener();
+  };
+  const additional = [...preparations].filter(
+    (preparation) => !preparation.ready(locale),
+  );
+  if (!hasLocaleData(locale) || additional.length) {
+    const promise = Promise.all([
+      loadLocaleData(locale),
+      ...additional.map((preparation) => preparation.load(locale)),
+    ]).then(() => {
+      if (request !== localeRequestRevision) return;
+      pendingLocale = undefined;
+      commit();
+    });
+    // Suspense/bootstrap owns the rejection and explicit asset-reload recovery.
+    // This handler only prevents an unobserved rejection in a hidden document.
+    void promise.catch(() => undefined);
+    pendingLocale = { locale, source, promise };
+    for (const listener of listeners) listener();
+    return;
+  }
+  pendingLocale = undefined;
+  commit();
 }
 function browserLocale() {
   if (typeof navigator === "undefined") return defaultLocale;
@@ -261,14 +335,12 @@ export function initializeLocale(
   const source = requested
     ? "selection"
     : (hint?.source ?? (stored ? "selection" : "browser"));
-  setLocale(
-    requested ?? hint?.locale ?? stored ?? initial ?? browserLocale(),
-    !!requested,
-    source,
-  );
+  const target =
+    requested ?? hint?.locale ?? stored ?? initial ?? browserLocale();
+  setLocale(target, !!requested, source);
   // A saved explicit choice also survives ordinary navigation between public pages.
   if (!requested && source === "selection") {
-    syncPublicLocaleUrl(getLocale());
+    syncPublicLocaleUrl(target);
     notifyLocalePresentation();
   }
 }

@@ -14,6 +14,7 @@ import {
   createContext,
   useContext,
   useLayoutEffect,
+  useSyncExternalStore,
   type ReactNode,
   type ReactElement,
   type SetStateAction,
@@ -31,16 +32,35 @@ import {
   type Dispatch,
   type Page,
   recipientLabel,
+  dispatchPresentationStatus,
   date,
   getDocumentContent,
   isPublicPreview,
+  sessionAuthorityKey,
+  subscribeSessionAuthority,
 } from "./api";
-import { t } from "./locale";
+import { useCurrentClientView } from "./client-write-recovery";
+import {
+  BEFORE_WORKSPACE_NAVIGATION,
+  subscribeClientNavigation,
+} from "./client-navigation";
+import {
+  createClientActionController,
+  ObsoleteClientAction,
+  type ClientActionContext,
+} from "./client-action";
+import {
+  cacheableListPath,
+  readClientList,
+  dataAfterReadFailure,
+} from "./client-resources";
+import { recordActionOutcome } from "./action-outcomes";
+import { t, getLocale } from "./locale";
 import { pdfCheckErrorMessage } from "./pdf-check-errors";
 import { workspaceAuthenticationRecoveryHref } from "./auth-navigation";
 
-export const BEFORE_WORKSPACE_NAVIGATION =
-  "guteneo:before-workspace-navigation";
+export { BEFORE_WORKSPACE_NAVIGATION } from "./client-navigation";
+export type { ClientActionContext, ClientActionOutcome } from "./client-action";
 export const NAVIGATION_PANEL_OPEN = "guteneo:navigation-panel-open";
 
 export function go(path: string) {
@@ -55,7 +75,7 @@ export function LoadMore<T>({
   data?: Page<T>;
   onLoaded: (page: Page<T>) => void;
 }) {
-  const action = useAction();
+  const action = useAction(`${path}:${data?.nextCursor ?? ""}`);
   if (!data?.nextCursor) return null;
   return (
     <>
@@ -64,9 +84,11 @@ export function LoadMore<T>({
         className="button subtle small pagination"
         disabled={action.pending}
         onClick={() =>
-          void action.run(async () => {
-            const next = await api<Page<T>>(
-              `${path}${path.includes("?") ? "&" : "?"}cursor=${encodeURIComponent(data.nextCursor ?? "")}`,
+          void action.run(async (view) => {
+            const next = await view.wait(
+              api<Page<T>>(
+                `${path}${path.includes("?") ? "&" : "?"}cursor=${encodeURIComponent(data.nextCursor ?? "")}`,
+              ),
             );
             onLoaded({
               items: [...data.items, ...next.items],
@@ -112,6 +134,7 @@ export function useRouteState() {
   const [route, setRoute] = useState(readRoute);
   const [pending, startTransition] = useTransition();
   useEffect(() => {
+    const unsubscribeNavigation = subscribeClientNavigation(() => undefined);
     let acceptedHash = window.location.hash;
     let acceptedRoute = readRoute();
     const update = () => {
@@ -137,7 +160,10 @@ export function useRouteState() {
     // A fragment may change after the first render but before this effect.
     // Catch up after subscribing without changing the initial scroll position.
     setRoute(readRoute());
-    return () => window.removeEventListener("hashchange", update);
+    return () => {
+      unsubscribeNavigation();
+      window.removeEventListener("hashchange", update);
+    };
   }, [startTransition]);
   useLayoutEffect(() => {
     if (!route.startsWith("/app")) return;
@@ -159,18 +185,24 @@ export function useRoute() {
   return route;
 }
 export function useResource<T>(path: string | null) {
+  const authority = useSyncExternalStore(
+    subscribeSessionAuthority,
+    sessionAuthorityKey,
+    sessionAuthorityKey,
+  );
+  const identity = `${authority}:${path ?? ""}`;
   const [state, setState] = useState<{
-    path: string | null;
+    identity: string;
     data?: T;
     error?: Error;
     loading: boolean;
-  }>({ path, loading: Boolean(path) });
+  }>({ identity, loading: Boolean(path) });
   const [version, setVersion] = useState(0);
   const refresh = useCallback(() => setVersion((v) => v + 1), []);
   const setData = useCallback(
     (value: SetStateAction<T | undefined>) => {
       setState((current) =>
-        current.path === path
+        current.identity === identity
           ? {
               ...current,
               data:
@@ -183,25 +215,34 @@ export function useResource<T>(path: string | null) {
           : current,
       );
     },
-    [path],
+    [identity],
   );
   useEffect(() => {
     if (!path) {
-      setState({ path, loading: false });
+      setState({ identity, loading: false });
       return;
     }
     const controller = new AbortController();
     // A refresh retains this resource. Navigation must never show an editable
     // model from the previous path while the new request is pending or fails.
     setState((current) => ({
-      path,
-      data: current.path === path ? current.data : undefined,
+      identity,
+      data: current.identity === identity ? current.data : undefined,
       loading: true,
     }));
-    api<T>(path, { signal: controller.signal })
+    const read = (signal: AbortSignal) => api<T>(path, { signal });
+    const request = cacheableListPath(path)
+      ? readClientList<T>(
+          `${identity}:${getLocale()}`,
+          read,
+          controller.signal,
+          version > 0,
+        )
+      : read(controller.signal);
+    request
       .then((data) => {
         if (!controller.signal.aborted)
-          setState({ path, data, loading: false });
+          setState({ identity, data, loading: false });
       })
       .catch((error: unknown) => {
         // Aborting fetch is not sufficient when parsing or another transport
@@ -209,14 +250,15 @@ export function useResource<T>(path: string | null) {
         if (!controller.signal.aborted)
           setState((current) => ({
             ...current,
+            data: dataAfterReadFailure(current.data, error),
             error: error as Error,
             loading: false,
           }));
       });
     return () => controller.abort();
-  }, [path, version]);
+  }, [path, identity, version]);
   // Effects run after render; hide a different path's data immediately.
-  const current = state.path === path ? state : undefined;
+  const current = state.identity === identity ? state : undefined;
   return {
     data: current?.data,
     error: current?.error,
@@ -250,21 +292,38 @@ export function useRefreshOnFocus(refresh: () => void, enabled = true) {
     };
   }, [refresh, enabled]);
 }
-export function useAction() {
+export function useAction(scope = "") {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<Error>();
+  const captureView = useCurrentClientView(scope);
+  const controller = useRef<ReturnType<
+    typeof createClientActionController
+  > | null>(null);
+  controller.current ??= createClientActionController();
   // Stable callbacks: effects may depend on them without re-running.
-  const run = useCallback(async (action: () => Promise<void>) => {
-    setPending(true);
-    setError(undefined);
-    try {
-      await action();
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
-    } finally {
-      setPending(false);
-    }
-  }, []);
+  const run = useCallback(
+    async (action: (context: ClientActionContext) => Promise<void>) => {
+      if (controller.current!.pending) return;
+      const ownsView = captureView();
+      const authority = sessionAuthorityKey();
+      setPending(true);
+      setError(undefined);
+      try {
+        await controller.current!.run(action, ownsView, (outcome) => {
+          if (sessionAuthorityKey() === authority)
+            recordActionOutcome(outcome, authority);
+        });
+      } catch (err) {
+        if (ownsView() && !(err instanceof ObsoleteClientAction))
+          setError(err instanceof Error ? err : new Error(String(err)));
+      } finally {
+        // A batched A -> B -> A can keep this mounted instance. The busy latch
+        // must clear, while old failures and callback effects remain fenced.
+        setPending(false);
+      }
+    },
+    [captureView],
+  );
   const clear = useCallback(() => setError(undefined), []);
   return { pending, error, run, clear };
 }
@@ -586,6 +645,13 @@ export function EmptyState({
   );
 }
 function dispatchStatusText(status: string, channel?: Channel) {
+  if (status === "schedule_draft")
+    return msg("Waiting for scheduled spending approval");
+  if (status === "scheduled") return msg("Scheduled spending approved");
+  if (status === "schedule_releasing")
+    return msg("Checking release conditions");
+  if (status === "schedule_unknown")
+    return msg("Unknown outcome, review required");
   let text = t.statuses[status] ?? status;
   if (status === "delivered" && channel === "email")
     text = t.statuses.email_delivered ?? text;
@@ -600,8 +666,17 @@ export function Status({
   status: string;
   channel?: Channel;
 }) {
+  const tone =
+    (
+      {
+        schedule_draft: "draft",
+        scheduled: "queued",
+        schedule_releasing: "submitting",
+        schedule_unknown: "submission_unknown",
+      } as Record<string, string>
+    )[status] ?? status;
   return (
-    <span className={`status status-${status}`}>
+    <span className={`status status-${tone}`}>
       {dispatchStatusText(status, channel)}
     </span>
   );
@@ -643,11 +718,13 @@ export function DispatchTable({
     <>
       <DateTimezone />
       <DataTable
+        viewId="dispatches"
         label={t.dispatch.listTitle}
         items={items}
         getRowKey={(item) => item.id}
         filters={[
           {
+            saveValue: true,
             id: "channel",
             label: t.channel,
             value: (item) => item.channel,
@@ -656,11 +733,12 @@ export function DispatchTable({
             ),
           },
           {
+            saveValue: true,
             id: "status",
             label: t.status,
-            value: (item) => item.status,
-            options: [...new Set(items.map((item) => item.status))].map(
-              (value) => ({ value, label: t.statuses[value] ?? value }),
+            value: dispatchPresentationStatus,
+            options: [...new Set(items.map(dispatchPresentationStatus))].map(
+              (value) => ({ value, label: dispatchStatusText(value) }),
             ),
           },
         ]}
@@ -686,12 +764,19 @@ export function DispatchTable({
           {
             id: "status",
             label: t.status,
-            value: (item) => dispatchStatusText(item.status, item.channel),
+            value: (item) =>
+              dispatchStatusText(
+                dispatchPresentationStatus(item),
+                item.channel,
+              ),
             searchValue: (item) =>
-              `${dispatchStatusText(item.status, item.channel)} ${item.mode === "simulation" ? t.simulation : ""}`,
+              `${dispatchStatusText(dispatchPresentationStatus(item), item.channel)} ${item.mode === "simulation" ? t.simulation : ""}`,
             render: (item) => (
               <>
-                <Status status={item.status} channel={item.channel} />
+                <Status
+                  status={dispatchPresentationStatus(item)}
+                  channel={item.channel}
+                />
                 {item.mode === "simulation" && (
                   <small className="sub-label">{t.simulation}</small>
                 )}
@@ -741,8 +826,10 @@ export function PdfPreview({
 }) {
   const download = useAction();
   async function downloadSample() {
-    await download.run(async () => {
-      const bytes = await getDocumentContent(id, undefined, dispatchId);
+    await download.run(async (view) => {
+      const bytes = await view.wait(
+        getDocumentContent(id, undefined, dispatchId),
+      );
       const url = URL.createObjectURL(
         new Blob([new Uint8Array(bytes)], { type: "application/pdf" }),
       );

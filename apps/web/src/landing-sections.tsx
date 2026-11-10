@@ -1,5 +1,5 @@
 import { msg } from "./messages";
-import { DistributionRoadmap } from "./email-composer";
+import { DistributionRoadmap } from "./distribution-roadmap";
 import { ArrowRight } from "@phosphor-icons/react";
 import { t } from "./locale";
 import { workspaceEntryHref } from "./auth-navigation";

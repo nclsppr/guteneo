@@ -1,13 +1,19 @@
-/* Resolve legacy device preferences before public content can paint. */
+/* Resolve public presentation hints before server-rendered content can paint.
+ * These hints grant no identity, membership or sending authority. */
 (function () {
   var root = document.documentElement;
   if (
     !root.dataset.publicLocale ||
     root.dataset.publicPath !== location.pathname ||
-    document.querySelector('meta[name="guteneo-belvedere"]') ||
-    location.hash.startsWith("#/app")
+    document.querySelector('meta[name="guteneo-belvedere"]')
   )
     return;
+  // A hash is never sent to the server. Its public HTML fallback must not flash
+  // behind a private entry while the authenticated language is being resolved.
+  if (location.hash.startsWith("#/app")) {
+    root.dataset.publicBootstrapPending = "true";
+    return;
+  }
   function normalize(value) {
     if (typeof value !== "string" || value.length > 64) return null;
     var tag = value.trim().replaceAll("_", "-").toLowerCase();
@@ -16,17 +22,8 @@
     return ["fr", "en", "de", "lb"].includes(base) ? base : null;
   }
   var url = new URL(location.href);
-  // Recovery/authentication URLs must never be replayed or copied into a redirect.
-  if (
-    Array.from(url.searchParams.keys()).some(function (key) {
-      return /^(auth|code|state|token|access_token|refresh_token|id_token|session|ticket|error|error_description)$/i.test(
-        key,
-      );
-    })
-  )
-    return;
   var values = url.searchParams.getAll("lang");
-  if (values.length === 1 && normalize(values[0])) return;
+  var requested = values.length === 1 ? normalize(values[0]) : null;
   var cookie = "";
   try {
     cookie = document.cookie;
@@ -43,24 +40,49 @@
             : [];
         })
       : [];
-  if (
+  var hint =
     matches.length === 1 &&
     /^(selection|account)\.(fr|en|de|lb)$/.test(matches[0])
-  )
-    return;
+      ? matches[0].split(".")[1]
+      : null;
   var stored = null;
   try {
     stored = normalize(localStorage.getItem("guteneo.locale"));
   } catch {
     /* Storage is optional. */
   }
-  // New preferences reach the Worker through a bounded cookie. Only an older
-  // localStorage-only selection needs this one pre-paint canonical navigation.
-  if (stored && stored !== root.dataset.publicLocale) {
+  var privateQuery = Array.from(url.searchParams.keys()).some(function (key) {
+    return /^(auth|code|state|token|access_token|refresh_token|id_token|session|ticket|error|error_description)$/i.test(
+      key,
+    );
+  });
+  // Only an older localStorage-only choice needs a canonical navigation. Never
+  // replay recovery/authentication query parameters into that navigation.
+  if (
+    !privateQuery &&
+    !requested &&
+    !hint &&
+    stored &&
+    stored !== root.dataset.publicLocale
+  ) {
     url.searchParams.set("lang", stored);
-    // Navigation is asynchronous: the superseded document must not paint while
-    // the correctly localized immutable page is on its way.
     root.style.visibility = "hidden";
     location.replace(url.href);
+    return;
   }
+  var locale = requested || hint || stored || root.dataset.publicLocale;
+  if (!["fr", "en", "de", "lb"].includes(locale)) return;
+  // A static fallback or old cache may not have negotiated this presentation
+  // hint. Hide only its inert SSR wrapper; React replaces that wrapper itself.
+  if (locale !== root.dataset.publicLocale)
+    root.dataset.publicBootstrapPending = "true";
+  var asset = document.querySelector(
+    'meta[name="guteneo-locale-' + locale + '"]',
+  );
+  if (!asset || !/^\/assets\/[a-zA-Z0-9_.-]+\.js$/.test(asset.content)) return;
+  var link = document.createElement("link");
+  link.rel = "modulepreload";
+  link.href = asset.content;
+  link.crossOrigin = "anonymous";
+  document.head.appendChild(link);
 })();

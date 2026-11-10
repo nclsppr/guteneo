@@ -517,7 +517,10 @@ describe("secure dispatch approvals cannot escape through legacy paths", () => {
         )
         .bind(time, base.organizationId, f.dispatch.id)
         .run(),
-    ).rejects.toThrow(/secure_browser_approval_required/);
+    // Independent BEFORE guards may reject first after an additive migration
+    // rebuilds core acceptance. Both require missing approval; no effect may
+    // survive. The insertion above still proves the exact secure-evidence guard.
+    ).rejects.toThrow(/\b(?:secure_browser_approval_required|approval_required)\b/);
     expect(await counts(f.dispatch.id)).toEqual({
       approvals: 0,
       evidence: 0,

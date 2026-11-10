@@ -14,6 +14,8 @@ export const claudeSkillNames = [
   "pdf-accessibility",
   "postal-pdf",
   "secure-distribution",
+  "saved-recipients",
+  "scheduled-dispatch",
 ];
 export const claudePluginFiles = [
   ".claude-plugin/plugin.json",

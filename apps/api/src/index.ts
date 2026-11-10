@@ -138,6 +138,10 @@ import { collectProviderFreshness } from "./provider-freshness";
 import { reconcileFreshnessAlerts } from "./freshness-alerts";
 import { reconcileFreshnessPrevention } from "./freshness-prevention";
 import { processPreventionNotifications } from "./provider-prevention-notifications";
+import { createLifecycleRoutes } from "./lifecycle-routes";
+import { DispatchScheduleService, scheduleCapabilities } from "./dispatch-schedules";
+import { createCustomerWebhookRoutes } from "./customer-webhook-routes";
+import { customerWebhookCapabilities, processCustomerWebhooks } from "./customer-webhooks";
 
 import {
   startObservation,
@@ -160,6 +164,9 @@ function identityConfigured(env: Env) {
 }
 export function getCapabilities(env: Env) {
   return {
+    savedRecipients: { available: true, permission: "prepare_dispatches", channels: ["fax", "email", "postal"], maximumPerWorkspace: 1000 },
+    scheduledDispatches: scheduleCapabilities(env),
+    customerWebhooks: customerWebhookCapabilities(env),
     name: "Guteneo",
     version: GUTENEO_VERSION,
     mode: env.MODE,
@@ -794,6 +801,8 @@ const postalAuthority = async (request: Request, env: Env, scope: string) => {
   return postalBrowserAuthority(request, env, request.method !== "GET");
 };
 app.route("/", createTemplateWorkflowRoutes(domain, postalAuthority));
+app.route("/", createLifecycleRoutes(domain));
+app.route("/", createCustomerWebhookRoutes(domain));
 // Workspace administration reads and exports: browser membership authority only.
 app.route("/", createAdministrationRoutes());
 const secureService = (env: Env) =>
@@ -1758,6 +1767,8 @@ export default {
         return;
       }
       assertConfiguration(env);
+      Object.assign(counts, await processCustomerWebhooks(env, service));
+      await new DispatchScheduleService(env, service).processDue();
       stage = "outbox";
       Object.assign(counts, await publishOutbox(env, service));
       stage = "leases";

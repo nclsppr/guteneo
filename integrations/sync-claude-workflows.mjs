@@ -1,4 +1,4 @@
-import { readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -11,6 +11,8 @@ const skills = [
   "pdf-accessibility",
   "postal-pdf",
   "secure-distribution",
+  "saved-recipients",
+  "scheduled-dispatch",
 ];
 const hostNotice =
   "Before using this skill, read the [Claude host contract](../../references/claude-host.md). Use the connected Guteneo tools and preserve the host’s permission prompts.";
@@ -45,9 +47,12 @@ export async function synchronizeClaudeWorkflows({
       name,
       "SKILL.md",
     );
-    if ((await readFile(path, "utf8")) !== adapted) {
+    if ((await readFile(path, "utf8").catch(() => null)) !== adapted) {
       changes.push(path);
-      if (!check) await writeFile(path, adapted);
+      if (!check) {
+        await mkdir(dirname(path), { recursive: true });
+        await writeFile(path, adapted);
+      }
     }
   }
   for (const file of ["scripts/upload-private-pdf.py"]) {

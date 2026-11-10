@@ -1,4 +1,5 @@
 import { msg } from "./messages";
+import { invalidateClientLists } from "./client-resources";
 import {
   formatLocale,
   initializeLocale,
@@ -64,6 +65,12 @@ export type DocumentRecord = {
   analysis?: DocumentAnalysis;
 };
 export type Dispatch = {
+  activeSchedule?: {
+    id: string;
+    status: "draft" | "approved" | "releasing" | "unknown";
+    executeAt: string;
+    maxTotalMinor: number;
+  };
   recipient_feedback?: "unsubscribed" | "reported" | null;
   id: string;
   channel: Channel;
@@ -105,6 +112,7 @@ export type EventRecord = {
   payload_json?: string;
 };
 export type DispatchDetail = {
+  activeSchedule?: Dispatch["activeSchedule"];
   approval?: {
     fingerprint: string;
     expires_at: string;
@@ -157,52 +165,87 @@ function announceSessionExpiry(path: string, status: number, revision: number) {
   window.dispatchEvent(new CustomEvent(SESSION_EXPIRED_EVENT));
 }
 
+function assertRequestAuthority(revision: number, signal?: AbortSignal) {
+  signal?.throwIfAborted();
+  if (revision !== sessionRevision)
+    throw new DOMException(
+      "This request belongs to a previous session.",
+      "AbortError",
+    );
+}
+
 export async function getDocumentContent(
   id: string,
   signal?: AbortSignal,
   dispatchId?: string,
 ): Promise<Uint8Array> {
   const revision = sessionRevision;
-  if (isPublicPreview) {
-    signal?.throwIfAborted();
-    const { publicPreview } = await import("./preview");
-    const bytes = await publicPreview.documentContent(id);
-    signal?.throwIfAborted();
+  try {
+    assertRequestAuthority(revision, signal);
+    if (isPublicPreview) {
+      const { publicPreview } = await import("./preview");
+      assertRequestAuthority(revision, signal);
+      const bytes = await publicPreview.documentContent(id);
+      assertRequestAuthority(revision, signal);
+      return bytes;
+    }
+    const response = await fetch(
+      `/api/documents/${encodeURIComponent(id)}/content${dispatchId ? `?dispatchId=${encodeURIComponent(dispatchId)}` : ""}`,
+      {
+        credentials: "same-origin",
+        signal,
+      },
+    );
+    assertRequestAuthority(revision, signal);
+    if (!response.ok) {
+      announceSessionExpiry(
+        `/documents/${id}/content`,
+        response.status,
+        revision,
+      );
+      throw new ApiError(
+        "DOCUMENT_UNAVAILABLE",
+        "This document cannot be displayed.",
+        response.status,
+      );
+    }
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    assertRequestAuthority(revision, signal);
     return bytes;
+  } catch (error) {
+    assertRequestAuthority(revision, signal);
+    throw error;
   }
-  const response = await fetch(
-    `/api/documents/${encodeURIComponent(id)}/content${dispatchId ? `?dispatchId=${encodeURIComponent(dispatchId)}` : ""}`,
-    {
-      credentials: "same-origin",
-      signal,
-    },
-  );
-  signal?.throwIfAborted();
-  if (!response.ok) {
-    announceSessionExpiry(
-      `/documents/${id}/content`,
-      response.status,
-      revision,
-    );
-    throw new ApiError(
-      "DOCUMENT_UNAVAILABLE",
-      "This document cannot be displayed.",
-      response.status,
-    );
-  }
-  const bytes = new Uint8Array(await response.arrayBuffer());
-  signal?.throwIfAborted();
-  return bytes;
 }
 
 let csrfToken = "";
 let sessionUserId: string | null = null;
 let sessionAuthority = "";
 let sessionRevision = 0;
-export function setSession(session: Session | null, applyPreference = true) {
-  const authority = session
+let nextAuthorityKey = 0;
+const authorityKeys = new Map<string, string>();
+const authorityListeners = new Set<() => void>();
+type AuthoritySession = {
+  user: {
+    id: string;
+    role?: string;
+    supervisorCanApprove?: boolean;
+    supervisorCanReport?: boolean;
+  };
+  organization?: { id: string };
+  csrfToken: string;
+  permissions?: WorkspacePermissions;
+  simulation?: boolean;
+  verifiedAccount?: boolean;
+  documentAccessAllowed?: boolean;
+  documentAccessMode?: string;
+  authenticationPolicyVersion?: string | null;
+  strongAuthentication?: boolean;
+};
+function authoritySignature(session: AuthoritySession | null) {
+  return session
     ? JSON.stringify([
-        session.organization.id,
+        session.organization?.id ?? "personal",
         session.user.id,
         session.csrfToken,
         session.user.role,
@@ -211,12 +254,51 @@ export function setSession(session: Session | null, applyPreference = true) {
         session.permissions,
         session.simulation,
         session.verifiedAccount,
+        session.documentAccessAllowed,
+        session.documentAccessMode,
+        session.authenticationPolicyVersion,
+        session.strongAuthentication,
       ])
     : "";
+}
+/** Opaque in-memory identity. Call without an argument for the current epoch;
+ * pass a Session for a stable canonical component scope. Never contains a token. */
+export function sessionAuthorityKey(session?: AuthoritySession | null): string {
+  if (session === undefined)
+    return `${authorityKeys.get(sessionAuthority) ?? "signed-out"}:${sessionRevision}`;
+  if (session === null) return "signed-out";
+  const signature = authoritySignature(session);
+  let key = authorityKeys.get(signature);
+  if (!key) {
+    key = `authority-${++nextAuthorityKey}`;
+    authorityKeys.set(signature, key);
+    if (authorityKeys.size > 64) {
+      const oldest = [...authorityKeys.keys()].find(
+        (candidate) => candidate !== sessionAuthority,
+      );
+      if (oldest !== undefined) authorityKeys.delete(oldest);
+    }
+  }
+  return key;
+}
+export const getSessionAuthorityKey = () => sessionAuthorityKey();
+export function subscribeSessionAuthority(listener: () => void) {
+  authorityListeners.add(listener);
+  return () => {
+    authorityListeners.delete(listener);
+  };
+}
+export function setSession(session: Session | null, applyPreference = true) {
+  const authority = authoritySignature(session);
   // Identity/authority changes supersede old requests, even after A -> B -> A.
   // Reapplying the same session on navigation must still allow current expiry.
-  if (authority !== sessionAuthority) sessionRevision += 1;
+  const changed = authority !== sessionAuthority;
+  if (changed) {
+    sessionRevision += 1;
+    invalidateClientLists(true);
+  }
   sessionAuthority = authority;
+  sessionAuthorityKey(session);
   csrfToken = session?.csrfToken ?? "";
   if (applyPreference && session)
     applyAccountLocale(session.user.preferredLocale);
@@ -227,6 +309,7 @@ export function setSession(session: Session | null, applyPreference = true) {
   )
     initializeLocale(true);
   sessionUserId = session?.user.id ?? null;
+  if (changed) for (const listener of authorityListeners) listener();
 }
 export class ApiError extends Error {
   constructor(
@@ -247,67 +330,83 @@ export async function api<T>(
   } = {},
 ): Promise<T> {
   const revision = sessionRevision;
-  if (isPublicPreview) {
-    const { publicPreview, PreviewError } = await import("./preview");
-    try {
-      return (await publicPreview.request(path, init)) as T;
-    } catch (error) {
-      if (error instanceof PreviewError)
-        throw new ApiError(error.code, error.message, error.status);
-      throw error;
-    }
-  }
-  const headers: Record<string, string> = {
-    Accept: "application/json",
-    "Accept-Language": getLocale(),
-  };
-  const method = init.method ?? "GET";
-  const form = init.body instanceof FormData;
-  if (init.body !== undefined && !form)
-    headers["Content-Type"] = "application/json";
-  if (method !== "GET") headers["X-CSRF-Token"] = csrfToken;
-  if (init.key) headers["Idempotency-Key"] = init.key;
-  let response: Response;
+  const mutation = (init.method ?? "GET") !== "GET";
+  if (mutation) invalidateClientLists();
   try {
-    response = await fetch(`/api${path}`, {
-      method,
-      headers,
-      credentials: "same-origin",
-      body:
-        init.body === undefined
-          ? undefined
-          : form
-            ? (init.body as FormData)
-            : JSON.stringify(init.body),
-      signal: init.signal,
-    });
+    assertRequestAuthority(revision, init.signal);
+    if (isPublicPreview) {
+      const { publicPreview, PreviewError } = await import("./preview");
+      assertRequestAuthority(revision, init.signal);
+      try {
+        const data = await publicPreview.request(path, init);
+        assertRequestAuthority(revision, init.signal);
+        return data as T;
+      } catch (error) {
+        assertRequestAuthority(revision, init.signal);
+        if (error instanceof PreviewError)
+          throw new ApiError(error.code, error.message, error.status);
+        throw error;
+      }
+    }
+    const headers: Record<string, string> = {
+      Accept: "application/json",
+      "Accept-Language": getLocale(),
+    };
+    const method = init.method ?? "GET";
+    const form = init.body instanceof FormData;
+    if (init.body !== undefined && !form)
+      headers["Content-Type"] = "application/json";
+    if (method !== "GET") headers["X-CSRF-Token"] = csrfToken;
+    if (init.key) headers["Idempotency-Key"] = init.key;
+    let response: Response;
+    try {
+      assertRequestAuthority(revision, init.signal);
+      response = await fetch(`/api${path}`, {
+        method,
+        headers,
+        credentials: "same-origin",
+        body:
+          init.body === undefined
+            ? undefined
+            : form
+              ? (init.body as FormData)
+              : JSON.stringify(init.body),
+        signal: init.signal,
+      });
+    } catch (error) {
+      assertRequestAuthority(revision, init.signal);
+      if (error instanceof DOMException && error.name === "AbortError")
+        throw error;
+      throw new ApiError(
+        "NETWORK",
+        "Connection interrupted. Refresh the status before repeating an operation.",
+        0,
+      );
+    }
+    assertRequestAuthority(revision, init.signal);
+    const data: unknown = await response.json().catch(() => null);
+    // A session/account change can abort while an already received body is
+    // parsing. Such a response must not expire the new session or update its UI.
+    assertRequestAuthority(revision, init.signal);
+    if (!response.ok) {
+      announceSessionExpiry(path, response.status, revision);
+      const failure = data as {
+        error?: { code?: string; message?: string };
+      } | null;
+      throw new ApiError(
+        failure?.error?.code ?? "HTTP_ERROR",
+        failure?.error?.message ??
+          msg("The service returned an error ({0}).", response.status),
+        response.status,
+      );
+    }
+    return data as T;
   } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError")
-      throw error;
-    throw new ApiError(
-      "NETWORK",
-      "Connection interrupted. Refresh the status before repeating an operation.",
-      0,
-    );
+    assertRequestAuthority(revision, init.signal);
+    throw error;
+  } finally {
+    if (mutation) invalidateClientLists();
   }
-  init.signal?.throwIfAborted();
-  const data: unknown = await response.json().catch(() => null);
-  // A session/account change can abort while an already received body is
-  // parsing. Such a response must not expire the new session or update its UI.
-  init.signal?.throwIfAborted();
-  if (!response.ok) {
-    announceSessionExpiry(path, response.status, revision);
-    const failure = data as {
-      error?: { code?: string; message?: string };
-    } | null;
-    throw new ApiError(
-      failure?.error?.code ?? "HTTP_ERROR",
-      failure?.error?.message ??
-        msg("The service returned an error ({0}).", response.status),
-      response.status,
-    );
-  }
-  return data as T;
 }
 export type RecipientView = {
   [field: string]: string | string[] | undefined;
@@ -365,6 +464,19 @@ export function recipientLabel(dispatch: Dispatch): string {
       .filter(Boolean)
       .join(", ")
   );
+}
+/** A scheduled source retains its immutable business status while its active
+ * future workflow controls the presentation and available actions. */
+export function dispatchPresentationStatus(dispatch: Dispatch): string {
+  const status = dispatch.activeSchedule?.status;
+  return status
+    ? ({
+        draft: "schedule_draft",
+        approved: "scheduled",
+        releasing: "schedule_releasing",
+        unknown: "schedule_unknown",
+      }[status] ?? "schedule_unknown")
+    : dispatch.status;
 }
 export function date(value?: string): string {
   if (!value) return t.unknown;

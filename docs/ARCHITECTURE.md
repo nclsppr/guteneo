@@ -1,5 +1,77 @@
 # Architecture
 
+## Lifecycle experience boundaries — 9 November 2026 candidate
+
+Migrations 0078–0080 add reusable tenant recipients, signed customer lifecycle
+callbacks and schedules with distinct future spending evidence. They precede the
+compatible runtime; migration creates no provider activation or actual callback.
+The [execution record](LIFECYCLE_EXPERIENCE_EXECUTION.md) owns exact-source
+qualification, while [roles](WORKSPACE_ROLES.md) owns the human/assistant matrix.
+
+Saved recipients are validated versioned address-book rows. Reads require current
+preparation permission; updates/deletes bind their expected revision. A durable
+create-key receipt prevents a deleted contact from being resurrected by replay.
+Preparing a dispatch takes an independent immutable recipient snapshot and grants
+no recipient consent. Browser/REST and five MCP operations reuse the same service.
+
+Schedules accept fax and message-only email only. Draft creation holds ordinary
+approval/acceptance of the original without reserving funds. Its existing detail
+read projects the active hold rather than adding a browser request. A separate
+actual browser approver grants immutable `future_browser` evidence binding exact
+source, recipient, sender/options, time, fifteen-minute acceptance window and
+integer cap within a thirty-day horizon. Disabled release refuses approval, and
+an expired window cannot persist a grant or cancel the source, including at the
+final SQL write. The [schedule contract](SCHEDULED_DISPATCHES.md) owns recovery,
+supported modes and the explicit known-unsent rescheduling boundary.
+
+At due time the bounded processor prepares a fresh quote under the original
+preparer, rechecks the approving principal and source, then atomically accepts
+under a real-clock SQL future-authority predicate. Reservation, outbox insertion
+and the immutable release receipt belong to the existing acceptance transaction.
+Actual Telnyx/SES/Resend bridges consume separate accepted future evidence; no
+ordinary approval is fabricated. The window bounds queue acceptance, not provider
+invocation or delivery. Secure/protected/PDF-email/postal freshness and consent
+remain in their existing flows. There is no future-approval MCP/native operation,
+and unknown provider outcomes never auto-retry.
+
+[Customer webhooks](CUSTOMER_WEBHOOKS.md) use prospective dispatch-status SQL
+triggers and a bounded revision-bound metadata outbox. Browser administrators
+alone configure endpoints and one-time secrets. Separate default-off activation,
+encrypted keys and hosted strict-public HTTPS egress gates precede invocation.
+Current owner-admin authority and one durable invocation fuse are rechecked;
+role/removal/mode loss permanently pauses the grant, and an uncertain invoked
+request never retries. No content or recipient is sent in these lifecycle events.
+Deletion processing explicitly retires these new grants/configuration and purges
+eligible contacts without making all new-feature owners permanently ineligible.
+
+The browser shares one opaque current-authority identity, navigation revision and
+synchronous action lock. Every dependent continuation crosses a current-view
+checkpoint; obsolete success may publish only a bounded confirmed receipt in the
+outcome tray. Attention is an independent SQL-derived authorized metadata queue,
+not a count inferred from the first dispatch page. Commands navigate without
+remote search or mutation; opt-in saved table presets store bounded presentation
+only. Their authenticated person/workspace/area partition is not an authority
+cache. The escaped Belvédère principal hint partitions presentation only; every
+platform read still repeats its separate server guard.
+
+Allowlisted collection reads share at most sixty-four in-memory entries for five
+seconds, keyed by current authority, locale and path, with bounded serialized
+values. Mutation attempts and authority changes invalidate them; terminal
+authority refusals clear stale private models. Detail/readiness/approval reads
+bypass that cache. Hidden-page polling stops and unchanged progress backs off
+within its bound; it never retries a mutation. An entry-only session handoff is
+separate from this collection cache and is not reusable authentication evidence.
+
+The [web application contract](WEB_APPLICATIONS.md) defines the shared frame,
+active-locale packs and independent dispatch/Belvédère route and ordered style
+modules. The manifest currently carries zero import/design exceptions; chart,
+elevation and frame decisions use shared tokens. Four-language/two-theme Axe and
+keyboard/responsive fixtures are bounded implementation checks, not accessibility
+certification. [Performance evidence](FRONTEND_PERFORMANCE.md) keeps measured
+requests/transfer/first content distinct from source splitting and hosted proof.
+Native drafts are separately bounded device-only Keychain data with explicit
+resume/discard and same-key uncertainty recovery; they add no approval authority.
+
 ## Explicit transition boundaries — 8 November 2026 candidate
 
 The [state-machine execution record](STATE_MACHINE_EXECUTION.md) tracks all 113

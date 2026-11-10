@@ -911,7 +911,7 @@ export function TemplateAi({
   const aiPolicy = useStudioAiPolicy();
   const [instruction, setInstruction] = useState("");
   const [proposal, setProposal] = useState<TemplateSuggestion>();
-  const action = useAction();
+  const action = useAction(`${id}:${revision}`);
   return (
     <details className="studio-section">
       <summary>{msg("Ask AI for a change")}</summary>
@@ -948,13 +948,15 @@ export function TemplateAi({
           action.pending
         }
         onClick={() =>
-          void action.run(async () => {
+          void action.run(async (view) => {
             setProposal(undefined);
             setProposal(
-              await api<TemplateSuggestion>(`/templates/${id}/suggest`, {
-                method: "POST",
-                body: { expectedRevision: revision, instruction },
-              }),
+              await view.wait(
+                api<TemplateSuggestion>(`/templates/${id}/suggest`, {
+                  method: "POST",
+                  body: { expectedRevision: revision, instruction },
+                }),
+              ),
             );
           })
         }

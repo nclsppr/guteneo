@@ -187,7 +187,7 @@ describe("MCP annotation audit", () => {
       "cancel_mcp_document_upload",
     ];
     const optInNames = [...diagnosticNames, ...appNames];
-    expect(ordinary).toHaveLength(75);
+    expect(ordinary).toHaveLength(84);
     expect(tools).toHaveLength(ordinary.length + optInNames.length);
     for (const name of optInNames)
       expect(ordinary.map((tool) => tool.name)).not.toContain(name);

@@ -77,7 +77,7 @@ export function PdfValidation({
       ? null
       : `/documents/${encodeURIComponent(document.id)}/validation`,
   );
-  const action = useAction();
+  const action = useAction(`${document.id}:${document.sha256}:${canValidate}`);
   const [profile, setProfile] = useState<PdfValidationProfile>("ua1");
   const [result, setResult] = useState<PdfValidationReport>();
   const requestKey = useRef<{
@@ -111,29 +111,32 @@ export function PdfValidation({
     event.preventDefault();
     if (!canRun || !pricing.data || action.pending) return;
     const quote = pricing.data;
-    await action.run(async () => {
+    await action.run(async (view) => {
       if (!requestKey.current || requestKey.current.purchaseKey !== purchaseKey)
         requestKey.current = { purchaseKey, key: crypto.randomUUID() };
       let report: PdfValidationReport;
       try {
-        report = await api<PdfValidationReport>(
-          `/documents/${encodeURIComponent(document.id)}/validation`,
-          {
-            method: "POST",
-            key: requestKey.current.key,
-            body: {
-              profile,
-              purchase: {
-                confirmed: true,
-                documentSha256: document.sha256,
-                priceMinor: quote.priceMinor,
-                currency: quote.currency,
-                termsVersion: quote.termsVersion,
+        report = await view.wait(
+          api<PdfValidationReport>(
+            `/documents/${encodeURIComponent(document.id)}/validation`,
+            {
+              method: "POST",
+              key: requestKey.current.key,
+              body: {
+                profile,
+                purchase: {
+                  confirmed: true,
+                  documentSha256: document.sha256,
+                  priceMinor: quote.priceMinor,
+                  currency: quote.currency,
+                  termsVersion: quote.termsVersion,
+                },
               },
             },
-          },
+          ),
         );
       } catch (error) {
+        view.checkpoint();
         // A known terminal failure may be checked again on an explicit action.
         // Network uncertainty keeps the key so that replay cannot double-run.
         if (error instanceof ApiError && error.code === "PDF_VALIDATION_FAILED")
@@ -377,7 +380,7 @@ export function PdfReport({
         </div>
       </dl>
       {report.findings.length > 0 && (
-        <DataTable
+        <DataTable viewId="pdf-rule-references"
           label={msg("References for rules to fix")}
           items={report.findings.map((finding, index) => ({
             ...finding,

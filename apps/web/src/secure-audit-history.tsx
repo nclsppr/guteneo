@@ -32,8 +32,8 @@ export function SecureAuditHistory({
   const cursor = older ? older.nextCursor : nextCursor;
   async function load() {
     if (!cursor) return;
-    await action.run(async () => {
-      const result = await getOlder(cursor);
+    await action.run(async (view) => {
+      const result = await view.wait(getOlder(cursor));
       setOlder({
         items: [...items, ...result.items],
         nextCursor: result.nextCursor,

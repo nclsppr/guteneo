@@ -93,9 +93,9 @@ Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or
 
 **Actor:** Authenticated native reader with current preparation permission when composing · **Branch:** Interfaces
 
-Start system authentication on the canonical backend → use dedicated mobile session → import/inspect/search PDFs → prepare fax/email with one captured draft/key and disabled authoring while pending → open authenticated browser for final review → read tracking.
+Start canonical system authentication → read the dedicated mobile session → import/inspect/search PDFs → save a bounded device-local fax/email draft in its exact account/workspace → explicitly resume after relaunch or discard → prepare with one captured draft/key and disabled authoring while pending → open authenticated browser for final review → read tracking.
 
-**Failure and recovery:** Native sessions cannot approve or send. Account erasure processing, physical-device sign-in, signing, TestFlight and App Store distribution require separate qualification. A second queued tap cannot begin another preparation. Failed or interrupted responses retain the same key until an intentional edit; success retains its server-issued reference in that composer. A late response after sign-out cannot populate the dispatch list. Native preparation never grants human send approval.
+**Failure and recovery:** Native sessions cannot approve or send. Account erasure processing, physical-device sign-in, signing, TestFlight and App Store distribution require separate qualification. A second queued tap cannot begin another preparation. Failed or interrupted responses retain the same key until an intentional edit; success retains its server-issued reference in that composer. A late response after sign-out cannot populate the dispatch list. Native preparation never grants human send approval. Local draft retention is seven days, at most five identities and 768 KiB; unavailable Keychain, capacity and revision conflicts are visible. Unknown preparation preserves its original key/reference and recovery does not automatically resend. Device-only storage is not account synchronization or a new API authority.
 
 ## J12: Manage credits
 
@@ -125,9 +125,9 @@ Open the private /share link through the protected handler → read the localize
 
 **Actor:** Developer and explicitly authorised release operator · **Branch:** Operations
 
-Update feature tree/developer contracts/source/tests together → regenerate and check atlas → check canonical build assets and compatibility redirects → run exact-source checks → review → obtain explicit merge/release authority → publish from clean synchronized main → verify public manifest/assets and separately qualify authenticated/runtime behavior.
+Update feature tree/developer contracts/source/tests and version-matched human release notes together → regenerate and check atlas → check canonical build assets and compatibility redirects → run exact-source checks and retain portable HTML test evidence → review → obtain explicit merge/release authority → qualify merged main → create an immutable v&lt;package version&gt; tag on that exact commit → publish from clean synchronized main with fresh remote-tag checks → verify public manifest/assets and record the production receipt → publish GitHub Release notes with one-click test report and explicit activation limits; separately qualify authenticated/runtime behavior.
 
-**Failure and recovery:** Dirty source, drift, failing checks, missing configuration/scan or absent authority blocks release. Manual reruns must select the latest same-run evidence deterministically without deleting failed attempts, falling back to older passing reports or bypassing complete-result verification. Private-engine graceful-stop or idle failures keep customer activation closed; explicit force-stop recovery is not qualification. Unexpected redirects or changed/missing advertised bytes fail served verification; correct the source and repeat the reviewed release sequence without weakening verification. CI, local fixtures, production HTTP and real provider/client proof remain distinct.
+**Failure and recovery:** Dirty source, drift, failing checks, missing configuration/scan or absent authority blocks release. Manual reruns must select the latest same-run evidence deterministically without deleting failed attempts, falling back to older passing reports or bypassing complete-result verification. Private-engine graceful-stop or idle failures keep customer activation closed; explicit force-stop recovery is not qualification. Unexpected redirects or changed/missing advertised bytes fail served verification; correct the source and repeat the reviewed release sequence without weakening verification. CI, local fixtures, production HTTP and real provider/client proof remain distinct. An absent, moved or mismatched remote tag or missing/mismatched human notes stops application publication before build or deployment. Existing tags must never be moved; release a new reviewed version for a new commit. Reused CI reports identify the original tested commit and identical source tree. A source tag or historical release record alone never proves a production rollout.
 
 ## J16: Verify identity and find a responsible contact
 
@@ -341,9 +341,9 @@ Review the supported local Luxembourg fixed +3524 operator-test route, empty opt
 
 **Actor:** Authenticated browser reader with the current page’s data authority; Belvédère retains separate platform access · **Branch:** Operate
 
-Open an authorized operational list → search the loaded rows or use the existing server search → apply an available categorical filter → select a column and direction from its header or narrow-layout control → choose the browser page size and navigate results → explicitly load older cursor records when needed. Server-paged Belvédère lists retain their existing paginator and identify current-page sorting. Cards follow the available container width; surrounding page controls reflow.
+Open an authorized operational list → search the loaded rows or use the existing server search → apply an available categorical filter → select a column and direction from its header or narrow-layout control → choose the browser page size and navigate results → explicitly load older cursor records when needed. Server-paged Belvédère lists retain their existing paginator and identify current-page sorting. Cards follow the available container width; surrounding page controls reflow. Optionally save, apply or delete a named presentation preset for this authenticated person, workspace, table and application area.
 
-**Failure and recovery:** Unloaded records are not silently fetched or included in local search. Changing controls resets the browser page, shrinking results clamps it, and empty results retain a clear-filters action. Loading/denial/error and account/tenant guards remain the owning page’s responsibility; no state persistence, new read scope, approval, send, paid action, mandate or REST/MCP/native capability is added.
+**Failure and recovery:** Unloaded records are not silently fetched or included in local search. Changing controls resets the browser page, shrinking results clamps it, and empty results retain a clear-filters action. At most eight bounded presets store validated sort, categorical filter choices and page size, without rows, recipient fields, searches, cursors or credentials; unsupported/absent identity or invalid storage cannot create a shared preference partition. Loading/denial/error and tenant guards remain the owning page’s responsibility. Presentation persistence grants no read scope, approval, send, paid action, mandate or REST/MCP/native authority.
 
 ## J43: Local role and volume simulation
 
@@ -376,3 +376,75 @@ Open Administration from the application switcher, including from My documents o
 Request deletion explicitly in native Account, or use the published support channel → retain the request receipt → private operator inventories every membership, identity, personal object and attributed reference → resolve workspace/liability blockers and review each retained resource → bind the exact frozen plan and bounded operator capability → begin processing and revoke authentication → advance resumable verified object, identity and local-minimization checkpoints → prepare the exact completion notice privately after data verification → under separate communication authorization obtain its delivered provider evidence → independently verify that receipt and mark completed.
 
 **Failure and recovery:** Request acceptance is not erasure. Last-administrator/unsupported ownership, unresolved execution/storage debt, missing individual retention review or changed snapshot blocks beginning. Expired/lost leases cannot publish checkpoints. Unknown storage or Auth0 effects remain processing and recover only against the same exact targets. Completion requires fresh no-auth/no-content checks, preserved shared/financial integrity and delivered request/plan-bound notice evidence; the processor sends no message. Retained backup/processor evidence has reviewed exceptions and no global anonymity claim. Local tests do not establish real Auth0 deletion, real email receipt or production activation.
+
+## J47: Recover a confirmed result after leaving its view
+
+**Actor:** Authenticated browser principal in the same current authority · **Branch:** Browser presentation only
+
+Start an explicit action → leave its originating view → let the server response settle → if a valid success receipt arrives, inspect the metadata-only outcome tray → follow its canonical internal link or dismiss it.
+
+**Failure and recovery:** An obsolete view cannot perform a dependent write, reveal a secret or navigate. Failed/unknown responses never become a success receipt. Up to twenty receipts expire after fifteen minutes and clear on authority replacement; they contain no content, destination, token or private URL.
+
+## J48: Review the complete authorized attention queue
+
+**Actor:** Current browser workspace member; individual actions retain their own permissions · **Branch:** Metadata read across authorized SQL rows, not a first-page approximation
+
+Open Overview → read the independent prioritized attention queue → inspect unknown submissions, blocked/unknown schedules, expiring quotes/protected links and eligible approvals → explicitly load the next cursor page → open the original authorized resource before taking an action.
+
+**Failure and recovery:** The queue grants no approval or send authority and omits inaccessible resources. Cursor truncation stays explicit, and each destination rereads current rights and state. No message, recipient, document title, credential or signed URL is returned; observers receive no added contact or approval rights.
+
+## J49: Configure a signed lifecycle callback
+
+**Actor:** Current authenticated browser workspace administrator · **Branch:** Browser-only configuration; prospective metadata callbacks
+
+Open Administration → Customer webhooks → create a paused public-HTTPS endpoint with a stable key and explicit one-time secret reveal → save the secret in the receiving service → under separately configured runtime/strict-public-network gates explicitly enable → verify bounded delivery metadata → pause, rotate or revoke when required.
+
+**Failure and recovery:** No historical backfill, sending consent or provider callback authority is created. Role/removal/mode loss permanently pauses the old grant; restoration requires explicit enablement at the new revision. Old pending revisions supersede, overflow is visible, unknown invocations never auto-retry and a lost secret needs explicit rotation rather than replay exposure. Local synthetic HTTP proof is not a real callback.
+
+## J50: Reuse an exact saved destination
+
+**Actor:** Current workspace preparer through browser or appropriately scoped OAuth/MCP · **Branch:** Contact data, preparation and consent remain separate
+
+Open Recipients → explicitly save a validated fax/email/postal destination with one key → read its current revision → select it into a new preparation → review the independent frozen recipient snapshot → explicitly update or remove the address-book entry under its exact revision.
+
+**Failure and recovery:** Observers cannot export contacts. Tenant/current-credential/role fences and optimistic revisions reject stale edits; deleting a contact cannot change an existing dispatch or let an old create key resurrect it. Saving or selecting an address proves neither recipient request nor spending approval.
+
+## J51: Approve one bounded future dispatch
+
+**Actor:** Current preparer; separate actual browser administrator or authorized supervisor approver · **Branch:** Distinct future grant; no assistant/native approval or expert-mandate substitute
+
+Prepare an exact fax or message-only email → choose an instant from one minute to thirty days ahead and an integer cost cap → create a held draft with a stable key → browser approver reviews exact content/time/cap and email recipient-request evidence → explicitly grant separate future_browser authority → at due time release prepares a fresh quote and atomically accepts only within the cap and fifteen-minute window → track the linked ordinary dispatch or revoke before acceptance.
+
+**Failure and recovery:** Disabled release refuses approval without cancelling the source. Secure/protected/PDF-email/postal and review-only fax remain unsupported. Current actors/source/provider/funds and revocation races are rechecked at acceptance; the window bounds queue acceptance, not delivery. Unknown/released work cannot be replaced. Explicit known-unsent terminal recovery requires a new draft and new approval, never revives old consent.
+
+## J52: Resume a private device-local composer draft
+
+**Actor:** Authenticated native user in the original workspace · **Branch:** Local native storage only; no synchronization or new mobile endpoint
+
+Edit a fax/email composer → save into non-synchronizing device-only Keychain storage → leave or relaunch → authenticate into the same person/workspace → explicitly resume or discard the saved revision → recover an uncertain preparation using the same stable key/reference → use the existing browser handoff for final review.
+
+**Failure and recovery:** Seven-day retention, five-draft and 768-KiB bounds are explicit. Storage, capacity, revision and identity failures stay visible; a different account/workspace cannot load the draft. Relaunch or repeated taps never grants consent or automatically creates a replacement preparation/send. Simulator proof remains distinct from physical-device distribution.
+
+## J53: Navigate and reuse a presentation preset
+
+**Actor:** Authenticated browser principal with current navigation/resource rights · **Branch:** Navigation and local presentation only
+
+Open Commands with Cmd/Ctrl+K → search permitted static destinations → use keyboard selection or Escape and preserved focus → navigate through the existing unsaved-work veto → configure an authorized table → explicitly save/apply/delete one of eight local named sort/filter/page-size presets in the current identity/area/table partition.
+
+**Failure and recovery:** Commands perform no remote record search or mutation. Saved presets exclude rows, recipient fields, searches and cursors and are validated against the current table schema. Unknown/demo identity disables persistence rather than sharing a synthetic account; platform hints never replace platform authorization.
+
+## J54: Continue browser work under current identity and visit
+
+**Actor:** Browser user or developer maintaining an asynchronous flow · **Branch:** Shared client foundations; server authority remains final
+
+Start one synchronously locked action → cross every continuation through view.wait → observe shared authority/navigation revisions → invalidate obsolete results after leave-and-return or identity/policy replacement → share only allowlisted bounded collection reads → pause hidden-page reads and use bounded progress backoff → explicitly recover through the owning current view.
+
+**Failure and recovery:** The action lock is not send idempotency. Cache is memory-only, five seconds, sixty-four entries and bounded value size; detail/readiness/approval models bypass it. Mutations and authority changes invalidate it, refusals clear private data, and no polling loop retries a business mutation or uncertain provider outcome.
+
+## J55: Qualify the shared interface and independent modules
+
+**Actor:** Repository contributor and browser qualification runner · **Branch:** Engineering qualification; no account or production activation
+
+Change application-owned route/view/style modules under the shared frame → load only the active locale catalogue before translated content → preserve lazy dispatch and Belvédère views plus ordered stylesheet modules → use chart/elevation/frame tokens with zero design/import exceptions → run keyboard/responsive and Axe fixtures across four languages and both themes → record actual request/transfer/first-content and test evidence separately.
+
+**Failure and recovery:** A module split or local Axe result establishes neither an accessibility certification nor hosted/physical-device/provider performance. Shared caches contain no persistent private data, generated locale projections must stay current, and application/authority boundaries cannot be bypassed by a design exception.

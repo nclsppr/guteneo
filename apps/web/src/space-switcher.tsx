@@ -293,11 +293,12 @@ export function WorkspaceSwitcher({
   const read = () => {
     const controller = new AbortController();
     reading.current = controller;
-    void load.run(async () => {
+    void load.run(async (view) => {
       try {
-        const items = await loadWorkspaces(controller.signal);
+        const items = await view.wait(loadWorkspaces(controller.signal));
         if (!controller.signal.aborted) setListing({ identity, items });
       } catch (error) {
+        view.checkpoint();
         if (!controller.signal.aborted) throw error;
       } finally {
         if (reading.current === controller) reading.current = null;
@@ -335,13 +336,13 @@ export function WorkspaceSwitcher({
         className="space-switcher-trigger"
         aria-expanded={panel.open}
         aria-controls={panel.id}
-        aria-label={msg("Workspace: {0}", workspace.name)}
         title={workspace.name}
         onClick={() => {
           if (!panel.open && !workspaces && !reading.current) read();
           panel.toggle();
         }}
       >
+        <span className="sr-only">{msg("Workspace: {0}", "")}</span>
         {label}
         <CaretDown size={16} aria-hidden="true" />
       </button>
@@ -373,10 +374,11 @@ export function WorkspaceSwitcher({
                     type="button"
                     disabled={enter.pending}
                     onClick={() =>
-                      void enter.run(async () => {
+                      void enter.run(async (view) => {
                         try {
-                          await enterWorkspace(item.id, application);
+                          await view.wait(enterWorkspace(item.id, application));
                         } catch (error) {
+                          view.checkpoint();
                           // A refused membership is read again before it is offered.
                           setListing(undefined);
                           throw error;

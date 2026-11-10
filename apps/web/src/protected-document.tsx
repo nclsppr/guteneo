@@ -135,10 +135,12 @@ export function ProtectedDocumentSummary({
   const accessRevoked = revoked || status.data?.status === "revoked";
   async function reveal() {
     const ownsView = captureView();
-    await action.run(async () => {
-      const response = await api<{ password: string }>(
-        `/dispatches/${encodeURIComponent(dispatch.id)}/protected-document/password`,
-        { method: "POST", body: {} },
+    await action.run(async (view) => {
+      const response = await view.wait(
+        api<{ password: string }>(
+          `/dispatches/${encodeURIComponent(dispatch.id)}/protected-document/password`,
+          { method: "POST", body: {} },
+        ),
       );
       if (!ownsView()) return;
       setPassword(response.password);
@@ -146,21 +148,28 @@ export function ProtectedDocumentSummary({
   }
   async function copy() {
     const ownsView = captureView();
-    await action.run(async () => {
-      await navigator.clipboard.writeText(password);
+    await action.run(async (view) => {
+      await view.wait(navigator.clipboard.writeText(password));
       if (!ownsView()) return;
       setCopied(true);
     });
   }
   async function revoke() {
     const ownsView = captureView();
-    await action.run(async () => {
-      await api(
-        `/dispatches/${encodeURIComponent(dispatch.id)}/protected-document/revoke`,
-        {
-          method: "POST",
-          body: {},
-        },
+    await action.run(async (view) => {
+      await view.wait(
+        api(
+          `/dispatches/${encodeURIComponent(dispatch.id)}/protected-document/revoke`,
+          {
+            method: "POST",
+            body: {},
+          },
+        ),
+        () => ({
+          kind: "access_revoked",
+          resourceId: dispatch.id,
+          route: `/app/dispatch/${encodeURIComponent(dispatch.id)}`,
+        }),
       );
       if (!ownsView()) return;
       setRevoked(true);
@@ -231,15 +240,11 @@ export function ProtectedDocumentSummary({
               disabled={action.pending || status.loading || !!status.error}
               onClick={() => void reveal()}
             >
-              {action.pending
-                ? msg("Loading…")
-                : msg("Show the password")}
+              {action.pending ? msg("Loading…") : msg("Show the password")}
             </button>
           ) : (
             <div className="protected-password">
-              <code aria-label={msg("Document password")}>
-                {password}
-              </code>
+              <code aria-label={msg("Document password")}>{password}</code>
               <button
                 className="button small"
                 onClick={() => void copy()}

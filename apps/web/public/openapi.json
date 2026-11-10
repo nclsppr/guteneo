@@ -6035,6 +6035,1302 @@
           }
         }
       }
+    },
+    "/api/recipients": {
+      "get": {
+        "operationId": "listSavedRecipients",
+        "tags": [
+          "Dispatches"
+        ],
+        "summary": "List saved recipients",
+        "description": "Current tenant and preparation rights are required, including for reads; observers cannot export saved destinations. Contact edits never alter immutable dispatch snapshots. No recipient consent, spending approval or send is granted.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedRecipientPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      },
+      "post": {
+        "operationId": "saveRecipient",
+        "tags": [
+          "Dispatches"
+        ],
+        "summary": "Save a recipient",
+        "description": "Current tenant and preparation rights are required, including for reads; observers cannot export saved destinations. Contact edits never alter immutable dispatch snapshots. No recipient consent, spending approval or send is granted. Replay the same stable key after uncertainty; deleting the contact never permits the old create key to resurrect it.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:prepare"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavedRecipientInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedRecipient"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/recipients/{id}": {
+      "get": {
+        "operationId": "getSavedRecipient",
+        "tags": [
+          "Dispatches"
+        ],
+        "summary": "Read a saved recipient",
+        "description": "Current tenant and preparation rights are required, including for reads; observers cannot export saved destinations. Contact edits never alter immutable dispatch snapshots. No recipient consent, spending approval or send is granted.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedRecipient"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateSavedRecipient",
+        "tags": [
+          "Dispatches"
+        ],
+        "summary": "Update a saved recipient",
+        "description": "Current tenant and preparation rights are required, including for reads; observers cannot export saved destinations. Contact edits never alter immutable dispatch snapshots. No recipient consent, spending approval or send is granted. Exact current revision is mandatory.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:prepare"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavedRecipientMutation"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedRecipient"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteSavedRecipient",
+        "tags": [
+          "Dispatches"
+        ],
+        "summary": "Delete a saved recipient",
+        "description": "Current tenant and preparation rights are required, including for reads; observers cannot export saved destinations. Contact edits never alter immutable dispatch snapshots. No recipient consent, spending approval or send is granted. Removes contact data under the exact current revision; retained operational evidence is unchanged.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:prepare"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavedRecipientDelete"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "deleted": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "deleted"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/dispatch-schedules/capabilities": {
+      "get": {
+        "operationId": "getDispatchScheduleCapabilities",
+        "tags": [
+          "Dispatches"
+        ],
+        "summary": "Read schedule availability",
+        "description": "Fax and message-only email only. The immutable schedule binds exact source content, recipient, sender, options, UTC instant, fifteen-minute release window and integer EUR-cent total cap. Maximum horizon is thirty days. Preparation grants no future spending authority. Secure, protected, PDF-email and postal workflows require their existing contemporaneous review/consent gates. Default-off release requires fresh quote within cap, current source/actors/provider/funds and atomic quota/outbox acceptance. Unknown provider outcomes never authorize retry.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:read"
+            ]
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DispatchScheduleCapabilities"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/dispatch-schedules": {
+      "get": {
+        "operationId": "listDispatchSchedules",
+        "tags": [
+          "Dispatches"
+        ],
+        "summary": "List dispatch schedules",
+        "description": "Fax and message-only email only. The immutable schedule binds exact source content, recipient, sender, options, UTC instant, fifteen-minute release window and integer EUR-cent total cap. Maximum horizon is thirty days. Preparation grants no future spending authority. Secure, protected, PDF-email and postal workflows require their existing contemporaneous review/consent gates. Default-off release requires fresh quote within cap, current source/actors/provider/funds and atomic quota/outbox acceptance. Unknown provider outcomes never authorize retry.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DispatchSchedulePage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      },
+      "post": {
+        "operationId": "prepareDispatchSchedule",
+        "tags": [
+          "Dispatches"
+        ],
+        "summary": "Prepare a future dispatch",
+        "description": "Fax and message-only email only. The immutable schedule binds exact source content, recipient, sender, options, UTC instant, fifteen-minute release window and integer EUR-cent total cap. Maximum horizon is thirty days. Preparation grants no future spending authority. Secure, protected, PDF-email and postal workflows require their existing contemporaneous review/consent gates. Default-off release requires fresh quote within cap, current source/actors/provider/funds and atomic quota/outbox acceptance. Unknown provider outcomes never authorize retry.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:prepare"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DispatchScheduleInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DispatchSchedule"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/dispatch-schedules/{id}": {
+      "get": {
+        "operationId": "getDispatchSchedule",
+        "tags": [
+          "Dispatches"
+        ],
+        "summary": "Read a dispatch schedule",
+        "description": "Fax and message-only email only. The immutable schedule binds exact source content, recipient, sender, options, UTC instant, fifteen-minute release window and integer EUR-cent total cap. Maximum horizon is thirty days. Preparation grants no future spending authority. Secure, protected, PDF-email and postal workflows require their existing contemporaneous review/consent gates. Default-off release requires fresh quote within cap, current source/actors/provider/funds and atomic quota/outbox acceptance. Unknown provider outcomes never authorize retry. Read this same schedule after uncertainty; never bypass blocked or unknown work with replacement keys.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:read"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DispatchSchedule"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/dispatch-schedules/{id}/approve": {
+      "post": {
+        "operationId": "approveFutureDispatchSpending",
+        "tags": [
+          "Dispatches"
+        ],
+        "summary": "Approve bounded future spending",
+        "description": "Fax and message-only email only. The immutable schedule binds exact source content, recipient, sender, options, UTC instant, fifteen-minute release window and integer EUR-cent total cap. Maximum horizon is thirty days. Preparation grants no future spending authority. Secure, protected, PDF-email and postal workflows require their existing contemporaneous review/consent gates. Default-off release requires fresh quote within cap, current source/actors/provider/funds and atomic quota/outbox acceptance. Unknown provider outcomes never authorize retry. Browser human only with current approval permission, actual unexpired browser credential, same origin and X-CSRF-Token. Separate future_browser evidence grants only this immutable bounded release; OAuth, MCP and native callers cannot approve. Runtime activation is mandatory before granting; the original prepared command becomes un-sendable immediately after approval.",
+        "security": [
+          {
+            "BrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          },
+          {
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DispatchScheduleApproval"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DispatchSchedule"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/dispatch-schedules/{id}/cancel": {
+      "post": {
+        "operationId": "cancelDispatchSchedule",
+        "tags": [
+          "Dispatches"
+        ],
+        "summary": "Cancel a future dispatch",
+        "description": "Fax and message-only email only. The immutable schedule binds exact source content, recipient, sender, options, UTC instant, fifteen-minute release window and integer EUR-cent total cap. Maximum horizon is thirty days. Preparation grants no future spending authority. Secure, protected, PDF-email and postal workflows require their existing contemporaneous review/consent gates. Default-off release requires fresh quote within cap, current source/actors/provider/funds and atomic quota/outbox acceptance. Unknown provider outcomes never authorize retry. Only its current preparer, approver or administrator may revoke before acceptance. An accepted release follows ordinary dispatch cancellation rules.",
+        "security": [
+          {
+            "GuteneoOAuth": [
+              "dispatches:send"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DispatchScheduleCancel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DispatchSchedule"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/attention": {
+      "get": {
+        "operationId": "getAttentionQueue",
+        "tags": [
+          "Dispatches"
+        ],
+        "summary": "Read prioritized attention metadata",
+        "description": "Browser only. Queries every currently authorized operational row with stable priority/cursor pagination, independently of a first dispatch page. Returns no message, recipient, title, password, credential or signed URL. Approval suggestions grant no consent and server guards still decide each action.",
+        "security": [
+          {
+            "BrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttentionQueue"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/customer-webhooks": {
+      "get": {
+        "operationId": "listCustomerWebhooks",
+        "tags": [
+          "Dispatches"
+        ],
+        "summary": "List customer lifecycle callbacks",
+        "description": "Browser administrator only, current actual browser credential and tenant membership. Mutations require same origin and X-CSRF-Token. OAuth, MCP and native callers cannot manage endpoints or read signing secrets. Direct public HTTPS only, no credentials/query/fragment/custom port or redirects. Signatures bind timestamp, event ID and exact metadata-only body. Explicit default-off activation, encrypted-secret configuration and hosted strictly-public egress are independent gates. Unknown outcomes never auto-retry; pending overflow and bounded history remain visible.",
+        "security": [
+          {
+            "BrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CustomerWebhookEndpoint"
+                      },
+                      "maxItems": 100
+                    },
+                    "capabilities": {
+                      "$ref": "#/components/schemas/CustomerWebhookCapabilities"
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "capabilities"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createCustomerWebhook",
+        "tags": [
+          "Dispatches"
+        ],
+        "summary": "Create a paused lifecycle callback",
+        "description": "Browser administrator only, current actual browser credential and tenant membership. Mutations require same origin and X-CSRF-Token. OAuth, MCP and native callers cannot manage endpoints or read signing secrets. Direct public HTTPS only, no credentials/query/fragment/custom port or redirects. Signatures bind timestamp, event ID and exact metadata-only body. Explicit default-off activation, encrypted-secret configuration and hosted strictly-public egress are independent gates. Unknown outcomes never auto-retry; pending overflow and bounded history remain visible. Creation returns the signing secret once; uncertain replay returns its existing endpoint without revealing a new secret. No callback is sent by configuration.",
+        "security": [
+          {
+            "BrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerWebhookCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "endpoint": {
+                      "$ref": "#/components/schemas/CustomerWebhookEndpoint"
+                    },
+                    "signingSecret": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "endpoint"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/customer-webhooks/{id}": {
+      "patch": {
+        "operationId": "updateCustomerWebhook",
+        "tags": [
+          "Dispatches"
+        ],
+        "summary": "Update lifecycle callback settings",
+        "description": "Browser administrator only, current actual browser credential and tenant membership. Mutations require same origin and X-CSRF-Token. OAuth, MCP and native callers cannot manage endpoints or read signing secrets. Direct public HTTPS only, no credentials/query/fragment/custom port or redirects. Signatures bind timestamp, event ID and exact metadata-only body. Explicit default-off activation, encrypted-secret configuration and hosted strictly-public egress are independent gates. Unknown outcomes never auto-retry; pending overflow and bounded history remain visible. Requires exact revision; updating the destination supersedes pending old-revision deliveries.",
+        "security": [
+          {
+            "BrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          },
+          {
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerWebhookUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerWebhookEndpoint"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/customer-webhooks/{id}/revoke": {
+      "post": {
+        "operationId": "revokeCustomerWebhook",
+        "tags": [
+          "Dispatches"
+        ],
+        "summary": "Revoke a lifecycle callback",
+        "description": "Browser administrator only, current actual browser credential and tenant membership. Mutations require same origin and X-CSRF-Token. OAuth, MCP and native callers cannot manage endpoints or read signing secrets. Direct public HTTPS only, no credentials/query/fragment/custom port or redirects. Signatures bind timestamp, event ID and exact metadata-only body. Explicit default-off activation, encrypted-secret configuration and hosted strictly-public egress are independent gates. Unknown outcomes never auto-retry; pending overflow and bounded history remain visible. Revocation removes the encrypted signing secret and supersedes uninvoked work.",
+        "security": [
+          {
+            "BrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          },
+          {
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerWebhookRevision"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerWebhookEndpoint"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/customer-webhooks/{id}/rotate-secret": {
+      "post": {
+        "operationId": "rotateCustomerWebhookSecret",
+        "tags": [
+          "Dispatches"
+        ],
+        "summary": "Rotate a lifecycle signing secret",
+        "description": "Browser administrator only, current actual browser credential and tenant membership. Mutations require same origin and X-CSRF-Token. OAuth, MCP and native callers cannot manage endpoints or read signing secrets. Direct public HTTPS only, no credentials/query/fragment/custom port or redirects. Signatures bind timestamp, event ID and exact metadata-only body. Explicit default-off activation, encrypted-secret configuration and hosted strictly-public egress are independent gates. Unknown outcomes never auto-retry; pending overflow and bounded history remain visible. Rotation pauses the endpoint and returns its new signing secret once; explicit re-enablement is required.",
+        "security": [
+          {
+            "BrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          },
+          {
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerWebhookRotation"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "endpoint": {
+                      "$ref": "#/components/schemas/CustomerWebhookEndpoint"
+                    },
+                    "signingSecret": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "endpoint",
+                    "signingSecret"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
+    },
+    "/api/customer-webhooks/{id}/deliveries": {
+      "get": {
+        "operationId": "listCustomerWebhookDeliveries",
+        "tags": [
+          "Dispatches"
+        ],
+        "summary": "Read callback delivery metadata",
+        "description": "Browser administrator only, current actual browser credential and tenant membership. Mutations require same origin and X-CSRF-Token. OAuth, MCP and native callers cannot manage endpoints or read signing secrets. Direct public HTTPS only, no credentials/query/fragment/custom port or redirects. Signatures bind timestamp, event ID and exact metadata-only body. Explicit default-off activation, encrypted-secret configuration and hosted strictly-public egress are independent gates. Unknown outcomes never auto-retry; pending overflow and bounded history remain visible.",
+        "security": [
+          {
+            "BrowserSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CustomerWebhookDelivery"
+                      },
+                      "maxItems": 50
+                    },
+                    "nextCursor": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "nextCursor"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error404"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Error413"
+          },
+          "429": {
+            "$ref": "#/components/responses/Error429"
+          },
+          "500": {
+            "$ref": "#/components/responses/Error500"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error503"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -6480,6 +7776,39 @@
           },
           "faxPricing": {
             "$ref": "#/components/schemas/FaxPricing"
+          },
+          "activeSchedule": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "draft",
+                  "approved",
+                  "releasing",
+                  "unknown"
+                ]
+              },
+              "executeAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "maxTotalMinor": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              }
+            },
+            "required": [
+              "id",
+              "status",
+              "executeAt",
+              "maxTotalMinor"
+            ],
+            "additionalProperties": false
           }
         },
         "required": [
@@ -6692,6 +8021,39 @@
             ],
             "nullable": true,
             "description": "Unexpired approval matching the current fingerprint, otherwise null. This field cannot create consent."
+          },
+          "activeSchedule": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "draft",
+                  "approved",
+                  "releasing",
+                  "unknown"
+                ]
+              },
+              "executeAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "maxTotalMinor": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000
+              }
+            },
+            "required": [
+              "id",
+              "status",
+              "executeAt",
+              "maxTotalMinor"
+            ],
+            "additionalProperties": false
           }
         },
         "required": [
@@ -14904,6 +16266,1523 @@
           "sourceUrl",
           "sourceSha256"
         ]
+      },
+      "SavedRecipientInput": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              },
+              "channel": {
+                "type": "string",
+                "enum": [
+                  "fax"
+                ]
+              },
+              "recipient": {
+                "type": "object",
+                "properties": {
+                  "phone": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  }
+                },
+                "required": [
+                  "phone"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "label",
+              "channel",
+              "recipient"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              },
+              "channel": {
+                "type": "string",
+                "enum": [
+                  "email"
+                ]
+              },
+              "recipient": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 320
+                  }
+                },
+                "required": [
+                  "email"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "label",
+              "channel",
+              "recipient"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              },
+              "channel": {
+                "type": "string",
+                "enum": [
+                  "postal"
+                ]
+              },
+              "recipient": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      "line1": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      "postalCode": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 30
+                      },
+                      "city": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      "country": {
+                        "type": "string",
+                        "enum": [
+                          "FR",
+                          "LU",
+                          "DE"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "line1",
+                      "postalCode",
+                      "city",
+                      "country"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "country": {
+                        "type": "string",
+                        "enum": [
+                          "AD",
+                          "AE",
+                          "AF",
+                          "AG",
+                          "AI",
+                          "AL",
+                          "AM",
+                          "AO",
+                          "AQ",
+                          "AR",
+                          "AS",
+                          "AT",
+                          "AU",
+                          "AW",
+                          "AX",
+                          "AZ",
+                          "BA",
+                          "BB",
+                          "BD",
+                          "BE",
+                          "BF",
+                          "BG",
+                          "BH",
+                          "BI",
+                          "BJ",
+                          "BL",
+                          "BM",
+                          "BN",
+                          "BO",
+                          "BQ",
+                          "BR",
+                          "BS",
+                          "BT",
+                          "BV",
+                          "BW",
+                          "BY",
+                          "BZ",
+                          "CA",
+                          "CC",
+                          "CD",
+                          "CF",
+                          "CG",
+                          "CH",
+                          "CI",
+                          "CK",
+                          "CL",
+                          "CM",
+                          "CN",
+                          "CO",
+                          "CR",
+                          "CU",
+                          "CV",
+                          "CW",
+                          "CX",
+                          "CY",
+                          "CZ",
+                          "DE",
+                          "DJ",
+                          "DK",
+                          "DM",
+                          "DO",
+                          "DZ",
+                          "EC",
+                          "EE",
+                          "EG",
+                          "EH",
+                          "ER",
+                          "ES",
+                          "ET",
+                          "FI",
+                          "FJ",
+                          "FK",
+                          "FM",
+                          "FO",
+                          "FR",
+                          "GA",
+                          "GB",
+                          "GD",
+                          "GE",
+                          "GF",
+                          "GG",
+                          "GH",
+                          "GI",
+                          "GL",
+                          "GM",
+                          "GN",
+                          "GP",
+                          "GQ",
+                          "GR",
+                          "GS",
+                          "GT",
+                          "GU",
+                          "GW",
+                          "GY",
+                          "HK",
+                          "HM",
+                          "HN",
+                          "HR",
+                          "HT",
+                          "HU",
+                          "ID",
+                          "IE",
+                          "IL",
+                          "IM",
+                          "IN",
+                          "IO",
+                          "IQ",
+                          "IR",
+                          "IS",
+                          "IT",
+                          "JE",
+                          "JM",
+                          "JO",
+                          "JP",
+                          "KE",
+                          "KG",
+                          "KH",
+                          "KI",
+                          "KM",
+                          "KN",
+                          "KP",
+                          "KR",
+                          "KW",
+                          "KY",
+                          "KZ",
+                          "LA",
+                          "LB",
+                          "LC",
+                          "LI",
+                          "LK",
+                          "LR",
+                          "LS",
+                          "LT",
+                          "LU",
+                          "LV",
+                          "LY",
+                          "MA",
+                          "MC",
+                          "MD",
+                          "ME",
+                          "MF",
+                          "MG",
+                          "MH",
+                          "MK",
+                          "ML",
+                          "MM",
+                          "MN",
+                          "MO",
+                          "MP",
+                          "MQ",
+                          "MR",
+                          "MS",
+                          "MT",
+                          "MU",
+                          "MV",
+                          "MW",
+                          "MX",
+                          "MY",
+                          "MZ",
+                          "NA",
+                          "NC",
+                          "NE",
+                          "NF",
+                          "NG",
+                          "NI",
+                          "NL",
+                          "NO",
+                          "NP",
+                          "NR",
+                          "NU",
+                          "NZ",
+                          "OM",
+                          "PA",
+                          "PE",
+                          "PF",
+                          "PG",
+                          "PH",
+                          "PK",
+                          "PL",
+                          "PM",
+                          "PN",
+                          "PR",
+                          "PS",
+                          "PT",
+                          "PW",
+                          "PY",
+                          "QA",
+                          "RE",
+                          "RO",
+                          "RS",
+                          "RU",
+                          "RW",
+                          "SA",
+                          "SB",
+                          "SC",
+                          "SD",
+                          "SE",
+                          "SG",
+                          "SH",
+                          "SI",
+                          "SJ",
+                          "SK",
+                          "SL",
+                          "SM",
+                          "SN",
+                          "SO",
+                          "SR",
+                          "SS",
+                          "ST",
+                          "SV",
+                          "SX",
+                          "SY",
+                          "SZ",
+                          "TC",
+                          "TD",
+                          "TF",
+                          "TG",
+                          "TH",
+                          "TJ",
+                          "TK",
+                          "TL",
+                          "TM",
+                          "TN",
+                          "TO",
+                          "TR",
+                          "TT",
+                          "TV",
+                          "TW",
+                          "TZ",
+                          "UA",
+                          "UG",
+                          "UM",
+                          "US",
+                          "UY",
+                          "UZ",
+                          "VA",
+                          "VC",
+                          "VE",
+                          "VG",
+                          "VI",
+                          "VN",
+                          "VU",
+                          "WF",
+                          "WS",
+                          "XZ",
+                          "YE",
+                          "YT",
+                          "ZA",
+                          "ZM",
+                          "ZW"
+                        ]
+                      },
+                      "addressLines": {
+                        "minItems": 2,
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 160
+                        }
+                      }
+                    },
+                    "required": [
+                      "country",
+                      "addressLines"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            "required": [
+              "label",
+              "channel",
+              "recipient"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "SavedRecipientMutation": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991
+          },
+          "value": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 160
+                  },
+                  "channel": {
+                    "type": "string",
+                    "enum": [
+                      "fax"
+                    ]
+                  },
+                  "recipient": {
+                    "type": "object",
+                    "properties": {
+                      "phone": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                      }
+                    },
+                    "required": [
+                      "phone"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "label",
+                  "channel",
+                  "recipient"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 160
+                  },
+                  "channel": {
+                    "type": "string",
+                    "enum": [
+                      "email"
+                    ]
+                  },
+                  "recipient": {
+                    "type": "object",
+                    "properties": {
+                      "email": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 320
+                      }
+                    },
+                    "required": [
+                      "email"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "label",
+                  "channel",
+                  "recipient"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 160
+                  },
+                  "channel": {
+                    "type": "string",
+                    "enum": [
+                      "postal"
+                    ]
+                  },
+                  "recipient": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "line1": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "postalCode": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 30
+                          },
+                          "city": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "country": {
+                            "type": "string",
+                            "enum": [
+                              "FR",
+                              "LU",
+                              "DE"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "line1",
+                          "postalCode",
+                          "city",
+                          "country"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "country": {
+                            "type": "string",
+                            "enum": [
+                              "AD",
+                              "AE",
+                              "AF",
+                              "AG",
+                              "AI",
+                              "AL",
+                              "AM",
+                              "AO",
+                              "AQ",
+                              "AR",
+                              "AS",
+                              "AT",
+                              "AU",
+                              "AW",
+                              "AX",
+                              "AZ",
+                              "BA",
+                              "BB",
+                              "BD",
+                              "BE",
+                              "BF",
+                              "BG",
+                              "BH",
+                              "BI",
+                              "BJ",
+                              "BL",
+                              "BM",
+                              "BN",
+                              "BO",
+                              "BQ",
+                              "BR",
+                              "BS",
+                              "BT",
+                              "BV",
+                              "BW",
+                              "BY",
+                              "BZ",
+                              "CA",
+                              "CC",
+                              "CD",
+                              "CF",
+                              "CG",
+                              "CH",
+                              "CI",
+                              "CK",
+                              "CL",
+                              "CM",
+                              "CN",
+                              "CO",
+                              "CR",
+                              "CU",
+                              "CV",
+                              "CW",
+                              "CX",
+                              "CY",
+                              "CZ",
+                              "DE",
+                              "DJ",
+                              "DK",
+                              "DM",
+                              "DO",
+                              "DZ",
+                              "EC",
+                              "EE",
+                              "EG",
+                              "EH",
+                              "ER",
+                              "ES",
+                              "ET",
+                              "FI",
+                              "FJ",
+                              "FK",
+                              "FM",
+                              "FO",
+                              "FR",
+                              "GA",
+                              "GB",
+                              "GD",
+                              "GE",
+                              "GF",
+                              "GG",
+                              "GH",
+                              "GI",
+                              "GL",
+                              "GM",
+                              "GN",
+                              "GP",
+                              "GQ",
+                              "GR",
+                              "GS",
+                              "GT",
+                              "GU",
+                              "GW",
+                              "GY",
+                              "HK",
+                              "HM",
+                              "HN",
+                              "HR",
+                              "HT",
+                              "HU",
+                              "ID",
+                              "IE",
+                              "IL",
+                              "IM",
+                              "IN",
+                              "IO",
+                              "IQ",
+                              "IR",
+                              "IS",
+                              "IT",
+                              "JE",
+                              "JM",
+                              "JO",
+                              "JP",
+                              "KE",
+                              "KG",
+                              "KH",
+                              "KI",
+                              "KM",
+                              "KN",
+                              "KP",
+                              "KR",
+                              "KW",
+                              "KY",
+                              "KZ",
+                              "LA",
+                              "LB",
+                              "LC",
+                              "LI",
+                              "LK",
+                              "LR",
+                              "LS",
+                              "LT",
+                              "LU",
+                              "LV",
+                              "LY",
+                              "MA",
+                              "MC",
+                              "MD",
+                              "ME",
+                              "MF",
+                              "MG",
+                              "MH",
+                              "MK",
+                              "ML",
+                              "MM",
+                              "MN",
+                              "MO",
+                              "MP",
+                              "MQ",
+                              "MR",
+                              "MS",
+                              "MT",
+                              "MU",
+                              "MV",
+                              "MW",
+                              "MX",
+                              "MY",
+                              "MZ",
+                              "NA",
+                              "NC",
+                              "NE",
+                              "NF",
+                              "NG",
+                              "NI",
+                              "NL",
+                              "NO",
+                              "NP",
+                              "NR",
+                              "NU",
+                              "NZ",
+                              "OM",
+                              "PA",
+                              "PE",
+                              "PF",
+                              "PG",
+                              "PH",
+                              "PK",
+                              "PL",
+                              "PM",
+                              "PN",
+                              "PR",
+                              "PS",
+                              "PT",
+                              "PW",
+                              "PY",
+                              "QA",
+                              "RE",
+                              "RO",
+                              "RS",
+                              "RU",
+                              "RW",
+                              "SA",
+                              "SB",
+                              "SC",
+                              "SD",
+                              "SE",
+                              "SG",
+                              "SH",
+                              "SI",
+                              "SJ",
+                              "SK",
+                              "SL",
+                              "SM",
+                              "SN",
+                              "SO",
+                              "SR",
+                              "SS",
+                              "ST",
+                              "SV",
+                              "SX",
+                              "SY",
+                              "SZ",
+                              "TC",
+                              "TD",
+                              "TF",
+                              "TG",
+                              "TH",
+                              "TJ",
+                              "TK",
+                              "TL",
+                              "TM",
+                              "TN",
+                              "TO",
+                              "TR",
+                              "TT",
+                              "TV",
+                              "TW",
+                              "TZ",
+                              "UA",
+                              "UG",
+                              "UM",
+                              "US",
+                              "UY",
+                              "UZ",
+                              "VA",
+                              "VC",
+                              "VE",
+                              "VG",
+                              "VI",
+                              "VN",
+                              "VU",
+                              "WF",
+                              "WS",
+                              "XZ",
+                              "YE",
+                              "YT",
+                              "ZA",
+                              "ZM",
+                              "ZW"
+                            ]
+                          },
+                          "addressLines": {
+                            "minItems": 2,
+                            "maxItems": 6,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 160
+                            }
+                          }
+                        },
+                        "required": [
+                          "country",
+                          "addressLines"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "label",
+                  "channel",
+                  "recipient"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "value"
+        ],
+        "additionalProperties": false
+      },
+      "SavedRecipientDelete": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "expectedRevision"
+        ],
+        "additionalProperties": false
+      },
+      "DispatchScheduleInput": {
+        "type": "object",
+        "properties": {
+          "dispatchId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "executeAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "maxTotalMinor": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          }
+        },
+        "required": [
+          "dispatchId",
+          "executeAt",
+          "maxTotalMinor"
+        ],
+        "additionalProperties": false
+      },
+      "DispatchScheduleApproval": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991
+          },
+          "snapshotHash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "acknowledgement": {
+            "type": "string",
+            "enum": [
+              "I approve this exact dispatch for automatic future spending within the displayed cap and release window."
+            ]
+          },
+          "recipientRequested": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "expectedRevision",
+          "snapshotHash",
+          "acknowledgement"
+        ],
+        "additionalProperties": false
+      },
+      "DispatchScheduleCancel": {
+        "type": "object",
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "expectedRevision"
+        ],
+        "additionalProperties": false
+      },
+      "SavedRecipient": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "fax",
+              "email",
+              "postal"
+            ]
+          },
+          "recipient": {
+            "type": "object",
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "channel",
+          "recipient",
+          "revision",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "SavedRecipientPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SavedRecipient"
+            },
+            "maxItems": 100
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "additionalProperties": false
+      },
+      "DispatchSchedule": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "dispatchId": {
+            "type": "string"
+          },
+          "releaseDispatchId": {
+            "type": "string",
+            "nullable": true
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "fax",
+              "email"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "approved",
+              "releasing",
+              "released",
+              "blocked",
+              "cancelled",
+              "unknown"
+            ]
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "snapshotHash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "executeAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "releaseUntil": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "maxTotalMinor": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "EUR"
+            ]
+          },
+          "approvalKind": {
+            "type": "string",
+            "enum": [
+              "future_browser",
+              null
+            ],
+            "nullable": true
+          },
+          "approvedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "approvedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "errorCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "releaseEnabled": {
+            "type": "boolean"
+          },
+          "canReschedule": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "dispatchId",
+          "releaseDispatchId",
+          "channel",
+          "status",
+          "revision",
+          "snapshotHash",
+          "executeAt",
+          "releaseUntil",
+          "maxTotalMinor",
+          "currency",
+          "approvalKind",
+          "approvedAt",
+          "approvedBy",
+          "errorCode",
+          "releaseEnabled",
+          "canReschedule",
+          "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "DispatchSchedulePage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DispatchSchedule"
+            },
+            "maxItems": 100
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "additionalProperties": false
+      },
+      "DispatchScheduleCapabilities": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "supported": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "fax",
+                "message_only_email"
+              ]
+            }
+          },
+          "unsupported": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "approvalKind": {
+            "type": "string",
+            "enum": [
+              "future_browser"
+            ]
+          },
+          "approvalSurface": {
+            "type": "string",
+            "enum": [
+              "browser_only"
+            ]
+          },
+          "horizonDays": {
+            "type": "integer",
+            "enum": [
+              30
+            ]
+          },
+          "releaseWindowMinutes": {
+            "type": "integer",
+            "enum": [
+              15
+            ]
+          }
+        },
+        "required": [
+          "enabled",
+          "supported",
+          "unsupported",
+          "approvalKind",
+          "approvalSurface",
+          "horizonDays",
+          "releaseWindowMinutes"
+        ],
+        "additionalProperties": false
+      },
+      "AttentionItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "approval",
+              "quote_expiring",
+              "submission_unknown",
+              "protected_expiring",
+              "schedule_blocked"
+            ]
+          },
+          "resourceId": {
+            "type": "string"
+          },
+          "route": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "fax",
+              "email",
+              "postal"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "resourceId",
+          "route"
+        ],
+        "additionalProperties": false
+      },
+      "AttentionQueue": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttentionItem"
+            },
+            "maxItems": 100
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          },
+          "observedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor",
+          "observedAt"
+        ],
+        "additionalProperties": false
+      },
+      "CustomerWebhookCreate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "revealSigningSecret": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "url",
+          "revealSigningSecret"
+        ],
+        "additionalProperties": false
+      },
+      "CustomerWebhookUpdate": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "revision"
+        ],
+        "additionalProperties": false
+      },
+      "CustomerWebhookRevision": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "revision"
+        ],
+        "additionalProperties": false
+      },
+      "CustomerWebhookRotation": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991
+          },
+          "revealSigningSecret": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "revision",
+          "revealSigningSecret"
+        ],
+        "additionalProperties": false
+      },
+      "CustomerWebhookEndpoint": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "revoked"
+            ]
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "overflowCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "deliveryCounts": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "url",
+          "enabled",
+          "status",
+          "revision",
+          "createdAt",
+          "updatedAt",
+          "overflowCount",
+          "deliveryCounts"
+        ],
+        "additionalProperties": false
+      },
+      "CustomerWebhookCapabilities": {
+        "type": "object",
+        "properties": {
+          "configured": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "endpointLimit": {
+            "type": "integer",
+            "enum": [
+              5
+            ]
+          },
+          "pendingLimit": {
+            "type": "integer",
+            "enum": [
+              500
+            ]
+          }
+        },
+        "required": [
+          "configured",
+          "enabled",
+          "reason",
+          "endpointLimit",
+          "pendingLimit"
+        ],
+        "additionalProperties": false
+      },
+      "CustomerWebhookDelivery": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "endpointRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "dispatchId": {
+            "type": "string"
+          },
+          "dispatchStatus": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "sending",
+              "sent",
+              "failed",
+              "unknown",
+              "superseded"
+            ]
+          },
+          "occurredAt": {
+            "type": "string"
+          },
+          "finishedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "responseStatus": {
+            "type": "integer",
+            "nullable": true
+          },
+          "errorCode": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "eventId",
+          "endpointRevision",
+          "dispatchId",
+          "dispatchStatus",
+          "status",
+          "occurredAt",
+          "finishedAt",
+          "responseStatus",
+          "errorCode"
+        ],
+        "additionalProperties": false
       }
     },
     "responses": {

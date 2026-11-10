@@ -1,5 +1,62 @@
 # Frontend loading and table controls
 
+## Locale loading and lifecycle controls — 10 November 2026 local candidate
+
+The browser loads its active locale projection and resolves the authenticated
+language before workspace content appears. Lifecycle controls share authority and
+navigation guards, bounded collection reads and visibility-aware polling. Command
+search and saved table views keep their lazy application boundaries. Source
+catalogs remain available to server/tooling code.
+
+The [dated evidence](evidence/lifecycle-experience-2026-11-10.json) binds the final
+observations to source and assets. Final qualification uses `build:live`, including
+public server-rendered HTML. Private hash entries and mismatched public-language
+fallbacks hide only that SSR subtree; matching public text remains available.
+The language observer records visible headings at paint opportunities after
+render-blocking styles apply and requires a nonempty observation. Public samples
+wait for the enhanced client entry as well as the visible heading.
+
+The comparison is against a **pre-split candidate snapshot**, not clean main.
+That snapshot used plain Vite HTML; the final candidate includes public SSR and
+its preload hints. This compares whole entry graphs, not an isolated locale
+change. Each route/locale/profile has one cold-context sample with intercepted
+synthetic APIs, no CPU/network throttle and shared-host activity. Timing methods
+also changed to include stable paint opportunities, so the timings are retained
+as separate diagnostics without a before/after latency claim.
+
+The table shows desktop Chromium's total JavaScript `transferSize`, including
+response overhead, after client entry. It is not raw asset size or
+`encodedBodySize` alone.
+
+| Locale | Public pricing: before → final candidate | Change | Workspace: before → final candidate | Change |
+| --- | ---: | ---: | ---: | ---: |
+| French | 559,420 → 481,293 | -13.97% | 603,511 → 519,431 | -13.93% |
+| English | 559,420 → 477,944 | -14.56% | 603,511 → 516,082 | -14.49% |
+| German | 559,420 → 562,697 | +0.59% | 603,511 → 600,835 | -0.44% |
+| Luxembourgish | 559,420 → 563,314 | +0.70% | 603,511 → 601,452 | -0.34% |
+
+All measured workspace profiles transferred fewer JavaScript bytes. Public
+German/Luxembourgish transferred slightly more: +0.59/+0.70% on Chromium and
++0.64/+0.75% on iPhone WebKit. Decoded JavaScript decreased for every measured
+locale/route: workspace reductions range from 1.99% to 16.29%; public reductions
+range from 1.73% to 17.09%. Loading one language does not guarantee a smaller
+compressed total for every route; the public DE/LB increase remains visible.
+
+All 24 final cold samples observed one selected locale asset and no visible
+fallback-language heading. Public pages made no session read; workspace bootstrap
+made one. Final asserted client content was useful after 198–251 ms on public
+pricing and 217–343 ms in the workspace. These elapsed fixture observations are
+not physical paint measurements or production benchmarks.
+
+The final application run passes 165/165: 105 product cases, 36 session/authority
+cases and 24 cold samples across desktop Chromium, Pixel-sized Chromium and
+iPhone WebKit. Its 24 accessibility cases examine nine states each, giving 216
+checks across attention, recipients/views, forms, background outcomes, command
+search, future approval and webhook controls. No WCAG A/AA axe rule is disabled.
+The [implementation ledger](LIFECYCLE_EXPERIENCE_EXECUTION.md#recorded-local-proof)
+records the wider corrected legacy and recovery checks. These local results do
+not establish physical-device, hosted authentication or live-provider behavior.
+
 ## Browser continuation guards — 9 November 2026 local candidate
 
 Billing handoff and protected-link actions reuse the existing current-view guard;
@@ -53,14 +110,14 @@ fictional APIs, no network/CPU throttle and concurrent shared-host activity.
 First useful form means the asserted visible source selector after navigation;
 it is not a paint measurement or a claimed improvement over a clean baseline.
 
-| Browser / form | First useful form (ms) | Encoded JS / transferred JS (bytes) | Bootstrap GETs / additional recovery GETs |
-| --- | ---: | ---: | ---: |
-| Desktop Chromium / secure share | 184.5 | 562,082 / 569,582 | 4 / 0 |
-| Desktop Chromium / email | 437.5 | 592,178 / 601,778 | 4 / 0 |
-| Pixel 7 Chromium / secure share | 174.8 | 562,082 / 569,582 | 4 / 0 |
-| Pixel 7 Chromium / email | 426.9 | 592,178 / 601,778 | 4 / 0 |
-| iPhone 13 WebKit / secure share | 265.0 | 562,864 / 570,364 | 4 / 0 |
-| iPhone 13 WebKit / email | 958.0 | 593,087 / 602,687 | 4 / 0 |
+| Browser / form                  | First useful form (ms) | Encoded JS / transferred JS (bytes) | Bootstrap GETs / additional recovery GETs |
+| ------------------------------- | ---------------------: | ----------------------------------: | ----------------------------------------: |
+| Desktop Chromium / secure share |                  184.5 |                   562,082 / 569,582 |                                     4 / 0 |
+| Desktop Chromium / email        |                  437.5 |                   592,178 / 601,778 |                                     4 / 0 |
+| Pixel 7 Chromium / secure share |                  174.8 |                   562,082 / 569,582 |                                     4 / 0 |
+| Pixel 7 Chromium / email        |                  426.9 |                   592,178 / 601,778 |                                     4 / 0 |
+| iPhone 13 WebKit / secure share |                  265.0 |                   562,864 / 570,364 |                                     4 / 0 |
+| iPhone 13 WebKit / email        |                  958.0 |                   593,087 / 602,687 |                                     4 / 0 |
 
 The priced secure-send action retains one initial detail read and two writes
 after the explicit human action, with no intermediate read: approval then
@@ -138,14 +195,14 @@ build, with intercepted fictional API data and no network/CPU throttle. First
 useful form means the visible, enabled source selector, measured from navigation;
 it is not a physical paint measurement or a claimed improvement over a baseline.
 
-| Browser / form | First useful form (ms) | Encoded JS / transferred JS (bytes) | Bootstrap GETs / additional recovery GETs |
-| --- | ---: | ---: | ---: |
-| Desktop Chromium / secure share | 356.3 | 559,867 / 567,067 | 4 / 0 |
-| Desktop Chromium / email | 506.2 | 590,094 / 599,394 | 4 / 0 |
-| Pixel 7 Chromium / secure share | 228.1 | 559,867 / 567,067 | 4 / 0 |
-| Pixel 7 Chromium / email | 474.8 | 590,094 / 599,394 | 4 / 0 |
-| iPhone 13 WebKit / secure share | 383.0 | 560,584 / 567,784 | 4 / 0 |
-| iPhone 13 WebKit / email | 1,000.0 | 590,933 / 600,233 | 4 / 0 |
+| Browser / form                  | First useful form (ms) | Encoded JS / transferred JS (bytes) | Bootstrap GETs / additional recovery GETs |
+| ------------------------------- | ---------------------: | ----------------------------------: | ----------------------------------------: |
+| Desktop Chromium / secure share |                  356.3 |                   559,867 / 567,067 |                                     4 / 0 |
+| Desktop Chromium / email        |                  506.2 |                   590,094 / 599,394 |                                     4 / 0 |
+| Pixel 7 Chromium / secure share |                  228.1 |                   559,867 / 567,067 |                                     4 / 0 |
+| Pixel 7 Chromium / email        |                  474.8 |                   590,094 / 599,394 |                                     4 / 0 |
+| iPhone 13 WebKit / secure share |                  383.0 |                   560,584 / 567,784 |                                     4 / 0 |
+| iPhone 13 WebKit / email        |                1,000.0 |                   590,933 / 600,233 |                                     4 / 0 |
 
 The broad affected browser run passes 144/144 across these three projects, with
 zero skips, flaky cases or unexpected failures, in 137.62 seconds. It covers
@@ -180,10 +237,10 @@ visible overview heading and figure followed by two animation-frame
 opportunities; it is not a physical paint measurement. Resource Timing was read
 after the screenshot and includes bootstrap scripts and module preloads.
 
-| Engine / viewport | First useful DOM (ms) | JS requests / encoded / transferred bytes | CSS requests / encoded / transferred bytes | API reads / writes |
-| --- | ---: | --- | --- | --- |
-| Chromium 156 / 1280 × 720 | 324.3 | 22 / 570,843 / 577,443 | 4 / 34,748 / 35,948 | 3 / 0 |
-| WebKit 27.2 / 390 × 664 | 379.0 | 22 / 571,534 / 578,134 | 4 / 34,832 / 36,032 | 3 / 0 |
+| Engine / viewport         | First useful DOM (ms) | JS requests / encoded / transferred bytes | CSS requests / encoded / transferred bytes | API reads / writes |
+| ------------------------- | --------------------: | ----------------------------------------- | ------------------------------------------ | ------------------ |
+| Chromium 156 / 1280 × 720 |                 324.3 | 22 / 570,843 / 577,443                    | 4 / 34,748 / 35,948                        | 3 / 0              |
+| WebKit 27.2 / 390 × 664   |                 379.0 | 22 / 571,534 / 578,134                    | 4 / 34,832 / 36,032                        | 3 / 0              |
 
 Neither PDF viewer/worker, document designer nor Swagger code loads for this
 entry. The backend export renderer stays on the server. Independent browser
@@ -216,7 +273,6 @@ expanding these bounds. Exact money and browser-only current-membership guards
 are covered by isolated migrated D1 fixtures with production mode flags and no
 provider traffic; real customer ledgers are not part of this proof.
 
-
 ## My documents at 5,000 documents — 4 November 2026 local measurement
 
 One fictional recipient account received 5,000 shares from five fictional
@@ -226,14 +282,14 @@ default state). One Chromium run drove the real web build; server timings are
 those reported per request, single samples on an unisolated laptop, not
 production latency.
 
-| Step | Requests (server ms) |
-| --- | --- |
-| Open the list | personal session 12 · first page 45 · summary 72 |
-| Status "ending soon" · sort "ending soonest" | one page each, 21 · 18 |
-| Accent-folded search "ete" alone · combined with status and sort | 142 · 29 |
-| Sender filter (1,000 documents) | 25–57 |
-| Next page 2 → 4 (keyset, sort "oldest") | 19–23 each |
-| Saved copies tab | 12 |
+| Step                                                             | Requests (server ms)                             |
+| ---------------------------------------------------------------- | ------------------------------------------------ |
+| Open the list                                                    | personal session 12 · first page 45 · summary 72 |
+| Status "ending soon" · sort "ending soonest"                     | one page each, 21 · 18                           |
+| Accent-folded search "ete" alone · combined with status and sort | 142 · 29                                         |
+| Sender filter (1,000 documents)                                  | 25–57                                            |
+| Next page 2 → 4 (keyset, sort "oldest")                          | 19–23 each                                       |
+| Saved copies tab                                                 | 12                                               |
 
 Before this change, returning from a document (back link or browser Back)
 rebuilt the list at page 1 with two or three new reads, losing the range
@@ -267,10 +323,10 @@ statement; the new list always uses two SELECTs. The separate summary uses its
 own rate statement plus four SELECTs.
 
 | List limit | Prepared statements, main → recovery | Local elapsed ms, main → recovery |
-| --- | ---: | ---: |
-| 1 | 5 → 3 | 24.2 → 17.8 |
-| 25 | 77 → 3 | 347.1 → 19.0 |
-| 50 | 152 → 3 | 708.3 → 16.9 |
+| ---------- | -----------------------------------: | --------------------------------: |
+| 1          |                                5 → 3 |                       24.2 → 17.8 |
+| 25         |                               77 → 3 |                      347.1 → 19.0 |
+| 50         |                              152 → 3 |                      708.3 → 16.9 |
 
 The statement reduction is independent of page size. These single local timing
 samples are not production latency or a general throughput benchmark. Query
@@ -287,10 +343,10 @@ asserted visible document heading followed by two animation-frame opportunities,
 not physical first paint. Resource Timing records bootstrap and module preloads
 at that observation; browser compression produces slightly different body sizes.
 
-| Engine / viewport | First useful DOM (ms) | JS requests / encoded / transferred bytes | CSS requests / encoded / transferred bytes | API reads / writes |
-| --- | ---: | --- | --- | --- |
-| Chromium 156 / 1280 × 720 | 295.1 | 25 / 552,584 / 560,084 | 4 / 32,714 / 33,914 | 3 / 0 |
-| WebKit 27.2 / 390 × 664 | 415.0 | 25 / 553,359 / 560,859 | 4 / 32,798 / 33,998 | 3 / 0 |
+| Engine / viewport         | First useful DOM (ms) | JS requests / encoded / transferred bytes | CSS requests / encoded / transferred bytes | API reads / writes |
+| ------------------------- | --------------------: | ----------------------------------------- | ------------------------------------------ | ------------------ |
+| Chromium 156 / 1280 × 720 |                 295.1 | 25 / 552,584 / 560,084                    | 4 / 32,714 / 33,914                        | 3 / 0              |
+| WebKit 27.2 / 390 × 664   |                 415.0 | 25 / 553,359 / 560,859                    | 4 / 32,798 / 33,998                        | 3 / 0              |
 
 The three reads are the personal session, first list page and optional summary.
 No workspace session, document content, PDF viewer/worker, designer or Swagger
@@ -341,11 +397,11 @@ Europe/Paris, a fixed 40 ms synthetic API delay and no CPU/network throttling.
 There is one sample per route, no baseline comparison and no isolated host load;
 these observations establish neither a speedup nor production backend latency.
 
-| Route | First row ready (ms) | JS requests / encoded bytes / transferred bytes | CSS requests / encoded bytes / transferred bytes | Synthetic reads / writes |
-| ----- | ------------------: | ---------------------------------------------- | ----------------------------------------------- | ------------------------ |
-| `/app` | 339.2 | 30 / 570,609 / 579,609 | 7 / 35,049 / 37,149 | 6 / 0 |
-| `/app/documents` | 265.0 | 30 / 570,609 / 579,609 | 7 / 35,049 / 37,149 | 3 / 0 |
-| `/app/account` | 251.5 | 24 / 543,752 / 550,952 | 5 / 33,304 / 34,804 | 5 / 0 |
+| Route            | First row ready (ms) | JS requests / encoded bytes / transferred bytes | CSS requests / encoded bytes / transferred bytes | Synthetic reads / writes |
+| ---------------- | -------------------: | ----------------------------------------------- | ------------------------------------------------ | ------------------------ |
+| `/app`           |                339.2 | 30 / 570,609 / 579,609                          | 7 / 35,049 / 37,149                              | 6 / 0                    |
+| `/app/documents` |                265.0 | 30 / 570,609 / 579,609                          | 7 / 35,049 / 37,149                              | 3 / 0                    |
+| `/app/account`   |                251.5 | 24 / 543,752 / 550,952                          | 5 / 33,304 / 34,804                              | 5 / 0                    |
 
 First row ready means nonzero DOM geometry followed by a rendering opportunity;
 the account table is below the viewport, so its figure is DOM readiness rather
@@ -479,11 +535,11 @@ was initiated. The [dated measurement](evidence/frontend-loading-2026-10-28.json
 records environment, source identities, probe digest, samples and resource counts.
 
 | First useful destination, median | Before | Published |
-| --- | ---: | ---: |
-| Desktop → Pricing | 424 ms | 24 ms |
-| Desktop → Support | 412 ms | 23 ms |
-| Pixel 7 emulation → Pricing | 560 ms | 28 ms |
-| Pixel 7 emulation → Support | 95 ms | 23 ms |
+| -------------------------------- | -----: | --------: |
+| Desktop → Pricing                | 424 ms |     24 ms |
+| Desktop → Support                | 412 ms |     23 ms |
+| Pixel 7 emulation → Pricing      | 560 ms |     28 ms |
+| Pixel 7 emulation → Support      |  95 ms |     23 ms |
 
 Each enhanced transition requests zero new HTML documents and zero scripts;
 the baseline starts one document and requests 24–26 scripts, including browser
@@ -576,11 +632,11 @@ heading in `requestAnimationFrame`; the next-frame marker is one frame later.
 These are probe measurements, not standardized paint metrics or physical devices.
 Ranges below are the three route medians, each from five samples.
 
-| Browser profile | Before: useful heading (ms) | Candidate: useful heading (ms) | Candidate: next frame (ms) |
-| --- | ---: | ---: | ---: |
-| Desktop Chromium | 46.4–49.7 | 9.6–15.8 | 22.4–28.3 |
-| Pixel 7 Chromium emulation | 47.3–48.0 | 10.1–15.8 | 19.3–29.1 |
-| iPhone 13 WebKit emulation | 50–53 | 12–16 | 24–27 |
+| Browser profile            | Before: useful heading (ms) | Candidate: useful heading (ms) | Candidate: next frame (ms) |
+| -------------------------- | --------------------------: | -----------------------------: | -------------------------: |
+| Desktop Chromium           |                   46.4–49.7 |                       9.6–15.8 |                  22.4–28.3 |
+| Pixel 7 Chromium emulation |                   47.3–48.0 |                      10.1–15.8 |                  19.3–29.1 |
+| iPhone 13 WebKit emulation |                       50–53 |                          12–16 |                      24–27 |
 
 All 45 candidate transitions retain their document and issue no new HTML or
 script request. All 45 baseline transitions create a new document, producing
@@ -600,10 +656,10 @@ Chromium profile, CDP latency 150 ms, download 200,000 B/s, upload 93,750 B/s
 and 4× CPU slowdown. It uses the same link activation and animation-frame
 markers, without other browser suites running concurrently.
 
-| Profile | Pricing: native → enhanced (ms) | Support: native → enhanced (ms) | Home: native → enhanced (ms) |
-| --- | ---: | ---: | ---: |
-| Desktop Chromium | 528.3 → 65.1 | 506.2 → 32.2 | 522.5 → 27.9 |
-| Pixel 7 Chromium emulation | 521.9 → 66.2 | 517.6 → 32.9 | 530.7 → 30.7 |
+| Profile                    | Pricing: native → enhanced (ms) | Support: native → enhanced (ms) | Home: native → enhanced (ms) |
+| -------------------------- | ------------------------------: | ------------------------------: | ---------------------------: |
+| Desktop Chromium           |                    528.3 → 65.1 |                    506.2 → 32.2 |                 522.5 → 27.9 |
+| Pixel 7 Chromium emulation |                    521.9 → 66.2 |                    517.6 → 32.9 |                 530.7 → 30.7 |
 
 All 30 enhanced controlled transitions issue no document or script request;
 all 30 native transitions issue one document and 30–31 browser request events.
@@ -666,12 +722,12 @@ CSS import changes. It sums the CSS files linked by generated `dist/web/index.ht
 gzip sizes use Node's `gzipSync` independently per file. It is a build-graph
 comparison, not observed browser transfer, FCP, CLS or production latency.
 
-| Initial stylesheet graph | Before | Candidate |
-| --- | ---: | ---: |
-| Linked stylesheet requests | 5 | 5 |
-| Total stylesheet bytes | 159,270 | 166,218 |
-| Sum of gzip stylesheet bytes | 31,798 | 32,890 |
-| Guided example styled before route JavaScript | No | Yes |
+| Initial stylesheet graph                      |  Before | Candidate |
+| --------------------------------------------- | ------: | --------: |
+| Linked stylesheet requests                    |       5 |         5 |
+| Total stylesheet bytes                        | 159,270 |   166,218 |
+| Sum of gzip stylesheet bytes                  |  31,798 |    32,890 |
+| Guided example styled before route JavaScript |      No |       Yes |
 
 The entry graph adds 1,092 compressed bytes while avoiding one later stylesheet
 request. No general speed percentage, final-source first-paint timing, hosted
@@ -718,11 +774,11 @@ totaled 135,952 decoded bytes. Their original `swap` declarations produced these
 observations:
 
 | Surface / viewport | Baseline pricing heading height change | Baseline pricing paragraph top change | Baseline layout-shift sum after font release | Candidate sum |
-| --- | ---: | ---: | ---: | ---: |
-| Home / desktop | Not applicable | Not applicable | 0.01413 | 0 |
-| Pricing / desktop | 103.031 → 51.516 px | −51.516 px | 0.00860 | 0 |
-| Home / mobile | Not applicable | Not applicable | 0.00985 | 0 |
-| Pricing / mobile | 71.656 → 35.828 px | −35.828 px | 0.03574 | 0 |
+| ------------------ | -------------------------------------: | ------------------------------------: | -------------------------------------------: | ------------: |
+| Home / desktop     |                         Not applicable |                        Not applicable |                                      0.01413 |             0 |
+| Pricing / desktop  |                    103.031 → 51.516 px |                            −51.516 px |                                      0.00860 |             0 |
+| Home / mobile      |                         Not applicable |                        Not applicable |                                      0.00985 |             0 |
+| Pricing / mobile   |                     71.656 → 35.828 px |                            −35.828 px |                                      0.03574 |             0 |
 
 Pricing's first section heading changed from two lines to one. The homepage's
 main heading height stayed fixed, but its desktop intro grew 44.203 px wider and
@@ -776,17 +832,17 @@ not a baseline comparison. These samples precede reconciliation with the 1.1.10
 main release and qualify the recovery source committed as `adc8f5343927`; merged-
 source CI and hosted publication remain separate.
 
-| Surface / browser | Completed resource entries | Transferred bytes | Reported decoded JavaScript bytes | First useful panel observed (ms) |
-| --- | ---: | ---: | ---: | ---: |
-| List / Desktop Chromium | 40 | 662,141 | 1,527,726 | 171.7–181.1 |
-| Composer / Desktop Chromium | 42 | 677,208 | 1,527,726 | 454.5–923.1 |
-| Review and reader / Desktop Chromium | 41 | 671,228 | 1,527,726 | 415.4–423.7 |
-| List / Pixel 7 Chromium emulation | 40 | 662,141 | 1,527,726 | 177.3–188.5 |
-| Composer / Pixel 7 Chromium emulation | 42 | 677,208 | 1,527,726 | 939.8–943.2 |
-| Review and reader / Pixel 7 Chromium emulation | 41 | 671,228 | 1,527,726 | 929.2–937.5 |
-| List / iPhone 13 WebKit emulation | 41–42 | 680,782–696,138 | 1,527,726 | 194.0–467.0 |
-| Composer / iPhone 13 WebKit emulation | 43–44 | 342,927–711,127 | 476,739–1,527,726 | 185.0–197.0 |
-| Review and reader / iPhone 13 WebKit emulation | 42–43 | 343,287–680,782 | 476,739–1,527,726 | 139.0–446.0 |
+| Surface / browser                              | Completed resource entries | Transferred bytes | Reported decoded JavaScript bytes | First useful panel observed (ms) |
+| ---------------------------------------------- | -------------------------: | ----------------: | --------------------------------: | -------------------------------: |
+| List / Desktop Chromium                        |                         40 |           662,141 |                         1,527,726 |                      171.7–181.1 |
+| Composer / Desktop Chromium                    |                         42 |           677,208 |                         1,527,726 |                      454.5–923.1 |
+| Review and reader / Desktop Chromium           |                         41 |           671,228 |                         1,527,726 |                      415.4–423.7 |
+| List / Pixel 7 Chromium emulation              |                         40 |           662,141 |                         1,527,726 |                      177.3–188.5 |
+| Composer / Pixel 7 Chromium emulation          |                         42 |           677,208 |                         1,527,726 |                      939.8–943.2 |
+| Review and reader / Pixel 7 Chromium emulation |                         41 |           671,228 |                         1,527,726 |                      929.2–937.5 |
+| List / iPhone 13 WebKit emulation              |                      41–42 |   680,782–696,138 |                         1,527,726 |                      194.0–467.0 |
+| Composer / iPhone 13 WebKit emulation          |                      43–44 |   342,927–711,127 |                 476,739–1,527,726 |                      185.0–197.0 |
+| Review and reader / iPhone 13 WebKit emulation |                      42–43 |   343,287–680,782 |                 476,739–1,527,726 |                      139.0–446.0 |
 
 The first-useful marker is `performance.now()` after the primary panel/list is
 visible and its loading indicator is gone; it is not a standardized paint metric.
@@ -995,15 +1051,15 @@ access, business delivery and distribution qualification. A declared regression
 scenario is not a hosted pass. Exact-source CI and final authenticated publication
 checks remain separate.
 
-| Source                                                         | Responsibility                                                                                               |
-| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `apps/web/src/App.tsx`                                         | Route splitting, personal bootstrap independence, obsolete workspace-result fence and fresh workspace return |
-| `apps/web/src/personal-area.tsx`                               | Immediate personal shell and invitation handoff                                                              |
-| `apps/web/src/personal-space.tsx`                              | Personal session lifecycle, identity remount, focus recovery and explicit logout                             |
-| `apps/web/src/personal-documents.tsx`, `personal-api.ts`       | Account-bound document reads, list retry, aborted-read refusal and unchanged credential/privacy behavior     |
+| Source                                                                     | Responsibility                                                                                               |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `apps/web/src/App.tsx`                                                     | Route splitting, personal bootstrap independence, obsolete workspace-result fence and fresh workspace return |
+| `apps/web/src/personal-area.tsx`                                           | Immediate personal shell and invitation handoff                                                              |
+| `apps/web/src/personal-space.tsx`                                          | Personal session lifecycle, identity remount, focus recovery and explicit logout                             |
+| `apps/web/src/personal-documents.tsx`, `personal-api.ts`                   | Account-bound document reads, list retry, aborted-read refusal and unchanged credential/privacy behavior     |
 | `apps/web/src/main.tsx`, `public-navigation.ts`, `public-page-metadata.ts` | Eager public page graph, same-document navigation and metadata shared with static generation                 |
-| `apps/web/src/theme-media.ts`, `editorial/article-picture.tsx` | Native theme/size source selection and responsive public editorial exports                                   |
-| `tests/e2e/personal-document-performance.spec.ts`              | Bounded loading and account-transition regressions                                                           |
+| `apps/web/src/theme-media.ts`, `editorial/article-picture.tsx`             | Native theme/size source selection and responsive public editorial exports                                   |
+| `tests/e2e/personal-document-performance.spec.ts`                          | Bounded loading and account-transition regressions                                                           |
 
 ## Document email and recipient controls — 26 October 2026
 
@@ -1021,14 +1077,14 @@ preparation sample and two recipient-control samples per browser, not a baseline
 comparison or production latency claim. Resource bytes are browser-reported
 `transferSize` including headers; resource completion can vary at measurement.
 
-| Surface / browser | Requests | Total transferred bytes | JavaScript bytes | FCP (ms) | First useful control/heading observed (ms) |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Preparation / desktop Chromium | 55 | 709,765 | 519,052 | 172 | 507 |
-| Preparation / mobile Chromium | 55 | 709,765 | 519,052 | 352 | 772 |
-| Preparation / iPhone WebKit emulation | 56 | 729,117 | 520,851 | 332 | 890 |
-| Recipient controls / desktop Chromium | 39–40 | 849,419–922,059 | 478,491 | 164–176 | 475–500 |
-| Recipient controls / mobile Chromium | 40 | 922,055–922,059 | 478,491 | 248–588 | 575–1,113 |
-| Recipient controls / iPhone WebKit emulation | 41 | 942,434–942,486 | 480,026–480,060 | 312–1,146 | 663–1,061 |
+| Surface / browser                            | Requests | Total transferred bytes | JavaScript bytes |  FCP (ms) | First useful control/heading observed (ms) |
+| -------------------------------------------- | -------: | ----------------------: | ---------------: | --------: | -----------------------------------------: |
+| Preparation / desktop Chromium               |       55 |                 709,765 |          519,052 |       172 |                                        507 |
+| Preparation / mobile Chromium                |       55 |                 709,765 |          519,052 |       352 |                                        772 |
+| Preparation / iPhone WebKit emulation        |       56 |                 729,117 |          520,851 |       332 |                                        890 |
+| Recipient controls / desktop Chromium        |    39–40 |         849,419–922,059 |          478,491 |   164–176 |                                    475–500 |
+| Recipient controls / mobile Chromium         |       40 |         922,055–922,059 |          478,491 |   248–588 |                                  575–1,113 |
+| Recipient controls / iPhone WebKit emulation |       41 |         942,434–942,486 |  480,026–480,060 | 312–1,146 |                                  663–1,061 |
 
 The useful-content marker follows an awaited visible field/heading; it is test
 instrumentation rather than a standardized paint metric. Preference-page totals
@@ -1061,11 +1117,11 @@ The sample below is taken from one normal-email scenario per browser after the
 generated button is visible; the first-composer marker is an awaited field check.
 Other offline checks may run concurrently. It is not a before/after comparison.
 
-| Browser | Resources | Total transferred bytes | JavaScript bytes | FCP (ms) | First composer observed (ms) |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Desktop Chromium | 54 | 711,754 | 521,041 | 172 | 528.8000000119209 |
-| Pixel 7 Chromium emulation | 54 | 711,754 | 521,041 | 132 | 468.59999999403954 |
-| iPhone 13 WebKit emulation | 55 | 731,094 | 522,822 | 187 | 566 |
+| Browser                    | Resources | Total transferred bytes | JavaScript bytes | FCP (ms) | First composer observed (ms) |
+| -------------------------- | --------: | ----------------------: | ---------------: | -------: | ---------------------------: |
+| Desktop Chromium           |        54 |                 711,754 |          521,041 |      172 |            528.8000000119209 |
+| Pixel 7 Chromium emulation |        54 |                 711,754 |          521,041 |      132 |           468.59999999403954 |
+| iPhone 13 WebKit emulation |        55 |                 731,094 |          522,822 |      187 |                          566 |
 
 No physical phone, inbox, hosted latency, CPU/memory or billed-cost qualification
 is inferred. The shared renderer retains system-font/inline-style email rendering
@@ -1094,11 +1150,11 @@ not a standardized paint metric. Document FCP is cumulative document evidence,
 not a paint measurement for the hash route. No before/after speed gain is claimed.
 
 | Appearance / width | Route resources | Route transferred bytes | Route JavaScript bytes | Heading observed after navigation (ms) | Document FCP (ms) |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Classic / 1280 | 5 | 8,421 | 3,669 | 815.6 | 88 |
-| V2 / 1280 | 5 | 5,052 | 300 | 813.6 | 60 |
-| Classic / 320 | 5 | 5,052 | 300 | 814.2 | 68 |
-| V2 / 320 | 5 | 5,052 | 300 | 811.0 | 68 |
+| ------------------ | --------------: | ----------------------: | ---------------------: | -------------------------------------: | ----------------: |
+| Classic / 1280     |               5 |                   8,421 |                  3,669 |                                  815.6 |                88 |
+| V2 / 1280          |               5 |                   5,052 |                    300 |                                  813.6 |                60 |
+| Classic / 320      |               5 |                   5,052 |                    300 |                                  814.2 |                68 |
+| V2 / 320           |               5 |                   5,052 |                    300 |                                  811.0 |                68 |
 
 The CSS adds no API read, authority or polling path. CPU, memory, production
 latency and billed cost were not measured. Raw reports, geometry samples and
@@ -1139,11 +1195,11 @@ The three core chunks below add 96 raw bytes, or 38 bytes using the same local
 `gzipSync` defaults. This is a file-size comparison, not measured HTTP transfer,
 first-content timing, production compression or an Auth0 latency improvement.
 
-| Core chunk | 1.1.15 bytes / local gzip | 1.1.16 bytes / local gzip |
-| --- | ---: | ---: |
-| Application entry | 475,450 / 136,948 | 475,470 / 136,962 |
-| Shared components | 29,730 / 9,726 | 29,792 / 9,741 |
-| Authentication navigation | 663 / 412 | 677 / 421 |
+| Core chunk                | 1.1.15 bytes / local gzip | 1.1.16 bytes / local gzip |
+| ------------------------- | ------------------------: | ------------------------: |
+| Application entry         |         475,450 / 136,948 |         475,470 / 136,962 |
+| Shared components         |            29,730 / 9,726 |            29,792 / 9,741 |
+| Authentication navigation |                 663 / 412 |                 677 / 421 |
 
 ## Explicit module-preload recovery
 

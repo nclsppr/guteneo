@@ -29,10 +29,25 @@ final class AppModel {
     var hasMoreDispatches: Bool { dispatchCursor != nil }
     var readyDocuments: [DocumentRecord] { documents.filter(\.isReady) }
     var availableChannels: [Channel] { capabilities?.preparableChannels ?? [] }
+    var dispatchDraftOwner: DispatchDraftOwner? {
+        guard phase == .authenticated, let session else { return nil }
+        if isPreview {
+            #if DEBUG
+            guard previewDraftStorageEnabled else { return nil }
+            #else
+            return nil
+            #endif
+        }
+        return DispatchDraftOwner(userID: session.user.id, organizationID: session.organization.id)
+    }
 
     @ObservationIgnored private let client: APIClient
     @ObservationIgnored private let credentials: any CredentialStore
     @ObservationIgnored private let auth: MobileAuthenticator
+    @ObservationIgnored private var draftStore: DispatchDraftStore
+    #if DEBUG
+    @ObservationIgnored private var previewDraftStorageEnabled = false
+    #endif
     private var documentCursor: String?
     private var dispatchCursor: String?
     private var workingCount = 0
@@ -41,13 +56,29 @@ final class AppModel {
     private var loadingMoreDocuments = false
     private var loadingMoreDispatches = false
 
-    init(client: APIClient = .live, credentials: any CredentialStore = KeychainCredentials(), auth: MobileAuthenticator? = nil, preferences: UserDefaults = .standard, preferredLanguages: [String] = Locale.preferredLanguages) {
+    init(client: APIClient = .live, credentials: any CredentialStore = KeychainCredentials(), auth: MobileAuthenticator? = nil, preferences: UserDefaults = .standard, preferredLanguages: [String] = Locale.preferredLanguages,
+         draftData: any DispatchDraftDataStore = KeychainDispatchDraftData()) {
         self.preferences = preferences
         self.deviceLanguage = AppLanguage.resolve(preferredLanguages)
         self.language = preferences.string(forKey: Self.languageKey).flatMap(AppLanguage.init(rawValue:)) ?? deviceLanguage
         self.client = client
         self.credentials = credentials
         self.auth = auth ?? MobileAuthenticator()
+        self.draftStore = DispatchDraftStore(data: draftData)
+    }
+
+    func savedDispatchDraft(owner: DispatchDraftOwner) throws -> SavedDispatchDraft? {
+        guard owner == dispatchDraftOwner else { throw DispatchDraftStorageError.identityChanged }
+        return try draftStore.load(owner: owner)
+    }
+    func saveDispatchDraft(owner: DispatchDraftOwner, fields: DispatchDraftFields, preparation: DispatchPreparationSnapshot,
+                           replacing revision: UUID?) throws -> SavedDispatchDraft {
+        guard owner == dispatchDraftOwner else { throw DispatchDraftStorageError.identityChanged }
+        return try draftStore.save(owner: owner, fields: fields, preparation: preparation, replacing: revision)
+    }
+    func discardDispatchDraft(owner: DispatchDraftOwner, revision: UUID) throws {
+        guard owner == dispatchDraftOwner else { throw DispatchDraftStorageError.identityChanged }
+        try draftStore.discard(owner: owner, revision: revision)
     }
 
     func restoreSession() async {
@@ -331,10 +362,15 @@ final class AppModel {
     }
 
     #if DEBUG
-    func activatePreview() {
+    func activatePreview(draftStorageID: String? = nil) {
         sessionGeneration += 1
         clearAccount()
         isPreview = true
+        previewDraftStorageEnabled = false
+        if let draftStorageID, let id = UUID(uuidString: draftStorageID) {
+            draftStore = DispatchDraftStore(data: KeychainDispatchDraftData(service: "com.guteneo.ios.synthetic-drafts.\(id.uuidString)"))
+            previewDraftStorageEnabled = true
+        }
         session = PreviewFixtures.session
         documents = PreviewFixtures.documents
         dispatches = PreviewFixtures.dispatches
@@ -358,7 +394,8 @@ private enum PreviewFixtures {
     [
       {"id":"preview-dispatch-1","channel":"fax","recipient_json":{"phone":"+33 1 00 00 00 00"},"document_id":"preview-document-1","status":"delivered","mode":"simulation","estimated_minor":24,"ceiling_minor":500,"currency":"EUR","fingerprint":"preview","created_at":"2026-09-22T08:30:00Z","updated_at":"2026-09-22T08:33:00Z"},
       {"id":"preview-dispatch-2","channel":"fax","recipient_json":{"phone":"+33 1 00 00 00 01"},"document_id":"preview-document-1","status":"prepared","mode":"simulation","estimated_minor":24,"ceiling_minor":500,"currency":"EUR","fingerprint":"preview","created_at":"2026-09-21T14:00:00Z","updated_at":"2026-09-21T14:00:00Z"},
-      {"id":"preview-dispatch-3","channel":"fax","recipient_json":{"phone":"+33 1 00 00 00 02"},"document_id":"preview-document-1","status":"prepared","mode":"simulation","estimated_minor":24,"ceiling_minor":500,"faxPricing":{"executionScope":"review_prepare_only"},"currency":"EUR","fingerprint":"preview-reference","created_at":"2026-09-21T13:00:00Z","updated_at":"2026-09-21T13:00:00Z"}
+      {"id":"preview-dispatch-3","channel":"fax","recipient_json":{"phone":"+33 1 00 00 00 02"},"document_id":"preview-document-1","status":"prepared","mode":"simulation","estimated_minor":24,"ceiling_minor":500,"faxPricing":{"executionScope":"review_prepare_only"},"currency":"EUR","fingerprint":"preview-reference","created_at":"2026-09-21T13:00:00Z","updated_at":"2026-09-21T13:00:00Z"},
+      {"id":"preview-dispatch-4","channel":"email","recipient_json":{"email":"synthetic@example.invalid"},"status":"prepared","mode":"simulation","estimated_minor":24,"ceiling_minor":500,"activeSchedule":{"id":"preview-schedule","status":"approved","executeAt":"2099-01-01T10:00:00Z","maxTotalMinor":500},"currency":"EUR","fingerprint":"preview-schedule","created_at":"2026-09-21T12:00:00Z","updated_at":"2026-09-21T12:00:00Z"}
     ]
     """#, as: [DispatchRecord].self)
     static let senders = decode(#"[{"id":"preview-sender","channel":"fax","name":"Atelier Exemple","address":"Demo sender","status":"verified","mode":"simulation"}]"#, as: [SenderRecord].self)
@@ -366,7 +403,7 @@ private enum PreviewFixtures {
         guard let dispatch = dispatches.first(where: { $0.id == id }) else { throw APIError(code: "NOT_FOUND") }
         return DispatchDetail(dispatch: dispatch, approval: nil,
                               events: [EventRecord(id: "preview-event", type: "dispatch.\(dispatch.status)", eventType: nil, status: dispatch.status, createdAt: dispatch.updatedAt, detail: nil)],
-                              attempts: [], approvalUrl: nil)
+                              attempts: [], approvalUrl: nil, activeSchedule: dispatch.activeSchedule)
     }
     @MainActor
     static func documentPDF(id: String) throws -> Data {

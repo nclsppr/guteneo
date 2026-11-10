@@ -13,15 +13,15 @@ instead of treating a successful build as the end of the work.
 
 ## From change to publication
 
-| Stage | Required outcome | What remains separate |
-| --- | --- | --- |
-| Local implementation | Code, contracts, feature inventory and relevant documentation agree | Nothing has been merged or published |
-| Local validation | Relevant behavior checks pass against a stable source snapshot | Remote CI and actual hosted dependencies |
-| Pull-request review | Reviewers can assess behavior, authority, migrations, evidence and known gaps | Approval to merge or perform an external operation |
-| Exact-source CI | Required checks succeed for the reviewed revision | Publication and live availability |
-| Authorized merge and release preparation | The approved source and its prerequisite schema/configuration are known | A channel's activation and actual sending |
-| Authorized publication | The intended surface receives the checked build/configuration | Proof of the version and bytes now served |
-| Served verification | Manifest, assets, routing and headers match the intended release | Authenticated login, assistant, scanner and provider journeys |
+| Stage                                    | Required outcome                                                              | What remains separate                                         |
+| ---------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Local implementation                     | Code, contracts, feature inventory and relevant documentation agree           | Nothing has been merged or published                          |
+| Local validation                         | Relevant behavior checks pass against a stable source snapshot                | Remote CI and actual hosted dependencies                      |
+| Pull-request review                      | Reviewers can assess behavior, authority, migrations, evidence and known gaps | Approval to merge or perform an external operation            |
+| Exact-source CI                          | Required checks succeed for the reviewed revision                             | Publication and live availability                             |
+| Authorized merge and release preparation | The approved source and its prerequisite schema/configuration are known       | A channel's activation and actual sending                     |
+| Authorized publication                   | The intended surface receives the checked build/configuration                 | Proof of the version and bytes now served                     |
+| Served verification                      | Manifest, assets, routing and headers match the intended release              | Authenticated login, assistant, scanner and provider journeys |
 
 The [contribution guide](/engineering/contributing/) owns the source/documentation
 maintenance workflow. The [testing guide](/engineering/testing/) explains which
@@ -75,15 +75,44 @@ pull-request revision or an older `main` run is not interchangeable with a new
 merge commit. Record remaining failures honestly instead of substituting older
 evidence.
 
+## Give a version a readable release record
+
+Each application version has a reviewed note under `docs/releases/<version>.md`.
+Explain what users can do, what became more reliable, which capabilities remain
+gated and what was actually tested. CI refuses a missing or wrong-version note
+and produces a portable HTML/JSON report after the existing test inventory gate.
+The [pipeline guide](/engineering/ci-and-release/#portable-release-proof) explains
+the report's inputs and limits.
+
+After exact-current-main CI succeeds, an authorized operator creates
+`v<package-version>` on that main commit and prepares its GitHub Release. The
+live publisher queries the remote tag before the build and before deployment;
+the tag must resolve to the same clean main, the authored note must match the
+version and the built manifest must agree. Cached local tags are insufficient.
+Never move a version tag to publish a later commit. A new source release needs
+its own synchronized version and note. Preview remains a separate surface.
+
+Attach the generated `test-proof.html` and `test-proof.json` directly to the
+GitHub Release and link **Download test proof (HTML)** in its body. The HTML opens
+offline with selected synthetic screenshots embedded; readers need neither an
+Actions account nor a local test-report server. Images may also be attached
+individually. The checks workflow retains artifacts with read-only permissions;
+it does not publish a Release or grant deployment authority.
+
+Keep the release marked as a candidate until the separate served-verification
+receipt establishes the deployed version, source fingerprint, bytes and headers.
+Attach that receipt and update the status after authorized publication. A tag,
+portable test report and provider delivery receipt remain different evidence.
+
 ## Keep publication targets distinct
 
-| Surface | Publication boundary |
-| --- | --- |
-| Main application | Canonical `guteneo.com`, application configuration, business services and exact-source release manifest |
-| Public design preview | Independent fictional browser model and its own preview manifest; no business bindings |
-| Engineering documentation | Dedicated asset-only domain, reviewed public content and its own guarded build/release manifest |
-| Status service | Independent bounded public observations; no customer document access |
-| Private document/scanner/validator services | Separate runtime, engine/configuration and hosted qualification |
+| Surface                                     | Publication boundary                                                                                    |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Main application                            | Canonical `guteneo.com`, application configuration, business services and exact-source release manifest |
+| Public design preview                       | Independent fictional browser model and its own preview manifest; no business bindings                  |
+| Engineering documentation                   | Dedicated asset-only domain, reviewed public content and its own guarded build/release manifest         |
+| Status service                              | Independent bounded public observations; no customer document access                                    |
+| Private document/scanner/validator services | Separate runtime, engine/configuration and hosted qualification                                         |
 
 The main application's project release guard requires a clean local `main`
 matching freshly fetched `origin/main`. It refuses hidden index changes, dirty

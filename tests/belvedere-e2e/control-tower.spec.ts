@@ -61,6 +61,7 @@ test("a root-host shell keeps navigation and read-only data on its own origin", 
       name: "Finances",
     }),
   ).toBeVisible();
+  await expect(page.locator(".bv-result")).toBeVisible();
   expect(new URL(page.url()).pathname).toBe("/");
   expect(reads).toContain("/api/overview");
   expect(reads).toContain("/api/finance");

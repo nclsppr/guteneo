@@ -1,6 +1,6 @@
 import { Plus } from "@phosphor-icons/react";
 import { PdfCheckBenefits, PdfCheckCreditTerms } from "./pdf-check-offer";
-import { PDF_VALIDATION_PRICE_MINOR } from "../../../packages/contracts/src/pdf-validation";
+import { PDF_VALIDATION_PRICE_MINOR } from "../../../packages/contracts/src/pdf-validation-pricing";
 import { money } from "./api";
 import { msg } from "./messages";
 import { workspaceEntryHref } from "./auth-navigation";

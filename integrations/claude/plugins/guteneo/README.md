@@ -1,6 +1,6 @@
 # Guteneo for Claude Code — 1.1.7 candidate
 
-Seven skills guide PDF diagnostics, document creation, secure distribution, email, fax and postal
+Nine skills guide PDF diagnostics, document creation, secure distribution, email, fax and postal
 preparation through the existing Guteneo service. The package connects to
 `https://guteneo.com/mcp` over HTTP and carries no credentials, local executable,
 permission grants or automatic actions. Each workflow checks the connected
@@ -103,3 +103,7 @@ this candidate. Passing local format validation is not directory approval.
 [MCP authentication](https://code.claude.com/docs/en/mcp),
 [Guteneo privacy](https://guteneo.com/privacy/?lang=en),
 [Guteneo support](https://guteneo.com/support/?lang=en).
+
+## Saved recipients and future spending
+
+Nine new tools read and maintain authorized workspace contacts or prepare, read and cancel schedules. Creating a schedule holds its original immediate acceptance path. Fixed-cap future approval remains a separate authenticated human browser action; neither an expert mandate nor a host confirmation replaces it. Scheduling supports ordinary fax and message-only email only. Read the `saved-recipients` and `scheduled-dispatch` skills when requested. Customer webhook configuration and secrets remain browser-administrator controls. This package activates neither automatic release nor callbacks and makes no new host or marketplace qualification claim.

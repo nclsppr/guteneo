@@ -1,0 +1,2 @@
+# Review the source catalogs and generator; runtime projections are verified by lint.
+apps/web/src/locales/runtime/*.json linguist-generated=true

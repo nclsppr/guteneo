@@ -85,8 +85,17 @@ superseded commits, uncertain metadata or failed public verification block succe
 There is no automatic merge, test retry, provider send, schema migration or
 rollback. Inspect failed publication before another release attempt.
 
-Application manifests identify the exact source commit even when the product
-version does not change. Plugin instructions, OAuth registrations, provider
+Production application publication now also requires the exact immutable remote
+`v<package version>` tag and matching human release notes under
+`docs/releases/<version>.md`, as specified in [MAIN_RELEASE.md](MAIN_RELEASE.md).
+An eligible dependency merge without its own version anchor stops before building
+or deployment; it cannot reuse or move a tag from an earlier commit. Prepare a
+reviewed version bump and notes, qualify that exact main, and create its tag before
+publication. The dependency workflow does not mint tags or grant itself repository
+write permission. Its dedicated credential and genuine-dependency qualification
+remain independent gates.
+
+Application manifests identify the exact source commit. Plugin instructions, OAuth registrations, provider
 configuration and private service publication retain their own gates. Read
 [MAIN_RELEASE.md](MAIN_RELEASE.md) for publication requirements and [CI.md](CI.md)
 for test inventory and immutable artifact verification.

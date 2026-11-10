@@ -273,7 +273,8 @@ describe("account language in the private shell", () => {
         expect(html).toContain(
           `<meta name="guteneo-account-locale" content="${locale ?? "automatic"}">`,
         );
-        expect(html).not.toMatch(/usr_owner|usr_other|pieper\.fr|csrf/);
+        expect(html).toContain('<meta name="guteneo-belvedere-principal" content="usr_owner">');
+        expect(html).not.toMatch(/usr_other|pieper\.fr|csrf/);
         expect(response?.headers.get("Cache-Control")).toContain("no-store");
       }
       const anonymous = await handleBelvedereRoute(
@@ -281,15 +282,45 @@ describe("account language in the private shell", () => {
         env,
       );
       expect(anonymous?.status).toBe(302);
-      expect(await anonymous!.text()).not.toContain("guteneo-account-locale");
+      expect(await anonymous!.text()).not.toMatch(/guteneo-account-locale|guteneo-belvedere-principal/);
       const forbidden = await handleBelvedereRoute(
         request("/belvedere/not-the-secret"),
         env,
       );
       expect(forbidden?.status).toBe(404);
-      expect(await forbidden!.text()).not.toContain("guteneo-account-locale");
+      expect(await forbidden!.text()).not.toMatch(/guteneo-account-locale|guteneo-belvedere-principal/);
     } finally {
       await db.prepare("UPDATE users SET preferred_locale=NULL").run();
+    }
+  });
+  it("escapes the authenticated presentation principal without exposing credentials", async () => {
+    const principal = 'usr_"&<>\'';
+    const token = "B".repeat(43), hash = await hashSecret(token);
+    await db.batch([
+      db.prepare("INSERT INTO users(id,name,email,created_at) VALUES(?,'Synthetic principal','principal@example.test',?)").bind(principal, stamp),
+      db.prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES('org_owner',?,'admin',?)").bind(principal, stamp),
+      db.prepare("INSERT INTO auth_identities(issuer,subject,user_id,created_at) VALUES('https://identity.example.test/','auth0|principal',?,?)").bind(principal, stamp),
+      db.prepare("INSERT INTO browser_sessions(token_hash,user_id,organization_id,csrf_token,mfa,is_development,created_at,expires_at,verified_account) VALUES(?,?,'org_owner','private-csrf',1,0,?,?,1)").bind(hash, principal, stamp, new Date(Date.now()+3600000).toISOString()),
+      db.prepare("INSERT INTO browser_identity_evidence(token_hash,issuer,subject,verified_email,authenticated_at) VALUES(?,'https://identity.example.test/','auth0|principal','nicolas@pieper.fr',?)").bind(hash, stamp),
+    ]);
+    try {
+      const response = await handleBelvedereRoute(request(base, { headers: { Cookie: `__Host-guteneo_session=${token}` } }), env);
+      expect(response?.status).toBe(200);
+      const html = await response!.text();
+      expect(html).toContain('<meta name="guteneo-belvedere-principal" content="usr_&quot;&amp;&lt;&gt;&#39;">');
+      expect(html).not.toContain(principal);
+      expect(html).not.toContain(token);
+      expect(html).not.toContain(hash);
+      expect(html).not.toContain("private-csrf");
+      expect(response?.headers.get("Cache-Control")).toContain("no-store");
+    } finally {
+      await db.batch([
+        db.prepare("DELETE FROM platform_access_audit WHERE user_id=?").bind(principal),
+        db.prepare("DELETE FROM browser_sessions WHERE token_hash=?").bind(hash),
+        db.prepare("DELETE FROM auth_identities WHERE user_id=?").bind(principal),
+        db.prepare("DELETE FROM memberships WHERE user_id=?").bind(principal),
+        db.prepare("DELETE FROM users WHERE id=?").bind(principal),
+      ]);
     }
   });
 });

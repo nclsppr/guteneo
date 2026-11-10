@@ -7,6 +7,7 @@ import {
   ShieldCheck,
 } from "@phosphor-icons/react";
 import {
+  sessionAuthorityKey,
   api,
   ApiError,
   date,
@@ -83,7 +84,7 @@ export function SecureDistributionPage({
   if (page?.startsWith("/app/secure-distribution/"))
     return (
       <SecureDistributionDetail
-        key={`${page}:${session.organization.id}:${session.user.id}:${session.csrfToken}`}
+        key={`${page}:${sessionAuthorityKey(session)}`}
         id={page.slice("/app/secure-distribution/".length)}
         session={session}
       />
@@ -220,11 +221,7 @@ function SecureDistributionComposer({ session }: { session: Session }) {
       changed();
     },
     true,
-    JSON.stringify([
-      session.organization.id,
-      session.user.id,
-      session.csrfToken,
-    ]),
+    sessionAuthorityKey(session),
   );
   const readyDocuments =
     documents.data?.items.filter((document) => document.status === "ready") ??
@@ -255,30 +252,38 @@ function SecureDistributionComposer({ session }: { session: Session }) {
     event.preventDefault();
     if (submitting.current || sourceCopy.pending) return;
     submitting.current = true;
-    await action.run(async () => {
+    await action.run(async (view) => {
       let prepared: SecurePublication;
       try {
-        prepared = await api<SecurePublication>("/secure-distributions", {
-          method: "POST",
-          key: idempotencyKey,
-          body: {
-            documentId,
-            recipient: {
-              address: recipientAddress.trim(),
-              ...(recipientName.trim() ? { name: recipientName.trim() } : {}),
+        prepared = await view.wait(
+          api<SecurePublication>("/secure-distributions", {
+            method: "POST",
+            key: idempotencyKey,
+            body: {
+              documentId,
+              recipient: {
+                address: recipientAddress.trim(),
+                ...(recipientName.trim() ? { name: recipientName.trim() } : {}),
+              },
+              retentionDays,
+              allowOriginalDownload,
+              allowVaultDeposit,
+              personalRetentionDays,
+              recipientBinding,
+              ...(subject.trim() ? { subject: subject.trim() } : {}),
+              ...(message.trim() ? { message } : {}),
+              ...(html.trim() ? { html } : {}),
+              notificationLocale: emailLocale,
             },
-            retentionDays,
-            allowOriginalDownload,
-            allowVaultDeposit,
-            personalRetentionDays,
-            recipientBinding,
-            ...(subject.trim() ? { subject: subject.trim() } : {}),
-            ...(message.trim() ? { message } : {}),
-            ...(html.trim() ? { html } : {}),
-            notificationLocale: emailLocale,
-          },
-        });
+          }),
+          (receipt) => ({
+            kind: "saved",
+            resourceId: receipt.id,
+            route: `/app/secure-distribution/${encodeURIComponent(receipt.id)}`,
+          }),
+        );
       } catch (error) {
+        view.checkpoint();
         if (sourceCopy.offer(error, documentId)) return;
         throw error;
       }
@@ -579,12 +584,7 @@ function SecureDistributionDetail({
   const [recipientRequested, setRecipientRequested] = useState(false);
   const [recovery, recover] = useReducer(writeRecoveryTransition, "ready");
   const currentView = useCurrentClientView(
-    JSON.stringify([
-      id,
-      session.organization.id,
-      session.user.id,
-      session.csrfToken,
-    ]),
+    JSON.stringify([id, sessionAuthorityKey(session)]),
   );
   const needsStatusCheck =
     recovery === "read_required" || recovery === "reading";
@@ -653,17 +653,19 @@ function SecureDistributionDetail({
     sending.current = true;
     const isCurrent = currentView();
     recover("write");
-    await action.run(async () => {
+    await action.run(async (view) => {
       try {
         let current = publication;
         if (!current.approved) {
-          current = await api<SecurePublication>(
-            `/secure-distributions/${encodeURIComponent(id)}/approve`,
-            {
-              method: "POST",
-              key: `${id}:approve`,
-              body: { reviewed: true, recipientRequested },
-            },
+          current = await view.wait(
+            api<SecurePublication>(
+              `/secure-distributions/${encodeURIComponent(id)}/approve`,
+              {
+                method: "POST",
+                key: `${id}:approve`,
+                body: { reviewed: true, recipientRequested },
+              },
+            ),
           );
           if (!isCurrent()) {
             recover("uncertain");
@@ -672,13 +674,15 @@ function SecureDistributionDetail({
           resource.setData(current);
         }
         if (current.status === "prepared") {
-          const activated = await api<SecurePublication>(
-            `/secure-distributions/${encodeURIComponent(id)}/activate`,
-            {
-              method: "POST",
-              key: `${id}:activate`,
-              body: {},
-            },
+          const activated = await view.wait(
+            api<SecurePublication>(
+              `/secure-distributions/${encodeURIComponent(id)}/activate`,
+              {
+                method: "POST",
+                key: `${id}:activate`,
+                body: {},
+              },
+            ),
           );
           if (!isCurrent()) {
             recover("uncertain");
@@ -716,15 +720,18 @@ function SecureDistributionDetail({
     if (!needsStatusCheck || action.pending) return;
     const isCurrent = currentView();
     recover("read");
-    await action.run(async () => {
+    await action.run(async (view) => {
       try {
-        const current = await api<SecurePublication>(
-          `/secure-distributions/${encodeURIComponent(id)}`,
+        const current = await view.wait(
+          api<SecurePublication>(
+            `/secure-distributions/${encodeURIComponent(id)}`,
+          ),
         );
         if (!isCurrent()) return;
         resource.setData(current);
         recover("reconciled");
       } catch (error) {
+        view.checkpoint();
         if (!isCurrent()) return;
         recover("read_failed");
         throw error;
@@ -732,21 +739,30 @@ function SecureDistributionDetail({
     });
   }
   async function revoke() {
-    await action.run(async () => {
-      await api(`/secure-distributions/${encodeURIComponent(id)}/revoke`, {
-        method: "POST",
-        key: `${id}:revoke`,
-        body: {},
-      });
+    await action.run(async (view) => {
+      await view.wait(
+        api(`/secure-distributions/${encodeURIComponent(id)}/revoke`, {
+          method: "POST",
+          key: `${id}:revoke`,
+          body: {},
+        }),
+        () => ({
+          kind: "access_revoked",
+          resourceId: id,
+          route: `/app/secure-distribution/${encodeURIComponent(id)}`,
+        }),
+      );
       resource.refresh();
     });
   }
   async function renewQuote() {
     const isCurrent = currentView();
-    await action.run(async () => {
-      const renewed = await api<SecurePublication>(
-        `/secure-distributions/${encodeURIComponent(id)}/renew`,
-        { method: "POST", key: `${id}:renew`, body: {} },
+    await action.run(async (view) => {
+      const renewed = await view.wait(
+        api<SecurePublication>(
+          `/secure-distributions/${encodeURIComponent(id)}/renew`,
+          { method: "POST", key: `${id}:renew`, body: {} },
+        ),
       );
       if (!isCurrent()) return;
       go(`/app/secure-distribution/${encodeURIComponent(renewed.id)}`);
@@ -754,14 +770,16 @@ function SecureDistributionDetail({
   }
   async function bindRecipient() {
     if (!publication?.pendingClaim) return;
-    await action.run(async () => {
-      await api(`/secure-distributions/${encodeURIComponent(id)}/bind`, {
-        method: "POST",
-        body: {
-          recipientUserId: publication.pendingClaim!.recipientUserId,
-          verificationMethod,
-        },
-      });
+    await action.run(async (view) => {
+      await view.wait(
+        api(`/secure-distributions/${encodeURIComponent(id)}/bind`, {
+          method: "POST",
+          body: {
+            recipientUserId: publication.pendingClaim!.recipientUserId,
+            verificationMethod,
+          },
+        }),
+      );
       setReviewedClaim(null);
       resource.refresh();
     });

@@ -164,23 +164,36 @@ test("uncertain or failed sends are surfaced on the overview", async ({
       },
     }),
   );
+  await page.route("**/api/attention*", (route) =>
+    route.fulfill({
+      json: {
+        items: Array.from({ length: 4 }, (_, index) => ({
+          id: `submission_unknown_dashboard_${index}`,
+          kind: "submission_unknown",
+          resourceId: `synthetic_dashboard_${index}`,
+          route: `/app/dispatch/synthetic_dashboard_${index}`,
+          channel: "email",
+        })),
+        nextCursor: null,
+        observedAt: new Date().toISOString(),
+      },
+    }),
+  );
   await page.goto("/#/app/documents");
   await expect(
     page.getByRole("button", { name: "Importer un PDF", exact: true }),
   ).toBeVisible();
   await page.goto("/#/app");
-  const notice = page.getByRole("status").filter({
-    hasText: "Des envois demandent votre attention.",
-  });
-  await expect(notice).toBeVisible();
+  const queue = page.getByRole("region", { name: "Nécessite votre attention" });
+  await expect(queue).toBeVisible();
   await expect(
-    page
-      .getByRole("list", { name: "Synthèse de l’espace de travail" })
-      .getByRole("link", { name: /^À vérifier/ }),
-  ).toContainText("4");
-  await notice
-    .getByRole("link", { name: "Voir les envois à vérifier" })
-    .click();
+    queue.getByRole("link", { name: /^Résultat à rapprocher/ }),
+  ).toHaveCount(4);
+  const attention = page
+    .getByRole("list", { name: "Synthèse de l’espace de travail" })
+    .getByRole("link", { name: /^À vérifier/ });
+  await expect(attention).toContainText("4");
+  await attention.click();
   await expect(page).toHaveURL(/#\/app\/dispatches\?group=attention$/);
 });
 
@@ -433,6 +446,7 @@ test("dashboard filters, confirmations and expiry copy follow the saved account 
       summary: "Workspace summary",
       approval: "Awaiting approval",
       filter: "Show",
+      refresh: "Refresh",
       cancel: "Request cancellation",
       confirm: "Yes, request cancellation",
       dismiss: "Keep unchanged",
@@ -443,6 +457,7 @@ test("dashboard filters, confirmations and expiry copy follow the saved account 
       summary: "Übersicht des Arbeitsbereichs",
       approval: "Zur Freigabe",
       filter: "Anzeigen",
+      refresh: "Aktualisieren",
       cancel: "Stornierung anfordern",
       confirm: "Ja, Stornierung anfordern",
       dismiss: "Nichts ändern",
@@ -453,6 +468,7 @@ test("dashboard filters, confirmations and expiry copy follow the saved account 
       summary: "Iwwersiicht vum Aarbechtsberäich",
       approval: "Fir ze approuvéieren",
       filter: "Uweisen",
+      refresh: "Aktualiséieren",
       cancel: "Annulatioun ufroen",
       confirm: "Jo, Annulatioun ufroen",
       dismiss: "Näischt änneren",
@@ -491,6 +507,12 @@ test("dashboard filters, confirmations and expiry copy follow the saved account 
       }),
     );
     await page.goto("/#/app/dispatches?group=approval");
+    // Returning can reuse the bounded list cache. Explicit refresh exercises
+    // the current server refusal, rather than waiting for an arbitrary TTL.
+    await page
+      .getByRole("main")
+      .getByRole("button", { name: copy.refresh, exact: true })
+      .click();
     await expect(page.locator(".session-expired")).toContainText(copy.expiry);
     await page.unroute("**/api/dispatches?group=approval");
   }

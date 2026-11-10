@@ -31,7 +31,13 @@ import {
   tableBlock,
 } from "../../../packages/templates/gallery";
 import { galleryCopy } from "./template-gallery-copy";
-import { api, date, permissionsFor, type Session } from "./api";
+import {
+  sessionAuthorityKey,
+  api,
+  date,
+  permissionsFor,
+  type Session,
+} from "./api";
 import { RolePermissionNotice } from "./role-guide";
 import {
   ConfirmAction,
@@ -124,22 +130,36 @@ export function TemplateLibrary({
   const [importedTemplateId, setImportedTemplateId] = useState<string>();
   async function create(envelope: TemplateEnvelope) {
     const isCurrent = currentView();
-    await action.run(async () => {
-      const result = await api<TemplateView>("/templates", {
-        method: "POST",
-        body: { envelope },
-      });
+    await action.run(async (view) => {
+      const result = await view.wait(
+        api<TemplateView>("/templates", {
+          method: "POST",
+          body: { envelope },
+        }),
+        (receipt) => ({
+          kind: "saved",
+          resourceId: receipt.id,
+          route: `/app/studio/template/${encodeURIComponent(receipt.id)}`,
+        }),
+      );
       if (!isCurrent()) return;
       go(studioRoutes.template(result.id));
     });
   }
   async function remove(model: TemplateView) {
     const isCurrent = currentView();
-    await action.run(async () => {
-      await api<{ id: string; deleted: true }>(`/templates/${model.id}`, {
-        method: "DELETE",
-        body: { expectedRevision: model.revision },
-      });
+    await action.run(async (view) => {
+      await view.wait(
+        api<{ id: string; deleted: true }>(`/templates/${model.id}`, {
+          method: "DELETE",
+          body: { expectedRevision: model.revision },
+        }),
+        (receipt) => ({
+          kind: "saved",
+          resourceId: receipt.id,
+          route: `/app/studio/template/${encodeURIComponent(receipt.id)}`,
+        }),
+      );
       if (!isCurrent()) return;
       templates.setData((current) =>
         current
@@ -157,17 +177,24 @@ export function TemplateLibrary({
   async function importWord(event: FormEvent) {
     event.preventDefault();
     const isCurrent = currentView();
-    await action.run(async () => {
+    await action.run(async (view) => {
       const source = file.current?.files?.[0];
       if (!source) throw new Error(msg("Choose a Word .docx file."));
       if (source.size > 5 * 1024 * 1024)
         throw new Error(msg("The Word document exceeds 5 MB."));
       const form = new FormData();
       form.set("file", source);
-      const result = await api<{
-        template: TemplateView;
-        warnings: DocxImportResult["warnings"];
-      }>("/templates/import-docx", { method: "POST", body: form });
+      const result = await view.wait(
+        api<{
+          template: TemplateView;
+          warnings: DocxImportResult["warnings"];
+        }>("/templates/import-docx", { method: "POST", body: form }),
+        (receipt) => ({
+          kind: "saved",
+          resourceId: receipt.template.id,
+          route: `/app/studio/template/${encodeURIComponent(receipt.template.id)}`,
+        }),
+      );
       if (!isCurrent()) return;
       setImportWarnings(result.warnings);
       setImportedTemplateId(result.template.id);
@@ -432,11 +459,7 @@ export function TemplateEditor({
     return (
       <GenerationDataCorrection
         key={generationScope}
-        identity={JSON.stringify([
-          session.organization.id,
-          session.user.id,
-          session.csrfToken,
-        ])}
+        identity={sessionAuthorityKey(session)}
         source={sourceGeneration.data}
         template={sourceTemplate.data}
         record={correction.data}
@@ -526,7 +549,7 @@ function GenerationDataCorrection({
           onSubmit={(event) => {
             event.preventDefault();
             const isCurrent = currentView();
-            void action.run(async () => {
+            void action.run(async (view) => {
               const body = {
                 templateId: source.templateId,
                 templateVersion: source.templateVersion,
@@ -537,9 +560,17 @@ function GenerationDataCorrection({
               if (previousInput.current && previousInput.current !== serialized)
                 key.current = crypto.randomUUID();
               previousInput.current = serialized;
-              const generation = await api<GenerationJobView>(
-                "/generation-jobs",
-                { method: "POST", key: key.current, body },
+              const generation = await view.wait(
+                api<GenerationJobView>("/generation-jobs", {
+                  method: "POST",
+                  key: key.current,
+                  body,
+                }),
+                (receipt) => ({
+                  kind: "saved",
+                  resourceId: receipt.id,
+                  route: `/app/studio/generation/${encodeURIComponent(receipt.id)}`,
+                }),
               );
               if (!isCurrent()) return;
               generated.current = true;
@@ -609,13 +640,7 @@ function EditorBody({
   onGenerationData: (data: Record<string, unknown>) => void;
 }) {
   const currentView = useCurrentClientView(
-    JSON.stringify([
-      session.organization.id,
-      session.user.id,
-      session.csrfToken,
-      model.id,
-      model.revision,
-    ]),
+    JSON.stringify([sessionAuthorityKey(session), model.id, model.revision]),
   );
   const [envelope, setEnvelope] = useState<TemplateEnvelope>(
     structuredClone(model.envelope),
@@ -668,32 +693,41 @@ function EditorBody({
   async function save() {
     if (designerPending) return;
     const isCurrent = currentView();
-    await action.run(async () => {
+    await action.run(async (view) => {
       validateTemplateEnvelope(envelope);
-      const next = await api<TemplateView>(`/templates/${model.id}`, {
-        method: "PATCH",
-        body: { expectedRevision: model.revision, envelope },
-      });
+      const next = await view.wait(
+        api<TemplateView>(`/templates/${model.id}`, {
+          method: "PATCH",
+          body: { expectedRevision: model.revision, envelope },
+        }),
+        (receipt) => ({
+          kind: "saved",
+          resourceId: receipt.id,
+          route: `/app/studio/template/${encodeURIComponent(receipt.id)}`,
+        }),
+      );
       if (isCurrent()) onSaved(next);
     });
   }
   async function publish() {
     if (designerPending) return;
     const isCurrent = currentView();
-    await action.run(async () => {
+    await action.run(async (view) => {
       if (dirty)
         throw new Error(msg("Save the draft before publishing this version."));
-      const next = await api<TemplateView>(`/templates/${model.id}/publish`, {
-        method: "POST",
-        body: { expectedRevision: model.revision },
-      });
+      const next = await view.wait(
+        api<TemplateView>(`/templates/${model.id}/publish`, {
+          method: "POST",
+          body: { expectedRevision: model.revision },
+        }),
+      );
       if (isCurrent()) onSaved(next);
     });
   }
   async function generate(event: FormEvent) {
     event.preventDefault();
     const isCurrent = currentView();
-    await action.run(async () => {
+    await action.run(async (view) => {
       if (dirty || !model.currentVersion || model.state !== "published")
         throw new Error(
           msg("Save and publish your template before generating documents."),
@@ -708,11 +742,18 @@ function EditorBody({
       if (generationInput.current && generationInput.current !== serialized)
         generationKey.current = crypto.randomUUID();
       generationInput.current = serialized;
-      const job = await api<GenerationJobView>("/generation-jobs", {
-        method: "POST",
-        key: generationKey.current,
-        body: payload,
-      });
+      const job = await view.wait(
+        api<GenerationJobView>("/generation-jobs", {
+          method: "POST",
+          key: generationKey.current,
+          body: payload,
+        }),
+        (receipt) => ({
+          kind: "saved",
+          resourceId: receipt.id,
+          route: `/app/studio/generation/${encodeURIComponent(receipt.id)}`,
+        }),
+      );
       if (!isCurrent()) return;
       go(studioRoutes.generation(job.id));
     });
@@ -1091,13 +1132,12 @@ function EditorBody({
                 action.pending || !canPrepare || !model.permissions.use || dirty
               }
               onClick={() =>
-                void action.run(async () => {
-                  const result = await api<{ id: string }>(
-                    `/templates/${model.id}/preview`,
-                    {
+                void action.run(async (view) => {
+                  const result = await view.wait(
+                    api<{ id: string }>(`/templates/${model.id}/preview`, {
                       method: "POST",
                       body: { expectedRevision: model.revision, data },
-                    },
+                    }),
                   );
                   setPreviewId(result.id);
                 })
@@ -1141,10 +1181,12 @@ function EditorBody({
             action.pending || !canPrepare || !model.permissions.use || dirty
           }
           onClick={() =>
-            void action.run(async () => {
-              const copy = await api<TemplateView>(
-                `/templates/${model.id}/duplicate`,
-                { method: "POST", body: {} },
+            void action.run(async (view) => {
+              const copy = await view.wait(
+                api<TemplateView>(`/templates/${model.id}/duplicate`, {
+                  method: "POST",
+                  body: {},
+                }),
               );
               go(studioRoutes.template(copy.id));
             })
@@ -1162,12 +1204,14 @@ function EditorBody({
             model.state === "archived"
           }
           onClick={() =>
-            void action.run(async () => {
+            void action.run(async (view) => {
               onSaved(
-                await api<TemplateView>(`/templates/${model.id}/archive`, {
-                  method: "POST",
-                  body: { expectedRevision: model.revision },
-                }),
+                await view.wait(
+                  api<TemplateView>(`/templates/${model.id}/archive`, {
+                    method: "POST",
+                    body: { expectedRevision: model.revision },
+                  }),
+                ),
               );
             })
           }
@@ -1180,13 +1224,17 @@ function EditorBody({
             pending={action.pending}
             dirty={dirty}
             onDelete={() =>
-              void action.run(async () => {
-                await api<{ id: string; deleted: true }>(
-                  `/templates/${model.id}`,
-                  {
+              void action.run(async (view) => {
+                await view.wait(
+                  api<{ id: string; deleted: true }>(`/templates/${model.id}`, {
                     method: "DELETE",
                     body: { expectedRevision: model.revision },
-                  },
+                  }),
+                  (receipt) => ({
+                    kind: "saved",
+                    resourceId: receipt.id,
+                    route: `/app/studio/template/${encodeURIComponent(receipt.id)}`,
+                  }),
                 );
                 deletionComplete.current = true;
                 go(studioRoutes.templates);
@@ -1315,17 +1363,19 @@ function SharingPanel({
       className="studio-section"
       onSubmit={(e) => {
         e.preventDefault();
-        void action.run(async () =>
+        void action.run(async (view) =>
           onSaved(
-            await api<TemplateView>(`/templates/${model.id}/share`, {
-              method: "POST",
-              body: {
-                expectedRevision: model.revision,
-                visibility,
-                syntheticSamplesConfirmed: confirmed,
-                grants: current,
-              },
-            }),
+            await view.wait(
+              api<TemplateView>(`/templates/${model.id}/share`, {
+                method: "POST",
+                body: {
+                  expectedRevision: model.revision,
+                  visibility,
+                  syntheticSamplesConfirmed: confirmed,
+                  grants: current,
+                },
+              }),
+            ),
           ),
         );
       }}

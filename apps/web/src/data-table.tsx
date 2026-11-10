@@ -26,6 +26,9 @@ import {
   type TableValue,
 } from "./data-table-model";
 import { scrollTable } from "./table-keyboard";
+import { useTableViewIdentity } from "./table-view-scope";
+import { tableViewStorageKey } from "./table-views";
+import { TableViewControls } from "./table-view-controls";
 import "./data-table.css";
 export { tableTimestamp } from "./data-table-model";
 
@@ -46,6 +49,8 @@ export type DataTableFilter<T> = {
   label: string;
   value: (item: T) => string;
   options: readonly { value: string; label: string }[];
+  /** Opt in only for public structural categories such as channel or state. */
+  saveValue?: boolean;
 };
 
 function labelText(node: ReactNode): string {
@@ -64,6 +69,7 @@ const NO_FILTERS: readonly never[] = [];
 
 /** Controls only the authorized rows supplied by the caller; never fetches data. */
 export function DataTable<T>({
+  viewId,
   label,
   items,
   columns,
@@ -81,6 +87,7 @@ export function DataTable<T>({
   empty,
   scope = "loaded",
 }: {
+  viewId?: string;
   label: string;
   scope?: "loaded" | "page";
   items: readonly T[];
@@ -99,6 +106,7 @@ export function DataTable<T>({
   empty?: ReactNode;
 }) {
   const id = useId();
+  const viewIdentity = useTableViewIdentity();
   useLocale();
   const locale = formatLocale();
   const [query, setQuery] = useState("");
@@ -163,6 +171,25 @@ export function DataTable<T>({
   );
   const visible = rows.slice(paging.start, paging.end);
   const active = !!query || Object.values(selectedFilters).some(Boolean);
+  const viewKey =
+    viewId && viewIdentity ? tableViewStorageKey(viewIdentity, viewId) : null;
+  const viewSchema = useMemo(
+    () => ({
+      columns: columns
+        .filter((column) => column.sortable !== false)
+        .map((column) => column.id),
+      filterValues: Object.fromEntries(
+        filters
+          .filter((filter) => filter.saveValue)
+          .map((filter) => [
+            filter.id,
+            filter.options.map((option) => option.value),
+          ]),
+      ),
+      pageSizes: [...new Set([pageSize, 10, 25, 50, 100])],
+    }),
+    [columns, filters, pageSize],
+  );
 
   function changeSort(column: string) {
     setSort((current) => ({
@@ -187,6 +214,21 @@ export function DataTable<T>({
       aria-busy={ariaBusy}
     >
       <div className="data-table__toolbar" role="group" aria-label={label}>
+        {viewKey && (
+          <TableViewControls
+            key={viewKey}
+            storageKey={viewKey}
+            schema={viewSchema}
+            value={{ sort, filters: selectedFilters, pageSize: size }}
+            onApply={(view) => {
+              setSort(view.sort);
+              setSelectedFilters(view.filters);
+              setSize(view.pageSize);
+              setQuery("");
+              setPage(0);
+            }}
+          />
+        )}
         {searchable && (
           <div className="data-table__search">
             <MagnifyingGlass size={18} aria-hidden="true" />

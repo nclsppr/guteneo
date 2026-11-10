@@ -4,6 +4,7 @@ import { formatLocale } from "./locale";
 import { useRef, useState } from "react";
 import { ArrowSquareOut, CreditCard, ShieldCheck } from "@phosphor-icons/react";
 import {
+  sessionAuthorityKey,
   canAdminister,
   api,
   date,
@@ -185,9 +186,7 @@ function BillingWorkspace({
   const invoices = useResource<Page<Invoice>>("/billing/invoices");
   const payments = useResource<Page<Payment>>("/billing/payments");
   const action = useAction();
-  const captureView = useCurrentClientView(
-    `${session.organization.id}:${session.user.id}:${session.csrfToken}:${session.user.role}`,
-  );
+  const captureView = useCurrentClientView(sessionAuthorityKey(session));
   const portalKey = useRef<string | null>(null);
   const [notice, setNotice] = useState("");
   const refresh = () => {
@@ -198,8 +197,8 @@ function BillingWorkspace({
   const data = overview.data;
   async function createCustomer() {
     const ownsView = captureView();
-    await action.run(async () => {
-      await api("/billing/customer", { method: "POST", body: {} });
+    await action.run(async (view) => {
+      await view.wait(api("/billing/customer", { method: "POST", body: {} }));
       if (!ownsView()) return;
       setNotice(
         "Your billing profile is ready. No payment has been initiated.",
@@ -209,13 +208,15 @@ function BillingWorkspace({
   }
   async function openPortal() {
     const ownsView = captureView();
-    await action.run(async () => {
+    await action.run(async (view) => {
       portalKey.current ??= crypto.randomUUID();
-      const { url } = await api<{ url: string }>("/billing/portal", {
-        method: "POST",
-        body: {},
-        key: portalKey.current,
-      });
+      const { url } = await view.wait(
+        api<{ url: string }>("/billing/portal", {
+          method: "POST",
+          body: {},
+          key: portalKey.current,
+        }),
+      );
       if (!ownsView()) return;
       portalKey.current = null;
       window.location.assign(url);
@@ -337,7 +338,7 @@ function BillingWorkspace({
               <p>{msg("No invoices recorded for this workspace.")}</p>
             ) : (
               <>
-                <DataTable
+                <DataTable viewId="invoices"
                   label={msg("Invoices")}
                   items={invoices.data.items}
                   getRowKey={(item) => item.id}
@@ -395,7 +396,7 @@ function BillingWorkspace({
                     },
                   ]}
                   filters={[
-                    {
+                    { saveValue: true,
                       id: "status",
                       label: msg("Status"),
                       value: (item) => item.status,
@@ -435,7 +436,7 @@ function BillingWorkspace({
               <p>{msg("No payments recorded for this workspace.")}</p>
             ) : (
               <>
-                <DataTable
+                <DataTable viewId="payments"
                   label={msg("Payments")}
                   items={payments.data.items}
                   getRowKey={(item) => item.id}
@@ -473,7 +474,7 @@ function BillingWorkspace({
                     },
                   ]}
                   filters={[
-                    {
+                    { saveValue: true,
                       id: "status",
                       label: msg("Status"),
                       value: (item) => item.status,
@@ -513,7 +514,7 @@ function BillingWorkspace({
             {!data.subscriptions.length ? (
               <p>{msg("No subscriptions recorded for this workspace.")}</p>
             ) : (
-              <DataTable
+              <DataTable viewId="subscriptions"
                 label={msg("Subscriptions")}
                 items={data.subscriptions}
                 getRowKey={(item) => item.id}
@@ -549,7 +550,7 @@ function BillingWorkspace({
                   },
                 ]}
                 filters={[
-                  {
+                  { saveValue: true,
                     id: "status",
                     label: msg("Status"),
                     value: (item) => item.status,

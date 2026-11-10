@@ -1,7 +1,6 @@
 /* Belvédère extends guteneo's ivory / cobalt print-room identity with a
    compact, quiet operations workspace. All rules are scoped to the console. */
 .belvedere {
-  --radius: 7px;
   --bv-paper: var(--paper);
   --bv-surface: var(--surface);
   --bv-ink: var(--ink);
@@ -478,7 +477,7 @@
 .bv-segmented button[aria-pressed="true"] {
   color: var(--bv-blue);
   background: var(--surface-raised);
-  box-shadow: 0 1px 3px #20321812;
+  box-shadow: var(--elevation-card);
 }
 .bv-chart-total {
   font-size: 15px;
@@ -718,10 +717,10 @@
   background: var(--action);
 }
 .bv-channel-color-1 {
-  background: #8a9dc8;
+  background: var(--chart-email);
 }
 .bv-channel-color-2 {
-  background: #b8c3aa;
+  background: var(--chart-postal);
 }
 .bv-channel-head,
 .bv-channel-row {

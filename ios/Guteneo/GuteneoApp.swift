@@ -18,7 +18,10 @@ struct GuteneoApp: App {
                         model.chooseWelcomeLanguage(language)
                     }
                     if ProcessInfo.processInfo.arguments.contains("--uitesting-preview") {
-                        model.activatePreview()
+                        let arguments = ProcessInfo.processInfo.arguments
+                        let index = arguments.firstIndex(of: "--uitesting-draft-storage")
+                        let draftStorageID = index.flatMap { arguments.indices.contains($0 + 1) ? arguments[$0 + 1] : nil }
+                        model.activatePreview(draftStorageID: draftStorageID)
                         return
                     }
                     if ProcessInfo.processInfo.arguments.contains("--uitesting-signed-out") {

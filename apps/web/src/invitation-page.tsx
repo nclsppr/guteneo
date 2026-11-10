@@ -51,20 +51,24 @@ export function InvitationPage() {
   }, [token]);
   async function accept() {
     if (!token || preview?.status !== "pending") return;
-    await action.run(async () => {
-      const response = await fetch("/auth/invitation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({ token }),
-      });
+    await action.run(async (view) => {
+      const response = await view.wait(
+        fetch("/auth/invitation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({ token }),
+        }),
+      );
       if (!response.ok)
         throw new Error(
           msg(
             "The invitation could not be accepted. Reopen the link you received or ask your administrator for a new invitation.",
           ),
         );
-      const result = (await response.json()) as { loginUrl?: string };
+      const result = (await view.wait(response.json())) as {
+        loginUrl?: string;
+      };
       const login = new URL(result.loginUrl ?? "", window.location.origin);
       if (
         !result.loginUrl ||

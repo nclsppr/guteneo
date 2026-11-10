@@ -1,6 +1,6 @@
 ---
 title: "Access and identity"
-description: "40 capabilities in the access branch of Guteneo."
+description: "42 capabilities in the access branch of Guteneo."
 sidebar:
   order: 1
 ---
@@ -58,4 +58,6 @@ Unified personal account and optional workspace implementation; migrations, alig
 <li id="feature-f217b1fa8d8c">Four-language Auth0 account email candidates with normalized request language and English fallback; current owned application IDs scope body, subject and sender while exact prior Liquid fields preserve other or missing clients. Offline Liquid/browser proof, remote application and real delivery remain separate; enabled flags, redirect and expiry are unchanged</li>
 <li id="feature-5c41e6d90ab0">Account deletion request and separate default-off private operator processing: a frozen reviewed plan blocks unsafe workspace closure and unresolved liabilities, revokes all authentication, verifies exact storage/identity erasure and delivered completion-notice evidence, minimizes the retained historical skeleton, and never calls a disabled profile completed deletion; no public or MCP processor authority</li>
 <li id="feature-0cbf3f0e12f7">Browser session-expiry events carry their request session revision; a stale 401 after session replacement cannot expire the current account, while current-session failures still trigger recovery</li>
+<li id="feature-a6fa87a616fa">The shared browser authority identity includes person, workspace, effective role/options, credential revision and document-policy facts, with an opaque in-memory key; A→B→A visits cannot revive obsolete requests or private cache entries</li>
+<li id="feature-b4673aeaf9e0">Account deletion explicitly purges attributed saved contacts, retires pending schedules/future grants and crypto-shreds webhook configuration under reviewed retention; accepted or uncertain provider liabilities remain genuine blockers, not a blanket ban on new feature owners</li>
 </ol>

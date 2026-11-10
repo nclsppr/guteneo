@@ -166,11 +166,13 @@ export function WorkspaceOperations() {
   const [scannerMessage, setScannerMessage] = useState("");
   async function warmScanner() {
     setScannerMessage("");
-    await scannerAction.run(async () => {
-      const response = await api<{ status: string }>("/admin/scanner/warm", {
-        method: "POST",
-        body: {},
-      });
+    await scannerAction.run(async (view) => {
+      const response = await view.wait(
+        api<{ status: string }>("/admin/scanner/warm", {
+          method: "POST",
+          body: {},
+        }),
+      );
       setScannerMessage(
         response.status === "ready"
           ? msg("PDF analysis is ready.")
@@ -199,11 +201,13 @@ export function WorkspaceOperations() {
     if (resolvingIncident.current) return;
     resolvingIncident.current = true;
     try {
-      await resolutionAction.run(async () => {
-        await api(`/admin/dead-letters/${encodeURIComponent(id)}/resolution`, {
-          method: "POST",
-          body: { confirmed: true },
-        });
+      await resolutionAction.run(async (view) => {
+        await view.wait(
+          api(`/admin/dead-letters/${encodeURIComponent(id)}/resolution`, {
+            method: "POST",
+            body: { confirmed: true },
+          }),
+        );
         diagnostics.refresh();
       });
     } finally {
@@ -211,11 +215,13 @@ export function WorkspaceOperations() {
     }
   }
   async function setChannel(channel: Channel, enabled: boolean) {
-    await controlAction.run(async () => {
-      await api(`/admin/channels/${channel}`, {
-        method: "POST",
-        body: { enabled },
-      });
+    await controlAction.run(async (view) => {
+      await view.wait(
+        api(`/admin/channels/${channel}`, {
+          method: "POST",
+          body: { enabled },
+        }),
+      );
       diagnostics.refresh();
     });
   }
@@ -320,7 +326,7 @@ export function WorkspaceOperations() {
         <h2 className="section-title">{t.admin.deadLetters}</h2>
         {!!diagnostics.data?.deadLetters?.length && <DateTimezone />}
         {diagnostics.data?.deadLetters?.length ? (
-          <DataTable
+          <DataTable viewId="dead-letters"
             label={t.admin.deadLetters}
             items={diagnostics.data.deadLetters}
             getRowKey={(receipt) => receipt.id}

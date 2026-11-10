@@ -83,6 +83,12 @@ async function fixture(
       };
     else if (path === "/capabilities")
       body = { scanner: "disabled_in_local_simulation" };
+    else if (request.method() === "GET" && path === "/attention")
+      body = {
+        items: [],
+        nextCursor: null,
+        observedAt: "2026-11-10T00:00:00.000Z",
+      };
     else if (path === "/overview")
       body = {
         documents: 0,
@@ -291,6 +297,8 @@ test("every Correspondence entry of an administrator stays in view at 1280 by 72
       "#/app/dispatches",
       "#/app/campaigns",
       "#/app/senders",
+      "#/app/recipients",
+      "#/app/schedules",
       "#/app/pdf-checks",
     ]);
   }
@@ -326,6 +334,7 @@ test("the former member address keeps Administration navigation in view at 1280 
     "#/app/administration/members",
     "#/app/administration/connections",
     "#/app/administration/audit",
+    "#/app/administration/webhooks",
     "#/app/administration/billing",
     "#/app/administration/settings",
   ]);

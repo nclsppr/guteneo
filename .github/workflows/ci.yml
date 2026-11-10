@@ -83,7 +83,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
-          name: ci-evidence-runtime-dependencies
+          name: ci-evidence-runtime-dependencies-attempt-${{ github.run_attempt }}
           path: test-results/ci/environments/runtime-dependencies.json
           if-no-files-found: error
           retention-days: 14
@@ -113,7 +113,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
-          name: ci-evidence-runtime-pdf-validator
+          name: ci-evidence-runtime-pdf-validator-attempt-${{ github.run_attempt }}
           path: test-results/ci/environments/runtime-pdf-validator.json
           if-no-files-found: error
           retention-days: 14
@@ -154,7 +154,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always() && needs.qualification.outputs.reused != 'true'
         with:
-          name: ci-evidence-runtime-scanner
+          name: ci-evidence-runtime-scanner-attempt-${{ github.run_attempt }}
           path: test-results/ci/environments/runtime-scanner.json
           if-no-files-found: error
           retention-days: 14
@@ -215,7 +215,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
-          name: ci-evidence-checks
+          name: ci-evidence-checks-attempt-${{ github.run_attempt }}
           path: |
             test-results/ci/environments/runtime-checks.json
             reports/cost-model.json
@@ -271,14 +271,14 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
-          name: ci-vitest-${{ matrix.shard }}
+          name: ci-vitest-${{ matrix.shard }}-attempt-${{ github.run_attempt }}
           path: test-results/ci/blobs/${{ matrix.shard }}.json
           if-no-files-found: error
           retention-days: 14
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
-          name: ci-evidence-vitest-${{ matrix.shard }}
+          name: ci-evidence-vitest-${{ matrix.shard }}-attempt-${{ github.run_attempt }}
           path: |
             test-results/ci/environments/runtime-vitest-${{ matrix.shard }}.json
             test-results/ci/vitest-${{ matrix.shard }}.json
@@ -330,14 +330,14 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
-          name: ci-vitest-renderer
+          name: ci-vitest-renderer-attempt-${{ github.run_attempt }}
           path: test-results/ci/blobs/renderer.json
           if-no-files-found: error
           retention-days: 14
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
-          name: ci-evidence-security
+          name: ci-evidence-security-attempt-${{ github.run_attempt }}
           path: |
             test-results/ci/environments/runtime-security.json
             test-results/ci/vitest-renderer.json
@@ -386,7 +386,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
-          name: ci-evidence-runtime-build
+          name: ci-evidence-runtime-build-attempt-${{ github.run_attempt }}
           path: test-results/ci/environments/runtime-build.json
           if-no-files-found: error
           retention-days: 14
@@ -394,7 +394,7 @@ jobs:
         run: node scripts/ci/build-artifact.mjs pack test-results/ci/build-artifact
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: guteneo-browser-builds-${{ github.sha }}
+          name: guteneo-browser-builds-${{ github.sha }}-attempt-${{ github.run_attempt }}
           # Already-compressed media stays uncompressed; identical output bytes
           # share one verified object, then reconstruct both ordinary products.
           compression-level: 0
@@ -500,7 +500,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
-          name: ci-evidence-browser-${{ matrix.project }}-${{ matrix.shardIndex }}
+          name: ci-evidence-browser-${{ matrix.project }}-${{ matrix.shardIndex }}-attempt-${{ github.run_attempt }}
           path: |
             test-results/ci/environments/runtime-browser-${{ matrix.project }}-${{ matrix.shardIndex }}.json
             test-results/ci/browser/${{ matrix.project }}/shard-${{ matrix.shardIndex }}/
@@ -510,7 +510,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
-          name: ci-debug-browser-${{ matrix.project }}-${{ matrix.shardIndex }}
+          name: ci-debug-browser-${{ matrix.project }}-${{ matrix.shardIndex }}-attempt-${{ github.run_attempt }}
           path: |
             test-results/application/
             test-results/preview/
@@ -562,7 +562,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
-          name: ci-evidence-engineering
+          name: ci-evidence-engineering-attempt-${{ github.run_attempt }}
           path: |
             test-results/ci/environments/runtime-engineering.json
             test-results/engineering/
@@ -689,7 +689,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always() && steps.distribution-privacy.outputs.verified == 'true'
         with:
-          name: ci-evidence-distribution-${{ matrix.authentication }}
+          name: ci-evidence-distribution-${{ matrix.authentication }}-attempt-${{ github.run_attempt }}
           path: |
             test-results/ci/environments/runtime-distribution-${{ matrix.authentication }}.json
             test-results/distribution-e2e/
@@ -750,6 +750,9 @@ jobs:
             /apps/web/public/openapi.json
             /apps/api/src/
             /packages/
+            /docs/releases/
+            /docs/evidence/*.png
+            /ios/QA/Screenshots/*.png
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: "24"
@@ -809,15 +812,21 @@ jobs:
             test-results/ci/verified.json
           if-no-files-found: error
           retention-days: 2
+      - name: Render portable test evidence and require version release notes
+        if: success()
+        run: node scripts/ci/release-evidence.mjs test-results/ci/verified.json test-results/ci/release-evidence
+        env:
+          REUSE_PROOF_B64: ${{ needs.qualification.outputs.proof_b64 }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
-          name: guteneo-verification
+          name: guteneo-verification-attempt-${{ github.run_attempt }}
           path: |
             reports/vitest.json
             test-results/ci/verified.json
             test-results/ci/browser-verified.json
             test-results/ci/proof.json
             test-results/ci/artifact-selection-verify.json
+            test-results/ci/release-evidence/
           if-no-files-found: error
           retention-days: 14

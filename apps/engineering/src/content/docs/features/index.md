@@ -7,7 +7,7 @@ sidebar:
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->
 
-**28 domains · 469 capabilities · 46 journeys · 78 REST operations · 83 MCP tools.**
+**28 domains · 503 capabilities · 55 journeys · 96 REST operations · 92 MCP tools.**
 
 Follow a branch to find its behavior, access boundary and engineering guide. Use the site search to find a specific capability.
 
@@ -15,9 +15,9 @@ This is an implementation inventory, not a live availability dashboard. Current 
 
 ## Access
 
-- [Access and identity](/features/identity/) — 40 capabilities
-- [Team and responsibilities](/features/team/) — 10 capabilities
-- [Workspace administration and reports](/features/administration/) — 14 capabilities
+- [Access and identity](/features/identity/) — 42 capabilities
+- [Team and responsibilities](/features/team/) — 12 capabilities
+- [Workspace administration and reports](/features/administration/) — 18 capabilities
 
 ## Create
 
@@ -36,22 +36,22 @@ This is an implementation inventory, not a live availability dashboard. Current 
 
 ## Operate
 
-- [Campaigns and tracking](/features/campaigns/) — 9 capabilities
+- [Campaigns and tracking](/features/campaigns/) — 15 capabilities
 - [Credits and billing](/features/billing/) — 10 capabilities
-- [Workspace layout and browser appearance](/features/dashboard/) — 37 capabilities
+- [Workspace layout and browser appearance](/features/dashboard/) — 49 capabilities
 - [PDF verification](/features/pdf-verification/) — 10 capabilities
 
 ## Interfaces
 
-- [Assistants and API](/features/assistants/) — 31 capabilities
-- [iPhone and iPad](/features/native/) — 10 capabilities
-- [Public pages, languages and appearance](/features/public/) — 24 capabilities
+- [Assistants and API](/features/assistants/) — 33 capabilities
+- [iPhone and iPad](/features/native/) — 12 capabilities
+- [Public pages, languages and appearance](/features/public/) — 25 capabilities
 
 ## Operations
 
 - [Reviewer OAuth qualification](/features/reviewer-oauth/) — 9 capabilities
-- [Operations and reliability](/features/operations/) — 32 capabilities
-- [Belvédère platform oversight](/features/belvedere/) — 14 capabilities
+- [Operations and reliability](/features/operations/) — 33 capabilities
+- [Belvédère platform oversight](/features/belvedere/) — 16 capabilities
 - [Public service status](/features/status/) — 16 capabilities
 - [Engineering documentation](/features/engineering-docs/) — 13 capabilities
 - [Codex Cloud development](/features/cloud-development/) — 8 capabilities

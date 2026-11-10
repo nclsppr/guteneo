@@ -50,6 +50,43 @@ provider transactional email is separate; this decision activates no business se
 
 ## Publication gates and sequence
 
+### Version anchor, readable notes and portable test proof
+
+Every production application version has an authored
+`docs/releases/<package-version>.md` beginning with `# Guteneo <version>` (an
+em-dash title may follow). Describe visible changes, controlled capabilities,
+validation and remaining limits in ordinary language. A commit list is not a
+release explanation. The CI verifier requires the matching note and generates
+the [portable test report](CI.md#portable-release-test-evidence).
+
+After exact-current-main CI succeeds, an authorized operator creates the remote
+`v<package-version>` tag on that exact main commit and its GitHub Release. Do not
+move an existing version tag to a newer commit: choose a new synchronized version.
+Mark the release as a candidate until the separate served verification succeeds.
+The live publisher's `verifyReleaseTag` guard queries the remote tag directly
+before building and again immediately before deployment; it accepts lightweight
+or annotated tags only when their resolved commit is the checked clean main.
+Missing, stale, malformed or unreachable tags, mismatched note versions and a
+different manifest version stop publication. Local cached tags cannot satisfy it.
+The preview application retains its separate contract.
+
+Download the successful exact-source verification artifact, preserve its run and
+attempt provenance, and attach `test-proof.html` and `test-proof.json` to the
+GitHub Release. Link the HTML asset directly as **Download test proof (HTML)**;
+it opens offline with its selected screenshots embedded and does not require an
+Actions login or a local report server. Standalone synthetic PNGs may also be
+attached and shown inline. The GitHub Release body uses the authored note and
+links to those actual uploaded assets; an Actions artifact URL alone is not the
+reader-facing proof. Upload is an authorized release operation, never a side
+effect of the read-only checks workflow.
+
+After publication, attach the separate sanitized served-verification receipt and
+update the release's deployment status. Preserve the tested synthetic merge SHA,
+reviewed head and any identical-tree reuse provenance; do not relabel a prior PR
+execution as a main test rerun. Test proof, tag creation and production receipt
+establish separate facts. Provider readiness, marketplace publication and real
+delivery remain separately qualified.
+
 An MCP change must include the updated ChatGPT plugin and downloadable archive in
 the same release. Follow the [MCP/plugin synchronization contract](LLM_SETUP.md#mandatory-mcp-plugin-and-archive-synchronization)
 before review and CI. Package builders reject a stale source/package record and

@@ -21,12 +21,14 @@ export function AdministrationSettings({
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSaved(false);
-    await action.run(async () => {
-      await api("/account", {
-        method: "PATCH",
-        body: { organizationName: name },
-      });
-      await onUpdated();
+    await action.run(async (view) => {
+      await view.wait(
+        api("/account", {
+          method: "PATCH",
+          body: { organizationName: name },
+        }),
+      );
+      await view.wait(onUpdated());
       setSaved(true);
     });
   }

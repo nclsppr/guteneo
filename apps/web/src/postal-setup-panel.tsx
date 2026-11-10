@@ -122,11 +122,17 @@ function PostalSetupForm({
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (action.pending || !authorized) return;
-    await action.run(async () => {
-      const next = await api<PostalSetup>("/postal/setup", {
-        method: "POST",
-        body: { name: name.trim(), address: address.trim(), authorized: true },
-      });
+    await action.run(async (view) => {
+      const next = await view.wait(
+        api<PostalSetup>("/postal/setup", {
+          method: "POST",
+          body: {
+            name: name.trim(),
+            address: address.trim(),
+            authorized: true,
+          },
+        }),
+      );
       setAuthorized(false);
       onSaved(next);
     });

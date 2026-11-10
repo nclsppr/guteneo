@@ -53,10 +53,10 @@
   z-index: -2;
   background: var(--stamp-paper);
   mask-image:
-    radial-gradient(circle at 6px 0, transparent 3px, #000 3.5px),
-    radial-gradient(circle at 6px 100%, transparent 3px, #000 3.5px),
-    radial-gradient(circle at 0 6px, transparent 3px, #000 3.5px),
-    radial-gradient(circle at 100% 6px, transparent 3px, #000 3.5px);
+    radial-gradient(circle at 6px 0, transparent 3px, var(--mask-opaque) 3.5px),
+    radial-gradient(circle at 6px 100%, transparent 3px, var(--mask-opaque) 3.5px),
+    radial-gradient(circle at 0 6px, transparent 3px, var(--mask-opaque) 3.5px),
+    radial-gradient(circle at 100% 6px, transparent 3px, var(--mask-opaque) 3.5px);
   mask-size:
     12px 100%,
     12px 100%,

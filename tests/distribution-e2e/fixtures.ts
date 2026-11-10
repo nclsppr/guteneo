@@ -113,6 +113,11 @@ export async function loginWorkshop(
   await expect(
     screen.getByText("Aucun fax, e-mail ou courrier réel", { exact: false }),
   ).toBeVisible();
+  // The same simulation notice is already visible on the sign-in screen.
+  // Await the authenticated view before another app.open can abandon sign-in.
+  await expect(
+    screen.getByRole("heading", "Votre correspondance, au clair."),
+  ).toBeVisible();
 }
 
 export async function uploadSyntheticPdf(

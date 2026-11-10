@@ -1,5 +1,61 @@
 # Workspace roles and permissions
 
+## Lifecycle features — 9 November 2026 candidate
+
+These features reuse the four membership roles. Current authenticated membership,
+independent supervisor options, source access and credential authority remain
+server decisions. A visible command, local receipt or saved preference grants no
+permission. Read the [schedule contract](SCHEDULED_DISPATCHES.md),
+[callback contract](CUSTOMER_WEBHOOKS.md) and
+[web application contract](WEB_APPLICATIONS.md) with this matrix.
+
+| Action | Administrator | Supervisor | Operator | Observer | Connected assistant |
+| --- | --- | --- | --- | --- | --- |
+| Read saved destinations | Current preparation rights | Current preparation rights | Current preparation rights | No | `dispatches:read` and current preparer/connection authority |
+| Save, update or delete a destination | Current preparation rights | Same | Same | No | `dispatches:prepare`; stable create key, exact revision for update/delete |
+| Prepare a schedule | Current preparation and source rights | Same | Same | No | `dispatches:prepare`; draft only, no future consent |
+| List/read a schedule | Current source rights | Approvers; otherwise own preparations | Own preparations | No | `dispatches:read` and the same creator/approver visibility |
+| Approve future spending | Actual current browser session | Actual current browser and approval option | No | No | No, including under an expert mandate |
+| Cancel an unaccepted schedule | Current authority and exact revision | Only its preparer or recorded approver | Only its preparer | No | `dispatches:send` plus the same current preparer/approver/admin rule |
+| Configure callbacks or reveal/rotate their secrets | Actual current browser, Origin/CSRF and exact revision | No | No | No | No OAuth/MCP/native configuration authority |
+| Read attention metadata | Browser and current resource rights | Same | Same | Current operational visibility only | No attention MCP/native surface |
+| Use commands, outcome tray or saved views | Browser; current navigation/data rights | Same | Same | Same | No new business authority or tool |
+| Save/resume a native composer draft | Own native person/workspace | Same | Same | No composer permission | No access to device-local drafts |
+
+Saving a recipient is not a recipient-request attestation. Editing or deleting
+the address book does not alter frozen dispatch recipients or existing approvals.
+Even contact reads require preparation rights, so ordinary operational reading
+does not become an address-book export.
+
+A schedule draft holds immediate approval and acceptance of its original. Source
+detail can project that hold's identifier, status, time and cap after the existing
+source authorization; it grants no broader schedule-list or source access.
+Ordinary cancellation also refuses a held original and cannot stand in for
+revocation through the separate schedule operation, even if its raw status is
+already cancelled.
+`future_browser` approval is a separate immutable record from ordinary browser
+review and expert delegation. It binds one exact fax or message-only email,
+time/window and integer cap; the approver may differ from the preparer. No client
+can extend it: changed terms require a new draft and explicit browser review.
+Release must fit a fresh quote and current actors/source/provider/funds. Current
+membership changes permanently invalidate pending grants; restoring the role
+does not restore consent. Unknown outcomes never authorize a new release.
+
+Callback grants are separate administrator-owned workspace configuration. Logout
+does not expire them, but loss/removal of the configuring administrator or a
+production-mode exit permanently pauses their revision. Restoring the role/mode
+requires explicit current browser enablement. Runtime activation, encryption and
+strictly-public network gates remain independent of workspace role.
+
+Browser saved views retain only bounded presentation options in a person,
+workspace, area and table partition; outcomes are transient confirmed receipt
+metadata. Native drafts use a separate device-only seven-day Keychain vault.
+Neither storage mechanism retains server authority or bypasses fresh review.
+Account deletion purges eligible contacts, retires future grants and callback
+secrets under its reviewed plan, while unresolved provider liabilities remain
+blockers. These are local implementation contracts, not production activation,
+real callback/send or physical-device qualification.
+
 ## Unified account and sensitive distribution — 26 October 2026 candidate
 
 A Guteneo account may belong to no workspace. Receiving a document and acquiring

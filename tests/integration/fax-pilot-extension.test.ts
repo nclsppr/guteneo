@@ -109,8 +109,15 @@ beforeAll(async () => {
     "historical-live-quote",
   );
   oldDispatchId = dispatch.id;
-  await old.domain.approveDispatch(old.ctx, dispatch.id, dispatch.fingerprint);
-  await old.domain.confirmDispatch(old.ctx, dispatch.id, "historical-hold");
+  // Populate the historical schema through its own approval/acceptance guards.
+  // Current runtime approval requires later lifecycle tables and belongs only
+  // after all migrations below; historical dates never extend live authority.
+  await db.batch([
+    db.prepare("INSERT INTO approvals(id,organization_id,dispatch_id,user_id,fingerprint,expires_at,created_at,approval_kind) VALUES(?,?,?,?,?,?,?,'browser')")
+      .bind(crypto.randomUUID(), old.ctx.organizationId, dispatch.id, old.ctx.userId, dispatch.fingerprint, new Date(Date.parse(dispatch.created_at)+60_000).toISOString(), dispatch.created_at),
+    db.prepare("UPDATE dispatches SET status='queued',updated_at=? WHERE organization_id=? AND id=? AND status='prepared'")
+      .bind(dispatch.created_at, old.ctx.organizationId, dispatch.id),
+  ]);
 
   // A retained review quote can legitimately reference a subsequently revoked
   // authority. Restoring rows must not re-run the new-insertion authority guard.

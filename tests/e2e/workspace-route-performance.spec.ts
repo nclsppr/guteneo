@@ -332,12 +332,18 @@ test("an obsolete route import never replaces the destination selected afterward
     await route.continue();
   });
   try {
-    await page.goto("/#/app/account");
+    // The account code is intentionally held. Wait for the document/shell,
+    // rather than the load event that can include that deferred code request.
+    await page.goto("/#/app/account", { waitUntil: "domcontentloaded" });
     await expect.poll(() => requested).toBe(true);
-    const menu = page.locator(".workspace-navigation summary");
-    if (await menu.isVisible()) await menu.click();
     await expect(page.locator(accountMenu)).toBeVisible();
-    await page.locator('.sidebar nav a[href="#/app/documents"]').click();
+    const documents = page.locator('.sidebar nav a[href="#/app/documents"]');
+    // Prefetch starts before the shell mounts. Read the real destination's
+    // visibility only after shell readiness, then open native details if needed.
+    if (!(await documents.isVisible()))
+      await page.locator(".workspace-navigation summary").click();
+    await expect(documents).toBeVisible();
+    await documents.click();
     await expect(page.locator(".workspace main h1")).toBeVisible();
     const heading = await page.locator(".workspace main h1").textContent();
     releaseCode();

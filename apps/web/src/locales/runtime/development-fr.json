@@ -1,0 +1,18 @@
+{
+  "Local simulation": "Simulation locale",
+  "Demo account": "Compte de démonstration",
+  "Data volume": "Volume de données",
+  "Seed": "Graine",
+  "Apply scenario": "Appliquer le scénario",
+  "New random data": "Nouvelles données aléatoires",
+  "Interactive default": "Par défaut · interactif",
+  "Small": "Petit",
+  "Large": "Important",
+  "Huge": "Très important",
+  "Extreme": "Extrême",
+  "up to {0}": "jusqu’à {0}",
+  "Generated volumes are virtual and read-only, with up to 50 rows per page; the default scenario stays interactive.": "Les volumes générés sont virtuels et en lecture seule, avec au plus 50 lignes par page ; le scénario par défaut reste interactif.",
+  "Scenario records": "Données du scénario",
+  "Datasets": "Jeux de données",
+  "The local scenario could not be applied. Try again.": "Impossible d’appliquer le scénario local. Réessayez."
+}

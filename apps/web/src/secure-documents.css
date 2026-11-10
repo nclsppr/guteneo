@@ -221,7 +221,7 @@
   display: block;
   width: 100%;
   height: auto;
-  background: #fff;
+  background: var(--document-paper);
 }
 .secure-document-page figcaption {
   text-align: center;
@@ -390,7 +390,6 @@
   align-items: start;
 }
 .personal-space-v2 {
-  --radius: 7px;
   display: grid;
   grid-template-columns: 258px minmax(0, 1fr);
   grid-template-rows: 1fr auto;
@@ -790,7 +789,8 @@
 }
 
 @media (max-width: 1024px) and (max-height: 640px) {
-  .personal-space-v2 .workspace-identity-menu {
+  /* Keep the viewport clamp stronger than the shared downward-opening rule. */
+  .personal-space-v2 .sidebar-account .workspace-identity-menu {
     position: fixed;
     inset: 16px 16px auto;
     width: auto;

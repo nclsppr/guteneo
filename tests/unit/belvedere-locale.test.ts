@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import ts from "typescript";
 import { bmsg, belvedereMessages } from "../../apps/web/src/belvedere-i18n";
 import { formatLocale, setLocale } from "../../apps/web/src/locale";
@@ -30,11 +30,9 @@ describe("Belvédère account-language interface", () => {
         );
       }
     }
-    for (const file of [
-      "belvedere.tsx",
-      "belvedere-globe.tsx",
-      "belvedere-data.ts",
-    ]) {
+    for (const file of readdirSync(
+      new URL("../../apps/web/src/", import.meta.url),
+    ).filter((file) => /^belvedere(?:-.*)?\.(?:tsx|ts)$/.test(file))) {
       const text = readFileSync(
         new URL(`../../apps/web/src/${file}`, import.meta.url),
         "utf8",

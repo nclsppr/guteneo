@@ -1,7 +1,19 @@
 {
   "$comment": "Ownership of every web source file. Read docs/WEB_APPLICATIONS.md. Checked by scripts/check-applications.mjs (npm run lint).",
   "root": "apps/web/src",
-  "designSystem": ["theme.css", "styles.css", "fonts.css", "dashboard-v2.css"],
+  "designSystem": [
+    "theme.css",
+    "styles.css",
+    "fonts.css",
+    "dashboard-v2.css",
+    "styles-foundation.css",
+    "styles-workspace.css",
+    "styles-documents.css",
+    "styles-operations.css",
+    "styles-responsive.css",
+    "styles-public.css",
+    "styles-adaptations.css"
+  ],
   "shellSelectors": [
     "sidebar",
     "sidebar-context",
@@ -97,7 +109,32 @@
         "document-invitation.ts",
         "postal-cutoff.ts",
         "route-code-recovery.ts",
-        "table-keyboard.ts"
+        "table-keyboard.ts",
+        "client-action.ts",
+        "client-navigation.ts",
+        "client-polling.ts",
+        "client-resources.ts",
+        "action-outcomes.ts",
+        "action-outcome-tray.tsx",
+        "command-palette.tsx",
+        "workspace-tools.css",
+        "table-views.ts",
+        "table-view-scope.tsx",
+        "table-view-controls.tsx",
+        "locale-data.ts",
+        "locale-data-server.ts",
+        "message-catalogs-source.ts",
+        "client-session-bootstrap.ts",
+        "styles-foundation.css",
+        "styles-workspace.css",
+        "styles-documents.css",
+        "styles-operations.css",
+        "styles-responsive.css",
+        "styles-public.css",
+        "styles-adaptations.css",
+        "lifecycle-pages.css",
+        "distribution-roadmap.tsx",
+        "client-authority-refusal.ts"
       ]
     },
     "public": {
@@ -180,7 +217,18 @@
         "assistant-workspace.tsx",
         "assistant-state.ts",
         "distribution-pages.tsx",
-        "distribution-pages.css"
+        "distribution-pages.css",
+        "workspace-attention.tsx",
+        "recipient-pages.tsx",
+        "schedule-pages.tsx",
+        "saved-recipient-picker.tsx",
+        "schedule-eligibility.ts",
+        "overview-page.tsx",
+        "documents-page.tsx",
+        "prepare-dispatch-page.tsx",
+        "dispatch-list-page.tsx",
+        "dispatch-detail-page.tsx",
+        "document-followup.tsx"
       ]
     },
     "personal": {
@@ -205,7 +253,17 @@
         "belvedere-globe.css",
         "belvedere-globe-data.json",
         "belvedere-data.ts",
-        "belvedere-i18n.ts"
+        "belvedere-i18n.ts",
+        "belvedere-view-loader.ts",
+        "belvedere-view-components.tsx",
+        "belvedere-summary-components.tsx",
+        "belvedere-overview.tsx",
+        "belvedere-workshops.tsx",
+        "belvedere-members.tsx",
+        "belvedere-connections.tsx",
+        "belvedere-finance.tsx",
+        "belvedere-infrastructure.tsx",
+        "belvedere-jobs.tsx"
       ]
     },
     "administration": {
@@ -222,59 +280,11 @@
         "team-invitations.tsx",
         "invitation-csv.ts",
         "usage-activity.tsx",
-        "usage-activity.css"
+        "usage-activity.css",
+        "customer-webhooks-page.tsx"
       ]
     }
   },
   "importExceptions": [],
-  "designExceptions": [
-    {
-      "file": "assistant-guides.css",
-      "rule": "raw-color",
-      "count": 1,
-      "reason": "Opaque mask stops for the perforated stamp edge, not a visible color."
-    },
-    {
-      "file": "homepage-film.css",
-      "rule": "raw-color",
-      "count": 2,
-      "reason": "The film frame keeps the film's own backdrop and controls in both themes."
-    },
-    {
-      "file": "secure-documents.css",
-      "rule": "raw-color",
-      "count": 1,
-      "reason": "Rendered document pages stay white paper in both themes."
-    },
-    {
-      "file": "language-select.css",
-      "rule": "raw-color",
-      "count": 1,
-      "reason": "Menu shadow softer than the --shadow token; align when a menu-shadow token exists."
-    },
-    {
-      "file": "belvedere.css",
-      "rule": "raw-color",
-      "count": 3,
-      "reason": "Two channel series colors and a card shadow; to become data-visualization tokens."
-    },
-    {
-      "file": "belvedere-globe.css",
-      "rule": "raw-color",
-      "count": 1,
-      "reason": "Globe control shadow; to become a shared elevation token."
-    },
-    {
-      "file": "belvedere.css",
-      "rule": "token-override",
-      "count": 1,
-      "reason": "Belvédère renders outside the V2 frame and sets the V2 radius itself; removed when it mounts in the shared frame."
-    },
-    {
-      "file": "secure-documents.css",
-      "rule": "token-override",
-      "count": 1,
-      "reason": "The protected reader renders outside the V2 frame and sets the V2 radius itself."
-    }
-  ]
+  "designExceptions": []
 }

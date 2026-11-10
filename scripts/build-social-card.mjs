@@ -13,7 +13,7 @@ const cards = JSON.parse(
 );
 let html = await readFile(source, "utf8");
 const siteStyles = await readFile(
-  join(root, "apps/web/src/styles.css"),
+  join(root, "apps/web/src/theme.css"),
   "utf8",
 );
 const inkHex = siteStyles.match(/--ink:\s*#([a-f0-9]{6})\s*;/i)?.[1];

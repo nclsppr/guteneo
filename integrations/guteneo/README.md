@@ -18,7 +18,7 @@ separate format checks, installation, OAuth and actual host qualification.
 ## Features and access
 
 The package combines the Guteneo MCP connection with `get-started`, `email`,
-`fax-pdf`, `postal-pdf`, `document-studio`, `pdf-accessibility` and `secure-distribution`. Available actions
+`fax-pdf`, `postal-pdf`, `document-studio`, `pdf-accessibility` and `secure-distribution`, `saved-recipients` and `scheduled-dispatch`. Available actions
 depend on the connected server, account permissions, activated channels/services
 and actual host capabilities. Installation grants no mandate and proves neither
 end-to-end qualification, OpenAI approval nor directory publication. Installation
@@ -255,3 +255,7 @@ refresh connection activity after a successful production call; this access
 metadata creates no business operation. Annotations grant no scope, membership,
 mandate or purchase authority. Mutations, uploads and delegated sends retain
 their explicit effects and existing confirmation requirements.
+
+## Saved recipients and future spending
+
+Nine new tools read and maintain authorized workspace contacts or prepare, read and cancel schedules. Creating a schedule holds its original immediate acceptance path. Fixed-cap future approval remains a separate authenticated human browser action; neither an expert mandate nor a host confirmation replaces it. Scheduling supports ordinary fax and message-only email only. Read the `saved-recipients` and `scheduled-dispatch` skills when requested. Customer webhook configuration and secrets remain browser-administrator controls. This package activates neither automatic release nor callbacks and makes no new host or marketplace qualification claim.
