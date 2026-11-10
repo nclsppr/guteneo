@@ -219,7 +219,11 @@ export function PersonalDocumentReader({
                   >
                     {textMode ? msg("Show pages") : msg("Show accessible text")}
                   </button>
-                  <span>{msg("{0} page(s)", document.pages.length)}</span>
+                  <span>
+                    {document.pages.length === 1
+                      ? msg("1 page")
+                      : msg("{0} pages", document.pages.length)}
+                  </span>
                   <div className="secure-document-actions">
                     {document.allowOriginalDownload && (
                       <ConfirmAction
