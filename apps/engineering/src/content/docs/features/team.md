@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Authenticated browser session.
 
-Implemented; invitations require separately configured delivery. The 10 November 2026 approval request (POST /api/dispatches/:id/request-approval, migration 0078 index, dispatch page control) is a local source candidate covered by the workspace-role integration test; it requires CI, application-browser and publication evidence and is not exposed to assistants, the public REST contract or the native applications.
+Implemented; invitations require separately configured delivery. The 10 November 2026 approval request (POST /api/dispatches/:id/request-approval, migration 0078 index, dispatch page control) is a local source candidate covered by the workspace-role integration test; it requires CI, application-browser and publication evidence. Only a human browser session receives the approvalRequest field of the dispatch detail; REST OAuth, assistant and native responses are unchanged.
 
 **Surfaces:** Authenticated browser; invitation emails are authored in English.
 

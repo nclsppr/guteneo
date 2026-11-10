@@ -2022,6 +2022,9 @@ export class DomainService {
   }
   async getDispatch(ctx: ActorContext, id: string) {
     const dispatch = await this.dispatch(ctx, id);
+    // Who asked for approval is shown to people in the workspace; REST,
+    // assistant and native clients keep the detail they had before.
+    const showRequest = ctx.actor === "browser";
     const [events, attempts, approval, approvalRequest] = await Promise.all([
       this.db
         .prepare(
@@ -2045,7 +2048,7 @@ export class DomainService {
           expires_at: string;
           approval_kind: "browser" | "expert";
         }>(),
-      this.approvalRequest(ctx, id, dispatch.fingerprint),
+      showRequest ? this.approvalRequest(ctx, id, dispatch.fingerprint) : null,
     ]);
     return {
       dispatch,
@@ -2053,7 +2056,7 @@ export class DomainService {
       attempts: attempts.results,
       approval,
       // A request is not an approval and cannot create consent.
-      approvalRequest,
+      ...(showRequest ? { approvalRequest } : {}),
     };
   }
   async listDispatches(

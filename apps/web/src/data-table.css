@@ -407,30 +407,3 @@
   position: relative;
   z-index: 1;
 }
-
-/* A document row leads with its first page. */
-.data-table__cell-value:has(> .document-thumbnail) {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.document-thumbnail {
-  position: relative;
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 62px;
-  border: 1px solid var(--line);
-  background: var(--paper);
-  color: var(--muted);
-  overflow: hidden;
-}
-.document-thumbnail > img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top;
-}

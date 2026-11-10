@@ -971,10 +971,11 @@ financial consent, communication or deployment.
   pagination. A row with a link opens from anywhere on the row. The dispatch
   list no longer repeats its status groups as a filter.
 - **Files.** Every file field is a drop zone with a drag state; the native input
-  still performs selection and validation. A ready PDF in the documents list
-  shows its first page, read through the guarded viewer loader once its row is
-  on screen and shown as an image; a failure leaves the glyph and reports
-  nothing.
+  still performs selection and validation. The documents list keeps its glyph:
+  a first-page thumbnail drawn in the browser would read the whole PDF and
+  record a `document.viewed` audit entry for every row shown, so a thumbnail
+  needs a miniature produced and stored by the server with the document's own
+  access and retention rules.
 - **Type.** Application text uses 12, 14, 16 and 20 px; see
   [WEB_APPLICATIONS.md](WEB_APPLICATIONS.md).
 - **Errors.** The error code moves under a folded "Details" row.
@@ -983,5 +984,4 @@ financial consent, communication or deployment.
 
 Evidence is recorded with the change: unit, security, preview-browser and
 application-browser suites, plus the automated accessibility check described in
-the testing guide. Thumbnails add one document read per visible ready row; the
-measured cost belongs in [FRONTEND_PERFORMANCE.md](FRONTEND_PERFORMANCE.md).
+the testing guide.

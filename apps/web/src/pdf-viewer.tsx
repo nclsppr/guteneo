@@ -48,28 +48,6 @@ async function preflightImageDimensions(bytes: Uint8Array) {
   }
 }
 
-/** The one guarded way to open exact PDF bytes, for the viewer and thumbnails. */
-export async function openGuardedPdf(
-  bytes: Uint8Array,
-): Promise<PDFDocumentLoadingTask> {
-  await preflightImageDimensions(bytes);
-  return getDocument({
-    data: bytes,
-    enableXfa: false,
-    useWorkerFetch: false,
-    useWasm: false,
-    useSystemFonts: true,
-    stopAtErrors: true,
-    // A second resource bound, in addition to the explicit metadata check.
-    // 16 MP accommodates an A4 scan at 300 dpi (roughly 8.7 MP).
-    maxImageSize: MAX_IMAGE_PIXELS,
-    disableAutoFetch: true,
-    disableRange: true,
-    disableStream: true,
-    isOffscreenCanvasSupported: false,
-  });
-}
-
 export default function PdfViewer({
   id,
   dispatchId,
@@ -112,12 +90,23 @@ export default function PdfViewer({
     setRendering(true);
     void (async () => {
       const bytes = await getDocumentContent(id, controller.signal, dispatchId);
-      const opened = await openGuardedPdf(bytes);
-      if (closed) {
-        void opened.destroy();
-        return;
-      }
-      loading = opened;
+      await preflightImageDimensions(bytes);
+      if (closed) return;
+      loading = getDocument({
+        data: bytes,
+        enableXfa: false,
+        useWorkerFetch: false,
+        useWasm: false,
+        useSystemFonts: true,
+        stopAtErrors: true,
+        // A second resource bound, in addition to the explicit metadata check.
+        // 16 MP accommodates an A4 scan at 300 dpi (roughly 8.7 MP).
+        maxImageSize: MAX_IMAGE_PIXELS,
+        disableAutoFetch: true,
+        disableRange: true,
+        disableStream: true,
+        isOffscreenCanvasSupported: false,
+      });
       const pdf = await loading.promise;
       if (!closed) setDocument(pdf);
     })().catch((failure: unknown) => {

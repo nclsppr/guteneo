@@ -105,7 +105,6 @@ import {
   DateTimezone,
   Definition,
   DispatchTable,
-  DocumentThumbnail,
   EmailPreview,
   EmptyState,
   ErrorNotice,
@@ -777,21 +776,12 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
               value: (item) => item.name,
               searchValue: (item) => `${item.name} ${item.id}`,
               render: (item) => (
-                <>
-                  <DocumentThumbnail
-                    id={item.id}
-                    ready={
-                      (selected?.id === item.id ? selected : item).status ===
-                      "ready"
-                    }
-                  />
-                  <button
-                    className="row-link text-button"
-                    onClick={(event) => openDocument(item, event.currentTarget)}
-                  >
-                    {item.name}
-                  </button>
-                </>
+                <button
+                  className="row-link text-button"
+                  onClick={(event) => openDocument(item, event.currentTarget)}
+                >
+                  {item.name}
+                </button>
               ),
             },
             {

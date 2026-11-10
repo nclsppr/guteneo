@@ -1,8 +1,8 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**28 domains · 477 features · 47 journeys · 78 documented REST operations · 83 MCP tools**
-Updated 2026-11-10.
+**28 domains · 476 features · 47 journeys · 78 documented REST operations · 83 MCP tools**
+Updated 2026-11-11.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
 
@@ -18,7 +18,7 @@ mindmap
       Team and responsibilities (11)
       Workspace administration and reports (14)
     Create
-      Documents and protection (23)
+      Documents and protection (22)
       Template studio (15)
       Data and mappings (12)
       PDF generation and distribution (17)
@@ -57,7 +57,7 @@ mindmap
 
 ### Create
 
-- [Documents and protection](#documents) — 23 features; capability-gated.
+- [Documents and protection](#documents) — 22 features; capability-gated.
 - [Template studio](#templates) — 15 features; capability-gated.
 - [Data and mappings](#datasets) — 12 features; capability-gated.
 - [PDF generation and distribution](#generation) — 17 features; capability-gated.
@@ -228,7 +228,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="team"></a>
 ### Team and responsibilities
 
-**Availability model:** browser-session. Implemented; invitations require separately configured delivery. The 10 November 2026 approval request (POST /api/dispatches/:id/request-approval, migration 0078 index, dispatch page control) is a local source candidate covered by the workspace-role integration test; it requires CI, application-browser and publication evidence and is not exposed to assistants, the public REST contract or the native applications.
+**Availability model:** browser-session. Implemented; invitations require separately configured delivery. The 10 November 2026 approval request (POST /api/dispatches/:id/request-approval, migration 0078 index, dispatch page control) is a local source candidate covered by the workspace-role integration test; it requires CI, application-browser and publication evidence. Only a human browser session receives the approvalRequest field of the dispatch detail; REST OAuth, assistant and native responses are unchanged.
 
 **Surfaces:** Authenticated browser; invitation emails are authored in English.
 
@@ -279,7 +279,6 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - MCP_DOCUMENT_UPLOAD_APP is off by default: strict existing-connection/revision JSON supports at most one hour of qualification, while explicit enabled mode supports a separately reviewed general production rollout after actual qualification and authorized delivery; both retain current writer/OAuth guards, observer denial and no browser fetch, Origin/network permission, new scope, approval, paid check, mandate or infrastructure
 - Bounded document-analysis reads and PDF canvas/text extraction overlap; both renderer tasks settle before completion or cleanup, with stale-response and sensitive-source fences retained
 - Typed private/MCP upload receipt and lease decisions preserve the same operation through uncertain results; final completion requires the exact nonpurged document in SQL, closing purge-between-read-and-write races
-- First-page thumbnail of a ready PDF in the documents list, read through the guarded viewer loader and drawn only once its row is on screen; nothing is kept after unmount
 
 **Contract:** [SCANNER_RESCAN.md](SCANNER_RESCAN.md) · **Implementation:** [apps/api/src/documents.ts](../apps/api/src/documents.ts)
 
@@ -900,7 +899,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="dashboard"></a>
 ### Workspace layout and browser appearance
 
-**Availability model:** browser-session. The 29 October 2026 Studio space, the application/workspace switchers and the four-application ownership check are a local source candidate requiring CI and publication evidence. The 29 October 2026 Classic retirement is a local source candidate requiring CI and publication evidence: every account sees V2, and the stored preference stays accepted without changing the web layout. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority. The shared outlined personal-context navigation refinement is a local source candidate requiring its own rendered and publication evidence. The 29 October compact V2 navigation and account-menu refinement is a local source candidate requiring CI and publication evidence. The 30 October shared operational-table refinement is locally qualified with synthetic model/browser checks and measured loading recorded in docs/FRONTEND_PERFORMANCE.md; hosted CI and publication remain separate. The 10 November 2026 Overview queue, page titles named after their menu entry, per-page browser tab titles, the unknown-address notice, the 12 px text floor with the four-step text scale, compact short tables, whole-row links, dispatch progress steps, drop-zone file fields and on-demand first-page thumbnails are a local source candidate requiring CI and publication evidence; they change no authority, tenant scope or API.
+**Availability model:** browser-session. The 29 October 2026 Studio space, the application/workspace switchers and the four-application ownership check are a local source candidate requiring CI and publication evidence. The 29 October 2026 Classic retirement is a local source candidate requiring CI and publication evidence: every account sees V2, and the stored preference stays accepted without changing the web layout. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority. The shared outlined personal-context navigation refinement is a local source candidate requiring its own rendered and publication evidence. The 29 October compact V2 navigation and account-menu refinement is a local source candidate requiring CI and publication evidence. The 30 October shared operational-table refinement is locally qualified with synthetic model/browser checks and measured loading recorded in docs/FRONTEND_PERFORMANCE.md; hosted CI and publication remain separate. The 10 November 2026 Overview queue, page titles named after their menu entry, per-page browser tab titles, the unknown-address notice, the 12 px text floor with the four-step text scale, compact short tables, whole-row links, dispatch progress steps, and drop-zone file fields are a local source candidate requiring CI and publication evidence; they change no authority, tenant scope or API.
 
 **Surfaces:** Authenticated web V2 only; native reads the stored preference without a setter; no new business API/MCP authority.
 
