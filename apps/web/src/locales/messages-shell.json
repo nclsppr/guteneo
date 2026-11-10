@@ -478,5 +478,15 @@
     "Zurück zur Übersicht",
     "Zréck op d’Iwwersiicht"
   ],
-  "Détails": ["Details", "Details", "Detailer"]
+  "Détails": ["Details", "Details", "Detailer"],
+  "Aller à une page": [
+    "Go to a page",
+    "Zu einer Seite gehen",
+    "Op eng Säit goen"
+  ],
+  "Aucune page correspondante": [
+    "No matching page",
+    "Keine passende Seite",
+    "Keng passend Säit"
+  ]
 }

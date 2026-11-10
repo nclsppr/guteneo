@@ -1,6 +1,7 @@
 import {
   Children,
   isValidElement,
+  useEffect,
   useId,
   useMemo,
   useState,
@@ -80,8 +81,11 @@ export function DataTable<T>({
   getRowClassName,
   empty,
   scope = "loaded",
+  view,
 }: {
   label: string;
+  /** Stable name under which this browser remembers sort and page size. */
+  view?: string;
   scope?: "loaded" | "page";
   items: readonly T[];
   columns: readonly DataTableColumn<T>[];
@@ -105,9 +109,13 @@ export function DataTable<T>({
   const [selectedFilters, setSelectedFilters] = useState<
     Record<string, string>
   >({});
-  const [sort, setSort] = useState<TableSort | null>(null);
+  const [saved] = useState(() => readSavedView(view));
+  const [sort, setSort] = useState<TableSort | null>(saved?.sort ?? null);
   const [requestedPage, setPage] = useState(0);
-  const [size, setSize] = useState(pageSize);
+  const [size, setSize] = useState(saved?.size ?? pageSize);
+  useEffect(() => {
+    if (view) writeSavedView(view, { sort, size });
+  }, [view, sort, size]);
   const sortable = columns.filter((column) => column.sortable !== false);
   const rows = useMemo(() => {
     const words = normalizeTableSearch(query.trim())
@@ -471,4 +479,43 @@ export function DataTable<T>({
       </div>
     </div>
   );
+}
+
+// A saved view keeps presentation only (sort and page size). Search text and
+// filters are not kept: text can name a recipient, and a remembered filter
+// would hide rows without saying so.
+type SavedView = { sort: TableSort | null; size?: number };
+const savedViewKey = (view: string) => `guteneo.table.${view}`;
+function readSavedView(view?: string): SavedView | undefined {
+  if (!view) return undefined;
+  try {
+    const value: unknown = JSON.parse(
+      window.localStorage.getItem(savedViewKey(view)) ?? "null",
+    );
+    if (!value || typeof value !== "object") return undefined;
+    const { sort, size } = value as Partial<SavedView>;
+    const validSort =
+      sort &&
+      typeof sort.column === "string" &&
+      (sort.direction === "asc" || sort.direction === "desc")
+        ? { column: sort.column, direction: sort.direction }
+        : null;
+    return {
+      sort: validSort,
+      // An unknown size falls back to the table's own default.
+      size:
+        typeof size === "number" && [10, 25, 50].includes(size)
+          ? size
+          : undefined,
+    };
+  } catch {
+    return undefined;
+  }
+}
+function writeSavedView(view: string, value: SavedView) {
+  try {
+    window.localStorage.setItem(savedViewKey(view), JSON.stringify(value));
+  } catch {
+    // Storage can be unavailable; the table then starts from its defaults.
+  }
 }

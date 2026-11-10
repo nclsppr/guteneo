@@ -734,6 +734,7 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
       ) : resource.data?.items.length ? (
         <DataTable
           label={t.nav.documents}
+          view="documents"
           items={resource.data.items}
           getRowKey={(item) => item.id}
           filters={[

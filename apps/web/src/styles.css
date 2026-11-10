@@ -3541,3 +3541,53 @@ ol {
 .overview-queue {
   margin-bottom: 32px;
 }
+
+/* Command palette (Ctrl or ⌘ + K): the current application's pages. */
+.command-palette {
+  width: min(520px, calc(100vw - 32px));
+  margin: 12vh auto auto;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+.command-palette::backdrop {
+  background: rgb(0 0 0 / 0.35);
+}
+.command-palette > input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--control-line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+}
+.command-palette > ul {
+  max-height: 50vh;
+  margin: 8px 0 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+.command-palette > ul > li {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+.command-palette > ul > li[aria-selected="true"] {
+  background: var(--blue-tint);
+  color: var(--blue-ink);
+}
+.command-palette-empty {
+  margin: 8px 12px;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}

@@ -680,6 +680,7 @@ export function DispatchTable({
       <DateTimezone />
       <DataTable
         label={t.nav.dispatches}
+        view="dispatches"
         items={items}
         getRowKey={(item) => item.id}
         filters={[

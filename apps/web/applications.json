@@ -37,6 +37,7 @@
         "appearance-preferences.tsx",
         "brand.tsx",
         "components.tsx",
+        "command-palette.tsx",
         "client-write-recovery.ts",
         "data-table.tsx",
         "data-table-model.ts",

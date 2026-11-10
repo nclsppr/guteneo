@@ -86,6 +86,7 @@ import {
 import { WorkspaceIdentity } from "./workspace-identity";
 import { WorkspaceRouteBoundary } from "./workspace-route-boundary";
 import { RolePermissionNotice } from "./role-guide";
+import { CommandPalette } from "./command-palette";
 import { InvitationPage } from "./invitation-page";
 import { LegalPage } from "./legal-page";
 import { InformationPage, getInformationPages } from "./information-page";
@@ -1089,6 +1090,28 @@ function WorkspaceApplication({
         </div>
       </aside>
       <div className="workspace-main">
+        <CommandPalette
+          items={[
+            ...(space === "workshop" && permissions.prepareDispatches
+              ? [{ label: t.dispatch.new, path: "/app/prepare" }]
+              : []),
+            ...navigation
+              .filter(
+                (entry) =>
+                  !publicPreview ||
+                  ![
+                    "secure-distributions",
+                    "templates",
+                    "datasets",
+                    "generations",
+                  ].includes(entry.id),
+              )
+              .map((entry) => ({
+                label: navigationLabel(entry.id),
+                path: entry.path,
+              })),
+          ]}
+        />
         {session.simulation && (
           <div className="simulation-banner" role="note">
             <span className="simulation-stamp">{t.simulation}</span>
