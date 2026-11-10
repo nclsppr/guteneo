@@ -601,23 +601,6 @@ export function EmptyState({
   );
 }
 
-/** The one disclosure row: label, chevron and a full-width hit area. */
-export function Disclosure({
-  label,
-  children,
-  className = "",
-}: {
-  label: ReactNode;
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <details className={`disclosure ${className}`.trim()}>
-      <summary>{label}</summary>
-      {children}
-    </details>
-  );
-}
 function dispatchStatusText(status: string, channel?: Channel) {
   let text = t.statuses[status] ?? status;
   if (status === "delivered" && channel === "email")

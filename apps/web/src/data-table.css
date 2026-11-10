@@ -388,22 +388,10 @@
   display: none;
 }
 
-/* The whole row opens its item; other controls in the row stay reachable. */
+/* The whole row opens its item (see openRowFromPointer). */
 .data-table__grid tbody tr:has(.row-link) {
-  position: relative;
+  cursor: pointer;
 }
 .data-table__grid tbody tr:has(.row-link):hover {
   background: var(--surface);
-}
-.data-table__cell-value .row-link::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-}
-.data-table__grid
-  tbody
-  tr:has(.row-link)
-  :is(button, select, input, summary, a):not(.row-link) {
-  position: relative;
-  z-index: 1;
 }

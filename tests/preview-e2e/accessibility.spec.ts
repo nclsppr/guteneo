@@ -3,7 +3,8 @@ import { test, expect } from "@playwright/test";
 
 // Accessibility is checked, not assumed: the automated WCAG 2 A/AA rules run
 // on the main Correspondence pages in every language and both themes. A
-// critical violation fails the suite; lower impacts are reviewed by hand.
+// critical or serious violation fails the suite; lower impacts are reviewed
+// by hand.
 const pages = [
   "/#/app",
   "/#/app/dispatches",
@@ -14,7 +15,7 @@ const pages = [
 
 for (const locale of ["fr", "en", "de", "lb"] as const)
   for (const scheme of ["light", "dark"] as const)
-    test(`workspace pages have no critical accessibility violation (${locale}, ${scheme})`, async ({
+    test(`workspace pages have no serious accessibility violation (${locale}, ${scheme})`, async ({
       page,
     }) => {
       await page.emulateMedia({ colorScheme: scheme });
@@ -22,7 +23,7 @@ for (const locale of ["fr", "en", "de", "lb"] as const)
         (value) => localStorage.setItem("guteneo.locale", value),
         locale,
       );
-      const critical: string[] = [];
+      const found: string[] = [];
       for (const path of pages) {
         await page.goto(path);
         await expect(page.locator("main h1")).toBeVisible();
@@ -30,8 +31,9 @@ for (const locale of ["fr", "en", "de", "lb"] as const)
           .withTags(["wcag2a", "wcag2aa"])
           .analyze();
         for (const violation of results.violations)
-          if (violation.impact === "critical")
-            critical.push(`${path} ${violation.id}`);
+          if (violation.impact === "critical" || violation.impact === "serious")
+            for (const node of violation.nodes)
+              found.push(`${path} ${violation.id} ${node.target.join(" ")}`);
       }
-      expect(critical).toEqual([]);
+      expect(found).toEqual([]);
     });

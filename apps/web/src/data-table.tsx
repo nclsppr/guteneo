@@ -6,6 +6,7 @@ import {
   useMemo,
   useState,
   type Key,
+  type MouseEvent,
   type ReactNode,
 } from "react";
 import {
@@ -364,6 +365,7 @@ export function DataTable<T>({
                 role="row"
                 key={getRowKey(item)}
                 className={getRowClassName?.(item)}
+                onClick={openRowFromPointer}
               >
                 {columns.map((column, index) => {
                   const rowHeader = column.rowHeader ?? index === 0;
@@ -518,4 +520,18 @@ function writeSavedView(view: string, value: SavedView) {
   } catch {
     // Storage can be unavailable; the table then starts from its defaults.
   }
+}
+
+/**
+ * A pointer click anywhere on a row opens it through the row's own link.
+ * Keyboard and assistive technologies keep using that link directly; a click
+ * on another control, or one that ends a text selection, does nothing here,
+ * so a recipient or a reference can still be selected and copied.
+ */
+function openRowFromPointer(event: MouseEvent<HTMLTableRowElement>) {
+  const target = event.target as HTMLElement;
+  if (target.closest("a, button, input, select, textarea, summary, label"))
+    return;
+  if (window.getSelection()?.toString()) return;
+  event.currentTarget.querySelector<HTMLElement>(".row-link")?.click();
 }
