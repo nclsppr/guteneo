@@ -291,9 +291,18 @@ export function Overview({ session }: { session: Session }) {
       <DispatchTable items={queue} />
     </section>
   );
-  const assistantStart = permissions.prepareDispatches && !dailyOverview && (
-    <OverviewAssistantStart key="assistant" session={session} />
-  );
+  const assistantStart =
+    permissions.prepareDispatches &&
+    (dailyOverview ? (
+      <div className="dashboard-daily-shortcuts" key="assistant">
+        <a className="text-link" href="#/app/connection">
+          {msg("View my connections")}
+          <ArrowRight size={17} aria-hidden="true" />
+        </a>
+      </div>
+    ) : (
+      <OverviewAssistantStart key="assistant" session={session} />
+    ));
   const studioLinks = !isPublicPreview && permissions.prepareDispatches && (
     <nav
       key="studio"
@@ -339,7 +348,10 @@ export function Overview({ session }: { session: Session }) {
       {dispatches.loading && !dispatches.data ? (
         <Loading />
       ) : dispatches.data?.items.length ? (
-        <DispatchTable items={dispatches.data.items.slice(0, 6)} />
+        <DispatchTable
+          items={dispatches.data.items.slice(0, 6)}
+          className="overview-recent"
+        />
       ) : (
         <EmptyState
           title={t.overview.emptyTitle}

@@ -967,13 +967,14 @@ financial consent, communication or deployment.
   hidden while empty. An uncertain outcome says that a workspace administrator
   checks it in Administration and that nothing is resent automatically. A role
   that cannot approve reads who can.
-- **Tables.** A loaded table under ten rows hides search, filters and
+- **Tables.** A loaded table under five rows hides search, filters and
   pagination. A row with a link opens from anywhere on the row. The dispatch
   list no longer repeats its status groups as a filter.
 - **Files.** Every file field is a drop zone with a drag state; the native input
   still performs selection and validation. A ready PDF in the documents list
   shows its first page, read through the guarded viewer loader once its row is
-  on screen; a failure leaves the glyph and reports nothing.
+  on screen and shown as an image; a failure leaves the glyph and reports
+  nothing.
 - **Type.** Application text uses 12, 14, 16 and 20 px; see
   [WEB_APPLICATIONS.md](WEB_APPLICATIONS.md).
 - **Errors.** The error code moves under a folded "Details" row.

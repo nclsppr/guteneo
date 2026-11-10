@@ -54,7 +54,7 @@ test("V2 prioritizes existing correspondence and puts readable content before co
 }) => {
   const requests = observeBusinessRequests(page);
   await page.goto("/#/app");
-  const history = page.locator("#main-content table").first();
+  const history = page.locator("#main-content .overview-recent table");
   await expect(history.locator("tbody tr")).toHaveCount(5);
   await expect(page.locator(".dashboard-daily-shortcuts")).toBeVisible();
   await expect(page.locator(".assistant-welcome")).toHaveCount(0);

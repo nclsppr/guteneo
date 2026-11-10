@@ -73,6 +73,9 @@ export function PublicHomepage() {
 
         <section
           className="public-home-route"
+          // Older links to the three steps land on their one remaining telling.
+          id="how"
+          tabIndex={-1}
           aria-label={msg("Document dispatch workflow")}
         >
           <div className="public-home-document">

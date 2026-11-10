@@ -666,8 +666,10 @@ export function DispatchTable({
   items,
   emptyAction,
   statusFilter = true,
+  className,
 }: {
   items: Dispatch[];
+  className?: string;
   /** False where the page already filters by status group. */
   statusFilter?: boolean;
   /** The next step when the list is empty. */
@@ -681,6 +683,7 @@ export function DispatchTable({
       <DataTable
         label={t.nav.dispatches}
         view="dispatches"
+        className={className}
         items={items}
         getRowKey={(item) => item.id}
         filters={[

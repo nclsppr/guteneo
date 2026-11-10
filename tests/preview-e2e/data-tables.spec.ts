@@ -20,7 +20,8 @@ async function expectNoPageOverflow(page: Page) {
 }
 
 function history(page: Page) {
-  return page.locator("#main-content .data-table").first();
+  // The queue of dispatches needing attention can precede the history.
+  return page.locator("#main-content .data-table.overview-recent");
 }
 
 function rowValues(table: Locator, column: string) {
@@ -153,14 +154,14 @@ test("desktop header sorting and phone sorting use the same chronological order"
   });
   await created.getByRole("button").click();
   await expect(created).toHaveAttribute("aria-sort", "ascending");
-  await expect(rowValues(table, "recipient").first()).toContainText(
-    "preview_atelier_dispatch_5",
-  );
+  await expect(
+    rowValues(table, "recipient").first().locator("a"),
+  ).toHaveAttribute("href", /preview_atelier_dispatch_5$/);
   await created.getByRole("button").click();
   await expect(created).toHaveAttribute("aria-sort", "descending");
-  await expect(rowValues(table, "recipient").first()).toContainText(
-    "preview_atelier_dispatch_1",
-  );
+  await expect(
+    rowValues(table, "recipient").first().locator("a"),
+  ).toHaveAttribute("href", /preview_atelier_dispatch_1$/);
   await page.setViewportSize({ width: 390, height: 844 });
   const sort = table.getByRole("combobox", {
     name: "Sort by column",
@@ -173,9 +174,9 @@ test("desktop header sorting and phone sorting use the same chronological order"
     .getByRole("button", { name: "Sort ascending", exact: true })
     .click();
   await expect(created).toHaveAttribute("aria-sort", "ascending");
-  await expect(rowValues(table, "recipient").first()).toContainText(
-    "preview_atelier_dispatch_5",
-  );
+  await expect(
+    rowValues(table, "recipient").first().locator("a"),
+  ).toHaveAttribute("href", /preview_atelier_dispatch_5$/);
   await sort.selectOption("recipient");
   await expect(table.locator('thead [aria-sort="ascending"]')).toContainText(
     "Recipient",
