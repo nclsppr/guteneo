@@ -659,8 +659,11 @@ export function RefreshButton({
 export function DispatchTable({
   items,
   emptyAction,
+  statusFilter = true,
 }: {
   items: Dispatch[];
+  /** False where the page already filters by status group. */
+  statusFilter?: boolean;
   /** The next step when the list is empty. */
   emptyAction?: ReactNode;
 }) {
@@ -682,14 +685,18 @@ export function DispatchTable({
               (value) => ({ value, label: t.channels[value] ?? value }),
             ),
           },
-          {
-            id: "status",
-            label: t.status,
-            value: (item) => item.status,
-            options: [...new Set(items.map((item) => item.status))].map(
-              (value) => ({ value, label: t.statuses[value] ?? value }),
-            ),
-          },
+          ...(statusFilter
+            ? [
+                {
+                  id: "status",
+                  label: t.status,
+                  value: (item: Dispatch) => item.status,
+                  options: [...new Set(items.map((item) => item.status))].map(
+                    (value) => ({ value, label: t.statuses[value] ?? value }),
+                  ),
+                },
+              ]
+            : []),
         ]}
         columns={[
           {
@@ -700,7 +707,6 @@ export function DispatchTable({
             render: (item) => (
               <a className="row-link" href={`#/app/dispatch/${item.id}`}>
                 {recipientLabel(item) || item.id}
-                <span className="reference mono">{item.id}</span>
               </a>
             ),
           },

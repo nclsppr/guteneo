@@ -184,6 +184,8 @@ export function DataTable<T>({
     <div
       className={`data-table ${className}`}
       data-layout={layout}
+      // A short loaded list needs no search, filters or pagination.
+      data-compact={scope === "loaded" && items.length < 10 ? "" : undefined}
       aria-busy={ariaBusy}
     >
       <div className="data-table__toolbar" role="group" aria-label={label}>

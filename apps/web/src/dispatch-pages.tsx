@@ -1793,6 +1793,7 @@ function DispatchListResults({
         ) : (
           <DispatchTable
             items={resource.data.items}
+            statusFilter={false}
             emptyAction={
               canPrepare && (
                 <div className="button-group">

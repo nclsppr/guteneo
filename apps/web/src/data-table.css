@@ -382,3 +382,28 @@
     grid-column: 1 / -1;
   }
 }
+
+/* Short lists show their rows only. */
+.data-table[data-compact] > :is(.data-table__toolbar, .data-table__footer) {
+  display: none;
+}
+
+/* The whole row opens its item; other controls in the row stay reachable. */
+.data-table__grid tbody tr:has(.row-link) {
+  position: relative;
+}
+.data-table__grid tbody tr:has(.row-link):hover {
+  background: var(--surface);
+}
+.data-table__cell-value .row-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.data-table__grid
+  tbody
+  tr:has(.row-link)
+  :is(button, select, input, summary, a:not(.row-link)) {
+  position: relative;
+  z-index: 1;
+}
