@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**28 domains · 520 features · 57 journeys · 97 documented REST operations · 92 MCP tools**
+**28 domains · 519 features · 57 journeys · 97 documented REST operations · 92 MCP tools**
 Updated 2026-11-10.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -18,7 +18,7 @@ mindmap
       Team and responsibilities (13)
       Workspace administration and reports (20)
     Create
-      Documents and protection (23)
+      Documents and protection (22)
       Template studio (16)
       Data and mappings (12)
       PDF generation and distribution (17)
@@ -57,7 +57,7 @@ mindmap
 
 ### Create
 
-- [Documents and protection](#documents) — 23 features; capability-gated.
+- [Documents and protection](#documents) — 22 features; capability-gated.
 - [Template studio](#templates) — 16 features; capability-gated.
 - [Data and mappings](#datasets) — 12 features; capability-gated.
 - [PDF generation and distribution](#generation) — 17 features; capability-gated.
@@ -296,7 +296,6 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - MCP_DOCUMENT_UPLOAD_APP is off by default: strict existing-connection/revision JSON supports at most one hour of qualification, while explicit enabled mode supports a separately reviewed general production rollout after actual qualification and authorized delivery; both retain current writer/OAuth guards, observer denial and no browser fetch, Origin/network permission, new scope, approval, paid check, mandate or infrastructure
 - Bounded document-analysis reads and PDF canvas/text extraction overlap; both renderer tasks settle before completion or cleanup, with stale-response and sensitive-source fences retained
 - Typed private/MCP upload receipt and lease decisions preserve the same operation through uncertain results; final completion requires the exact nonpurged document in SQL, closing purge-between-read-and-write races
-- First-page thumbnail of a ready PDF in the documents list, read through the guarded viewer loader and drawn only once its row is on screen; nothing is kept after unmount
 
 **Contract:** [SCANNER_RESCAN.md](SCANNER_RESCAN.md) · **Implementation:** [apps/api/src/documents.ts](../apps/api/src/documents.ts)
 
@@ -951,7 +950,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="dashboard"></a>
 ### Workspace layout and browser appearance
 
-**Availability model:** browser-session. Current source uses the single V2 layout across five independently owned applications with zero import/design exceptions. The 9 November lifecycle candidate adds outcomes, full-dataset attention, navigation and bounded presentation presets, shared continuation/identity/navigation/poll/cache foundations, active-locale loading and three module splits. Exact-source tests, rendered accessibility, transfer and first-content evidence belong in LIFECYCLE_EXPERIENCE_EXECUTION.md and FRONTEND_PERFORMANCE.md; implementation alone establishes no hosted publication or physical-device qualification. The 10 November clarity candidate adds functional page titles, per-page browser titles, unknown-address recovery, a 12 px text floor with a four-step text scale, compact short tables, whole-row links, dispatch progress, file drop zones and on-demand first-page thumbnails; these presentation changes require exact-source test and publication evidence. The remaining B1 dirty-navigation source now uses localized exact-intent dialogs; B2 implements one explicit fixed UTC policy across the five browser apps without changing financial history or advertising an account timezone setter. Ordinary public Studio exposes a separately isolated read-only design fixture. These are implemented source contracts, not a claim of successful final CI, hosted publication or physical-device qualification.
+**Availability model:** browser-session. Current source uses the single V2 layout across five independently owned applications with zero import/design exceptions. The 9 November lifecycle candidate adds outcomes, full-dataset attention, navigation and bounded presentation presets, shared continuation/identity/navigation/poll/cache foundations, active-locale loading and three module splits. Exact-source tests, rendered accessibility, transfer and first-content evidence belong in LIFECYCLE_EXPERIENCE_EXECUTION.md and FRONTEND_PERFORMANCE.md; implementation alone establishes no hosted publication or physical-device qualification. The 10 November clarity candidate adds functional page titles, per-page browser titles, unknown-address recovery, a 12 px text floor with a four-step text scale, compact short tables, whole-row links, dispatch progress, file drop zones and withdrawn browser-drawn document thumbnails; these presentation changes require exact-source test and publication evidence. The remaining B1 dirty-navigation source now uses localized exact-intent dialogs; B2 implements one explicit fixed UTC policy across the five browser apps without changing financial history or advertising an account timezone setter. Ordinary public Studio exposes a separately isolated read-only design fixture. These are implemented source contracts, not a claim of successful final CI, hosted publication or physical-device qualification.
 
 **Surfaces:** Shared authenticated browser frame and application-owned lazy modules. Attention uses a new browser-only metadata read; outcomes, navigation commands and saved presentation presets grant no business authority. Native local drafts and backend contact/schedule/callback surfaces are documented separately.
 

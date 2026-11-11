@@ -171,6 +171,14 @@ booleans, OAuth scopes, instructions and host confirmations are unchanged. Local
 archive validation grants no activation, host qualification, marketplace
 submission or production publication.
 
+### Browser-only approval request detail — 11 November 2026
+
+Candidate 1.2.4 synchronizes the package versions after the shared domain module
+stopped returning `approvalRequest` (the requester's name and time) outside
+human browser sessions. REST OAuth, assistant and native dispatch details no
+longer carry it. The catalogue, schemas, annotation booleans, OAuth scopes,
+instructions and host confirmations are unchanged.
+
 ### Preventive maintenance source synchronization — 7 November 2026
 
 Candidate 1.1.32 synchronizes the application and portable/Claude/Cursor package

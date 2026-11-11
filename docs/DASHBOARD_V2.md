@@ -970,10 +970,13 @@ financial consent, communication or deployment.
   pagination. A row with a link opens from anywhere on the row. The dispatch
   list no longer repeats its status groups as a filter.
 - **Files.** Every file field is a drop zone with a drag state; the native input
-  still performs selection and validation. A ready PDF in the documents list
-  shows its first page, read through the guarded viewer loader once its row is
-  on screen and shown as an image; a failure leaves the glyph and reports
-  nothing.
+  still performs selection and validation. The documents list keeps its glyph:
+  a first-page thumbnail drawn in the browser read every visible PDF in full and
+  recorded a `document.viewed` audit entry per row, so it was withdrawn on
+  11 November 2026; a document thumbnail needs a miniature produced and stored
+  by the server under the document's own access and retention rules. Template
+  thumbnails are unaffected: they render the template model locally and read no
+  stored document.
 - **Type.** Application text uses 12, 14, 16 and 20 px; see
   [WEB_APPLICATIONS.md](WEB_APPLICATIONS.md).
 - **Errors.** The error code moves under a folded "Details" row.

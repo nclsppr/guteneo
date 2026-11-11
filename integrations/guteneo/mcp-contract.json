@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "pluginVersion": "1.2.3",
-  "mcpSourceSha256": "5bf0d10c155149e8bb567e766d51af5a57672dbca2eefaeb7a9e6ceca21800e9",
-  "packageSha256": "cd226f48dcb23b5f98386d79fbae0dce5fb6e531eed03de0941d9f1eb702580e",
+  "pluginVersion": "1.2.4",
+  "mcpSourceSha256": "c8a56026e43c124775a99d1b8de367a07eff6f907b3d3915d8d3c404dc13d188",
+  "packageSha256": "80da98f6da8cba29d3ab4d968a04ea6ca3655cd2b88204fb3fb9fd6b3e9f1721",
   "sources": {
     "apps/api/src/auth.ts": "ed445a4c666d89dd3a73200adf591143e1455f86df56049977f4485932d7aa52",
     "apps/api/src/connection-observations.ts": "40278b9fab339e05949a04c2d2718348236e9362e944f95a4d2a3466c186fa24",
@@ -41,7 +41,7 @@
     "packages/contracts/src/saved-recipients.ts": "a2b17fc4caefdad82668c2bf043964d2af302336c75a3e69bef9ec58f5b741af",
     "packages/contracts/src/secure-distribution.ts": "5393fb5c0813c8346a0def96e0c0016d931d3bcb22407fac86b7d92ed5f4e64e",
     "packages/contracts/src/template-workflow.ts": "5a2c345b307bd33b583b8ccca81daac167025980fa0baf5090b1e4957d6aed7a",
-    "packages/domain/src/index.ts": "c9de6bc8dfe36a4675a86e441b2507cdfc78814af66f9f555beae37bcc3dbb21",
+    "packages/domain/src/index.ts": "92d3ef86030f10c1c55d95af33600e2f28b9e0eb271f92dd15a4e28db7bc098d",
     "packages/observability/src/index.ts": "eb78d263cbe05d4f1e6a43391f43d6b1bf5fd7412466940035f97aed1cb65301"
   }
 }

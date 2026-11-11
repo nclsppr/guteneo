@@ -278,6 +278,11 @@ describe("workspace roles on current D1 membership", () => {
     const detail = await domain.getDispatch(admin.context, dispatch.id);
     expect(detail.approvalRequest).toEqual(first);
     expect(detail.approval).toBeNull();
+    // The requester's name stays in the browser workspace.
+    for (const actor of ["mcp", "native"] as const)
+      expect(
+        await domain.getDispatch({ ...admin.context, actor }, dispatch.id),
+      ).not.toHaveProperty("approvalRequest");
     await expect(
       domain.requestDispatchApproval(observer.context, dispatch.id),
     ).rejects.toMatchObject({ code: "FORBIDDEN" });

@@ -1023,45 +1023,6 @@ export function DispatchTable({
   );
 }
 const LazyPdfViewer = lazy(() => import("./pdf-viewer"));
-const LazyPdfThumbnail = lazy(() => import("./pdf-thumbnail"));
-
-/** First page of a ready PDF, read and drawn only once its row is on screen. */
-export function DocumentThumbnail({
-  id,
-  ready,
-}: {
-  id: string;
-  ready: boolean;
-}) {
-  const frame = useRef<HTMLSpanElement>(null);
-  const [seen, setSeen] = useState(false);
-  useEffect(() => {
-    if (!ready || seen || !frame.current) return;
-    if (!("IntersectionObserver" in window)) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          setSeen(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "120px" },
-    );
-    observer.observe(frame.current);
-    return () => observer.disconnect();
-  }, [ready, seen]);
-  return (
-    <span className="document-thumbnail" ref={frame} aria-hidden="true">
-      <FilePdf size={20} weight="light" />
-      {seen && (
-        <Suspense fallback={null}>
-          <LazyPdfThumbnail id={id} />
-        </Suspense>
-      )}
-    </span>
-  );
-}
-
 export function PdfPreview({
   id,
   title = t.preview,
