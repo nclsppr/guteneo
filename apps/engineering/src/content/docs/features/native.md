@@ -1,6 +1,6 @@
 ---
 title: "iPhone and iPad"
-description: "10 capabilities in the interfaces branch of Guteneo."
+description: "11 capabilities in the interfaces branch of Guteneo."
 sidebar:
   order: 16
 ---
@@ -28,4 +28,5 @@ Native candidate; physical-device, signing and distribution qualification remain
 <li id="feature-c830e7574c6e">Read preferredDashboardAppearance in account/session without a native setting/PATCH</li>
 <li id="feature-edfe469d3ddd">Swift opens canonical /auth/mobile/authorize; the server selects the configured browser domain and preserves mobile PKCE return, distinct from the native callback</li>
 <li id="feature-0bbfbd10c46b">Native dispatch preparation owns one immutable submitted draft and stable retry key, locks authoring while pending and rejects duplicate begin; terminal preparation never grants browser send approval</li>
+<li id="feature-086a156e01ed">Durable native draft: the iPhone and iPad composer keeps its unprepared draft and request key on the device per workspace member (file-protected, excluded from backups, removed when prepared, discarded or at sign-out); a draft interrupted while preparing reopens with a notice and the same idempotency key, so retrying never creates a second dispatch</li>
 </ol>

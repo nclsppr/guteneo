@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**28 domains · 477 features · 48 journeys · 78 documented REST operations · 83 MCP tools**
+**28 domains · 478 features · 48 journeys · 78 documented REST operations · 83 MCP tools**
 Updated 2026-11-11.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -35,7 +35,7 @@ mindmap
       PDF verification (10)
     Interfaces
       Assistants and API (31)
-      iPhone and iPad (10)
+      iPhone and iPad (11)
       Public pages, languages and appearance (24)
     Operations
       Reviewer OAuth qualification (9)
@@ -80,7 +80,7 @@ mindmap
 ### Interfaces
 
 - [Assistants and API](#assistants) — 31 features; host-qualified.
-- [iPhone and iPad](#native) — 10 features; local-candidate.
+- [iPhone and iPad](#native) — 11 features; local-candidate.
 - [Public pages, languages and appearance](#public) — 24 features; public.
 
 ### Operations
@@ -853,6 +853,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Read preferredDashboardAppearance in account/session without a native setting/PATCH
 - Swift opens canonical /auth/mobile/authorize; the server selects the configured browser domain and preserves mobile PKCE return, distinct from the native callback
 - Native dispatch preparation owns one immutable submitted draft and stable retry key, locks authoring while pending and rejects duplicate begin; terminal preparation never grants browser send approval
+- Durable native draft: the iPhone and iPad composer keeps its unprepared draft and request key on the device per workspace member (file-protected, excluded from backups, removed when prepared, discarded or at sign-out); a draft interrupted while preparing reopens with a notice and the same idempotency key, so retrying never creates a second dispatch
 
 **Contract:** [IOS_API.md](IOS_API.md) · **Implementation:** [apps/api/src/mobile.ts](../apps/api/src/mobile.ts)
 

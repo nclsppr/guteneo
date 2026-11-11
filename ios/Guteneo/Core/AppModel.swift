@@ -106,6 +106,8 @@ final class AppModel {
         defer { workingCount -= 1 }
         auth.cancel()
         sessionGeneration += 1
+        // Drafts hold recipients and message text: none outlives a sign-out.
+        DraftStore.device.clearAll()
         clearAccount()
         phase = .signedOut
         var remoteFailure: Error?

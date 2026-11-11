@@ -130,6 +130,19 @@ The current Swift `ComposeView` exposes message-only email; document-email defau
 and custom-template controls described here are mobile API capabilities, not
 implemented native composer controls.
 
+Since the 11 November 2026 local candidate, `DraftStore` keeps the composer's
+unprepared draft and its request key on the device, per signed-in workspace and
+member (the file name is a SHA-256 of that identity). It is written with complete
+file protection and excluded from backups, saved on every change and before the
+request leaves, removed once the dispatch is prepared or the draft is discarded,
+and every draft is removed at sign-out. A draft left while preparing reopens with
+a notice and the same `Idempotency-Key`, so retrying returns the dispatch the
+server may already have prepared; any edit starts a new key. Opening Prepare from
+another document does not restore a draft for a different document. Closing the
+composer offers Keep draft or Discard draft. Content is never logged. The
+simulator unit suite covers storage isolation, key reuse and removal; restoring
+after a real process termination has not been exercised on a device.
+
 Recipient forms: fax `{ phone: "+…" }`; email `{ email }`; legacy postal
 `{ name, line1, postalCode, city, country }` for FR/LU/DE. Unpublished candidate
 1.1.27 adds the shared API `{country,addressLines}` contract for all 250

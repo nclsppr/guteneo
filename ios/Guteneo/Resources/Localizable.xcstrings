@@ -4003,35 +4003,6 @@
         }
       }
     },
-    "Unprepared information will not be saved.": {
-      "extractionState": "manual",
-      "localizations": {
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Les informations non préparées ne seront pas enregistrées."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unprepared information will not be saved."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Noch nicht vorbereitete Angaben werden nicht gespeichert."
-          }
-        },
-        "lb": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nach net virbereet Informatioune ginn net gespäichert."
-          }
-        }
-      }
-    },
     "Cost limit": {
       "extractionState": "manual",
       "localizations": {
@@ -7566,6 +7537,93 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sendung feelgeschloen"
+          }
+        }
+      }
+    },
+    "The draft stays on this device until you prepare or discard it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le brouillon reste sur cet appareil jusqu’à ce que vous le prépariez ou le supprimiez."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The draft stays on this device until you prepare or discard it."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Entwurf bleibt auf diesem Gerät, bis Sie ihn vorbereiten oder verwerfen."
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den Entworf bleift op dësem Apparat, bis Dir e virbereet oder ewechhuelt."
+          }
+        }
+      }
+    },
+    "Keep draft": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garder le brouillon"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep draft"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entwurf behalten"
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entworf halen"
+          }
+        }
+      }
+    },
+    "This draft was being prepared when the app closed. Prepare it again: the same request is reused, so no second dispatch is created.": {
+      "extractionState": "manual",
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce brouillon était en cours de préparation à la fermeture de l’app. Préparez-le à nouveau : la même demande est réutilisée, aucun second envoi n’est créé."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This draft was being prepared when the app closed. Prepare it again: the same request is reused, so no second dispatch is created."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Entwurf wurde gerade vorbereitet, als die App geschlossen wurde. Bereiten Sie ihn erneut vor: Dieselbe Anfrage wird wiederverwendet, es entsteht keine zweite Sendung."
+          }
+        },
+        "lb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dësen Entworf gouf grad virbereet, wéi d’App zougemaach gouf. Bereet en nach eng Kéier vir: déi selwecht Ufro gëtt nees benotzt, et entsteet keng zweet Sendung."
           }
         }
       }

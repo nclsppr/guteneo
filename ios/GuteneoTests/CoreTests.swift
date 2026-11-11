@@ -6,6 +6,30 @@ import XCTest
 @testable import Guteneo
 
 final class CoreTests: XCTestCase, @unchecked Sendable {
+    func testDraftsSurviveRelaunchPerIdentityAndKeepTheirRequestKey() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("drafts-\(UUID().uuidString)", isDirectory: true)
+        let store = DraftStore(directory: directory)
+        defer { store.clearAll() }
+        let mine = DraftStore.identity(organization: "org", user: "user")
+        let theirs = DraftStore.identity(organization: "org", user: "other")
+        let draft = StoredDraft(channel: "fax", recipient: "+35226000000", document: "doc", sender: "snd",
+                                subject: "", message: "", ceiling: "2.00", requestKey: "key-1", preparing: true)
+        store.save(draft, identity: mine)
+        XCTAssertEqual(store.load(identity: mine), draft)
+        XCTAssertNil(store.load(identity: theirs), "Another member never reads this draft")
+        let files = try FileManager.default.contentsOfDirectory(atPath: directory.path)
+        XCTAssertEqual(files.count, 1)
+        XCTAssertFalse(files[0].contains("user"), "File names never carry the identity itself")
+        var restored = DispatchPreparationState(restoring: draft.requestKey)
+        XCTAssertEqual(restored.begin(), "key-1", "An interrupted preparation is retried with its key")
+        store.clear(identity: mine)
+        XCTAssertNil(store.load(identity: mine))
+        store.save(draft, identity: mine)
+        store.clearAll()
+        XCTAssertNil(store.load(identity: mine), "Signing out removes every draft")
+    }
+
     func testWorkspacePermissionsSeparatePreparationFromApproval() throws {
         let data = #"{"organization":{"id":"org","name":"Atelier"},"user":{"id":"user","name":"Member","role":"supervisor"},"simulation":true,"permissions":{"prepareDispatches":true,"approveDispatches":false,"viewReports":true}}"#.data(using: .utf8)!
         let session = try JSONDecoder().decode(MobileSession.self, from: data)

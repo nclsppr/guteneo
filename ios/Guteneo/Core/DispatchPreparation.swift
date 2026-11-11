@@ -5,6 +5,14 @@ struct DispatchPreparationState {
     private var phase = Phase.editing
     private(set) var requestKey = UUID().uuidString
 
+    init() {}
+
+    /// A restored draft keeps the key of a preparation that may already have
+    /// reached the server, so retrying it returns that dispatch.
+    init(restoring requestKey: String) {
+        self.requestKey = requestKey
+    }
+
     var isPreparing: Bool {
         if case .preparing = phase { return true }
         return false

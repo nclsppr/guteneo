@@ -851,7 +851,8 @@
         "Signing, physical-device, TestFlight and App Store qualification remain separate",
         "Read preferredDashboardAppearance in account/session without a native setting/PATCH",
         "Swift opens canonical /auth/mobile/authorize; the server selects the configured browser domain and preserves mobile PKCE return, distinct from the native callback",
-        "Native dispatch preparation owns one immutable submitted draft and stable retry key, locks authoring while pending and rejects duplicate begin; terminal preparation never grants browser send approval"
+        "Native dispatch preparation owns one immutable submitted draft and stable retry key, locks authoring while pending and rejects duplicate begin; terminal preparation never grants browser send approval",
+        "Durable native draft: the iPhone and iPad composer keeps its unprepared draft and request key on the device per workspace member (file-protected, excluded from backups, removed when prepared, discarded or at sign-out); a draft interrupted while preparing reopens with a notice and the same idempotency key, so retrying never creates a second dispatch"
       ],
       "status": "Native candidate; physical-device, signing and distribution qualification remain separate.",
       "tests": [

@@ -15,6 +15,17 @@ struct ComposeView: View {
     @State private var preparation = DispatchPreparationState()
     @State private var error: String?
     @State private var discard = false
+    /// The fields as restored from this device; editing them starts a new request.
+    @State private var restoredSignature: String?
+    @State private var interrupted = false
+    private var draftIdentity: String? {
+        model.session.map { DraftStore.identity(organization: $0.organization.id, user: $0.user.id) }
+    }
+    private var storedDraft: StoredDraft {
+        StoredDraft(channel: channel.rawValue, recipient: recipient, document: selectedDocument,
+                    sender: selectedSender, subject: subject, message: message, ceiling: ceiling,
+                    requestKey: preparation.requestKey, preparing: preparation.isPreparing)
+    }
     private var channels: [Channel] { model.capabilities?.preparableChannels ?? [] }
     private var senders: [SenderRecord] { model.senders.filter { $0.channel == channel && $0.status == "verified" } }
     private var readyDocuments: [DocumentRecord] { model.documents.filter(\.isReady) }
@@ -48,6 +59,9 @@ struct ComposeView: View {
                 }
             } else {
                 if let error { Section { Notice(text: error, symbol: "exclamationmark.circle") } }
+                if interrupted {
+                    Section { Notice(text: "This draft was being prepared when the app closed. Prepare it again: the same request is reused, so no second dispatch is created.", symbol: "arrow.clockwise") }
+                }
                 if channels.isEmpty {
                     Section {
                         ContentUnavailableView("Preparation unavailable", systemImage: "paperplane", description: Text("No delivery method is currently available for this account. You can still view your documents and tracking."))
@@ -115,23 +129,69 @@ struct ComposeView: View {
         .toolbar { ToolbarItem(placement: .cancellationAction) {
             Button("Close") { if dirty && preparation.preparedID == nil { discard = true } else { dismiss() } }.disabled(preparation.isPreparing)
         } }
-        .interactiveDismissDisabled(preparation.isPreparing || dirty && preparation.preparedID == nil)
+        // The draft is kept on every change, so closing loses nothing.
+        .interactiveDismissDisabled(preparation.isPreparing)
         .confirmationDialog("Close this draft?", isPresented: $discard, titleVisibility: .visible) {
-            Button("Discard draft", role: .destructive) { dismiss() }
-        } message: { Text("Unprepared information will not be saved.") }
-        .onChange(of: signature) { _, _ in preparation.draftChanged() }
-        .onChange(of: channel) { _, _ in selectedSender = senders.count == 1 ? senders[0].id : "" }
+            Button("Keep draft") { dismiss() }
+            Button("Discard draft", role: .destructive) {
+                if let draftIdentity { DraftStore.device.clear(identity: draftIdentity) }
+                dismiss()
+            }
+        } message: { Text("The draft stays on this device until you prepare or discard it.") }
+        .onChange(of: signature) { _, value in
+            if value == restoredSignature { restoredSignature = nil; return }
+            restoredSignature = nil
+            interrupted = false
+            preparation.draftChanged()
+            if let draftIdentity, preparation.preparedID == nil {
+                if dirty { DraftStore.device.save(storedDraft, identity: draftIdentity) }
+                else { DraftStore.device.clear(identity: draftIdentity) }
+            }
+        }
+        .onChange(of: channel) { _, _ in
+            // Keep a sender that still fits, such as one restored with the draft.
+            if !senders.contains(where: { $0.id == selectedSender }) {
+                selectedSender = senders.count == 1 ? senders[0].id : ""
+            }
+        }
         .task {
             if ceiling.isEmpty { ceiling = Decimal(2).formatted(.number.precision(.fractionLength(2)).locale(locale)) }
             selectedDocument = documentID ?? ""
             if !channels.contains(channel), let first = channels.first { channel = first }
             if senders.count == 1 { selectedSender = senders[0].id }
+            restoreDraft()
         }
+    }
+    /// Brings back the draft this identity left on the device, unless the
+    /// person opened Prepare from another document.
+    private func restoreDraft() {
+        guard let draftIdentity, let stored = DraftStore.device.load(identity: draftIdentity),
+              documentID == nil || documentID == stored.document,
+              let restoredChannel = Channel(rawValue: stored.channel), channels.contains(restoredChannel) else { return }
+        channel = restoredChannel
+        recipient = stored.recipient
+        selectedDocument = stored.document
+        selectedSender = stored.sender
+        subject = stored.subject
+        message = stored.message
+        ceiling = stored.ceiling
+        preparation = DispatchPreparationState(restoring: stored.requestKey)
+        interrupted = stored.preparing
+        restoredSignature = signature
     }
     private func prepare() async {
         guard let ceilingMinor, valid, let requestKey = preparation.begin() else { return }
         error = nil
-        defer { preparation.finish() }
+        // Written before the request leaves: if the app closes now, the next
+        // attempt reuses this key.
+        if let draftIdentity { DraftStore.device.save(storedDraft, identity: draftIdentity) }
+        defer {
+            preparation.finish()
+            if let draftIdentity {
+                if preparation.preparedID != nil { DraftStore.device.clear(identity: draftIdentity) }
+                else { DraftStore.device.save(storedDraft, identity: draftIdentity) }
+            }
+        }
         var draft = DispatchDraft(channel: channel,
                                   recipient: [channel == .fax ? "phone" : "email": channel == .fax ? recipient.filter { !" ()-".contains($0) } : recipient.trimmingCharacters(in: .whitespacesAndNewlines)],
                                   documentId: channel == .fax ? selectedDocument : nil,
