@@ -14,6 +14,8 @@ export const experienceSourceScope = Object.freeze([
   "scripts/build-experience.mjs",
   "scripts/experience-release.mjs",
   "scripts/deploy-experience.mjs",
+  "scripts/ci/manual-experience-release.mjs",
+  ".github/workflows/manual-experience-release.yml",
   "scripts/verify-experience.mjs",
   "scripts/deploy-public.mjs",
   "scripts/release-source.mjs",

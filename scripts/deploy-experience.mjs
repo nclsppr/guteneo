@@ -14,6 +14,7 @@ export async function deployExperience(
     root = fileURLToPath(new URL("../", import.meta.url)),
     execute = execFileSync,
     inspectBackend = verifyExperienceBackend,
+    beforePublish = async () => {},
   } = {},
 ) {
   if (!/^[a-f0-9]{40}$/.test(reviewedCommit))
@@ -35,8 +36,10 @@ export async function deployExperience(
   await execute("npm", ["run", "test:experience"], {
     cwd: root,
     stdio: "inherit",
+    env: { ...process.env, EXPERIENCE_TEST_BUILD: "1" },
   });
   await inspectBackend();
+  await beforePublish();
   requireMain();
   await verifyExperienceRelease(root, reviewedCommit, built);
   await execute(

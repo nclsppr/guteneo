@@ -178,7 +178,7 @@ test("public theme, language, narrow layout and accessibility remain usable", as
     body: JSON.stringify(
       await page.evaluate(() => ({
         environment:
-          "Vite dev server with intercepted synthetic API responses; not production performance",
+          "Local Vite server with intercepted synthetic API responses; not production performance",
         resources: performance.getEntriesByType("resource").map((entry) => {
           const resource = entry as PerformanceResourceTiming;
           const url = new URL(resource.name);

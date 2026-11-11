@@ -132,6 +132,27 @@ cannot open a port. A failed or uncertain deployment must first be inspected,
 not blindly retried. Removing the backend origin grant closes cross-origin API
 access without changing canonical sign-in or an accepted dispatch.
 
+`.github/workflows/manual-experience-release.yml` is the manual Linux publication
+entry. The operator supplies the full `source_commit` and successful main CI
+`ci_run_id`/`ci_run_attempt`. It installs locked dependencies before qualification,
+requires exact clean main, complete successful CI, the matching remote version
+tag and a canonical production `/release.json` serving that same source. The
+backend's exact Gare origin grant must already be published. The workflow then
+installs Chromium, rebuilds Gare and runs the full synthetic browser suite with
+`EXPERIENCE_TEST_BUILD=1` against the actual production assets through Vite preview.
+It rechecks CI, tag, served backend and source before submitting to Wrangler.
+
+This workflow reuses `CLOUDFLARE_APP_RELEASE_API_TOKEN` and serializes with the
+canonical publisher in `guteneo-production-application`. It does not create a
+credential, expand its permissions, migrate D1 or enable a provider. The existing
+token's actual scope for the new static Worker/domain remains an independent
+qualification; a refusal stops publication. The
+`manual-experience-release-<run>-<attempt>` artifact retains qualification,
+publication status, release manifest and synthetic browser evidence for 30 days.
+On failure, inspect those records and current served state before another
+explicit attempt. An artifact created after a failed step is not a successful
+publication receipt.
+
 The static frontend has no new long-running container, polling worker or
 database. Route modules and locale catalogs load on demand; resource reads are
 bounded and hidden-tab polling stops. A cached CORS preflight reduces repeated
@@ -161,7 +182,7 @@ verification below rather than carrying historical test totals forward.
 | Origin, client authority, navigation and integration archive tests | 71 passed: 19 origin/session, 9 client authority, 8 navigation and 35 integration tests                                                                                                                                                                            |
 | CI inventory, validation policy and deployment guards              | 106 passed: 87 CI policy/inventory and 19 deployment guards; Gare reports are required by the existing exact-ID browser verifier                                                                                                                                   |
 | Engineering publication build                                      | Passed; 424 static assets, 61 documentation pages, 29 authored MDX pages lint clean and 4 publication-boundary tests passed                                                                                                                                        |
-| Dedicated synthetic browser suite                                  | 148 cases collected across desktop/mobile at this checkpoint; local Chromium failed before startup with Mach bootstrap permission denial, so no browser assertion passed in that attempt. Hosted CI execution remains required                                     |
+| Dedicated synthetic browser suite                                  | 150 cases collected across desktop/mobile at this checkpoint; local Chromium failed before startup with Mach bootstrap permission denial, so no browser assertion passed in that attempt. Hosted CI execution remains required                                     |
 | Portable release evidence renderer                                 | Nine non-browser checks passed; candidate notes accepted by the real renderer. The offline-browser case remains blocked by the same local Chromium startup denial                                                                                                  |
 | Static experience artifact                                         | Production static build passed locally: 34 static assets, canonical API origin and release manifest; the dirty candidate build is not a deployable clean-main proof                                                                                                |
 | Published static artifact and custom domain                        | Not yet verified in this ledger                                                                                                                                                                                                                                    |

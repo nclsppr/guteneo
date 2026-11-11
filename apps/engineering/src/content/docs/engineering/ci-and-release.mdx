@@ -726,3 +726,23 @@ denied its Mach bootstrap registration. No browser assertion passed in that
 attempt. Use the unchanged Linux CI browser environment to obtain actual suite
 evidence before publication; do not remove the browser sandbox or turn a blocked
 attempt into a successful qualification.
+
+The manual Gare release workflow runs on Linux with the reviewed full main
+commit and its successful CI run/attempt as explicit inputs. Locked dependencies
+are installed before qualification, including for the existing manual canonical
+publisher: its qualification imports the TypeScript-backed release checks.
+Gare additionally requires a matching remote version tag and the same clean
+production source already served by the canonical backend. It rebuilds the
+static artifact, runs desktop/mobile fixtures against those production bytes
+through Vite preview, then repeats source, CI, tag and backend checks before
+Wrangler publication and served-byte verification.
+
+The existing `CLOUDFLARE_APP_RELEASE_API_TOKEN` is the only release credential;
+its permission to publish this new static Worker/domain must be observed, not
+assumed or expanded automatically. Both manual publishers share the canonical
+production concurrency group. No database migration or provider activation is
+part of the Gare workflow. Its retained run/attempt artifact separates
+qualification, publication started and served verification, with synthetic
+browser traces and the static manifest. Inspect a failed or uncertain result
+before another explicit publication; never treat an uploaded failure artifact
+as proof of deployment.

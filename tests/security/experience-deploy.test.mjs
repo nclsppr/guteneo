@@ -12,6 +12,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { deployExperience } from "../../scripts/deploy-experience.mjs";
+import { requireServedExperienceBackend } from "../../scripts/ci/manual-experience-release.mjs";
 import {
   createExperienceRelease,
   experienceManifest,
@@ -110,9 +111,11 @@ test("clean reviewed main and its exact source/assets are qualified before publi
   const result = await deployExperience(f.commit, {
     root: f.root,
     inspectBackend: async () => calls.push("backend"),
-    execute: async (command, args) => {
+    execute: async (command, args, options) => {
       calls.push([command, ...args].join(" "));
       if (args[1] === "build:experience") await f.build();
+      if (args[1] === "test:experience")
+        assert.equal(options.env.EXPERIENCE_TEST_BUILD, "1");
     },
   });
   assert.equal(result.origin, "https://gare.guteneo.com");
@@ -278,4 +281,90 @@ test("release source scope includes the actual browser suite", async () => {
   const directory = config.match(/testDir:\s*["']([^"']+)["']/)?.[1];
   assert.ok(directory);
   assert.ok(experienceSourceScope.includes(directory.replace(/^\.\//, "")));
+});
+
+test("manual Gare publication requires the exact already-published production backend", () => {
+  const context = { sourceCommit: "a".repeat(40) };
+  const good = {
+    sourceCommit: context.sourceCommit,
+    sourceDirty: false,
+    mode: "production",
+    publicPreview: false,
+  };
+  assert.doesNotThrow(() => requireServedExperienceBackend(good, context));
+  for (const change of [
+    { sourceCommit: "b".repeat(40) },
+    { sourceDirty: true },
+    { mode: "simulation" },
+    { publicPreview: true },
+  ])
+    assert.throws(
+      () => requireServedExperienceBackend({ ...good, ...change }, context),
+      /EXACT_BACKEND_REQUIRED/,
+    );
+});
+
+test("manual publishers install locked dependencies before importing qualification", async () => {
+  for (const file of [
+    "manual-application-release.yml",
+    "manual-experience-release.yml",
+  ]) {
+    const workflow = await readFile(
+      new URL(`../../.github/workflows/${file}`, import.meta.url),
+      "utf8",
+    );
+    assert.ok(
+      workflow.indexOf("run: npm ci") < workflow.indexOf(".mjs qualify"),
+    );
+  }
+});
+
+test("Gare workflow is explicit, read-only on GitHub and reuses only existing publication access", async () => {
+  const workflow = await readFile(
+    new URL(
+      "../../.github/workflows/manual-experience-release.yml",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(workflow, /workflow_dispatch:/);
+  assert.doesNotMatch(
+    workflow,
+    /^\s+(push|pull_request|workflow_run|schedule):/m,
+  );
+  assert.match(workflow, /contents: read/);
+  assert.match(workflow, /actions: read/);
+  assert.doesNotMatch(workflow, /permissions:[\s\S]*?write/);
+  assert.match(workflow, /group: guteneo-production-application/);
+  assert.match(workflow, /playwright install --with-deps chromium/);
+  assert.match(workflow, /manual-experience-release\.mjs qualify/);
+  assert.match(workflow, /manual-experience-release\.mjs publish/);
+  assert.deepEqual(
+    [
+      ...new Set(
+        [...workflow.matchAll(/secrets\.([A-Z_]+)/g)].map((match) => match[1]),
+      ),
+    ],
+    ["CLOUDFLARE_APP_RELEASE_API_TOKEN"],
+  );
+});
+
+test("changed CI qualification immediately before publication prevents Wrangler", async (context) => {
+  const f = await fixture(context),
+    calls = [];
+  await assert.rejects(
+    deployExperience(f.commit, {
+      root: f.root,
+      inspectBackend: async () => {},
+      beforePublish: async () => {
+        throw new Error("CI qualification changed");
+      },
+      execute: async (command, args) => {
+        calls.push(command);
+        if (args[1] === "build:experience") await f.build();
+      },
+    }),
+    /CI qualification changed/,
+  );
+  assert.equal(calls.includes("npx"), false);
 });

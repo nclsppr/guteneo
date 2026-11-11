@@ -30,9 +30,12 @@ export default defineConfig({
   ],
   webServer: {
     command:
-      "node node_modules/vite/bin/vite.js --config apps/experience/vite.config.ts --host 127.0.0.1",
+      process.env.EXPERIENCE_TEST_BUILD === "1"
+        ? "node node_modules/vite/bin/vite.js preview --config apps/experience/vite.config.ts --host 127.0.0.1"
+        : "node node_modules/vite/bin/vite.js --config apps/experience/vite.config.ts --host 127.0.0.1",
     url: "http://127.0.0.1:8850",
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer:
+      !process.env.CI && process.env.EXPERIENCE_TEST_BUILD !== "1",
     timeout: 60_000,
   },
 });
