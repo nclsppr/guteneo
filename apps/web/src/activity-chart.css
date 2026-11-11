@@ -173,6 +173,7 @@
 .breakdown-bars-value small {
   display: block;
   color: var(--muted);
+  font-size: 12px;
 }
 @media (max-width: 640px) {
   .breakdown-bars li {

@@ -584,13 +584,15 @@ function Application() {
             ]
       : path === "/app/prepare"
         ? t.dispatch.new
-        : /^\/app\/(dispatch|postal)\//.test(path)
-          ? t.nav.dispatches
-          : path.startsWith("/app/campaign/")
-            ? t.nav.campaigns
-            : path === "/app" || path === "/app/"
-              ? t.nav.overview
-              : undefined;
+        : path === "/app/account"
+          ? t.nav.account
+          : /^\/app\/(dispatch|postal)\//.test(path)
+            ? t.nav.dispatches
+            : path.startsWith("/app/campaign/")
+              ? t.nav.campaigns
+              : path === "/app" || path === "/app/"
+                ? t.nav.overview
+                : undefined;
     document.title = `${pageName && pageName !== application ? `${pageName} · ` : ""}${application} | guteneo`;
   }, [route, locale, emailPreferencesRoute, publicLocation]);
   if (emailPreferencesRoute)
