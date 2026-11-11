@@ -319,6 +319,10 @@ test("coming back to the tab re-reads the list once and keeps loaded pages", asy
     await page.request.get("/api/overview")
   ).json()) as { dispatches: { total: number } };
   await page.goto("/#/app/dispatches");
+  // Overview's two tables leave once Dispatches has its title.
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Envois", exact: true }),
+  ).toBeVisible();
   const rows = page.locator("tbody tr");
   await page
     .getByRole("combobox", { name: "Lignes par page", exact: true })

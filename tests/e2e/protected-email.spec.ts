@@ -216,7 +216,7 @@ test(`review keeps consent stationary through PDF loading and a held pointer`, a
   try {
     await page.goto(`/#/app/dispatch/dispatch_protected_ui`);
     const viewport = page.getByRole("region", {
-      name: "Aperçu du document approuvé",
+      name: "Aperçu du document",
     });
     const contentConsent = page.getByRole("checkbox", {
       name: /J’ai vérifié le contenu/,
@@ -239,6 +239,10 @@ test(`review keeps consent stationary through PDF loading and a held pointer`, a
       viewport.evaluate((element) => element.getBoundingClientRect().height);
     const initialY = await documentY();
     const initialHeight = await frameHeight();
+    // From 1025 px consent sits in the sticky column beside the document, which
+    // keeps its natural height; below that the frame is bounded so consent,
+    // placed after it, cannot move.
+    const consentFollowsDocument = (page.viewportSize()?.width ?? 0) < 1025;
     moduleGate.release();
     await expect(
       viewport.locator('.pdf-canvas-wrap[aria-busy="true"]'),
@@ -262,7 +266,8 @@ test(`review keeps consent stationary through PDF loading and a held pointer`, a
     ).toBeVisible();
     await expect(viewport.locator("canvas")).toBeVisible();
     expect(await documentY()).toBeCloseTo(initialY, 0);
-    expect(await frameHeight()).toBeCloseTo(initialHeight, 0);
+    if (consentFollowsDocument)
+      expect(await frameHeight()).toBeCloseTo(initialHeight, 0);
     await page.mouse.up();
     await expect(recipientConsent).toBeChecked();
     await expect(contentConsent).toBeChecked();
@@ -273,10 +278,17 @@ test(`review keeps consent stationary through PDF loading and a held pointer`, a
     await viewport.focus();
     await expect(viewport).toBeFocused();
     await page.keyboard.press("End");
-    await expect
-      .poll(() => viewport.evaluate((element) => element.scrollTop))
-      .toBeGreaterThan(0);
-    expect(await documentY()).toBeCloseTo(initialY, 0);
+    if (consentFollowsDocument) {
+      await expect
+        .poll(() => viewport.evaluate((element) => element.scrollTop))
+        .toBeGreaterThan(0);
+      expect(await documentY()).toBeCloseTo(initialY, 0);
+    } else {
+      // The document has its natural height: the page itself scrolls.
+      await expect
+        .poll(() => page.evaluate(() => window.scrollY))
+        .toBeGreaterThan(0);
+    }
     await page.keyboard.press("Tab");
     await expect(viewport).not.toBeFocused();
     const nextPage = viewport.getByRole("button", { name: "Page suivante" });
@@ -290,8 +302,10 @@ test(`review keeps consent stationary through PDF loading and a held pointer`, a
     await expect(
       viewport.locator('.pdf-canvas-wrap[aria-busy="false"]'),
     ).toBeVisible();
-    expect(await documentY()).toBeCloseTo(initialY, 0);
-    expect(await frameHeight()).toBeCloseTo(initialHeight, 0);
+    if (consentFollowsDocument) {
+      expect(await documentY()).toBeCloseTo(initialY, 0);
+      expect(await frameHeight()).toBeCloseTo(initialHeight, 0);
+    }
     await page.keyboard.press("Tab");
     expect(
       await viewport.evaluate((element) =>
@@ -332,7 +346,7 @@ test(`review keeps consent stationary when the PDF fails`, async ({
   try {
     await page.goto(`/#/app/dispatch/dispatch_protected_ui`);
     const viewport = page.getByRole("region", {
-      name: "Aperçu du document approuvé",
+      name: "Aperçu du document",
     });
     const contentConsent = page.getByRole("checkbox", {
       name: /J’ai vérifié le contenu/,

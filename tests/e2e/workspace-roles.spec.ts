@@ -212,8 +212,9 @@ test("operator can prepare while approval and report interfaces stay restricted"
     page.locator('a[href="#/app/prepare"]:visible').first(),
   ).toBeVisible();
   await page.goto("/#/app/dispatch/request");
+  // An operator reads who can approve the waiting dispatch.
   await expect(
-    page.getByText("Votre rôle ne permet pas cette action.", { exact: false }),
+    page.getByText("Cet envoi attend une approbation.", { exact: false }),
   ).toBeVisible();
   await expect(page.locator(".approval-panel")).toHaveCount(0);
   await expect(page.locator(".cancel-button")).toHaveCount(0);

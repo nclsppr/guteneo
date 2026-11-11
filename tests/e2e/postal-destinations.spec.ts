@@ -114,6 +114,9 @@ test("refreshes postal restrictions without losing the address draft and stops r
       return route.fulfill({ json: source });
     if (path === `/documents/${source.id}/content`)
       return route.fulfill({ contentType: "application/pdf", body: bytes });
+    // New dispatch reads saved recipients; this workspace keeps none.
+    if (path.endsWith("/saved-recipients"))
+      return route.fulfill({ json: { items: [] } });
     unmatched.push(path);
     return route.fulfill({
       status: 404,

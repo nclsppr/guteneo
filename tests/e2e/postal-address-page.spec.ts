@@ -279,6 +279,9 @@ async function setup(
     }
     if (path === "/postal/preflights/review-address-ui")
       return route.fulfill({ json: review });
+    // New dispatch reads saved recipients; this workspace keeps none.
+    if (path.endsWith("/saved-recipients"))
+      return route.fulfill({ json: { items: [] } });
     unmatched.push(`${request.method()} ${path}`);
     return route.fulfill({
       status: 404,

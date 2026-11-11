@@ -61,6 +61,9 @@ async function fixture(page: Page, initialItems: AssistantConnection[] = []) {
       body = { items: [], hasMore: false };
     } else if (path === "/capabilities") {
       body = { simulation: true };
+    } else if (path.endsWith("/saved-recipients")) {
+      // New dispatch reads saved recipients; this workspace keeps none.
+      body = { items: [] };
     } else {
       unmatched.push(`${method} ${path}`);
       status = 503;

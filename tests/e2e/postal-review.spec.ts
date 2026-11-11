@@ -234,6 +234,9 @@ async function setup(
         attempts: [],
         approval: null,
       };
+    } else if (path.endsWith("/saved-recipients")) {
+      // New dispatch reads saved recipients; this workspace keeps none.
+      body = { items: [] };
     } else {
       unmatched.push(`${request.method()} ${path}`);
       status = 404;
