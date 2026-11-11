@@ -44,6 +44,7 @@ export const en: Copy = {
     postal: "Postal mail",
   },
   nav: {
+    recipients: "Recipients",
     pdfChecks: "PDF checks",
     overview: "Overview",
     documents: "Documents",

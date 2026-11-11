@@ -23,6 +23,7 @@ import {
   ListChecks,
   List,
   AddressBook,
+  IdentificationCard,
   WarningCircle,
   type Icon,
 } from "@phosphor-icons/react";
@@ -219,6 +220,11 @@ const Senders = lazy(() =>
     .workspace()
     .then((module) => ({ default: module.Senders })),
 );
+const SavedRecipients = lazy(() =>
+  workspaceRouteModules
+    .workspace()
+    .then((module) => ({ default: module.SavedRecipients })),
+);
 const PostalReviewPage = lazy(() =>
   workspaceRouteModules.postal().then((module) => ({
     default: module.PostalReviewPage,
@@ -301,6 +307,7 @@ const workshopNavigation: readonly NavigationItem<WorkshopEntry>[] = [
   { id: "dispatches", path: "/app/dispatches", Icon: PaperPlaneTilt },
   { id: "campaigns", path: "/app/campaigns", Icon: Stack },
   { id: "senders", path: "/app/senders", Icon: AddressBook },
+  { id: "recipients", path: "/app/recipients", Icon: IdentificationCard },
   { id: "pdfChecks", path: "/app/pdf-checks", Icon: Check },
 ];
 // Workspace management, moved out of Correspondence and the personal profile.
@@ -904,6 +911,8 @@ function WorkspaceApplication({
         canPrepare={permissions.prepareDispatches}
       />
     );
+  else if (page === "/app/recipients")
+    content = <SavedRecipients canPrepare={permissions.prepareDispatches} />;
   else if (page === "/app/pdf-checks" || page === "/app/plan")
     content = <PdfCheckPage session={session} />;
   else if (page === "/app/account")

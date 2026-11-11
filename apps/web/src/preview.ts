@@ -901,6 +901,8 @@ export function createPreviewApi(options: { advancedLocal?: boolean } = {}) {
         } satisfies DispatchOverview;
       }
       if (route === "/campaigns") return copy(page(state.campaigns));
+      // The demo keeps no address book: saving is refused like other writes.
+      if (route.split("?")[0] === "/saved-recipients") return { items: [] };
       if (route === "/senders")
         return page(
           channels.map((channel) => ({

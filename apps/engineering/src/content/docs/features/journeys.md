@@ -384,3 +384,11 @@ Request deletion explicitly in native Account, or use the published support chan
 Open a dispatch awaiting approval → read who can approve it → choose Ask for approval → the server records one audit receipt for the current fingerprint after rechecking membership and preparation permission → the page shows the request date → an approver opens the dispatch from the Overview queue or the dispatch list, reads who asked and when, reviews the exact version and approves or cancels through the unchanged approval path.
 
 **Failure and recovery:** Observers and assistants receive FORBIDDEN; another workspace receives NOT_FOUND; a dispatch that is not awaiting approval receives 409 INVALID_STATE. Asking again returns the first receipt. A new version (new fingerprint) needs its own request. The request never substitutes for approval, and withdrawing preparation permission before the write leaves no receipt.
+
+## J48: Reuse a saved recipient
+
+**Actor:** Any workspace member reads; an Administrator, Supervisor or Operator saves and removes, in a human browser session · **Branch:** Web only; no REST OAuth, MCP, native or email surface
+
+Prepare a fax or email → type a new address and tick Save to recipients → after preparation succeeds the address is normalized and saved for the workspace → next time, the field suggests it → open Recipients to read the list or remove an entry with a confirmation.
+
+**Failure and recovery:** An invalid or non-preparable fax number receives 400 INVALID_RECIPIENT; Observers receive FORBIDDEN on writes; another workspace receives NOT_FOUND; a full list receives 409 SAVED_RECIPIENTS_FULL. Saving the same address again returns the existing entry. A failed save never changes the prepared dispatch.

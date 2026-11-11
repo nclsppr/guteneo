@@ -61,6 +61,7 @@ import {
   type Channel,
   type Dispatch,
   type DispatchDetail,
+  type SavedRecipient,
   type DocumentRecord,
   type Page,
   type Sender,
@@ -928,6 +929,36 @@ export function PrepareDispatch({
       : lastChannel(),
   );
   const [documentId, setDocumentId] = useState(initialDocument);
+  // Saved addresses are suggestions in the browser's own list; choosing one
+  // only fills the field.
+  const saved = useResource<{ items: SavedRecipient[] }>(
+    isPublicPreview ? null : "/saved-recipients",
+  );
+  const savedAddresses = (kind: SavedRecipient["channel"]) =>
+    (saved.data?.items ?? []).filter((item) => item.channel === kind);
+  const [saveRecipient, setSaveRecipient] = useState(false);
+  // Offered only for a new address; the list ends the field's own datalist.
+  const saveChoice = (kind: SavedRecipient["channel"], address: string) => (
+    <>
+      <datalist id={`saved-${kind}`}>
+        {savedAddresses(kind).map((item) => (
+          <option key={item.id} value={item.address} />
+        ))}
+      </datalist>
+      {!isPublicPreview &&
+        address.length > 2 &&
+        !savedAddresses(kind).some((item) => item.address === address) && (
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={saveRecipient}
+              onChange={(event) => setSaveRecipient(event.target.checked)}
+            />
+            <span>{msg("Save to recipients")}</span>
+          </label>
+        )}
+    </>
+  );
   const [emailDeliveryMode, setEmailDeliveryMode] = useState<DocumentEmailMode>(
     isPublicPreview ? "attachment" : "my_documents",
   );
@@ -1191,6 +1222,16 @@ export function PrepareDispatch({
           ceilingMinor,
         },
       });
+      // Saving the address is a convenience: the prepared dispatch stands
+      // whether or not it succeeds, so a failure is not reported here.
+      if (saveRecipient && (channel === "fax" || channel === "email"))
+        await api("/saved-recipients", {
+          method: "POST",
+          body: {
+            channel,
+            address: channel === "fax" ? recipient.phone : recipient.email,
+          },
+        }).catch(() => undefined);
       if (!isCurrent()) return;
       go(`/app/dispatch/${dispatch.id}`);
     });
@@ -1423,28 +1464,32 @@ export function PrepareDispatch({
             />
           )}
           {channel === "fax" ? (
-            <Field
-              label={t.dispatch.phone}
-              hint={msg(
-                "International format: + followed by the country code and number (e.g. +352 …), without the national 0. Spaces, dots and dashes are removed during preparation.",
-              )}
-            >
-              <input
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                pattern={FAX_INPUT_PATTERN}
-                placeholder={t.dispatch.phonePlaceholder}
-                value={recipient.phone ?? ""}
-                onChange={(e) => setAddress("phone", e.target.value)}
-                {...validityMessage(
-                  msg(
-                    "Use the international format, for example +352 26 00 00 00.",
-                  ),
+            <>
+              <Field
+                label={t.dispatch.phone}
+                hint={msg(
+                  "International format: + followed by the country code and number (e.g. +352 …), without the national 0. Spaces, dots and dashes are removed during preparation.",
                 )}
-                required
-              />
-            </Field>
+              >
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  pattern={FAX_INPUT_PATTERN}
+                  placeholder={t.dispatch.phonePlaceholder}
+                  value={recipient.phone ?? ""}
+                  list={savedAddresses("fax").length ? "saved-fax" : undefined}
+                  onChange={(e) => setAddress("phone", e.target.value)}
+                  {...validityMessage(
+                    msg(
+                      "Use the international format, for example +352 26 00 00 00.",
+                    ),
+                  )}
+                  required
+                />
+              </Field>
+              {saveChoice("fax", normalizeFaxNumber(recipient.phone ?? ""))}
+            </>
           ) : channel === "email" ? (
             <>
               <Field label={t.dispatch.email}>
@@ -1455,6 +1500,9 @@ export function PrepareDispatch({
                   spellCheck={false}
                   placeholder={t.dispatch.emailPlaceholder}
                   value={recipient.email ?? ""}
+                  list={
+                    savedAddresses("email").length ? "saved-email" : undefined
+                  }
                   onChange={(e) => setAddress("email", e.target.value)}
                   {...validityMessage(
                     msg(
@@ -1464,6 +1512,10 @@ export function PrepareDispatch({
                   required
                 />
               </Field>
+              {saveChoice(
+                "email",
+                (recipient.email ?? "").trim().toLowerCase(),
+              )}
               <Field
                 label={
                   documentId ? msg("Subject (optional)") : t.dispatch.subject

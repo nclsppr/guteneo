@@ -159,6 +159,7 @@
       "description": "Prepares, reviews, sends and tracks correspondence. Internal id: workshop.",
       "files": [
         "workspace-pages.tsx",
+        "saved-recipients-page.tsx",
         "dispatch-pages.tsx",
         "document-delivery-choice.tsx",
         "secure-distribution-pages.tsx",

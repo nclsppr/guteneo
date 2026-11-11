@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**28 domains · 476 features · 47 journeys · 78 documented REST operations · 83 MCP tools**
+**28 domains · 477 features · 48 journeys · 78 documented REST operations · 83 MCP tools**
 Updated 2026-11-11.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -31,7 +31,7 @@ mindmap
     Operate
       Campaigns and tracking (9)
       Credits and billing (10)
-      Workspace layout and browser appearance (43)
+      Workspace layout and browser appearance (44)
       PDF verification (10)
     Interfaces
       Assistants and API (31)
@@ -74,7 +74,7 @@ mindmap
 
 - [Campaigns and tracking](#campaigns) — 9 features; capability-gated.
 - [Credits and billing](#billing) — 10 features; partial.
-- [Workspace layout and browser appearance](#dashboard) — 43 features; browser-session.
+- [Workspace layout and browser appearance](#dashboard) — 44 features; browser-session.
 - [PDF verification](#pdf-verification) — 10 features; capability-gated.
 
 ### Interfaces
@@ -166,6 +166,8 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Request deletion of own account | Own authenticated native account or published support channel | Own authenticated native account or published support channel | Own authenticated native account or published support channel | Own authenticated native account or published support channel | No |
 | Process a reviewed account-deletion plan | No workspace-role authority; separate private operator RPC | No | No | No | No |
 | Ask approvers to review a dispatch awaiting approval | Yes | Yes | Yes | No | Cannot raise a request for human consent; human browser session only |
+| Read the workspace's saved recipients | Yes | Yes | Yes | Yes | No assistant, REST OAuth or native access |
+| Save or remove a recipient | Yes | Yes | Yes | No | No assistant, REST OAuth or native access |
 
 Supervisor approval/reporting options are independent and off by default. Resource ownership/context checks still apply. See [workspace roles](WORKSPACE_ROLES.md), [expert approval](EXPERT_APPROVAL.md) and [studio access](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -946,6 +948,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Command palette (Ctrl or ⌘ + K) listing the pages the menu already shows for the signed-in role in the current application; it grants no access and guarded pages still refuse
 - Saved table view for the dispatch and document tables: this browser remembers sort and page size only; search text and filters are never stored
 - Outcome tray: an approval or quote renewal that completes after the person left the dispatch page is announced on the current page with a link to the dispatch; the abandoned view is never modified and the tray empties when the signed-in identity changes
+- Saved recipients: a workspace keeps up to 500 fax numbers and email addresses (migration 0079, browser-only /api/saved-recipients). Every member reads them on Recipients; preparers add and remove entries and New dispatch suggests them and offers to save a new address after preparation. A saved address only fills a field; rows carry no member identity and the audit log records the channel only
 
 **Contract:** [DASHBOARD_V2.md](DASHBOARD_V2.md) · **Implementation:** [apps/web/src/account-page.tsx](../apps/web/src/account-page.tsx)
 
@@ -1724,6 +1727,16 @@ Open a dispatch awaiting approval → read who can approve it → choose Ask for
 **Failure/recovery:** Observers and assistants receive FORBIDDEN; another workspace receives NOT_FOUND; a dispatch that is not awaiting approval receives 409 INVALID_STATE. Asking again returns the first receipt. A new version (new fingerprint) needs its own request. The request never substitutes for approval, and withdrawing preparation permission before the write leaves no receipt.
 
 [Detailed contract](API_CONTRACT.md).
+
+### J48 · Reuse a saved recipient
+
+**Actor:** Any workspace member reads; an Administrator, Supervisor or Operator saves and removes, in a human browser session. **Branch:** Web only; no REST OAuth, MCP, native or email surface.
+
+Prepare a fax or email → type a new address and tick Save to recipients → after preparation succeeds the address is normalized and saved for the workspace → next time, the field suggests it → open Recipients to read the list or remove an entry with a confirmation.
+
+**Failure/recovery:** An invalid or non-preparable fax number receives 400 INVALID_RECIPIENT; Observers receive FORBIDDEN on writes; another workspace receives NOT_FOUND; a full list receives 409 SAVED_RECIPIENTS_FULL. Saving the same address again returns the existing entry. A failed save never changes the prepared dispatch.
+
+[Detailed contract](DASHBOARD_V2.md).
 
 ## Required maintenance
 

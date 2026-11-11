@@ -106,6 +106,13 @@ export type EventRecord = {
   detail?: string;
   payload_json?: string;
 };
+/** A fax number or email address the workspace reuses when preparing. */
+export type SavedRecipient = {
+  id: string;
+  channel: "fax" | "email";
+  address: string;
+  created_at: string;
+};
 export type DispatchDetail = {
   /** A preparer's request for review; never an approval. */
   approvalRequest?: {

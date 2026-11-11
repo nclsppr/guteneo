@@ -813,5 +813,15 @@
     "Letter transferred for printing",
     "Brief zum Druck übermittelt",
     "Bréif fir den Drock iwwerdroen"
+  ],
+  "Destinataire enregistré": [
+    "Recipient saved",
+    "Empfänger gespeichert",
+    "Empfänger gespäichert"
+  ],
+  "Destinataire retiré": [
+    "Recipient removed",
+    "Empfänger entfernt",
+    "Empfänger ewechgeholl"
   ]
 }

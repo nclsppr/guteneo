@@ -45,6 +45,7 @@ export const fr = {
   actions: "Actions",
   channels: { fax: "Fax", email: "E-mail", postal: "Courrier postal" },
   nav: {
+    recipients: "Destinataires",
     pdfChecks: "Contrôles PDF",
     overview: "Vue d’ensemble",
     documents: "Documents",

@@ -87,6 +87,7 @@ import {
   type McpIdentity,
 } from "./auth";
 import { handleMcp, secureDistributionSummary } from "./mcp";
+import { SavedRecipientService, savedRecipientInput } from "./saved-recipients";
 import {
   createLiveDeliveryQuoteConfig,
   createLiveProviderHook,
@@ -1322,6 +1323,35 @@ app.post("/api/recipients/validate", async (c) =>
     ),
   ),
 );
+// Saved recipients belong to people working in the browser workspace; no
+// OAuth, assistant or native route reads or writes them.
+app.get("/api/saved-recipients", async (c) => {
+  const session = await authenticateBrowser(c.req.raw, c.env);
+  const channel = c.req.query("channel");
+  return c.json(
+    await new SavedRecipientService(c.env.DB).list(
+      session.context as ActorContext,
+      channel === "fax" || channel === "email" ? channel : undefined,
+    ),
+  );
+});
+app.post("/api/saved-recipients", async (c) => {
+  const session = await authenticateBrowser(c.req.raw, c.env, true);
+  const result = await new SavedRecipientService(c.env.DB).save(
+    session.context as ActorContext,
+    savedRecipientInput.parse(await c.req.json()),
+  );
+  return c.json(result.recipient, result.created ? 201 : 200);
+});
+app.delete("/api/saved-recipients/:id", async (c) => {
+  const session = await authenticateBrowser(c.req.raw, c.env, true);
+  return c.json(
+    await new SavedRecipientService(c.env.DB).remove(
+      session.context as ActorContext,
+      c.req.param("id"),
+    ),
+  );
+});
 app.get("/api/senders", async (c) =>
   c.json(await domain(c.env).listSenders(c.get("actor"))),
 );

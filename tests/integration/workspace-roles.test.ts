@@ -14,6 +14,7 @@ import {
   type ActorContext,
 } from "../../packages/domain/src/index";
 import type { Env } from "../../apps/api/src/env";
+import { SavedRecipientService } from "../../apps/api/src/saved-recipients";
 
 let mf: Miniflare, db: D1Database, domain: DomainService, env: AuthEnv;
 let admin: Principal,
@@ -320,6 +321,56 @@ describe("workspace roles on current D1 membership", () => {
     await expect(
       domain.requestDispatchApproval(operator.context, dispatch.id),
     ).rejects.toMatchObject({ code: "INVALID_STATE" });
+  });
+
+  it("keeps saved recipients per workspace, editable only by preparers and absent from the audit text", async () => {
+    const recipients = new SavedRecipientService(db);
+    const first = await recipients.save(operator.context, {
+      channel: "fax",
+      address: "+352 26 00 00 00",
+    });
+    expect(first.created).toBe(true);
+    expect(first.recipient.address).toBe("+35226000000");
+    const again = await recipients.save(admin.context, {
+      channel: "fax",
+      address: "+352 26.00.00.00",
+    });
+    expect(again).toEqual({ recipient: first.recipient, created: false });
+    expect((await recipients.list(observer.context)).items).toEqual([
+      first.recipient,
+    ]);
+    expect((await recipients.list(outsider.context)).items).toEqual([]);
+    await expect(
+      recipients.save(observer.context, {
+        channel: "email",
+        address: "fictional@example.invalid",
+      }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(
+      recipients.save(operator.context, { channel: "fax", address: "123" }),
+    ).rejects.toMatchObject({ code: "INVALID_RECIPIENT" });
+    await expect(
+      recipients.remove(outsider.context, first.recipient.id),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    await expect(
+      recipients.remove(observer.context, first.recipient.id),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    expect(
+      await recipients.remove(operator.context, first.recipient.id),
+    ).toEqual({ deleted: true });
+    expect((await recipients.list(admin.context)).items).toEqual([]);
+    const audit = await db
+      .prepare(
+        "SELECT action,details_json FROM audit_log WHERE organization_id=? AND action LIKE 'recipient.%' ORDER BY created_at",
+      )
+      .bind(admin.context.organizationId)
+      .all<{ action: string; details_json: string }>();
+    expect(audit.results.map((row) => row.action)).toEqual([
+      "recipient.saved",
+      "recipient.deleted",
+    ]);
+    for (const row of audit.results)
+      expect(row.details_json).not.toContain("35226");
   });
 
   it("starts supervisor approval and reporting closed, with operational preparation available", async () => {

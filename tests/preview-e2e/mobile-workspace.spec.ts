@@ -52,6 +52,7 @@ test(`mobile navigation exposes every destination and returns focus to the opene
     "#/app/dispatches",
     "#/app/campaigns",
     "#/app/senders",
+    "#/app/recipients",
     "#/app/pdf-checks",
     // Usage, billing and administration moved to the Administration app.
   ];

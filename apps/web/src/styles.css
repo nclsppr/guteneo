@@ -3658,3 +3658,18 @@ ol {
   min-height: 220px;
   border-bottom: 0;
 }
+
+/* Saved recipients: one compact row to add an address. */
+.saved-recipient-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 12px;
+  margin-bottom: 24px;
+}
+.saved-recipient-form .field {
+  margin-bottom: 0;
+}
+.saved-recipient-form .field:nth-child(2) {
+  flex: 1 1 260px;
+}

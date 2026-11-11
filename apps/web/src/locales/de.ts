@@ -44,6 +44,7 @@ export const de: Copy = {
     postal: "Briefpost",
   },
   nav: {
+    recipients: "Empfänger",
     pdfChecks: "PDF-Prüfungen",
     overview: "Übersicht",
     documents: "Dokumente",

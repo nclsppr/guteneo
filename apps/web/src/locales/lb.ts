@@ -44,6 +44,7 @@ export const lb: Copy = {
     postal: "Bréifpost",
   },
   nav: {
+    recipients: "Empfänger",
     pdfChecks: "PDF-Kontrollen",
     overview: "Iwwersiicht",
     documents: "Dokumenter",

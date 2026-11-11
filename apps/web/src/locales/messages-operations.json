@@ -3104,5 +3104,52 @@
     "Häufige Ziele",
     "Heefeg Destinatiounen"
   ],
-  "Tous les pays": ["All countries", "Alle Länder", "All Länner"]
+  "Tous les pays": ["All countries", "Alle Länder", "All Länner"],
+  "Destinataires": ["Recipients", "Empfänger", "Empfänger"],
+  "Enregistrer le destinataire": [
+    "Save the recipient",
+    "Empfänger speichern",
+    "Empfänger späicheren"
+  ],
+  "Retirer": ["Remove", "Entfernen", "Ewechhuelen"],
+  "Retirer {0} des destinataires ?": [
+    "Remove {0} from the recipients?",
+    "{0} aus den Empfängern entfernen?",
+    "{0} aus den Empfänger ewechhuelen?"
+  ],
+  "Aucun destinataire enregistré": [
+    "No saved recipients",
+    "Keine gespeicherten Empfänger",
+    "Keng gespäichert Empfänger"
+  ],
+  "Enregistrez un numéro de fax ou une adresse e-mail ici, ou en préparant un envoi.": [
+    "Save a fax number or an email address here, or when you prepare a dispatch.",
+    "Speichern Sie hier eine Faxnummer oder E-Mail-Adresse oder beim Vorbereiten einer Sendung.",
+    "Späichert hei eng Faxnummer oder eng E-Mail-Adress, oder wann Dir eng Sendung virbereet."
+  ],
+  "Enregistrer dans les destinataires": [
+    "Save to recipients",
+    "Bei den Empfängern speichern",
+    "Bei den Empfänger späicheren"
+  ],
+  "Saisissez un numéro de fax que cet atelier peut préparer.": [
+    "Enter a fax number this workspace can prepare.",
+    "Geben Sie eine Faxnummer ein, die dieser Arbeitsbereich vorbereiten kann.",
+    "Gitt eng Faxnummer an, déi dësen Atelier virbereede kann."
+  ],
+  "Saisissez une adresse e-mail complète.": [
+    "Enter a complete email address.",
+    "Geben Sie eine vollständige E-Mail-Adresse ein.",
+    "Gitt eng komplett E-Mail-Adress an."
+  ],
+  "Cet atelier conserve déjà le nombre maximal de destinataires.": [
+    "This workspace already keeps the maximum number of recipients.",
+    "Dieser Arbeitsbereich speichert bereits die Höchstzahl an Empfängern.",
+    "Dësen Atelier späichert schonn déi maximal Zuel vun Empfänger."
+  ],
+  "Destinataire introuvable.": [
+    "Recipient not found.",
+    "Empfänger nicht gefunden.",
+    "Empfänger net fonnt."
+  ]
 }

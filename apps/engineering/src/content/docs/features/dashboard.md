@@ -1,6 +1,6 @@
 ---
 title: "Workspace layout and browser appearance"
-description: "43 capabilities in the operate branch of Guteneo."
+description: "44 capabilities in the operate branch of Guteneo."
 sidebar:
   order: 18
 ---
@@ -61,4 +61,5 @@ The 29 October 2026 Studio space, the application/workspace switchers and the fo
 <li id="feature-57fb9c14fcd7">Command palette (Ctrl or ⌘ + K) listing the pages the menu already shows for the signed-in role in the current application; it grants no access and guarded pages still refuse</li>
 <li id="feature-68b88b442150">Saved table view for the dispatch and document tables: this browser remembers sort and page size only; search text and filters are never stored</li>
 <li id="feature-c129c92dfa06">Outcome tray: an approval or quote renewal that completes after the person left the dispatch page is announced on the current page with a link to the dispatch; the abandoned view is never modified and the tray empties when the signed-in identity changes</li>
+<li id="feature-6f8ef5a548fc">Saved recipients: a workspace keeps up to 500 fax numbers and email addresses (migration 0079, browser-only /api/saved-recipients). Every member reads them on Recipients; preparers add and remove entries and New dispatch suggests them and offers to save a new address after preparation. A saved address only fills a field; rows carry no member identity and the audit log records the channel only</li>
 </ol>

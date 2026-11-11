@@ -7,7 +7,7 @@ sidebar:
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->
 
-**28 domains · 476 capabilities · 47 journeys · 78 REST operations · 83 MCP tools.**
+**28 domains · 477 capabilities · 48 journeys · 78 REST operations · 83 MCP tools.**
 
 Follow a branch to find its behavior, access boundary and engineering guide. Use the site search to find a specific capability.
 
@@ -38,7 +38,7 @@ This is an implementation inventory, not a live availability dashboard. Current 
 
 - [Campaigns and tracking](/features/campaigns/) — 9 capabilities
 - [Credits and billing](/features/billing/) — 10 capabilities
-- [Workspace layout and browser appearance](/features/dashboard/) — 43 capabilities
+- [Workspace layout and browser appearance](/features/dashboard/) — 44 capabilities
 - [PDF verification](/features/pdf-verification/) — 10 capabilities
 
 ## Interfaces

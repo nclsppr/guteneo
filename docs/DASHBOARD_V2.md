@@ -987,6 +987,16 @@ financial consent, communication or deployment.
   validation bubble, and a folded field opens by itself when it is invalid.
   Luxembourg, France, Germany and Belgium lead the postal country list under
   "Frequent destinations", ahead of the full list.
+- **Recipients.** Correspondence lists the fax numbers and email addresses the
+  workspace saved (`/app/recipients`, migration 0079). Every member reads the
+  list; members who prepare add and remove entries. New dispatch suggests saved
+  addresses through the field's own browser list and offers "Save to
+  recipients" for a new address; saving runs after preparation succeeds and its
+  failure never affects the prepared dispatch. A saved address only fills a
+  field: each dispatch is still prepared, reviewed and approved on its own.
+  Rows carry no member identity, so erasing a member's account keeps the
+  workspace's list; the audit log records who saved or removed an entry with
+  its channel only. Postal addresses are not saved yet.
 - **Files.** Every file field is a drop zone with a drag state; the native input
   still performs selection and validation. The documents list keeps its glyph:
   a first-page thumbnail drawn in the browser would read the whole PDF and

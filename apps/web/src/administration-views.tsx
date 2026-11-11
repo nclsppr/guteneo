@@ -1335,6 +1335,8 @@ function auditActionLabel(action: string) {
     "connection.revoked": () => msg("Assistant disconnected"),
     "channel.control": () => msg("Channel switched on or off"),
     "report.exported": () => msg("Report exported"),
+    "recipient.saved": () => msg("Recipient saved"),
+    "recipient.deleted": () => msg("Recipient removed"),
     "account.updated": () => msg("Account updated"),
     "account.session_revoked": () => msg("Session signed out"),
     "postal.sender.declared": () => msg("Postal sender declared"),

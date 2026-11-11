@@ -24,6 +24,7 @@ import {
 import { t } from "./locale";
 import { ProtectedDocumentChoice } from "./protected-document";
 import { EmailComposer } from "./email-composer";
+export { SavedRecipients } from "./saved-recipients-page";
 import type { PostalSetup } from "../../../packages/contracts/src/postal-setup";
 import { PostalSetupPanel } from "./postal-setup-panel";
 import {

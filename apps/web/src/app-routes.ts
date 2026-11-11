@@ -14,6 +14,7 @@ export type WorkshopEntry =
   | "documents"
   | "pdfChecks"
   | "senders"
+  | "recipients"
   | "connection";
 
 /** Workspace administration: reports, members, billing and settings. */
@@ -156,6 +157,7 @@ export function navigationEntryFor(
   if (path === "/app/documents") return "documents";
   if (path === "/app/pdf-checks" || path === "/app/plan") return "pdfChecks";
   if (path === "/app/senders") return "senders";
+  if (path === "/app/recipients") return "recipients";
   if (/^\/app\/connection(\/|$)/.test(path)) return "connection";
   // Correcting a generation's data stays in Generations, where it started.
   if (

@@ -291,6 +291,7 @@ test("every Correspondence entry of an administrator stays in view at 1280 by 72
       "#/app/dispatches",
       "#/app/campaigns",
       "#/app/senders",
+      "#/app/recipients",
       "#/app/pdf-checks",
     ]);
   }

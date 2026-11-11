@@ -978,7 +978,8 @@
         "Automated axe-core WCAG 2 A/AA check of the main Correspondence pages in four languages and both themes in the preview suite; a critical violation fails it",
         "Command palette (Ctrl or ⌘ + K) listing the pages the menu already shows for the signed-in role in the current application; it grants no access and guarded pages still refuse",
         "Saved table view for the dispatch and document tables: this browser remembers sort and page size only; search text and filters are never stored",
-        "Outcome tray: an approval or quote renewal that completes after the person left the dispatch page is announced on the current page with a link to the dispatch; the abandoned view is never modified and the tray empties when the signed-in identity changes"
+        "Outcome tray: an approval or quote renewal that completes after the person left the dispatch page is announced on the current page with a link to the dispatch; the abandoned view is never modified and the tray empties when the signed-in identity changes",
+        "Saved recipients: a workspace keeps up to 500 fax numbers and email addresses (migration 0079, browser-only /api/saved-recipients). Every member reads them on Recipients; preparers add and remove entries and New dispatch suggests them and offers to save a new address after preparation. A saved address only fills a field; rows carry no member identity and the audit log records the channel only"
       ],
       "status": "The 29 October 2026 Studio space, the application/workspace switchers and the four-application ownership check are a local source candidate requiring CI and publication evidence. The 29 October 2026 Classic retirement is a local source candidate requiring CI and publication evidence: every account sees V2, and the stored preference stays accepted without changing the web layout. The initial 25 October theme integration and removal of decorative panels were published from main 03daa4136de8999cc79018f33f2a22038917c621. The personal Classic/V2 account and Belvédère visual follow-up requires its own exact-source release proof and grants no new business authority. The shared outlined personal-context navigation refinement is a local source candidate requiring its own rendered and publication evidence. The 29 October compact V2 navigation and account-menu refinement is a local source candidate requiring CI and publication evidence. The 30 October shared operational-table refinement is locally qualified with synthetic model/browser checks and measured loading recorded in docs/FRONTEND_PERFORMANCE.md; hosted CI and publication remain separate. The 10 November 2026 Overview queue, page titles named after their menu entry, per-page browser tab titles, the unknown-address notice, the 12 px text floor with the four-step text scale, compact short tables, whole-row links, dispatch progress steps, and drop-zone file fields are a local source candidate requiring CI and publication evidence; they change no authority, tenant scope or API.",
       "tests": [
@@ -1852,6 +1853,15 @@
       "branch": "Web only; no REST OAuth, MCP, native, email or push surface. Nothing is reserved, accepted, sent or notified outside the application",
       "doc": "API_CONTRACT.md",
       "failure": "Observers and assistants receive FORBIDDEN; another workspace receives NOT_FOUND; a dispatch that is not awaiting approval receives 409 INVALID_STATE. Asking again returns the first receipt. A new version (new fingerprint) needs its own request. The request never substitutes for approval, and withdrawing preparation permission before the write leaves no receipt."
+    },
+    {
+      "id": "J48",
+      "title": "Reuse a saved recipient",
+      "actor": "Any workspace member reads; an Administrator, Supervisor or Operator saves and removes, in a human browser session",
+      "steps": "Prepare a fax or email → type a new address and tick Save to recipients → after preparation succeeds the address is normalized and saved for the workspace → next time, the field suggests it → open Recipients to read the list or remove an entry with a confirmation.",
+      "branch": "Web only; no REST OAuth, MCP, native or email surface",
+      "doc": "DASHBOARD_V2.md",
+      "failure": "An invalid or non-preparable fax number receives 400 INVALID_RECIPIENT; Observers receive FORBIDDEN on writes; another workspace receives NOT_FOUND; a full list receives 409 SAVED_RECIPIENTS_FULL. Saving the same address again returns the existing entry. A failed save never changes the prepared dispatch."
     }
   ],
   "roles": [
@@ -2333,6 +2343,22 @@
       "Yes",
       "No",
       "Cannot raise a request for human consent; human browser session only"
+    ],
+    [
+      "Read the workspace's saved recipients",
+      "Yes",
+      "Yes",
+      "Yes",
+      "Yes",
+      "No assistant, REST OAuth or native access"
+    ],
+    [
+      "Save or remove a recipient",
+      "Yes",
+      "Yes",
+      "Yes",
+      "No",
+      "No assistant, REST OAuth or native access"
     ]
   ],
   "schemaVersion": 2
