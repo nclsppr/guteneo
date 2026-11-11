@@ -978,7 +978,8 @@ financial consent, communication or deployment.
   approved and accepted in one gesture after any recipient attestation, and a
   letter's single button binds its exact quoted price.
 - **Tables.** A loaded table under five rows hides search, filters and
-  pagination. A row with a link opens from anywhere on the row. The dispatch
+  pagination; Belvédère tables keep them, since operators compare exact values
+  even in short lists. A row with a link opens from anywhere on the row. The dispatch
   list no longer repeats its status groups as a filter.
 - **New dispatch.** The spending limit of every channel sits in a disclosure
   whose summary shows its current value, as letters already did; the exact

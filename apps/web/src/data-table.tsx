@@ -83,10 +83,13 @@ export function DataTable<T>({
   empty,
   scope = "loaded",
   view,
+  compactWhenShort = true,
 }: {
   label: string;
   /** Stable name under which this browser remembers sort and page size. */
   view?: string;
+  /** False where a short list is still compared and searched, as in Belvédère. */
+  compactWhenShort?: boolean;
   scope?: "loaded" | "page";
   items: readonly T[];
   columns: readonly DataTableColumn<T>[];
@@ -194,7 +197,11 @@ export function DataTable<T>({
       className={`data-table ${className}`}
       data-layout={layout}
       // A very short loaded list needs no search, filters or pagination.
-      data-compact={scope === "loaded" && items.length < 5 ? "" : undefined}
+      data-compact={
+        compactWhenShort && scope === "loaded" && items.length < 5
+          ? ""
+          : undefined
+      }
       aria-busy={ariaBusy}
     >
       <div className="data-table__toolbar" role="group" aria-label={label}>

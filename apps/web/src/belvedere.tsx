@@ -1207,6 +1207,7 @@ function ActivityChart({ data }: { data: BelvedereOverview["trend"] }) {
             <DataTable
               label={bmsg("Daily values")}
               className="bv-data-table"
+              compactWhenShort={false}
               items={data}
               getRowKey={(item) => item.date}
               columns={[
@@ -1421,6 +1422,7 @@ function Workshops({
         <DataTable
           label={bmsg("Workshops and consumption")}
           className="bv-data-table"
+          compactWhenShort={false}
           items={data.items}
           getRowKey={(item) => item.id}
           searchable={false}
@@ -1670,6 +1672,7 @@ function WorkshopDetail({
               <DataTable
                 label={bmsg("Workshop dispatches")}
                 className="bv-data-table"
+                compactWhenShort={false}
                 items={data.dispatches.items}
                 getRowKey={(dispatch) => dispatch.id}
                 searchable={false}
@@ -1850,6 +1853,7 @@ function Members({
         <DataTable
           label={bmsg("Members and access")}
           className="bv-data-table"
+          compactWhenShort={false}
           items={data.items}
           getRowKey={(member) => member.id}
           searchable={false}
@@ -2050,6 +2054,7 @@ function Connections({ basePath, filters, revision, refresh }: ViewProps) {
               <DataTable
                 label={bmsg("Current sessions and authorisations")}
                 className="bv-data-table"
+                compactWhenShort={false}
                 items={data.current.items}
                 getRowKey={(connection) => connection.id}
                 searchable={false}
@@ -2144,6 +2149,7 @@ function Connections({ basePath, filters, revision, refresh }: ViewProps) {
               <DataTable
                 label={bmsg("Connection history")}
                 className="bv-data-table"
+                compactWhenShort={false}
                 items={data.events.items}
                 getRowKey={(connection) => connection.id}
                 searchable={false}
@@ -2380,6 +2386,7 @@ function Finance({ basePath, filters, revision, refresh }: ViewProps) {
           <DataTable
             label={bmsg("Monthly consumption")}
             className="bv-data-table"
+            compactWhenShort={false}
             items={data.monthly}
             getRowKey={(month) => month.month}
             columns={[
@@ -2706,6 +2713,7 @@ function InfrastructureChart({
         <DataTable
           label={bmsg("Hourly Cloudflare measurements")}
           className="bv-data-table"
+          compactWhenShort={false}
           items={series}
           getRowKey={(item) => item.hour}
           columns={[
@@ -2802,6 +2810,7 @@ function CloudflareBilling({
           <DataTable
             label={bmsg("Cloudflare billable usage by service")}
             className="bv-data-table"
+            compactWhenShort={false}
             items={data.services}
             getRowKey={(service) => `${service.service}:${service.currency}`}
             columns={[
@@ -3128,6 +3137,7 @@ function Jobs({
           <DataTable
             label={bmsg("All dispatches and their costs")}
             className="bv-data-table"
+            compactWhenShort={false}
             items={data.items}
             getRowKey={(job) => job.id}
             searchable={false}
