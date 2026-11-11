@@ -7,7 +7,10 @@ export type BelvedereCountKind =
   | "workshops"
   | "deliveries"
   | "connections"
-  | "authorizations";
+  | "authorizations"
+  | "pages"
+  | "delivered"
+  | "attention";
 
 /** Labels are complete messages so each language controls number and grammar. */
 export function belvedereCount(
@@ -35,6 +38,16 @@ export function belvedereCount(
       return count === 1
         ? bmsg("1 session or authorization")
         : bmsg("{0} sessions and authorizations", number(count));
+    case "pages":
+      return count === 1 ? bmsg("1 page") : bmsg("{0} pages", number(count));
+    case "delivered":
+      return count === 1
+        ? bmsg("1 delivered")
+        : bmsg("{0} delivered", number(count));
+    case "attention":
+      return count === 1
+        ? bmsg("1 needs attention")
+        : bmsg("{0} need attention", number(count));
     default:
       return count === 1
         ? bmsg("1 result")

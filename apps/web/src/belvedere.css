@@ -1184,12 +1184,14 @@
   font-weight: 500;
   letter-spacing: -0.025em;
 }
+/* A missing figure is a sentence, not a headline number. */
 .bv-result > strong {
   display: block;
-  font-size: 26px;
-  font-weight: 400;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
   color: var(--muted);
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 .bv-result > p {
   font-size: 14px;

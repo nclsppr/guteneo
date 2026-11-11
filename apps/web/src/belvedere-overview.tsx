@@ -18,6 +18,7 @@ import {
   useBelvedereResource,
 } from "./belvedere-data";
 import { bmsg, bmsgIn } from "./belvedere-i18n";
+import { belvedereCount } from "./belvedere-presentation";
 
 import { DataTable } from "./data-table";
 import {
@@ -60,10 +61,8 @@ export function Overview(
           value={number(totals.dispatches)}
           accent
         >
-          {number(totals.delivered)}
-          {bmsg(" delivered · ")}
-          {number(totals.pages)}
-          {bmsg(" pages")}
+          {belvedereCount("delivered", totals.delivered)} ·{" "}
+          {belvedereCount("pages", totals.pages)}
         </Stat>
         <Stat
           label={bmsg("Customer consumption")}

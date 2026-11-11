@@ -1307,14 +1307,12 @@
     "im Zeitraum erstellte Sendungen ohne geprüfte Anbieterkosten. Ein fehlender Wert bedeutet nicht null Kosten.",
     "Sendungen an dëser Period erstallt ouni iwwerpréift Ubidderkäschten. E feelende Wäert bedeit net null Käschten."
   ],
-  "livrés ·": ["delivered ·", "zugestellt ·", "zougestallt ·"],
   "membres": ["members", "Mitglieder", "Memberen"],
   "membres distincts": [
     "distinct members",
     "eindeutige Mitglieder",
     "eenzegaarteg Memberen"
   ],
-  "pages": ["pages", "Seiten", "Säiten"],
   "pays renseignés": [
     "countries recorded",
     "Länder erfasst",
@@ -1454,7 +1452,6 @@
     "Im gewählten Zeitraum beobachtete Ereignisse",
     "Evenementer an der gewielter Period observéiert"
   ],
-  "à surveiller": ["need attention", "zu beachten", "ze iwwerwaachen"],
   "consommation client en euros": [
     "customer consumption in euros",
     "Kundenverbrauch in Euro",
@@ -1575,5 +1572,14 @@
     "Inclusive dates.",
     "Einschließlich beider Daten.",
     "Béid Datumer abegraff."
+  ],
+  "1 page": ["1 page", "1 Seite", "1 Säit"],
+  "1 livré": ["1 delivered", "1 zugestellt", "1 zougestallt"],
+  "{0} livrés": ["{0} delivered", "{0} zugestellt", "{0} zougestallt"],
+  "1 à surveiller": ["1 needs attention", "1 zu beachten", "1 ze iwwerwaachen"],
+  "{0} à surveiller": [
+    "{0} need attention",
+    "{0} zu beachten",
+    "{0} ze iwwerwaachen"
   ]
 }

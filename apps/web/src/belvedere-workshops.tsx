@@ -265,15 +265,13 @@ export function WorkshopDetail({
               label={bmsg("Dispatches")}
               value={number(data.workshop.dispatches)}
             >
-              {number(data.workshop.attention)}
-              {bmsg(" need attention")}
+              {belvedereCount("attention", data.workshop.attention)}
             </Stat>
             <Stat
               label={bmsg("Documents")}
               value={number(data.workshop.documents)}
             >
-              {number(data.workshop.pages)}
-              {bmsg(" pages")}
+              {belvedereCount("pages", data.workshop.pages)}
             </Stat>
             <Stat
               label={bmsg("Available credit")}

@@ -26,7 +26,7 @@ export function InvitationPage() {
   const [loading, setLoading] = useState(Boolean(token));
   const action = useAction();
   useEffect(() => {
-    document.title = `${msg("Invitation to join a workspace")} | Guteneo`;
+    document.title = `${msg("Invitation to join a workspace")} | guteneo`;
     if (window.location.hash)
       window.history.replaceState(
         null,
