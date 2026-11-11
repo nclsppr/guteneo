@@ -295,30 +295,23 @@ export function AdministrationOverviewPage({ route }: { route: string }) {
       ) : (
         data && (
           <>
-            {data.incidents.length > 0 && (
+            {/* Dispatches needing attention are the amber figure below; the
+                banner keeps only what no figure shows. */}
+            {data.incidents.some(
+              (incident) => incident.kind === "outbox_delayed",
+            ) && (
               <div className="notice warning" role="status">
                 <WarningCircle size={24} aria-hidden="true" />
                 <p>
                   {data.incidents
+                    .filter((incident) => incident.kind === "outbox_delayed")
                     .map((incident) =>
-                      incident.kind === "outbox_delayed"
-                        ? msg(
-                            "{0} accepted dispatches are waiting to be transmitted.",
-                            count(incident.count),
-                          )
-                        : incident.count === 1
-                          ? msg("1 dispatch needs attention.")
-                          : msg(
-                              "{0} dispatches need attention.",
-                              count(incident.count),
-                            ),
+                      msg(
+                        "{0} accepted dispatches are waiting to be transmitted.",
+                        count(incident.count),
+                      ),
                     )
-                    .join(" ")}{" "}
-                  <a
-                    href={`#${routeWith(administrationRoutes.activity, { ...period, group: "attention" })}`}
-                  >
-                    {msg("Review them")}
-                  </a>
+                    .join(" ")}
                 </p>
               </div>
             )}
@@ -326,7 +319,6 @@ export function AdministrationOverviewPage({ route }: { route: string }) {
               <StatTile
                 label={msg("Dispatches")}
                 value={count(data.totals.dispatches)}
-                tone="accent"
               >
                 {msg("{0} delivered", count(data.totals.delivered))}
               </StatTile>
@@ -340,6 +332,11 @@ export function AdministrationOverviewPage({ route }: { route: string }) {
                 label={msg("Needing attention")}
                 value={count(data.totals.attention)}
                 tone={data.totals.attention ? "warning" : "neutral"}
+                href={
+                  data.totals.attention
+                    ? `#${routeWith(administrationRoutes.activity, { ...period, group: "attention" })}`
+                    : undefined
+                }
               >
                 {msg("Failed, rejected or uncertain")}
               </StatTile>
@@ -748,7 +745,6 @@ export function AdministrationConsumptionPage({ route }: { route: string }) {
               <StatTile
                 label={msg("Consumption")}
                 value={amount(data.totalMinor)}
-                tone="accent"
               >
                 {data.basis === "posted_ledger"
                   ? msg("By posting date of each charge")

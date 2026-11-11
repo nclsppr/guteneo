@@ -174,6 +174,7 @@ export function StatTile({
   tone = "neutral",
   variant = "card",
   className = "",
+  href,
 }: {
   label: string;
   value: ReactNode;
@@ -181,15 +182,24 @@ export function StatTile({
   tone?: "neutral" | "accent" | "warning";
   variant?: "card" | "plain";
   className?: string;
+  /** The list behind the figure, when there is one. */
+  href?: string;
 }) {
-  return (
-    <div
-      className={`stat-tile stat-tile-${tone} stat-tile-${variant} ${className}`.trim()}
-    >
+  const classes =
+    `stat-tile stat-tile-${tone} stat-tile-${variant} ${className}`.trim();
+  const content = (
+    <>
       <span>{label}</span>
       <strong>{value}</strong>
       {children && <small>{children}</small>}
-    </div>
+    </>
+  );
+  return href ? (
+    <a className={classes} href={href}>
+      {content}
+    </a>
+  ) : (
+    <div className={classes}>{content}</div>
   );
 }
 
@@ -209,8 +219,13 @@ export function BreakdownBars({
   format: (value: number) => string;
 }) {
   const top = Math.max(1, ...items.map((item) => item.value));
+  // One category has nothing to compare: show its figure without a full bar.
+  const single = items.length === 1;
   return (
-    <ul className="breakdown-bars" aria-label={label}>
+    <ul
+      className={single ? "breakdown-bars breakdown-single" : "breakdown-bars"}
+      aria-label={label}
+    >
       {items.map((item) => (
         <li key={item.key}>
           <span className="breakdown-bars-label">{item.label}</span>

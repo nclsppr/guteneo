@@ -313,7 +313,13 @@ export function Documents({ canPrepare = true }: { canPrepare?: boolean }) {
             )}
             <div>
               <div role="status" aria-live="polite" aria-atomic="true">
-                <h3>{msg(analysis.title)}</h3>
+                {/* A ready PDF shows its state in the badge beside its name;
+                    the live region still announces it. */}
+                <h3
+                  className={analysis.state === "ready" ? "sr-only" : undefined}
+                >
+                  {msg(analysis.title)}
+                </h3>
                 <p>{msg(analysis.message)}</p>
               </div>
               {analysis.state === "processing" && !followup.issue && (
