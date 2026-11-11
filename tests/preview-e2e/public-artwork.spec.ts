@@ -30,23 +30,27 @@ test("the home panorama follows the selected theme while other pages keep the co
   await expect(page.locator(".public-site-footer .founding-stamp")).toHaveCount(
     1,
   );
-  const centered = await closing
-    .locator(".footer-invitation-copy")
-    .evaluate((copy) => {
-      const center = (element: Element) => {
-        const box = element.getBoundingClientRect();
-        return box.x + box.width / 2;
-      };
-      return {
-        column: center(copy),
-        heading: center(copy.querySelector("h2")!),
-        action: center(copy.querySelector("a")!),
-        align: getComputedStyle(copy.querySelector("h2")!).textAlign,
-      };
-    });
-  expect(centered.align).toBe("center");
-  expect(Math.abs(centered.heading - centered.column)).toBeLessThanOrEqual(1);
-  expect(Math.abs(centered.action - centered.heading)).toBeLessThanOrEqual(1);
+  // React replaces the prerendered page once it mounts; a node measured
+  // during that swap is detached, so the measurement is read again.
+  await expect(async () => {
+    const centered = await closing
+      .locator(".footer-invitation-copy")
+      .evaluate((copy) => {
+        const center = (element: Element) => {
+          const box = element.getBoundingClientRect();
+          return box.x + box.width / 2;
+        };
+        return {
+          column: center(copy),
+          heading: center(copy.querySelector("h2")!),
+          action: center(copy.querySelector("a")!),
+          align: getComputedStyle(copy.querySelector("h2")!).textAlign,
+        };
+      });
+    expect(centered.align).toBe("center");
+    expect(Math.abs(centered.heading - centered.column)).toBeLessThanOrEqual(1);
+    expect(Math.abs(centered.action - centered.heading)).toBeLessThanOrEqual(1);
+  }).toPass({ timeout: 10_000 });
   for (const theme of ["light", "dark"] as const) {
     await choosePublicTheme(page, theme);
     const footer = page.locator(".public-site-footer");
