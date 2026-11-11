@@ -15,6 +15,7 @@ import {
 } from "../../packages/domain/src/index";
 import type { Env } from "../../apps/api/src/env";
 import { SavedRecipientService } from "../../apps/api/src/saved-recipients";
+import { ScheduledReleaseService } from "../../apps/api/src/scheduled-releases";
 import {
   CustomerWebhookService,
   deliverCustomerWebhooks,
@@ -327,6 +328,131 @@ describe("workspace roles on current D1 membership", () => {
     await expect(
       domain.requestDispatchApproval(operator.context, dispatch.id),
     ).rejects.toMatchObject({ code: "INVALID_STATE" });
+  });
+
+  it("releases a scheduled dispatch on the approver's recorded consent, once, and refuses when that consent no longer holds", async () => {
+    let clock = Date.now();
+    const scheduler = new ScheduledReleaseService(db, domain, () => clock);
+    const inTen = () => new Date(clock + 10 * 60_000).toISOString();
+    const dispatch = await prepare();
+    await expect(
+      scheduler.schedule(operator.context, dispatch.id, {
+        fingerprint: dispatch.fingerprint,
+        releaseAt: inTen(),
+      }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+    await expect(
+      scheduler.schedule(admin.context, dispatch.id, {
+        fingerprint: dispatch.fingerprint,
+        releaseAt: new Date(clock + 60_000).toISOString(),
+      }),
+    ).rejects.toMatchObject({ code: "SCHEDULE_OUT_OF_RANGE" });
+    await expect(
+      scheduler.schedule(admin.context, dispatch.id, {
+        fingerprint: "0".repeat(64),
+        releaseAt: inTen(),
+      }),
+    ).rejects.toMatchObject({ code: "VERSION_CHANGED" });
+    const scheduled = await scheduler.schedule(admin.context, dispatch.id, {
+      fingerprint: dispatch.fingerprint,
+      releaseAt: inTen(),
+      recipientRequested: true,
+    });
+    expect(scheduled.schedule).toMatchObject({ state: "scheduled" });
+    await expect(
+      scheduler.schedule(admin.context, dispatch.id, {
+        fingerprint: dispatch.fingerprint,
+        releaseAt: inTen(),
+      }),
+    ).rejects.toMatchObject({ code: "ALREADY_SCHEDULED" });
+    expect(
+      (await scheduler.read(observer.context, dispatch.id)).schedule,
+    ).toMatchObject({ state: "scheduled" });
+    await expect(
+      scheduler.read(outsider.context, dispatch.id),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+
+    // Nothing leaves before its time; at its time it leaves once.
+    expect(await scheduler.releaseDue()).toMatchObject({
+      scheduledReleased: 0,
+    });
+    expect(await count("outbox")).toBe(0);
+    clock += 11 * 60_000;
+    expect(await scheduler.releaseDue()).toMatchObject({
+      scheduledReleased: 1,
+    });
+    expect(await scheduler.releaseDue()).toMatchObject({
+      scheduledReleased: 0,
+    });
+    expect(
+      (await domain.getDispatch(admin.context, dispatch.id)).dispatch.status,
+    ).toBe("queued");
+    const approval = await db
+      .prepare(
+        "SELECT user_id,scheduled_release_id,approval_kind FROM approvals WHERE organization_id=? AND dispatch_id=?",
+      )
+      .bind(admin.context.organizationId, dispatch.id)
+      .first<{
+        user_id: string;
+        scheduled_release_id: string;
+        approval_kind: string;
+      }>();
+    expect(approval).toEqual({
+      user_id: admin.context.userId,
+      scheduled_release_id: scheduled.schedule!.id,
+      approval_kind: "browser",
+    });
+    expect(
+      (await scheduler.read(admin.context, dispatch.id)).schedule,
+    ).toMatchObject({ state: "released", released_dispatch_id: dispatch.id });
+
+    // An approver who lost the right to approve no longer releases anything.
+    await permissions(supervisor, true, false);
+    const withdrawn = await prepare();
+    await scheduler.schedule(
+      { ...supervisor.context, supervisorCanApprove: true },
+      withdrawn.id,
+      { fingerprint: withdrawn.fingerprint, releaseAt: inTen() },
+    );
+    await permissions(supervisor, false, false);
+    clock += 11 * 60_000;
+    expect(await scheduler.releaseDue()).toMatchObject({ scheduledRefused: 1 });
+    expect(
+      (await scheduler.read(admin.context, withdrawn.id)).schedule,
+    ).toMatchObject({
+      state: "refused",
+      outcome_code: "APPROVER_NOT_AUTHORIZED",
+    });
+    expect(
+      (await domain.getDispatch(admin.context, withdrawn.id)).dispatch.status,
+    ).toBe("prepared");
+
+    // A cancelled schedule or a cancelled dispatch is never released.
+    const kept = await prepare();
+    await scheduler.schedule(admin.context, kept.id, {
+      fingerprint: kept.fingerprint,
+      releaseAt: inTen(),
+    });
+    await scheduler.cancel(admin.context, kept.id);
+    const dropped = await prepare();
+    await scheduler.schedule(admin.context, dropped.id, {
+      fingerprint: dropped.fingerprint,
+      releaseAt: inTen(),
+    });
+    await domain.cancelDispatch(admin.context, dropped.id);
+    clock += 11 * 60_000;
+    expect(await scheduler.releaseDue()).toMatchObject({
+      scheduledReleased: 0,
+    });
+    expect(
+      (await scheduler.read(admin.context, kept.id)).schedule,
+    ).toMatchObject({ state: "cancelled" });
+    expect(
+      (await scheduler.read(admin.context, dropped.id)).schedule,
+    ).toMatchObject({
+      state: "cancelled",
+      outcome_code: "DISPATCH_NOT_PREPARED",
+    });
   });
 
   it("queues signed webhook notices for administrators' endpoints without content or retries forever", async () => {

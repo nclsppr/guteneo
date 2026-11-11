@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**28 domains · 479 features · 49 journeys · 78 documented REST operations · 83 MCP tools**
+**28 domains · 480 features · 50 journeys · 78 documented REST operations · 83 MCP tools**
 Updated 2026-11-11.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -15,7 +15,7 @@ mindmap
   root((Guteneo))
     Access
       Access and identity (40)
-      Team and responsibilities (11)
+      Team and responsibilities (12)
       Workspace administration and reports (15)
     Create
       Documents and protection (22)
@@ -52,7 +52,7 @@ mindmap
 ### Access
 
 - [Access and identity](#identity) — 40 features; browser-session.
-- [Team and responsibilities](#team) — 11 features; browser-session.
+- [Team and responsibilities](#team) — 12 features; browser-session.
 - [Workspace administration and reports](#administration) — 15 features; browser-session.
 
 ### Create
@@ -169,6 +169,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Read the workspace's saved recipients | Yes | Yes | Yes | Yes | No assistant, REST OAuth or native access |
 | Save or remove a recipient | Yes | Yes | Yes | No | No assistant, REST OAuth or native access |
 | Manage customer webhook addresses | Yes | No | No | No | No assistant, REST OAuth or native access; browser administrator session only |
+| Schedule or cancel a dispatch's release | Yes | Approval option | No | No | No assistant, REST OAuth or native access; human browser session only |
 
 Supervisor approval/reporting options are independent and off by default. Resource ownership/context checks still apply. See [workspace roles](WORKSPACE_ROLES.md), [expert approval](EXPERT_APPROVAL.md) and [studio access](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -231,7 +232,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="team"></a>
 ### Team and responsibilities
 
-**Availability model:** browser-session. Implemented; invitations require separately configured delivery. The 10 November 2026 approval request (POST /api/dispatches/:id/request-approval, migration 0078 index, dispatch page control) is a local source candidate covered by the workspace-role integration test; it requires CI, application-browser and publication evidence. Only a human browser session receives the approvalRequest field of the dispatch detail; REST OAuth, assistant and native responses are unchanged.
+**Availability model:** browser-session. Implemented; invitations require separately configured delivery. The 10 November 2026 approval request (POST /api/dispatches/:id/request-approval, migration 0078 index, dispatch page control) is a local source candidate covered by the workspace-role integration test; it requires CI, application-browser and publication evidence. Only a human browser session receives the approvalRequest field of the dispatch detail; REST OAuth, assistant and native responses are unchanged. The 11 November 2026 scheduled sending (release 1.1.38) is a local source candidate covered by integration tests for releases, refusals and cancellations; the production fax renewal branch is not exercised through a scheduled release, and CI, staging and publication evidence are required.
 
 **Surfaces:** Authenticated browser; invitation emails are authored in English.
 
@@ -246,6 +247,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Sensitive approval and recipient/account association require a browser under the current document policy; OAuth confirmation follows recorded browser evidence, with no expert-mandate substitute
 - Workspace roles grant no access to another person’s vault; a recipient gains no membership in the sender’s workspace
 - Approval request: a member who can prepare asks the workspace's approvers to review a dispatch awaiting approval, from a human browser session only; one audit receipt per version (fingerprint), shown to approvers on the dispatch and as an "Approval requested" label that leads the Overview queue; it approves, reserves, sends and notifies nothing
+- Scheduled sending: an approver schedules a prepared individual fax or email from the browser five minutes to thirty days ahead (migration 0081); at that time the minute scheduler rechecks the approver's right, renews an expired production fax quote with identical content and ceiling, writes a browser approval naming the schedule and runs the usual atomic acceptance; refusals are final and uncertain outcomes are never retried automatically
 
 **Contract:** [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md) · **Implementation:** [packages/contracts/src/roles.ts](../packages/contracts/src/roles.ts)
 
@@ -1750,6 +1752,16 @@ Open Administration → Settings → Webhooks → add a public HTTPS address →
 **Failure/recovery:** Non-HTTPS, IP, private or credentialed addresses receive 400 WEBHOOK_URL_INVALID; a duplicate 409 WEBHOOK_EXISTS; a sixth address 409 WEBHOOKS_FULL; a missing server key 503 WEBHOOKS_UNAVAILABLE and no delivery. Non-2xx answers, timeouts and network errors retry after 1, 5, 30, 120 and 360 minutes, then the notice is abandoned. Replacing the secret invalidates the previous one at once.
 
 [Detailed contract](CUSTOMER_WEBHOOKS.md).
+
+### J50 · Schedule a dispatch for later
+
+**Actor:** Administrator or Supervisor with the approval option, in a browser; then the scheduler acting on that recorded consent. **Branch:** Web only; no MCP, REST OAuth or native scheduling. Postal letters, campaign members and secure distributions keep immediate approval.
+
+Open a prepared fax or email → check the content and consent boxes → open Send later, choose a date and time → Approve and schedule → the page shows when it leaves and who scheduled it → at that time the scheduler rechecks the approver, keeps or renews the quote within the ceiling, writes an approval naming the schedule and accepts the dispatch → tracking and webhooks report its progress; an approver may cancel the schedule before then.
+
+**Failure/recovery:** Operators and Observers receive FORBIDDEN; a time under five minutes or beyond thirty days 400 SCHEDULE_OUT_OF_RANGE; another version 409 VERSION_CHANGED; a second schedule 409 ALREADY_SCHEDULED. At release, a lost approval right, an expired non-renewable quote or a renewed estimate above the ceiling refuse it for good; a dispatch already sent or cancelled closes it; an unexpected failure is marked uncertain without any automatic retry.
+
+[Detailed contract](SCHEDULED_SENDING.md).
 
 ## Required maintenance
 

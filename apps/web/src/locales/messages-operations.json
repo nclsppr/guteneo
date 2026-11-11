@@ -3151,5 +3151,82 @@
     "Recipient not found.",
     "Empfänger nicht gefunden.",
     "Empfänger net fonnt."
+  ],
+  "Programmé pour le {0} par {1}. Il sera approuvé à ce moment-là si son approbateur peut toujours approuver et si son prix reste sous le plafond.": [
+    "Scheduled for {0} by {1}. It is approved then, if its approver may still approve and its price stays within the ceiling.",
+    "Geplant für {0} von {1}. Die Freigabe erfolgt dann, wenn die freigebende Person noch freigeben darf und der Preis unter der Obergrenze bleibt.",
+    "Geplangt fir den {0} vum {1}. D’Fräigab geschitt dann, wann déi Persoun nach fräigi däerf an de Präis ënner dem Plafong bleift."
+  ],
+  "Annuler la programmation": [
+    "Cancel the schedule",
+    "Planung abbrechen",
+    "Planung ofbriechen"
+  ],
+  "Annuler cette programmation ? L’envoi reste en attente d’approbation.": [
+    "Cancel this schedule? The dispatch stays awaiting approval.",
+    "Diese Planung abbrechen? Die Sendung wartet weiter auf Freigabe.",
+    "Dës Planung ofbriechen? D’Sendung waart weider op Fräigab."
+  ],
+  "Envoyer plus tard": ["Send later", "Später senden", "Méi spéit schécken"],
+  "Date et heure": ["Date and time", "Datum und Uhrzeit", "Datum an Zäit"],
+  "Approuver et programmer": [
+    "Approve and schedule",
+    "Freigeben und planen",
+    "Fräiginn a plangen"
+  ],
+  "L’envoi programmé n’a pas pu être confirmé. Rien n’est retenté automatiquement : vérifiez cet envoi avant de l’approuver à nouveau.": [
+    "The scheduled release could not be confirmed. Nothing is retried automatically: check this dispatch before approving it again.",
+    "Die geplante Freigabe konnte nicht bestätigt werden. Nichts wird automatisch wiederholt: Prüfen Sie diese Sendung, bevor Sie sie erneut freigeben.",
+    "Déi geplangte Fräigab konnt net bestätegt ginn. Näischt gëtt automatesch widderholl: préift dës Sendung, ier Dir se nach eng Kéier fräigitt."
+  ],
+  "L’envoi programmé a été refusé : son approbateur ne peut plus approuver. Approuvez-le à nouveau s’il doit partir.": [
+    "The scheduled release was refused: its approver may no longer approve. Approve it again if it should leave.",
+    "Die geplante Freigabe wurde abgelehnt: Die freigebende Person darf nicht mehr freigeben. Geben Sie die Sendung erneut frei, wenn sie versendet werden soll.",
+    "Déi geplangte Fräigab gouf refuséiert: déi Persoun däerf net méi fräiginn. Gitt se nach eng Kéier fräi, wann se fortgoe soll."
+  ],
+  "L’envoi programmé a été refusé : le prix au départ ne tenait pas dans le plafond approuvé. Vérifiez un nouveau devis.": [
+    "The scheduled release was refused: the price at release did not fit the approved ceiling. Review a new quote.",
+    "Die geplante Freigabe wurde abgelehnt: Der Preis zum Versandzeitpunkt passte nicht unter die freigegebene Obergrenze. Prüfen Sie ein neues Angebot.",
+    "Déi geplangte Fräigab gouf refuséiert: de Präis beim Fortgoen huet net ënner de fräiginnene Plafong gepasst. Préift en neien Devis."
+  ],
+  "L’envoi programmé a été refusé. Vérifiez cet envoi et approuvez-le à nouveau s’il doit partir.": [
+    "The scheduled release was refused. Review this dispatch and approve it again if it should leave.",
+    "Die geplante Freigabe wurde abgelehnt. Prüfen Sie diese Sendung und geben Sie sie erneut frei, wenn sie versendet werden soll.",
+    "Déi geplangte Fräigab gouf refuséiert. Préift dës Sendung a gitt se nach eng Kéier fräi, wann se fortgoe soll."
+  ],
+  "La programmation exige une session humaine authentifiée.": [
+    "Scheduling requires an authenticated human session.",
+    "Die Planung erfordert eine authentifizierte menschliche Sitzung.",
+    "D’Planung verlaangt eng authentifizéiert mënschlech Sessioun."
+  ],
+  "Seul un fax ou un e-mail individuel peut être programmé.": [
+    "Only an individual fax or email can be scheduled.",
+    "Nur ein einzelnes Fax oder eine einzelne E-Mail kann geplant werden.",
+    "Nëmmen en eenzele Fax oder eng eenzel E-Mail kann geplangt ginn."
+  ],
+  "Seul un envoi en attente d’approbation peut être programmé.": [
+    "Only a dispatch awaiting approval can be scheduled.",
+    "Nur eine Sendung, die auf Freigabe wartet, kann geplant werden.",
+    "Nëmmen eng Sendung, déi op Fräigab waart, kann geplangt ginn."
+  ],
+  "Cette version n’est plus celle en attente d’approbation. Vérifiez-la à nouveau.": [
+    "This version is no longer the one awaiting approval. Review it again.",
+    "Diese Version wartet nicht mehr auf Freigabe. Prüfen Sie sie erneut.",
+    "Dës Versioun waart net méi op Fräigab. Préift se nach eng Kéier."
+  ],
+  "Choisissez un moment entre cinq minutes et trente jours à partir de maintenant.": [
+    "Choose a time between five minutes and thirty days from now.",
+    "Wählen Sie einen Zeitpunkt zwischen fünf Minuten und dreißig Tagen ab jetzt.",
+    "Wielt en Zäitpunkt tëscht fënnef Minutten an drësseg Deeg vun elo un."
+  ],
+  "Cet envoi est déjà programmé. Annulez d’abord cette programmation.": [
+    "This dispatch is already scheduled. Cancel that schedule first.",
+    "Diese Sendung ist bereits geplant. Brechen Sie diese Planung zuerst ab.",
+    "Dës Sendung ass schonn geplangt. Brecht dës Planung fir d’éischt of."
+  ],
+  "Cet envoi n’a plus de programmation à annuler.": [
+    "This dispatch has no schedule left to cancel.",
+    "Diese Sendung hat keine Planung mehr, die abgebrochen werden kann.",
+    "Dës Sendung huet keng Planung méi, déi ofgebrach ka ginn."
   ]
 }

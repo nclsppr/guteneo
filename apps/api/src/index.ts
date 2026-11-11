@@ -75,6 +75,7 @@ import { DatasetError } from "../../../packages/data/index";
 import { maintainDocuments } from "./maintenance";
 import { DeadLetterService } from "./dead-letters";
 import { setBrowserChannelControl } from "./browser-administrator";
+import { ScheduledReleaseService, scheduleInput } from "./scheduled-releases";
 import {
   CustomerWebhookService,
   deliverCustomerWebhooks,
@@ -1290,6 +1291,37 @@ app.post("/api/dispatches/:id/confirm", async (c) => {
 app.post("/api/dispatches/:id/cancel", async (c) =>
   c.json(await domain(c.env).cancelDispatch(c.get("actor"), c.req.param("id"))),
 );
+// Scheduled sending: a human approver in the browser schedules; anyone who
+// can read the dispatch reads its schedule.
+app.get("/api/dispatches/:id/schedule", async (c) => {
+  const session = await authenticateBrowser(c.req.raw, c.env);
+  return c.json(
+    await new ScheduledReleaseService(c.env.DB, domain(c.env)).read(
+      session.context as ActorContext,
+      c.req.param("id"),
+    ),
+  );
+});
+app.post("/api/dispatches/:id/schedule", async (c) => {
+  const session = await authenticateBrowser(c.req.raw, c.env, true);
+  return c.json(
+    await new ScheduledReleaseService(c.env.DB, domain(c.env)).schedule(
+      session.context as ActorContext,
+      c.req.param("id"),
+      scheduleInput.parse(await c.req.json()),
+    ),
+    201,
+  );
+});
+app.delete("/api/dispatches/:id/schedule", async (c) => {
+  const session = await authenticateBrowser(c.req.raw, c.env, true);
+  return c.json(
+    await new ScheduledReleaseService(c.env.DB, domain(c.env)).cancel(
+      session.context as ActorContext,
+      c.req.param("id"),
+    ),
+  );
+});
 app.post("/api/dispatches/:id/request-approval", async (c) => {
   // Human browser session with CSRF, like approval itself.
   const session = await authenticateBrowser(c.req.raw, c.env, true);
@@ -1842,6 +1874,17 @@ export default {
         return;
       }
       assertConfiguration(env);
+      // Due scheduled releases are accepted before the outbox is published,
+      // so a released dispatch leaves in the same tick.
+      stage = "scheduled";
+      try {
+        Object.assign(
+          counts,
+          await new ScheduledReleaseService(env.DB, service).releaseDue(),
+        );
+      } catch {
+        counts.scheduledUncertain = (counts.scheduledUncertain ?? 0) + 1;
+      }
       stage = "outbox";
       Object.assign(counts, await publishOutbox(env, service));
       // Status notices to customer endpoints: bounded per tick, never a

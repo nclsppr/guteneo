@@ -119,6 +119,22 @@ rotating it replaces every receiver's secret. Limits as of 11 November 2026:
 local integration tests only, no real receiver called, no staging run. The
 repository's `docs/CUSTOMER_WEBHOOKS.md` owns the contract.
 
+## Scheduled releases execute a recorded approval
+
+A schedule is an approval recorded in the browser for a later time. Each minute,
+before the outbox stage, the scheduler claims at most ten due schedules. It
+rechecks the approver's current right to approve, keeps the reviewed dispatch
+while its quote is valid or renews an expired production fax quote with the same
+PDF, recipient, sender and ceiling, then writes an ordinary browser approval that
+names the schedule and runs the usual atomic acceptance. A refusal is final and
+withdraws that approval; an unexpected failure is marked uncertain and never
+retried automatically. Postal letters, campaigns and secure distributions cannot
+be scheduled. The counters are `scheduledReleased`, `scheduledRefused` and
+`scheduledUncertain`. Limits as of 11 November 2026: local integration tests
+cover releases, refusals and cancellations; the production fax renewal branch is
+not exercised through a scheduled release. The repository's
+`docs/SCHEDULED_SENDING.md` owns the rules.
+
 ## Private original staging has its own cleanup fence
 
 The default-off MCP App transport published in 1.1.6 stages fixed original-file parts

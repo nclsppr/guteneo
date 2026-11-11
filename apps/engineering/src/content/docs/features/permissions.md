@@ -73,5 +73,6 @@ There are four human membership roles. A connected assistant is a separate OAuth
 | Read the workspace's saved recipients | Yes | Yes | Yes | Yes | No assistant, REST OAuth or native access |
 | Save or remove a recipient | Yes | Yes | Yes | No | No assistant, REST OAuth or native access |
 | Manage customer webhook addresses | Yes | No | No | No | No assistant, REST OAuth or native access; browser administrator session only |
+| Schedule or cancel a dispatch's release | Yes | Approval option | No | No | No assistant, REST OAuth or native access; human browser session only |
 
 Read [authority and tenancy](/architecture/authority-and-tenancy/) for the enforcement model and [MCP](/integrations/mcp/) for assistant constraints.

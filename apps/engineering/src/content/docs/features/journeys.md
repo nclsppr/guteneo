@@ -400,3 +400,11 @@ Prepare a fax or email → type a new address and tick Save to recipients → af
 Open Administration → Settings → Webhooks → add a public HTTPS address → copy the signing secret shown once → each dispatch status change queues a notice in the same transaction → the minute scheduler signs and posts it → the receiver verifies Guteneo-Signature, deduplicates on Guteneo-Delivery and reads the dispatch through the authenticated API if needed → the administrator sees the state of the last notice, pauses, replaces the secret or removes the address.
 
 **Failure and recovery:** Non-HTTPS, IP, private or credentialed addresses receive 400 WEBHOOK_URL_INVALID; a duplicate 409 WEBHOOK_EXISTS; a sixth address 409 WEBHOOKS_FULL; a missing server key 503 WEBHOOKS_UNAVAILABLE and no delivery. Non-2xx answers, timeouts and network errors retry after 1, 5, 30, 120 and 360 minutes, then the notice is abandoned. Replacing the secret invalidates the previous one at once.
+
+## J50: Schedule a dispatch for later
+
+**Actor:** Administrator or Supervisor with the approval option, in a browser; then the scheduler acting on that recorded consent · **Branch:** Web only; no MCP, REST OAuth or native scheduling. Postal letters, campaign members and secure distributions keep immediate approval
+
+Open a prepared fax or email → check the content and consent boxes → open Send later, choose a date and time → Approve and schedule → the page shows when it leaves and who scheduled it → at that time the scheduler rechecks the approver, keeps or renews the quote within the ceiling, writes an approval naming the schedule and accepts the dispatch → tracking and webhooks report its progress; an approver may cancel the schedule before then.
+
+**Failure and recovery:** Operators and Observers receive FORBIDDEN; a time under five minutes or beyond thirty days 400 SCHEDULE_OUT_OF_RANGE; another version 409 VERSION_CHANGED; a second schedule 409 ALREADY_SCHEDULED. At release, a lost approval right, an expired non-renewable quote or a renewed estimate above the ceiling refuse it for good; a dispatch already sent or cancelled closes it; an unexpected failure is marked uncertain without any automatic retry.

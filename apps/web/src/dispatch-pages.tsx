@@ -1991,6 +1991,12 @@ export function DispatchDetailPage({
   const action = useAction();
   const [consent, setConsent] = useState(false);
   const [recipientRequested, setRecipientRequested] = useState(false);
+  // Scheduled sending: the approver's consent, executed at a chosen time.
+  const scheduleResource = useResource<{ schedule: ScheduleView | null }>(
+    isPublicPreview ? null : `/dispatches/${encodeURIComponent(id)}/schedule`,
+  );
+  const schedule = scheduleResource.data?.schedule ?? null;
+  const [releaseAt, setReleaseAt] = useState("");
   const d =
     resource.data?.dispatch.id === id ? resource.data.dispatch : undefined;
   const [quoteClock, setQuoteClock] = useState(Date.now);
@@ -2148,6 +2154,15 @@ export function DispatchDetailPage({
     Date.parse(d.quote_expires_at) - Date.now() <= 60000;
   const emailAttestationRequired =
     d.channel === "email" && d.mode === "production";
+  // Fax and email bind a ceiling; letters, campaigns and secure
+  // distributions keep their immediate approval.
+  const canSchedule =
+    canApprove &&
+    !isPublicPreview &&
+    (d.channel === "fax" || d.channel === "email") &&
+    !d.campaign_id &&
+    !secureDistributionOf(d) &&
+    schedule?.state !== "scheduled";
   const approved =
     pendingApproval &&
     !quoteBlocked &&
@@ -2343,6 +2358,31 @@ export function DispatchDetailPage({
       setConsent(false);
       setRecipientRequested(false);
       go(`/app/dispatch/${encodeURIComponent(replacement.id)}`);
+    });
+  }
+  async function scheduleRelease() {
+    const isCurrent = currentView();
+    await action.run(async () => {
+      await api(`/dispatches/${encodeURIComponent(id)}/schedule`, {
+        method: "POST",
+        body: {
+          fingerprint: d?.fingerprint,
+          releaseAt: new Date(releaseAt).toISOString(),
+          ...(emailAttestationRequired ? { recipientRequested } : {}),
+        },
+      });
+      if (!isCurrent()) return;
+      setReleaseAt("");
+      scheduleResource.refresh();
+    });
+  }
+  async function cancelSchedule() {
+    const isCurrent = currentView();
+    await action.run(async () => {
+      await api(`/dispatches/${encodeURIComponent(id)}/schedule`, {
+        method: "DELETE",
+      });
+      if (isCurrent()) scheduleResource.refresh();
     });
   }
   async function requestApproval() {
@@ -2758,6 +2798,35 @@ export function DispatchDetailPage({
           )}
         </section>
         <section className="dispatch-review-actions">
+          {schedule?.state === "scheduled" && (
+            <div className="notice info" role="status">
+              <p>
+                {msg(
+                  "Scheduled for {0} by {1}. It is approved then, if its approver may still approve and its price stays within the ceiling.",
+                  date(schedule.release_at),
+                  schedule.approver_name ?? msg("A member"),
+                )}
+              </p>
+              {canApprove && (
+                <ConfirmAction
+                  className="text-button"
+                  disabled={action.pending}
+                  label={msg("Cancel the schedule")}
+                  question={msg(
+                    "Cancel this schedule? The dispatch stays awaiting approval.",
+                  )}
+                  confirmLabel={msg("Cancel the schedule")}
+                  onConfirm={() => void cancelSchedule()}
+                />
+              )}
+            </div>
+          )}
+          {(schedule?.state === "refused" || schedule?.state === "uncertain") &&
+            pendingApproval && (
+              <div className="notice warning" role="status">
+                <p>{scheduleOutcome(schedule)}</p>
+              </div>
+            )}
           {pendingApproval && !canApprove && <RolePermissionNotice approval />}
           {pendingApproval &&
             !canApprove &&
@@ -2896,6 +2965,34 @@ export function DispatchDetailPage({
                           )
                         : t.dispatch.approve}
                 </button>
+                {canSchedule && (
+                  <details className="disclosure dispatch-schedule">
+                    <summary>{msg("Send later")}</summary>
+                    <Field label={msg("Date and time")}>
+                      <input
+                        type="datetime-local"
+                        value={releaseAt}
+                        min={localInputValue(Date.now() + 5 * 60_000)}
+                        max={localInputValue(Date.now() + 30 * 86_400_000)}
+                        onChange={(event) => setReleaseAt(event.target.value)}
+                      />
+                    </Field>
+                    <button
+                      type="button"
+                      className="button full"
+                      disabled={
+                        !consent ||
+                        !releaseAt ||
+                        quoteBlocked ||
+                        (emailAttestationRequired && !recipientRequested) ||
+                        action.pending
+                      }
+                      onClick={() => void scheduleRelease()}
+                    >
+                      {msg("Approve and schedule")}
+                    </button>
+                  </details>
+                )}
               </section>
             )}
           {canApprove &&
@@ -3031,4 +3128,55 @@ function rememberChannel(channel: Channel) {
 function sentenceCase(text: string) {
   const lower = text.toLocaleLowerCase(formatLocale());
   return lower.charAt(0).toLocaleUpperCase(formatLocale()) + lower.slice(1);
+}
+
+type ScheduleView = {
+  id: string;
+  release_at: string;
+  state:
+    | "scheduled"
+    | "releasing"
+    | "released"
+    | "refused"
+    | "cancelled"
+    | "uncertain";
+  outcome_code: string | null;
+  approver_name: string | null;
+};
+
+/** Why a scheduled release did not leave, in the person's words. */
+function scheduleOutcome(schedule: ScheduleView) {
+  if (schedule.state === "uncertain")
+    return msg(
+      "The scheduled release could not be confirmed. Nothing is retried automatically: check this dispatch before approving it again.",
+    );
+  switch (schedule.outcome_code) {
+    case "APPROVER_NOT_AUTHORIZED":
+      return msg(
+        "The scheduled release was refused: its approver may no longer approve. Approve it again if it should leave.",
+      );
+    case "QUOTE_EXPIRED":
+    case "QUOTE_ABOVE_CEILING":
+      return msg(
+        "The scheduled release was refused: the price at release did not fit the approved ceiling. Review a new quote.",
+      );
+    default:
+      return msg(
+        "The scheduled release was refused. Review this dispatch and approve it again if it should leave.",
+      );
+  }
+}
+
+/** A datetime-local value in the browser's own time zone. */
+function localInputValue(time: number) {
+  const local = new Date(time - new Date(time).getTimezoneOffset() * 60_000);
+  return local.toISOString().slice(0, 16);
+}
+
+function secureDistributionOf(d: Dispatch) {
+  const options =
+    typeof d.options_json === "string"
+      ? (JSON.parse(d.options_json || "{}") as Record<string, unknown>)
+      : (d.options_json ?? {});
+  return !!options.secureDistribution;
 }

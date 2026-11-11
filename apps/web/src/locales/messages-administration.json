@@ -930,5 +930,30 @@
     "A current browser administrator session is required.",
     "Eine aktuelle Administratorsitzung im Browser ist erforderlich.",
     "Eng aktuell Administrateursessioun am Browser ass néideg."
+  ],
+  "Envoi programmé": [
+    "Dispatch scheduled",
+    "Sendung geplant",
+    "Sendung geplangt"
+  ],
+  "Programmation annulée": [
+    "Schedule cancelled",
+    "Planung abgebrochen",
+    "Planung ofgebrach"
+  ],
+  "Envoi programmé parti": [
+    "Scheduled dispatch released",
+    "Geplante Sendung freigegeben",
+    "Geplangt Sendung fräiginn"
+  ],
+  "Envoi programmé refusé": [
+    "Scheduled dispatch refused",
+    "Geplante Sendung abgelehnt",
+    "Geplangt Sendung refuséiert"
+  ],
+  "Envoi programmé incertain": [
+    "Scheduled dispatch uncertain",
+    "Geplante Sendung ungewiss",
+    "Geplangt Sendung onsécher"
   ]
 }
