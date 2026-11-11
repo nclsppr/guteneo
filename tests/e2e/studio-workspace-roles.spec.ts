@@ -311,6 +311,9 @@ async function studioFixture(context: BrowserContext, role: WorkspaceRole) {
         },
       });
       return;
+    } else if (method === "GET" && path.endsWith("/schedule")) {
+      // The dispatch page reads whether an approver scheduled it.
+      body = { schedule: null };
     } else state.unexpected.push(`${method} ${path}`);
     await route.fulfill(
       body === undefined

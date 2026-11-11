@@ -583,7 +583,7 @@ test("V2 prepares through the existing API and requires explicit consent before 
   await expect(page.locator(".simulation-banner")).toBeVisible();
 
   await page.goto("/#/app");
-  const history = page.locator("#main-content table").first();
+  const history = page.locator("#main-content .overview-recent table");
   await expect(
     history.locator(`a[href="#/app/dispatch/${prepared.id}"]`).first(),
   ).toBeVisible();

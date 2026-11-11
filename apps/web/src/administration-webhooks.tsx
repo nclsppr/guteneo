@@ -111,7 +111,10 @@ export function WebhookSettings() {
           <code className="webhook-secret">{secret.value}</code>
         </div>
       )}
-      {resource.data?.endpoints.map((endpoint) => (
+      {(Array.isArray(resource.data?.endpoints)
+        ? resource.data.endpoints
+        : []
+      ).map((endpoint) => (
         <div className="webhook-endpoint" key={endpoint.id}>
           <div>
             <strong>{endpoint.url}</strong>

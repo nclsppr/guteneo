@@ -660,6 +660,7 @@ describe("Trusted live fax quotes — isolated D1, no provider sends", () => {
         delete approval.approval_kind;
         delete approval.expert_review_hash;
         delete approval.secure_approval_evidence_id;
+        delete approval.scheduled_release_id;
         await insert("approvals", approval);
       }
       await legacy

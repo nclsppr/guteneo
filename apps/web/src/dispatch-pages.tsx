@@ -1993,7 +1993,13 @@ export function DispatchDetailPage({
   const [recipientRequested, setRecipientRequested] = useState(false);
   // Scheduled sending: the approver's consent, executed at a chosen time.
   const scheduleResource = useResource<{ schedule: ScheduleView | null }>(
-    isPublicPreview ? null : `/dispatches/${encodeURIComponent(id)}/schedule`,
+    isPublicPreview ||
+      !(
+        resource.data?.dispatch.channel === "fax" ||
+        resource.data?.dispatch.channel === "email"
+      )
+      ? null
+      : `/dispatches/${encodeURIComponent(id)}/schedule`,
   );
   const schedule = scheduleResource.data?.schedule ?? null;
   const [releaseAt, setReleaseAt] = useState("");
@@ -2965,36 +2971,36 @@ export function DispatchDetailPage({
                           )
                         : t.dispatch.approve}
                 </button>
-                {canSchedule && (
-                  <details className="disclosure dispatch-schedule">
-                    <summary>{msg("Send later")}</summary>
-                    <Field label={msg("Date and time")}>
-                      <input
-                        type="datetime-local"
-                        value={releaseAt}
-                        min={localInputValue(Date.now() + 5 * 60_000)}
-                        max={localInputValue(Date.now() + 30 * 86_400_000)}
-                        onChange={(event) => setReleaseAt(event.target.value)}
-                      />
-                    </Field>
-                    <button
-                      type="button"
-                      className="button full"
-                      disabled={
-                        !consent ||
-                        !releaseAt ||
-                        quoteBlocked ||
-                        (emailAttestationRequired && !recipientRequested) ||
-                        action.pending
-                      }
-                      onClick={() => void scheduleRelease()}
-                    >
-                      {msg("Approve and schedule")}
-                    </button>
-                  </details>
-                )}
               </section>
             )}
+          {canSchedule && pendingApproval && !approved && (
+            <details className="disclosure dispatch-schedule">
+              <summary>{msg("Send later")}</summary>
+              <Field label={msg("Date and time")}>
+                <input
+                  type="datetime-local"
+                  value={releaseAt}
+                  min={localInputValue(Date.now() + 5 * 60_000)}
+                  max={localInputValue(Date.now() + 30 * 86_400_000)}
+                  onChange={(event) => setReleaseAt(event.target.value)}
+                />
+              </Field>
+              <button
+                type="button"
+                className="button full"
+                disabled={
+                  !consent ||
+                  !releaseAt ||
+                  quoteBlocked ||
+                  (emailAttestationRequired && !recipientRequested) ||
+                  action.pending
+                }
+                onClick={() => void scheduleRelease()}
+              >
+                {msg("Approve and schedule")}
+              </button>
+            </details>
+          )}
           {canApprove &&
             approved &&
             !reviewPreparationOnly &&
