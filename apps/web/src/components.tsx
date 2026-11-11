@@ -22,6 +22,7 @@ import {
   type ReactNode,
   type ReactElement,
   type SetStateAction,
+  type FormEvent,
 } from "react";
 import {
   ArrowClockwise,
@@ -1198,6 +1199,24 @@ export function ConfirmAction({
       </button>
     </span>
   );
+}
+/**
+ * Product-language text for the browser's own validation bubble, which
+ * otherwise speaks the browser's language. A field folded inside a disclosure
+ * opens first, so the browser can focus it instead of blocking silently.
+ */
+export function validityMessage(message: string) {
+  return {
+    onInvalid: (event: FormEvent<HTMLInputElement>) => {
+      const input = event.currentTarget;
+      input.closest("details")?.setAttribute("open", "");
+      input.setCustomValidity(
+        input.validity.valueMissing ? msg("Fill in this field.") : message,
+      );
+    },
+    onInput: (event: FormEvent<HTMLInputElement>) =>
+      event.currentTarget.setCustomValidity(""),
+  };
 }
 export function Field({
   label,

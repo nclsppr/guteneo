@@ -503,7 +503,9 @@ export function DispatchDetailPage({
                       : name === "delivered" && d.channel === "fax"
                         ? t.statuses.fax_delivered
                         : t.statuses[name]) ??
-                      name.replaceAll(".", " · ").replaceAll("_", " ")}
+                      sentenceCase(
+                        name.replaceAll(".", " · ").replaceAll("_", " "),
+                      )}
                   </strong>
                   <time>
                     {date(
@@ -1200,4 +1202,10 @@ function DispatchSteps({
       ))}
     </ol>
   );
+}
+
+/** An unlisted provider event keeps its words, in sentence case like badges. */
+function sentenceCase(text: string) {
+  const lower = text.toLocaleLowerCase(formatLocale());
+  return lower.charAt(0).toLocaleUpperCase(formatLocale()) + lower.slice(1);
 }

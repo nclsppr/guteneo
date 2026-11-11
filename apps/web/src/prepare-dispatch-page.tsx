@@ -62,6 +62,7 @@ import {
   EmailPreview,
   ErrorNotice,
   Field,
+  validityMessage,
   go,
   LoadMore,
   PageHeading,
@@ -755,6 +756,11 @@ export function PrepareDispatch({
                 placeholder={t.dispatch.phonePlaceholder}
                 value={recipient.phone ?? ""}
                 onChange={(e) => setAddress("phone", e.target.value)}
+                {...validityMessage(
+                  msg(
+                    "Use the international format, for example +352 26 00 00 00.",
+                  ),
+                )}
                 required
               />
             </Field>
@@ -769,6 +775,11 @@ export function PrepareDispatch({
                   placeholder={t.dispatch.emailPlaceholder}
                   value={recipient.email ?? ""}
                   onChange={(e) => setAddress("email", e.target.value)}
+                  {...validityMessage(
+                    msg(
+                      "Enter a full email address, for example name@example.com.",
+                    ),
+                  )}
                   required
                 />
               </Field>
@@ -923,26 +934,36 @@ export function PrepareDispatch({
                   inputMode="decimal"
                   autoComplete="off"
                   pattern={EURO_INPUT_PATTERN}
-                  title={t.dispatch.ceilingFormat}
                   value={budget}
                   onChange={(event) => setBudget(event.target.value)}
+                  {...validityMessage(t.dispatch.ceilingFormat)}
                   required
                 />
               </Field>
             </details>
           ) : (
-            <Field label={t.dispatch.ceiling} hint={t.dispatch.ceilingHelp}>
-              <input
-                type="text"
-                inputMode="decimal"
-                autoComplete="off"
-                pattern={EURO_INPUT_PATTERN}
-                title={t.dispatch.ceilingFormat}
-                value={budget}
-                onChange={(e) => setBudget(e.target.value)}
-                required
-              />
-            </Field>
+            // The limit stays visible in the summary; its field opens on demand,
+            // as for letters, and opens by itself when its value is invalid.
+            <details className="postal-budget">
+              <summary>
+                {msg("Maximum budget: ")}
+                {ceilingMinor === null
+                  ? msg("to be specified")
+                  : money(ceilingMinor)}
+              </summary>
+              <Field label={t.dispatch.ceiling} hint={t.dispatch.ceilingHelp}>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  autoComplete="off"
+                  pattern={EURO_INPUT_PATTERN}
+                  value={budget}
+                  onChange={(e) => setBudget(e.target.value)}
+                  {...validityMessage(t.dispatch.ceilingFormat)}
+                  required
+                />
+              </Field>
+            </details>
           )}
           <button
             className="button primary full"

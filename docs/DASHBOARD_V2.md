@@ -969,6 +969,12 @@ financial consent, communication or deployment.
 - **Tables.** A loaded table under five rows hides search, filters and
   pagination. A row with a link opens from anywhere on the row. The dispatch
   list no longer repeats its status groups as a filter.
+- **New dispatch.** The spending limit of every channel sits in a disclosure
+  whose summary shows its current value, as letters already did; the exact
+  price is still shown before approval. Invalid fax numbers, email addresses and
+  limits use product-language messages in the browser's validation bubble, and
+  a folded field opens by itself when invalid, so the browser can focus it
+  instead of blocking the form silently.
 - **Files.** Every file field is a drop zone with a drag state; the native input
   still performs selection and validation. The documents list keeps its glyph:
   a first-page thumbnail drawn in the browser read every visible PDF in full and
