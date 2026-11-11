@@ -263,30 +263,23 @@ export function AdministrationOverviewPage({ route }: { route: string }) {
       ) : (
         data && (
           <>
-            {data.incidents.length > 0 && (
+            {/* Dispatches needing attention are the amber card below; the
+                banner keeps only what no card shows. */}
+            {data.incidents.some(
+              (incident) => incident.kind === "outbox_delayed",
+            ) && (
               <div className="notice warning" role="status">
                 <WarningCircle size={24} aria-hidden="true" />
                 <p>
                   {data.incidents
+                    .filter((incident) => incident.kind === "outbox_delayed")
                     .map((incident) =>
-                      incident.kind === "outbox_delayed"
-                        ? msg(
-                            "{0} accepted dispatches are waiting to be transmitted.",
-                            count(incident.count),
-                          )
-                        : incident.count === 1
-                          ? msg("1 dispatch needs attention.")
-                          : msg(
-                              "{0} dispatches need attention.",
-                              count(incident.count),
-                            ),
+                      msg(
+                        "{0} accepted dispatches are waiting to be transmitted.",
+                        count(incident.count),
+                      ),
                     )
-                    .join(" ")}{" "}
-                  <a
-                    href={`#${routeWith(administrationRoutes.activity, { ...period, group: "attention" })}`}
-                  >
-                    {msg("Review them")}
-                  </a>
+                    .join(" ")}
                 </p>
               </div>
             )}
@@ -294,7 +287,6 @@ export function AdministrationOverviewPage({ route }: { route: string }) {
               <StatTile
                 label={msg("Dispatches")}
                 value={count(data.totals.dispatches)}
-                tone="accent"
               >
                 {msg("{0} delivered", count(data.totals.delivered))}
               </StatTile>
@@ -308,6 +300,11 @@ export function AdministrationOverviewPage({ route }: { route: string }) {
                 label={msg("Needing attention")}
                 value={count(data.totals.attention)}
                 tone={data.totals.attention ? "warning" : "neutral"}
+                href={
+                  data.totals.attention
+                    ? `#${routeWith(administrationRoutes.activity, { ...period, group: "attention" })}`
+                    : undefined
+                }
               >
                 {msg("Failed, rejected or uncertain")}
               </StatTile>
@@ -681,7 +678,6 @@ export function AdministrationConsumptionPage({ route }: { route: string }) {
               <StatTile
                 label={msg("Consumption")}
                 value={amount(data.totalMinor)}
-                tone="accent"
               >
                 {data.basis === "posted_ledger"
                   ? msg("By posting date of each charge")
@@ -1072,8 +1068,15 @@ export function AdministrationAuditPage({ route }: { route: string }) {
               {
                 id: "action",
                 label: msg("Action"),
-                value: (item) => item.action,
-                render: (item) => <code>{item.action}</code>,
+                value: (item) => auditActionLabel(item.action),
+                searchValue: (item) =>
+                  `${auditActionLabel(item.action)} ${item.action}`,
+                // The readable label leads; the recorded code stays for support.
+                render: (item) => (
+                  <span title={item.action}>
+                    {auditActionLabel(item.action)}
+                  </span>
+                ),
                 rowHeader: true,
               },
               {
@@ -1309,4 +1312,33 @@ export function AdministrationReportsPage({
       </div>
     </>
   );
+}
+
+/** Readable names for recorded actions; an unknown code is shown as is. */
+function auditActionLabel(action: string) {
+  const labels: Record<string, () => string> = {
+    "dispatch.approved": () => msg("Dispatch approved"),
+    "dispatch.expert_approved": () => msg("Dispatch approved under delegation"),
+    "dispatch.approval_requested": () => msg("Approval requested"),
+    "dispatch.cancelled": () => msg("Dispatch cancelled"),
+    "document.viewed": () => msg("Document viewed"),
+    "document.purged": () => msg("Document deleted"),
+    "document.scan_verified": () => msg("Document checked"),
+    "document.rescan_verified": () => msg("Document checked again"),
+    "document.analysis_verified": () => msg("Document analysed"),
+    "document.secure_copy_created": () => msg("Secure copy created"),
+    "member.role_changed": () => msg("Member role changed"),
+    "member.access_revoked": () => msg("Member access removed"),
+    "invitation.created": () => msg("Invitation sent"),
+    "invitation.revoked": () => msg("Invitation withdrawn"),
+    "connection.bound": () => msg("Assistant connected"),
+    "connection.revoked": () => msg("Assistant disconnected"),
+    "channel.control": () => msg("Channel switched on or off"),
+    "report.exported": () => msg("Report exported"),
+    "account.updated": () => msg("Account updated"),
+    "account.session_revoked": () => msg("Session signed out"),
+    "postal.sender.declared": () => msg("Postal sender declared"),
+    "postal.document_transferred": () => msg("Letter transferred for printing"),
+  };
+  return labels[action]?.() ?? action;
 }

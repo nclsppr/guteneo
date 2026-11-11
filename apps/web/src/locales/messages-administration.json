@@ -99,16 +99,6 @@
     "{0} angenommene Sendungen warten auf die Übermittlung.",
     "{0} ugeholl Sendunge waarden op d’Iwwermëttlung."
   ],
-  "{0} envois demandent une vérification.": [
-    "{0} dispatches need attention.",
-    "{0} Sendungen müssen geprüft werden.",
-    "{0} Sendunge mussen iwwerpréift ginn."
-  ],
-  "Les examiner": [
-    "Review them",
-    "Prüfen",
-    "Iwwerpréiwen"
-  ],
   "{0} remis": [
     "{0} delivered",
     "{0} zugestellt",
@@ -714,14 +704,114 @@
     "Eine aktuelle Administratorsitzung im Browser ist erforderlich.",
     "Eng aktuell Administratorsëtzung am Browser ass néideg."
   ],
-  "1 envoi demande une vérification.": [
-    "1 dispatch needs attention.",
-    "1 Sendung muss geprüft werden.",
-    "1 Sendung muss iwwerpréift ginn."
-  ],
   "Dates personnalisées": [
     "Custom dates",
     "Eigener Zeitraum",
     "Eegenen Zäitraum"
+  ],
+  "Envoi approuvé": [
+    "Dispatch approved",
+    "Sendung freigegeben",
+    "Sendung fräiginn"
+  ],
+  "Envoi approuvé par délégation": [
+    "Dispatch approved under delegation",
+    "Sendung per Delegation freigegeben",
+    "Sendung per Delegatioun fräiginn"
+  ],
+  "Envoi annulé": [
+    "Dispatch cancelled",
+    "Sendung storniert",
+    "Sendung annuléiert"
+  ],
+  "Document consulté": [
+    "Document viewed",
+    "Dokument angesehen",
+    "Dokument gekuckt"
+  ],
+  "Document supprimé": [
+    "Document deleted",
+    "Dokument gelöscht",
+    "Dokument geläscht"
+  ],
+  "Document vérifié": [
+    "Document checked",
+    "Dokument geprüft",
+    "Dokument iwwerpréift"
+  ],
+  "Document vérifié à nouveau": [
+    "Document checked again",
+    "Dokument erneut geprüft",
+    "Dokument nach eng Kéier iwwerpréift"
+  ],
+  "Document analysé": [
+    "Document analysed",
+    "Dokument analysiert",
+    "Dokument analyséiert"
+  ],
+  "Copie sécurisée créée": [
+    "Secure copy created",
+    "Sichere Kopie erstellt",
+    "Sécher Kopie erstallt"
+  ],
+  "Rôle d’un membre modifié": [
+    "Member role changed",
+    "Rolle eines Mitglieds geändert",
+    "Roll vun engem Member geännert"
+  ],
+  "Accès d’un membre retiré": [
+    "Member access removed",
+    "Zugang eines Mitglieds entfernt",
+    "Zougang vun engem Member ewechgeholl"
+  ],
+  "Invitation envoyée": [
+    "Invitation sent",
+    "Einladung gesendet",
+    "Invitatioun geschéckt"
+  ],
+  "Invitation retirée": [
+    "Invitation withdrawn",
+    "Einladung zurückgezogen",
+    "Invitatioun zréckgezunn"
+  ],
+  "Assistant connecté": [
+    "Assistant connected",
+    "Assistent verbunden",
+    "Assistent verbonnen"
+  ],
+  "Assistant déconnecté": [
+    "Assistant disconnected",
+    "Assistent getrennt",
+    "Assistent ofgekoppelt"
+  ],
+  "Canal activé ou désactivé": [
+    "Channel switched on or off",
+    "Kanal ein- oder ausgeschaltet",
+    "Kanal an- oder ausgeschalt"
+  ],
+  "Rapport exporté": [
+    "Report exported",
+    "Bericht exportiert",
+    "Bericht exportéiert"
+  ],
+  "Compte mis à jour": [
+    "Account updated",
+    "Konto aktualisiert",
+    "Kont aktualiséiert"
+  ],
+  "Session déconnectée": [
+    "Session signed out",
+    "Sitzung abgemeldet",
+    "Sessioun ofgemellt"
+  ],
+  "Expéditeur postal déclaré": [
+    "Postal sender declared",
+    "Postabsender angegeben",
+    "Postofsender deklaréiert"
+  ],
+  "Lettre transmise pour impression": [
+    "Letter transferred for printing",
+    "Brief zum Druck übermittelt",
+    "Bréif fir den Drock iwwerdroen"
   ]
 }
