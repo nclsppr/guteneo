@@ -3405,5 +3405,10 @@
     "This dispatch is no longer awaiting approval.",
     "Dieser Versand wartet nicht mehr auf Genehmigung.",
     "Dës Sendung waart net méi op eng Autorisatioun."
+  ],
+  "Approbation demandée": [
+    "Approval requested",
+    "Freigabe angefragt",
+    "Fräigab ugefrot"
   ]
 }

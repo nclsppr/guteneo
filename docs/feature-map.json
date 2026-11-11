@@ -108,7 +108,7 @@
         "Workspace roles grant no access to another person’s vault; a recipient gains no membership in the sender’s workspace",
         "Future schedule approval is distinct from ordinary browser review and expert mandates: only browser administrators or independently authorized supervisor approvers grant it; preparers can draft and authorized owners can revoke, while assistants/native cannot approve",
         "Saved destination data is limited to current preparers, and callback configuration/signing secrets to current browser administrators; an observer role or reporting permission alone grants neither contact export nor callback administration",
-        "Approval request: a member who can prepare asks the workspace's approvers to review a dispatch awaiting approval, from a human browser session only; one audit receipt per version (fingerprint), shown to approvers on the dispatch; it approves, reserves, sends and notifies nothing"
+        "Approval request: a member who can prepare asks the workspace's approvers to review a dispatch awaiting approval, from a human browser session only; one audit receipt per version (fingerprint), shown to approvers on the dispatch and flagged on its Overview attention item; it approves, reserves, sends and notifies nothing"
       ],
       "status": "Implemented; invitations require separately configured delivery. The 10 November approval-request browser candidate requires migration 0081 and exact-source integration/browser checks; it grants no approval, reservation, sending or assistant authority.",
       "tests": [

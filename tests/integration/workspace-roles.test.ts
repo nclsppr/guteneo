@@ -278,6 +278,11 @@ describe("workspace roles on current D1 membership", () => {
     const detail = await domain.getDispatch(admin.context, dispatch.id);
     expect(detail.approvalRequest).toEqual(first);
     expect(detail.approval).toBeNull();
+    // Approvers see the request in their attention queue.
+    const queue = await domain.attentionQueue(admin.context);
+    expect(
+      queue.items.find((item) => item.resourceId === dispatch.id),
+    ).toMatchObject({ kind: "approval", approvalRequested: true });
     // The requester's name stays in the browser workspace.
     for (const actor of ["mcp", "native"] as const)
       expect(

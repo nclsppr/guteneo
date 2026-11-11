@@ -2243,14 +2243,36 @@ export class DomainService {
         channel: Channel;
         priority: number;
       }>();
+    // People in the workspace see which waiting dispatches a preparer asked
+    // to have approved, for the version now awaiting approval.
+    const page = rows.results.slice(0, limit);
+    const awaiting = page
+      .filter(
+        (row) =>
+          row.kind === "approval" && row.id === `approval_${row.resource_id}`,
+      )
+      .map((row) => row.resource_id);
+    const requested = new Set<string>();
+    if (ctx.actor === "browser" && awaiting.length) {
+      const asked = await this.db
+        .prepare(
+          "SELECT r.resource_id AS id FROM audit_log r JOIN dispatches d ON d.organization_id=r.organization_id AND d.id=r.resource_id WHERE r.organization_id=? AND r.action='dispatch.approval_requested' AND r.resource_id IN (SELECT value FROM json_each(?)) AND json_extract(r.details_json,'$.fingerprint')=d.fingerprint GROUP BY r.resource_id",
+        )
+        .bind(ctx.organizationId, JSON.stringify(awaiting))
+        .all<{ id: string }>();
+      for (const row of asked.results) requested.add(row.id);
+    }
     return {
-      items: rows.results.slice(0, limit).map((row) => ({
+      items: page.map((row) => ({
         id: row.id,
         kind: row.kind,
         resourceId: row.resource_id,
         route: row.route,
         ...(row.expires_at ? { expiresAt: row.expires_at } : {}),
         channel: row.channel,
+        ...(requested.has(row.resource_id) && row.kind === "approval"
+          ? { approvalRequested: true as const }
+          : {}),
       })),
       nextCursor:
         rows.results.length > limit

@@ -175,8 +175,9 @@ submission or production publication.
 
 Candidate 1.2.4 synchronizes the package versions after the shared domain module
 stopped returning `approvalRequest` (the requester's name and time) outside
-human browser sessions. REST OAuth, assistant and native dispatch details no
-longer carry it. The catalogue, schemas, annotation booleans, OAuth scopes,
+human browser sessions, and the browser-only attention queue gained an
+`approvalRequested` flag on approval items. REST OAuth, assistant and native
+dispatch details no longer carry the request. The catalogue, schemas, annotation booleans, OAuth scopes,
 instructions and host confirmations are unchanged.
 
 ### Preventive maintenance source synchronization — 7 November 2026

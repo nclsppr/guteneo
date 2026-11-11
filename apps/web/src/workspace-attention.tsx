@@ -11,7 +11,7 @@ import {
   useResource,
 } from "./components";
 import { msg } from "./messages";
-import { useLocale } from "./locale";
+import { t, useLocale } from "./locale";
 import "./lifecycle-pages.css";
 
 function attentionLabel(kind: AttentionItem["kind"]) {
@@ -72,7 +72,15 @@ export function WorkspaceAttention({
               >
                 <span>
                   {attentionLabel(item.kind)}
-                  <small className="muted">{item.resourceId}</small>
+                  {/* The channel tells items apart; raw identifiers stay out. */}
+                  {item.channel && (
+                    <small className="muted">{t.channels[item.channel]}</small>
+                  )}
+                  {item.approvalRequested && (
+                    <small className="approval-requested">
+                      {msg("Approval requested")}
+                    </small>
+                  )}
                 </span>
                 {item.expiresAt && (
                   <time dateTime={item.expiresAt}>{date(item.expiresAt)}</time>
