@@ -1561,5 +1561,7 @@
     "Supplier costs, Cloudflare invoices and complete receipts are unavailable.",
     "Lieferantenkosten, Cloudflare-Rechnungen und vollständige Zahlungseingänge sind nicht verfügbar.",
     "Fournisseurskäschten, Cloudflare-Rechnungen an déi vollstänneg Bezuelungsagäng sinn net disponibel."
-  ]
+  ],
+  "page": ["page", "Seite", "Säit"],
+  "envoi": ["delivery", "Sendung", "Sendung"]
 }

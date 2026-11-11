@@ -1158,10 +1158,11 @@
   flex-wrap: wrap;
   gap: 12px;
 }
+/* A missing figure reads as a muted statement, not as a headline number. */
 .bv-finance-summary .bv-unavailable {
-  font-size: 25px;
+  font-size: 16px;
   font-weight: 400;
-  line-height: 1.95;
+  line-height: 1.5;
   letter-spacing: -0.015em;
   color: var(--muted);
 }
@@ -1187,7 +1188,7 @@
 }
 .bv-result > strong {
   display: block;
-  font-size: 26px;
+  font-size: 16px;
   font-weight: 400;
   color: var(--muted);
   margin-bottom: 14px;
@@ -1810,9 +1811,6 @@
   }
   .bv-finance-summary strong {
     font-size: 37px;
-  }
-  .bv-finance-summary .bv-unavailable {
-    font-size: 25px;
   }
   .bv-finance-grid {
     gap: 16px;

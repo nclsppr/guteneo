@@ -851,8 +851,7 @@ function Overview(
         >
           {number(totals.delivered)}
           {bmsg(" delivered · ")}
-          {number(totals.pages)}
-          {bmsg(" pages")}
+          {number(totals.pages)} {unitWord(totals.pages, "page", "pages")}
         </Stat>
         <Stat
           label={bmsg("Customer consumption")}
@@ -1460,8 +1459,7 @@ function Workshops({
                 <>
                   {number(item.dispatches)}
                   <small>
-                    {number(item.pages)}
-                    {bmsg(" pages")}
+                    {number(item.pages)} {unitWord(item.pages, "page", "pages")}
                   </small>
                 </>
               ),
@@ -1489,8 +1487,8 @@ function Workshops({
                 <>
                   {item.attention > 0 ? (
                     <span className="bv-status bv-status-warning">
-                      {number(item.attention)}
-                      {bmsg(" deliveries")}
+                      {number(item.attention)}{" "}
+                      {unitWord(item.attention, "delivery", "deliveries")}
                     </span>
                   ) : (
                     <span className="bv-table-ok">
@@ -1599,8 +1597,8 @@ function WorkshopDetail({
               label={bmsg("Documents")}
               value={number(data.workshop.documents)}
             >
-              {number(data.workshop.pages)}
-              {bmsg(" pages")}
+              {number(data.workshop.pages)}{" "}
+              {unitWord(data.workshop.pages, "page", "pages")}
             </Stat>
             <Stat
               label={bmsg("Available credit")}
@@ -3269,4 +3267,9 @@ function Jobs({
       </p>
     </>
   );
+}
+
+/** One unit word in the singular for exactly one, otherwise the plural. */
+function unitWord(value: number, one: string, many: string) {
+  return value === 1 ? bmsg(one) : bmsg(many);
 }
