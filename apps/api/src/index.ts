@@ -148,6 +148,7 @@ import {
   customerWebhookCapabilities,
   processCustomerWebhooks,
 } from "./customer-webhooks";
+import { experienceCors } from "./experience-origin";
 
 import {
   startObservation,
@@ -1532,8 +1533,20 @@ const simulation: ProviderHook = {
     };
   },
 };
+/** Only the configured experience origin receives a cross-origin grant, and
+ * only on `/api`; every other request and response is left untouched. */
+async function fetchApplication(
+  request: Request,
+  env: Env,
+  ctx?: ExecutionContext,
+): Promise<Response> {
+  const cors = experienceCors(request, env);
+  if (cors?.preflight) return cors.preflight;
+  const response = await app.fetch(request, env, ctx);
+  return cors ? cors.apply(response) : response;
+}
 export default {
-  fetch: app.fetch,
+  fetch: fetchApplication,
   async queue(batch: MessageBatch<{ dispatchId: string }>, env: Env) {
     const observation = startObservation(
       env,

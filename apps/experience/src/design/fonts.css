@@ -1,0 +1,91 @@
+/* Self-hosted Latin subsets only: no third-party font request ever leaves the
+   page. Signage and body text swap in; decorative faces stay optional. */
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("@fontsource/barlow-condensed/files/barlow-condensed-latin-500-normal.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("@fontsource/barlow-condensed/files/barlow-condensed-latin-600-normal.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("@fontsource/barlow-condensed/files/barlow-condensed-latin-700-normal.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "Barlow";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("@fontsource/barlow/files/barlow-latin-400-normal.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "Barlow";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("@fontsource/barlow/files/barlow-latin-500-normal.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "Barlow";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("@fontsource/barlow/files/barlow-latin-600-normal.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "Doto";
+  font-style: normal;
+  font-weight: 900;
+  font-display: optional;
+  src: url("@fontsource/doto/files/doto-latin-900-normal.woff2") format("woff2");
+}
+
+/* The brand wordmark keeps its own face, as the identity contract requires. */
+@font-face {
+  font-family: "EB Garamond";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("@fontsource/eb-garamond/files/eb-garamond-latin-500-normal.woff2")
+    format("woff2");
+}

@@ -180,6 +180,18 @@ human browser sessions, and the browser-only attention queue gained an
 dispatch details no longer carry the request. The catalogue, schemas, annotation booleans, OAuth scopes,
 instructions and host confirmations are unchanged.
 
+### Gare browser-origin source synchronization — 12 November 2026
+
+Candidate 1.2.5 advances the application and portable/Claude/Cursor manifests
+together after the canonical browser session added the exact first-party Gare
+origin and a bounded return bridge. Gare uses browser cookies and existing CSRF,
+membership and human-review checks. It adds no MCP tool, OAuth scope, assistant
+permission or delegated consent. The plugin instructions, schemas, annotations
+and host confirmations remain unchanged; the synchronized archive is rebuilt
+and validated from the candidate source. Archive proof does not qualify real
+Auth0 return, production CORS, provider delivery or marketplace publication.
+See the [experience contract](EXPERIENCE.md).
+
 ### Preventive maintenance source synchronization — 7 November 2026
 
 Candidate 1.1.32 synchronizes the application and portable/Claude/Cursor package

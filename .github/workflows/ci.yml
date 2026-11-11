@@ -379,6 +379,7 @@ jobs:
       - run: npx wrangler deploy --config wrangler.live.jsonc --dry-run --outdir dist/live-worker
       - run: npm run build:preview
       - run: npm run build:status
+      - run: npm run build:experience
       - run: npx wrangler deploy --config wrangler.status.jsonc --dry-run --outdir dist/status-worker
       - name: Bind the exercised suite to its actual runtime
         if: always()
@@ -491,6 +492,11 @@ jobs:
         run: npx playwright test --config playwright.status.config.ts
         env:
           PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/browser/${{ matrix.project }}/shard-${{ matrix.shardIndex }}/status.json
+      - name: Verify Gare with synthetic desktop and mobile authority transitions
+        if: ${{ (matrix.project == 'chromium' || matrix.project == 'mobile-chromium') && matrix.shardIndex == 1 }}
+        run: npx playwright test --config playwright.experience.config.ts --project=${{ matrix.project == 'chromium' && 'desktop-chromium' || 'mobile-chromium' }}
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/browser/${{ matrix.project }}/shard-${{ matrix.shardIndex }}/experience.json
       - name: Bind every suite report to this exact project, shard and run
         if: always()
         run: node scripts/ci/browser-results.mjs record '${{ matrix.project }}' '${{ matrix.shardIndex }}'
@@ -516,6 +522,7 @@ jobs:
             test-results/preview/
             test-results/belvedere/
             test-results/status/
+            test-results/experience/
             reports/screenshots/
             reports/mcp-ui-probe/
             reports/mcp-document-upload/
@@ -744,12 +751,14 @@ jobs:
             /tests/preview-e2e/
             /tests/belvedere-e2e/
             /tests/status-e2e/
+            /tests/experience-e2e/
             /tests/fixtures/
             /tests/helpers/
             /tests/public-language.ts
             /apps/web/src/
             /apps/web/public/openapi.json
             /apps/api/src/
+            /apps/experience/
             /packages/
             /docs/releases/
             /docs/evidence/*.png

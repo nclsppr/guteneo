@@ -15,6 +15,7 @@ const configs = {
   preview: "playwright.preview.config.ts",
   belvedere: "playwright.belvedere.config.ts",
   status: "playwright.status.config.ts",
+  experience: "playwright.experience.config.ts",
 };
 
 export function browserMatrix() {
@@ -39,6 +40,19 @@ export function rowSuites(row) {
       : []),
     ...(row.project === "chromium" && row.shardIndex === 1
       ? [{ suite: "status", project: "chromium", shard: null }]
+      : []),
+    ...(["chromium", "mobile-chromium"].includes(row.project) &&
+    row.shardIndex === 1
+      ? [
+          {
+            suite: "experience",
+            project:
+              row.project === "chromium"
+                ? "desktop-chromium"
+                : "mobile-chromium",
+            shard: null,
+          },
+        ]
       : []),
   ];
 }

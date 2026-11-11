@@ -1,6 +1,6 @@
 {
   "title": "Guteneo feature tree and developer atlas",
-  "updated": "2026-11-10",
+  "updated": "2026-11-12",
   "scope": "Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.",
   "roleNote": "Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards. Personal account authority is separate from workspace membership. Template/default email copy and link placeholders grant no approval or recipient consent. Sensitive approval and recipient association always require the browser under the active document policy; an expert mandate cannot replace them. Future_browser spending approval is separate from ordinary approval and expert delegation and has no assistant/native grant surface. Saved recipients require current preparation rights; webhook configuration/secrets require an actual current administrator browser session. Browser presentation and device-local drafts grant no authority.",
   "groups": [
@@ -1532,6 +1532,37 @@
         "POST /api/customer-webhooks/{id}/rotate-secret",
         "GET /api/customer-webhooks/{id}/deliveries"
       ]
+    },
+    {
+      "title": "Gare browser experience",
+      "doc": "EXPERIENCE.md",
+      "source": "apps/experience/src/main.tsx",
+      "features": [
+        "Separately built first-party station interface with the original brand, day/night materials, decorative split-flap cells, optional synthesized sound and four lazy-loaded language catalogs",
+        "Exact configured same-site experience origin calls the canonical API with existing host-only browser cookies; CORS is restricted to API paths and never replaces CSRF, membership, document policy or human approval",
+        "Canonical Auth0 entry and bounded experience return bridge preserve the current sign-in callback, cookie host and internal destination without an arbitrary external redirect",
+        "Authority-keyed protected views discard previous account/workspace data and obsolete requests; denied private reads clear content while theme and language remain non-authoritative presentation preferences",
+        "Dispatch tracking and explicit fax/email preparation use existing APIs; narrowly eligible plain-text email review retains exact price/content, required human attestations and approval/confirmation gates, while specialist postal, secure, document and scheduled review continues through named canonical interfaces",
+        "Workspace PDF library/import/render, personal received-document access and named Studio, contacts, schedules, secure-distribution and administration destinations retain their existing roles and independent personal authority",
+        "Static-only deployment has no business bindings or development authentication; backend origin activation, served artifacts, real Auth0/browser behavior and provider delivery need distinct evidence",
+        "Dedicated desktop/mobile browser fixtures intercept every API request, refuse unexpected writes and qualify route entry, explicit synthetic actions, locale, role, identity replacement and accessibility without claiming a genuine account or delivery"
+      ],
+      "status": "12 November 2026 implementation continuation; current checks and hosted qualification are recorded in the experience contract. Canonical specialist continuations are explicit, and not every existing page is recreated.",
+      "tests": [
+        "tests/unit/experience-origin.test.ts",
+        "tests/experience-e2e/station.spec.ts",
+        "tests/experience-e2e/authority.spec.ts",
+        "tests/experience-e2e/documents.spec.ts",
+        "tests/experience-e2e/traffic.spec.ts",
+        "tests/security/experience-deploy.test.mjs",
+        "tests/experience-e2e/navigation.spec.ts"
+      ],
+      "surfaces": "Separate browser client using existing REST browser sessions. No additional MCP, native, bearer scope, provider, mandate or human-approval authority.",
+      "id": "experience",
+      "category": "Web",
+      "availability": "browser-session",
+      "tools": [],
+      "rest": []
     }
   ],
   "journeys": [
@@ -2047,6 +2078,15 @@
       "branch": "Operate",
       "doc": "PDF_VALIDATOR.md",
       "failure": "Refuse assistant bearer calls, expired/revoked browser authority, invalid cursor/limit, inaccessible documents and exhausted HTTP budget. No content or recipient enters the metadata list; a history read never charges or invokes the validator."
+    },
+    {
+      "id": "J58",
+      "title": "Enter the Gare experience and continue an exact reviewed dispatch",
+      "actor": "Human browser user with current personal identity and optional workspace membership",
+      "steps": "Open the static experience → sign in through the canonical application → return to a bounded internal Gare route → read current personal/workspace permissions → explicitly prepare an eligible fax or email → inspect the prepared record → use the bounded plain-text email review with explicit human attestations, or continue to named canonical specialist review, for exact content, recipient, options, price and human approval → return to tracking. Account/workspace replacement clears obsolete resources before the new authority appears.",
+      "branch": "Separate browser client with explicit canonical specialist continuations; no new assistant or native authority",
+      "doc": "EXPERIENCE.md",
+      "failure": "Unconfigured origins, missing CSRF, revoked membership, denied private reads and unavailable providers fail closed. No page entry approves or sends. Unknown writes require existing reconciliation; no inferred consent, automatic retry or claim of delivery. Synthetic browser proof is separate from production Auth0, CORS and provider evidence."
     }
   ],
   "roles": [
@@ -2610,6 +2650,14 @@
       "No authority from workspace role",
       "No authority from workspace role",
       "No business REST/MCP/native tool or expert mandate; distinct explicitly authorized repository/platform operator, exact complete CI/main/tag and separately authorized existing application/D1 credentials"
+    ],
+    [
+      "Use Gare to read and prepare within existing permissions",
+      "Read and prepare; canonical browser approval",
+      "Read and prepare; approval/reporting options remain independent",
+      "Read and prepare; no approval",
+      "Read permitted resources only",
+      "No Gare browser authority; existing scoped APIs unchanged"
     ]
   ],
   "schemaVersion": 2

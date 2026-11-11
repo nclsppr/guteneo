@@ -51,6 +51,7 @@ const guide = {
   status: "/engineering/testing/",
   "engineering-docs": "/engineering/contributing/",
   "cloud-development": "/engineering/ai-contributions/",
+  experience: "/engineering/design-system/",
 };
 const availability = {
   public: "Public reading surface",

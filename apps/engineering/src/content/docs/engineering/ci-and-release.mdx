@@ -682,3 +682,47 @@ robots and origin check still runs under the same 30-second request deadline;
 the receipt records the selected count and deadline. This changes read
 parallelism, not qualification coverage or deployment permission. Inspect actual
 served state after a post-publication failure before attempting another release.
+
+## Separate static browser experience
+
+Gare is published as a static frontend independently of the canonical application
+Worker. Its asset deployment has no database, bucket, queue, provider or identity
+secret binding. The build fixes the canonical API origin and produces restrictive
+response headers; publication must bind the reviewed source revision to the
+verified artifact. The custom domain and TLS, static assets and backend origin
+activation are independent checks.
+
+The canonical backend grants credentialed CORS only to its exact configured
+same-site experience origin and eligible API routes. Existing host-only cookies,
+CSRF, current membership and human review remain authoritative. The Auth0 callback
+stays canonical and a bounded internal return bridge takes the browser back to
+Gare. Do not expand token scopes or weaken origin validation to compensate for a
+failed deployment.
+
+Run the dedicated synthetic browser suite separately from genuine Auth0 and
+provider qualification. Intercepted desktop/mobile API fixtures can prove locale,
+route and authority-transition presentation but cannot prove real cookie or CORS
+behavior. Retain source, test and served-byte evidence independently. When a
+publication outcome is unknown, inspect the actual deployment before retrying;
+removing the trusted experience-origin grant closes its API access while leaving
+canonical account access and already accepted dispatches unchanged. The
+[experience contract](https://github.com/nclsppr/guteneo/blob/main/docs/EXPERIENCE.md)
+records detailed activation, recovery and dated qualification boundaries.
+
+The existing Chromium desktop and mobile CI jobs each execute the Gare suite on
+their first shard. The browser evidence verifier independently discovers both
+project inventories and requires every result exactly once, without undeclared
+skips or retries. Its reports and failure traces remain synthetic artifacts.
+The build job verifies the static experience artifact; the existing Node security
+glob includes its deployment guard tests. A missing report fails the common
+required gate, including when another application suite passed. Browser policy
+changes select a complete CI run rather than reusing older proof.
+The portable release report derives its expected row and suite counts from the
+same browser plan, so adding a required suite cannot leave its old inventory
+count accepted by the report renderer.
+
+The 12 November local macOS attempt could not start Chromium because the host
+denied its Mach bootstrap registration. No browser assertion passed in that
+attempt. Use the unchanged Linux CI browser environment to obtain actual suite
+evidence before publication; do not remove the browser sandbox or turn a blocked
+attempt into a successful qualification.

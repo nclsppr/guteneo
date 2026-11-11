@@ -1,0 +1,446 @@
+{
+  "brand.home": {
+    "fr": "guteneo, accueil",
+    "en": "guteneo, home",
+    "de": "guteneo, Startseite",
+    "lb": "guteneo, Startsäit"
+  },
+  "shell.language": {
+    "fr": "Langue",
+    "en": "Language",
+    "de": "Sprache",
+    "lb": "Sprooch"
+  },
+  "shell.day": {
+    "fr": "Passer au mode jour",
+    "en": "Switch to day mode",
+    "de": "Zum Tagmodus wechseln",
+    "lb": "Op den Dagmodus wiesselen"
+  },
+  "shell.night": {
+    "fr": "Passer au mode nuit",
+    "en": "Switch to night mode",
+    "de": "Zum Nachtmodus wechseln",
+    "lb": "Op den Nuetsmodus wiesselen"
+  },
+  "shell.sound": {
+    "fr": "Sons de la gare",
+    "en": "Station sounds",
+    "de": "Bahnhofsgeräusche",
+    "lb": "Kläng vun der Gare"
+  },
+  "shell.navigation": {
+    "fr": "Plan de la gare",
+    "en": "Station map",
+    "de": "Bahnhofsplan",
+    "lb": "Plang vun der Gare"
+  },
+  "shell.quickNavigation": {
+    "fr": "Navigation rapide",
+    "en": "Quick navigation",
+    "de": "Schnellnavigation",
+    "lb": "Schnellnavigatioun"
+  },
+  "shell.hall": {
+    "fr": "Le hall",
+    "en": "The hall",
+    "de": "Die Halle",
+    "lb": "D’Hal"
+  },
+  "shell.account": {
+    "fr": "Mon compte",
+    "en": "My account",
+    "de": "Mein Konto",
+    "lb": "Mäi Kont"
+  },
+  "shell.menu": {
+    "fr": "Tout voir",
+    "en": "All sections",
+    "de": "Alle Bereiche",
+    "lb": "All Beräicher"
+  },
+  "shell.track": {
+    "fr": "Voie",
+    "en": "Track",
+    "de": "Gleis",
+    "lb": "Gleis"
+  },
+  "shell.skip": {
+    "fr": "Aller au contenu",
+    "en": "Skip to content",
+    "de": "Zum Inhalt springen",
+    "lb": "Bei den Inhalt sprangen"
+  },
+  "shell.footer": {
+    "fr": "Informations et assistance",
+    "en": "Information and help",
+    "de": "Informationen und Hilfe",
+    "lb": "Informatiounen an Hëllef"
+  },
+  "action.signIn": {
+    "fr": "Se connecter",
+    "en": "Sign in",
+    "de": "Anmelden",
+    "lb": "Umellen"
+  },
+  "action.signOut": {
+    "fr": "Se déconnecter",
+    "en": "Sign out",
+    "de": "Abmelden",
+    "lb": "Ofmellen"
+  },
+  "action.retry": {
+    "fr": "Réessayer",
+    "en": "Try again",
+    "de": "Erneut versuchen",
+    "lb": "Nach eng Kéier probéieren"
+  },
+  "action.close": {
+    "fr": "Fermer",
+    "en": "Close",
+    "de": "Schließen",
+    "lb": "Zoumaachen"
+  },
+  "action.more": {
+    "fr": "Voir plus",
+    "en": "Load more",
+    "de": "Mehr laden",
+    "lb": "Méi lueden"
+  },
+  "state.loading": {
+    "fr": "Chargement…",
+    "en": "Loading…",
+    "de": "Wird geladen…",
+    "lb": "Gëtt gelueden…"
+  },
+  "state.failed": {
+    "fr": "Cette page n’a pas pu s’ouvrir.",
+    "en": "This page could not be opened.",
+    "de": "Diese Seite konnte nicht geöffnet werden.",
+    "lb": "Dës Säit konnt net opgemaach ginn."
+  },
+  "state.notFound": {
+    "fr": "Cette voie n’existe pas.",
+    "en": "This track does not exist.",
+    "de": "Dieses Gleis gibt es nicht.",
+    "lb": "Dëst Gleis gëtt et net."
+  },
+  "state.noAccess": {
+    "fr": "Cet espace n’est pas accessible avec votre compte actuel.",
+    "en": "This section is not available to your current account.",
+    "de": "Dieser Bereich ist mit Ihrem aktuellen Konto nicht verfügbar.",
+    "lb": "Dëse Beräich ass mat Ärem aktuelle Kont net disponibel."
+  },
+  "state.expired": {
+    "fr": "Votre session a expiré. Reconnectez-vous pour continuer.",
+    "en": "Your session expired. Sign in to continue.",
+    "de": "Ihre Sitzung ist abgelaufen. Melden Sie sich erneut an.",
+    "lb": "Är Sessioun ass ofgelaf. Mellt Iech erëm un."
+  },
+  "state.simulation": {
+    "fr": "SIMULATION · Aucun envoi réel",
+    "en": "SIMULATION · No real dispatches",
+    "de": "SIMULATION · Kein echter Versand",
+    "lb": "SIMULATIOUN · Keng richteg Sendungen"
+  },
+  "hall.title": {
+    "fr": "Vos documents prennent le départ.",
+    "en": "Your documents are going places.",
+    "de": "Ihre Dokumente gehen auf Reisen.",
+    "lb": "Är Dokumenter ginn op d’Rees."
+  },
+  "hall.description": {
+    "fr": "Un lieu pour créer, envoyer et recevoir. Votre correspondance change de décor.",
+    "en": "One place to create, send and receive. A new setting for your correspondence.",
+    "de": "Ein Ort zum Erstellen, Senden und Empfangen. Eine neue Umgebung für Ihre Korrespondenz.",
+    "lb": "Eng Plaz fir ze erstellen, ze schécken an ze kréien. En neie Kader fir Är Korrespondenz."
+  },
+  "hall.start": {
+    "fr": "Entrer en gare",
+    "en": "Enter the station",
+    "de": "Den Bahnhof betreten",
+    "lb": "An d’Gare eran"
+  },
+  "hall.classic": {
+    "fr": "Retrouver le site guteneo",
+    "en": "Visit the guteneo website",
+    "de": "Zur guteneo-Website",
+    "lb": "Op d’guteneo-Websäit"
+  },
+  "hall.board.title": {
+    "fr": "Toutes les directions",
+    "en": "All directions",
+    "de": "Alle Richtungen",
+    "lb": "All Richtungen"
+  },
+  "hall.board.track": {
+    "fr": "Voie",
+    "en": "Track",
+    "de": "Gleis",
+    "lb": "Gleis"
+  },
+  "hall.board.destination": {
+    "fr": "Destination",
+    "en": "Destination",
+    "de": "Ziel",
+    "lb": "Zil"
+  },
+  "hall.board.send": {
+    "fr": "ENVOYER",
+    "en": "SEND",
+    "de": "SENDEN",
+    "lb": "SCHÉCKEN"
+  },
+  "hall.board.receive": {
+    "fr": "RECEVOIR",
+    "en": "RECEIVE",
+    "de": "EMPFANGEN",
+    "lb": "KRÉIEN"
+  },
+  "hall.board.create": {
+    "fr": "CRÉER",
+    "en": "CREATE",
+    "de": "ERSTELLEN",
+    "lb": "ERSTELLEN"
+  },
+  "hall.send.description": {
+    "fr": "Fax, e-mail et courrier postal",
+    "en": "Fax, email and postal mail",
+    "de": "Fax, E-Mail und Briefpost",
+    "lb": "Fax, E-Mail a Bréifpost"
+  },
+  "hall.receive.description": {
+    "fr": "Vos documents, au même endroit",
+    "en": "Your documents, in one place",
+    "de": "Ihre Dokumente an einem Ort",
+    "lb": "Är Dokumenter op enger Plaz"
+  },
+  "hall.create.description": {
+    "fr": "Modèles et génération de PDF",
+    "en": "Templates and PDF generation",
+    "de": "Vorlagen und PDF-Erstellung",
+    "lb": "Virlagen a PDF-Erstellung"
+  },
+  "hall.board.bottom": {
+    "fr": "Correspondances assurées par guteneo",
+    "en": "Connections by guteneo",
+    "de": "Verbindungen von guteneo",
+    "lb": "Verbindunge vu guteneo"
+  },
+  "hall.promise": {
+    "fr": "Vous choisissez la destination. Vous gardez le dernier mot.",
+    "en": "You choose the destination. You keep the final say.",
+    "de": "Sie wählen das Ziel. Sie haben das letzte Wort.",
+    "lb": "Dir wielt d’Zil. Dir hutt dat lescht Wuert."
+  },
+  "hall.channels": {
+    "fr": "Fax · E-mail · Courrier · Documents",
+    "en": "Fax · Email · Post · Documents",
+    "de": "Fax · E-Mail · Post · Dokumente",
+    "lb": "Fax · E-Mail · Post · Dokumenter"
+  },
+  "hall.simulation": {
+    "fr": "Environnement local de simulation. Les données et les envois sont fictifs.",
+    "en": "Local simulation environment. Data and dispatches are fictional.",
+    "de": "Lokale Simulation. Daten und Sendungen sind fiktiv.",
+    "lb": "Lokal Simulatioun. Donnéeën a Sendunge si fiktiv."
+  },
+  "hall.localEntry": {
+    "fr": "Ouvrir l’atelier de démonstration",
+    "en": "Open the demo workspace",
+    "de": "Demo-Arbeitsbereich öffnen",
+    "lb": "Den Demo-Aarbechtsberäich opmaachen"
+  },
+  "footer.pricing": {
+    "fr": "Tarifs",
+    "en": "Pricing",
+    "de": "Preise",
+    "lb": "Präisser"
+  },
+  "footer.support": {
+    "fr": "Assistance",
+    "en": "Support",
+    "de": "Hilfe",
+    "lb": "Hëllef"
+  },
+  "footer.privacy": {
+    "fr": "Confidentialité",
+    "en": "Privacy",
+    "de": "Datenschutz",
+    "lb": "Dateschutz"
+  },
+  "footer.terms": {
+    "fr": "Conditions",
+    "en": "Terms",
+    "de": "Bedingungen",
+    "lb": "Konditiounen"
+  },
+  "welcome.title": {
+    "fr": "Bienvenue en gare",
+    "en": "Welcome to the station",
+    "de": "Willkommen am Bahnhof",
+    "lb": "Wëllkomm an der Gare"
+  },
+  "welcome.description": {
+    "fr": "Un nouveau départ, un document à retrouver ou une idée à mettre sur papier ?",
+    "en": "A new dispatch, a document to find, or an idea to put on paper?",
+    "de": "Eine neue Sendung, ein gesuchtes Dokument oder eine Idee für das Papier?",
+    "lb": "Eng nei Sendung, en Dokument ze fannen oder eng Iddi fir op de Pabeier?"
+  },
+  "welcome.activity": {
+    "fr": "Activité de votre espace",
+    "en": "Workspace activity",
+    "de": "Aktivität Ihres Arbeitsbereichs",
+    "lb": "Aktivitéit vun Ärem Aarbechtsberäich"
+  },
+  "welcome.workspace": {
+    "fr": "Votre espace de travail",
+    "en": "Your workspace",
+    "de": "Ihr Arbeitsbereich",
+    "lb": "Ären Aarbechtsberäich"
+  },
+  "section.departures": {
+    "fr": "Départs",
+    "en": "Departures",
+    "de": "Abfahrten",
+    "lb": "Départen"
+  },
+  "section.arrivals": {
+    "fr": "Arrivées",
+    "en": "Arrivals",
+    "de": "Ankünfte",
+    "lb": "Arrivéeën"
+  },
+  "section.counter": {
+    "fr": "Guichet",
+    "en": "Counter",
+    "de": "Schalter",
+    "lb": "Guichet"
+  },
+  "section.documents": {
+    "fr": "Documents",
+    "en": "Documents",
+    "de": "Dokumente",
+    "lb": "Dokumenter"
+  },
+  "section.lockers": {
+    "fr": "Consignes",
+    "en": "Lockers",
+    "de": "Schließfächer",
+    "lb": "Schléissfächer"
+  },
+  "section.destinations": {
+    "fr": "Destinations",
+    "en": "Destinations",
+    "de": "Ziele",
+    "lb": "Ziler"
+  },
+  "section.timetable": {
+    "fr": "Horaires",
+    "en": "Timetable",
+    "de": "Fahrplan",
+    "lb": "Fuerplang"
+  },
+  "section.studio": {
+    "fr": "Studio",
+    "en": "Studio",
+    "de": "Studio",
+    "lb": "Studio"
+  },
+  "section.office": {
+    "fr": "Bureau",
+    "en": "Office",
+    "de": "Büro",
+    "lb": "Büro"
+  },
+  "description.departures": {
+    "fr": "Suivre vos envois et leurs événements.",
+    "en": "Track your dispatches and their events.",
+    "de": "Sendungen und Ereignisse verfolgen.",
+    "lb": "Är Sendungen an hir Evenementer verfollegen."
+  },
+  "description.arrivals": {
+    "fr": "Lire les documents reçus et vos copies.",
+    "en": "Read received documents and your copies.",
+    "de": "Empfangene Dokumente und Kopien lesen.",
+    "lb": "Erhalen Dokumenter an Är Kopië liesen."
+  },
+  "description.counter": {
+    "fr": "Préparer votre prochain envoi.",
+    "en": "Prepare your next dispatch.",
+    "de": "Ihre nächste Sendung vorbereiten.",
+    "lb": "Är nächst Sendung virbereeden."
+  },
+  "description.documents": {
+    "fr": "Importer, créer et consulter vos PDF.",
+    "en": "Import, create and view your PDFs.",
+    "de": "PDFs importieren, erstellen und ansehen.",
+    "lb": "PDFen importéieren, erstellen a kucken."
+  },
+  "description.lockers": {
+    "fr": "Gérer vos partages de documents sécurisés.",
+    "en": "Manage your secure document shares.",
+    "de": "Sichere Dokumentfreigaben verwalten.",
+    "lb": "Är sécher Dokumentfreigabe geréieren."
+  },
+  "description.destinations": {
+    "fr": "Retrouver et organiser vos contacts.",
+    "en": "Find and organize your contacts.",
+    "de": "Kontakte finden und organisieren.",
+    "lb": "Kontakter fannen an organiséieren."
+  },
+  "description.timetable": {
+    "fr": "Consulter les envois programmés.",
+    "en": "View scheduled dispatches.",
+    "de": "Geplante Sendungen ansehen.",
+    "lb": "Geplangte Sendunge kucken."
+  },
+  "description.studio": {
+    "fr": "Créer avec vos modèles et vos données.",
+    "en": "Create with your templates and data.",
+    "de": "Mit Vorlagen und Daten erstellen.",
+    "lb": "Mat Äre Virlagen an Donnéeën erstellen."
+  },
+  "description.office": {
+    "fr": "Membres, crédits et paramètres de l’espace.",
+    "en": "Workspace members, credits and settings.",
+    "de": "Mitglieder, Guthaben und Einstellungen.",
+    "lb": "Memberen, Guthaben an Astellungen."
+  },
+  "error.NETWORK": {
+    "fr": "Le service est inaccessible. Vérifiez votre connexion et réessayez.",
+    "en": "The service could not be reached. Check your connection and try again.",
+    "de": "Der Dienst ist nicht erreichbar. Prüfen Sie Ihre Verbindung.",
+    "lb": "Den Déngscht ass net erreechbar. Iwwerpréift Är Verbindung."
+  },
+  "error.FORBIDDEN": {
+    "fr": "Votre compte ne permet pas cette action.",
+    "en": "Your account does not allow this action.",
+    "de": "Ihr Konto erlaubt diese Aktion nicht.",
+    "lb": "Äre Kont erlaabt dës Aktioun net."
+  },
+  "error.RATE_LIMITED": {
+    "fr": "Trop de demandes. Patientez un instant avant de réessayer.",
+    "en": "Too many requests. Wait a moment before trying again.",
+    "de": "Zu viele Anfragen. Bitte warten Sie einen Moment.",
+    "lb": "Ze vill Ufroen. Waart wgl. ee Moment."
+  },
+  "error.INTERNAL_ERROR": {
+    "fr": "Une erreur est survenue. Réessayez sans recréer votre demande.",
+    "en": "Something went wrong. Retry without creating a new request.",
+    "de": "Ein Fehler ist aufgetreten. Versuchen Sie es erneut, ohne eine neue Anfrage zu erstellen.",
+    "lb": "E Feeler ass opgetrueden. Probéiert nach eng Kéier ouni eng nei Ufro ze erstellen."
+  },
+  "error.UNAUTHORIZED": {
+    "fr": "Reconnectez-vous pour continuer.",
+    "en": "Sign in again to continue.",
+    "de": "Melden Sie sich erneut an.",
+    "lb": "Mellt Iech erëm un."
+  },
+  "error.NOT_FOUND": {
+    "fr": "Cet élément est introuvable ou n’est plus accessible.",
+    "en": "This item was not found or is no longer accessible.",
+    "de": "Dieses Element wurde nicht gefunden oder ist nicht mehr zugänglich.",
+    "lb": "Dëst Element gouf net fonnt oder ass net méi zougänglech."
+  }
+}

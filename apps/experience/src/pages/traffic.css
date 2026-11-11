@@ -1,0 +1,485 @@
+.traffic-page {
+  min-width: 0;
+}
+.traffic-board-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.traffic-board-wrap {
+  overflow-x: auto;
+  border: 6px solid var(--board-bezel);
+  border-radius: 7px;
+  box-shadow: 0 14px 35px rgb(0 0 0 / 18%);
+}
+.traffic-board {
+  width: 100%;
+  min-width: 690px;
+  border-collapse: collapse;
+  background: var(--board);
+  color: var(--flap-ink);
+}
+.traffic-board th {
+  font-family: var(--font-sign);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-align: left;
+  text-transform: uppercase;
+  color: #babbb4;
+  padding: 15px 18px;
+  border-bottom: 2px solid #3d3e40;
+}
+.traffic-board td {
+  padding: 18px;
+  border-bottom: 1px solid #303136;
+  vertical-align: middle;
+}
+.traffic-board tbody tr:last-child td {
+  border-bottom: 0;
+}
+.traffic-board tbody tr:hover {
+  background: #17191c;
+}
+.traffic-ref {
+  display: block;
+  color: #a4a69f;
+  font: 0.65rem var(--font-data);
+  letter-spacing: 0.12em;
+  margin-top: 7px;
+}
+.traffic-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 1rem var(--font-sign);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.traffic-board .traffic-line.is-email {
+  color: #54d5b7;
+}
+.traffic-board .traffic-line.is-fax {
+  color: #ff9b7d;
+}
+.traffic-board .traffic-line.is-postal {
+  color: #c4b0ff;
+}
+.traffic-destination {
+  max-width: 290px;
+  overflow-wrap: anywhere;
+}
+.traffic-destination > a {
+  font-weight: 600;
+  text-decoration: none;
+}
+.traffic-destination > a:hover {
+  text-decoration: underline;
+}
+.traffic-destination > small {
+  display: block;
+  color: #b7b9b1;
+  margin-top: 4px;
+  font-size: 0.8rem;
+}
+.traffic-destination > .traffic-simulation {
+  color: #ffd60a;
+  font: 0.65rem var(--font-data);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.traffic-fare {
+  font: 0.85rem var(--font-data);
+  white-space: nowrap;
+}
+.traffic-open {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid #4d4e51;
+  border-radius: 3px;
+}
+.traffic-open:hover {
+  color: var(--on-signal);
+  background: var(--signal);
+  border-color: var(--signal);
+}
+.traffic-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font: 500 0.78rem var(--font-data);
+}
+.traffic-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: none;
+  background: currentColor;
+}
+.traffic-board .traffic-status.is-approval {
+  color: #ffd60a;
+}
+.traffic-board .traffic-status.is-in_progress {
+  color: #e0ded3;
+}
+.traffic-board .traffic-status.is-done {
+  color: #84dfaa;
+}
+.traffic-board .traffic-status.is-attention {
+  color: #ff8c86;
+}
+.traffic-loading {
+  padding: 72px 24px;
+  border: 1px solid var(--rule);
+  text-align: center;
+  color: var(--ink-2);
+  font-family: var(--font-data);
+}
+.traffic-footnote {
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+  line-height: 1.55;
+}
+.traffic-back {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  align-self: start;
+}
+.traffic-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+.traffic-ticket {
+  background: var(--paper);
+  color: var(--paper-ink);
+  border-radius: 3px;
+  box-shadow: 0 12px 28px rgb(0 0 0 / 15%);
+  overflow: hidden;
+}
+.traffic-ticket .caps,
+.traffic-draft-ticket .caps {
+  color: var(--paper-ink-2);
+}
+.traffic-ticket-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--paper-rule);
+}
+.traffic-ticket-head > .caps {
+  color: var(--paper-ink);
+  font-size: 1.25rem;
+}
+.traffic-ticket-main {
+  display: grid;
+  gap: 24px;
+  padding: 32px 28px;
+}
+.traffic-ticket address {
+  font: 600 clamp(1.5rem, 3vw, 2.35rem)/1.08 var(--font-sign);
+  overflow-wrap: anywhere;
+}
+.traffic-ticket address span {
+  display: block;
+}
+.traffic-ticket .traffic-status.is-done {
+  color: #146e38;
+}
+.traffic-ticket .traffic-status.is-attention {
+  color: #b5241b;
+}
+.traffic-ticket .traffic-status.is-approval {
+  color: #725500;
+}
+.traffic-ticket .traffic-status.is-in_progress {
+  color: #43484f;
+}
+.traffic-ticket .traffic-footnote {
+  color: var(--paper-ink-2);
+}
+.traffic-ticket-simulation {
+  border: 1px solid #99843e;
+  color: #62501b;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+}
+.traffic-ticket-content h2 {
+  font-size: 1.1rem;
+  margin-top: 8px;
+  overflow-wrap: anywhere;
+}
+.traffic-message {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.9375rem;
+}
+.traffic-facts {
+  display: grid;
+  gap: 14px;
+}
+.traffic-facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--paper-rule);
+  align-items: baseline;
+}
+.traffic-facts dt {
+  font-size: 0.8rem;
+  color: var(--paper-ink-2);
+}
+.traffic-facts dd {
+  font: 0.85rem var(--font-data);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.traffic-facts dd small {
+  display: block;
+  margin-top: 4px;
+}
+.traffic-ticket-stub {
+  position: relative;
+  padding: 24px 28px;
+  border-top: 2px dashed var(--paper-rule);
+  display: grid;
+  gap: 8px;
+}
+.traffic-ticket-stub::before,
+.traffic-ticket-stub::after {
+  content: "";
+  position: absolute;
+  top: -11px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--hall);
+}
+.traffic-ticket-stub::before {
+  left: -10px;
+}
+.traffic-ticket-stub::after {
+  right: -10px;
+}
+.traffic-ticket-stub code {
+  font: 0.72rem var(--font-data);
+  overflow-wrap: anywhere;
+}
+.traffic-ticket .button {
+  background: var(--paper-shade);
+  color: var(--paper-ink);
+  border-color: var(--paper-rule);
+}
+.traffic-timeline {
+  display: grid;
+  gap: 24px;
+}
+.traffic-timeline li {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+}
+.traffic-timeline-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--signal);
+  box-shadow: 0 0 0 4px var(--hall-sunken);
+}
+.traffic-timeline li strong {
+  font-weight: 500;
+}
+.traffic-timeline time {
+  display: block;
+  margin-top: 5px;
+  font: 0.75rem var(--font-data);
+  color: var(--ink-3);
+}
+.traffic-channel-picker {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.traffic-channel {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 3px;
+  padding: 20px;
+  background: var(--hall-raised);
+  color: var(--ink);
+  text-align: left;
+}
+.traffic-channel > span:not(.traffic-channel-number) {
+  flex: 1;
+  font: 700 1.35rem var(--font-sign);
+  text-transform: uppercase;
+}
+.traffic-channel-number {
+  color: var(--ink-3);
+  font: 0.72rem var(--font-data);
+}
+.traffic-channel.is-selected {
+  background: var(--signal);
+  color: var(--on-signal);
+  border-color: var(--signal);
+}
+.traffic-channel.is-selected .traffic-channel-number {
+  color: var(--on-signal);
+}
+.traffic-channel:hover:not(:disabled):not(.is-selected) {
+  background: var(--hall-hover);
+}
+.traffic-channel:disabled {
+  cursor: wait;
+}
+.traffic-delivery {
+  max-width: 440px;
+}
+.traffic-compose-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+.traffic-fieldset {
+  border: 0;
+  margin: 0;
+  min-width: 0;
+}
+.traffic-fieldset .link {
+  justify-self: start;
+}
+.traffic-draft-ticket {
+  position: sticky;
+  top: 28px;
+  background: var(--paper);
+  color: var(--paper-ink);
+  transform: rotate(1deg);
+  box-shadow: 0 12px 25px rgb(0 0 0 / 12%);
+  border-radius: 3px;
+}
+.traffic-draft-ticket > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--paper-rule);
+}
+.traffic-draft-body {
+  padding: 28px;
+  display: grid;
+  gap: 12px;
+}
+.traffic-draft-workspace,
+.traffic-draft-destination {
+  font: 600 1.85rem/1.1 var(--font-sign);
+  overflow-wrap: anywhere;
+}
+.traffic-draft-destination {
+  min-height: 60px;
+}
+.traffic-journey-line {
+  display: flex;
+  align-items: center;
+  margin: 14px 0;
+  color: #555861;
+}
+.traffic-journey-line span {
+  flex: 1;
+  border-top: 2px dotted var(--paper-rule);
+}
+.traffic-draft-ticket > footer {
+  padding: 22px 28px;
+  border-top: 2px dashed var(--paper-rule);
+  color: var(--paper-ink-2);
+  font-size: 0.8rem;
+}
+.traffic-specialist {
+  max-width: 760px;
+}
+.traffic-specialist .panel-body {
+  padding: clamp(24px, 4vw, 48px);
+}
+.traffic-specialist-title {
+  font: 600 clamp(2rem, 4vw, 3.2rem)/1 var(--font-sign);
+  max-width: 18ch;
+}
+.traffic-specialist .button {
+  align-self: start;
+}
+.traffic-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  cursor: pointer;
+}
+.traffic-consent input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--signal);
+}
+@media (max-width: 1100px) {
+  .traffic-channel {
+    gap: 10px;
+    padding: 16px;
+  }
+  .traffic-channel-number {
+    display: none;
+  }
+  .traffic-compose-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 0.8fr);
+    gap: 20px;
+  }
+  .traffic-detail-grid {
+    gap: 20px;
+  }
+}
+@media (max-width: 740px) {
+  .traffic-detail-grid,
+  .traffic-compose-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .traffic-draft-ticket {
+    position: static;
+    transform: none;
+  }
+  .traffic-channel {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 15px 8px;
+    gap: 7px;
+  }
+  .traffic-channel > span:not(.traffic-channel-number) {
+    flex-basis: 100%;
+    text-align: center;
+    font-size: 1.1rem;
+  }
+  .traffic-channel > svg:last-child {
+    display: none;
+  }
+  .traffic-board td,
+  .traffic-board th {
+    padding: 14px 12px;
+  }
+  .traffic-ticket-main,
+  .traffic-ticket-head,
+  .traffic-ticket-stub {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+}

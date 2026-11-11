@@ -1,6 +1,6 @@
 {
   "name": "guteneo",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "private": true,
   "type": "module",
   "engines": {
@@ -68,10 +68,19 @@
     "build:auth0-email": "node scripts/build-auth0-brand-preview.mjs",
     "check:auth0-email": "node scripts/build-auth0-brand-preview.mjs --check",
     "test:auth0-email": "node --test tests/security/auth0-email-branding.test.mjs",
-    "test:auth0-email:browser": "playwright test --config playwright.auth0-email.config.ts"
+    "test:auth0-email:browser": "playwright test --config playwright.auth0-email.config.ts",
+    "dev:experience": "vite --config apps/experience/vite.config.ts",
+    "build:experience": "node scripts/build-experience.mjs",
+    "preview:experience": "vite preview --config apps/experience/vite.config.ts",
+    "test:experience": "playwright test --config playwright.experience.config.ts",
+    "test:experience:release": "node --test tests/security/experience-deploy.test.mjs",
+    "deploy:experience": "node scripts/deploy-experience.mjs"
   },
   "dependencies": {
     "@cloudflare/puppeteer": "^1.4.0",
+    "@fontsource/barlow": "^5.3.0",
+    "@fontsource/barlow-condensed": "^5.3.0",
+    "@fontsource/doto": "^5.3.0",
     "@fontsource/eb-garamond": "^5.3.0",
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "@fontsource/ibm-plex-sans": "^5.3.0",

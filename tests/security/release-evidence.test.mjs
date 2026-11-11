@@ -46,7 +46,7 @@ const verification = {
   passed: 4000,
   browser: {
     rows: 9,
-    suites: 8,
+    suites: 10,
     discovered: 1000,
     passed: 976,
     declaredSkipped: 24,
@@ -146,6 +146,7 @@ test("the renderer refuses missing rows, inconsistent counters, unknown fields a
     (f) => (f.verification.passed = 0),
     (f) => (f.verification.browser.rows = 8),
     (f) => (f.verification.browser.suites = 7),
+    (f) => (f.verification.browser.suites = 8),
     (f) => (f.verification.browser.discovered += 1),
     (f) => (f.verification.browser.declaredSkipped = -1),
     (f) => (f.verification.browser.evidenceAttempts = ["1", "1"]),

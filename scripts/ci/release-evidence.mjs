@@ -5,6 +5,7 @@ import { lstat, mkdir, open, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import { isDeepStrictEqual } from "node:util";
+import { browserMatrix, suitePlans } from "./browser-results.mjs";
 
 const repository = "nclsppr/guteneo";
 const sha = /^[a-f0-9]{40}$/;
@@ -52,8 +53,8 @@ function counts(value, attempt) {
         "declaredSkipped",
         "evidenceAttempts",
       ]) &&
-      browser.rows === 9 &&
-      browser.suites === 8 &&
+      browser.rows === browserMatrix().include.length &&
+      browser.suites === suitePlans().length &&
       positive(browser.discovered) &&
       positive(browser.passed) &&
       Number.isSafeInteger(browser.declaredSkipped) &&

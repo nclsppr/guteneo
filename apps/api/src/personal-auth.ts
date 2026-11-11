@@ -18,7 +18,7 @@ import {
   isLocalSimulation,
   memberships,
   publicBrowserSession,
-  requireSameOrigin,
+  requireBrowserOrigin,
   requirePersonalDocumentAuthentication,
   type AuthEnv,
   type PersonalPrincipal,
@@ -144,7 +144,7 @@ export async function handlePersonalAccountRoute(
         "Available in local simulation only.",
         403,
       );
-    requireSameOrigin(request, env);
+    requireBrowserOrigin(request, env);
     if (request.headers.has("Authorization"))
       throw new AuthError(
         "BROWSER_REQUIRED",

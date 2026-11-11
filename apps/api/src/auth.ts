@@ -28,6 +28,11 @@ import {
   normalizeLocale,
   type SupportedLocale,
 } from "../../../packages/contracts/src/locale";
+import {
+  experienceFailureRedirect,
+  handleExperienceReturn,
+  isExperienceOrigin,
+} from "./experience-origin";
 
 export const MCP_SCOPES = [
   "documents:read",
@@ -49,6 +54,8 @@ export interface AuthEnv {
   ENVIRONMENT: string;
   MODE: string;
   APP_ORIGIN: string;
+  /** Exact origin of the separately hosted experience; unset keeps it off. */
+  EXPERIENCE_ORIGIN?: string;
   /** Disabled unless an exact connection/revision has a bounded diagnostic window. */
   MCP_UI_PROBE?: string;
   /** Default-off original-file App; bounded qualification or authorized rollout. */
@@ -195,6 +202,16 @@ export function requireSameOrigin(request: Request, env: AuthEnv): void {
   if (request.headers.get("Origin") !== env.APP_ORIGIN)
     throw new AuthError("ORIGIN_REJECTED", "Request origin rejected.", 403);
 }
+/**
+ * Session-authenticated writes accept the application itself and the one
+ * configured experience origin. Both are first-party browser front-ends on
+ * the same site; the CSRF token and membership checks are unchanged.
+ */
+export function requireBrowserOrigin(request: Request, env: AuthEnv): void {
+  const origin = request.headers.get("Origin");
+  if (origin !== env.APP_ORIGIN && !isExperienceOrigin(origin, env))
+    throw new AuthError("ORIGIN_REJECTED", "Request origin rejected.", 403);
+}
 export function safeReturnPath(value: string | null): string {
   if (
     !value ||
@@ -261,7 +278,8 @@ function recoveryHash(returnTo: string): string {
 
 export function authFailureRedirect(
   request: Request,
-  env: Pick<AuthEnv, "APP_ORIGIN">,
+  env: Pick<AuthEnv, "APP_ORIGIN"> &
+    Partial<Pick<AuthEnv, "ENVIRONMENT" | "EXPERIENCE_ORIGIN">>,
   code: string,
   error?: unknown,
 ): string {
@@ -271,21 +289,32 @@ export function authFailureRedirect(
     error !== null && typeof error === "object"
       ? loginFailureContexts.get(error)
       : undefined;
+  const locale =
+    context?.locale ??
+    (startingLogin
+      ? requestedLoginLocale(request)
+      : localeFromAcceptLanguage(request.headers.get("Accept-Language")));
+  const returnTo =
+    context?.returnTo ??
+    (startingLogin
+      ? safeReturnPath(url.searchParams.get("returnTo"))
+      : "/#/app");
+  // A sign-in started from the experience explains its failure there. The
+  // return path is the validated transaction value or this request's own
+  // starting parameter, never a callback hint.
+  const experience = env.ENVIRONMENT
+    ? experienceFailureRedirect(
+        { ...env, ENVIRONMENT: env.ENVIRONMENT },
+        returnTo,
+        code,
+        locale,
+      )
+    : null;
+  if (experience) return experience;
   const destination = new URL("/", env.APP_ORIGIN);
   destination.searchParams.set("auth", code);
-  destination.searchParams.set(
-    "lang",
-    context?.locale ??
-      (startingLogin
-        ? requestedLoginLocale(request)
-        : localeFromAcceptLanguage(request.headers.get("Accept-Language"))),
-  );
-  destination.hash = recoveryHash(
-    context?.returnTo ??
-      (startingLogin
-        ? safeReturnPath(url.searchParams.get("returnTo"))
-        : "/#/app"),
-  );
+  destination.searchParams.set("lang", locale);
+  destination.hash = recoveryHash(returnTo);
   return destination.href;
 }
 function cookieName(
@@ -876,7 +905,7 @@ export async function authenticatePersonalBrowser(
   if (!row || (row.is_development && !isLocalSimulation(request, env)))
     throw new AuthError("SESSION_EXPIRED", "Session expired. Sign in again.");
   if (mutating) {
-    requireSameOrigin(request, env);
+    requireBrowserOrigin(request, env);
     if (
       !constantEqual(request.headers.get("X-CSRF-Token") ?? "", row.csrf_token)
     )
@@ -1140,7 +1169,7 @@ export async function authenticateBrowser(
       403,
     );
   if (mutating) {
-    requireSameOrigin(request, env);
+    requireBrowserOrigin(request, env);
     if (
       !constantEqual(request.headers.get("X-CSRF-Token") ?? "", row.csrf_token)
     )
@@ -1425,6 +1454,8 @@ async function handleAuthRouteOperation(
   failureContext: { validated?: LoginFailureContext },
 ): Promise<Response | null> {
   const url = new URL(request.url);
+  const experienceReturn = handleExperienceReturn(request, env);
+  if (experienceReturn) return experienceReturn;
   if (
     request.method === "GET" &&
     [
@@ -1911,7 +1942,7 @@ async function handleAuthRouteOperation(
         "Demo sign-in is available locally only.",
         403,
       );
-    requireSameOrigin(request, env);
+    requireBrowserOrigin(request, env);
     const body = (await request.json()) as { organization?: string };
     if (!["atelier", "studio"].includes(body.organization ?? ""))
       throw new AuthError(

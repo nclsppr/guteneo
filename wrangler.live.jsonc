@@ -24,6 +24,7 @@
     "ENVIRONMENT": "production",
     "MODE": "production",
     "APP_ORIGIN": "https://guteneo.com",
+    "EXPERIENCE_ORIGIN": "https://gare.guteneo.com",
     "LIVE_SENDS_ENABLED": "true",
     // Transport only: tenant controls, verified senders, quotes and approval still apply.
     "LIVE_SEND_CHANNELS": "fax,postal,email",

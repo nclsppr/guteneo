@@ -1,0 +1,668 @@
+{
+  "work.openWorkshop": {
+    "fr": "Ouvrir dans l’atelier Guteneo",
+    "en": "Open in the Guteneo workshop",
+    "de": "Im Guteneo-Arbeitsbereich öffnen",
+    "lb": "Am Guteneo-Atelier opmaachen"
+  },
+  "work.destinations": {
+    "fr": "Destinations",
+    "en": "Destinations",
+    "de": "Ziele",
+    "lb": "Destinatiounen"
+  },
+  "work.addressBook": {
+    "fr": "Carnet de destinataires",
+    "en": "Recipient address book",
+    "de": "Empfängeradressbuch",
+    "lb": "Empfängeradressbuch"
+  },
+  "work.newContact": {
+    "fr": "Ajouter un destinataire",
+    "en": "Add recipient",
+    "de": "Empfänger hinzufügen",
+    "lb": "Empfänger dobäisetzen"
+  },
+  "work.noContacts": {
+    "fr": "Votre carnet attend ses premières adresses.",
+    "en": "Your address book is ready for its first entries.",
+    "de": "Ihr Adressbuch wartet auf die ersten Einträge.",
+    "lb": "Äert Adressbuch waart op déi éischt Adressen."
+  },
+  "work.contactsHelp": {
+    "fr": "Enregistrez les adresses que vous utilisez souvent pour préparer vos prochains envois.",
+    "en": "Save frequently used addresses for your next dispatches.",
+    "de": "Speichern Sie häufig verwendete Adressen für Ihre nächsten Sendungen.",
+    "lb": "Späichert dacks benotzten Adresse fir Är nächst Sendungen."
+  },
+  "work.editNamed": {
+    "fr": "Modifier {name}",
+    "en": "Edit {name}",
+    "de": "{name} bearbeiten",
+    "lb": "{name} änneren"
+  },
+  "work.edit": {
+    "fr": "Modifier",
+    "en": "Edit",
+    "de": "Bearbeiten",
+    "lb": "Änneren"
+  },
+  "work.editContact": {
+    "fr": "Modifier le destinataire",
+    "en": "Edit recipient",
+    "de": "Empfänger bearbeiten",
+    "lb": "Empfänger änneren"
+  },
+  "work.checkContact": {
+    "fr": "Vérifiez le nom et l’adresse du destinataire.",
+    "en": "Check the recipient name and address.",
+    "de": "Prüfen Sie den Namen und die Adresse des Empfängers.",
+    "lb": "Iwwerpréift den Numm an d’Adress vum Empfänger."
+  },
+  "work.discardQuestion": {
+    "fr": "Abandonner vos modifications non enregistrées ?",
+    "en": "Discard your unsaved changes?",
+    "de": "Ungespeicherte Änderungen verwerfen?",
+    "lb": "Är net gespäichert Ännerunge verwierfen?"
+  },
+  "work.keepEditing": {
+    "fr": "Continuer à modifier",
+    "en": "Keep editing",
+    "de": "Weiter bearbeiten",
+    "lb": "Weider änneren"
+  },
+  "work.discard": {
+    "fr": "Abandonner les modifications",
+    "en": "Discard changes",
+    "de": "Änderungen verwerfen",
+    "lb": "Ännerunge verwierfen"
+  },
+  "work.contactLabel": {
+    "fr": "Nom dans le carnet",
+    "en": "Address-book name",
+    "de": "Name im Adressbuch",
+    "lb": "Numm am Adressbuch"
+  },
+  "work.channel": {
+    "fr": "Canal",
+    "en": "Channel",
+    "de": "Kanal",
+    "lb": "Kanal"
+  },
+  "work.channel.email": {
+    "fr": "E-mail",
+    "en": "Email",
+    "de": "E-Mail",
+    "lb": "E-Mail"
+  },
+  "work.channel.fax": {
+    "fr": "Fax",
+    "en": "Fax",
+    "de": "Fax",
+    "lb": "Fax"
+  },
+  "work.channel.postal": {
+    "fr": "Courrier postal",
+    "en": "Postal mail",
+    "de": "Briefpost",
+    "lb": "Bréifpost"
+  },
+  "work.email": {
+    "fr": "Adresse e-mail",
+    "en": "Email address",
+    "de": "E-Mail-Adresse",
+    "lb": "E-Mail-Adress"
+  },
+  "work.phone": {
+    "fr": "Numéro de fax international",
+    "en": "International fax number",
+    "de": "Internationale Faxnummer",
+    "lb": "International Faxnummer"
+  },
+  "work.country": {
+    "fr": "Pays",
+    "en": "Country",
+    "de": "Land",
+    "lb": "Land"
+  },
+  "work.postalAddress": {
+    "fr": "Adresse postale, une ligne par ligne",
+    "en": "Postal address, one line per line",
+    "de": "Postanschrift, eine Zeile pro Zeile",
+    "lb": "Postadress, eng Zeil pro Zeil"
+  },
+  "work.save": {
+    "fr": "Enregistrer",
+    "en": "Save",
+    "de": "Speichern",
+    "lb": "Späicheren"
+  },
+  "work.cancel": {
+    "fr": "Annuler",
+    "en": "Cancel",
+    "de": "Abbrechen",
+    "lb": "Ofbriechen"
+  },
+  "work.permission": {
+    "fr": "Votre rôle ne permet pas d’ouvrir cette section. Un administrateur peut vérifier vos accès.",
+    "en": "Your role cannot open this section. An administrator can review your access.",
+    "de": "Ihre Rolle erlaubt keinen Zugriff auf diesen Bereich. Ein Administrator kann Ihre Rechte prüfen.",
+    "lb": "Är Roll erlaabt keen Zougrëff op dëse Beräich. En Administrateur kann Är Rechter iwwerpréiwen."
+  },
+  "work.timetable": {
+    "fr": "Horaires",
+    "en": "Timetable",
+    "de": "Fahrplan",
+    "lb": "Fuerplang"
+  },
+  "work.scheduledDispatches": {
+    "fr": "Envois programmés",
+    "en": "Scheduled dispatches",
+    "de": "Geplante Sendungen",
+    "lb": "Geplangte Sendungen"
+  },
+  "work.schedulingDisabled": {
+    "fr": "La validation des envois programmés est actuellement désactivée. Les brouillons restent consultables.",
+    "en": "Scheduled dispatch approval is currently disabled. Existing drafts remain available.",
+    "de": "Die Freigabe geplanter Sendungen ist derzeit deaktiviert. Vorhandene Entwürfe bleiben verfügbar.",
+    "lb": "D’Fräigab vu geplangte Sendungen ass aktuell deaktivéiert. Entwërf bleiwen disponibel."
+  },
+  "work.timezone": {
+    "fr": "Toutes les heures sont indiquées en UTC.",
+    "en": "All times are shown in UTC.",
+    "de": "Alle Uhrzeiten werden in UTC angezeigt.",
+    "lb": "All Auerzäite ginn an UTC ugewisen."
+  },
+  "work.noSchedules": {
+    "fr": "Aucun départ programmé.",
+    "en": "No scheduled departures.",
+    "de": "Keine geplanten Abfahrten.",
+    "lb": "Keng geplangten Departen."
+  },
+  "work.schedulesHelp": {
+    "fr": "Ouvrez un envoi préparé pour choisir son heure de départ et vérifier son plafond de dépense.",
+    "en": "Open a prepared dispatch to choose its departure time and review its spending cap.",
+    "de": "Öffnen Sie eine vorbereitete Sendung, um die Versandzeit und die Kostenobergrenze zu prüfen.",
+    "lb": "Maacht eng virbereet Sendung op, fir d’Versandzäit an d’Käschtegrenz ze iwwerpréiwen."
+  },
+  "work.viewDepartures": {
+    "fr": "Voir les envois",
+    "en": "View dispatches",
+    "de": "Sendungen ansehen",
+    "lb": "Sendungen ukucken"
+  },
+  "work.cap": {
+    "fr": "Plafond : {amount}",
+    "en": "Cap: {amount}",
+    "de": "Obergrenze: {amount}",
+    "lb": "Grenz: {amount}"
+  },
+  "work.reviewSchedule": {
+    "fr": "Consulter la programmation",
+    "en": "Review schedule",
+    "de": "Zeitplan prüfen",
+    "lb": "Plang iwwerpréiwen"
+  },
+  "work.cancelSchedule": {
+    "fr": "Annuler la programmation",
+    "en": "Cancel schedule",
+    "de": "Zeitplan stornieren",
+    "lb": "Plang annuléieren"
+  },
+  "work.cancelScheduleHelp": {
+    "fr": "Cette action retire la programmation. Si l’envoi a déjà été accepté, vérifiez séparément son état : l’annulation du calendrier ne le rappelle pas.",
+    "en": "This removes the schedule. If the dispatch has already been accepted, check its status separately: cancelling the schedule does not recall it.",
+    "de": "Damit wird der Zeitplan aufgehoben. Wurde die Sendung bereits angenommen, prüfen Sie ihren Status separat: Sie wird dadurch nicht zurückgerufen.",
+    "lb": "Dës Aktioun annuléiert de Plang. Wann d’Sendung scho akzeptéiert gouf, iwwerpréift hire Status separat: Si gëtt doduerch net zeréckgeruff."
+  },
+  "work.scheduleCancelled": {
+    "fr": "Programmation annulée.",
+    "en": "Schedule cancelled.",
+    "de": "Zeitplan storniert.",
+    "lb": "Plang annuléiert."
+  },
+  "work.keepSchedule": {
+    "fr": "Conserver la programmation",
+    "en": "Keep schedule",
+    "de": "Zeitplan beibehalten",
+    "lb": "Plang bäibehalen"
+  },
+  "work.studio": {
+    "fr": "Studio",
+    "en": "Studio",
+    "de": "Studio",
+    "lb": "Studio"
+  },
+  "work.templatesAndData": {
+    "fr": "Modèles, données et génération",
+    "en": "Templates, data and generation",
+    "de": "Vorlagen, Daten und Erstellung",
+    "lb": "Virlagen, Daten a Generatioun"
+  },
+  "work.newTemplate": {
+    "fr": "Créer un modèle",
+    "en": "Create template",
+    "de": "Vorlage erstellen",
+    "lb": "Virlag erstellen"
+  },
+  "work.datasets": {
+    "fr": "Jeux de données",
+    "en": "Datasets",
+    "de": "Datensätze",
+    "lb": "Datesätz"
+  },
+  "work.generations": {
+    "fr": "Générations",
+    "en": "Generations",
+    "de": "Erstellungen",
+    "lb": "Generatiounen"
+  },
+  "work.noTemplates": {
+    "fr": "La page est encore blanche.",
+    "en": "A fresh page awaits.",
+    "de": "Ein leeres Blatt wartet.",
+    "lb": "En eidele Blat waart."
+  },
+  "work.templatesHelp": {
+    "fr": "Créez votre premier modèle dans le Studio, puis retrouvez-le ici pour préparer vos documents.",
+    "en": "Create your first template in Studio, then find it here to prepare your documents.",
+    "de": "Erstellen Sie Ihre erste Vorlage im Studio. Danach finden Sie sie hier für Ihre Dokumente.",
+    "lb": "Erstellt Är éischt Virlag am Studio. Duerno fannt Dir se hei fir Är Dokumenter."
+  },
+  "work.updated": {
+    "fr": "Modifié le {date}",
+    "en": "Updated {date}",
+    "de": "Aktualisiert am {date}",
+    "lb": "Geännert den {date}"
+  },
+  "work.editTemplate": {
+    "fr": "Ouvrir l’éditeur",
+    "en": "Open editor",
+    "de": "Editor öffnen",
+    "lb": "Editor opmaachen"
+  },
+  "work.openTemplate": {
+    "fr": "Ouvrir le modèle",
+    "en": "Open template",
+    "de": "Vorlage öffnen",
+    "lb": "Virlag opmaachen"
+  },
+  "work.office": {
+    "fr": "Bureau",
+    "en": "Office",
+    "de": "Büro",
+    "lb": "Büro"
+  },
+  "work.credit": {
+    "fr": "Crédits de l’atelier",
+    "en": "Workshop credits",
+    "de": "Guthaben des Arbeitsbereichs",
+    "lb": "Atelier-Guthaben"
+  },
+  "work.availableCredit": {
+    "fr": "Crédit disponible",
+    "en": "Available credit",
+    "de": "Verfügbares Guthaben",
+    "lb": "Disponibelt Guthaben"
+  },
+  "work.excludingTax": {
+    "fr": "Hors taxes",
+    "en": "Excluding tax",
+    "de": "Ohne Steuern",
+    "lb": "Ouni Steieren"
+  },
+  "work.reserved": {
+    "fr": "Réservé",
+    "en": "Reserved",
+    "de": "Reserviert",
+    "lb": "Reservéiert"
+  },
+  "work.spent": {
+    "fr": "Consommé",
+    "en": "Spent",
+    "de": "Verbraucht",
+    "lb": "Verbraucht"
+  },
+  "work.activity": {
+    "fr": "Activité",
+    "en": "Activity",
+    "de": "Aktivität",
+    "lb": "Aktivitéit"
+  },
+  "work.consumption": {
+    "fr": "Consommation",
+    "en": "Consumption",
+    "de": "Verbrauch",
+    "lb": "Verbrauch"
+  },
+  "work.reports": {
+    "fr": "Rapports et exports",
+    "en": "Reports and exports",
+    "de": "Berichte und Exporte",
+    "lb": "Rapporten an Exporter"
+  },
+  "work.billing": {
+    "fr": "Facturation",
+    "en": "Billing",
+    "de": "Abrechnung",
+    "lb": "Rechnungen"
+  },
+  "work.manageMembers": {
+    "fr": "Gérer les membres",
+    "en": "Manage members",
+    "de": "Mitglieder verwalten",
+    "lb": "Memberen verwalten"
+  },
+  "work.settings": {
+    "fr": "Réglages de l’atelier",
+    "en": "Workshop settings",
+    "de": "Arbeitsbereichseinstellungen",
+    "lb": "Atelier-Astellungen"
+  },
+  "work.connections": {
+    "fr": "Connexions et délégations",
+    "en": "Connections and delegations",
+    "de": "Verbindungen und Delegationen",
+    "lb": "Verbindungen an Delegatiounen"
+  },
+  "work.webhooks": {
+    "fr": "Notifications techniques",
+    "en": "Technical notifications",
+    "de": "Technische Benachrichtigungen",
+    "lb": "Technesch Notifikatiounen"
+  },
+  "work.audit": {
+    "fr": "Journal d’audit",
+    "en": "Audit log",
+    "de": "Auditprotokoll",
+    "lb": "Auditprotokoll"
+  },
+  "work.operations": {
+    "fr": "Opérations",
+    "en": "Operations",
+    "de": "Betrieb",
+    "lb": "Betrib"
+  },
+  "work.senders": {
+    "fr": "Expéditeurs",
+    "en": "Senders",
+    "de": "Absender",
+    "lb": "Ofsender"
+  },
+  "work.team": {
+    "fr": "Équipe de l’atelier",
+    "en": "Workshop team",
+    "de": "Team des Arbeitsbereichs",
+    "lb": "Atelier-Ekipp"
+  },
+  "work.canApprove": {
+    "fr": "Peut approuver les envois",
+    "en": "Can approve dispatches",
+    "de": "Kann Sendungen freigeben",
+    "lb": "Kann Sendunge fräiginn"
+  },
+  "work.lockers": {
+    "fr": "Consignes",
+    "en": "Lockers",
+    "de": "Schließfächer",
+    "lb": "Schléissfächer"
+  },
+  "work.secureShares": {
+    "fr": "Partages sécurisés",
+    "en": "Secure shares",
+    "de": "Sichere Freigaben",
+    "lb": "Sécher Freigaben"
+  },
+  "work.newShare": {
+    "fr": "Partager un document",
+    "en": "Share document",
+    "de": "Dokument teilen",
+    "lb": "Dokument deelen"
+  },
+  "work.revocationHelp": {
+    "fr": "Révoquer un accès bloque les nouvelles consultations. La période d’hébergement activée n’est pas remboursée.",
+    "en": "Revoking access blocks new views. An activated hosting term is not refunded.",
+    "de": "Ein Widerruf sperrt neue Zugriffe. Ein aktivierter Speicherzeitraum wird nicht erstattet.",
+    "lb": "E Widderruff blockéiert nei Zougrëffer. Eng aktivéiert Späicherperiod gëtt net rembourséiert."
+  },
+  "work.noShares": {
+    "fr": "Aucun document en consigne.",
+    "en": "No documents in the lockers.",
+    "de": "Keine Dokumente in den Schließfächern.",
+    "lb": "Keng Dokumenter an de Schléissfächer."
+  },
+  "work.sharesHelp": {
+    "fr": "Un document partagé reste accessible uniquement à son destinataire autorisé, selon la durée et les droits choisis.",
+    "en": "A shared document is available only to its authorized recipient, for the chosen duration and permissions.",
+    "de": "Ein geteiltes Dokument ist nur für den berechtigten Empfänger gemäß der gewählten Dauer und Rechte verfügbar.",
+    "lb": "E gedeelt Dokument ass nëmme fir säi berechtegten Empfänger disponibel, fir déi gewielt Dauer a Rechter."
+  },
+  "work.availableUntil": {
+    "fr": "Accès jusqu’au {date}",
+    "en": "Access until {date}",
+    "de": "Zugriff bis {date}",
+    "lb": "Zougrëff bis {date}"
+  },
+  "work.viewShare": {
+    "fr": "Consulter le partage",
+    "en": "View share",
+    "de": "Freigabe ansehen",
+    "lb": "Freigab ukucken"
+  },
+  "work.account": {
+    "fr": "Mon compte",
+    "en": "My account",
+    "de": "Mein Konto",
+    "lb": "Mäi Kont"
+  },
+  "work.identity": {
+    "fr": "Identité",
+    "en": "Identity",
+    "de": "Identität",
+    "lb": "Identitéit"
+  },
+  "work.name": {
+    "fr": "Nom",
+    "en": "Name",
+    "de": "Name",
+    "lb": "Numm"
+  },
+  "work.unavailable": {
+    "fr": "Indisponible",
+    "en": "Unavailable",
+    "de": "Nicht verfügbar",
+    "lb": "Net disponibel"
+  },
+  "work.workspace": {
+    "fr": "Atelier",
+    "en": "Workshop",
+    "de": "Arbeitsbereich",
+    "lb": "Atelier"
+  },
+  "work.identityHelp": {
+    "fr": "Votre adresse de connexion et vos paramètres de sécurité sont gérés par votre compte d’identité.",
+    "en": "Your sign-in address and security settings are managed by your identity account.",
+    "de": "Ihre Anmeldeadresse und Sicherheitseinstellungen werden über Ihr Identitätskonto verwaltet.",
+    "lb": "Är Umeldungsadress a Sécherheetsastellunge ginn iwwer Ären Identitéitskont verwalt."
+  },
+  "work.accountSecurity": {
+    "fr": "Sécurité et sessions du compte",
+    "en": "Account security and sessions",
+    "de": "Kontosicherheit und Sitzungen",
+    "lb": "Kontosécherheet a Sessiounen"
+  },
+  "work.preferences": {
+    "fr": "Préférences",
+    "en": "Preferences",
+    "de": "Einstellungen",
+    "lb": "Astellungen"
+  },
+  "work.language": {
+    "fr": "Langue",
+    "en": "Language",
+    "de": "Sprache",
+    "lb": "Sprooch"
+  },
+  "work.profileSaved": {
+    "fr": "Préférences enregistrées.",
+    "en": "Preferences saved.",
+    "de": "Einstellungen gespeichert.",
+    "lb": "Astellunge gespäichert."
+  },
+  "work.workspaces": {
+    "fr": "Mes ateliers",
+    "en": "My workshops",
+    "de": "Meine Arbeitsbereiche",
+    "lb": "Meng Atelieren"
+  },
+  "work.current": {
+    "fr": "Atelier actuel",
+    "en": "Current workshop",
+    "de": "Aktueller Arbeitsbereich",
+    "lb": "Aktuellen Atelier"
+  },
+  "work.switchWorkspace": {
+    "fr": "Ouvrir cet atelier",
+    "en": "Open this workshop",
+    "de": "Diesen Arbeitsbereich öffnen",
+    "lb": "Dësen Atelier opmaachen"
+  },
+  "work.workspaceName": {
+    "fr": "Nom de l’atelier",
+    "en": "Workshop name",
+    "de": "Name des Arbeitsbereichs",
+    "lb": "Numm vum Atelier"
+  },
+  "work.createWorkspace": {
+    "fr": "Créer mon atelier",
+    "en": "Create my workshop",
+    "de": "Meinen Arbeitsbereich erstellen",
+    "lb": "Mäin Atelier erstellen"
+  },
+  "work.role.admin": {
+    "fr": "Administrateur",
+    "en": "Administrator",
+    "de": "Administrator",
+    "lb": "Administrateur"
+  },
+  "work.role.supervisor": {
+    "fr": "Superviseur",
+    "en": "Supervisor",
+    "de": "Supervisor",
+    "lb": "Supervisor"
+  },
+  "work.role.member": {
+    "fr": "Opérateur",
+    "en": "Operator",
+    "de": "Operator",
+    "lb": "Operateur"
+  },
+  "work.role.viewer": {
+    "fr": "Observateur",
+    "en": "Observer",
+    "de": "Beobachter",
+    "lb": "Observateur"
+  },
+  "work.status.draft": {
+    "fr": "Brouillon",
+    "en": "Draft",
+    "de": "Entwurf",
+    "lb": "Entworf"
+  },
+  "work.status.prepared": {
+    "fr": "À vérifier",
+    "en": "Needs review",
+    "de": "Zu prüfen",
+    "lb": "Ze iwwerpréiwen"
+  },
+  "work.status.approved": {
+    "fr": "Approuvé",
+    "en": "Approved",
+    "de": "Freigegeben",
+    "lb": "Fräiginn"
+  },
+  "work.status.releasing": {
+    "fr": "Départ en cours",
+    "en": "Releasing",
+    "de": "Wird versendet",
+    "lb": "Gëtt verschéckt"
+  },
+  "work.status.released": {
+    "fr": "Départ accepté",
+    "en": "Released",
+    "de": "Versand angenommen",
+    "lb": "Versand akzeptéiert"
+  },
+  "work.status.blocked": {
+    "fr": "Bloqué",
+    "en": "Blocked",
+    "de": "Blockiert",
+    "lb": "Blockéiert"
+  },
+  "work.status.cancelled": {
+    "fr": "Annulé",
+    "en": "Cancelled",
+    "de": "Storniert",
+    "lb": "Annuléiert"
+  },
+  "work.status.unknown": {
+    "fr": "Résultat à vérifier",
+    "en": "Outcome needs review",
+    "de": "Ergebnis zu prüfen",
+    "lb": "Resultat ze iwwerpréiwen"
+  },
+  "work.status.active": {
+    "fr": "Accès actif",
+    "en": "Active access",
+    "de": "Aktiver Zugriff",
+    "lb": "Aktiven Zougrëff"
+  },
+  "work.status.revoked": {
+    "fr": "Accès révoqué",
+    "en": "Access revoked",
+    "de": "Zugriff widerrufen",
+    "lb": "Zougrëff widderruff"
+  },
+  "work.status.expired": {
+    "fr": "Accès expiré",
+    "en": "Access expired",
+    "de": "Zugriff abgelaufen",
+    "lb": "Zougrëff ofgelaf"
+  },
+  "work.status.pending": {
+    "fr": "Préparation en cours",
+    "en": "Preparing",
+    "de": "Wird vorbereitet",
+    "lb": "Gëtt virbereet"
+  },
+  "work.status.preparing": {
+    "fr": "Préparation en cours",
+    "en": "Preparing",
+    "de": "Wird vorbereitet",
+    "lb": "Gëtt virbereet"
+  },
+  "work.status.failed": {
+    "fr": "Préparation échouée",
+    "en": "Preparation failed",
+    "de": "Vorbereitung fehlgeschlagen",
+    "lb": "Virbereedung feelgeschloen"
+  },
+  "work.status.published": {
+    "fr": "Publié",
+    "en": "Published",
+    "de": "Veröffentlicht",
+    "lb": "Verëffentlecht"
+  },
+  "work.status.archived": {
+    "fr": "Archivé",
+    "en": "Archived",
+    "de": "Archiviert",
+    "lb": "Archivéiert"
+  },
+  "work.status.unverified": {
+    "fr": "État à vérifier",
+    "en": "Status needs review",
+    "de": "Status zu prüfen",
+    "lb": "Status ze iwwerpréiwen"
+  }
+}
