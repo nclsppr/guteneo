@@ -80,6 +80,9 @@ export interface Env {
   SECURE_DOCUMENTS_KEYS?: string;
   SECURE_DISTRIBUTION_ENABLED?: string;
   RESEND_WEBHOOK_SECRET?: string;
+  /** Derives customer webhook signing secrets (at least 32 characters).
+   * Without it no endpoint can be added and nothing is delivered. */
+  WEBHOOK_SIGNING_KEY?: string;
   RESEND_ACCOUNT_ID?: string;
   RESEND_DOMAIN_ID?: string;
   RESEND_VERIFIED_DOMAIN?: string;

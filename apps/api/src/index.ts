@@ -75,6 +75,11 @@ import { DatasetError } from "../../../packages/data/index";
 import { maintainDocuments } from "./maintenance";
 import { DeadLetterService } from "./dead-letters";
 import { setBrowserChannelControl } from "./browser-administrator";
+import {
+  CustomerWebhookService,
+  deliverCustomerWebhooks,
+  webhookEndpointInput,
+} from "./customer-webhooks";
 import { handleWebhook, reconcileWebhookReceipts } from "./webhooks";
 import {
   authenticateBrowser,
@@ -1390,6 +1395,45 @@ app.post("/api/admin/dead-letters/:id/resolution", async (c) => {
     ),
   );
 });
+// Customer webhooks: browser administrators only; writes are fenced on the
+// current administrator session (see customer-webhooks.ts).
+const webhooks = (env: Env) => new CustomerWebhookService(env, env.MODE);
+app.get("/api/admin/webhooks", async (c) =>
+  c.json(await webhooks(c.env).list(c.get("actor"))),
+);
+app.post("/api/admin/webhooks", async (c) =>
+  c.json(
+    await webhooks(c.env).create(
+      c.get("actor"),
+      webhookEndpointInput.parse(await c.req.json()),
+    ),
+    201,
+  ),
+);
+app.post("/api/admin/webhooks/:id/rotate", async (c) => {
+  z.object({})
+    .strict()
+    .parse(await c.req.json());
+  return c.json(
+    await webhooks(c.env).rotate(c.get("actor"), c.req.param("id")),
+  );
+});
+app.post("/api/admin/webhooks/:id/enabled", async (c) => {
+  const { enabled } = z
+    .object({ enabled: z.boolean() })
+    .strict()
+    .parse(await c.req.json());
+  return c.json(
+    await webhooks(c.env).setEnabled(
+      c.get("actor"),
+      c.req.param("id"),
+      enabled,
+    ),
+  );
+});
+app.delete("/api/admin/webhooks/:id", async (c) =>
+  c.json(await webhooks(c.env).remove(c.get("actor"), c.req.param("id"))),
+);
 app.post("/api/admin/channels/:channel", async (c) => {
   const actor = c.get("actor");
   if (actor.role !== "admin" || actor.actor !== "browser")
@@ -1800,6 +1844,14 @@ export default {
       assertConfiguration(env);
       stage = "outbox";
       Object.assign(counts, await publishOutbox(env, service));
+      // Status notices to customer endpoints: bounded per tick, never a
+      // reason to fail unrelated maintenance.
+      stage = "webhooks";
+      try {
+        Object.assign(counts, await deliverCustomerWebhooks(env));
+      } catch {
+        counts.webhooksFailed = (counts.webhooksFailed ?? 0) + 1;
+      }
       stage = "leases";
       Object.assign(counts, await service.reconcileExpiredLeases());
       stage = "documents";

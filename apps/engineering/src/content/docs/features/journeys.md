@@ -392,3 +392,11 @@ Open a dispatch awaiting approval → read who can approve it → choose Ask for
 Prepare a fax or email → type a new address and tick Save to recipients → after preparation succeeds the address is normalized and saved for the workspace → next time, the field suggests it → open Recipients to read the list or remove an entry with a confirmation.
 
 **Failure and recovery:** An invalid or non-preparable fax number receives 400 INVALID_RECIPIENT; Observers receive FORBIDDEN on writes; another workspace receives NOT_FOUND; a full list receives 409 SAVED_RECIPIENTS_FULL. Saving the same address again returns the existing entry. A failed save never changes the prepared dispatch.
+
+## J49: Receive dispatch status notices
+
+**Actor:** Workspace administrator in a browser; then the customer's own HTTPS receiver · **Branch:** Browser administrator configuration and server delivery; no MCP, REST OAuth or native management
+
+Open Administration → Settings → Webhooks → add a public HTTPS address → copy the signing secret shown once → each dispatch status change queues a notice in the same transaction → the minute scheduler signs and posts it → the receiver verifies Guteneo-Signature, deduplicates on Guteneo-Delivery and reads the dispatch through the authenticated API if needed → the administrator sees the state of the last notice, pauses, replaces the secret or removes the address.
+
+**Failure and recovery:** Non-HTTPS, IP, private or credentialed addresses receive 400 WEBHOOK_URL_INVALID; a duplicate 409 WEBHOOK_EXISTS; a sixth address 409 WEBHOOKS_FULL; a missing server key 503 WEBHOOKS_UNAVAILABLE and no delivery. Non-2xx answers, timeouts and network errors retry after 1, 5, 30, 120 and 360 minutes, then the notice is abandoned. Replacing the secret invalidates the previous one at once.

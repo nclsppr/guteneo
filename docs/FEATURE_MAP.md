@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**28 domains · 478 features · 48 journeys · 78 documented REST operations · 83 MCP tools**
+**28 domains · 479 features · 49 journeys · 78 documented REST operations · 83 MCP tools**
 Updated 2026-11-11.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -16,7 +16,7 @@ mindmap
     Access
       Access and identity (40)
       Team and responsibilities (11)
-      Workspace administration and reports (14)
+      Workspace administration and reports (15)
     Create
       Documents and protection (22)
       Template studio (15)
@@ -53,7 +53,7 @@ mindmap
 
 - [Access and identity](#identity) — 40 features; browser-session.
 - [Team and responsibilities](#team) — 11 features; browser-session.
-- [Workspace administration and reports](#administration) — 14 features; browser-session.
+- [Workspace administration and reports](#administration) — 15 features; browser-session.
 
 ### Create
 
@@ -168,6 +168,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Ask approvers to review a dispatch awaiting approval | Yes | Yes | Yes | No | Cannot raise a request for human consent; human browser session only |
 | Read the workspace's saved recipients | Yes | Yes | Yes | Yes | No assistant, REST OAuth or native access |
 | Save or remove a recipient | Yes | Yes | Yes | No | No assistant, REST OAuth or native access |
+| Manage customer webhook addresses | Yes | No | No | No | No assistant, REST OAuth or native access; browser administrator session only |
 
 Supervisor approval/reporting options are independent and off by default. Resource ownership/context checks still apply. See [workspace roles](WORKSPACE_ROLES.md), [expert approval](EXPERT_APPROVAL.md) and [studio access](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -1228,7 +1229,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="administration"></a>
 ### Workspace administration and reports
 
-**Availability model:** browser-session. 4 November 2026 continuation of the 3 November recovered source candidate. Current local qualification and limits are recorded in the administration contract; hosted CI, production-data and physical-device qualification remain separate.
+**Availability model:** browser-session. 4 November 2026 continuation of the 3 November recovered source candidate. Current local qualification and limits are recorded in the administration contract; hosted CI, production-data and physical-device qualification remain separate. The 11 November 2026 customer webhooks (release 1.1.38) are a local source candidate covered by integration tests; activation needs a provisioned WEBHOOK_SIGNING_KEY, CI, staging and publication evidence, and no real receiver has been called.
 
 **Surfaces:** Authenticated browser membership only; OAuth, MCP and native callers are refused.
 
@@ -1246,6 +1247,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - PDF exports embed the pinned Roboto font only when a drawn string is outside WinAnsi, size columns from content, wrap headers, share the 500-row budget across tables and localize header dates; the Excel summary stores typed numbers, money and date-time
 - The public preview renders Administration over its fictional workspace with the server's permission split, validates date and pagination bounds, and groups consumption by confirmation day and month; sign-in history follows the selected range and exports stay disabled
 - Browser administrators explicitly resolve an already operationally and financially closed dead-letter incident through a current-session and current-membership fenced transaction; one retained resolution audit/timestamp survives replay, with no dispatch mutation, credit release, queue replay or provider invocation
+- Customer webhooks: a browser administrator registers up to five public HTTPS addresses (migration 0080) that receive a signed notice (dispatch id, channel, status) at each dispatch status change; secrets are derived from WEBHOOK_SIGNING_KEY and shown once; delivery is at least once in the existing minute cron, retried five times over about eight hours then abandoned; nothing is delivered without the key
 
 **Contract:** [WORKSPACE_ADMINISTRATION.md](WORKSPACE_ADMINISTRATION.md) · **Implementation:** [apps/api/src/administration.ts](../apps/api/src/administration.ts)
 
@@ -1738,6 +1740,16 @@ Prepare a fax or email → type a new address and tick Save to recipients → af
 **Failure/recovery:** An invalid or non-preparable fax number receives 400 INVALID_RECIPIENT; Observers receive FORBIDDEN on writes; another workspace receives NOT_FOUND; a full list receives 409 SAVED_RECIPIENTS_FULL. Saving the same address again returns the existing entry. A failed save never changes the prepared dispatch.
 
 [Detailed contract](DASHBOARD_V2.md).
+
+### J49 · Receive dispatch status notices
+
+**Actor:** Workspace administrator in a browser; then the customer's own HTTPS receiver. **Branch:** Browser administrator configuration and server delivery; no MCP, REST OAuth or native management.
+
+Open Administration → Settings → Webhooks → add a public HTTPS address → copy the signing secret shown once → each dispatch status change queues a notice in the same transaction → the minute scheduler signs and posts it → the receiver verifies Guteneo-Signature, deduplicates on Guteneo-Delivery and reads the dispatch through the authenticated API if needed → the administrator sees the state of the last notice, pauses, replaces the secret or removes the address.
+
+**Failure/recovery:** Non-HTTPS, IP, private or credentialed addresses receive 400 WEBHOOK_URL_INVALID; a duplicate 409 WEBHOOK_EXISTS; a sixth address 409 WEBHOOKS_FULL; a missing server key 503 WEBHOOKS_UNAVAILABLE and no delivery. Non-2xx answers, timeouts and network errors retry after 1, 5, 30, 120 and 360 minutes, then the notice is abandoned. Replacing the secret invalidates the previous one at once.
+
+[Detailed contract](CUSTOMER_WEBHOOKS.md).
 
 ## Required maintenance
 

@@ -220,6 +220,7 @@
         "administration-views.tsx",
         "administration-team.tsx",
         "administration-settings.tsx",
+        "administration-webhooks.tsx",
         "administration-operations.tsx",
         "billing-page.tsx",
         "team-invitations.tsx",

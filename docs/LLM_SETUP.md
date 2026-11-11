@@ -162,6 +162,15 @@ REST OAuth, assistant and native dispatch details are again identical to 1.1.35;
 annotation booleans, OAuth scopes, instructions and host confirmations are
 unchanged.
 
+### Webhook and scheduling source synchronization — 11 November 2026
+
+Candidate 1.1.38 synchronizes the package versions after shared server files
+gained the optional `WEBHOOK_SIGNING_KEY` declaration and the `webhooks` and
+`scheduled` maintenance stages and counters. Customer webhooks and scheduled
+sending are browser and server features: no assistant tool, schema, annotation
+boolean, OAuth scope, instruction or host confirmation changes, and an assistant
+can neither register a webhook nor schedule a dispatch.
+
 ### Preventive maintenance source synchronization — 7 November 2026
 
 Candidate 1.1.32 synchronizes the application and portable/Claude/Cursor package

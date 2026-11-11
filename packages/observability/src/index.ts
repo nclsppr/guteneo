@@ -122,6 +122,8 @@ const stages = [
   "tariffs",
   "freshness",
   "postal",
+  "webhooks",
+  "scheduled",
   "http_limits",
   "complete",
 ] as const;
@@ -161,6 +163,12 @@ const metrics = [
   "providerPreventionNotificationsSent",
   "providerPreventionNotificationsFailed",
   "providerPreventionNotificationsUnknown",
+  "webhooksDelivered",
+  "webhooksFailed",
+  "webhooksAbandoned",
+  "scheduledReleased",
+  "scheduledRefused",
+  "scheduledUncertain",
 ] as const;
 export type Metrics = Partial<Record<(typeof metrics)[number], number>>;
 const uuid =

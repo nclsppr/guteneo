@@ -211,3 +211,42 @@
 .administration-custom[open] > summary {
   margin-bottom: 8px;
 }
+
+/* Webhook addresses: one row each, actions on the right. */
+.webhook-endpoint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+.webhook-endpoint > div:first-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.webhook-endpoint strong {
+  overflow-wrap: anywhere;
+}
+.webhook-endpoint small {
+  color: var(--muted);
+}
+.webhook-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 12px;
+  margin-top: 12px;
+}
+.webhook-form .field {
+  flex: 1 1 280px;
+  margin-bottom: 0;
+}
+.webhook-secret {
+  display: block;
+  margin-top: 6px;
+  user-select: all;
+  overflow-wrap: anywhere;
+}

@@ -191,6 +191,11 @@ contract](PUBLIC_PDF_IMPORT.md); local/private URLs and redirects remain refused
 | `POST /api/dispatches/:id/approve` | Human browser/CSRF; strict hexadecimal SHA-256 `{fingerprint}`; returns `Dispatch`. |
 | `POST /api/dispatches/:id/confirm` | Required `Idempotency-Key`; no body parameters used; durably accepted `Dispatch`. |
 | `POST /api/dispatches/:id/cancel` | No body parameters used; cancelled `Dispatch` or `409 CANCELLATION_TOO_LATE`. |
+| `GET /api/admin/webhooks` | Current browser administrator; `{available,endpoints:[{id,url,enabled,created_at,recent:[{id,status,state,attempts,last_response,occurred_at}]}]}` with the last five notices per address. See [customer webhooks](CUSTOMER_WEBHOOKS.md). |
+| `POST /api/admin/webhooks` | Browser administrator/CSRF; strict `{url}`; `201 {endpoint,secret}` with the signing secret shown once, or `400 WEBHOOK_URL_INVALID`, `409 WEBHOOK_EXISTS`, `409 WEBHOOKS_FULL`, `503 WEBHOOKS_UNAVAILABLE`. |
+| `POST /api/admin/webhooks/:id/rotate` | Browser administrator/CSRF; `{}`; `{secret}`; the previous secret stops at once. |
+| `POST /api/admin/webhooks/:id/enabled` | Browser administrator/CSRF; strict `{enabled}`; pausing abandons pending notices and queues no new ones. |
+| `DELETE /api/admin/webhooks/:id` | Browser administrator/CSRF; `{deleted:true}` and the address's notices are removed. No OAuth, assistant or native route manages webhooks. |
 | `GET /api/saved-recipients?channel=fax\|email` | Human browser session of a current member; `{items:[{id,channel,address,created_at}]}`, at most 500, ordered by channel then address. |
 | `POST /api/saved-recipients` | Human browser/CSRF with preparation permission; strict `{channel:"fax"\|"email",address}`. Fax numbers are normalized to E.164 and must be preparable; email addresses are stored in lower case. `201` when created, `200` with the existing entry for a duplicate, `400 INVALID_RECIPIENT`, `403 FORBIDDEN` or `409 SAVED_RECIPIENTS_FULL`. The audit entry records the channel only. |
 | `DELETE /api/saved-recipients/:id` | Human browser/CSRF with preparation permission; `{deleted:true}`, or `404 NOT_FOUND` outside the workspace. No REST OAuth, assistant or native route reads or writes saved recipients. |

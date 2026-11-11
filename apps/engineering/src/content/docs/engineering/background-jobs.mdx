@@ -97,6 +97,28 @@ full-tenant scan. When adding
 a job, define its authority snapshot, lease, idempotency key, maximum batch,
 observable state, timeout and safe recovery before wiring it into the scheduler.
 
+## Customer webhooks ride the existing minute
+
+When a workspace administrator has registered a webhook address, a database
+trigger queues one notice per enabled address in the same transaction as a
+dispatch status change. The insert reads only columns a dispatch always has, so
+it cannot make that change fail. The one-minute scheduled handler then delivers
+at most 20 due notices after the outbox stage: each is claimed by moving its next
+attempt a minute ahead, signed with a secret derived from `WEBHOOK_SIGNING_KEY`,
+sent with a five-second timeout and no redirect. A `2xx` answer delivers it;
+other answers retry after 1, 5, 30, 120 and 360 minutes, then the notice is
+abandoned and never retried automatically. A failure in this stage never stops
+unrelated maintenance.
+
+Permissions: only a current browser administrator manages addresses; nothing
+is delivered while the key is missing. Notices carry the dispatch id, channel
+and status only. Addresses, secrets and response bodies are never logged; the
+counters `webhooksDelivered`, `webhooksFailed` and `webhooksAbandoned` are.
+Maintenance: provision the key with `wrangler secret put` per environment;
+rotating it replaces every receiver's secret. Limits as of 11 November 2026:
+local integration tests only, no real receiver called, no staging run. The
+repository's `docs/CUSTOMER_WEBHOOKS.md` owns the contract.
+
 ## Private original staging has its own cleanup fence
 
 The default-off MCP App transport published in 1.1.6 stages fixed original-file parts

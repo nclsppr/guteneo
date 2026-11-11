@@ -823,5 +823,112 @@
     "Recipient removed",
     "Empfänger entfernt",
     "Empfänger ewechgeholl"
+  ],
+  "Webhooks": ["Webhooks", "Webhooks", "Webhooks"],
+  "Chaque changement de statut d’un envoi est transmis, signé, à ces adresses. Les avis indiquent seulement l’envoi, son canal et son statut : jamais un destinataire ni un contenu.": [
+    "Each status change of a dispatch is sent, signed, to these addresses. Notices name the dispatch, its channel and status only: never a recipient or content.",
+    "Jede Statusänderung einer Sendung wird signiert an diese Adressen übermittelt. Die Mitteilungen nennen nur die Sendung, ihren Kanal und ihren Status: nie einen Empfänger oder Inhalt.",
+    "All Statusännerung vun enger Sendung gëtt, ënnerschriwwen, un dës Adressen geschéckt. D’Notifikatiounen nennen nëmmen d’Sendung, hire Kanal an hire Status: ni en Empfänger oder en Inhalt."
+  ],
+  "Les webhooks ne sont pas configurés sur ce serveur.": [
+    "Webhooks are not configured on this server.",
+    "Webhooks sind auf diesem Server nicht eingerichtet.",
+    "Webhooks sinn op dësem Server net agestallt."
+  ],
+  "Secret de signature pour {0}. Copiez-le maintenant : il ne sera plus affiché.": [
+    "Signing secret for {0}. Copy it now: it is not shown again.",
+    "Signaturgeheimnis für {0}. Kopieren Sie es jetzt: Es wird nicht erneut angezeigt.",
+    "Ënnerschrëftsgeheimnis fir {0}. Kopéiert et elo: et gëtt net méi gewisen."
+  ],
+  "Actif": ["Active", "Aktiv", "Aktiv"],
+  "Aucun avis envoyé pour l’instant": [
+    "No notice sent yet",
+    "Noch keine Mitteilung gesendet",
+    "Nach keng Notifikatioun geschéckt"
+  ],
+  "Dernier avis remis": [
+    "Last notice delivered",
+    "Letzte Mitteilung zugestellt",
+    "Lescht Notifikatioun zougestallt"
+  ],
+  "Dernier avis abandonné": [
+    "Last notice abandoned",
+    "Letzte Mitteilung aufgegeben",
+    "Lescht Notifikatioun opginn"
+  ],
+  "Dernier avis en nouvelle tentative": [
+    "Last notice being retried",
+    "Letzte Mitteilung wird erneut versucht",
+    "Lescht Notifikatioun gëtt nach eng Kéier probéiert"
+  ],
+  "Mettre en pause": ["Pause", "Pausieren", "Pauséieren"],
+  "Reprendre": ["Resume", "Fortsetzen", "Weiderfueren"],
+  "Nouveau secret": ["New secret", "Neues Geheimnis", "Neit Geheimnis"],
+  "Remplacer le secret de signature ? L’actuel cesse aussitôt de fonctionner.": [
+    "Replace the signing secret? The current one stops working at once.",
+    "Signaturgeheimnis ersetzen? Das aktuelle funktioniert sofort nicht mehr.",
+    "Ënnerschrëftsgeheimnis ersetzen? Dat aktuellt funktionéiert direkt net méi."
+  ],
+  "Remplacer": ["Replace", "Ersetzen", "Ersetzen"],
+  "Retirer cette adresse ? Les avis en attente pour elle sont abandonnés.": [
+    "Remove this address? Pending notices for it are dropped.",
+    "Diese Adresse entfernen? Ausstehende Mitteilungen dafür werden verworfen.",
+    "Dës Adress ewechhuelen? Notifikatiounen, déi nach drop waarden, falen ewech."
+  ],
+  "Adresse HTTPS": ["HTTPS address", "HTTPS-Adresse", "HTTPS-Adress"],
+  "Ajouter l’adresse": [
+    "Add the address",
+    "Adresse hinzufügen",
+    "Adress derbäisetzen"
+  ],
+  "Webhook créé": [
+    "Webhook added",
+    "Webhook hinzugefügt",
+    "Webhook derbäigesat"
+  ],
+  "Webhook supprimé": [
+    "Webhook removed",
+    "Webhook entfernt",
+    "Webhook ewechgeholl"
+  ],
+  "Secret de webhook remplacé": [
+    "Webhook secret replaced",
+    "Webhook-Geheimnis ersetzt",
+    "Webhook-Geheimnis ersat"
+  ],
+  "Webhook activé": [
+    "Webhook resumed",
+    "Webhook fortgesetzt",
+    "Webhook erëm aktiv"
+  ],
+  "Webhook mis en pause": [
+    "Webhook paused",
+    "Webhook pausiert",
+    "Webhook pauséiert"
+  ],
+  "Utilisez une adresse HTTPS sur un nom de domaine public, sans port ni identifiants.": [
+    "Use an HTTPS address on a public domain name, without a port or credentials.",
+    "Verwenden Sie eine HTTPS-Adresse mit öffentlichem Domainnamen, ohne Port oder Zugangsdaten.",
+    "Benotzt eng HTTPS-Adress op engem ëffentlechen Domännennumm, ouni Port oder Zougangsdaten."
+  ],
+  "Cette adresse est déjà enregistrée.": [
+    "This address is already registered.",
+    "Diese Adresse ist bereits registriert.",
+    "Dës Adress ass schonn ageschriwwen."
+  ],
+  "Cet atelier a déjà le nombre maximal d’adresses de webhook.": [
+    "This workspace already has the maximum number of webhook addresses.",
+    "Dieser Arbeitsbereich hat bereits die Höchstzahl an Webhook-Adressen.",
+    "Dësen Atelier huet schonn déi maximal Zuel vu Webhook-Adressen."
+  ],
+  "Webhook introuvable.": [
+    "Webhook not found.",
+    "Webhook nicht gefunden.",
+    "Webhook net fonnt."
+  ],
+  "Une session administrateur navigateur actuelle est requise.": [
+    "A current browser administrator session is required.",
+    "Eine aktuelle Administratorsitzung im Browser ist erforderlich.",
+    "Eng aktuell Administrateursessioun am Browser ass néideg."
   ]
 }

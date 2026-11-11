@@ -3,6 +3,7 @@ import { api, ApiError, isPublicPreview, type Session } from "./api";
 import { ErrorNotice, PageHeading, useAction } from "./components";
 import { msg } from "./messages";
 import { WorkspaceOperations } from "./administration-operations";
+import { WebhookSettings } from "./administration-webhooks";
 
 /** Workspace identity and operations; personal profile settings stay in the account. */
 export function AdministrationSettings({
@@ -81,6 +82,7 @@ export function AdministrationSettings({
         <ErrorNotice error={action.error} />
       </form>
       <WorkspaceOperations />
+      <WebhookSettings />
     </>
   );
 }

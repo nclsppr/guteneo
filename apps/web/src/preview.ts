@@ -901,6 +901,9 @@ export function createPreviewApi(options: { advancedLocal?: boolean } = {}) {
         } satisfies DispatchOverview;
       }
       if (route === "/campaigns") return copy(page(state.campaigns));
+      // The demo delivers no webhook: the server key is absent here.
+      if (route === "/admin/webhooks")
+        return { available: false, endpoints: [] };
       // The demo keeps no address book: saving is refused like other writes.
       if (route.split("?")[0] === "/saved-recipients") return { items: [] };
       if (route === "/senders")

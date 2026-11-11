@@ -15,6 +15,12 @@ import {
 } from "../../packages/domain/src/index";
 import type { Env } from "../../apps/api/src/env";
 import { SavedRecipientService } from "../../apps/api/src/saved-recipients";
+import {
+  CustomerWebhookService,
+  deliverCustomerWebhooks,
+  normalizeWebhookUrl,
+  signWebhook,
+} from "../../apps/api/src/customer-webhooks";
 
 let mf: Miniflare, db: D1Database, domain: DomainService, env: AuthEnv;
 let admin: Principal,
@@ -321,6 +327,116 @@ describe("workspace roles on current D1 membership", () => {
     await expect(
       domain.requestDispatchApproval(operator.context, dispatch.id),
     ).rejects.toMatchObject({ code: "INVALID_STATE" });
+  });
+
+  it("queues signed webhook notices for administrators' endpoints without content or retries forever", async () => {
+    const key = "k".repeat(40);
+    const env = { DB: db, WEBHOOK_SIGNING_KEY: key };
+    const service = new CustomerWebhookService(env, "simulation");
+    const browserAdmin = {
+      ...admin.context,
+      documentSessionHash: admin.browserHash,
+    };
+    for (const refused of [
+      "http://hooks.example.com/in",
+      "https://10.0.0.1/in",
+      "https://localhost/in",
+      "https://hooks.example.com:8443/in",
+      "https://user:pass@hooks.example.com/in",
+      "https://service.internal/in",
+    ])
+      expect(() => normalizeWebhookUrl(refused)).toThrow(
+        expect.objectContaining({ code: "WEBHOOK_URL_INVALID" }),
+      );
+    await expect(
+      service.create(
+        { ...operator.context, documentSessionHash: operator.browserHash },
+        { url: "https://hooks.example.com/in" },
+      ),
+    ).rejects.toMatchObject({ code: "ADMIN_REQUIRED" });
+    await expect(
+      new CustomerWebhookService({ DB: db }, "simulation").create(
+        browserAdmin,
+        {
+          url: "https://hooks.example.com/in",
+        },
+      ),
+    ).rejects.toMatchObject({ code: "WEBHOOKS_UNAVAILABLE" });
+    const created = await service.create(browserAdmin, {
+      url: "https://hooks.example.com/in",
+    });
+    expect(created.secret).toMatch(/^whsec_[0-9a-f]{64}$/);
+    expect(
+      (
+        await service.list({
+          ...outsider.context,
+          documentSessionHash: outsider.browserHash,
+        })
+      ).endpoints,
+    ).toEqual([]);
+
+    const dispatch = await prepare();
+    await domain.cancelDispatch(admin.context, dispatch.id);
+    const sent: { headers: Headers; body: string }[] = [];
+    let reply = 200;
+    const fetcher = (async (_url: RequestInfo | URL, init?: RequestInit) => {
+      sent.push({
+        headers: new Headers(init?.headers),
+        body: String(init?.body),
+      });
+      return new Response(null, { status: reply });
+    }) as typeof fetch;
+    const start = Date.now();
+    expect(
+      await deliverCustomerWebhooks(env, fetcher, () => start),
+    ).toMatchObject({ webhooksDelivered: 1 });
+    const notice = JSON.parse(sent[0]!.body);
+    expect(notice).toMatchObject({
+      type: "dispatch.status_changed",
+      data: { dispatch_id: dispatch.id, status: "cancelled", channel: "email" },
+    });
+    expect(sent[0]!.body).not.toContain("example.invalid");
+    const signature = sent[0]!.headers.get("guteneo-signature")!;
+    const at = Number(/t=(\d+)/.exec(signature)![1]);
+    expect(signature).toBe(
+      await signWebhook(created.secret, sent[0]!.body, at),
+    );
+
+    // A failing endpoint is retried with growing delays, then abandoned.
+    const second = await prepare();
+    await domain.cancelDispatch(admin.context, second.id);
+    reply = 500;
+    let clock = start;
+    for (let attempt = 0; attempt < 6; attempt++) {
+      clock += 25 * 60 * 60 * 1000;
+      await deliverCustomerWebhooks(env, fetcher, () => clock);
+    }
+    const final = await db
+      .prepare(
+        "SELECT state,attempts,last_response FROM webhook_deliveries WHERE organization_id=? AND dispatch_id=?",
+      )
+      .bind(admin.context.organizationId, second.id)
+      .first<{ state: string; attempts: number; last_response: number }>();
+    expect(final).toEqual({
+      state: "abandoned",
+      attempts: 6,
+      last_response: 500,
+    });
+
+    // A disabled endpoint receives nothing new, and removal leaves no rows.
+    await service.setEnabled(browserAdmin, created.endpoint.id, false);
+    const third = await prepare();
+    await domain.cancelDispatch(admin.context, third.id);
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) n FROM webhook_deliveries WHERE dispatch_id=?",
+        )
+        .bind(third.id)
+        .first<{ n: number }>(),
+    ).toEqual({ n: 0 });
+    await service.remove(browserAdmin, created.endpoint.id);
+    expect(await count("webhook_deliveries")).toBe(0);
   });
 
   it("keeps saved recipients per workspace, editable only by preparers and absent from the audit text", async () => {
