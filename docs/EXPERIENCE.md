@@ -171,6 +171,18 @@ installs Chromium, rebuilds Gare and runs the full synthetic browser suite with
 `EXPERIENCE_TEST_BUILD=1` against the actual production assets through Vite preview.
 It rechecks CI, tag, served backend and source before submitting to Wrangler.
 
+For a Gare-only release, the operator may explicitly supply `backend_commit`
+with the exact full commit already serving the canonical API. The workflow
+requires a clean production manifest for that commit and its matching version.
+The served commit must be an ancestor of the reviewed main commit. The complete
+Git diff may contain only Gare source, tests, release tooling and documentation,
+plus synchronized version metadata with the same dependency graph and plugin
+contract. Any runtime, shared contract, binding or migration change still
+requires publishing the exact new canonical backend first. The workflow retains
+the served backend commit and version in its evidence and checks the live
+backend's production mode, anonymous access boundary and Gare CORS policy before
+the upload and during public verification.
+
 This workflow reuses `CLOUDFLARE_APP_RELEASE_API_TOKEN` and serializes with the
 canonical publisher in `guteneo-production-application`. It does not create a
 credential, expand its permissions, migrate D1 or enable a provider. The existing

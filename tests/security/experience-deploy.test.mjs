@@ -12,7 +12,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { deployExperience } from "../../scripts/deploy-experience.mjs";
-import { requireServedExperienceBackend } from "../../scripts/ci/manual-experience-release.mjs";
+import {
+  requireCompatibleExperienceBackend,
+  requireServedExperienceBackend,
+} from "../../scripts/ci/manual-experience-release.mjs";
 import {
   createExperienceRelease,
   experienceManifest,
@@ -319,6 +322,90 @@ test("manual publishers install locked dependencies before importing qualificati
   }
 });
 
+test("a named Gare-only predecessor requires its exact clean production manifest and version", () => {
+  const context = {
+    sourceCommit: "a".repeat(40),
+    backendCommit: "b".repeat(40),
+    backendVersion: "1.2.7",
+  };
+  const good = {
+    sourceCommit: context.backendCommit,
+    version: context.backendVersion,
+    sourceDirty: false,
+    mode: "production",
+    publicPreview: false,
+  };
+  assert.doesNotThrow(() => requireServedExperienceBackend(good, context));
+  for (const change of [
+    { sourceCommit: context.sourceCommit },
+    { version: "1.2.8" },
+    { sourceDirty: true },
+    { mode: "simulation" },
+    { publicPreview: true },
+  ])
+    assert.throws(
+      () => requireServedExperienceBackend({ ...good, ...change }, context),
+      /EXACT_BACKEND_REQUIRED/,
+    );
+});
+
+test("Gare-only compatibility refuses runtime, bindings, schema and dependency changes", async (context) => {
+  const { root } = await fixture(context);
+  const packageFor = (version, hono = "4.0.0") => ({
+    version,
+    dependencies: { hono },
+  });
+  const lockFor = (version, hono = "4.0.0") => ({
+    version,
+    packages: {
+      "": packageFor(version),
+      "node_modules/hono": { version: hono },
+    },
+  });
+  const write = async (path, contents) => {
+    const target = join(root, path);
+    await mkdir(join(target, ".."), { recursive: true });
+    await writeFile(target, JSON.stringify(contents));
+  };
+  const commit = (message) => {
+    git(root, "add", ".");
+    git(root, "commit", "-m", message);
+    return git(root, "rev-parse", "HEAD");
+  };
+  await write("package.json", packageFor("1.2.7"));
+  await write("package-lock.json", lockFor("1.2.7"));
+  const backendCommit = commit("Synthetic deployed backend");
+  await write("package.json", packageFor("1.2.8"));
+  await write("package-lock.json", lockFor("1.2.8"));
+  await write("apps/experience/public/new-asset.json", { gare: true });
+  await write("docs/releases/1.2.8.md", "Synthetic release notes");
+  const station = commit("Synthetic Gare-only release");
+  const qualify = (sourceCommit, predecessor = backendCommit) =>
+    requireCompatibleExperienceBackend(root, {
+      sourceCommit,
+      backendCommit: predecessor,
+      version: "1.2.8",
+    });
+  assert.equal(qualify(station), "1.2.7");
+  for (const [path, contents] of [
+    ["apps/api/src/new-route.ts", { route: true }],
+    ["packages/contracts/src/new-contract.ts", { contract: true }],
+    ["wrangler.live.jsonc", { bindings: true }],
+    ["migrations/0083_change.sql", { migration: true }],
+    ["package.json", packageFor("1.2.8", "4.1.0")],
+    ["package-lock.json", lockFor("1.2.8", "4.1.0")],
+  ]) {
+    await write(path, contents);
+    assert.throws(
+      () => qualify(commit(`Synthetic canonical change to ${path}`)),
+      /CANONICAL_CHANGE_REQUIRES_BACKEND/,
+    );
+    git(root, "reset", "--hard", station);
+  }
+  assert.throws(() => qualify(backendCommit, station), /BACKEND_ANCESTOR/);
+  assert.throws(() => qualify(station, "not-a-sha"), /BACKEND_ANCESTOR/);
+});
+
 test("Gare workflow is explicit, read-only on GitHub and reuses only existing publication access", async () => {
   const workflow = await readFile(
     new URL(
@@ -328,6 +415,7 @@ test("Gare workflow is explicit, read-only on GitHub and reuses only existing pu
     "utf8",
   );
   assert.match(workflow, /workflow_dispatch:/);
+  assert.match(workflow, /backend_commit:\s+description:/);
   assert.doesNotMatch(
     workflow,
     /^\s+(push|pull_request|workflow_run|schedule):/m,
