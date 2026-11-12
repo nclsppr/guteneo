@@ -217,7 +217,7 @@ test("the announcement pause persists after moving focus and the pointer", async
 test("a board with active dispatches keeps the last appended page", async ({
   page,
 }) => {
-  const fixture = await stationFixture(page);
+  const fixture = await stationFixture(page, { locale: "en" });
   let firstPageReads = 0;
   await page.route(
     (url) => url.pathname === "/api/dispatches",
