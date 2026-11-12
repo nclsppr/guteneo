@@ -17,13 +17,13 @@
     "check": "nimbus-docs check"
   },
   "dependencies": {
-    "@cloudflare/nimbus-docs": "0.19.0",
+    "@cloudflare/nimbus-docs": "0.19.2",
     "@fontsource/eb-garamond": "5.3.0",
     "@fontsource/ibm-plex-mono": "5.3.0",
     "@fontsource/ibm-plex-sans": "5.3.0",
     "@iconify-json/ph": "1.2.2",
     "@resvg/resvg-js": "2.6.2",
-    "astro": "7.4.2",
+    "astro": "7.4.5",
     "clsx": "2.1.1",
     "satori": "0.63.2",
     "sharp": "0.35.5",
@@ -32,12 +32,12 @@
   "devDependencies": {
     "@astrojs/check": "0.9.12",
     "@astrojs/language-server": "2.17.3",
-    "@mermaid-js/mermaid-cli": "12.0.0",
-    "@tailwindcss/vite": "4.3.3",
-    "pagefind": "1.5.2",
-    "tailwindcss": "4.3.3",
+    "@mermaid-js/mermaid-cli": "12.2.0",
+    "@tailwindcss/vite": "4.3.4",
+    "pagefind": "1.6.0",
+    "tailwindcss": "4.3.4",
     "typescript": "5.9.3",
-    "wrangler": "4.152.0"
+    "wrangler": "4.157.0"
   },
   "description": "Guteneo engineering documentation, built with Cloudflare Nimbus.",
   "packageManager": "npm@11.16.0",
