@@ -250,6 +250,9 @@ without letting the CLI parser interpret them as options. A read-only check on
 12 November 2026 reproduced the separate-argument refusal and verified the same
 commented query with the joined argument. That check qualifies argument parsing;
 migration and publication still require their own verified evidence.
+Browser recovery tests subscribe to the replacement document's load event before
+requesting a reload, then verify its new time origin and the unchanged recovery
+assertions; a destroyed old execution context is not a product failure.
 An unknown response stops without retry. The operator refuses implicit environment
 files and endpoint/account/token overrides, retains private sanitized evidence,
 and requalifies immediately before publication and served-byte verification.

@@ -116,12 +116,15 @@ for (const failure of ["HTTP refusal", "simulated network abort"] as const) {
       info.project.name === "iphone-webkit";
     const previousDocument = await page.evaluate(() => performance.timeOrigin);
     unavailable = false;
-    await page
-      .getByRole("button", { name: "Reload the page", exact: true })
-      .click();
-    await expect
-      .poll(() => page.evaluate(() => performance.timeOrigin))
-      .not.toBe(previousDocument);
+    // Observe the replacement document before reading its timing. Polling the
+    // old context while the explicit reload commits races with its destruction.
+    await Promise.all([
+      page.waitForEvent("domcontentloaded"),
+      page.getByRole("button", { name: "Reload the page", exact: true }).click(),
+    ]);
+    expect(await page.evaluate(() => performance.timeOrigin)).not.toBe(
+      previousDocument,
+    );
     if (interceptedWebKitAbort) {
       // This intercepted abort remains cached by this WebKit build. A real HTTP
       // refusal recovers in the adjacent case; this case must retain a usable
