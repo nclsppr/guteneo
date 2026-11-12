@@ -32,6 +32,21 @@ import {
   Sign,
 } from "../components/ui";
 import { SplitFlap } from "../components/split-flap";
+import { boardText } from "../components/flap-engine";
+import {
+  boardStatus,
+  boardTone,
+  presentedStatus,
+  statusLabel,
+} from "../board-status";
+import {
+  Barcode,
+  LineRoundel,
+  Postmark,
+  StationClock,
+} from "../components/station-kit";
+import { BrandStamp } from "../components/brand";
+import { punchSound } from "../sound";
 import { classicUrl } from "../config";
 import {
   destinationLabel,
@@ -44,7 +59,7 @@ import {
   shortRef,
   STATION_TIME_ZONE,
 } from "../format";
-import { useI18n, type Translate } from "../i18n";
+import { useI18n } from "../i18n";
 import {
   Link,
   navigate,
@@ -60,19 +75,6 @@ const channelIcons = { fax: Printer, email: EnvelopeSimple, postal: Mailbox };
 const section = (id: "departures" | "counter") =>
   sections.find((item) => item.id === id);
 
-function statusLabel(status: string, t: Translate, channel?: Channel): string {
-  const specific =
-    channel && status === "delivered"
-      ? `traffic.status.delivered_${channel}`
-      : `traffic.status.${status}`;
-  const label = t(specific);
-  if (label !== specific) return label;
-  const generic = t(`traffic.status.${status}`);
-  return generic === `traffic.status.${status}`
-    ? status.replaceAll("_", " ").replaceAll(".", " · ")
-    : generic;
-}
-
 function Status({ dispatch }: { dispatch: Dispatch }) {
   const { t } = useI18n();
   const status = dispatch.activeSchedule ? "scheduled" : dispatch.status;
@@ -83,6 +85,8 @@ function Status({ dispatch }: { dispatch: Dispatch }) {
     </span>
   );
 }
+
+const BOARD_CELLS = { time: 5, destination: 20, status: 16, fare: 7 };
 
 /** Dispatch lists contain authorized server rows only; a filter remounts pagination. */
 export function DeparturesPage({ route }: { route: Route }) {
@@ -126,9 +130,17 @@ export function DeparturesPage({ route }: { route: Route }) {
 function DepartureRows({ group }: { group?: string }) {
   const { t, locale } = useI18n();
   const { permissions } = useWorkspace();
+  // A complete board can refresh without replacing the reader’s cursor pages.
+  const [moving, setMoving] = useState(false);
   const rows = usePages<Dispatch>(
     withQuery("/dispatches", { limit: "25", group }),
+    moving ? { every: 4000 } : false,
   );
+  const inMotion = rows.items.some(
+    (item) => dispatchGroupOf(item.status) === "in_progress",
+  );
+  const paginated = Boolean(rows.data?.nextCursor);
+  useEffect(() => setMoving(inMotion && !paginated), [inMotion, paginated]);
   return (
     <>
       <div className="traffic-board-heading">
@@ -149,29 +161,56 @@ function DepartureRows({ group }: { group?: string }) {
           {t("traffic.loading")}
         </div>
       ) : rows.items.length ? (
-        <div className="traffic-board-wrap">
-          <table className="traffic-board">
+        <div className="board traffic-flapboard">
+          <div className="board-head">
+            <p className="board-title">
+              {t("traffic.departures")}
+              <span aria-hidden="true">{t("board.departures.languages")}</span>
+            </p>
+            <StationClock size="md" />
+          </div>
+          <table className="traffic-board" role="table">
             <caption className="visually-hidden">
               {t("traffic.board")} · {STATION_TIME_ZONE}
             </caption>
-            <thead>
-              <tr>
-                <th scope="col">{t("traffic.time")}</th>
-                <th scope="col">{t("traffic.line")}</th>
-                <th scope="col">{t("traffic.destination")}</th>
-                <th scope="col">{t("traffic.status")}</th>
-                <th scope="col">{t("traffic.fare")}</th>
-                <th scope="col">
+            <thead role="rowgroup">
+              <tr role="row">
+                <th scope="col" role="columnheader">
+                  {t("traffic.time")}
+                </th>
+                <th scope="col" role="columnheader">
+                  {t("traffic.line")}
+                </th>
+                <th scope="col" role="columnheader">
+                  {t("traffic.destination")}
+                </th>
+                <th scope="col" role="columnheader">
+                  {t("traffic.status")}
+                </th>
+                <th scope="col" role="columnheader">
+                  {t("traffic.fare")}
+                </th>
+                <th scope="col" role="columnheader">
                   <span className="visually-hidden">{t("traffic.open")}</span>
                 </th>
               </tr>
             </thead>
-            <tbody>
-              {rows.items.map((dispatch) => {
-                const Icon = channelIcons[dispatch.channel];
+            <tbody role="rowgroup">
+              {rows.items.map((dispatch, index) => {
+                const status = presentedStatus(dispatch);
+                const exact = statusLabel(status, t, dispatch.channel);
+                const destination =
+                  destinationLabel(dispatch) || t("traffic.unknownDestination");
+                const fare = dispatchFare(dispatch, locale);
+                const destinationFits =
+                  [...boardText(destination)].length <= BOARD_CELLS.destination;
+                const fareFits =
+                  [...boardText(fare)].length <= BOARD_CELLS.fare;
+                // Rows cascade once on arrival; later changes flip in place.
+                const delay = Math.min(index, 12) * 55;
                 return (
-                  <tr key={dispatch.id}>
-                    <td>
+                  <tr key={dispatch.id} role="row">
+                    <td role="cell" className="board-time">
                       <time
                         dateTime={dispatch.created_at}
                         title={formatDateTime(dispatch.created_at, locale)}
@@ -181,26 +220,37 @@ function DepartureRows({ group }: { group?: string }) {
                         </span>
                         <SplitFlap
                           text={formatTime(dispatch.created_at, locale)}
-                          cells={5}
-                          size="sm"
+                          cells={BOARD_CELLS.time}
+                          delay={delay}
                         />
                       </time>
                       <small className="traffic-ref">
                         {shortRef(dispatch.id)}
                       </small>
                     </td>
-                    <td>
-                      <span className={`traffic-line is-${dispatch.channel}`}>
-                        <Icon size={18} aria-hidden="true" />
-                        {t(`traffic.channel.${dispatch.channel}`)}
-                      </span>
+                    <td role="cell" className="board-channel">
+                      <LineRoundel line={dispatch.channel} />
+                      <span>{t(`traffic.channel.${dispatch.channel}`)}</span>
                     </td>
-                    <td className="traffic-destination">
+                    <td role="cell" className="traffic-destination">
                       <Link
                         href={`/departures/${encodeURIComponent(dispatch.id)}`}
+                        title={destination}
                       >
-                        {destinationLabel(dispatch) ||
-                          t("traffic.unknownDestination")}
+                        <span
+                          className={
+                            destinationFits
+                              ? "visually-hidden"
+                              : "board-full-destination"
+                          }
+                        >
+                          {destination}
+                        </span>
+                        <SplitFlap
+                          text={destination}
+                          cells={BOARD_CELLS.destination}
+                          delay={delay + 40}
+                        />
                       </Link>
                       {dispatch.subject && <small>{dispatch.subject}</small>}
                       {dispatch.mode === "simulation" && (
@@ -209,13 +259,29 @@ function DepartureRows({ group }: { group?: string }) {
                         </small>
                       )}
                     </td>
-                    <td>
-                      <Status dispatch={dispatch} />
+                    <td role="cell" className="board-state" title={exact}>
+                      <span className="visually-hidden">{exact}</span>
+                      <SplitFlap
+                        text={boardStatus(status, t, dispatch.channel)}
+                        cells={BOARD_CELLS.status}
+                        tone={boardTone(status)}
+                        delay={delay + 80}
+                      />
                     </td>
-                    <td className="traffic-fare">
-                      {dispatchFare(dispatch, locale)}
+                    <td role="cell" className="traffic-fare">
+                      <span className={fareFits ? "visually-hidden" : "data"}>
+                        {fare}
+                      </span>
+                      {fareFits && (
+                        <SplitFlap
+                          text={fare}
+                          cells={BOARD_CELLS.fare}
+                          align="end"
+                          delay={delay + 120}
+                        />
+                      )}
                     </td>
-                    <td>
+                    <td role="cell">
                       <Link
                         className="traffic-open"
                         href={`/departures/${encodeURIComponent(dispatch.id)}`}
@@ -326,6 +392,15 @@ function DepartureContent({
       document.removeEventListener("visibilitychange", wake);
     };
   }, [active, resource.refresh]);
+  const acceptance = resource.data?.events.find(
+    (event) => event.kind === "accepted",
+  );
+  const hasAcceptance = resource.data ? Boolean(acceptance) : undefined;
+  const previouslyAccepted = useRef<boolean | undefined>(undefined);
+  useEffect(() => {
+    if (previouslyAccepted.current === false && hasAcceptance) punchSound();
+    previouslyAccepted.current = hasAcceptance;
+  }, [hasAcceptance]);
   if (!dispatch)
     return (
       <div className="stack">
@@ -390,10 +465,24 @@ function DepartureContent({
       <div className="traffic-detail-grid">
         <article className="traffic-ticket">
           <header className="traffic-ticket-head">
-            <span className="caps">
-              {t(`traffic.channel.${dispatch.channel}`)}
+            <span className="ticket-line">
+              <LineRoundel line={dispatch.channel} size="lg" />
+              <span>
+                <span className="caps">
+                  {t(`traffic.channel.${dispatch.channel}`)}
+                </span>
+                <span className="data">{shortRef(dispatch.id)}</span>
+              </span>
             </span>
-            <span className="data">{shortRef(dispatch.id)}</span>
+            <span className="ticket-franking" aria-hidden="true">
+              <BrandStamp size={68} />
+              {acceptance && (
+                <Postmark
+                  date={frankingDate(acceptance.occurred_at)}
+                  place="gare · guteneo"
+                />
+              )}
+            </span>
           </header>
           <div className="traffic-ticket-main">
             <p className="caps">{t("traffic.destination")}</p>
@@ -484,6 +573,7 @@ function DepartureContent({
             )}
           </div>
           <footer className="traffic-ticket-stub">
+            <Barcode value={dispatch.fingerprint} />
             <span className="caps">{t("traffic.reference")}</span>
             <code>{dispatch.id}</code>
           </footer>
@@ -805,6 +895,14 @@ function EmailReview({
       </div>
     </section>
   );
+}
+
+/** The date struck on a ticket: day.month.year in station time. */
+function frankingDate(value: string): string {
+  const date = new Date(value);
+  return Number.isFinite(date.getTime())
+    ? date.toISOString().slice(0, 10).split("-").reverse().join(".")
+    : "";
 }
 
 /** Parse a EUR input directly into integer minor units, without float multiplication. */

@@ -7,7 +7,7 @@ sidebar:
 
 <!-- Generated from docs/feature-map.json. Run npm run docs:build; do not edit this view. -->
 
-**29 domains · 527 capabilities · 58 journeys · 97 REST operations · 92 MCP tools.**
+**29 domains · 528 capabilities · 58 journeys · 97 REST operations · 92 MCP tools.**
 
 Follow a branch to find its behavior, access boundary and engineering guide. Use the site search to find a specific capability.
 
@@ -61,7 +61,7 @@ This is an implementation inventory, not a live availability dashboard. Current 
 
 ## Web
 
-- [Gare browser experience](/features/experience/) — 8 capabilities
+- [Gare browser experience](/features/experience/) — 9 capabilities
 
 ## Across the branches
 
