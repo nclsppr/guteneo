@@ -469,6 +469,11 @@ jobs:
         run: node scripts/ci/build-artifact.mjs restore test-results/ci/build-artifact web ${{ matrix.preview != '' && 'preview' || '' }}
       - name: Remove historical screenshot evidence from this fresh runner
         run: rm -rf reports/screenshots
+      - name: Verify Gare with synthetic desktop and mobile authority transitions
+        if: ${{ (matrix.project == 'chromium' || matrix.project == 'mobile-chromium') && matrix.shardIndex == 1 }}
+        run: npx playwright test --config playwright.experience.config.ts --project=${{ matrix.project == 'chromium' && 'desktop-chromium' || 'mobile-chromium' }}
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/browser/${{ matrix.project }}/shard-${{ matrix.shardIndex }}/experience.json
       - name: Verify the four-language MCP Apps SDK fixtures
         if: ${{ matrix.project == 'chromium' && matrix.shardIndex == 3 }}
         run: node --test tests/browser/mcp-ui-probe.test.mjs tests/browser/mcp-document-upload.test.mjs
@@ -492,11 +497,6 @@ jobs:
         run: npx playwright test --config playwright.status.config.ts
         env:
           PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/browser/${{ matrix.project }}/shard-${{ matrix.shardIndex }}/status.json
-      - name: Verify Gare with synthetic desktop and mobile authority transitions
-        if: ${{ (matrix.project == 'chromium' || matrix.project == 'mobile-chromium') && matrix.shardIndex == 1 }}
-        run: npx playwright test --config playwright.experience.config.ts --project=${{ matrix.project == 'chromium' && 'desktop-chromium' || 'mobile-chromium' }}
-        env:
-          PLAYWRIGHT_JSON_OUTPUT_NAME: test-results/ci/browser/${{ matrix.project }}/shard-${{ matrix.shardIndex }}/experience.json
       - name: Bind every suite report to this exact project, shard and run
         if: always()
         run: node scripts/ci/browser-results.mjs record '${{ matrix.project }}' '${{ matrix.shardIndex }}'

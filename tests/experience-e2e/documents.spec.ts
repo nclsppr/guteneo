@@ -12,7 +12,7 @@ const pdf = Buffer.from(
   "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Count 0/Kids[]>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF",
 );
 const image = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a+1sAAAAASUVORK5CYII=",
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=",
   "base64",
 );
 const doc = {
@@ -80,7 +80,7 @@ test("an explicit PDF upload sends multipart content with CSRF then follows its 
 }) => {
   await stationFixture(page);
   const uploads: { contentType: string; csrf: string; body: string }[] = [];
-  await page.route("**/api/documents**", async (route) => {
+  await page.route((url) => url.pathname === "/api/documents" || url.pathname.startsWith("/api/documents/"), async (route) => {
     if (await preflight(route)) return;
     const request = route.request();
     const path = new URL(request.url()).pathname;
@@ -139,7 +139,7 @@ test("a quarantined original never exposes PDF bytes or a prepare action", async
 }) => {
   await stationFixture(page);
   const contentRequests: string[] = [];
-  await page.route("**/api/documents**", async (route) => {
+  await page.route((url) => url.pathname === "/api/documents" || url.pathname.startsWith("/api/documents/"), async (route) => {
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith("/content")) contentRequests.push(path);
     return route.fulfill({
@@ -173,7 +173,7 @@ test("a received share reads authorized pages and text without downloading the o
 }) => {
   await stationFixture(page);
   const downloads: string[] = [];
-  await page.route("**/api/personal/documents/**", async (route) => {
+  await page.route((url) => url.pathname.startsWith("/api/personal/documents/"), async (route) => {
     if (await preflight(route)) return;
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith("/download")) {
@@ -217,7 +217,7 @@ test("a refused next page clears the received document without an original fallb
 }) => {
   await stationFixture(page);
   const originalReads: string[] = [];
-  await page.route("**/api/personal/documents/**", async (route) => {
+  await page.route((url) => url.pathname.startsWith("/api/personal/documents/"), async (route) => {
     if (await preflight(route)) return;
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith("/download")) originalReads.push(path);
@@ -249,7 +249,7 @@ test("an allowed original download still requires an explicit action and current
 }) => {
   await stationFixture(page);
   const downloads: { method: string; csrf: string }[] = [];
-  await page.route("**/api/personal/documents/**", async (route) => {
+  await page.route((url) => url.pathname.startsWith("/api/personal/documents/"), async (route) => {
     if (await preflight(route)) return;
     const request = route.request();
     const path = new URL(request.url()).pathname;
@@ -313,7 +313,7 @@ test("a page arriving after the tab is hidden is recorded only when actually vis
   });
   let releaseImage: (() => void) | undefined;
   const displayed: unknown[] = [];
-  await page.route("**/api/personal/documents/**", async (route) => {
+  await page.route((url) => url.pathname.startsWith("/api/personal/documents/"), async (route) => {
     if (await preflight(route)) return;
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith("/pages/1")) {

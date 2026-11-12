@@ -40,99 +40,102 @@ async function emailFixture(
     created_at: "2026-11-11T10:00:00.000Z",
     updated_at: "2026-11-11T10:00:00.000Z",
   };
-  await page.route("**/api/**", async (route) => {
-    const request = route.request();
-    const path = new URL(request.url()).pathname.slice(4);
-    if (
-      path !== "/capabilities" &&
-      !path.startsWith(`/dispatches/${dispatch.id}`)
-    )
-      return route.fallback();
-    const headers = {
-      "Access-Control-Allow-Origin": "http://127.0.0.1:8850",
-      "Access-Control-Allow-Credentials": "true",
-      "Access-Control-Allow-Headers":
-        "Content-Type, X-CSRF-Token, Idempotency-Key",
-      "Access-Control-Allow-Methods": "GET, POST",
-    };
-    if (request.method() === "OPTIONS")
-      return route.fulfill({ status: 204, headers });
-    if (path === "/capabilities")
-      return route.fulfill({
-        headers,
-        json: {
-          version: "synthetic-email-review",
-          mode: "production",
-          simulation: false,
-          liveSending: true,
-          channels: [
-            {
-              id: "email",
-              liveSending: true,
-              name: "Email",
-              provider: "synthetic",
-              status: "available",
-            },
-          ],
-          registration: { enabled: true },
-          secureDistribution: { available: false },
-          scheduledDispatches: { enabled: false },
-          billing: { configured: false },
-          pdfValidation: { available: false },
-          documents: { import: false, render: false },
-        },
-      });
-    if (request.method() === "GET") {
-      reads += 1;
-      if (options.outcomeRefusal && writes.length)
+  await page.route(
+    (url) => url.pathname.startsWith("/api/"),
+    async (route) => {
+      const request = route.request();
+      const path = new URL(request.url()).pathname.slice(4);
+      if (
+        path !== "/capabilities" &&
+        !path.startsWith(`/dispatches/${dispatch.id}`)
+      )
+        return route.fallback();
+      const headers = {
+        "Access-Control-Allow-Origin": "http://127.0.0.1:8850",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers":
+          "Content-Type, X-CSRF-Token, Idempotency-Key",
+        "Access-Control-Allow-Methods": "GET, POST",
+      };
+      if (request.method() === "OPTIONS")
+        return route.fulfill({ status: 204, headers });
+      if (path === "/capabilities")
         return route.fulfill({
-          status: options.outcomeRefusal,
           headers,
           json: {
-            error: {
-              code: "FORBIDDEN",
-              message: "Synthetic delivery access revoked.",
-            },
+            version: "synthetic-email-review",
+            mode: "production",
+            simulation: false,
+            liveSending: true,
+            channels: [
+              {
+                id: "email",
+                liveSending: true,
+                name: "Email",
+                provider: "synthetic",
+                status: "available",
+              },
+            ],
+            registration: { enabled: true },
+            secureDistribution: { available: false },
+            scheduledDispatches: { enabled: false },
+            billing: { configured: false },
+            pdfValidation: { available: false },
+            documents: { import: false, render: false },
           },
         });
-      if (outcomeReadFails) {
-        outcomeReadFails = false;
+      if (request.method() === "GET") {
+        reads += 1;
+        if (options.outcomeRefusal && writes.length)
+          return route.fulfill({
+            status: options.outcomeRefusal,
+            headers,
+            json: {
+              error: {
+                code: "FORBIDDEN",
+                message: "Synthetic delivery access revoked.",
+              },
+            },
+          });
+        if (outcomeReadFails) {
+          outcomeReadFails = false;
+          return route.fulfill({
+            status: 503,
+            headers,
+            json: {
+              error: {
+                code: "FIXTURE_UNAVAILABLE",
+                message: "Synthetic tracking read failed.",
+              },
+            },
+          });
+        }
         return route.fulfill({
-          status: 503,
           headers,
-          json: {
-            error: {
-              code: "FIXTURE_UNAVAILABLE",
-              message: "Synthetic tracking read failed.",
-            },
-          },
+          json: { dispatch, events: [], attempts: [], approval: null },
         });
       }
-      return route.fulfill({
-        headers,
-        json: { dispatch, events: [], attempts: [], approval: null },
+      writes.push({
+        path,
+        body: request.postDataJSON(),
+        key: request.headers()["idempotency-key"],
+        csrf: request.headers()["x-csrf-token"],
       });
-    }
-    writes.push({
-      path,
-      body: request.postDataJSON(),
-      key: request.headers()["idempotency-key"],
-      csrf: request.headers()["x-csrf-token"],
-    });
-    if (path.endsWith("/approve") && options.holdApproval)
-      await new Promise<void>((resolve) => {
-        releaseApproval = resolve;
-      });
-    if (path.endsWith("/confirm")) {
-      if (options.interrupted) {
-        dispatch.status = "submission_unknown";
-        outcomeReadFails = true;
-        return route.abort("failed");
+      if (path.endsWith("/approve") && options.holdApproval)
+        await new Promise<void>((resolve) => {
+          releaseApproval = resolve;
+        });
+      if (path.endsWith("/confirm")) {
+        if (options.interrupted) {
+          dispatch.status = "submission_unknown";
+          outcomeReadFails = true;
+          return route.abort("failed");
+        }
+        dispatch.status = "queued";
       }
-      dispatch.status = "queued";
-    }
-    return route.fulfill({ headers, json: dispatch });
-  });
+      return route.fulfill({ headers, json: dispatch });
+    },
+  );
   return {
     writes,
     dispatch,
@@ -258,7 +261,9 @@ test("a stale prepared read cannot overwrite the accepted send outcome", async (
   await page.locator(".traffic-consent input").nth(1).check();
   await page.getByRole("button", { name: /^Approuver et envoyer/ }).click();
   await expect(page.locator("main .traffic-status")).toHaveText("En attente");
-  await page.evaluate(() => Reflect.get(window, "syntheticOutcomeGate").release());
+  await page.evaluate(() =>
+    Reflect.get(window, "syntheticOutcomeGate").release(),
+  );
   await page.evaluate(
     () =>
       new Promise<void>((resolve) =>

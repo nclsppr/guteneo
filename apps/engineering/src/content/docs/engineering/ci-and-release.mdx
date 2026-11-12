@@ -710,7 +710,10 @@ canonical account access and already accepted dispatches unchanged. The
 records detailed activation, recovery and dated qualification boundaries.
 
 The existing Chromium desktop and mobile CI jobs each execute the Gare suite on
-their first shard. The browser evidence verifier independently discovers both
+their first shard, immediately after artifact restoration and cleanup, before
+the main application and preview suites. This exposes station startup failures
+early while preserving every required suite and the same evidence verifier.
+The browser evidence verifier independently discovers both
 project inventories and requires every result exactly once, without undeclared
 skips or retries. Its reports and failure traces remain synthetic artifacts.
 The build job verifies the static experience artifact; the existing Node security

@@ -170,6 +170,11 @@ accessibility; attached screenshots and timing records are
 explicitly synthetic. `tests/unit/experience-origin.test.ts` separately qualifies
 the backend origin/session contract. Passing browser fixtures cannot establish
 real Auth0 cookies, production CORS, genuine supplier behavior or delivery.
+Interception matches the `/api/` pathname root only. Development modules under
+`/src/api/` must remain real JavaScript; intercepting those modules as synthetic
+JSON prevented all initial renders in the first hosted Gare attempt. That failed
+attempt is not browser qualification, and the correction retains every route,
+privacy, consent and accessibility assertion for the next complete CI run.
 
 The initial audit found missing entry/catalog files, TypeScript/lint errors and
 session-cache weaknesses. Those observations describe the inherited incomplete
