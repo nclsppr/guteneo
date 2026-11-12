@@ -236,6 +236,38 @@ test("preview ignores the live-only verification concurrency environment", async
   });
 });
 
+test("a fresh operator gate after the build can refuse before any publication", async (t) => {
+  const f = await fixture(t);
+  const runner = executor(f.root, "live");
+  await assert.rejects(
+    deployPublic("live", {
+      root: f.root,
+      execute: runner.execute,
+      beforePublish: async () => {
+        throw new Error("OPERATOR_RELEASE_SOURCE_CHANGED");
+      },
+    }),
+    /OPERATOR_RELEASE_SOURCE_CHANGED/,
+  );
+  assert.equal(runner.calls.length, 1);
+});
+
+test("assets cannot change while the final operator gate is running", async (t) => {
+  const f = await fixture(t);
+  const runner = executor(f.root, "live");
+  await assert.rejects(
+    deployPublic("live", {
+      root: f.root,
+      execute: runner.execute,
+      beforePublish: async () => {
+        await writeFile(join(f.root, "dist/web/index.html"), "changed");
+      },
+    }),
+    /RELEASE_ASSETS_MISMATCH/,
+  );
+  assert.equal(runner.calls.length, 1);
+});
+
 for (const target of ["live", "preview"]) {
   test(`${target} publishes only a clean exact main with verified fresh artifacts`, async (t) => {
     const f = await fixture(t);

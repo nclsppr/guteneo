@@ -225,6 +225,30 @@ production outcomes. The
 [manual publication contract](https://github.com/nclsppr/guteneo/blob/main/docs/MAIN_RELEASE.md#operator-triggered-application-publication)
 owns the precise sequence, maintenance and recovery obligations.
 
+### An explicitly authorized local operator
+
+When the separate CI D1 credential is unavailable, the reviewed
+[`operator-application-release.mjs`](https://github.com/nclsppr/guteneo/blob/main/scripts/operator-application-release.mjs)
+is a separate publication path. It requires an existing encrypted Wrangler OAuth
+profile for the single production account with the exact reviewed seven-scope
+subset, and the existing authenticated `gh` CLI. It neither exports credentials
+nor fabricates a workflow schema receipt. The
+[operator instructions](https://github.com/nclsppr/guteneo/blob/main/docs/MAIN_RELEASE.md#explicit-local-operator-publication-with-existing-oauth)
+own its invocation and recovery procedure.
+
+The same fresh main, complete canonical CI, version tag, local transport proof,
+hosted schema/ledger and constraint gates still apply. Global integrity and foreign
+keys must pass both before and after the two reviewed indexes. Each index and
+ledger INSERT uses the exact Wrangler SQL path used by its documented transactional
+migrations command; a runtime guard requires the exact reviewed Wrangler version
+(4.152.0), including the locally installed package used by the operator.
+An unknown response stops without retry. The operator refuses implicit environment
+files and endpoint/account/token overrides, retains private sanitized evidence,
+and requalifies immediately before publication and served-byte verification.
+Its exclusive local lock and active-workflow checks do not replace the operator's
+freeze on concurrent dispatches and main advancement. CI remains a prerequisite;
+an OAuth login alone is never a passing publication proof.
+
 ## Keep browser icons bound to their source
 
 `packages/contracts/src/brand-icons.json` defines the approved browser-icon

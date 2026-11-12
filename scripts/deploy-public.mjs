@@ -184,6 +184,7 @@ export async function deployPublic(
   {
     root = fileURLToPath(new URL("../", import.meta.url)),
     execute = (command, args, options) => execFileSync(command, args, options),
+    beforePublish = async () => {},
   } = {},
 ) {
   if (!Object.hasOwn(releaseProfiles, target)) fail("RELEASE_TARGET_INVALID");
@@ -210,6 +211,12 @@ export async function deployPublic(
   if (anchor && manifest.version !== anchor.version)
     fail("RELEASE_MANIFEST_MISMATCH");
   if (target === "live") await verifyReleaseTag(root, sourceCommit);
+  await beforePublish();
+  if (
+    JSON.stringify(await verifyLocalRelease(root, target, sourceCommit)) !==
+    JSON.stringify(manifest)
+  )
+    fail("RELEASE_ASSETS_CHANGED");
   // Recheck after reading artifacts too. Do not edit the checkout during publication.
   if (cleanMain(root) !== sourceCommit) fail("RELEASE_SOURCE_CHANGED");
   await execute(
