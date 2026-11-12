@@ -14,7 +14,9 @@ async function enterDraft(page: Page) {
     .getByLabel("E-mail du destinataire", { exact: true })
     .fill(draft.recipient);
   await page.getByLabel("Objet", { exact: true }).fill(draft.subject);
-  await page.getByLabel("Message", { exact: true }).fill(draft.message);
+  await page
+    .getByRole("textbox", { name: "Message", exact: true })
+    .fill(draft.message);
 }
 
 async function expectDraft(page: Page) {
@@ -25,9 +27,9 @@ async function expectDraft(page: Page) {
   await expect(page.getByLabel("Objet", { exact: true })).toHaveValue(
     draft.subject,
   );
-  await expect(page.getByLabel("Message", { exact: true })).toHaveValue(
-    draft.message,
-  );
+  await expect(
+    page.getByRole("textbox", { name: "Message", exact: true }),
+  ).toHaveValue(draft.message);
 }
 
 async function discardPrompt(

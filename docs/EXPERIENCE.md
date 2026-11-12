@@ -176,6 +176,16 @@ JSON prevented all initial renders in the first hosted Gare attempt. That failed
 attempt is not browser qualification, and the correction retains every route,
 privacy, consent and accessibility assertion for the next complete CI run.
 
+The next hosted run,
+[43125751253](https://github.com/nclsppr/guteneo/actions/runs/43125751253),
+tested `d19f4da35244397f9c61877a56f197635b8d00fc`: 73 of 75 Gare cases passed on
+each viewport, or 146 of 150 overall. The two unsaved-navigation cases on each
+viewport failed at the fixture's exact label lookup for the message field;
+the trace retained the textbox and its draft. The corrected selector uses the
+textbox role and exact accessible name, retaining the cancel/accept, URL and
+draft-preservation assertions. This partial result is not a complete successful
+browser gate; a new full run must qualify the corrected source before release.
+
 The initial audit found missing entry/catalog files, TypeScript/lint errors and
 session-cache weaknesses. Those observations describe the inherited incomplete
 source, not the result of the continuation. Record exact final checks and hosted
@@ -187,7 +197,7 @@ verification below rather than carrying historical test totals forward.
 | Origin, client authority, navigation and integration archive tests | 71 passed: 19 origin/session, 9 client authority, 8 navigation and 35 integration tests                                                                                                                                                                            |
 | CI inventory, validation policy and deployment guards              | 106 passed: 87 CI policy/inventory and 19 deployment guards; Gare reports are required by the existing exact-ID browser verifier                                                                                                                                   |
 | Engineering publication build                                      | Passed; 424 static assets, 61 documentation pages, 29 authored MDX pages lint clean and 4 publication-boundary tests passed                                                                                                                                        |
-| Dedicated synthetic browser suite                                  | 150 cases collected across desktop/mobile at this checkpoint; local Chromium failed before startup with Mach bootstrap permission denial, so no browser assertion passed in that attempt. Hosted CI execution remains required                                     |
+| Dedicated synthetic browser suite                                  | 150 cases discovered; hosted d19f4da3 run passed 146, with two navigation fixture selector failures per viewport. Corrected-source complete CI remains required. Local Chromium startup remains unavailable                                                        |
 | Portable release evidence renderer                                 | Nine non-browser checks passed; candidate notes accepted by the real renderer. The offline-browser case remains blocked by the same local Chromium startup denial                                                                                                  |
 | Static experience artifact                                         | Production static build passed locally: 34 static assets, canonical API origin and release manifest; the dirty candidate build is not a deployable clean-main proof                                                                                                |
 | Published static artifact and custom domain                        | Not yet verified in this ledger                                                                                                                                                                                                                                    |
