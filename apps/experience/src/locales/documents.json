@@ -1,0 +1,410 @@
+{
+  "docs.title": {
+    "fr": "Documents",
+    "en": "Documents",
+    "de": "Dokumente",
+    "lb": "Dokumenter"
+  },
+  "docs.previewTitle": {
+    "fr": "Aperçu de {name}",
+    "en": "Preview of {name}",
+    "de": "Vorschau: {name}",
+    "lb": "Virschau: {name}"
+  },
+  "docs.download": {
+    "fr": "Télécharger le PDF",
+    "en": "Download PDF",
+    "de": "PDF herunterladen",
+    "lb": "PDF eroflueden"
+  },
+  "docs.details": {
+    "fr": "Détails du document",
+    "en": "Document details",
+    "de": "Dokumentdetails",
+    "lb": "Dokumentdetailer"
+  },
+  "docs.analysis.ready": {
+    "fr": "PDF vérifié",
+    "en": "PDF verified",
+    "de": "PDF geprüft",
+    "lb": "PDF gepréift"
+  },
+  "docs.analysis.processing": {
+    "fr": "Vérification en cours",
+    "en": "Verification in progress",
+    "de": "Prüfung läuft",
+    "lb": "Préiwen amgaang"
+  },
+  "docs.analysis.retryable": {
+    "fr": "Vérification à relancer",
+    "en": "Verification needs attention",
+    "de": "Prüfung erneut starten",
+    "lb": "Préiwen nei starten"
+  },
+  "docs.analysis.blocked": {
+    "fr": "Document indisponible",
+    "en": "Document unavailable",
+    "de": "Dokument nicht verfügbar",
+    "lb": "Dokument net disponibel"
+  },
+  "docs.rescan": {
+    "fr": "Relancer la vérification",
+    "en": "Restart verification",
+    "de": "Prüfung erneut starten",
+    "lb": "Préiwen nei starten"
+  },
+  "docs.pages": {
+    "fr": "Pages",
+    "en": "Pages",
+    "de": "Seiten",
+    "lb": "Säiten"
+  },
+  "docs.size": {
+    "fr": "Taille",
+    "en": "Size",
+    "de": "Größe",
+    "lb": "Gréisst"
+  },
+  "docs.created": {
+    "fr": "Ajouté le",
+    "en": "Added on",
+    "de": "Hinzugefügt am",
+    "lb": "Dobäigesat den"
+  },
+  "docs.unverified": {
+    "fr": "À vérifier",
+    "en": "Not yet verified",
+    "de": "Noch nicht geprüft",
+    "lb": "Nach net gepréift"
+  },
+  "docs.prepare": {
+    "fr": "Préparer un envoi",
+    "en": "Prepare a delivery",
+    "de": "Versand vorbereiten",
+    "lb": "Eng Sendung virbereeden"
+  },
+  "docs.advancedChecks": {
+    "fr": "Contrôles PDF dans Guteneo",
+    "en": "PDF checks in Guteneo",
+    "de": "PDF-Prüfungen in Guteneo",
+    "lb": "PDF-Kontrollen a Guteneo"
+  },
+  "docs.import": {
+    "fr": "Importer un PDF",
+    "en": "Import a PDF",
+    "de": "PDF importieren",
+    "lb": "E PDF importéieren"
+  },
+  "docs.render": {
+    "fr": "Créer depuis du HTML",
+    "en": "Create from HTML",
+    "de": "Aus HTML erstellen",
+    "lb": "Aus HTML erstellen"
+  },
+  "docs.intro": {
+    "fr": "Vos originaux, prêts pour leur prochain départ. Chaque PDF doit être vérifié avant son envoi.",
+    "en": "Your originals, ready for their next departure. Every PDF must be verified before sending.",
+    "de": "Ihre Originale für den nächsten Versand. Jedes PDF muss vor dem Versand geprüft werden.",
+    "lb": "Är Originaler fir déi nächst Sendung. All PDF muss virum Verschécke gepréift ginn."
+  },
+  "docs.library": {
+    "fr": "Bibliothèque de l’atelier",
+    "en": "Workspace library",
+    "de": "Bibliothek des Arbeitsbereichs",
+    "lb": "Bibliothéik vum Aarbechtsberäich"
+  },
+  "docs.refresh": {
+    "fr": "Actualiser",
+    "en": "Refresh",
+    "de": "Aktualisieren",
+    "lb": "Aktualiséieren"
+  },
+  "docs.empty": {
+    "fr": "Votre bibliothèque vous attend",
+    "en": "Your library awaits",
+    "de": "Ihre Bibliothek wartet",
+    "lb": "Är Bibliothéik waart"
+  },
+  "docs.emptyBody": {
+    "fr": "Importez un PDF ou créez-en un à partir de votre HTML.",
+    "en": "Import a PDF or create one from your HTML.",
+    "de": "Importieren Sie ein PDF oder erstellen Sie eines aus Ihrem HTML.",
+    "lb": "Importéiert e PDF oder erstellt een aus Ärem HTML."
+  },
+  "docs.pdfFile": {
+    "fr": "Fichier PDF",
+    "en": "PDF file",
+    "de": "PDF-Datei",
+    "lb": "PDF-Fichier"
+  },
+  "docs.name": {
+    "fr": "Nom du document",
+    "en": "Document name",
+    "de": "Dokumentname",
+    "lb": "Numm vum Dokument"
+  },
+  "docs.html": {
+    "fr": "Contenu HTML",
+    "en": "HTML content",
+    "de": "HTML-Inhalt",
+    "lb": "HTML-Inhalt"
+  },
+  "docs.saveNotice": {
+    "fr": "Le document sera enregistré et vérifié. Aucun envoi ne sera effectué.",
+    "en": "The document will be saved and verified. Nothing will be sent.",
+    "de": "Das Dokument wird gespeichert und geprüft. Es wird nichts versendet.",
+    "lb": "D’Dokument gëtt gespäichert a gepréift. Näischt gëtt verschéckt."
+  },
+  "docs.saving": {
+    "fr": "Enregistrement…",
+    "en": "Saving…",
+    "de": "Wird gespeichert…",
+    "lb": "Gëtt gespäichert…"
+  },
+  "docs.saved": {
+    "fr": "Document enregistré.",
+    "en": "Document saved.",
+    "de": "Dokument gespeichert.",
+    "lb": "Dokument gespäichert."
+  },
+  "docs.discardTitle": {
+    "fr": "Quitter sans enregistrer ?",
+    "en": "Leave without saving?",
+    "de": "Ohne Speichern schließen?",
+    "lb": "Ouni Späichere verloossen?"
+  },
+  "docs.discardBody": {
+    "fr": "Votre saisie ne sera pas enregistrée.",
+    "en": "Your changes will not be saved.",
+    "de": "Ihre Eingaben werden nicht gespeichert.",
+    "lb": "Är Donnéeë ginn net gespäichert."
+  },
+  "docs.keepEditing": {
+    "fr": "Continuer à modifier",
+    "en": "Keep editing",
+    "de": "Weiter bearbeiten",
+    "lb": "Weider änneren"
+  },
+  "docs.discard": {
+    "fr": "Abandonner la saisie",
+    "en": "Discard changes",
+    "de": "Eingaben verwerfen",
+    "lb": "Ännerunge verwerfen"
+  },
+  "arrivals.title": {
+    "fr": "Arrivées",
+    "en": "Arrivals",
+    "de": "Ankünfte",
+    "lb": "Arrivéeën"
+  },
+  "arrivals.noText": {
+    "fr": "Aucun texte accessible pour cette page.",
+    "en": "No accessible text is available for this page.",
+    "de": "Für diese Seite ist kein zugänglicher Text verfügbar.",
+    "lb": "Fir dës Säit ass keen zougänglechen Text disponibel."
+  },
+  "arrivals.pageAlt": {
+    "fr": "{title}, page {page}",
+    "en": "{title}, page {page}",
+    "de": "{title}, Seite {page}",
+    "lb": "{title}, Säit {page}"
+  },
+  "arrivals.back": {
+    "fr": "Retour aux arrivées",
+    "en": "Back to arrivals",
+    "de": "Zurück zu den Ankünften",
+    "lb": "Zréck bei d’Arrivéeën"
+  },
+  "arrivals.verify": {
+    "fr": "Vérifier ma connexion",
+    "en": "Verify my sign-in",
+    "de": "Anmeldung überprüfen",
+    "lb": "Meng Umeldung iwwerpréiwen"
+  },
+  "arrivals.status.active": {
+    "fr": "Disponible",
+    "en": "Available",
+    "de": "Verfügbar",
+    "lb": "Disponibel"
+  },
+  "arrivals.status.pending": {
+    "fr": "En attente de vérification",
+    "en": "Awaiting verification",
+    "de": "Wartet auf Überprüfung",
+    "lb": "Waart op Iwwerpréiwung"
+  },
+  "arrivals.status.expired": {
+    "fr": "Expiré",
+    "en": "Expired",
+    "de": "Abgelaufen",
+    "lb": "Ofgelaf"
+  },
+  "arrivals.status.revoked": {
+    "fr": "Accès révoqué",
+    "en": "Access revoked",
+    "de": "Zugriff widerrufen",
+    "lb": "Zougang zréckgezunn"
+  },
+  "arrivals.sender": {
+    "fr": "Expéditeur",
+    "en": "Sender",
+    "de": "Absender",
+    "lb": "Ofsender"
+  },
+  "arrivals.retainedUntil": {
+    "fr": "Conservé jusqu’au",
+    "en": "Retained until",
+    "de": "Aufbewahrt bis",
+    "lb": "Gespäichert bis"
+  },
+  "arrivals.availableUntil": {
+    "fr": "Accessible jusqu’au",
+    "en": "Available until",
+    "de": "Verfügbar bis",
+    "lb": "Disponibel bis"
+  },
+  "arrivals.pending": {
+    "fr": "Votre demande d’accès attend la confirmation de l’atelier expéditeur.",
+    "en": "Your access request awaits confirmation from the sending workspace.",
+    "de": "Ihre Zugriffsanfrage wartet auf die Bestätigung des sendenden Arbeitsbereichs.",
+    "lb": "Är Zougangsufro waart op d’Bestätegung vum verschéckenden Aarbechtsberäich."
+  },
+  "arrivals.auditNotice": {
+    "fr": "L’atelier reçoit un journal des accès autorisés et des affichages signalés. Les captures d’écran ne sont pas détectées.",
+    "en": "The workspace receives a log of authorized access and reported displays. Screenshots are not detected.",
+    "de": "Der Arbeitsbereich erhält ein Protokoll genehmigter Zugriffe und gemeldeter Anzeigen. Screenshots werden nicht erkannt.",
+    "lb": "Den Aarbechtsberäich kritt e Protokoll vun erlaabten Zougrëffer a gemellten Affichagen. Screenshots ginn net erkannt."
+  },
+  "arrivals.previous": {
+    "fr": "Précédente",
+    "en": "Previous",
+    "de": "Zurück",
+    "lb": "Virdrun"
+  },
+  "arrivals.next": {
+    "fr": "Suivante",
+    "en": "Next",
+    "de": "Weiter",
+    "lb": "Weider"
+  },
+  "arrivals.pageOf": {
+    "fr": "Page {page} sur {total}",
+    "en": "Page {page} of {total}",
+    "de": "Seite {page} von {total}",
+    "lb": "Säit {page} vun {total}"
+  },
+  "arrivals.image": {
+    "fr": "Voir la page",
+    "en": "View page",
+    "de": "Seite anzeigen",
+    "lb": "Säit weisen"
+  },
+  "arrivals.text": {
+    "fr": "Lire le texte",
+    "en": "Read text",
+    "de": "Text lesen",
+    "lb": "Text liesen"
+  },
+  "arrivals.deposit": {
+    "fr": "Conserver une copie personnelle",
+    "en": "Save a personal copy",
+    "de": "Persönliche Kopie speichern",
+    "lb": "Eng perséinlech Kopie späicheren"
+  },
+  "arrivals.openVault": {
+    "fr": "Voir mes copies personnelles",
+    "en": "View my personal copies",
+    "de": "Meine persönlichen Kopien",
+    "lb": "Meng perséinlech Kopien"
+  },
+  "arrivals.depositNotice": {
+    "fr": "La copie personnelle conserve sa propre durée de conservation, même si l’atelier révoque le partage.",
+    "en": "A personal copy keeps its own retention period, even if the workspace revokes sharing.",
+    "de": "Eine persönliche Kopie behält ihre eigene Aufbewahrungsdauer, auch wenn der Arbeitsbereich die Freigabe widerruft.",
+    "lb": "Eng perséinlech Kopie behält hir eege Späicherdauer, och wann den Aarbechtsberäich d’Deelen zréckzitt."
+  },
+  "arrivals.depositPending": {
+    "fr": "Votre copie se prépare. Son état sera actualisé automatiquement.",
+    "en": "Your copy is being prepared. Its status will refresh automatically.",
+    "de": "Ihre Kopie wird vorbereitet. Der Status wird automatisch aktualisiert.",
+    "lb": "Är Kopie gëtt virbereet. De Status gëtt automatesch aktualiséiert."
+  },
+  "arrivals.fullHistory": {
+    "fr": "Historique complet dans Mes documents",
+    "en": "Full history in My documents",
+    "de": "Vollständiger Verlauf in Meine Dokumente",
+    "lb": "Vollstännege Verlaf a Meng Dokumenter"
+  },
+  "arrivals.personalRequired": {
+    "fr": "Connectez-vous à votre compte personnel pour retrouver vos documents reçus.",
+    "en": "Sign in to your personal account to find your received documents.",
+    "de": "Melden Sie sich mit Ihrem persönlichen Konto an, um empfangene Dokumente zu sehen.",
+    "lb": "Mellt Iech mat Ärem perséinleche Kont un, fir Är empfaangen Dokumenter ze gesinn."
+  },
+  "arrivals.collections": {
+    "fr": "Collections de documents",
+    "en": "Document collections",
+    "de": "Dokumentsammlungen",
+    "lb": "Dokumentkollektiounen"
+  },
+  "arrivals.shared": {
+    "fr": "Documents reçus",
+    "en": "Received documents",
+    "de": "Empfangene Dokumente",
+    "lb": "Empfaangen Dokumenter"
+  },
+  "arrivals.personal": {
+    "fr": "Copies personnelles",
+    "en": "Personal copies",
+    "de": "Persönliche Kopien",
+    "lb": "Perséinlech Kopien"
+  },
+  "arrivals.sharedIntro": {
+    "fr": "Les documents partagés avec votre compte. Leur accès reste soumis aux conditions de l’expéditeur.",
+    "en": "Documents shared with your account. Access remains subject to the sender’s conditions.",
+    "de": "Mit Ihrem Konto geteilte Dokumente. Für den Zugriff gelten die Bedingungen des Absenders.",
+    "lb": "Dokumenter, déi mat Ärem Kont gedeelt goufen. D’Konditioune vum Ofsender gëlle fir den Zougang."
+  },
+  "arrivals.personalIntro": {
+    "fr": "Vos copies indépendantes, conservées pendant leur durée propre.",
+    "en": "Your independent copies, kept for their own retention period.",
+    "de": "Ihre unabhängigen Kopien mit eigener Aufbewahrungsdauer.",
+    "lb": "Är onofhängeg Kopie mat hirer eegener Späicherdauer."
+  },
+  "arrivals.search": {
+    "fr": "Rechercher",
+    "en": "Search",
+    "de": "Suchen",
+    "lb": "Sichen"
+  },
+  "arrivals.empty": {
+    "fr": "Aucun document à l’arrivée",
+    "en": "No documents have arrived",
+    "de": "Noch keine Dokumente angekommen",
+    "lb": "Nach keng Dokumenter ukomm"
+  },
+  "arrivals.noResults": {
+    "fr": "Essayez une autre recherche.",
+    "en": "Try another search.",
+    "de": "Versuchen Sie eine andere Suche.",
+    "lb": "Probéiert eng aner Sich."
+  },
+  "arrivals.emptyBody": {
+    "fr": "Les documents accessibles avec votre compte apparaîtront ici.",
+    "en": "Documents accessible to your account will appear here.",
+    "de": "Dokumente, auf die Ihr Konto zugreifen darf, erscheinen hier.",
+    "lb": "Dokumenter, op déi Äre Kont zougräife kann, erschéngen hei."
+  },
+  "arrivals.until": {
+    "fr": "Jusqu’au {date}",
+    "en": "Until {date}",
+    "de": "Bis {date}",
+    "lb": "Bis den {date}"
+  },
+  "error.INVALID_DOCUMENT_CONTENT": {
+    "fr": "Le contenu reçu n’est pas un document valide. Réessayez ou contactez le support.",
+    "en": "The response is not valid document content. Retry or contact support.",
+    "de": "Die Antwort enthält kein gültiges Dokument. Versuchen Sie es erneut oder kontaktieren Sie den Support.",
+    "lb": "D’Äntwert enthält kee valabelt Dokument. Probéiert nach eng Kéier oder kontaktéiert de Support."
+  }
+}

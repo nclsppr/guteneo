@@ -117,6 +117,13 @@ test("the matrix retains every project on three isolated shards and each small s
     ["desktop", "iphone"],
   );
   assert.equal(plans.filter((plan) => plan.suite === "status").length, 1);
+  assert.deepEqual(
+    plans
+      .filter((plan) => plan.suite === "experience")
+      .map((plan) => plan.project)
+      .sort(),
+    ["desktop-chromium", "mobile-chromium"],
+  );
   assert.equal(
     rows.find((row) => row.project === "iphone-webkit").browsers,
     "chromium webkit",
@@ -127,7 +134,7 @@ test("complete browser evidence matches independently discovered IDs across conf
   const { inventories, rows } = fixture();
   const result = requireBrowserResults(inventories, rows, identity);
   assert.equal(result.rows, 9);
-  assert.equal(result.suites, 8);
+  assert.equal(result.suites, 10);
   assert.equal(result.declaredSkipped, 24);
   assert.equal(result.discovered, result.passed + result.declaredSkipped);
 });
@@ -151,6 +158,7 @@ test("a green aggregate cannot hide a missing, duplicate or foreign browser shar
     ({ rows }) => (rows[0].runId = "124"),
     ({ rows }) => (rows[0].runAttempt = "2"),
     ({ rows }) => delete rows[0].reports.preview,
+    ({ rows }) => delete rows[0].reports.experience,
     ({ rows }) => (rows[0].reports.unexpected = rows[0].reports.application),
     ({ rows }) => (rows[0].reports.application.config.shard.current = 2),
   ]) {
@@ -213,7 +221,9 @@ const sidebarGeometrySkips = [
   reason: "Desktop sidebar geometry; phones use the collapsed navigation.",
 }));
 const sidebarFixtureSkips = [
-  ...declaredBrowserSkips.filter((skip) => skip.file !== "studio-space.spec.ts"),
+  ...declaredBrowserSkips.filter(
+    (skip) => skip.file !== "studio-space.spec.ts",
+  ),
   ...sidebarGeometrySkips,
 ];
 
@@ -239,7 +249,9 @@ test("sidebar geometry exceptions do not waive another title, file, reason, proj
         const entry = value.rows
           .filter((row) => row.project === project)
           .flatMap((row) => row.reports.application.suites[0].specs)
-          .find((entry) => entry.file === skip.file && entry.title === skip.title);
+          .find(
+            (entry) => entry.file === skip.file && entry.title === skip.title,
+          );
         assert.ok(entry);
         mutate(entry);
         assert.throws(() =>
@@ -342,11 +354,18 @@ test("workflow uses the same generated matrix, unique evidence and independent d
   );
   assert.match(source, /reports\/mcp-ui-probe\//);
   assert.match(source, /reports\/mcp-document-upload\//);
+  assert.match(
+    source,
+    /--config playwright\.experience\.config\.ts --project=/,
+  );
+  assert.match(source, /\/experience\.json/);
   for (const path of [
     "tests/e2e",
     "tests/preview-e2e",
     "tests/belvedere-e2e",
     "tests/status-e2e",
+    "tests/experience-e2e",
+    "apps/experience",
     "tests/fixtures",
     "apps/web/src",
     "apps/api/src",

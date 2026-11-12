@@ -1,0 +1,83 @@
+name: Publish reviewed Gare manually
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_commit:
+        description: Exact current main commit already published on guteneo.com
+        type: string
+        required: true
+      ci_run_id:
+        description: Successful Guteneo checks push run for that exact main commit
+        type: string
+        required: true
+      ci_run_attempt:
+        description: Current successful attempt of that checks run
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+# Serialize with the application publisher so the trusted backend cannot be
+# replaced by another repository release during this static publication.
+concurrency:
+  group: guteneo-production-application
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      WRANGLER_SEND_METRICS: "false"
+      CI: "true"
+    steps:
+      - name: Set the release evidence location
+        run: echo "MANUAL_RELEASE_EVIDENCE_DIR=$RUNNER_TEMP/manual-experience-release" >> "$GITHUB_ENV"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - name: Require the existing application release credential
+        env:
+          APPLICATION_TOKEN: ${{ secrets.CLOUDFLARE_APP_RELEASE_API_TOKEN }}
+        run: |
+          test -n "$APPLICATION_TOKEN" || { echo 'EXPERIENCE_RELEASE_CREDENTIAL_REQUIRED: no credential creation or permission expansion is automatic.'; exit 1; }
+      - name: Require exact main, successful complete CI, tag and served backend
+        run: node scripts/ci/manual-experience-release.mjs qualify
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Install the qualified browser
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Recheck, test and publish the static station
+        shell: bash
+        run: |
+          set -o pipefail
+          node scripts/ci/manual-experience-release.mjs publish 2>&1 | tee "$MANUAL_RELEASE_EVIDENCE_DIR/release.log"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_APP_RELEASE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: "39ac9fada6cba44d9ecf09d467609e69"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: manual-experience-release-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/manual-experience-release/
+            dist/experience/release.json
+            reports/experience-playwright.json
+            test-results/experience/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Explain incomplete publication
+        if: failure()
+        run: |
+          echo 'Gare publication is unverified. Inspect the retained evidence and current served release before another operator-triggered attempt. A refused existing credential is not replaced or expanded. No backend migration, provider activation or communication is performed by this workflow.' >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,14 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "guteneo-gare",
+  "account_id": "39ac9fada6cba44d9ecf09d467609e69",
+  "compatibility_date": "2026-11-11",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [{ "pattern": "gare.guteneo.com", "custom_domain": true }],
+  "assets": {
+    "directory": "../../dist/experience",
+    "html_handling": "none",
+    "not_found_handling": "single-page-application",
+  },
+}

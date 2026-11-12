@@ -422,51 +422,13 @@
   display: none;
 }
 
-/* The whole row opens its item; other controls in the row stay reachable. */
+/* The whole row opens its item (see openRowFromPointer in data-table.tsx);
+   its text stays selectable. */
 .data-table__grid tbody tr:has(.row-link) {
-  position: relative;
+  cursor: pointer;
 }
 .data-table__grid tbody tr:has(.row-link):hover {
   background: var(--surface);
-}
-.data-table__cell-value .row-link::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-}
-.data-table__grid
-  tbody
-  tr:has(.row-link)
-  :is(button, select, input, summary, a):not(.row-link) {
-  position: relative;
-  z-index: 1;
-}
-
-/* A document row leads with its first page. */
-.data-table__cell-value:has(> .document-thumbnail) {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.document-thumbnail {
-  position: relative;
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 62px;
-  border: 1px solid var(--line);
-  background: var(--paper);
-  color: var(--muted);
-  overflow: hidden;
-}
-.document-thumbnail > img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top;
 }
 
 .dispatch-filter a {

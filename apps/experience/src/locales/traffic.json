@@ -1,0 +1,802 @@
+{
+  "traffic.discard": {
+    "fr": "Quitter ce brouillon et perdre les modifications non préparées ?",
+    "en": "Leave this draft and lose changes that have not been prepared?",
+    "de": "Diesen Entwurf verlassen und noch nicht vorbereitete Änderungen verlieren?",
+    "lb": "Dësen Entworf verloossen an nach net virbereet Ännerunge verléieren?"
+  },
+  "traffic.departures": {
+    "fr": "Départs",
+    "en": "Departures",
+    "de": "Abfahrten",
+    "lb": "Departen"
+  },
+  "traffic.departures.also": {
+    "fr": "Vos envois, en mouvement",
+    "en": "Your deliveries, in motion",
+    "de": "Ihre Sendungen, unterwegs",
+    "lb": "Är Sendungen, ënnerwee"
+  },
+  "traffic.counter": {
+    "fr": "Le guichet",
+    "en": "The counter",
+    "de": "Der Schalter",
+    "lb": "De Schalter"
+  },
+  "traffic.counter.also": {
+    "fr": "Préparer un envoi",
+    "en": "Prepare a delivery",
+    "de": "Eine Sendung vorbereiten",
+    "lb": "Eng Sendung virbereeden"
+  },
+  "traffic.new": {
+    "fr": "Nouvel envoi",
+    "en": "New delivery",
+    "de": "Neue Sendung",
+    "lb": "Nei Sendung"
+  },
+  "traffic.filter": {
+    "fr": "Filtrer les envois",
+    "en": "Filter deliveries",
+    "de": "Sendungen filtern",
+    "lb": "Sendunge filteren"
+  },
+  "traffic.group.all": {
+    "fr": "Tous les départs",
+    "en": "All departures",
+    "de": "Alle Abfahrten",
+    "lb": "All Departen"
+  },
+  "traffic.group.approval": {
+    "fr": "À approuver",
+    "en": "For approval",
+    "de": "Zur Freigabe",
+    "lb": "Fir d'Fräigab"
+  },
+  "traffic.group.in_progress": {
+    "fr": "En route",
+    "en": "On the way",
+    "de": "Unterwegs",
+    "lb": "Ënnerwee"
+  },
+  "traffic.group.attention": {
+    "fr": "À vérifier",
+    "en": "Needs attention",
+    "de": "Zu prüfen",
+    "lb": "Ze kontrolléieren"
+  },
+  "traffic.group.done": {
+    "fr": "Terminés",
+    "en": "Completed",
+    "de": "Abgeschlossen",
+    "lb": "Ofgeschloss"
+  },
+  "traffic.board": {
+    "fr": "Tableau des départs",
+    "en": "Departures board",
+    "de": "Abfahrtstafel",
+    "lb": "Departstafel"
+  },
+  "traffic.refresh": {
+    "fr": "Actualiser",
+    "en": "Refresh",
+    "de": "Aktualisieren",
+    "lb": "Aktualiséieren"
+  },
+  "traffic.loading": {
+    "fr": "Lecture du tableau…",
+    "en": "Loading the board…",
+    "de": "Tafel wird geladen…",
+    "lb": "D'Tafel gëtt gelueden…"
+  },
+  "traffic.time": {
+    "fr": "Heure",
+    "en": "Time",
+    "de": "Uhrzeit",
+    "lb": "Auerzäit"
+  },
+  "traffic.line": { "fr": "Ligne", "en": "Line", "de": "Linie", "lb": "Linn" },
+  "traffic.destination": {
+    "fr": "Destination",
+    "en": "Destination",
+    "de": "Ziel",
+    "lb": "Destinatioun"
+  },
+  "traffic.status": {
+    "fr": "Situation",
+    "en": "Status",
+    "de": "Status",
+    "lb": "Status"
+  },
+  "traffic.fare": {
+    "fr": "Prix de l'envoi",
+    "en": "Delivery price",
+    "de": "Versandpreis",
+    "lb": "Versandpräis"
+  },
+  "traffic.open": {
+    "fr": "Ouvrir l'envoi",
+    "en": "Open delivery",
+    "de": "Sendung öffnen",
+    "lb": "Sendung opmaachen"
+  },
+  "traffic.channel.email": {
+    "fr": "E-mail",
+    "en": "Email",
+    "de": "E-Mail",
+    "lb": "E-Mail"
+  },
+  "traffic.channel.fax": { "fr": "Fax", "en": "Fax", "de": "Fax", "lb": "Fax" },
+  "traffic.channel.postal": {
+    "fr": "Courrier",
+    "en": "Post",
+    "de": "Post",
+    "lb": "Post"
+  },
+  "traffic.unknownDestination": {
+    "fr": "Destination indisponible",
+    "en": "Destination unavailable",
+    "de": "Ziel nicht verfügbar",
+    "lb": "Destinatioun net verfügbar"
+  },
+  "traffic.simulation": {
+    "fr": "Simulation",
+    "en": "Simulation",
+    "de": "Simulation",
+    "lb": "Simulatioun"
+  },
+  "traffic.simulation.notice": {
+    "fr": "Simulation : aucun message ne sera envoyé à un destinataire réel.",
+    "en": "Simulation: no message will be sent to a real recipient.",
+    "de": "Simulation: Es wird keine Nachricht an einen echten Empfänger gesendet.",
+    "lb": "Simulatioun: Kee Message gëtt un e reellen Empfänger geschéckt."
+  },
+  "traffic.empty": {
+    "fr": "Le prochain départ sera le vôtre.",
+    "en": "The next departure is yours.",
+    "de": "Die nächste Abfahrt gehört Ihnen.",
+    "lb": "Den nächsten Depart ass Ären."
+  },
+  "traffic.empty.filtered": {
+    "fr": "Aucun envoi dans cette catégorie.",
+    "en": "No deliveries in this category.",
+    "de": "Keine Sendungen in dieser Kategorie.",
+    "lb": "Keng Sendung an dëser Kategorie."
+  },
+  "traffic.timezone": {
+    "fr": "Horaires en {zone}.",
+    "en": "Times shown in {zone}.",
+    "de": "Zeiten in {zone}.",
+    "lb": "Auerzäiten an {zone}."
+  },
+  "traffic.ticket": {
+    "fr": "Billet {reference}",
+    "en": "Ticket {reference}",
+    "de": "Fahrschein {reference}",
+    "lb": "Ticket {reference}"
+  },
+  "traffic.unknownOutcome": {
+    "fr": "L'issue de cet envoi est incertaine. Consultez son suivi avant toute action. Aucun nouvel envoi n'est déclenché automatiquement.",
+    "en": "The outcome of this delivery is uncertain. Check tracking before taking action. No new delivery is triggered automatically.",
+    "de": "Der Ausgang dieser Sendung ist unklar. Prüfen Sie die Verfolgung, bevor Sie handeln. Es wird keine neue Sendung automatisch ausgelöst.",
+    "lb": "Den Ausgang vun dëser Sendung ass onsécher. Kontrolléiert de Suivi, ier Dir handelt. Keng nei Sendung gëtt automatesch ausgeléist."
+  },
+  "traffic.ceiling": {
+    "fr": "Plafond de dépense",
+    "en": "Spending cap",
+    "de": "Kostenobergrenze",
+    "lb": "Käschtegrenz"
+  },
+  "traffic.created": {
+    "fr": "Préparé le",
+    "en": "Prepared on",
+    "de": "Vorbereitet am",
+    "lb": "Virbereet den"
+  },
+  "traffic.quoteExpiry": {
+    "fr": "Devis valable jusqu'au",
+    "en": "Quote valid until",
+    "de": "Angebot gültig bis",
+    "lb": "Devis gëlteg bis"
+  },
+  "traffic.exTax": {
+    "fr": "hors taxes",
+    "en": "excluding tax",
+    "de": "ohne Steuern",
+    "lb": "ouni Steieren"
+  },
+  "traffic.subject": {
+    "fr": "Objet",
+    "en": "Subject",
+    "de": "Betreff",
+    "lb": "Betreff"
+  },
+  "traffic.viewDocument": {
+    "fr": "Voir le document",
+    "en": "View document",
+    "de": "Dokument ansehen",
+    "lb": "Dokument kucken"
+  },
+  "traffic.reference": {
+    "fr": "Référence complète",
+    "en": "Full reference",
+    "de": "Vollständige Referenz",
+    "lb": "Voll Referenz"
+  },
+  "traffic.review.title": {
+    "fr": "Avant le départ",
+    "en": "Before departure",
+    "de": "Vor der Abfahrt",
+    "lb": "Virum Depart"
+  },
+  "traffic.review.description": {
+    "fr": "Vérifiez la version exacte, le destinataire et le prix dans la revue d'envoi Guteneo. L'approbation et la confirmation restent explicites.",
+    "en": "Check the exact version, recipient and price in Guteneo's delivery review. Approval and confirmation remain explicit.",
+    "de": "Prüfen Sie die genaue Version, den Empfänger und den Preis in der Guteneo-Versandprüfung. Freigabe und Bestätigung bleiben ausdrücklich.",
+    "lb": "Kontrolléiert déi genee Versioun, den Empfänger an de Präis an der Guteneo-Versandkontroll. Fräigab a Bestätegung bleiwen ausdrécklech."
+  },
+  "traffic.review.open": {
+    "fr": "Ouvrir la revue d'envoi",
+    "en": "Open delivery review",
+    "de": "Versandprüfung öffnen",
+    "lb": "Versandkontroll opmaachen"
+  },
+  "traffic.review.approver": {
+    "fr": "L'approbation nécessite un administrateur ou un superviseur autorisé.",
+    "en": "Approval requires an administrator or an authorized supervisor.",
+    "de": "Die Freigabe erfordert einen Administrator oder einen berechtigten Supervisor.",
+    "lb": "D'Fräigab erfuerdert en Administrateur oder en autoriséierte Supervisor."
+  },
+  "traffic.manage.title": {
+    "fr": "Votre envoi",
+    "en": "Your delivery",
+    "de": "Ihre Sendung",
+    "lb": "Är Sendung"
+  },
+  "traffic.manage.description": {
+    "fr": "Retrouvez les détails complets, les actions disponibles et les possibilités de récupération dans le suivi Guteneo.",
+    "en": "Find complete details, available actions and recovery options in Guteneo tracking.",
+    "de": "Alle Details, verfügbaren Aktionen und Wiederherstellungsoptionen finden Sie in der Guteneo-Verfolgung.",
+    "lb": "All Detailer, verfügbar Aktiounen an Erhuelungsoptioune fannt Dir am Guteneo-Suivi."
+  },
+  "traffic.manage.open": {
+    "fr": "Ouvrir le suivi complet",
+    "en": "Open full tracking",
+    "de": "Vollständige Verfolgung öffnen",
+    "lb": "De komplette Suivi opmaachen"
+  },
+  "traffic.scheduleHold": {
+    "fr": "Une programmation bloque l'envoi immédiat. Consultez-la avant de modifier son départ.",
+    "en": "A schedule holds immediate sending. Review it before changing the departure.",
+    "de": "Ein Zeitplan verhindert den sofortigen Versand. Prüfen Sie ihn vor einer Änderung.",
+    "lb": "Eng Planung blockéiert den direkte Versand. Kontrolléiert se, ier Dir den Depart ännert."
+  },
+  "traffic.timeline": {
+    "fr": "Carnet de voyage",
+    "en": "Journey log",
+    "de": "Reiseverlauf",
+    "lb": "Reesverlaf"
+  },
+  "traffic.noEvents": {
+    "fr": "Aucun événement enregistré pour le moment.",
+    "en": "No events recorded yet.",
+    "de": "Noch keine Ereignisse erfasst.",
+    "lb": "Nach keng Evenementer erfaasst."
+  },
+  "traffic.deliveryMeaning": {
+    "fr": "Un e-mail accepté par le serveur du destinataire n'est pas une preuve de lecture. Un courrier remis à la poste n'est pas une preuve de réception.",
+    "en": "An email accepted by the recipient's server is not proof of reading. A letter handed to the postal service is not proof of receipt.",
+    "de": "Die Annahme einer E-Mail durch den Empfängerserver ist kein Lesenachweis. Die Übergabe an die Post ist kein Zustellnachweis.",
+    "lb": "Eng E-Mail, déi den Empfängerserver ugeholl huet, ass kee Liesbeweis. Eng Iwwergab un d'Post ass keen Empfangsbeweis."
+  },
+  "traffic.noPermission": {
+    "fr": "Votre rôle ne permet pas de préparer des envois.",
+    "en": "Your role cannot prepare deliveries.",
+    "de": "Ihre Rolle darf keine Sendungen vorbereiten.",
+    "lb": "Är Roll däerf keng Sendunge virbereeden."
+  },
+  "traffic.delivery": {
+    "fr": "Type d'e-mail",
+    "en": "Email type",
+    "de": "E-Mail-Typ",
+    "lb": "E-Mail-Typ"
+  },
+  "traffic.delivery.message": {
+    "fr": "Message sans pièce jointe",
+    "en": "Message without attachment",
+    "de": "Nachricht ohne Anhang",
+    "lb": "Message ouni Unhang"
+  },
+  "traffic.delivery.attachment": {
+    "fr": "Message avec PDF en pièce jointe",
+    "en": "Message with PDF attachment",
+    "de": "Nachricht mit PDF-Anhang",
+    "lb": "Message mat PDF-Unhang"
+  },
+  "traffic.delivery.secure": {
+    "fr": "Remise sécurisée d'un document",
+    "en": "Secure document delivery",
+    "de": "Sichere Dokumentzustellung",
+    "lb": "Sécheren Dokumentversand"
+  },
+  "traffic.postal.kicker": {
+    "fr": "Ligne courrier",
+    "en": "Postal line",
+    "de": "Postlinie",
+    "lb": "Postlinn"
+  },
+  "traffic.postal.title": {
+    "fr": "Du PDF à la boîte aux lettres.",
+    "en": "From PDF to letterbox.",
+    "de": "Vom PDF zum Briefkasten.",
+    "lb": "Vum PDF an d'Bréifkëscht."
+  },
+  "traffic.postal.description": {
+    "fr": "Le guichet courrier Guteneo vérifie le PDF exact, la position de l'adresse, les options d'impression et le devis du pays choisi. Vous relisez avant tout transfert au prestataire.",
+    "en": "Guteneo's postal counter checks the exact PDF, address position, printing options and quote for the chosen country. You review before any provider transfer.",
+    "de": "Der Guteneo-Postschalter prüft das genaue PDF, die Adressposition, Druckoptionen und das Angebot für das gewählte Land. Sie prüfen vor jeder Übergabe an den Anbieter.",
+    "lb": "De Guteneo-Postschalter kontrolléiert de geneeë PDF, d'Adresspositioun, d'Dréckoptiounen an den Devis fir dat gewielte Land. Dir kontrolléiert virun all Iwwergab un de Prestataire."
+  },
+  "traffic.postal.open": {
+    "fr": "Continuer au guichet courrier",
+    "en": "Continue to the postal counter",
+    "de": "Zum Postschalter weiter",
+    "lb": "Weider bei de Postschalter"
+  },
+  "traffic.secure.kicker": {
+    "fr": "Ligne sécurisée",
+    "en": "Secure line",
+    "de": "Sichere Linie",
+    "lb": "Sécher Linn"
+  },
+  "traffic.secure.title": {
+    "fr": "Un document, entre les bonnes mains.",
+    "en": "A document, in the right hands.",
+    "de": "Ein Dokument in den richtigen Händen.",
+    "lb": "En Dokument an de richtegen Hänn."
+  },
+  "traffic.secure.description": {
+    "fr": "Choisissez les droits d'accès, la durée de conservation et le téléchargement dans le parcours sécurisé Guteneo. La revue du document et l'authentification requise restent intégrales.",
+    "en": "Choose access rights, retention and downloading in Guteneo's secure delivery flow. Full document review and required authentication are preserved.",
+    "de": "Wählen Sie Zugriffsrechte, Aufbewahrungsdauer und Downloads im sicheren Guteneo-Ablauf. Die vollständige Dokumentprüfung und erforderliche Authentifizierung bleiben erhalten.",
+    "lb": "Wielt Zougrëffsrechter, Späicherdauer an Download am séchere Guteneo-Parcours. Déi voll Dokumentkontroll an déi néideg Authentifikatioun bleiwen erhalen."
+  },
+  "traffic.secure.open": {
+    "fr": "Préparer la remise sécurisée",
+    "en": "Prepare secure delivery",
+    "de": "Sichere Zustellung vorbereiten",
+    "lb": "De séchere Versand virbereeden"
+  },
+  "traffic.specialist.return": {
+    "fr": "Vous continuez dans Correspondance. Aucun envoi n'est déclenché par ce lien.",
+    "en": "You continue in Correspondence. This link does not trigger a delivery.",
+    "de": "Sie fahren in Korrespondenz fort. Dieser Link löst keinen Versand aus.",
+    "lb": "Dir fuert an der Korrespondenz weider. Dëse Link léist kee Versand aus."
+  },
+  "traffic.prepare.title": {
+    "fr": "Votre correspondance",
+    "en": "Your correspondence",
+    "de": "Ihre Korrespondenz",
+    "lb": "Är Korrespondenz"
+  },
+  "traffic.step": {
+    "fr": "Étape {step}",
+    "en": "Step {step}",
+    "de": "Schritt {step}",
+    "lb": "Schrëtt {step}"
+  },
+  "traffic.capabilityUnavailable": {
+    "fr": "La disponibilité du service n'a pas pu être vérifiée. Actualisez avant de préparer l'envoi.",
+    "en": "Service availability could not be verified. Refresh before preparing a delivery.",
+    "de": "Die Dienstverfügbarkeit konnte nicht geprüft werden. Aktualisieren Sie vor der Vorbereitung.",
+    "lb": "D'Verfügbarkeet vum Service konnt net kontrolléiert ginn. Aktualiséiert virun der Virbereedung."
+  },
+  "traffic.channelUnavailable": {
+    "fr": "Cette ligne n'est pas disponible pour l'envoi réel sur ce compte.",
+    "en": "This line is unavailable for real delivery on this account.",
+    "de": "Diese Linie ist für echten Versand in diesem Konto nicht verfügbar.",
+    "lb": "Dës Linn ass fir reelle Versand op dësem Kont net verfügbar."
+  },
+  "traffic.sender": {
+    "fr": "Expéditeur",
+    "en": "Sender",
+    "de": "Absender",
+    "lb": "Ofsender"
+  },
+  "traffic.replyTo": {
+    "fr": "Adresse de réponse",
+    "en": "Reply address",
+    "de": "Antwortadresse",
+    "lb": "Äntwertadress"
+  },
+  "traffic.defaultSender": {
+    "fr": "Expéditeur de simulation",
+    "en": "Simulation sender",
+    "de": "Simulationsabsender",
+    "lb": "Simulatiounsofsender"
+  },
+  "traffic.noSender": {
+    "fr": "Aucun expéditeur vérifié pour cette ligne",
+    "en": "No verified sender for this line",
+    "de": "Kein verifizierter Absender für diese Linie",
+    "lb": "Kee verifizéierten Ofsender fir dës Linn"
+  },
+  "traffic.phone": {
+    "fr": "Numéro de fax",
+    "en": "Fax number",
+    "de": "Faxnummer",
+    "lb": "Faxnummer"
+  },
+  "traffic.email": {
+    "fr": "E-mail du destinataire",
+    "en": "Recipient email",
+    "de": "E-Mail des Empfängers",
+    "lb": "E-Mail vum Empfänger"
+  },
+  "traffic.phoneHint": {
+    "fr": "Format international : + et indicatif du pays, sans le zéro national. Les espaces, points et tirets sont retirés.",
+    "en": "International format: + and country code, without the national leading zero. Spaces, dots and dashes are removed.",
+    "de": "Internationales Format: + und Landesvorwahl ohne nationale führende Null. Leerzeichen, Punkte und Bindestriche werden entfernt.",
+    "lb": "Internationaalt Format: + a Landesvirwahl ouni déi national Null. Eidelzeechen, Punkten a Bindestrécher ginn ewechgeholl."
+  },
+  "traffic.document": {
+    "fr": "Document PDF vérifié",
+    "en": "Verified PDF document",
+    "de": "Geprüftes PDF-Dokument",
+    "lb": "Kontrolléiert PDF-Dokument"
+  },
+  "traffic.chooseDocument": {
+    "fr": "Choisir un document",
+    "en": "Choose a document",
+    "de": "Dokument auswählen",
+    "lb": "En Dokument auswielen"
+  },
+  "traffic.pages": {
+    "fr": "pages",
+    "en": "pages",
+    "de": "Seiten",
+    "lb": "Säiten"
+  },
+  "traffic.import": {
+    "fr": "Importer un PDF dans Documents",
+    "en": "Import a PDF in Documents",
+    "de": "PDF in Dokumente importieren",
+    "lb": "E PDF an Dokumenter importéieren"
+  },
+  "traffic.attachmentNotice": {
+    "fr": "Le PDF sera joint à l'e-mail. Son destinataire pourra le télécharger, le conserver et le transférer sans révocation possible.",
+    "en": "The PDF will be attached to the email. Its recipient can download, retain and forward it without possible revocation.",
+    "de": "Das PDF wird der E-Mail angehängt. Der Empfänger kann es herunterladen, behalten und weiterleiten; ein Widerruf ist nicht möglich.",
+    "lb": "De PDF gëtt un d'E-Mail ugehaangen. Den Empfänger kann en eroflueden, behalen a weiderginn; e Réckruff ass net méiglech."
+  },
+  "traffic.message": {
+    "fr": "Message",
+    "en": "Message",
+    "de": "Nachricht",
+    "lb": "Message"
+  },
+  "traffic.budget": {
+    "fr": "Plafond de dépense en EUR",
+    "en": "Spending cap in EUR",
+    "de": "Kostenobergrenze in EUR",
+    "lb": "Käschtegrenz an EUR"
+  },
+  "traffic.budgetHint": {
+    "fr": "Le devis réel sera affiché avant approbation. Ce montant est un plafond, pas un prix annoncé.",
+    "en": "The actual quote will be shown before approval. This amount is a cap, not an advertised price.",
+    "de": "Das tatsächliche Angebot wird vor der Freigabe angezeigt. Dieser Betrag ist eine Obergrenze, kein angegebener Preis.",
+    "lb": "De reellen Devis gëtt virun der Fräigab gewisen. Dëse Betrag ass eng Grenz, keen ugekënnegte Präis."
+  },
+  "traffic.prepare": {
+    "fr": "Préparer et voir le devis",
+    "en": "Prepare and view quote",
+    "de": "Vorbereiten und Angebot ansehen",
+    "lb": "Virbereeden an Devis kucken"
+  },
+  "traffic.preparing": {
+    "fr": "Préparation…",
+    "en": "Preparing…",
+    "de": "Wird vorbereitet…",
+    "lb": "Gëtt virbereet…"
+  },
+  "traffic.prepareOnly": {
+    "fr": "Cette étape prépare l'envoi. Vous vérifierez son contenu, son destinataire et son prix avant de l'approuver.",
+    "en": "This step prepares the delivery. You will check its content, recipient and price before approving it.",
+    "de": "Dieser Schritt bereitet die Sendung vor. Sie prüfen Inhalt, Empfänger und Preis vor der Freigabe.",
+    "lb": "Dëse Schrëtt preparéiert d'Sendung. Dir kontrolléiert den Inhalt, den Empfänger an de Präis virun der Fräigab."
+  },
+  "traffic.invalidBudget": {
+    "fr": "Indiquez un montant positif ou nul, avec deux décimales au maximum.",
+    "en": "Enter a non-negative amount with at most two decimal places.",
+    "de": "Geben Sie einen nicht negativen Betrag mit höchstens zwei Dezimalstellen ein.",
+    "lb": "Gitt e Betrag vun null oder méi mat maximal zwee Dezimalstellen an."
+  },
+  "traffic.invalidDocument": {
+    "fr": "Ce PDF doit être vérifié avant la préparation.",
+    "en": "This PDF must be verified before preparation.",
+    "de": "Dieses PDF muss vor der Vorbereitung geprüft werden.",
+    "lb": "Dëse PDF muss virun der Virbereedung kontrolléiert ginn."
+  },
+  "traffic.invalidPhone": {
+    "fr": "Utilisez le format international, par exemple +352 26 00 00 00.",
+    "en": "Use international format, for example +352 26 00 00 00.",
+    "de": "Verwenden Sie das internationale Format, zum Beispiel +352 26 00 00 00.",
+    "lb": "Benotzt dat internationaalt Format, zum Beispill +352 26 00 00 00."
+  },
+  "traffic.draftPreview": {
+    "fr": "Aperçu du brouillon",
+    "en": "Draft preview",
+    "de": "Entwurfsvorschau",
+    "lb": "Virschau vum Entworf"
+  },
+  "traffic.draft": {
+    "fr": "Brouillon",
+    "en": "Draft",
+    "de": "Entwurf",
+    "lb": "Entworf"
+  },
+  "traffic.from": {
+    "fr": "Au départ de",
+    "en": "Departing from",
+    "de": "Abfahrt von",
+    "lb": "Depart vu"
+  },
+  "traffic.destination.empty": {
+    "fr": "À vous de choisir.",
+    "en": "Your destination awaits.",
+    "de": "Sie wählen das Ziel.",
+    "lb": "Dir wielt d'Destinatioun."
+  },
+  "traffic.draftNotice": {
+    "fr": "Un brouillon ne vaut ni approbation ni envoi.",
+    "en": "A draft is neither approval nor delivery.",
+    "de": "Ein Entwurf ist weder Freigabe noch Versand.",
+    "lb": "En Entworf ass weder Fräigab nach Versand."
+  },
+  "traffic.review.native": {
+    "fr": "Bon pour départ",
+    "en": "Ready for departure",
+    "de": "Bereit zur Abfahrt",
+    "lb": "Prett fir den Depart"
+  },
+  "traffic.review.check": {
+    "fr": "Relisez le message exact, l'expéditeur, le destinataire et le prix affichés sur ce billet.",
+    "en": "Review the exact message, sender, recipient and price shown on this ticket.",
+    "de": "Prüfen Sie die genaue Nachricht, den Absender, Empfänger und Preis auf diesem Fahrschein.",
+    "lb": "Liest de geneeë Message, den Ofsender, den Empfänger an de Präis op dësem Ticket no."
+  },
+  "traffic.review.consent": {
+    "fr": "J'ai vérifié le contenu et le destinataire. J'approuve cette version au prix affiché de {price}, dans la limite de {ceiling}.",
+    "en": "I checked the content and recipient. I approve this version at the displayed price of {price}, within the {ceiling} cap.",
+    "de": "Ich habe Inhalt und Empfänger geprüft. Ich genehmige diese Version zum angezeigten Preis von {price}, innerhalb der Grenze von {ceiling}.",
+    "lb": "Ech hunn den Inhalt an den Empfänger kontrolléiert. Ech ginn dës Versioun zum ugewisene Präis vun {price} fräi, bannent der Grenz vun {ceiling}."
+  },
+  "traffic.review.attestation": {
+    "fr": "Je confirme que ce destinataire a demandé cet e-mail. Il ne s'agit pas de prospection commerciale.",
+    "en": "I confirm that this recipient requested this email. This is not marketing outreach.",
+    "de": "Ich bestätige, dass dieser Empfänger diese E-Mail angefordert hat. Dies ist keine Marketingansprache.",
+    "lb": "Ech bestätegen, datt dësen Empfänger dës E-Mail ugefrot huet. Et ass keng Reklamm."
+  },
+  "traffic.review.send": {
+    "fr": "Approuver et envoyer · {price}",
+    "en": "Approve and send · {price}",
+    "de": "Freigeben und senden · {price}",
+    "lb": "Fräiginn a schécken · {price}"
+  },
+  "traffic.review.simulate": {
+    "fr": "Approuver et simuler · {price}",
+    "en": "Approve and simulate · {price}",
+    "de": "Freigeben und simulieren · {price}",
+    "lb": "Fräiginn a simuléieren · {price}"
+  },
+  "traffic.review.sending": {
+    "fr": "Traitement en cours…",
+    "en": "Processing…",
+    "de": "Wird verarbeitet…",
+    "lb": "Gëtt verschafft…"
+  },
+  "traffic.review.interrupted": {
+    "fr": "La réponse peut avoir été interrompue. L'envoi peut déjà être accepté. Relisez son état avant toute nouvelle action.",
+    "en": "The response may have been interrupted. The delivery may already be accepted. Read its status before taking another action.",
+    "de": "Die Antwort wurde möglicherweise unterbrochen. Die Sendung kann bereits angenommen sein. Prüfen Sie ihren Status vor weiteren Aktionen.",
+    "lb": "D'Äntwert gouf eventuell ënnerbrach. D'Sendung ka schonn ugeholl sinn. Kontrolléiert hire Status virun enger neier Aktioun."
+  },
+  "traffic.review.checkStatus": {
+    "fr": "Vérifier l'état de cet envoi",
+    "en": "Check this delivery's status",
+    "de": "Status dieser Sendung prüfen",
+    "lb": "De Status vun dëser Sendung kontrolléieren"
+  },
+  "traffic.review.readFailed": {
+    "fr": "Le suivi de cet envoi n'a pas pu être confirmé. Actualisez avant de poursuivre.",
+    "en": "Tracking for this delivery could not be confirmed. Refresh before continuing.",
+    "de": "Die Verfolgung dieser Sendung konnte nicht bestätigt werden. Aktualisieren Sie vor dem Fortfahren.",
+    "lb": "De Suivi vun dëser Sendung konnt net bestätegt ginn. Aktualiséiert, ier Dir weiderfuert."
+  },
+  "traffic.review.layoutMoved": {
+    "fr": "La disposition a changé. Vérifiez le billet, puis recommencez votre action.",
+    "en": "The layout changed. Check the ticket, then repeat your action.",
+    "de": "Das Layout hat sich geändert. Prüfen Sie den Fahrschein und wiederholen Sie die Aktion.",
+    "lb": "D'Layout huet geännert. Kontrolléiert den Ticket a widderhuelt Är Aktioun."
+  },
+  "traffic.review.unavailable": {
+    "fr": "Le prix, sa validité ou les conditions d'envoi ne sont pas confirmés. Actualisez le billet avant de l'approuver.",
+    "en": "The price, its validity or delivery conditions are not confirmed. Refresh the ticket before approving it.",
+    "de": "Preis, Gültigkeit oder Versandbedingungen sind nicht bestätigt. Aktualisieren Sie den Fahrschein vor der Freigabe.",
+    "lb": "De Präis, seng Gültegkeet oder d'Versandbedéngunge sinn net bestätegt. Aktualiséiert den Ticket virun der Fräigab."
+  },
+  "traffic.review.rounding": {
+    "fr": "Les fractions de centime s'accumulent avec vos autres envois. L'usage total est arrondi au centime supérieur ; le plafond reste réservé jusqu'à l'issue connue.",
+    "en": "Fractions of a cent accumulate with your other deliveries. Total usage rounds up to the next cent; the cap stays reserved until the outcome is known.",
+    "de": "Cent-Bruchteile werden mit Ihren anderen Sendungen zusammengezählt. Die Gesamtnutzung wird auf den nächsten Cent aufgerundet; die Obergrenze bleibt bis zum bekannten Ergebnis reserviert.",
+    "lb": "Cent-Bruchteeler ginn mat Ären anere Sendungen zesummegezielt. De Gesamtverbrauch gëtt op den nächste Cent opgeronnt; d'Grenz bleift reservéiert bis d'Resultat bekannt ass."
+  },
+  "traffic.option.simplex": {
+    "fr": "Recto",
+    "en": "Single-sided",
+    "de": "Einseitig",
+    "lb": "Eensäiteg"
+  },
+  "traffic.option.duplex": {
+    "fr": "Recto verso",
+    "en": "Double-sided",
+    "de": "Doppelseitig",
+    "lb": "Bäidsäiteg"
+  },
+  "traffic.option.grayscale": {
+    "fr": "Noir et blanc",
+    "en": "Black and white",
+    "de": "Schwarz-Weiß",
+    "lb": "Schwaarz-wäiss"
+  },
+  "traffic.option.color": {
+    "fr": "Couleur",
+    "en": "Colour",
+    "de": "Farbe",
+    "lb": "Faarf"
+  },
+  "traffic.option.cheap": {
+    "fr": "Économique",
+    "en": "Economy",
+    "de": "Economy",
+    "lb": "Economy"
+  },
+  "traffic.option.fast": {
+    "fr": "Prioritaire",
+    "en": "Priority",
+    "de": "Priorität",
+    "lb": "Prioritéit"
+  },
+  "traffic.status.prepared": {
+    "fr": "À approuver",
+    "en": "For approval",
+    "de": "Zur Freigabe",
+    "lb": "Fir d'Fräigab"
+  },
+  "traffic.status.draft": {
+    "fr": "Brouillon",
+    "en": "Draft",
+    "de": "Entwurf",
+    "lb": "Entworf"
+  },
+  "traffic.status.approved": {
+    "fr": "Approuvé",
+    "en": "Approved",
+    "de": "Freigegeben",
+    "lb": "Fräiginn"
+  },
+  "traffic.status.queued": {
+    "fr": "En attente",
+    "en": "Queued",
+    "de": "In Warteschlange",
+    "lb": "An der Waardeschlaang"
+  },
+  "traffic.status.accepted": {
+    "fr": "Accepté",
+    "en": "Accepted",
+    "de": "Angenommen",
+    "lb": "Ugeholl"
+  },
+  "traffic.status.submitting": {
+    "fr": "Transmission",
+    "en": "Submitting",
+    "de": "Wird übermittelt",
+    "lb": "Gëtt iwwermëttelt"
+  },
+  "traffic.status.submitted": {
+    "fr": "Transmis",
+    "en": "Submitted",
+    "de": "Übermittelt",
+    "lb": "Iwwermëttelt"
+  },
+  "traffic.status.sending": {
+    "fr": "En cours d'envoi",
+    "en": "Sending",
+    "de": "Wird gesendet",
+    "lb": "Gëtt geschéckt"
+  },
+  "traffic.status.printed": {
+    "fr": "Imprimé",
+    "en": "Printed",
+    "de": "Gedruckt",
+    "lb": "Gedréckt"
+  },
+  "traffic.status.handed_to_post": {
+    "fr": "Remis à la poste",
+    "en": "Handed to post",
+    "de": "An Post übergeben",
+    "lb": "Un d'Post iwwerginn"
+  },
+  "traffic.status.delivered": {
+    "fr": "Livré",
+    "en": "Delivered",
+    "de": "Zugestellt",
+    "lb": "Zougestallt"
+  },
+  "traffic.status.delivered_email": {
+    "fr": "Accepté par le serveur",
+    "en": "Accepted by recipient server",
+    "de": "Vom Empfängerserver angenommen",
+    "lb": "Vum Empfängerserver ugeholl"
+  },
+  "traffic.status.delivered_fax": {
+    "fr": "Fax reçu",
+    "en": "Fax received",
+    "de": "Fax empfangen",
+    "lb": "Fax empfaangen"
+  },
+  "traffic.status.delivered_postal": {
+    "fr": "Livré",
+    "en": "Delivered",
+    "de": "Zugestellt",
+    "lb": "Zougestallt"
+  },
+  "traffic.status.cancelled": {
+    "fr": "Annulé",
+    "en": "Cancelled",
+    "de": "Storniert",
+    "lb": "Annuléiert"
+  },
+  "traffic.status.failed": {
+    "fr": "Échec",
+    "en": "Failed",
+    "de": "Fehlgeschlagen",
+    "lb": "Feelgeschloen"
+  },
+  "traffic.status.rejected": {
+    "fr": "Refusé",
+    "en": "Rejected",
+    "de": "Abgelehnt",
+    "lb": "Refuséiert"
+  },
+  "traffic.status.bounced": {
+    "fr": "Non remis",
+    "en": "Bounced",
+    "de": "Unzustellbar",
+    "lb": "Net zougestallt"
+  },
+  "traffic.status.complained": {
+    "fr": "Signalé",
+    "en": "Reported",
+    "de": "Gemeldet",
+    "lb": "Gemellt"
+  },
+  "traffic.status.submission_unknown": {
+    "fr": "Issue incertaine",
+    "en": "Outcome uncertain",
+    "de": "Ausgang unklar",
+    "lb": "Onsécher Resultat"
+  },
+  "traffic.status.reconciliation_required": {
+    "fr": "À réconcilier",
+    "en": "Needs reconciliation",
+    "de": "Abgleich erforderlich",
+    "lb": "Ofgläich néideg"
+  },
+  "traffic.status.scheduled": {
+    "fr": "Programmé",
+    "en": "Scheduled",
+    "de": "Geplant",
+    "lb": "Geplangt"
+  }
+}

@@ -464,3 +464,11 @@ Open a dispatch awaiting approval → read who can approve it → choose Ask for
 Open PDF checks with one Choose a PDF action in the price offer and no duplicate action in empty history → read bounded metadata history in parallel with pricing → page explicitly using a tenant keyset → open the current authorized document for the exact report. A processing or interrupted check is not a conformance verdict.
 
 **Failure and recovery:** Refuse assistant bearer calls, expired/revoked browser authority, invalid cursor/limit, inaccessible documents and exhausted HTTP budget. No content or recipient enters the metadata list; a history read never charges or invokes the validator.
+
+## J58: Enter the Gare experience and continue an exact reviewed dispatch
+
+**Actor:** Human browser user with current personal identity and optional workspace membership · **Branch:** Separate browser client with explicit canonical specialist continuations; no new assistant or native authority
+
+Open the static experience → sign in through the canonical application → return to a bounded internal Gare route → read current personal/workspace permissions → explicitly prepare an eligible fax or email → inspect the prepared record → use the bounded plain-text email review with explicit human attestations, or continue to named canonical specialist review, for exact content, recipient, options, price and human approval → return to tracking. Account/workspace replacement clears obsolete resources before the new authority appears.
+
+**Failure and recovery:** Unconfigured origins, missing CSRF, revoked membership, denied private reads and unavailable providers fail closed. No page entry approves or sends. Unknown writes require existing reconciliation; no inferred consent, automatic retry or claim of delivery. Synthetic browser proof is separate from production Auth0, CORS and provider evidence.

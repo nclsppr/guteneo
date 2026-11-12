@@ -225,6 +225,30 @@ production outcomes. The
 [manual publication contract](https://github.com/nclsppr/guteneo/blob/main/docs/MAIN_RELEASE.md#operator-triggered-application-publication)
 owns the precise sequence, maintenance and recovery obligations.
 
+### An explicitly authorized local operator
+
+When the separate CI D1 credential is unavailable, the reviewed
+[`operator-application-release.mjs`](https://github.com/nclsppr/guteneo/blob/main/scripts/operator-application-release.mjs)
+is a separate publication path. It requires an existing encrypted Wrangler OAuth
+profile for the single production account with the exact reviewed seven-scope
+subset, and the existing authenticated `gh` CLI. It neither exports credentials
+nor fabricates a workflow schema receipt. The
+[operator instructions](https://github.com/nclsppr/guteneo/blob/main/docs/MAIN_RELEASE.md#explicit-local-operator-publication-with-existing-oauth)
+own its invocation and recovery procedure.
+
+The same fresh main, complete canonical CI, version tag, local transport proof,
+hosted schema/ledger and constraint gates still apply. Global integrity and foreign
+keys must pass both before and after the two reviewed indexes. Each index and
+ledger INSERT uses the exact Wrangler SQL path used by its documented transactional
+migrations command; a runtime guard requires the exact reviewed Wrangler version
+(4.152.0), including the locally installed package used by the operator.
+An unknown response stops without retry. The operator refuses implicit environment
+files and endpoint/account/token overrides, retains private sanitized evidence,
+and requalifies immediately before publication and served-byte verification.
+Its exclusive local lock and active-workflow checks do not replace the operator's
+freeze on concurrent dispatches and main advancement. CI remains a prerequisite;
+an OAuth login alone is never a passing publication proof.
+
 ## Keep browser icons bound to their source
 
 `packages/contracts/src/brand-icons.json` defines the approved browser-icon
@@ -682,3 +706,70 @@ robots and origin check still runs under the same 30-second request deadline;
 the receipt records the selected count and deadline. This changes read
 parallelism, not qualification coverage or deployment permission. Inspect actual
 served state after a post-publication failure before attempting another release.
+
+## Separate static browser experience
+
+Gare is published as a static frontend independently of the canonical application
+Worker. Its asset deployment has no database, bucket, queue, provider or identity
+secret binding. The build fixes the canonical API origin and produces restrictive
+response headers; publication must bind the reviewed source revision to the
+verified artifact. The custom domain and TLS, static assets and backend origin
+activation are independent checks.
+
+The canonical backend grants credentialed CORS only to its exact configured
+same-site experience origin and eligible API routes. Existing host-only cookies,
+CSRF, current membership and human review remain authoritative. The Auth0 callback
+stays canonical and a bounded internal return bridge takes the browser back to
+Gare. Do not expand token scopes or weaken origin validation to compensate for a
+failed deployment.
+
+Run the dedicated synthetic browser suite separately from genuine Auth0 and
+provider qualification. Intercepted desktop/mobile API fixtures can prove locale,
+route and authority-transition presentation but cannot prove real cookie or CORS
+behavior. Retain source, test and served-byte evidence independently. When a
+publication outcome is unknown, inspect the actual deployment before retrying;
+removing the trusted experience-origin grant closes its API access while leaving
+canonical account access and already accepted dispatches unchanged. The
+[experience contract](https://github.com/nclsppr/guteneo/blob/main/docs/EXPERIENCE.md)
+records detailed activation, recovery and dated qualification boundaries.
+
+The existing Chromium desktop and mobile CI jobs each execute the Gare suite on
+their first shard, immediately after artifact restoration and cleanup, before
+the main application and preview suites. This exposes station startup failures
+early while preserving every required suite and the same evidence verifier.
+The browser evidence verifier independently discovers both
+project inventories and requires every result exactly once, without undeclared
+skips or retries. Its reports and failure traces remain synthetic artifacts.
+The build job verifies the static experience artifact; the existing Node security
+glob includes its deployment guard tests. A missing report fails the common
+required gate, including when another application suite passed. Browser policy
+changes select a complete CI run rather than reusing older proof.
+The portable release report derives its expected row and suite counts from the
+same browser plan, so adding a required suite cannot leave its old inventory
+count accepted by the report renderer.
+
+The 12 November local macOS attempt could not start Chromium because the host
+denied its Mach bootstrap registration. No browser assertion passed in that
+attempt. Use the unchanged Linux CI browser environment to obtain actual suite
+evidence before publication; do not remove the browser sandbox or turn a blocked
+attempt into a successful qualification.
+
+The manual Gare release workflow runs on Linux with the reviewed full main
+commit and its successful CI run/attempt as explicit inputs. Locked dependencies
+are installed before qualification, including for the existing manual canonical
+publisher: its qualification imports the TypeScript-backed release checks.
+Gare additionally requires a matching remote version tag and the same clean
+production source already served by the canonical backend. It rebuilds the
+static artifact, runs desktop/mobile fixtures against those production bytes
+through Vite preview, then repeats source, CI, tag and backend checks before
+Wrangler publication and served-byte verification.
+
+The existing `CLOUDFLARE_APP_RELEASE_API_TOKEN` is the only release credential;
+its permission to publish this new static Worker/domain must be observed, not
+assumed or expanded automatically. Both manual publishers share the canonical
+production concurrency group. No database migration or provider activation is
+part of the Gare workflow. Its retained run/attempt artifact separates
+qualification, publication started and served verification, with synthetic
+browser traces and the static manifest. Inspect a failed or uncertain result
+before another explicit publication; never treat an uploaded failure artifact
+as proof of deployment.

@@ -26,6 +26,8 @@
     "ENVIRONMENT": "local",
     "MODE": "simulation",
     "APP_ORIGIN": "http://localhost:8787",
+    // Local experience dev server; see docs/EXPERIENCE.md.
+    "EXPERIENCE_ORIGIN": "http://localhost:8850",
     "DOCUMENT_RENDERER_URL": "http://127.0.0.1:8788",
     "LIVE_SENDS_ENABLED": "false",
   },

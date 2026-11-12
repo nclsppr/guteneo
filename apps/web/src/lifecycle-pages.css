@@ -134,3 +134,9 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+/* A preparer asked for this dispatch to be approved. */
+.lifecycle-attention-list .approval-requested {
+  color: var(--blue-ink);
+  font-weight: 500;
+}

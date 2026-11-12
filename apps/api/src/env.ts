@@ -15,6 +15,8 @@ export interface Env {
   ENVIRONMENT: "local" | "staging" | "production";
   MODE: "simulation" | "production";
   APP_ORIGIN: string;
+  /** Exact origin of the separately hosted experience; unset keeps it off. */
+  EXPERIENCE_ORIGIN?: string;
   /** Server-owned, expiring MCP Apps diagnostic; absent by default. */
   MCP_UI_PROBE?: string;
   /** Default-off original-file App; bounded qualification or authorized rollout. */

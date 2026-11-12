@@ -1,8 +1,8 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**28 domains · 520 features · 57 journeys · 97 documented REST operations · 92 MCP tools**
-Updated 2026-11-10.
+**29 domains · 527 features · 58 journeys · 97 documented REST operations · 92 MCP tools**
+Updated 2026-11-12.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
 
@@ -18,7 +18,7 @@ mindmap
       Team and responsibilities (13)
       Workspace administration and reports (20)
     Create
-      Documents and protection (23)
+      Documents and protection (22)
       Template studio (16)
       Data and mappings (12)
       PDF generation and distribution (17)
@@ -47,6 +47,8 @@ mindmap
       Continuous reviewer preparation (6)
       Automatic fax tariff maintenance (13)
       Consumed provider freshness and preventive deadline actions (17)
+    Web
+      Gare browser experience (8)
 ```
 
 ### Access
@@ -57,7 +59,7 @@ mindmap
 
 ### Create
 
-- [Documents and protection](#documents) — 23 features; capability-gated.
+- [Documents and protection](#documents) — 22 features; capability-gated.
 - [Template studio](#templates) — 16 features; capability-gated.
 - [Data and mappings](#datasets) — 12 features; capability-gated.
 - [PDF generation and distribution](#generation) — 17 features; capability-gated.
@@ -94,6 +96,10 @@ mindmap
 - [Continuous reviewer preparation](#continuous-review) — 6 features; operator-gated.
 - [Automatic fax tariff maintenance](#fax-tariff-maintenance) — 13 features; operator-gated.
 - [Consumed provider freshness and preventive deadline actions](#provider-freshness) — 17 features; operator-gated.
+
+### Web
+
+- [Gare browser experience](#experience) — 8 features; browser-session.
 
 ## Availability and evidence
 
@@ -178,6 +184,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Read workspace PDF check metadata history | Current visible documents only | Current visible documents only | Current visible documents only | Current visible documents only | Browser only, with current membership/document visibility and live credential rechecking; existing document-scoped REST/MCP report reads keep their original authorization. No purchase or sending authority. |
 | Browse ordinary public Studio fixtures | Public read-only tab fixture; no account privilege | Public read-only tab fixture; no account privilege | Public read-only tab fixture; no account privilege | Public read-only tab fixture; no account privilege | No new REST/MCP/native tool or business authority; public synthetic metadata only, with no authenticated backend fallback |
 | Dispatch a reviewed manual application release | No authority from workspace role | No authority from workspace role | No authority from workspace role | No authority from workspace role | No business REST/MCP/native tool or expert mandate; distinct explicitly authorized repository/platform operator, exact complete CI/main/tag and separately authorized existing application/D1 credentials |
+| Use Gare to read and prepare within existing permissions | Read and prepare; canonical browser approval | Read and prepare; approval/reporting options remain independent | Read and prepare; no approval | Read permitted resources only | No Gare browser authority; existing scoped APIs unchanged |
 
 Supervisor approval/reporting options are independent and off by default. Resource ownership/context checks still apply. See [workspace roles](WORKSPACE_ROLES.md), [expert approval](EXPERT_APPROVAL.md) and [studio access](TEMPLATES_DATA_DISTRIBUTION.md).
 
@@ -259,7 +266,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Workspace roles grant no access to another person’s vault; a recipient gains no membership in the sender’s workspace
 - Future schedule approval is distinct from ordinary browser review and expert mandates: only browser administrators or independently authorized supervisor approvers grant it; preparers can draft and authorized owners can revoke, while assistants/native cannot approve
 - Saved destination data is limited to current preparers, and callback configuration/signing secrets to current browser administrators; an observer role or reporting permission alone grants neither contact export nor callback administration
-- Approval request: a member who can prepare asks the workspace's approvers to review a dispatch awaiting approval, from a human browser session only; one audit receipt per version (fingerprint), shown to approvers on the dispatch; it approves, reserves, sends and notifies nothing
+- Approval request: a member who can prepare asks the workspace's approvers to review a dispatch awaiting approval, from a human browser session only; one audit receipt per version (fingerprint), shown to approvers on the dispatch and flagged on its Overview attention item; it approves, reserves, sends and notifies nothing
 
 **Contract:** [WORKSPACE_ROLES.md](WORKSPACE_ROLES.md) · **Implementation:** [packages/contracts/src/roles.ts](../packages/contracts/src/roles.ts)
 
@@ -296,7 +303,6 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - MCP_DOCUMENT_UPLOAD_APP is off by default: strict existing-connection/revision JSON supports at most one hour of qualification, while explicit enabled mode supports a separately reviewed general production rollout after actual qualification and authorized delivery; both retain current writer/OAuth guards, observer denial and no browser fetch, Origin/network permission, new scope, approval, paid check, mandate or infrastructure
 - Bounded document-analysis reads and PDF canvas/text extraction overlap; both renderer tasks settle before completion or cleanup, with stale-response and sensitive-source fences retained
 - Typed private/MCP upload receipt and lease decisions preserve the same operation through uncertain results; final completion requires the exact nonpurged document in SQL, closing purge-between-read-and-write races
-- First-page thumbnail of a ready PDF in the documents list, read through the guarded viewer loader and drawn only once its row is on screen; nothing is kept after unmount
 
 **Contract:** [SCANNER_RESCAN.md](SCANNER_RESCAN.md) · **Implementation:** [apps/api/src/documents.ts](../apps/api/src/documents.ts)
 
@@ -951,7 +957,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="dashboard"></a>
 ### Workspace layout and browser appearance
 
-**Availability model:** browser-session. Current source uses the single V2 layout across five independently owned applications with zero import/design exceptions. The 9 November lifecycle candidate adds outcomes, full-dataset attention, navigation and bounded presentation presets, shared continuation/identity/navigation/poll/cache foundations, active-locale loading and three module splits. Exact-source tests, rendered accessibility, transfer and first-content evidence belong in LIFECYCLE_EXPERIENCE_EXECUTION.md and FRONTEND_PERFORMANCE.md; implementation alone establishes no hosted publication or physical-device qualification. The 10 November clarity candidate adds functional page titles, per-page browser titles, unknown-address recovery, a 12 px text floor with a four-step text scale, compact short tables, whole-row links, dispatch progress, file drop zones and on-demand first-page thumbnails; these presentation changes require exact-source test and publication evidence. The remaining B1 dirty-navigation source now uses localized exact-intent dialogs; B2 implements one explicit fixed UTC policy across the five browser apps without changing financial history or advertising an account timezone setter. Ordinary public Studio exposes a separately isolated read-only design fixture. These are implemented source contracts, not a claim of successful final CI, hosted publication or physical-device qualification.
+**Availability model:** browser-session. Current source uses the single V2 layout across five independently owned applications with zero import/design exceptions. The 9 November lifecycle candidate adds outcomes, full-dataset attention, navigation and bounded presentation presets, shared continuation/identity/navigation/poll/cache foundations, active-locale loading and three module splits. Exact-source tests, rendered accessibility, transfer and first-content evidence belong in LIFECYCLE_EXPERIENCE_EXECUTION.md and FRONTEND_PERFORMANCE.md; implementation alone establishes no hosted publication or physical-device qualification. The 10 November clarity candidate adds functional page titles, per-page browser titles, unknown-address recovery, a 12 px text floor with a four-step text scale, compact short tables, whole-row links, dispatch progress, file drop zones and withdrawn browser-drawn document thumbnails; these presentation changes require exact-source test and publication evidence. The remaining B1 dirty-navigation source now uses localized exact-intent dialogs; B2 implements one explicit fixed UTC policy across the five browser apps without changing financial history or advertising an account timezone setter. Ordinary public Studio exposes a separately isolated read-only design fixture. These are implemented source contracts, not a claim of successful final CI, hosted publication or physical-device qualification.
 
 **Surfaces:** Shared authenticated browser frame and application-owned lazy modules. Attention uses a new browser-only metadata read; outcomes, navigation commands and saved presentation presets grant no business authority. Native local drafts and backend contact/schedule/callback surfaces are documented separately.
 
@@ -1337,6 +1343,28 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - `POST /api/customer-webhooks/{id}/revoke`
 - `POST /api/customer-webhooks/{id}/rotate-secret`
 - `GET /api/customer-webhooks/{id}/deliveries`
+
+
+
+<a id="experience"></a>
+### Gare browser experience
+
+**Availability model:** browser-session. 12 November 2026 implementation continuation; current checks and hosted qualification are recorded in the experience contract. Canonical specialist continuations are explicit, and not every existing page is recreated.
+
+**Surfaces:** Separate browser client using existing REST browser sessions. No additional MCP, native, bearer scope, provider, mandate or human-approval authority.
+
+- Separately built first-party station interface with the original brand, day/night materials, decorative split-flap cells, optional synthesized sound and four lazy-loaded language catalogs
+- Exact configured same-site experience origin calls the canonical API with existing host-only browser cookies; CORS is restricted to API paths and never replaces CSRF, membership, document policy or human approval
+- Canonical Auth0 entry and bounded experience return bridge preserve the current sign-in callback, cookie host and internal destination without an arbitrary external redirect
+- Authority-keyed protected views discard previous account/workspace data and obsolete requests; denied private reads clear content while theme and language remain non-authoritative presentation preferences
+- Dispatch tracking and explicit fax/email preparation use existing APIs; narrowly eligible plain-text email review retains exact price/content, required human attestations and approval/confirmation gates, while specialist postal, secure, document and scheduled review continues through named canonical interfaces
+- Workspace PDF library/import/render, personal received-document access and named Studio, contacts, schedules, secure-distribution and administration destinations retain their existing roles and independent personal authority
+- Static-only deployment has no business bindings or development authentication; backend origin activation, served artifacts, real Auth0/browser behavior and provider delivery need distinct evidence
+- Dedicated desktop/mobile browser fixtures intercept every API request, refuse unexpected writes and qualify route entry, explicit synthetic actions, locale, role, identity replacement and accessibility without claiming a genuine account or delivery
+
+**Contract:** [EXPERIENCE.md](EXPERIENCE.md) · **Implementation:** [apps/experience/src/main.tsx](../apps/experience/src/main.tsx)
+
+**Tests:** [tests/unit/experience-origin.test.ts](../tests/unit/experience-origin.test.ts), [tests/experience-e2e/station.spec.ts](../tests/experience-e2e/station.spec.ts), [tests/experience-e2e/authority.spec.ts](../tests/experience-e2e/authority.spec.ts), [tests/experience-e2e/documents.spec.ts](../tests/experience-e2e/documents.spec.ts), [tests/experience-e2e/traffic.spec.ts](../tests/experience-e2e/traffic.spec.ts), [tests/security/experience-deploy.test.mjs](../tests/security/experience-deploy.test.mjs), [tests/experience-e2e/navigation.spec.ts](../tests/experience-e2e/navigation.spec.ts)
 
 
 
@@ -1911,6 +1939,16 @@ Open PDF checks with one Choose a PDF action in the price offer and no duplicate
 **Failure/recovery:** Refuse assistant bearer calls, expired/revoked browser authority, invalid cursor/limit, inaccessible documents and exhausted HTTP budget. No content or recipient enters the metadata list; a history read never charges or invokes the validator.
 
 [Detailed contract](PDF_VALIDATOR.md).
+
+### J58 · Enter the Gare experience and continue an exact reviewed dispatch
+
+**Actor:** Human browser user with current personal identity and optional workspace membership. **Branch:** Separate browser client with explicit canonical specialist continuations; no new assistant or native authority.
+
+Open the static experience → sign in through the canonical application → return to a bounded internal Gare route → read current personal/workspace permissions → explicitly prepare an eligible fax or email → inspect the prepared record → use the bounded plain-text email review with explicit human attestations, or continue to named canonical specialist review, for exact content, recipient, options, price and human approval → return to tracking. Account/workspace replacement clears obsolete resources before the new authority appears.
+
+**Failure/recovery:** Unconfigured origins, missing CSRF, revoked membership, denied private reads and unavailable providers fail closed. No page entry approves or sends. Unknown writes require existing reconciliation; no inferred consent, automatic retry or claim of delivery. Synthetic browser proof is separate from production Auth0, CORS and provider evidence.
+
+[Detailed contract](EXPERIENCE.md).
 
 ## Required maintenance
 

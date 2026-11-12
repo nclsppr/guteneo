@@ -173,7 +173,7 @@ application publication and a separate, already authorized
 `CLOUDFLARE_D1_MIGRATION_API_TOKEN` for the fixed production database. No secret
 value is an input or artifact. The documented application token has no D1
 permission. A missing/refused D1 credential fails before schema mutation or
-publication; there is no fallback to scanner credentials, personal OAuth,
+publication; this workflow has no fallback to scanner credentials, personal OAuth,
 operator-supplied proof or a wider token. Creating or expanding access remains a
 separate explicitly authorized operator action. A read-only D1 credential can
 qualify an already-current schema; a pending migration also needs the provider's
@@ -220,6 +220,51 @@ permissions, schema integrity or a deployed release. Run
 `node --test tests/security/manual-application-release.test.mjs` and the unchanged
 main-only/dependency-release guard suites; exact-source hosted CI and the actual
 manual run remain separate required evidence.
+
+### Explicit local operator publication with existing OAuth
+
+An authorized operator can separately run `scripts/operator-application-release.mjs`
+from clean exact `main` when the dedicated CI D1 credential is unavailable. This
+does not create a secret, widen access or make the workflow accept an external
+receipt. It requires the existing Wrangler consent for the single production
+account, renewed through the official login with exactly `account:read`,
+`user:read`, `workers_scripts:write`, `workers_routes:write`, `d1:write`,
+`zone:read` and `offline_access`. The profile must remain encrypted in the OS
+keyring, under an explicit `XDG_CONFIG_HOME`. No token is extracted or copied.
+
+```sh
+node scripts/operator-application-release.mjs --confirm-production \
+  --commit <full-main-sha> --ci-run-id <successful-main-run> --ci-run-attempt <attempt>
+```
+
+The operator uses the existing authenticated `gh` CLI to recheck the same canonical
+main/CI job inventory and exact published version tag. It refuses active production
+publishers, ambiguous inventories, implicit `.env`/`.env.local` files, alternative
+credentials, endpoints, environment/account overrides and wider OAuth grants.
+A local exclusive lock fences another instance. Keep remote dispatch and main
+advancement paused throughout: local and GitHub locks cannot atomically exclude
+each other.
+
+It reuses the reviewed two-index migration guard and complete local transport
+proof, checks hosted global integrity before any migration and again afterward,
+retains Time Travel bookmarks, and independently reads the exact schema, ledger,
+constraints and foreign keys. Resource refusal remains failure. Each index and
+its ledger row are one `wrangler d1 execute --command` operation. The atomicity
+contract comes from Cloudflare's documented
+[`d1 migrations apply` rollback guarantee](https://developers.cloudflare.com/d1/wrangler-commands/#d1-migrations-apply):
+the locked Wrangler 4.152.0 builds migration SQL plus its ledger INSERT and invokes
+the same `executeSql(command)` → `executeRemotely` → single `/query` SQL path.
+A runtime version guard refuses a different installed Wrangler version until its
+rollback path has been reviewed. The Worker `db.batch()` documentation alone is
+not the evidence for REST atomicity.
+
+There is no automatic retry after an unknown response and no imported schema
+receipt. One process retains its source-bound evidence in a private temporary
+directory, rechecks qualification immediately before the existing guarded live
+publisher, and verifies served release bytes. Inspect any in-flight record and
+the hosted ledger before deliberately rerunning. After a killed process, inspect
+the lock's PID and evidence before removing a stale local lock. This runner cannot
+relax integrity checks, publish from a feature branch or bypass CI.
 
 ## CI boundaries
 

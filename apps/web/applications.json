@@ -84,7 +84,6 @@
         "legal-links.tsx",
         "file-input.tsx",
         "pdf-viewer.tsx",
-        "pdf-thumbnail.tsx",
         "pdf-check-errors.ts",
         "pdf-check-offer.tsx",
         "pdf-check.css",

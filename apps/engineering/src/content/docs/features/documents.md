@@ -1,6 +1,6 @@
 ---
 title: "Documents and protection"
-description: "23 capabilities in the create branch of Guteneo."
+description: "22 capabilities in the create branch of Guteneo."
 sidebar:
   order: 3
 ---
@@ -40,7 +40,6 @@ Private App transport is published in 1.1.6 at source 147ada, with two actual Cl
 <li id="feature-b5349f7299ec">MCP_DOCUMENT_UPLOAD_APP is off by default: strict existing-connection/revision JSON supports at most one hour of qualification, while explicit enabled mode supports a separately reviewed general production rollout after actual qualification and authorized delivery; both retain current writer/OAuth guards, observer denial and no browser fetch, Origin/network permission, new scope, approval, paid check, mandate or infrastructure</li>
 <li id="feature-1821000f65b7">Bounded document-analysis reads and PDF canvas/text extraction overlap; both renderer tasks settle before completion or cleanup, with stale-response and sensitive-source fences retained</li>
 <li id="feature-d080c748c55a">Typed private/MCP upload receipt and lease decisions preserve the same operation through uncertain results; final completion requires the exact nonpurged document in SQL, closing purge-between-read-and-write races</li>
-<li id="feature-e29aca0124de">First-page thumbnail of a ready PDF in the documents list, read through the guarded viewer loader and drawn only once its row is on screen; nothing is kept after unmount</li>
 </ol>
 
 ## REST operations

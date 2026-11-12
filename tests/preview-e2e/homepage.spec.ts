@@ -494,12 +494,20 @@ for (const locale of ["fr", "en", "de", "lb"] as const) {
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth),
       ).toBeLessThanOrEqual(page.viewportSize()!.width);
-      const header = page.locator(".public-header");
-      for (const link of await header.getByRole("link").all()) {
-        if (!(await link.isVisible())) continue;
-        const bounds = await link.boundingBox();
-        expect(bounds!.x).toBeGreaterThanOrEqual(0);
-        expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(
+      // Measure every visible header link in one read: a link the header
+      // re-renders between two separate calls has no box to measure.
+      const linkBounds = await page
+        .locator(".public-header")
+        .evaluate((header) =>
+          [...header.querySelectorAll("a[href]")]
+            .map((link) => link.getBoundingClientRect())
+            .filter((box) => box.width > 0 && box.height > 0)
+            .map((box) => ({ left: box.left, right: box.right })),
+        );
+      expect(linkBounds.length).toBeGreaterThan(0);
+      for (const bounds of linkBounds) {
+        expect(bounds.left).toBeGreaterThanOrEqual(0);
+        expect(bounds.right).toBeLessThanOrEqual(
           page.viewportSize()!.width + 1,
         );
       }

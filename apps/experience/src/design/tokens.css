@@ -1,0 +1,98 @@
+/*
+ * One station, two lights. "Night" is the hall after dark; "day" is the same
+ * enamel signage in daylight. Departure boards and tickets keep their own
+ * material in both, exactly as a real board stays black at noon.
+ *
+ * The only cobalt on any screen is the guteneo stamp itself.
+ */
+:root {
+  --font-sign: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --font-text: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-led: "Doto", "IBM Plex Mono", ui-monospace, monospace;
+  --font-brand: "EB Garamond", Georgia, "Times New Roman", serif;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 72px;
+
+  --radius-plate: 3px;
+  --radius-panel: 8px;
+  --control: 48px;
+  --rail: 232px;
+  --measure: 68ch;
+
+  /* Materials that never change with the light. */
+  --board: #050506;
+  --board-bezel: #1d1f23;
+  --flap: #16171a;
+  --flap-lit: #1e2024;
+  --flap-ink: #f4f2e8;
+  --flap-seam: #000;
+  --paper: #f6f5ef;
+  --paper-shade: #eae8df;
+  --paper-ink: #181b22;
+  --paper-ink-2: #555861;
+  --paper-rule: #c9c6ba;
+  --signal: #ffd60a;
+  --on-signal: #15120a;
+  --led: #ffb400;
+  --led-dim: #3a2a08;
+  --ivory: #f6f5ef;
+  --brand-ink: #181b22;
+
+  --ease-press: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root,
+:root[data-theme="night"] {
+  color-scheme: dark;
+  --hall: #0d0e10;
+  --hall-raised: #15171a;
+  --hall-sunken: #08090a;
+  --hall-hover: #1c1f23;
+  --rule: #2b2e33;
+  --rule-strong: #454950;
+  --ink: #f6f5ef;
+  --ink-2: #cbcac3;
+  --ink-3: #96978f;
+  --wordmark: #f6f5ef;
+  --line-fax: #ff6a3d;
+  --line-email: #1fc8a9;
+  --line-postal: #b79bff;
+  --line-locker: #ff6fae;
+  --ok: #63d88a;
+  --warn: #ffd60a;
+  --danger: #ff5449;
+  --focus: #ffd60a;
+  --shadow-panel: 0 1px 0 rgb(255 255 255 / 4%) inset, 0 18px 40px rgb(0 0 0 / 45%);
+}
+
+:root[data-theme="day"] {
+  color-scheme: light;
+  --hall: #e8e6de;
+  --hall-raised: #f6f5ef;
+  --hall-sunken: #dbd9cf;
+  --hall-hover: #efede5;
+  --rule: #c9c6ba;
+  --rule-strong: #8f8c82;
+  --ink: #181b22;
+  --ink-2: #3c3f47;
+  --ink-3: #5c5f67;
+  --wordmark: #181b22;
+  --line-fax: #c9401a;
+  --line-email: #0b7f6b;
+  --line-postal: #5f3fcf;
+  --line-locker: #c2275f;
+  --ok: #18793f;
+  --warn: #8a6a00;
+  --danger: #c1271e;
+  --focus: #181b22;
+  --shadow-panel: 0 1px 0 rgb(255 255 255 / 70%) inset, 0 14px 30px rgb(40 36 20 / 14%);
+}
