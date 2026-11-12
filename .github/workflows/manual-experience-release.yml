@@ -4,9 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       source_commit:
-        description: Exact current main commit already published on guteneo.com
+        description: Exact current main commit to publish on Gare
         type: string
         required: true
+      backend_commit:
+        description: Optional exact served predecessor, only for a Gare-only change
+        type: string
+        required: false
       ci_run_id:
         description: Successful Guteneo checks push run for that exact main commit
         type: string

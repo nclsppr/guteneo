@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**29 domains · 527 features · 58 journeys · 97 documented REST operations · 92 MCP tools**
+**29 domains · 528 features · 58 journeys · 97 documented REST operations · 92 MCP tools**
 Updated 2026-11-12.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -48,7 +48,7 @@ mindmap
       Automatic fax tariff maintenance (13)
       Consumed provider freshness and preventive deadline actions (17)
     Web
-      Gare browser experience (8)
+      Gare browser experience (9)
 ```
 
 ### Access
@@ -99,7 +99,7 @@ mindmap
 
 ### Web
 
-- [Gare browser experience](#experience) — 8 features; browser-session.
+- [Gare browser experience](#experience) — 9 features; browser-session.
 
 ## Availability and evidence
 
@@ -1354,6 +1354,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 **Surfaces:** Separate browser client using existing REST browser sessions. No additional MCP, native, bearer scope, provider, mandate or human-approval authority.
 
 - Separately built first-party station interface with the original brand, day/night materials, decorative split-flap cells, optional synthesized sound and four lazy-loaded language catalogs
+- Station presentation over readable facts: split-flap departure boards with explicit table roles, sixteen-cell status wording backed by the exact product status as text, channel roundels, a ticket franked with the unaltered stamp and cancelled from a recorded provider acceptance, fingerprint bars, a journey line, the UTC station clock and a pausable announcement strip
 - Exact configured same-site experience origin calls the canonical API with existing host-only browser cookies; CORS is restricted to API paths and never replaces CSRF, membership, document policy or human approval
 - Canonical Auth0 entry and bounded experience return bridge preserve the current sign-in callback, cookie host and internal destination without an arbitrary external redirect
 - Authority-keyed protected views discard previous account/workspace data and obsolete requests; denied private reads clear content while theme and language remain non-authoritative presentation preferences
@@ -1364,7 +1365,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Contract:** [EXPERIENCE.md](EXPERIENCE.md) · **Implementation:** [apps/experience/src/main.tsx](../apps/experience/src/main.tsx)
 
-**Tests:** [tests/unit/experience-origin.test.ts](../tests/unit/experience-origin.test.ts), [tests/experience-e2e/station.spec.ts](../tests/experience-e2e/station.spec.ts), [tests/experience-e2e/authority.spec.ts](../tests/experience-e2e/authority.spec.ts), [tests/experience-e2e/documents.spec.ts](../tests/experience-e2e/documents.spec.ts), [tests/experience-e2e/traffic.spec.ts](../tests/experience-e2e/traffic.spec.ts), [tests/security/experience-deploy.test.mjs](../tests/security/experience-deploy.test.mjs), [tests/experience-e2e/navigation.spec.ts](../tests/experience-e2e/navigation.spec.ts)
+**Tests:** [tests/unit/experience-origin.test.ts](../tests/unit/experience-origin.test.ts), [tests/experience-e2e/station.spec.ts](../tests/experience-e2e/station.spec.ts), [tests/experience-e2e/authority.spec.ts](../tests/experience-e2e/authority.spec.ts), [tests/experience-e2e/documents.spec.ts](../tests/experience-e2e/documents.spec.ts), [tests/experience-e2e/traffic.spec.ts](../tests/experience-e2e/traffic.spec.ts), [tests/security/experience-deploy.test.mjs](../tests/security/experience-deploy.test.mjs), [tests/experience-e2e/navigation.spec.ts](../tests/experience-e2e/navigation.spec.ts), [tests/unit/experience-board.test.ts](../tests/unit/experience-board.test.ts), [tests/experience-e2e/signature.spec.ts](../tests/experience-e2e/signature.spec.ts)
 
 
 

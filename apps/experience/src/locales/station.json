@@ -1,0 +1,116 @@
+{
+  "station.clock": {
+    "fr": "Heure de gare {time} ({zone})",
+    "en": "Station time {time} ({zone})",
+    "de": "Bahnhofszeit {time} ({zone})",
+    "lb": "Garenzäit {time} ({zone})"
+  },
+  "station.announcements": {
+    "fr": "Annonces",
+    "en": "Announcements",
+    "de": "Durchsagen",
+    "lb": "Annoncen"
+  },
+  "station.led.pause": {
+    "fr": "Pause",
+    "en": "Pause",
+    "de": "Pause",
+    "lb": "Paus"
+  },
+  "station.led.resume": {
+    "fr": "Reprendre",
+    "en": "Resume",
+    "de": "Weiter",
+    "lb": "Weider"
+  },
+  "board.departures.languages": {
+    "fr": "Abfahrt · Departures · Depart",
+    "en": "Départs · Abfahrt · Depart",
+    "de": "Départs · Departures · Depart",
+    "lb": "Départs · Abfahrt · Departures"
+  },
+  "board.status.delivered_email": {
+    "fr": "Accepté serveur",
+    "en": "Server accepted",
+    "de": "Server-Annahme",
+    "lb": "Server-Unnam"
+  },
+  "board.status.queued": {
+    "fr": "En attente",
+    "en": "Queued",
+    "de": "Warteschlange",
+    "lb": "Waardeschlaang"
+  },
+  "board.status.submitting": {
+    "fr": "Transmission",
+    "en": "Submitting",
+    "de": "Übermittlung",
+    "lb": "Iwwermëttlung"
+  },
+  "board.status.handed_to_post": {
+    "fr": "Remis à la poste",
+    "en": "Handed to post",
+    "de": "Bei der Post",
+    "lb": "Bei der Post"
+  },
+  "board.status.submission_unknown": {
+    "fr": "Issue incertaine",
+    "en": "Outcome unknown",
+    "de": "Ausgang unklar",
+    "lb": "Onsécher"
+  },
+  "board.status.reconciliation_required": {
+    "fr": "À réconcilier",
+    "en": "Reconcile",
+    "de": "Abgleich nötig",
+    "lb": "Ofgläich néideg"
+  },
+  "welcome.latest": {
+    "fr": "Derniers départs",
+    "en": "Latest departures",
+    "de": "Letzte Abfahrten",
+    "lb": "Lescht Departen"
+  },
+  "led.approval.one": {
+    "fr": "{count} départ attend une approbation",
+    "en": "{count} departure awaits approval",
+    "de": "{count} Abfahrt wartet auf Freigabe",
+    "lb": "{count} Depart waart op d'Fräigab"
+  },
+  "led.approval.other": {
+    "fr": "{count} départs attendent une approbation",
+    "en": "{count} departures await approval",
+    "de": "{count} Abfahrten warten auf Freigabe",
+    "lb": "{count} Departe waarden op d'Fräigab"
+  },
+  "led.attention.one": {
+    "fr": "{count} départ demande votre attention",
+    "en": "{count} departure needs attention",
+    "de": "{count} Abfahrt braucht Ihre Aufmerksamkeit",
+    "lb": "{count} Depart brauch Är Opmierksamkeet"
+  },
+  "led.attention.other": {
+    "fr": "{count} départs demandent votre attention",
+    "en": "{count} departures need attention",
+    "de": "{count} Abfahrten brauchen Ihre Aufmerksamkeit",
+    "lb": "{count} Departe brauchen Är Opmierksamkeet"
+  },
+  "led.progress.one": {
+    "fr": "{count} départ en route",
+    "en": "{count} departure on the way",
+    "de": "{count} Abfahrt unterwegs",
+    "lb": "{count} Depart ënnerwee"
+  },
+  "led.progress.other": {
+    "fr": "{count} départs en route",
+    "en": "{count} departures on the way",
+    "de": "{count} Abfahrten unterwegs",
+    "lb": "{count} Departen ënnerwee"
+  },
+  "led.quiet": {
+    "fr": "Trafic normal sur toutes les lignes",
+    "en": "Normal service on all lines",
+    "de": "Normaler Betrieb auf allen Linien",
+    "lb": "Normale Betrib op alle Linnen"
+  }
+}

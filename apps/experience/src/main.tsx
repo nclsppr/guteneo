@@ -31,13 +31,22 @@ import {
   type SupportedLocale,
 } from "./i18n";
 import { SessionProvider, useSession, useReadySession } from "./session";
-import { useResource } from "./api/hooks";
-import type { Overview } from "./api/types";
+import { useResource, type Page } from "./api/hooks";
+import type { Dispatch, Overview } from "./api/types";
 import { API_ORIGIN, signInUrl } from "./config";
 import { Link, useRoute, type Route } from "./router";
 import { visibleSections, sectionOf, type Section } from "./sections";
 import { Brand } from "./components/brand";
 import { SplitFlap } from "./components/split-flap";
+import { boardText } from "./components/flap-engine";
+import { LedStrip, LineRoundel, StationClock } from "./components/station-kit";
+import {
+  boardStatus,
+  boardTone,
+  presentedStatus,
+  statusLabel,
+} from "./board-status";
+import { destinationLabel, formatTime } from "./format";
 import {
   Announcer,
   Dialog,
@@ -175,7 +184,8 @@ function Hall({ route }: { route: Route }) {
         <section className="hall-hero">
           <div className="hall-invitation">
             <p className="station-name">
-              gare<span> / guteneo</span>
+              <span className="visually-hidden">gare / guteneo</span>
+              <SplitFlap text="gare" cells={4} size="xl" />
             </p>
             <h1>{t("hall.title")}</h1>
             <p className="hall-copy">{t("hall.description")}</p>
@@ -190,7 +200,7 @@ function Hall({ route }: { route: Route }) {
           <div className="hall-board">
             <div className="hall-board-top">
               <span>{t("hall.board.title")}</span>
-              <ArrowUpRight size={34} weight="bold" />
+              <StationClock size="md" />
             </div>
             <div className="hall-board-labels">
               <span>{t("hall.board.track")}</span>
@@ -211,10 +221,10 @@ function Hall({ route }: { route: Route }) {
                 <ArrowUpRight className="hall-board-arrow" size={22} />
               </a>
             ))}
-            <div className="hall-board-bottom">
-              <span>{t("hall.board.bottom")}</span>
-              <span className="board-line" aria-hidden="true" />
-            </div>
+            <LedStrip
+              items={[t("hall.board.bottom"), t("hall.channels")]}
+              label={t("station.announcements")}
+            />
           </div>
         </section>
         <div className="hall-manifesto">
@@ -298,8 +308,21 @@ function StationNavigation({
 function Welcome() {
   const { workspace, personal } = useReadySession();
   const t = useT();
+  const { locale } = useI18n();
   const overview = useResource<Overview>(workspace ? "/overview" : null);
+  const latest = useResource<Page<Dispatch>>(
+    workspace ? "/dispatches?limit=4" : null,
+  );
   const items = visibleSections(workspace, personal);
+  const counts = overview.data?.dispatches;
+  const announcements = counts
+    ? [
+        counts.approval > 0 && t("led.approval", { count: counts.approval }),
+        counts.attention > 0 && t("led.attention", { count: counts.attention }),
+        counts.in_progress > 0 &&
+          t("led.progress", { count: counts.in_progress }),
+      ].filter((item): item is string => Boolean(item))
+    : [];
   return (
     <>
       <Sign title={t("welcome.title")} />
@@ -321,6 +344,65 @@ function Welcome() {
         </section>
       )}
       <ErrorNotice error={overview.error} retry={overview.refresh} />
+      {workspace && counts && (
+        <LedStrip
+          items={announcements.length ? announcements : [t("led.quiet")]}
+          label={t("station.announcements")}
+        />
+      )}
+      {workspace && latest.data && latest.data.items.length > 0 && (
+        <section className="board hall-latest" aria-label={t("welcome.latest")}>
+          <div className="board-head">
+            <p className="board-title">{t("welcome.latest")}</p>
+            <StationClock size="md" />
+          </div>
+          <ul>
+            {latest.data.items.map((dispatch, index) => {
+              const status = presentedStatus(dispatch);
+              const destination =
+                destinationLabel(dispatch) || t("traffic.unknownDestination");
+              return (
+                <li key={dispatch.id}>
+                  <Link href={`/departures/${encodeURIComponent(dispatch.id)}`}>
+                    <span className="visually-hidden">
+                      {formatTime(dispatch.created_at, locale)} ·{" "}
+                      {t(`traffic.channel.${dispatch.channel}`)} · {destination}{" "}
+                      · {statusLabel(status, t, dispatch.channel)}
+                    </span>
+                    <SplitFlap
+                      text={formatTime(dispatch.created_at, locale)}
+                      cells={5}
+                      delay={index * 70}
+                    />
+                    <LineRoundel line={dispatch.channel} />
+                    <SplitFlap
+                      className="hall-latest-destination"
+                      text={destination}
+                      cells={18}
+                      delay={index * 70 + 40}
+                    />
+                    {[...boardText(destination)].length > 18 && (
+                      <span
+                        className="hall-latest-full-destination"
+                        aria-hidden="true"
+                      >
+                        {destination}
+                      </span>
+                    )}
+                    <SplitFlap
+                      className="hall-latest-status"
+                      text={boardStatus(status, t, dispatch.channel)}
+                      cells={16}
+                      tone={boardTone(status)}
+                      delay={index * 70 + 80}
+                    />
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
       <div className="station-map">
         {items.map((section) => (
           <Link

@@ -1,6 +1,6 @@
 ---
 title: "Gare browser experience"
-description: "8 capabilities in the web branch of Guteneo."
+description: "9 capabilities in the web branch of Guteneo."
 sidebar:
   order: 29
 ---
@@ -19,6 +19,7 @@ sidebar:
 
 <ol>
 <li id="feature-715c3ddbd976">Separately built first-party station interface with the original brand, day/night materials, decorative split-flap cells, optional synthesized sound and four lazy-loaded language catalogs</li>
+<li id="feature-5097d66ddd50">Station presentation over readable facts: split-flap departure boards with explicit table roles, sixteen-cell status wording backed by the exact product status as text, channel roundels, a ticket franked with the unaltered stamp and cancelled from a recorded provider acceptance, fingerprint bars, a journey line, the UTC station clock and a pausable announcement strip</li>
 <li id="feature-52fd2cfa9582">Exact configured same-site experience origin calls the canonical API with existing host-only browser cookies; CORS is restricted to API paths and never replaces CSRF, membership, document policy or human approval</li>
 <li id="feature-2c633c0a6079">Canonical Auth0 entry and bounded experience return bridge preserve the current sign-in callback, cookie host and internal destination without an arbitrary external redirect</li>
 <li id="feature-9e1e28db9613">Authority-keyed protected views discard previous account/workspace data and obsolete requests; denied private reads clear content while theme and language remain non-authoritative presentation preferences</li>

@@ -1,0 +1,219 @@
+/* ───────────── Line roundels ───────────── */
+
+.roundel {
+  --roundel: 28px;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--roundel);
+  height: var(--roundel);
+  border-radius: 50%;
+  background: var(--ink-3);
+  color: #0b0c0e;
+  font-family: var(--font-sign);
+  font-weight: 700;
+  font-size: calc(var(--roundel) * 0.6);
+  line-height: 1;
+}
+
+.roundel.is-sm {
+  --roundel: 22px;
+}
+
+.roundel.is-lg {
+  --roundel: 44px;
+}
+
+.roundel.is-fax {
+  background: var(--line-fax);
+}
+
+.roundel.is-email {
+  background: var(--line-email);
+}
+
+.roundel.is-postal {
+  background: var(--line-postal);
+}
+
+.roundel.is-locker {
+  background: var(--line-locker);
+}
+
+:root[data-theme="day"] .roundel {
+  color: #fff;
+}
+
+/* On a board the lines keep their night colors: the board never changes. */
+.board .roundel.is-fax {
+  background: #ff6a3d;
+  color: #0b0c0e;
+}
+
+.board .roundel.is-email {
+  background: #1fc8a9;
+  color: #0b0c0e;
+}
+
+.board .roundel.is-postal {
+  background: #b79bff;
+  color: #0b0c0e;
+}
+
+.board .roundel.is-locker {
+  background: #ff6fae;
+  color: #0b0c0e;
+}
+
+/* ───────────── Station clock ───────────── */
+
+.station-clock {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* The colon of a flap clock is a narrow fixed cell. */
+.station-clock .flap:nth-child(3) {
+  width: calc(var(--flap-w) * 0.55);
+  background: transparent;
+  color: var(--signal);
+}
+
+.station-clock .flap:nth-child(3)::after {
+  display: none;
+}
+
+/* ───────────── LED strip ───────────── */
+
+.led-strip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 46px;
+  padding: 8px 14px;
+  border-radius: var(--radius-plate);
+  background:
+    radial-gradient(
+        circle at 1.5px 1.5px,
+        rgb(255 180 0 / 9%) 1px,
+        transparent 1.4px
+      )
+      0 0 / 4px 4px,
+    #0a0805;
+  box-shadow: inset 0 0 0 1px #241a06;
+  overflow: hidden;
+}
+
+.led-lamp,
+.led-dot {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--led);
+  box-shadow: 0 0 10px rgb(255 180 0 / 75%);
+}
+
+.led-lamp[data-cycling="true"],
+.led-dot {
+  animation: lamp 1.8s ease-in-out infinite;
+}
+
+.led-text {
+  flex: 1;
+  min-width: 0;
+  color: var(--led);
+  font-family: var(--font-led);
+  font-weight: 900;
+  font-size: 1.1875rem;
+  line-height: 1.25;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px rgb(255 180 0 / 45%);
+  overflow-wrap: anywhere;
+  animation: led-in 420ms var(--ease-out);
+}
+
+.led-pause {
+  flex: none;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: #b98a1a;
+  font-family: var(--font-sign);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.led-pause:hover,
+.led-pause:focus-visible {
+  color: var(--led);
+  outline-color: var(--led);
+}
+
+@keyframes lamp {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* The message rolls in; it is never hidden while the clock is paused. */
+@keyframes led-in {
+  from {
+    transform: translateY(8px);
+  }
+}
+
+/* ───────────── Ticket print: bars and cancellation ───────────── */
+
+.barcode {
+  display: block;
+  width: 100%;
+  height: 44px;
+  fill: var(--paper-ink);
+}
+
+.postmark {
+  width: 104px;
+  height: 104px;
+  fill: none;
+  stroke: var(--paper-ink);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  opacity: 0.82;
+  transform: rotate(-14deg);
+  animation: strike 420ms cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+
+.postmark text {
+  fill: var(--paper-ink);
+  stroke: none;
+  font-family: var(--font-sign);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.postmark-place {
+  font-size: 10.5px;
+}
+
+.postmark-date {
+  font-family: var(--font-data) !important;
+  font-size: 11px;
+  letter-spacing: 0 !important;
+}
+
+@keyframes strike {
+  0% {
+    transform: rotate(-26deg) scale(1.9);
+  }
+  100% {
+    transform: rotate(-14deg) scale(1);
+  }
+}

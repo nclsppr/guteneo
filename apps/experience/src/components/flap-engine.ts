@@ -103,6 +103,7 @@ export function flipCell(
   const stop = () => {
     cancelled = true;
     clearTimeout(timer);
+    clearTimeout(deadline);
     for (const animation of animations) animation.cancel();
     running.delete(cell);
   };
@@ -116,6 +117,7 @@ export function flipCell(
   const step = (index: number) => {
     if (cancelled) return;
     if (index >= path.length) {
+      clearTimeout(deadline);
       running.delete(cell);
       settle(to);
       return;
@@ -154,6 +156,13 @@ export function flipCell(
     };
   };
   const timer = setTimeout(() => step(0), options.delay ?? 0);
+  // A board must never stay on an intermediate glyph: if the animation clock
+  // is paused (a background tab, a throttled frame) the cell still lands on
+  // its real value shortly after it should have.
+  const deadline = setTimeout(
+    () => running.get(cell)?.cancel(),
+    (options.delay ?? 0) + path.length * stepMs + 900,
+  );
 }
 
 /** Stop any movement and show the final glyphs at once. */

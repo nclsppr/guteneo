@@ -48,19 +48,9 @@
   align-items: center;
   min-height: 510px;
 }
+/* The station's name is spelled on four giant flaps. */
 .station-name {
-  font: 700 32px/1 var(--font-sign);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  display: flex;
-  gap: 12px;
-  align-items: baseline;
-}
-.station-name span {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--ink-3);
-  text-transform: none;
+  margin-bottom: clamp(18px, 2.4vw, 30px);
 }
 .hall-invitation h1 {
   font: 700 clamp(52px, 5vw, 72px)/0.98 var(--font-sign);
@@ -504,5 +494,97 @@
   }
   .hall-header .brand-wordmark {
     font-size: 24px;
+  }
+}
+
+/* ───────────── Signature elements: flap name, clock, LED, latest board ───────────── */
+.station-name .flaps {
+  display: flex;
+}
+.hall-board-top .station-clock .plate {
+  background: var(--signal);
+  color: var(--on-signal);
+}
+.hall-board > .led-strip {
+  margin: 14px 18px 18px;
+}
+.platform > .led-strip {
+  margin-bottom: 28px;
+}
+.board {
+  border: 6px solid var(--board-bezel);
+  border-radius: 9px;
+  background: var(--board);
+  color: var(--flap-ink);
+  overflow: hidden;
+}
+.hall-latest {
+  container-type: inline-size;
+  margin-bottom: 44px;
+  box-shadow: 0 22px 50px rgb(0 0 0 / 30%);
+}
+.hall-latest .board-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 18px;
+  background: var(--signal);
+  color: var(--on-signal);
+}
+.hall-latest .board-title {
+  font: 700 clamp(1.25rem, 2.6cqw, 1.875rem) / 1 var(--font-sign);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.hall-latest .station-clock .plate {
+  background: var(--on-signal);
+  color: var(--signal);
+}
+.hall-latest .board-head .flaps {
+  --flap-h: 26px;
+}
+.hall-latest li + li {
+  border-top: 1px solid #17181b;
+}
+.hall-latest a {
+  /* 39 cells and one roundel share the row: the flap height follows it. */
+  --board-flap: clamp(14px, calc((100cqw - 150px) / 25), 30px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  text-decoration: none;
+}
+.hall-latest a:hover,
+.hall-latest a:focus-visible {
+  background: #0f1012;
+  outline-offset: -3px;
+}
+.hall-latest .flaps {
+  --flap-h: var(--board-flap);
+  --flap-gap: 2px;
+}
+.hall-latest-full-destination {
+  order: 1;
+  flex-basis: 100%;
+  color: var(--flap-ink);
+  overflow-wrap: anywhere;
+}
+.hall-latest a:has(.hall-latest-full-destination) {
+  flex-wrap: wrap;
+}
+.hall-latest-status {
+  margin-left: auto;
+}
+@container (max-width: 760px) {
+  .hall-latest a {
+    --board-flap: clamp(14px, calc((100cqw - 96px) / 15), 26px);
+    flex-wrap: wrap;
+  }
+  .hall-latest-status {
+    --flap-h: 15px !important;
+    margin-left: 0;
+    flex-basis: 100%;
   }
 }
