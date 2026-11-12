@@ -231,6 +231,9 @@ account, renewed through the official login with exactly `account:read`,
 `user:read`, `workers_scripts:write`, `workers_routes:write`, `d1:write`,
 `zone:read` and `offline_access`. The profile must remain encrypted in the OS
 keyring, under an explicit `XDG_CONFIG_HOME`. No token is extracted or copied.
+Because `gh` also follows `XDG_CONFIG_HOME`, set `GH_CONFIG_DIR` explicitly to its
+existing authenticated configuration directory when isolating the Wrangler
+profile. Preserve that configuration in place; do not export its credentials.
 
 ```sh
 node scripts/operator-application-release.mjs --confirm-production \
@@ -244,6 +247,13 @@ credentials, endpoints, environment/account overrides and wider OAuth grants.
 A local exclusive lock fences another instance. Keep remote dispatch and main
 advancement paused throughout: local and GitHub locks cannot atomically exclude
 each other.
+
+Source/CI qualification and the active-publisher inventory each use a fresh
+bounded reader with the existing 60-second deadline. Neither phase borrows time
+from the other, skips reads or accepts cached results. A timeout still stops
+before the next mutation. The 12 November 2026 local qualification exposed this
+boundary: sequential authenticated reads behind the session proxy exhausted a
+shared deadline even though each phase completed within its own budget.
 
 It reuses the reviewed two-index migration guard and complete local transport
 proof, checks hosted global integrity before any migration and again afterward,

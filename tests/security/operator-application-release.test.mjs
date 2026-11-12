@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
-import { fullValidationJobs } from "../../scripts/ci/validation-proof.mjs";
+import {
+  createValidationReader,
+  fullValidationJobs,
+} from "../../scripts/ci/validation-proof.mjs";
 import { migrationPlan } from "../../scripts/migrate-remote.mjs";
 import {
   createOperatorGithubReader,
@@ -328,6 +331,42 @@ test("operator retains source-bound proofs, checks integrity before and after, a
   assert.ok(
     f.evidence.some(({ value }) => value.status === "migration-in-flight"),
   );
+});
+test("slow valid qualification and publisher reads keep separate bounded deadlines", async () => {
+  for (const delays of [
+    { qualification: 8_000, inventory: 8_000, succeeds: true },
+    { qualification: 16_000, inventory: 8_000, succeeds: false },
+    { qualification: 8_000, inventory: 16_000, succeeds: false },
+  ]) {
+    const f = fixture();
+    const api = f.options.reader();
+    let clock = 0;
+    f.options.reader = () =>
+      createValidationReader({
+        clock: () => clock,
+        fetcher: async (url) => {
+          const path = url.slice(
+            "https://api.github.com/repos/nclsppr/guteneo/".length,
+          );
+          clock += path.startsWith("actions/runs?")
+            ? delays.inventory
+            : delays.qualification;
+          return new Response(JSON.stringify(await api(path)));
+        },
+      });
+    if (delays.succeeds) {
+      await releaseWithOperator(f.options);
+      assert.equal(f.writes.length, 2);
+      assert.equal(f.published(), 1);
+    } else {
+      await assert.rejects(
+        releaseWithOperator(f.options),
+        /VALIDATION_PROOF_API_DEADLINE_EXCEEDED/,
+      );
+      assert.equal(f.writes.length, 0);
+      assert.equal(f.published(), 0);
+    }
+  }
 });
 test("failed identity, CI, transport or pre-integrity prevents mutations and publication", async () => {
   for (const changes of [

@@ -235,6 +235,9 @@ subset, and the existing authenticated `gh` CLI. It neither exports credentials
 nor fabricates a workflow schema receipt. The
 [operator instructions](https://github.com/nclsppr/guteneo/blob/main/docs/MAIN_RELEASE.md#explicit-local-operator-publication-with-existing-oauth)
 own its invocation and recovery procedure.
+Keep `GH_CONFIG_DIR` pointed at the existing GitHub CLI configuration when a
+separate `XDG_CONFIG_HOME` isolates Wrangler; both tools otherwise follow that
+same environment variable.
 
 The same fresh main, complete canonical CI, version tag, local transport proof,
 hosted schema/ledger and constraint gates still apply. Global integrity and foreign
@@ -245,6 +248,10 @@ migrations command; a runtime guard requires the exact reviewed Wrangler version
 An unknown response stops without retry. The operator refuses implicit environment
 files and endpoint/account/token overrides, retains private sanitized evidence,
 and requalifies immediately before publication and served-byte verification.
+Source/CI qualification and active-publisher discovery retain separate fresh
+60-second read budgets, with the same required evidence and timeout refusal.
+This addresses the shared-budget exhaustion observed behind the local session
+proxy on 12 November 2026 without skipping checks or retrying mutations.
 Its exclusive local lock and active-workflow checks do not replace the operator's
 freeze on concurrent dispatches and main advancement. CI remains a prerequisite;
 an OAuth login alone is never a passing publication proof.

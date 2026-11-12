@@ -303,7 +303,8 @@ export async function releaseWithOperator({
     demand(source(root) === context.sourceCommit, "SOURCE_CHANGED");
     const api = reader();
     const proof = await qualifyManualRelease(context, api);
-    await requireNoActivePublishers(api);
+    // Each independent read phase retains its own bounded API deadline.
+    await requireNoActivePublishers(reader());
     const anchor = await tag(root, context.sourceCommit);
     const value = {
       ...proof,
