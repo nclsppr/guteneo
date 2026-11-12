@@ -245,6 +245,11 @@ keys must pass both before and after the two reviewed indexes. Each index and
 ledger INSERT uses the exact Wrangler SQL path used by its documented transactional
 migrations command; a runtime guard requires the exact reviewed Wrangler version
 (4.152.0), including the locally installed package used by the operator.
+The SQL is passed as one `--command=<SQL>` argument, preserving leading comments
+without letting the CLI parser interpret them as options. A read-only check on
+12 November 2026 reproduced the separate-argument refusal and verified the same
+commented query with the joined argument. That check qualifies argument parsing;
+migration and publication still require their own verified evidence.
 An unknown response stops without retry. The operator refuses implicit environment
 files and endpoint/account/token overrides, retains private sanitized evidence,
 and requalifies immediately before publication and served-byte verification.
