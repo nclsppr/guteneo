@@ -195,6 +195,7 @@ export function createWranglerD1Client({
           ),
         "D1_BATCH_INVALID",
       );
+    // Bind the value so leading SQL comments cannot be parsed as CLI options.
     // --command is a single query API batch. --file uses the separate import API.
     const args =
       operation === "bookmark"
@@ -205,8 +206,7 @@ export function createWranglerD1Client({
             "DB",
             "--remote",
             "--json",
-            "--command",
-            batch.map(({ sql }) => sql.trim().replace(/;?$/, ";")).join("\n"),
+            `--command=${batch.map(({ sql }) => sql.trim().replace(/;?$/, ";")).join("\n")}`,
           ];
     let value;
     try {

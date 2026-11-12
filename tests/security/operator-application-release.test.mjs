@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import test from "node:test";
-import { readFile } from "node:fs/promises";
+import { mkdtemp, readFile, realpath, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   createValidationReader,
   fullValidationJobs,
@@ -217,9 +221,11 @@ test("operator CLI D1 sends one atomic command batch, fixed config and no token 
   });
   await client("query", plan[80].batch);
   assert.equal(calls.length, 1);
-  assert.equal(
-    calls[0].args[calls[0].args.indexOf("--command") + 1],
-    plan[80].batch.map(({ sql }) => sql.trim().replace(/;?$/, ";")).join("\n"),
+  assert.deepEqual(
+    calls[0].args.filter((arg) => arg.startsWith("--command")),
+    [
+      `--command=${plan[80].batch.map(({ sql }) => sql.trim().replace(/;?$/, ";")).join("\n")}`,
+    ],
   );
   assert.deepEqual(calls[0].args.slice(-2), [
     "--config",
@@ -229,6 +235,60 @@ test("operator CLI D1 sends one atomic command batch, fixed config and no token 
   assert.ok(!calls[0].args.includes("--file"));
   assert.equal(await client("bookmark"), "bookmark-1");
   await assert.rejects(client("restore"), /OPERATION_INVALID/);
+});
+test("Wrangler parses the actual migration comment as SQL on a local read-only probe", async (t) => {
+  const directory = await realpath(
+    await mkdtemp(join(tmpdir(), "guteneo-operator-sql-argument-")),
+  );
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const config = join(directory, "wrangler.jsonc");
+  await writeFile(
+    config,
+    JSON.stringify({
+      name: "operator-sql-argument-proof",
+      compatibility_date: "2026-11-11",
+      d1_databases: [
+        {
+          binding: "DB",
+          database_name: "operator-sql-argument-proof",
+          database_id: "00000000-0000-0000-0000-000000000000",
+        },
+      ],
+    }),
+  );
+  const comment = plan[80].batch[0].sql.match(/^(?:--[^\n]*(?:\n|$))+/)?.[0];
+  assert.ok(comment?.startsWith("--"));
+  const client = createWranglerD1Client({
+    root: fileURLToPath(new URL("../../", import.meta.url)),
+    execute: (command, args) => {
+      assert.equal(args.filter((arg) => arg === "--remote").length, 1);
+      assert.deepEqual(args.slice(-2), ["--config", "wrangler.live.jsonc"]);
+      // Exercise the generated argv with real Wrangler, confined to a local
+      // disposable database and a SELECT. Never load production configuration.
+      const localArgs = args
+        .slice(0, -2)
+        .map((arg) => (arg === "--remote" ? "--local" : arg));
+      return execFileSync(
+        command,
+        [...localArgs, "--config", config, "--persist-to", join(directory, "state")],
+        {
+          cwd: directory,
+          encoding: "utf8",
+          stdio: ["ignore", "pipe", "pipe"],
+          timeout: 60_000,
+          env: {
+            ...process.env,
+            CI: "true",
+            XDG_CONFIG_HOME: join(directory, "config"),
+            WRANGLER_LOG_PATH: join(directory, "logs"),
+            WRANGLER_SEND_METRICS: "false",
+          },
+        },
+      );
+    },
+  });
+  const result = await client("query", [{ sql: `${comment}SELECT 1 AS proof;` }]);
+  assert.deepEqual(result[0].results, [{ proof: 1 }]);
 });
 test("implicit environment files, endpoint aliases and plaintext/log overrides fail closed", async () => {
   const absent = async () => {

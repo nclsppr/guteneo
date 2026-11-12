@@ -259,7 +259,11 @@ It reuses the reviewed two-index migration guard and complete local transport
 proof, checks hosted global integrity before any migration and again afterward,
 retains Time Travel bookmarks, and independently reads the exact schema, ledger,
 constraints and foreign keys. Resource refusal remains failure. Each index and
-its ledger row are one `wrangler d1 execute --command` operation. The atomicity
+its ledger row are one `wrangler d1 execute --command=<SQL>` operation. The SQL
+value is attached to `--command=` in a single argument, preserving leading SQL
+comments and the reviewed statements. Passing a separate value beginning with
+`--` lets Wrangler's argument parser mistake a SQL comment for CLI options.
+The atomicity
 contract comes from Cloudflare's documented
 [`d1 migrations apply` rollback guarantee](https://developers.cloudflare.com/d1/wrangler-commands/#d1-migrations-apply):
 the locked Wrangler 4.152.0 builds migration SQL plus its ledger INSERT and invokes
@@ -275,6 +279,18 @@ publisher, and verifies served release bytes. Inspect any in-flight record and
 the hosted ledger before deliberately rerunning. After a killed process, inspect
 the lock's PID and evidence before removing a stale local lock. This runner cannot
 relax integrity checks, publish from a feature branch or bypass CI.
+
+On 12 November 2026, the 1.2.6 operator stopped with
+`OPERATOR_RELEASE_D1_RESPONSE_UNKNOWN` while its evidence marked migration
+`0081_approval_request_lookup.sql` in flight. Subsequent read-only inspection of
+the primary confirmed an 80-entry ledger, neither reviewed index present
+and `quick_check=ok`; no application publication had started. A read-only
+reproduction with the reviewed Wrangler version rejected the separate-argument
+form before the API call, while `--command=<SQL>` accepted the same leading
+comment and returned the expected `SELECT 1` result. This qualifies argument
+transport only, not a completed migration or publication. A deliberate new
+operator session must still recheck the current remote state and every release
+gate; the failed attempt is not retried automatically.
 
 ## CI boundaries
 
