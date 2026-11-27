@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**29 domains · 528 features · 58 journeys · 97 documented REST operations · 92 MCP tools**
+**29 domains · 529 features · 58 journeys · 97 documented REST operations · 92 MCP tools**
 Updated 2026-11-12.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -45,7 +45,7 @@ mindmap
       Engineering documentation (13)
       Codex Cloud development (8)
       Continuous reviewer preparation (6)
-      Automatic fax tariff maintenance (13)
+      Automatic fax tariff maintenance (14)
       Consumed provider freshness and preventive deadline actions (17)
     Web
       Gare browser experience (9)
@@ -94,7 +94,7 @@ mindmap
 - [Engineering documentation](#engineering-docs) — 13 features; public.
 - [Codex Cloud development](#cloud-development) — 8 features; local-candidate.
 - [Continuous reviewer preparation](#continuous-review) — 6 features; operator-gated.
-- [Automatic fax tariff maintenance](#fax-tariff-maintenance) — 13 features; operator-gated.
+- [Automatic fax tariff maintenance](#fax-tariff-maintenance) — 14 features; operator-gated.
 - [Consumed provider freshness and preventive deadline actions](#provider-freshness) — 17 features; operator-gated.
 
 ### Web
@@ -164,7 +164,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | CI validation and identical-source promotion qualification | No product-role grant; separate repository authority | No product-role grant; separate repository authority | No product-role grant; separate repository authority | No product-role grant; separate repository authority | Product OAuth grants no GitHub/CI or publication authority; repository agents follow explicit review/merge/deploy authorization |
 | Install or revoke continuous reviewer reference access | No authority from workspace role | No authority from workspace role | No authority from workspace role | No authority from workspace role | No business REST/MCP authority; distinct explicitly authorized platform operator, exact restricted sole-member reviewer and immutable archived binding |
 | Prepare using continuous reviewer reference access | Only the exact restricted sole-member reviewer after operator setup | No authority from this role | No authority from this role | No | Current authenticated exact reviewer + preparation scope + ready synthetic original + active access and current no-send guards; never approval, provider execution or credit reservation |
-| Register automatic fax commercial-reference maintenance | No authority from workspace role | No authority from workspace role | No authority from workspace role | No authority from workspace role | No; distinct authorized platform operator registers an exact source/route once; bounded scheduler refreshes do not grant consent, route authority or sending rights |
+| Register automatic fax maintenance or extend the scoped pilot | No authority from workspace role | No authority from workspace role | No authority from workspace role | No authority from workspace role | No. The authorized platform operator registers the exact source and records any separately authorized pilot extension. The scheduler refreshes technical evidence within that deadline. |
 | Search, filter, sort and page authorized browser table rows | Only rows already visible under current page authority | Only rows already visible under current page authority and independent reporting options | Only rows already visible under current page authority | Only rows already visible under current page authority | No new REST/MCP/native tool or authority; browser controls never fetch inaccessible rows or grant approval, sending, paid operations or a mandate |
 | Use loopback fictional role/volume controls | No production authority; local fixture only | No production authority; local fixture only | No production authority; local fixture only | No production authority; local fixture only | No REST/MCP/native authority or real platform capability; DEV + preview + loopback only |
 | Configure provider freshness and inspect preventive actions | No authority from workspace role; distinct explicit platform authorization | No authority from workspace role | No authority from workspace role | No authority from workspace role | No ordinary business REST/MCP/native authority. An authenticated same-account operator service binding may read the bounded aggregate prevention report; separately authorized repository/operator workflows may qualify exact sources and prepare digest-bound registrations or native monitor plans. Production migration/runtime changes and operational-email gate, envelope and caps require explicit platform authority and current validation. No workspace role or expert mandate enables operational notifications, grants credentials, extends authority/consent or authorizes a customer send. |
@@ -1247,11 +1247,12 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="fax-tariff-maintenance"></a>
 ### Automatic fax tariff maintenance
 
-**Availability model:** operator-gated. Production 1.1.20 includes migration 0067 and the explicitly registered bounded local +3524 pilot. Actual server-key catalog discovery and its first genuine automatic refresh were observed; the distinct 1.1.25 FR/DE fourteen-route renewal group remains a local candidate requiring migration/runtime validation, explicit private registration and a genuine scheduled result. Actual delivery remains separately unqualified and no historical CSV fallback is allowed.
+**Availability model:** operator-gated. Production 1.1.28 ran the Luxembourg pilot refresh successfully before its original 3 November expiry. The France/Germany group has independent scheduled production renewal evidence. The June extension is a local candidate requiring compatible release, private operator activation and genuine scheduled renewal. Actual delivery has separate qualification.
 
 **Surfaces:** Authorized private operator CLI/service-binding qualification and registration, and existing scheduled backend maintenance; no public browser, REST or MCP registration authority.
 
-- The separate LU maintainer supports the existing local Luxembourg fixed +3524 operator-test route with canonical empty options and EUR2; refresh preserves its exact existing page limit up to ten pages and never extends its independent 3 November 2026 pilot deadline; continuous reviewer preparation remains capped at seven pages
+- The separate LU maintainer supports the existing local Luxembourg fixed +3524 operator-test route with canonical empty options and EUR2; refresh preserves its exact existing page limit up to ten pages and respects the independently authorized pilot deadline, including the scoped June 2027 extension after operator activation; continuous reviewer preparation remains capped at seven pages
+- Migration 0083 supports a separate immutable June authority for the existing +3524 registration, and schedules the next genuine refresh after reviewed operator activation
 - Explicit registration binds an exact tenant, sender, provider account/application/profile, destination prefix and options to an authorized global-conversational public commercial catalog
 - Daily authenticated current-catalog discovery plus bounded official fax-page, selected allowlisted CSV and dated ECB reads and current provider ownership inspection create new immutable revisions with at most 168-hour validity
 - Public commercial references do not claim negotiated supplier prices or a freshly observed provider UI association; original source and association dates retain their meaning
@@ -1773,9 +1774,9 @@ Inspect the existing archived review tariff, original authority and exact restri
 
 ### J41 · Maintain live fax references automatically
 
-**Actor:** Explicitly authorized platform operator for registration; scheduled backend for bounded refresh. **Branch:** Operations.
+**Actor:** Explicitly authorized platform operator for registration and scoped extension; scheduled backend for bounded refresh. **Branch:** Operations.
 
-Review the supported local Luxembourg fixed +3524 operator-test route, empty options, unchanged live page limit up to ten pages, EUR2 ceiling and independent pilot deadline → fully roll out the compatible reader and drain prior work before schema installation → qualify actual server-key catalog access through the bounded private service binding → register its exact global-conversational public commercial catalog binding once using private files → scheduler claims one due route → resolve the current CSV link with the fixed Telnyx API endpoint → reread genuine official source bytes and current provider ownership → validate route/FX and current registration → defer if a quote remains active → atomically insert a new immutable revision and retire only its exact predecessor → record coarse maintenance results.
+Review the supported local Luxembourg fixed +3524 operator-test route, empty options, unchanged live page limit up to ten pages, EUR2 ceiling and independent pilot deadline → fully roll out the compatible reader and drain prior work before schema installation → qualify actual server-key catalog access through the bounded private service binding → register its exact global-conversational public commercial catalog binding once using private files → for the expired existing +3524 pilot, verify migration 0083 and the deployed runtime before inserting the reviewed immutable tenant/source extension → scheduler claims one due route → resolve the current CSV link with the fixed Telnyx API endpoint → reread genuine official source bytes and current provider ownership → validate route/FX and current registration → defer if a quote remains active → atomically insert a new immutable revision and retire only its exact predecessor → record coarse maintenance results.
 
 **Failure/recovery:** Reject ambiguous/stale sources, identity drift, expired independent operator authority, lost leases and concurrent predecessor changes. Preserve historical quotes and source dates. Back off on failure; existing valid pricing may continue only under its original bounds, while expired pricing fails closed. No sending, mandate, consent or paid infrastructure is created.
 

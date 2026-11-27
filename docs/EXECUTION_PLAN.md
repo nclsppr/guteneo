@@ -1,5 +1,12 @@
 # Execution plan and handoff
 
+## Luxembourg pilot extension — 27 November 2026 candidate
+
+The operator requested extending the existing `+3524` test pilot. Migration
+0083 preserves the existing authority and allows a scoped extension ending at
+00:00 on 1 June 2027 in Paris. The [pilot contract](FAX_TARIFF_MAINTENANCE.md#june-2027-pilot-extension)
+owns the release order, private activation and verification of a genuine refresh.
+
 ## Claude frontend clarity continuation — 10 November 2026
 
 The recovered design branch is replayed on main `551ca4c8`. The [execution matrix](CLAUDE_PLAN_EXECUTION.md) reconciles every design, foundation and feature lot, including newer main implementations, approval-request migration 0081 and browser check-history migration 0082. Localized resumable dirty-navigation confirmations and the shared fixed-UTC display/filter/input contract are now implemented. Ordinary public Studio fixtures and focus-preserving library refresh are complete; exact-source hosted browser/D1 qualification remains required. Local implementation, offline proof, blocked browser/D1 qualification and separately authorized release remain distinct.

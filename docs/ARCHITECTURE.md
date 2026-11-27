@@ -168,6 +168,15 @@ read-only checks. Genuine scheduled renewal succeeded at 11:37:26.950 UTC on
 no blocked reason and technical validity through 1 December at that time. Source inspection, scheduling, alert recovery and message receipt
 remain distinct observations.
 
+## Luxembourg pilot extension through 1 June 2027
+
+Migration 0083 projects an immutable tenant-scoped extension for the existing
+Luxembourg fixed `+3524` tariff registration. The scheduled refresher and
+freshness collector use the effective authority. Each new revision still
+requires current provider and tariff evidence and expires within seven days.
+The [pilot maintenance contract](FAX_TARIFF_MAINTENANCE.md#june-2027-pilot-extension)
+owns activation and verification.
+
 ## Registered FR/DE fax-reference group — 1 November 2026 candidate
 
 Additive migration 0071 introduces immutable fourteen-anchor/four-exclusion sets,
