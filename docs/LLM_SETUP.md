@@ -44,8 +44,10 @@ old connection success does not prove expired-token renewal.
 ## Package and downloads
 
 `integrations/guteneo/` contains Agent Plugins, Claude/Cursor manifests, images
-and seven journeys: welcome, email, fax PDF, postal mail, document studio,
-PDF validation and secure distribution. Instructions are conditional; they add no tool/activate no
+and nine workflows covering onboarding, email, fax, postal mail, Document Studio,
+PDF diagnostics, secure distribution, saved recipients and scheduled dispatches.
+Hosts supporting the [MCP Skills extension](MCP_CLIENT_COMPATIBILITY.md#remote-workflow-skills)
+can discover them on the authenticated connection. Instructions are conditional; they add no tool/activate no
 channel. The remote package runs no code or hook on installation and grants no local disk access
 and contains no secret. The optional exact-file helper runs only with explicit
 host and file permission; inclusion grants no network authority.

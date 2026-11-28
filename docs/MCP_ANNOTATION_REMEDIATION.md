@@ -1,4 +1,32 @@
-# Guteneo 0.3.2 rejection remediation — 23 October 2026
+# Guteneo MCP tool annotation reviews
+
+## 28 November 2026 review of version 1.1.22
+
+The 13 November decision for 1.1.22 cited annotation consistency. A 4 November
+support reply on the earlier 0.3.2 case had named eight tools to examine and
+defined the hints by their effects. The later decision gave no individual
+boolean or tool name. See the [review history](CHATGPT_MARKETPLACE.md).
+The [current matrix](../integrations/chatgpt/tool-annotations.md) records the
+local candidate and traces each annotation to implementation evidence.
+
+- Authenticated Pingen profile reads, destination checks, provider draft uploads
+  and live postal quotes cross the first-party boundary. This includes postal
+  preflight and bulk preparation or resumption when postal entries qualify.
+  Fax-only preparation reads saved tariffs. Postal setup status reads saved
+  workspace settings. The postal requirements lookup already declared external
+  read access.
+- Dataset analysis and template suggestions transmit bounded inputs to the
+  OpenAI Responses API and reserve workspace AI usage. The returned proposals
+  require separate adoption.
+- Sender revalidation revokes expired pricing policies. Secure preparation
+  restricts an existing PDF's eligible readers and delivery routes. Address-page
+  derivation, postal preflight and ordinary dispatch preparation can permanently
+  prevent a first secure distribution from that source ID. Publishing a template
+  supersedes the default version for future jobs using the default. The matrix
+  identifies which tools can produce each effect.
+- The audit compares the candidate's discovered catalogue to the matrix. Its
+  discovery fixtures exercise no delivery or paid provider operation. A fresh
+  production scan is needed to identify the descriptor snapshot a reviewer sees.
 
 ## Dated status — 23 October 2026
 

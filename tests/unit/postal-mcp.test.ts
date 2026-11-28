@@ -271,9 +271,9 @@ describe("postal tools over MCP transport", () => {
           ]);
           expect(listed?.annotations).toMatchObject({
             readOnlyHint: readOnly,
-            destructiveHint: false,
+            destructiveHint: !readOnly,
             idempotentHint: readOnly,
-            openWorldHint: false,
+            openWorldHint: !readOnly,
           });
           const response = await client.callTool({ name, arguments: args });
           expect(response.structuredContent).toMatchObject({

@@ -204,8 +204,7 @@ describe("secure distribution through the shared MCP transport", () => {
         expect(tool.annotations).toMatchObject({
           readOnlyHint: /^(get|list)_/.test(name),
           idempotentHint: /^(get|list)_/.test(name),
-          destructiveHint:
-            name.startsWith("confirm") || name.startsWith("revoke"),
+          destructiveHint: /^(prepare|confirm|revoke)_/.test(name),
           openWorldHint: name.startsWith("confirm"),
         });
       }

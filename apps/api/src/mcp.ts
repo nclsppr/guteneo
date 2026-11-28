@@ -1,6 +1,7 @@
 import { FAX_E164 } from "../../../packages/contracts/src/fax-number";
 import mcpDocumentUploadManifest from "../../../packages/contracts/src/mcp-document-upload-resource.json";
 import mcpUiProbeManifest from "../../../packages/contracts/src/mcp-ui-probe-resource.json";
+import { guteneoSkills } from "./mcp-skills";
 import { emailPreparationDescriptions } from "./email-preparation-contract";
 import { SavedRecipientService } from "./saved-recipients";
 import { DispatchScheduleService } from "./dispatch-schedules";
@@ -1000,6 +1001,7 @@ export function createGuteneoMcpServer(
     },
     { maxToolInputElements: MCP_LIMITS.toolInputElements },
   );
+  guteneoSkills.attach(server);
   function registerTool<Input extends z.ZodType, Output extends z.ZodType>(
     name: string,
     config: {
@@ -1246,12 +1248,12 @@ export function createGuteneoMcpServer(
       {
         title: "Prepare a secure distribution",
         description:
-          'Prepares a PDF invitation that opens My documents after sign-in or account creation. The default recipient binding requires the matching verified email and current document-policy authentication, without a separate document password or manual workspace confirmation. recipientBinding=independent retains separate workspace confirmation. Omitted subject/message use localized defaults naming the authenticated workspace. Without html, Guteneo uses its V2 template; custom html supports safe inline styles and an exact href="{{document_url}}" marker. Private invitation URLs are excluded from the response. Returns preparing during asynchronous rendering, then a quote per PDF, recipient and retention term. Preparation grants no approval and sends nothing. Activation creates a non-refundable retention commitment. Original download and personal retention have separate permissions. approvalUrl identifies the required human browser review; expert delegation cannot replace that approval. Workspace authority grants no access to the recipient’s personal area and establishes no physical identity.',
+          'Prepares a PDF invitation that opens My documents after sign-in or account creation. The default recipient binding requires the matching verified email and current document-policy authentication, without a separate document password or manual workspace confirmation. recipientBinding=independent retains separate workspace confirmation. Omitted subject/message use localized defaults naming the authenticated workspace. Without html, Guteneo uses its V2 template; custom html supports safe inline styles and an exact href="{{document_url}}" marker. Private invitation URLs are excluded from the response. Returns preparing during asynchronous rendering, then a quote per PDF, recipient and retention term. Preparing immediately restricts the source PDF to its creator and current approvers and permanently blocks its use for legacy delivery, including after revocation. Activation creates a non-refundable retention commitment. Original download and personal retention have separate permissions. approvalUrl identifies the required human browser review; expert delegation cannot replace that approval. Workspace authority grants no access to the recipient’s personal area and establishes no physical identity.',
         inputSchema: secureDistributionInputSchema.extend({
           idempotencyKey: key,
         }),
         outputSchema: output(secureDistributionSchema),
-        annotations: writeAnnotations,
+        annotations: { ...writeAnnotations, destructiveHint: true },
         _meta: oauthMetadata("dispatches:prepare"),
       },
       ({ idempotencyKey, ...input }) =>
@@ -1390,10 +1392,14 @@ export function createGuteneoMcpServer(
         {
           title: "Configure my postal sender",
           description:
-            "Registers an explicitly supplied sender name and complete postal address under current OAuth administrator authority, without requiring expert delegation. Records an OAuth submission rather than human consent or physical address verification. Initial setup activates the authorised postal channel and adds pricing policies. Existing senders cannot be replaced and suspensions cannot be reactivated. Explicit revalidation with the identical sender adds current pricing policies and closes only expired ones, leaving valid quotes intact. An identical replay preserves sender identity. Returns sender.id. Transfers no PDF, approves no dispatch, grants no mandate and changes no ceiling.",
+            "Registers an explicitly supplied sender name and complete postal address under current OAuth administrator authority, without requiring expert delegation. Records an OAuth submission rather than human consent or physical address verification. Initial setup activates the authorised postal channel and adds pricing policies. Reads the configured Pingen account. Explicit revalidation with the identical sender revokes expired pricing policies and creates their replacements. Existing senders and valid quotes are preserved. An identical replay preserves sender identity. Returns sender.id. Transfers no PDF, approves no dispatch, grants no mandate and changes no ceiling.",
           inputSchema: postalSenderSubmissionInput,
           outputSchema: output(postalSetupSchema),
-          annotations: writeAnnotations,
+          annotations: {
+            ...writeAnnotations,
+            destructiveHint: true,
+            openWorldHint: true,
+          },
           _meta: oauthMetadata("dispatches:prepare"),
         },
         (input) =>
@@ -1410,16 +1416,15 @@ export function createGuteneoMcpServer(
         {
           title: "Create a postal address page",
           description:
-            "Creates a separate postal PDF with an explicitly requested address page from a verified original, preserving the source. The entered recipient uses an available addressPosition or the account default. Simplex adds one page; duplex adds an address page and blank verso to preserve original page pairs. Added pages count in the final quote. The same idempotencyKey identifies the same generation after a lost response. The new PDF undergoes ordinary analysis and becomes eligible for postal preparation only when ready. Changed recipient, window position or print mode requires a distinct generation from the original. Transfers nothing to the printing provider and grants no approval or sending authority.",
+            "Creates a separate postal PDF with an explicitly requested address page. Keeps the original bytes and permanently excludes that source ID from a first secure distribution. The entered recipient uses an available addressPosition or the account default. Simplex adds one page; duplex adds an address page and blank verso to preserve original page pairs. Added pages count in the final quote. The same idempotencyKey identifies the same generation after a lost response. The new PDF undergoes ordinary analysis and becomes eligible for postal preparation only when ready. Changed recipient, window position or print mode requires a distinct generation from the original. Transfers nothing to the printing provider and grants no approval or sending authority.",
           inputSchema: postalAddressPageInputSchema
             .extend({ idempotencyKey: key })
             .strict(),
           outputSchema: output(z.unknown()),
           annotations: {
             ...writeAnnotations,
-            idempotentHint: false,
-            // Private source, internal renderer and configured Pingen profile only.
-            openWorldHint: false,
+            destructiveHint: true,
+            openWorldHint: true,
           },
           _meta: oauthMetadata("documents:write"),
         },
@@ -1474,12 +1479,16 @@ export function createGuteneoMcpServer(
       {
         title: "Check a PDF for postal delivery",
         description:
-          "Checks a ready PDF, all final pages, its printed recipient address and the qualified postal profile using the account sender.id, recipient, print options and ceiling. Recipient fields compare the existing printed address; this check inserts no address page. Consumes one analysis from the existing PDF quota and requires no expert delegation. Returns reviewUrl for human review. Sends nothing and transfers no PDF to the printing provider. Provider draft transfer requires separate browser consent or a previously granted postal transfer mandate and exact preflight review; neither is created by this check.",
+          "Checks a ready PDF, all final pages, its printed recipient address and the qualified postal profile using the account sender.id, recipient, print options and ceiling. Recipient fields compare the existing printed address; this check inserts no address page. Reads the Pingen profile and destination restrictions, consumes one analysis from the PDF quota and excludes this source ID from a first secure distribution. Returns reviewUrl for human review. Sends nothing and transfers no PDF to the printing provider. Provider draft transfer requires separate browser consent or a previously granted postal transfer mandate and exact preflight review; neither is created by this check.",
         inputSchema: postalReviewInputSchema
           .extend({ idempotencyKey: key })
           .strict(),
         outputSchema: output(z.unknown()),
-        annotations: writeAnnotations,
+        annotations: {
+          ...writeAnnotations,
+          destructiveHint: true,
+          openWorldHint: true,
+        },
         _meta: oauthMetadata(["documents:write", "dispatches:prepare"]),
       },
       ({ idempotencyKey, ...input }) =>
@@ -1525,7 +1534,7 @@ export function createGuteneoMcpServer(
           outputSchema: output(z.unknown()),
           annotations: {
             ...writeAnnotations,
-            openWorldHint: false,
+            openWorldHint: true,
             destructiveHint: true,
           },
           _meta: oauthMetadata([
@@ -1552,7 +1561,7 @@ export function createGuteneoMcpServer(
           .object({ preflightId: id, idempotencyKey: key })
           .strict(),
         outputSchema: output(dispatchSchema),
-        annotations: writeAnnotations,
+        annotations: { ...writeAnnotations, openWorldHint: true },
         _meta: oauthMetadata("dispatches:prepare"),
       },
       ({ preflightId, idempotencyKey }) =>
@@ -1645,10 +1654,19 @@ export function createGuteneoMcpServer(
       scope: string,
       read: boolean,
       operation: (input: z.output<S>) => Promise<unknown>,
-      file = false,
-      extraScopes: string[] = [],
-      destructive = false,
+      options: {
+        file?: boolean;
+        extraScopes?: string[];
+        destructive?: boolean;
+        openWorld?: boolean;
+      } = {},
     ) {
+      const {
+        file = false,
+        extraScopes = [],
+        destructive = false,
+        openWorld = false,
+      } = options;
       registerTool(
         name,
         {
@@ -1661,7 +1679,7 @@ export function createGuteneoMcpServer(
             : {
                 ...writeAnnotations,
                 idempotentHint: false,
-                openWorldHint: file,
+                openWorldHint: file || openWorld,
                 destructiveHint: destructive,
               },
           _meta: {
@@ -1749,7 +1767,7 @@ export function createGuteneoMcpServer(
       "templates:write",
       false,
       ({ file }) => workflow.importDocxFile(ctx, file),
-      true,
+      { file: true },
     );
     studioTool(
       "update_template",
@@ -1758,9 +1776,7 @@ export function createGuteneoMcpServer(
       "templates:write",
       false,
       ({ id, change }) => workflow.updateTemplate(ctx, id, change),
-      false,
-      [],
-      true,
+      { destructive: true },
     );
     studioTool(
       "suggest_template",
@@ -1775,14 +1791,16 @@ export function createGuteneoMcpServer(
       "templates:write",
       false,
       ({ id, ...input }) => workflow.suggestTemplate(ctx, id, input),
+      { openWorld: true },
     );
     studioTool(
       "publish_template",
-      "Publishes an immutable template version. Existing jobs remain bound to their exact version.",
+      "Publishes an immutable template version and replaces the default version for new jobs. Existing jobs remain bound to their exact version.",
       revisionReference,
       "templates:publish",
       false,
       ({ id, ...input }) => workflow.publishTemplate(ctx, id, input),
+      { destructive: true },
     );
     studioTool(
       "duplicate_template",
@@ -1799,9 +1817,7 @@ export function createGuteneoMcpServer(
       "templates:publish",
       false,
       ({ id, ...input }) => workflow.archiveTemplate(ctx, id, input),
-      false,
-      [],
-      true,
+      { destructive: true },
     );
     studioTool(
       "delete_template",
@@ -1810,9 +1826,7 @@ export function createGuteneoMcpServer(
       "templates:write",
       false,
       ({ id, ...input }) => workflow.deleteTemplate(ctx, id, input),
-      false,
-      [],
-      true,
+      { destructive: true },
     );
     studioTool(
       "get_template_sharing",
@@ -1829,9 +1843,7 @@ export function createGuteneoMcpServer(
       "templates:share",
       false,
       ({ id, sharing }) => workflow.shareTemplate(ctx, id, sharing),
-      false,
-      [],
-      true,
+      { destructive: true },
     );
     studioTool(
       "preview_template",
@@ -1900,7 +1912,7 @@ export function createGuteneoMcpServer(
       "datasets:write",
       false,
       (input) => workflow.importDatasetFile(ctx, input),
-      true,
+      { file: true },
     );
     studioTool(
       "import_json_dataset",
@@ -1944,6 +1956,7 @@ export function createGuteneoMcpServer(
       "datasets:write",
       false,
       ({ id, ...input }) => workflow.analyzeDataset(ctx, id, input),
+      { openWorld: true },
     );
     studioTool(
       "list_mappings",
@@ -2029,9 +2042,7 @@ export function createGuteneoMcpServer(
       "generations:write",
       false,
       ({ id }) => workflow.cancelGeneration(ctx, id),
-      false,
-      [],
-      true,
+      { destructive: true },
     );
     studioTool(
       "retry_generation_records",
@@ -2055,23 +2066,22 @@ export function createGuteneoMcpServer(
       false,
       ({ input, idempotencyKey }) =>
         workflow.prepareDistribution(ctx, input, idempotencyKey),
-      false,
-      [],
-      true,
+      { destructive: true, openWorld: true },
     );
     studioTool(
       "resume_distribution",
-      "Prepares at most three remaining manifest entries. retryFailed retries recorded errors when explicitly enabled. Creates no sending or postal consent.",
+      "Prepares up to three remaining entries. Eligible postal drafts use live Pingen pricing. New legacy dispatches exclude their source PDF IDs from a first secure distribution. retryFailed retries recorded errors when explicitly enabled. Creates no sending or postal consent.",
       z.object({ id, retryFailed: z.boolean().default(false) }).strict(),
       "dispatches:prepare",
       false,
       ({ id, retryFailed }) =>
         workflow.resumeDistribution(ctx, id, retryFailed),
+      { destructive: true, openWorld: true },
     );
     if (services.postal)
       studioTool(
         "create_distribution_postal_preflight",
-        "Analyses the exact postal PDF and frozen manifest options through the existing postal service. Also requires documents:write. Creates no approval, provider transfer or sending.",
+        "Checks the exact postal PDF and frozen manifest options using the Pingen profile and destination restrictions. The resulting preflight excludes the source ID from a first secure distribution. Also requires documents:write. Creates no approval, provider transfer or sending.",
         z.object({ id, entryId: id, idempotencyKey: key }).strict(),
         "dispatches:prepare",
         false,
@@ -2085,8 +2095,7 @@ export function createGuteneoMcpServer(
             (input, key) => services.postal!.create(identity, input, key),
           );
         },
-        false,
-        ["documents:write"],
+        { extraScopes: ["documents:write"], destructive: true, openWorld: true },
       );
     studioTool(
       "get_distribution_plan",
@@ -2463,7 +2472,7 @@ export function createGuteneoMcpServer(
     {
       title: "Prepare correspondence",
       description:
-        'Prepares one recipient/channel operation without approval or sending. Email with documentId defaults to my_documents: a PDF invitation to the recipient’s Guteneo account after sign-in/signup with the matching verified email and no separate document password. Returns a secure distribution, possibly preparing, with its browser approvalUrl. options.emailDeliveryMode=attachment represents an explicitly requested original attachment; protected_link is a legacy explicit compatibility mode. Account invitations accept optional subject/text/html with localized defaults naming the authenticated workspace and the V2 template. Custom HTML supports an exact href="{{document_url}}" marker resolved before approval without exposing the capability through MCP. Account retention defaults to 7 days; the exact quote includes retention and email transport. Message-only email requires subject and text/html. Each channel retains its own readiness, pricing, authority and approval requirements.',
+        'Prepares one recipient/channel operation. Postal quotes can query Pingen. Using a PDF for secure or ordinary delivery restricts its future delivery modes. Email with documentId defaults to my_documents: a PDF invitation to the recipient’s Guteneo account after sign-in/signup with the matching verified email and no separate document password. Returns a secure distribution, possibly preparing, with its browser approvalUrl. options.emailDeliveryMode=attachment represents an explicitly requested original attachment; protected_link is a legacy explicit compatibility mode. Account invitations accept optional subject/text/html with localized defaults naming the authenticated workspace and the V2 template. Custom HTML supports an exact href="{{document_url}}" marker resolved before approval without exposing the capability through MCP. Account retention defaults to 7 days; the exact quote includes retention and email transport. Message-only email requires subject and text/html. Each channel retains its own readiness, pricing, authority and approval requirements.',
       inputSchema: z
         .object({
           idempotencyKey: key,
@@ -2518,7 +2527,11 @@ export function createGuteneoMcpServer(
         })
         .strict(),
       outputSchema: output(z.union([dispatchSchema, secureDistributionSchema])),
-      annotations: writeAnnotations,
+      annotations: {
+        ...writeAnnotations,
+        destructiveHint: true,
+        openWorldHint: true,
+      },
       _meta: oauthMetadata("dispatches:prepare"),
     },
     ({ idempotencyKey, ...input }) =>

@@ -1,4 +1,31 @@
-# ChatGPT marketplace dossier — state of 20 October 2026
+# ChatGPT marketplace dossier
+
+## 28 November 2026 review status
+
+The publisher portal shows version 1.1.22 as **Changes required** and
+**Not published**. Its seven packaged skills passed their displayed checks.
+The notification of 13 November repeated the annotation finding from the
+0.3.2 review. OpenAI requested explicit boolean hints for every tool and a
+behavior-based justification for each value. The decision names no individual
+tool. The portal currently provides no per-tool findings or downloadable scan
+diagnostics for 1.1.22.
+
+An earlier support response about 0.3.2 identified eight tools for review:
+`configure_postal_sender`, `create_postal_address_page`, `get_postal_requirements`,
+`transfer_postal_draft`, `quote_postal_draft`, `suggest_template`,
+`analyze_dataset` and `prepare_dispatch`. A fixed endpoint can still be an
+independently controlled service. For example, transferring a draft to Pingen
+discloses the PDF and address even before the letter is sent. The version
+submitted on 1 November still labeled that interaction closed-world.
+[Submitted source](https://github.com/nclsppr/guteneo/blob/2743667ba17aa6cd3e2dd04c24f90b0b025efd81/apps/api/src/mcp.ts#L1486-L1498)
+
+The 1.3.0 candidate's [per-tool matrix](../integrations/chatgpt/tool-annotations.md)
+documents the updated runtime classifications and supporting code. A fresh scan
+must use the matching released endpoint and archive. The dedicated review
+connector answered capabilities and a bounded document-list request on 28
+November; it reported Guteneo 1.2.7. Those calls qualify the earlier running
+version only.
+
 
 For the later dated follow-up, see [23 October resubmission tasks](OPENAI_RESUBMISSION_TODO.md). Each observation below remains bounded to its date; translation does not refresh portal or provider state.
 
