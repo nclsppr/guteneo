@@ -254,12 +254,12 @@ Evidence: [`"check_mcp_ui_probe_bridge"`](../../apps/api/src/mcp.ts), [`assertMc
 
 ### `configure_postal_sender`
 
-- **`readOnlyHint: false`** — Records an authorized OAuth administrator's sender submission, account pricing policies and initial postal channel setup. An explicit repeat with the same sender may renew expired policies; it records old, already expired policies as revoked. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.
-- **`destructiveHint: true`** — Explicit renewal revokes the preceding expired set of pricing policies and installs replacement policies. The sender and previously issued valid quotes are preserved.
-- **`openWorldHint: true`** — Inspects the authenticated account through the Pingen API to verify the postal profile used to configure or renew the sender.
+- **`readOnlyHint: false`** — Records the administrator's sender declaration, initial postal channel settings and pricing policies. Successful connected calls can also update the connection's last-successful-use timestamp.
+- **`destructiveHint: true`** — An explicit eligible renewal revokes expired policy records and installs replacements. The handler protects outstanding quotes and preserves the declared sender. An expired supplier reference alone does not require a sender reconfiguration.
+- **`openWorldHint: true`** — Reads the authenticated Pingen account profile when setting up or renewing the postal sender.
 - **`idempotentHint: false`** — Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused.
 
-Evidence: [`"configure_postal_sender"`](../../apps/api/src/mcp.ts), [`export async function configurePostalSenderForMcp`](../../apps/api/src/postal-setup.ts), [`recordSuccessfulConnectionTool`](../../apps/api/src/connection-observations.ts), [`Date.parse(p.expires_at)`](../../packages/domain/src/live-delivery-quotes.ts).
+Evidence: [`"configure_postal_sender"`](../../apps/api/src/mcp.ts), [`export async function configurePostalSenderForMcp`](../../apps/api/src/postal-setup.ts), [`recordSuccessfulConnectionTool`](../../apps/api/src/connection-observations.ts), [`if (state.configured)`](../../apps/api/src/postal-setup.ts).
 
 ### `confirm_dispatch`
 

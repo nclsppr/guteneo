@@ -265,8 +265,18 @@ export function parseResendPublicPrice(html: string) {
     ),
   ];
   if (!prices.length) return fail("SOURCE_INVALID");
-  if (prices.some((p) => !/^0\.90(?:0*)?$/.test(p[1]))) fail("PRICE_CHANGED");
-  return 900;
+  // USD per thousand recipients × 1,000 = microUSD per recipient.
+  const amounts = prices.map((match) => {
+    const decimal = /^(\d{1,4})(?:\.(\d{1,3})0*)?$/.exec(match[1]);
+    if (!decimal) return fail("SOURCE_INVALID");
+    const amount =
+      Number(decimal[1]) * 1000 + Number((decimal[2] ?? "").padEnd(3, "0"));
+    if (!amount || amount > 1_000_000) return fail("SOURCE_INVALID");
+    return amount;
+  });
+  if (amounts.some((amount) => amount !== amounts[0]))
+    return fail("SOURCE_INVALID");
+  return amounts[0];
 }
 function parseUsage(text: string, policy?: LimitPolicy) {
   const usage = JSON.parse(text) as {
@@ -511,28 +521,25 @@ async function readResendEvidence(
     controller.abort();
   }
   const codes = [...new Set(negatives.map((value) => value.code))];
-  const prices = [observed[0], observed[2], observed[3]];
-  const missingPrice = prices.find(
-    (value) => !value || value.status !== "fulfilled" || !value.value,
-  );
-  if (codes.some((code) => code !== "CAPACITY_CHANGED") || missingPrice) {
-    if (negatives.length) {
-      const primary = negatives[0];
-      throw new RefreshError(primary.code, primary.stage, codes);
-    }
-    const rejected = prices.find((value) => value?.status === "rejected");
-    if (rejected?.status === "rejected") throw rejected.reason;
-    throw new RefreshError("SOURCE_UNAVAILABLE", "sources");
+  function source(index: number) {
+    const result = observed[index];
+    return result?.status === "fulfilled" ? result.value : null;
   }
-  const required = (index: number) => {
-    const value = observed[index];
-    if (!value || value.status !== "fulfilled" || !value.value)
-      throw new RefreshError("SOURCE_UNAVAILABLE", "sources");
-    return value.value;
-  };
-  const domainSource = required(0),
-    priceSource = required(2),
-    fxSource = required(3);
+  function sourceError(index: number, stage: SourceStage) {
+    const result = observed[index];
+    return result?.status === "rejected" &&
+      result.reason instanceof RefreshError
+      ? (result.reason as RefreshError)
+      : new RefreshError("SOURCE_UNAVAILABLE", stage);
+  }
+  const domainSource = source(0);
+  if (!domainSource) {
+    const error = sourceError(0, "domain");
+    throw new RefreshError(error.code, error.stage, codes);
+  }
+  const priceSource = source(2),
+    fxSource = source(3);
+
   const usageResult = observed[1];
   const usageSource =
     usageResult?.status === "fulfilled" ? usageResult.value : null;
@@ -544,10 +551,24 @@ async function readResendEvidence(
         : new RefreshError("SOURCE_UNAVAILABLE", "usage")
       : null;
   const limits = usageSource ? parseUsage(usageSource.text) : null;
-  const observedAt = new Date(now()).toISOString(),
-    fx = parseFaxFx(fxSource.text, observedAt);
+  const observedAt = new Date(now()).toISOString();
+  if (!priceSource || !fxSource) {
+    const error = !priceSource
+      ? sourceError(2, "pricing")
+      : sourceError(3, "fx");
+    return {
+      domainSource,
+      usageSource,
+      limits,
+      observedAt,
+      contradictions: codes,
+      priceError: error,
+    } as const;
+  }
+  const fx = parseFaxFx(fxSource.text, observedAt);
   const rate = {
     ...RESEND_RATE,
+    usdMicrosPerMessage: parseResendPublicPrice(priceSource.text),
     tariffDate: observedAt.slice(0, 10),
     fxDate: fx.date,
     eurPerUsdNumerator: fx.numerator,
@@ -560,6 +581,7 @@ async function readResendEvidence(
     fxSource,
     limits,
     usageError,
+    priceError: null,
     observedAt,
     rate,
     contradictions: codes,
@@ -593,6 +615,7 @@ export async function inspectResendPolicySources(
 ): Promise<ResendPolicySourceInspection> {
   try {
     const evidence = await readResendEvidence(env, deps);
+    if (evidence.priceError) throw evidence.priceError;
     if (evidence.usageError) throw evidence.usageError;
     if (!evidence.limits) throw new RefreshError("SOURCE_INVALID", "usage");
     return {
@@ -701,6 +724,90 @@ export async function refreshResendPolicies(
       maintainLimits ? policy : undefined,
       maintainLimits,
     );
+    const columns = observedPolicy
+      ? (Object.keys(observedPolicy) as (keyof LimitPolicy)[])
+      : [];
+    const equal = columns.map((key) => key + " IS ?").join(" AND ");
+    const previousValues = columns.map((key) => observedPolicy![key]);
+    const policyGuard = observedPolicy
+      ? "EXISTS(SELECT 1 FROM resend_send_limit_policies WHERE " + equal + ")"
+      : "NOT EXISTS(SELECT 1 FROM resend_send_limit_policies WHERE account_id=?)";
+    const policyValues = observedPolicy ? previousValues : [identity.accountId];
+    if (evidence.priceError) {
+      if (
+        !maintainLimits ||
+        !evidence.usageSource ||
+        evidence.contradictions.includes("CAPACITY_CHANGED")
+      ) {
+        throw new RefreshError(
+          evidence.priceError.code,
+          evidence.priceError.stage,
+          evidence.contradictions,
+        );
+      }
+      // The account and Usage API succeeded. A pricing/FX outage must not let
+      // independently verified caps expire, even before the first tariff refresh.
+      const { observedAt, domainSource, usageSource, limits } = evidence;
+      const until = new Date(Date.parse(observedAt) + HORIZON).toISOString();
+      const reference = hash(
+        canonicalJson({
+          identity,
+          domainHash: domainSource.sha256,
+          usageHash: usageSource.sha256,
+          observedAt,
+          until,
+          limits,
+          previous: policy,
+        }),
+      );
+      const owned =
+        "EXISTS(SELECT 1 FROM resend_policy_refresh_state WHERE account_id=? AND domain_id=? AND route_id=? AND lease_token=? AND lease_until>?)";
+      const owner = [
+        identity.accountId,
+        env.RESEND_DOMAIN_ID!,
+        identity.routeId,
+        lease,
+        observedAt,
+      ];
+      const updated = await env.DB.batch([
+        env.DB.prepare(
+          `INSERT INTO resend_capacity_refresh_evidence(id,account_id,domain_sha256,usage_sha256,observed_at,qualified_until,limits_json,previous_policy_json) SELECT ?,?,?,?,?,?,?,? WHERE ${owned} AND ${policyGuard}`,
+        ).bind(
+          reference,
+          identity.accountId,
+          domainSource.sha256,
+          usageSource.sha256,
+          observedAt,
+          until,
+          canonicalJson(limits),
+          canonicalJson(policy),
+          ...owner,
+          ...policyValues,
+        ),
+        env.DB.prepare(
+          `UPDATE resend_send_limit_policies SET qualified_at_ms=?,expires_at_ms=?,source_sha256=? WHERE ${equal} AND ${owned}`,
+        ).bind(
+          Date.parse(observedAt),
+          Date.parse(until),
+          reference,
+          ...previousValues,
+          ...owner,
+        ),
+        env.DB.prepare(
+          `UPDATE resend_policy_refresh_state SET lease_token=NULL,lease_until=NULL,last_error_code=?,blocked_reason=NULL,blocked_reasons_json=NULL,failure_count=min(16,failure_count+1),next_attempt_at=? WHERE account_id=? AND domain_id=? AND route_id=? AND lease_token=? AND EXISTS(SELECT 1 FROM resend_capacity_refresh_evidence WHERE id=?)`,
+        ).bind(
+          evidence.priceError.code,
+          new Date(now() + 3600000).toISOString(),
+          ...owner.slice(0, 4),
+          reference,
+        ),
+      ]);
+      if (!updated.every((result) => result.meta.changes === 1))
+        return fail("COMMIT_CHANGED");
+      counts.resendPoliciesRefreshed++;
+      counts.resendPolicyRefreshFailed++;
+      return counts;
+    }
     const {
       domainSource,
       usageSource,
@@ -736,15 +843,6 @@ export async function refreshResendPolicies(
         previous: observedPolicy,
       }),
     );
-    const columns = observedPolicy
-      ? (Object.keys(observedPolicy) as (keyof LimitPolicy)[])
-      : [];
-    const equal = columns.map((key) => key + " IS ?").join(" AND ");
-    const previousValues = columns.map((key) => observedPolicy![key]);
-    const policyGuard = observedPolicy
-      ? "EXISTS(SELECT 1 FROM resend_send_limit_policies WHERE " + equal + ")"
-      : "NOT EXISTS(SELECT 1 FROM resend_send_limit_policies WHERE account_id=?)";
-    const policyValues = observedPolicy ? previousValues : [identity.accountId];
     const guard =
       "EXISTS(SELECT 1 FROM resend_policy_refresh_state WHERE account_id=? AND domain_id=? AND route_id=? AND lease_token=? AND lease_until>? AND source_sha256=?)";
     const guardValues = [

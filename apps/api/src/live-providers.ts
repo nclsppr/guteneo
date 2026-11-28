@@ -1,3 +1,5 @@
+import { faxDestinationPrefixes, liveFaxIdentity as configuredFaxIdentity } from "./fax-destinations";
+import { selectPostalPrice } from "./postal-price";
 import { validateProtectedDocument } from "../../../packages/domain/src/protected-documents";
 import {
   emailProvider,
@@ -180,7 +182,7 @@ function sandbox(
     blocked("PRODUCTION_SANDBOX_FORBIDDEN");
   return value === "true";
 }
-function pingen(
+export function pingen(
   env: LiveProviderEnv,
   fetcher: Fetcher,
   clock: () => number = Date.now,
@@ -460,14 +462,7 @@ export function createLiveProviderHook(
     channel === "email" ? emailProvider(env) : providerNames[channel];
   const fetcher = dependencies.fetcher ?? fetch;
   const clock = dependencies.now ?? Date.now;
-  const liveFaxIdentity =
-    channel === "fax" && env.TELNYX_ACCOUNT_ID && env.TELNYX_CONNECTION_ID
-      ? {
-          accountId: env.TELNYX_ACCOUNT_ID,
-          connectionId: env.TELNYX_CONNECTION_ID,
-          outboundProfileId: env.TELNYX_OUTBOUND_VOICE_PROFILE_ID,
-        }
-      : undefined;
+  const liveFaxIdentity = channel === "fax" ? configuredFaxIdentity(env) : undefined;
   const { liveDeliveryIdentity } = createLiveDeliveryQuoteConfig(
     env,
     dependencies,
@@ -498,6 +493,8 @@ export function createLiveProviderHook(
             liveDeliveryIdentity[channel],
             new Date(clock()).toISOString(),
           );
+          if (quote.fiscal_basis === "published_customer_tariff")
+            pricingDisclosure = { pricingBasis: quote.fiscal_basis };
           if (quote.fiscal_basis === "public_list_price_ex_tax") {
             const quotedInput = JSON.parse(quote.input_json) as Record<
               string,
@@ -507,6 +504,10 @@ export function createLiveProviderHook(
               pricingBasis: quote.fiscal_basis,
               ...(channel === "email" ? { fx: quotedInput.fx } : {}),
             };
+          }
+          if (quote.channel === "postal") {
+            const {postalPriceReference} = JSON.parse(quote.input_json);
+            if (postalPriceReference) pricingDisclosure.postalPriceReference = postalPriceReference;
           }
         }
         const { recipient, options } = await verifyFrozenContent(
@@ -523,14 +524,8 @@ export function createLiveProviderHook(
           );
           if (row.sender_address !== env.TELNYX_FROM)
             blocked("FAX_SENDER_CONFIG_MISMATCH");
-          const prefixes = required(
-            env.TELNYX_ALLOWED_PREFIXES,
-            "FAX_DESTINATIONS_NOT_CONFIGURED",
-          )
-            .split(",")
-            .map((value) => value.trim());
-          if (prefixes.some((value) => !["+33", "+352", "+49"].includes(value)))
-            blocked("FAX_DESTINATIONS_NOT_CONFIGURED");
+          const prefixes = faxDestinationPrefixes(env);
+          if (!prefixes) blocked("FAX_DESTINATIONS_NOT_CONFIGURED");
           const connector = new TelnyxFaxProvider(
             {
               apiKey: required(env.TELNYX_API_KEY, "TELNYX_NOT_CONFIGURED"),
@@ -860,7 +855,7 @@ export function createLiveDeliveryQuoteConfig(
   const liveDeliveryIdentity: LiveDeliveryIdentities = {
     ...(emailProvider(env) === "resend"
       ? resendIdentity(env)
-        ? { email: resendIdentity(env)! }
+        ? { email: { ...resendIdentity(env)!, allowPublishedEmailTariff: true } }
         : {}
       : env.SES_ACCOUNT_ID &&
           env.AWS_REGION &&
@@ -868,6 +863,7 @@ export function createLiveDeliveryQuoteConfig(
           (env.SES_SANDBOX === "true" || env.SES_SANDBOX === "false")
         ? {
             email: {
+              allowPublishedEmailTariff: true,
               accountId: env.SES_ACCOUNT_ID,
               routeId: `${env.AWS_REGION}:${env.SES_CONFIGURATION_SET}:${env.SES_SANDBOX}`,
             },
@@ -878,6 +874,7 @@ export function createLiveDeliveryQuoteConfig(
           postal: {
             accountId: env.PINGEN_ORGANIZATION_ID,
             routeId: env.PINGEN_ORGANIZATION_ID,
+            postalEnvironment: env.PINGEN_SANDBOX === "true" ? "sandbox" : "production",
           },
         }
       : {}),
@@ -926,15 +923,31 @@ export function createLiveDeliveryQuoteConfig(
         env,
         dependencies.fetcher ?? fetch,
         dependencies.now ?? Date.now,
-      ).quotePrepared({
-        ...options,
-        preparedLetterId: draft.provider_id,
-        expectedAddress,
-        country: request.recipient.country as PostalCountry,
-      });
+      ).quotePrepared(
+        {
+          ...options,
+          preparedLetterId: draft.provider_id,
+          expectedAddress,
+          country: request.recipient.country as PostalCountry,
+        },
+        selectPostalPrice(
+          env.DB,
+          {
+            organizationId: request.organizationId,
+            senderId: request.senderId,
+            accountId: request.identity.accountId,
+            environment:
+              env.PINGEN_SANDBOX === "true" ? "sandbox" : "production",
+            country: request.recipient.country as PostalCountry,
+            options,
+          },
+          dependencies.now ?? Date.now,
+        ),
+      );
       await requirePostalReview(env, request.organizationId, draft.id);
       return {
         supplierMinor: priced.amount.minor,
+        reference: priced.reference,
         currency: "EUR",
         providerDraftId: draft.id,
         preparedLetterId: draft.provider_id,

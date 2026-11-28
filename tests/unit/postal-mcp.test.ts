@@ -390,7 +390,7 @@ describe("postal tools over MCP transport", () => {
         "configure_postal_sender({name,address})",
         "only missing fields",
         "no postal reimport",
-        "pricing_expired",
+        "last applicable reference",
         "reviewUrl",
         "approvalUrl",
         "already-recorded postal mandate",

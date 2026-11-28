@@ -203,16 +203,40 @@ release proof. The dispatcher reuses the canonical complete full/reused-job guar
 requires fresh main/source/tag agreement and shares production concurrency with
 dependency publication. Its GitHub permission remains contents/actions read.
 
-The schema phase uses a separate already-authorized D1 credential, while the final
-unchanged clean-main publisher receives only the existing application token.
-Missing credentials or refused access fail; the workflow never creates secrets,
-expands permissions or falls back to the scanner credential. It permits only the
-two reviewed additive index migrations 0081/0082, requires a complete exact source
-ledger prefix from 0080 onward, and compares the complete qualified schema before
-and after. Each index and ledger receipt are atomic. A recovery bookmark and
-in-flight marker precede mutation; an unknown response never auto-retries.
-Enabled constraints, global integrity and foreign-key readback remain mandatory.
-Older/future schemas, drift and resource-limit errors stop the release.
+### Price continuity schema and recovery
+
+The schema phase uses the separately authorized D1 credential for the configured
+database. Publication uses the application token. A release may start from any
+complete ledger prefix ending at 0080 through 0087. The runner verifies the
+original index definitions for 0081 and 0082. For each of 0083–0087, it also
+hashes the complete ordered SQL batch, including its migration-ledger insert,
+and checks the pinned transport digest in the [manual release runner](https://github.com/nclsppr/guteneo/blob/main/scripts/ci/manual-application-release.mjs).
+
+| Migration | Runtime dependency |
+| --- | --- |
+| 0083 | Scoped worldwide fax catalog, immutable revisions and indexed route buckets |
+| 0084 | Worldwide fax estimates, retained historical quotes and verified usage settlement under the approved ceiling |
+| 0085 | Email and postal quote continuity, including superseded email policy references |
+| 0086 | Scoped Pingen price observations and refresh leases |
+| 0087 | Independent Resend capacity observations and revised public-price validation |
+
+For the 28 November candidate the local D1 qualification builds the complete
+schema at each prefix. Before the first write the runner compares the remote
+ledger and schema against that prefix, verifies enabled foreign keys and CHECK
+constraints, and records a Time Travel bookmark. Before each subsequent batch
+it verifies current source, CI, tag and the exact expected prefix again. The
+in-flight receipt names the batch before submission. D1 commits its schema
+statements and ledger row together.
+
+If a response is lost, inspect the in-flight receipt, the last bookmark and the
+remote ledger and schema. An operator can start a fresh authorized run from the
+verified prefix. Resolve any unexpected prefix, schema drift or credential
+failure before retrying. After 0087 the runner requires the exact complete
+schema, a successful global quick check and zero foreign-key violations, then
+records a second bookmark. A runtime rollback must remain compatible with any
+already-applied schema and retained quotes. Local prefix qualification and
+populated migration tests establish compatibility; the production receipt and
+served checks establish what actually ran.
 
 Only that workflow's successful commit/version-bound schema receipt permits a
 fresh CI/main/tag recheck and the existing guarded application publisher. Served

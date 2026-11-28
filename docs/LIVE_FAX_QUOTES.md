@@ -1,5 +1,19 @@
 # Trusted live fax quotes
 
+## Pricing continuity — 28 November 2026 candidate
+
+With worldwide sending selected, Guteneo prices the exact number from the
+current or last installed catalog for its production sender. If no catalog has
+been installed, a matching historical rate can supply the reference. Otherwise,
+an unpriced or ambiguous destination receives a Guteneo estimate of EUR 0.25
+per PDF page excluding tax. The client approves a firm ceiling and verified
+usage settles within it. Every price source supports the same approval,
+acceptance and final provider checks. The adapter supports up to 350 pages, within the document limits of the preparation surface.
+
+The [maintenance contract](FAX_TARIFF_MAINTENANCE.md) covers catalog failure
+and the two migrations. Archived simulation/reviewer rows and old pilot quotes
+retain their scope, expiry and non-sendable or bounded authority.
+
 ## Expiry and explicit renewal
 
 The review page uses the server's `quote_expires_at`, announces the last minute, and disables approval at expiry. A `LIVE_QUOTE_INVALID` rejection also offers renewal while the fax remains prepared and has no attempt. It never increases the quote lifetime or changes an immutable quote.
@@ -60,7 +74,7 @@ Revisions also bind maximum PDF pages, 30–900-second quote lifetime, validity 
 
 The source reference should identify a reviewed internal contract/tariff record, without credentials, document contents or a signed URL. Store the evidence in an appropriately restricted system, not in a public asset. Runtime account identity must be verified from the actual independent Guteneo provider account; do not invent an ID or reuse another project's credentials. All times are UTC ISO strings. The supported currency is EUR; no currency conversion is implemented.
 
-Revisions cannot be edited or reactivated after revocation. Revoke the previous revision and insert a replacement transactionally. More-specific matching prefixes supersede broader prefixes and invalidate their prepared quotes, including conservatively when the narrower policy is not yet current. A missing, expired, revoked, differently scoped or unsupported-options policy fails closed. Existing approvals do not silently adopt a replacement price.
+Revisions cannot be edited or reactivated after revocation. Revoke the previous revision and insert a replacement transactionally. More-specific matching prefixes supersede broader prefixes and invalidate their prepared quotes, including conservatively when the narrower policy is not yet current. A missing, revoked, differently scoped or unsupported-options policy fails closed. Existing approvals do not silently adopt a replacement price.
 
 ## Persisted approval and execution contract
 

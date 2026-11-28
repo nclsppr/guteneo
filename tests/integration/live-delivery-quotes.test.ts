@@ -146,7 +146,7 @@ beforeAll(async () => {
   for (const f of readdirSync(dir)
     .filter(
       (f) =>
-        f.endsWith(".sql") &&
+        f.endsWith(".sql") && f < "0084" &&
         ![
           "0022_ses_public_list_prices.sql",
           "0030_postal_public_pricing.sql",
@@ -356,6 +356,7 @@ beforeAll(async () => {
     "0079_customer_lifecycle_webhooks.sql",
     "0080_dispatch_schedules.sql",
     "0082_pdf_validation_history.sql",
+    ...readdirSync(dir).filter((name) => name >= "0084" && name.endsWith(".sql")).sort(),
   ])
     await sql(readFileSync(new URL(filename, dir), "utf8"));
   historicalSchema = false;

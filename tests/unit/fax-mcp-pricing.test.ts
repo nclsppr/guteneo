@@ -10,6 +10,8 @@ import {
 import type { DomainService, Dispatch } from "../../packages/domain/src/index";
 import {
   customerFaxPricing,
+  FAX_MAX_ESTIMATE_NANOEUR,
+  FAX_MAX_ESTIMATE_NOTICE,
   type FaxPricing,
 } from "../../packages/contracts/src/fax-pricing";
 import { readFileSync } from "node:fs";
@@ -127,7 +129,7 @@ describe("fax pricing through the official MCP transport", () => {
             "prepare_fax",
             {
               documentId: "document_fixture",
-              phone: "+33123456789",
+              phone: "+6831234",
               ceilingMinor: 200,
               idempotencyKey: "fixture",
             },
@@ -244,6 +246,52 @@ describe("fax display precision", () => {
       creditLabel: "About EUR0.000000001 to 0.000049999 in credit",
     });
     expect(result.settlement).toEqual(pricing.settlement);
+  });
+  it.each([
+    "worldwide_catalog",
+    "last_known_reference",
+    "guteneo_continuity_v1",
+  ] as const)(
+    "publishes the worldwide quote basis %s and its separate firm ceiling",
+    (referenceBasis) => {
+      const quote = customerFaxPricing({
+        ...pricing,
+        referenceBasis,
+        estimatedLowNanoeur: 250_000_000,
+        estimatedHighNanoeur: 250_000_000,
+        ceilingMinor: 200,
+      });
+      expect(quote.referenceBasis).toBe(referenceBasis);
+      expect(quote.executionScope).toBeUndefined();
+      expect(quote.display.estimate.label).toBe("About EUR0.25 excl. tax");
+      expect(quote.display.ceiling.label).toBe(
+        "Firm ceiling: EUR2.00 excl. tax",
+      );
+      expect(validatePricing(quote).valid).toBe(true);
+      if (referenceBasis === "guteneo_continuity_v1")
+        expect(quote.display.explanation).toContain(
+          "€0.25 per page excluding tax",
+        );
+    },
+  );
+  it("discloses the maximum only on worldwide estimates that reach it", () => {
+    const expensive = {
+      ...pricing,
+      referenceBasis: "worldwide_catalog" as const,
+      estimatedHighNanoeur: FAX_MAX_ESTIMATE_NANOEUR,
+      ceilingMinor: 200,
+    };
+    const seen = customerFaxPricing(expensive).display;
+    expect(seen.explanation).toContain(FAX_MAX_ESTIMATE_NOTICE);
+    expect(seen.ceiling.eur).toBe("2.00");
+    for (const variant of [
+      { estimatedHighNanoeur: FAX_MAX_ESTIMATE_NANOEUR - 1 },
+      { referenceBasis: undefined },
+      { executionScope: "review_prepare_only" as const },
+    ]) {
+      expect(customerFaxPricing({ ...expensive, ...variant }).display.explanation)
+        .not.toContain(FAX_MAX_ESTIMATE_NOTICE);
+    }
   });
   it("preserves whole euros and exact zero without inventing a debit", () => {
     const result = customerFaxPricing({

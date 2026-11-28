@@ -1,3 +1,4 @@
+import type { PostalPriceReference } from "../../providers/pingen";
 import { canonicalJson, DomainError, sha256, type Dispatch } from "./index";
 import {
   postalRecipientSchema,
@@ -9,7 +10,10 @@ export const NANO_EUR_PER_CENT = 10_000_000;
 export type LiveDeliveryIdentity = {
   accountId: string;
   routeId: string;
+  postalEnvironment?: "production" | "sandbox";
   provider?: "ses" | "resend" | "pingen";
+  /** Only the configured email bridge enables the published customer tariff. */
+  allowPublishedEmailTariff?: true;
 };
 export type LiveDeliveryIdentities = Partial<
   Record<"email" | "postal", LiveDeliveryIdentity>
@@ -81,7 +85,7 @@ export function postalPolicyOptions(addressPosition: "left" | "right") {
   );
 }
 export type PricingBasis =
-  "qualified_final_variable_cost" | "public_list_price_ex_tax";
+  "qualified_final_variable_cost" | "public_list_price_ex_tax" | "published_customer_tariff";
 export type CommercialFx = {
   numerator: number;
   denominator: number;
@@ -98,6 +102,7 @@ export type PostalQuoteRequest = {
   identity: LiveDeliveryIdentity;
 };
 export type PostalSupplierQuote = {
+  reference?: PostalPriceReference;
   supplierMinor: number;
   currency: "EUR";
   providerDraftId: string;
@@ -131,6 +136,7 @@ type Policy = {
   quote_ttl_seconds: number;
 };
 export type DeliveryPrice = {
+  postalPriceReference?: PostalPriceReference;
   policy: Policy;
   supplierNanoEur: number;
   customerNanoEur: number;
@@ -264,7 +270,45 @@ export function emailRateComponents(rate: EmailRateEvidence) {
     throw unqualified();
   return result;
 }
+// Exact transport rate for a configured sender when supplier pricing is unavailable.
+// The legacy settlement schema stores half of the customer rate in its cost-base column.
+const EMAIL_REFERENCE_SOURCE = "guteneo:email:2026-09-21";
+const EMAIL_REFERENCE_OPTIONS = '{"guteneoEmailTariff":1}';
+const EMAIL_REFERENCE_RATE = '{"attachmentBasis":"included_pdf","customerNanoEur":1560000}';
+async function publishedEmailPolicy(
+  db: D1Database, organizationId: string, senderId: string,
+  identity: LiveDeliveryIdentity, now: string,
+): Promise<Policy> {
+  const provider = identity.provider ?? "ses";
+  const scope = [organizationId, senderId, provider, identity.accountId, identity.routeId];
+  const sourceHash = await sha256(canonicalJson({ source: EMAIL_REFERENCE_SOURCE, rate: EMAIL_REFERENCE_RATE }));
+  const id = "email_reference_" + (await sha256(canonicalJson(scope))).slice(0, 32);
+  // A separate options key leaves the supplier revision available for immediate reuse.
+  // The source's dated publication is historical; only the signed quote has a client deadline.
+  await db.prepare(`
+    INSERT INTO trusted_delivery_costs
+      (id,organization_id,sender_id,channel,provider,account_id,route_id,options_json,rate_json,
+       base_numerator,byte_numerator,rate_denominator,currency,fiscal_basis,quote_ttl_seconds,
+       source_reference,source_sha256,valid_from,expires_at,status,created_at)
+    SELECT ?,?,?,'email',?,?,?,?,?,780000,0,1,'EUR','qualified_final_variable_cost',900,
+      ?,?,'2026-09-21T00:00:00.000Z','2026-09-22T00:00:00.000Z','qualified',?
+    WHERE EXISTS(SELECT 1 FROM senders WHERE organization_id=? AND id=? AND mode='production'
+      AND channel='email' AND status='verified')
+    ON CONFLICT(id) DO NOTHING`)
+    .bind(id, ...scope, EMAIL_REFERENCE_OPTIONS, EMAIL_REFERENCE_RATE, EMAIL_REFERENCE_SOURCE,
+      sourceHash, now, organizationId, senderId).run();
+  const policy = await db.prepare("SELECT * FROM trusted_delivery_costs WHERE organization_id=? AND id=? AND status='qualified'")
+    .bind(organizationId, id).first<Policy>();
+  if (!policy) throw unqualified();
+  return policy;
+}
 function qualifiedEmailRate(policy: Policy, documentPresent: boolean) {
+  if (policy.source_reference === EMAIL_REFERENCE_SOURCE) {
+    if (policy.options_json !== EMAIL_REFERENCE_OPTIONS || policy.rate_json !== EMAIL_REFERENCE_RATE ||
+        policy.base_numerator !== 780000 || policy.byte_numerator !== 0 || policy.rate_denominator !== 1)
+      throw unqualified();
+    return { base_numerator: 780000, byte_numerator: 0, rate_denominator: 1 };
+  }
   const rate = JSON.parse(policy.rate_json) as EmailRateEvidence &
     Partial<PublicEmailRateEvidence>;
   const components = emailRateComponents(rate);
@@ -289,7 +333,7 @@ function qualifiedEmailRate(policy: Policy, documentPresent: boolean) {
           rate.plan === "Pro" &&
           rate.tier === "additional_emails" &&
           rate.tariffSource === "https://resend.com/pricing" &&
-          rate.usdMicrosPerMessage === 900)
+          rate.usdMicrosPerMessage <= 1_000_000)
       ) ||
       policy.options_json !== "{}" ||
       rate.usdMicrosPerMessage <= 0 ||
@@ -360,6 +404,22 @@ function qualifiedPostalRate(policy: Policy) {
 }
 /** Add public commercial terms to the signed input, without changing old inputs. */
 export function deliveryPriceDisclosure(price?: DeliveryPrice) {
+  if (price?.policy.source_reference === EMAIL_REFERENCE_SOURCE)
+    return { pricingBasis: "published_customer_tariff" as const };
+  if (price?.postalPriceReference) {
+    const { postalPriceReference } = price;
+    const pricingBasis =
+      postalPriceReference.source === "guteneo_continuity_v1"
+        ? "published_customer_tariff"
+        : price.policy.pricing_basis;
+    return {
+      ...(pricingBasis === "published_customer_tariff" ||
+      pricingBasis === "public_list_price_ex_tax"
+        ? { pricingBasis }
+        : {}),
+      postalPriceReference,
+    };
+  }
   return price?.policy.pricing_basis === "public_list_price_ex_tax"
     ? price.policy.channel === "postal"
       ? { pricingBasis: "public_list_price_ex_tax" as const }
@@ -397,7 +457,8 @@ export async function resolveDeliveryPrice(
       : expectedProvider === "resend"
         ? {}
         : request.options;
-  const policy = await db
+  const identity = request.identity;
+  const loadPolicy = () => db
     .prepare(
       "SELECT * FROM trusted_delivery_costs WHERE organization_id=? AND sender_id=? AND channel=? AND provider=? AND account_id=? AND route_id=? AND status='qualified' AND options_json=?",
     )
@@ -406,29 +467,85 @@ export async function resolveDeliveryPrice(
       request.senderId,
       request.channel,
       expectedProvider,
-      request.identity.accountId,
-      request.identity.routeId,
+      identity.accountId,
+      identity.routeId,
       canonicalJson(matchingOptions),
     )
     .first<Policy>();
+  let policy = await loadPolicy();
   if (
-    !policy ||
-    policy.valid_from > request.now ||
-    policy.expires_at <= request.now ||
-    !/^[a-f0-9]{64}$/.test(policy.source_sha256)
-  )
-    throw unqualified();
+    !policy &&
+    request.channel === "postal" &&
+    expectedProvider === "pingen" &&
+    request.identity.postalEnvironment &&
+    request.document &&
+    typeof request.options.providerDraftId === "string"
+  ) {
+    // Older operator-created senders may have a current reviewed draft before
+    // their first calculator-method policy. Bind that exact review; never
+    // resurrect an explicitly revoked method or move an old account binding.
+    const options = canonicalJson(matchingOptions);
+    const rate = postalRateEvidence();
+    await db
+      .prepare(
+        `INSERT OR IGNORE INTO trusted_delivery_costs
+        (id,organization_id,sender_id,channel,provider,account_id,route_id,options_json,rate_json,base_numerator,byte_numerator,rate_denominator,currency,fiscal_basis,quote_ttl_seconds,source_reference,source_sha256,valid_from,expires_at,status,created_at,pricing_basis)
+        SELECT ?,pd.organization_id,pd.sender_id,'postal','pingen',?,?,pd.options_json,?,0,0,1,'EUR','qualified_final_variable_cost',300,?,?,?,?,'qualified',?,'public_list_price_ex_tax'
+        FROM provider_drafts pd JOIN valid_postal_draft_reviews r ON r.organization_id=pd.organization_id AND r.provider_draft_id=pd.id
+        WHERE pd.organization_id=? AND pd.id=? AND pd.sender_id=? AND pd.document_id=? AND pd.document_sha256=? AND pd.options_json=? AND pd.claimed_dispatch_id IS NULL
+        AND json_extract(r.profile_json,'$.accountId')=? AND json_extract(r.profile_json,'$.environment')=?
+        AND NOT EXISTS(SELECT 1 FROM trusted_delivery_costs old WHERE old.organization_id=pd.organization_id AND old.sender_id=pd.sender_id AND old.channel='postal' AND old.options_json=pd.options_json)`,
+      )
+      .bind(
+        `cost_${crypto.randomUUID()}`,
+        request.identity.accountId,
+        request.identity.routeId,
+        canonicalJson(rate),
+        rate.tariffSource,
+        await sha256(canonicalJson(rate)),
+        request.now,
+        new Date(Date.parse(request.now) + 90 * 86_400_000).toISOString(),
+        request.now,
+        request.organizationId,
+        request.options.providerDraftId,
+        request.senderId,
+        request.document.id,
+        request.document.sha256,
+        options,
+        request.identity.accountId,
+        request.identity.postalEnvironment,
+      )
+      .run();
+    policy = await loadPolicy();
+  }
   const protectedLink =
     request.channel === "email" &&
     request.options.emailDeliveryMode === "protected_link";
   const attachmentBytes = protectedLink ? 0 : (request.document?.size ?? 0);
+  if (request.channel === "email" && request.identity.allowPublishedEmailTariff) {
+    if (policy) {
+      try {
+        qualifiedEmailRate(policy, !protectedLink && !!request.document);
+      } catch {
+        policy = null;
+      }
+    }
+    if (!policy || policy.valid_from > request.now || !/^[a-f0-9]{64}$/.test(policy.source_sha256)) {
+      const supportedOptions = ["emailDeliveryMode", "protectedDays", "protectedDocument", "replyTo", "secureDistribution", "kind"];
+      if (Object.keys(request.options).some((key) => !supportedOptions.includes(key))) throw unqualified();
+      policy = await publishedEmailPolicy(db, request.organizationId, request.senderId, request.identity, request.now);
+    }
+  }
+  if (!policy || policy.valid_from > request.now || !/^[a-f0-9]{64}$/.test(policy.source_sha256))
+    throw unqualified();
+  let postalPriceReference: PostalPriceReference | undefined;
   let numerator: bigint,
     denominator: bigint,
     providerDraftId: string | null = null,
     preparedLetterId: string | null = null,
     evidenceSha256 = policy.source_sha256;
   if (request.channel === "email") {
-    if (canonicalJson(matchingOptions) !== policy.options_json)
+    if (policy.source_reference !== EMAIL_REFERENCE_SOURCE && canonicalJson(matchingOptions) !== policy.options_json)
       throw unqualified();
     const components = qualifiedEmailRate(
       policy,
@@ -478,12 +595,14 @@ export async function resolveDeliveryPrice(
     providerDraftId = quote.providerDraftId;
     preparedLetterId = quote.preparedLetterId;
     evidenceSha256 = quote.evidenceSha256;
+    postalPriceReference = quote.reference;
   }
   const supplierNanoEur = Number((numerator + denominator - 1n) / denominator);
   const customerNanoEur = supplierNanoEur * 2;
   if (!Number.isSafeInteger(customerNanoEur) || customerNanoEur > 1e13)
     throw unqualified();
   return {
+    ...(postalPriceReference ? {postalPriceReference} : {}),
     policy,
     supplierNanoEur,
     customerNanoEur,
@@ -549,14 +668,10 @@ export async function makeDeliveryQuote(
     evidence_sha256: price.evidenceSha256,
     source_reference: p.source_reference,
     source_sha256: p.source_sha256,
-    fiscal_basis: p.pricing_basis ?? p.fiscal_basis,
+    fiscal_basis: price.postalPriceReference?.source === "guteneo_continuity_v1" || p.source_reference === EMAIL_REFERENCE_SOURCE
+      ? "published_customer_tariff" : p.pricing_basis ?? p.fiscal_basis,
     created_at: now,
-    expires_at: new Date(
-      Math.min(
-        Date.parse(p.expires_at),
-        Date.parse(now) + p.quote_ttl_seconds * 1000,
-      ),
-    ).toISOString(),
+    expires_at: new Date(Date.parse(now) + p.quote_ttl_seconds * 1000).toISOString(),
   };
   quote.fingerprint = await sha256(canonicalJson(material(quote)));
   return quote;
@@ -583,14 +698,13 @@ export async function validateLiveDeliveryQuote(
   if (!identityValid(identity)) throw invalid();
   const quote = await db
     .prepare(
-      "SELECT * FROM valid_live_delivery_quotes WHERE organization_id=? AND dispatch_id=? AND account_id=? AND route_id=? AND created_at<=? AND expires_at>? AND policy_valid_from<=? AND policy_expires_at>?",
+      "SELECT * FROM valid_live_delivery_quotes WHERE organization_id=? AND dispatch_id=? AND account_id=? AND route_id=? AND created_at<=? AND expires_at>? AND policy_valid_from<=?",
     )
     .bind(
       row.organization_id,
       row.id,
       identity.accountId,
       identity.routeId,
-      now,
       now,
       now,
       now,
@@ -609,11 +723,13 @@ export async function validateLiveDeliveryQuote(
     // including during a rolling deployment with an older SQL view.
     const policy = await db
       .prepare(
-        "SELECT * FROM trusted_delivery_costs WHERE organization_id=? AND id=? AND channel=? AND status='qualified'",
+        "SELECT * FROM trusted_delivery_costs WHERE organization_id=? AND id=? AND channel=?",
       )
       .bind(row.organization_id, quote.policy_id, quote.channel)
       .first<Policy>();
     try {
+      // The scoped view admits revoked rows only for a recorded automatic
+      // replacement, within the original quote's own deadline.
       if (!policy) throw invalid();
       if (quote.channel === "postal") qualifiedPostalRate(policy);
       else
@@ -624,7 +740,13 @@ export async function validateLiveDeliveryQuote(
               JSON.parse(quote.input_json).documentId !== null ||
               quote.attachment_bytes !== 0),
         );
-      if (policy.pricing_basis === "public_list_price_ex_tax") {
+      if (quote.fiscal_basis === "published_customer_tariff") {
+        const input = JSON.parse(quote.input_json);
+        if (input.pricingBasis !== quote.fiscal_basis || "fx" in input) throw invalid();
+        if (quote.channel === "email" && policy.source_reference !== EMAIL_REFERENCE_SOURCE) throw invalid();
+        if (quote.channel === "postal" && (input.postalPriceReference?.source !== "guteneo_continuity_v1" ||
+            quote.amount_minor !== 250 || quote.supplier_nanoeur !== 1_250_000_000)) throw invalid();
+      } else if (policy.pricing_basis === "public_list_price_ex_tax") {
         const input = JSON.parse(quote.input_json);
         if (input.pricingBasis !== "public_list_price_ex_tax") throw invalid();
         if (quote.channel === "postal") {

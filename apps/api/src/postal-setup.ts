@@ -174,11 +174,7 @@ export async function configurePostalSenderForMcp(
   const captured = captureIdentity(identity);
   const parsed = postalSenderSubmissionInput.safeParse(input);
   if (!parsed.success)
-    fail(
-      "INVALID_INPUT",
-      "Provide the sender's name and full address.",
-      400,
-    );
+    fail("INVALID_INPUT", "Provide the sender's name and full address.", 400);
   if (captured.context.role !== "admin")
     fail(
       "POSTAL_SENDER_ADMIN_REQUIRED",
@@ -293,6 +289,7 @@ async function current(
   env: Env,
   context: AuthContext,
   canManage = context.role === "admin",
+  requireFreshPricing = false,
 ): Promise<PostalSetup> {
   const org = context.organizationId;
   // One read transaction: a competing activation/renewal must be visible in
@@ -316,7 +313,14 @@ async function current(
         "SELECT generation,policy_ids_json,profile_json,expires_at FROM postal_setup_policy_generations WHERE organization_id=? ORDER BY generation DESC LIMIT 1",
       ).bind(org),
       env.DB.prepare(
-        "SELECT p.options_json,p.status,p.valid_from,p.expires_at FROM trusted_delivery_costs p WHERE p.organization_id=? AND p.sender_id=(SELECT sender_id FROM postal_sender_declarations WHERE organization_id=p.organization_id) AND p.channel='postal' AND p.provider='pingen' AND p.account_id=? AND p.route_id=? AND p.pricing_basis='public_list_price_ex_tax' AND p.source_reference=? AND p.id IN (SELECT value FROM json_each(COALESCE((SELECT policy_ids_json FROM postal_setup_policy_generations WHERE organization_id=p.organization_id ORDER BY generation DESC LIMIT 1),'[]')))",
+        `SELECT p.options_json,p.status,p.valid_from,p.expires_at FROM trusted_delivery_costs p
+         WHERE p.organization_id=? AND p.sender_id=(SELECT sender_id FROM postal_sender_declarations WHERE organization_id=p.organization_id)
+           AND p.channel='postal' AND p.provider='pingen' AND p.account_id=? AND p.route_id=?
+           AND p.pricing_basis='public_list_price_ex_tax' AND p.source_reference=?
+           AND p.id=(SELECT latest.id FROM trusted_delivery_costs latest WHERE latest.organization_id=p.organization_id
+             AND latest.sender_id=p.sender_id AND latest.account_id=p.account_id AND latest.route_id=p.route_id
+             AND latest.channel='postal' AND latest.options_json=p.options_json
+             ORDER BY latest.valid_from DESC,latest.created_at DESC,latest.id DESC LIMIT 1)`,
       ).bind(
         org,
         env.PINGEN_ORGANIZATION_ID ?? "",
@@ -344,7 +348,8 @@ async function current(
     profileChanged =
       profile.accountId !== env.PINGEN_ORGANIZATION_ID ||
       profile.defaultCountry !== env.PINGEN_DEFAULT_COUNTRY ||
-      generation?.profile_json !== declaration.profile_json;
+      (generation !== undefined &&
+        generation.profile_json !== declaration.profile_json);
     const timestamp = new Date().toISOString();
     revoked = policies.some((policy) => policy.status === "revoked");
     const required = profilePolicyOptions(profile).map(canonicalJson);
@@ -354,10 +359,11 @@ async function current(
           policy.options_json === options &&
           policy.status === "qualified" &&
           policy.valid_from <= timestamp &&
-          policy.expires_at > timestamp,
+          (!requireFreshPricing || policy.expires_at > timestamp),
       ),
     );
     pricingExpired =
+      requireFreshPricing &&
       !revoked &&
       policies.length >= 8 &&
       policies.every((policy) => policy.expires_at <= timestamp);
@@ -367,7 +373,8 @@ async function current(
       sender.address === declaration.sender_address &&
       profile.accountId === env.PINGEN_ORGANIZATION_ID &&
       profile.defaultCountry === env.PINGEN_DEFAULT_COUNTRY &&
-      covered &&
+      (!requireFreshPricing || covered) &&
+      !profileChanged &&
       !revoked;
   }
   const serviceAvailable = available(env);
@@ -380,7 +387,6 @@ async function current(
         ? "channel_stopped"
         : sender &&
             (!declaration ||
-              !generation ||
               revoked ||
               profileChanged ||
               (!configured && !pricingExpired))
@@ -447,11 +453,7 @@ async function readInput(request: Request) {
   }
   const parsed = postalSetupInput.safeParse(value);
   if (!parsed.success)
-    fail(
-      "INVALID_INPUT",
-      "Provide your name, address and authorization.",
-      400,
-    );
+    fail("INVALID_INPUT", "Provide your name, address and authorization.", 400);
   return parsed.data;
 }
 
@@ -529,7 +531,7 @@ async function configure(
       "POSTAL_SETUP_UNAVAILABLE",
       "Postal activation is temporarily unavailable.",
     );
-  const state = await current(env, authority.context);
+  const state = await current(env, authority.context, true, true);
   if (
     state.sender &&
     (state.sender.name !== input.name || state.sender.address !== input.address)
@@ -599,7 +601,7 @@ async function configure(
   await authority.assertCurrent();
   const fence = authority.sql();
   const target = renew
-    ? `EXISTS(SELECT 1 FROM postal_sender_declarations d JOIN senders s ON s.organization_id=d.organization_id AND s.id=d.sender_id JOIN channel_controls c ON c.organization_id=d.organization_id AND c.channel='postal' WHERE d.organization_id=? AND d.sender_id=? AND d.sender_name=? AND d.sender_address=? AND s.status='verified' AND s.name=d.sender_name AND s.address=d.sender_address AND c.enabled=1) AND (SELECT MAX(generation) FROM postal_setup_policy_generations WHERE organization_id=?)=? AND (SELECT COUNT(*) FROM trusted_delivery_costs WHERE organization_id=? AND sender_id=? AND id IN (SELECT value FROM json_each(?)) AND status='qualified' AND expires_at<=?)=?`
+    ? `EXISTS(SELECT 1 FROM postal_sender_declarations d JOIN senders s ON s.organization_id=d.organization_id AND s.id=d.sender_id JOIN channel_controls c ON c.organization_id=d.organization_id AND c.channel='postal' WHERE d.organization_id=? AND d.sender_id=? AND d.sender_name=? AND d.sender_address=? AND s.status='verified' AND s.name=d.sender_name AND s.address=d.sender_address AND c.enabled=1) AND (SELECT MAX(generation) FROM postal_setup_policy_generations WHERE organization_id=?)=? AND (SELECT COUNT(*) FROM trusted_delivery_costs WHERE organization_id=? AND sender_id=? AND id IN (SELECT value FROM json_each(?)) AND status='qualified' AND expires_at<=?)=? AND NOT EXISTS(SELECT 1 FROM live_delivery_quotes q JOIN dispatches d ON d.organization_id=q.organization_id AND d.id=q.dispatch_id WHERE q.organization_id=? AND q.policy_id IN (SELECT value FROM json_each(?)) AND ((d.status='prepared' AND q.expires_at>?) OR d.status IN ('queued','submitting','submission_unknown')))`
     : `NOT EXISTS(SELECT 1 FROM postal_sender_declarations WHERE organization_id=?) AND NOT EXISTS(SELECT 1 FROM senders WHERE organization_id=? AND channel='postal' AND mode='production') AND EXISTS(SELECT 1 FROM channel_controls c WHERE c.organization_id=? AND c.channel='postal' AND (c.enabled=1 OR NOT EXISTS(SELECT 1 FROM audit_log a WHERE a.organization_id=c.organization_id AND a.action='channel.control' AND a.resource_id='postal' AND json_extract(a.details_json,'$.enabled')=0)))`;
   const targetArgs = renew
     ? [
@@ -614,6 +616,9 @@ async function configure(
         previous!.policy_ids_json,
         timestamp,
         JSON.parse(previous!.policy_ids_json).length,
+        org,
+        previous!.policy_ids_json,
+        timestamp,
       ]
     : [org, org, org];
   const marker =

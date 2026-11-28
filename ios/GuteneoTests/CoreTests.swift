@@ -6,6 +6,17 @@ import XCTest
 @testable import Guteneo
 
 final class CoreTests: XCTestCase, @unchecked Sendable {
+    func testWorldwideFaxAddressPreservesSubscriberDigits() {
+        XCTAssertEqual(FaxAddress.normalized("+44 (0)20 7946 0000"), "+442079460000")
+        XCTAssertEqual(FaxAddress.normalized("+39 06 1234.5678"), "+390612345678")
+        for number in ["+1 (202) 555-0100", "+81 3 1234 5678", "+683 1234", "+39 06 1234 5678"] {
+            XCTAssertTrue(FaxAddress.isValid(number))
+        }
+        for number in ["+33012345678", "020 7946 0000", "+1234567890123456"] {
+            XCTAssertFalse(FaxAddress.isValid(number))
+        }
+    }
+
     func testWorkspacePermissionsSeparatePreparationFromApproval() throws {
         let data = #"{"organization":{"id":"org","name":"Atelier"},"user":{"id":"user","name":"Member","role":"supervisor"},"simulation":true,"permissions":{"prepareDispatches":true,"approveDispatches":false,"viewReports":true}}"#.data(using: .utf8)!
         let session = try JSONDecoder().decode(MobileSession.self, from: data)

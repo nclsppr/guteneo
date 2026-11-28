@@ -55,6 +55,7 @@ const routes = [
   "bulk",
   "dead_letter",
   "maintenance",
+  "fax_catalog",
 ] as const;
 export type RouteCode = (typeof routes)[number];
 const codes = [
@@ -142,6 +143,8 @@ const metrics = [
   "tariffsRefreshed",
   "tariffRefreshFailed",
   "tariffRefreshDeferred",
+  "postalPricesRefreshed",
+  "postalPriceRefreshFailed",
   "postalPoliciesRefreshed",
   "postalPolicyRefreshFailed",
   "postalPolicyRefreshDeferred",

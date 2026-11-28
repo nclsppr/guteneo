@@ -7,15 +7,22 @@ sidebar:
 
 Provider configuration and prices change independently of Guteneo releases.
 Maintenance therefore tracks both the implementation contract and fresh evidence
-for the exact account, route, currency and validity window. An expired or unknown
-sendable price closes new preparation or acceptance; it never becomes zero cost.
-The separately restricted reviewer path can use an explicitly labelled archive,
-as described below.
+for the exact account, route and currency. A supplier price deadline signals
+an operations task. A dedicated 02:17 UTC task publishes worldwide fax prices from a verified Telnyx catalogue. Any international fax number can use its last applicable reference or the EUR0.25-per-page commercial fallback.
+Email falls back to its scoped rate or the published customer transport rate.
+Postal uses the exact country, normal-paper sheet count, print options, sender,
+tenant and account to find its reference. A cold postal quote can use Guteneo’s
+EUR2.50 commercial price. Customer quotes retain their own deadlines and
+immutable amounts. Route authority, scanner results, credit and approval
+remain separate checks. [Channel adapters](/workflows/delivery-channels/)
+describes transport.
 
-This is the maintenance model, not a list of current live rates. The server's
-qualified catalog/quote and private dated evidence own actual amounts and
-activation. [Channel adapters](/workflows/delivery-channels/) describes transport;
-[CI and release evidence](/engineering/ci-and-release/) describes source checks.
+
+## Initialize an empty fax catalogue
+
+After a verified deployment, a missed daily run can be recovered with the existing application's private Cloudflare operator binding. The status operation reads the active revision, compiled coverage and two fixed destination lookups. A separate, explicitly confirmed initialization imports the live account's Telnyx deck, page fee and ECB conversion under the scheduled job's lease. Only the first complete catalogue for the deployed sender scope can be installed through this capability. It accepts no account, number, price or URL. The read-only provider inspector and customer approval flow retain their own authority.
+
+Follow the [operator runbook](https://github.com/nclsppr/guteneo/blob/main/docs/FAX_TARIFF_MAINTENANCE.md#initialize-the-first-catalogue-after-a-release) for the release check, commands, result fields and recovery. The November 2026 local concurrent-initialization test covers the first publication and later refusals to replace it. A live active revision and its destination lookup results are separate release evidence.
 
 ## Keep postal destinations separate from prices
 
@@ -33,8 +40,7 @@ operation. Recheck before production acceptance, content transfer and the final
 send; an unavailable public read before a send invocation is a known refusal,
 not evidence that a letter may have been submitted. A response lost after the
 physical send still requires reconciliation, without automatic resubmission.
-Each analyzed draft receives its actual EUR calculator quote and immutable
-customer approval under the existing spending limits.
+Each analyzed draft receives its own EUR customer quote and approval. The background Worker refreshes due Pingen prices without receiving a recipient address or PDF.
 
 Release migration 0072 before the new runtime. It changes two postal guards,
 preserving legacy records and the priority of sensitive-source refusals. Then
@@ -95,7 +101,7 @@ The source-specific paths remain distinct:
 | Mechanism             | Information actually consumed                                                                                    | Safe maintenance                                                                                                                                                                                                                                                           |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Live fax              | Registered current Telnyx catalog, actual CSV/page bytes, ECB reference and exact provider ownership             | Inspect genuine sources, preserve the existing route and page/cost limits, defer around outstanding commitments and retain the independent pilot deadline.                                                                                                                 |
-| Postal mail           | Current sender declaration, provider account/currency/country/window and the latest calculator-policy generation | Check daily during the final seven days of the ninety-day qualification. Preparation can remain selected when final sending is disabled. Each letter still receives its own actual provider price and five-minute quote.                                                   |
+| Postal mail           | Current sender declaration, provider account/currency/country/window and the latest calculator-policy generation | Check daily during the final seven days of the ninety-day qualification. Preparation can remain selected when final sending is disabled. The minute Worker refreshes one due commercial reference at a time. Each letter receives its own five-minute customer quote.                                                   |
 | Resend email          | Selected automatic pricing qualification and the account sending-limit policy used at acceptance                 | Check daily and renew the technical qualification for thirty days only from sufficient real account/domain/usage and commercial evidence, with unchanged local limits and counters. A credential denied access to the required inspection cannot produce renewed evidence. |
 | Human route authority | Its actual independent end date                                                                                  | Warn before it ends. A technical source refresh cannot extend it.                                                                                                                                                                                                          |
 
@@ -488,8 +494,7 @@ The existing scheduler considers one due route per execution, obtains genuine
 bounded source reads and current provider-ownership evidence, and creates a new
 immutable revision. A daily target, lease/backoff and active-quote deferral keep
 work bounded and preserve approved prices. An unavailable or ambiguous source
-leaves old history intact; an expired reference closes preparation until a valid
-replacement is obtained. No timer enables a channel or extends an operator-test
+keeps the current commercial reference available for new quotes on an authorized route. No timer enables a channel or extends an operator-test
 route's independently bounded authority.
 
 Each refresh authenticates to the fixed Telnyx catalog endpoint and resolves the
@@ -572,8 +577,7 @@ because a new rate or late adjustment appears.
 ## Pingen: preserve the exact document/options quote
 
 Postal calculation depends on the actual provider preparation, destination,
-paper, print options and account. A country-wide marketing price is not a
-substitute for the final qualified option set. Uploaded bytes, provider draft,
+paper, print options and account. A calculator outage can use the last comparable price or the published cold-start customer tariff. Uploaded bytes, provider draft,
 inspection, print preview and sending are distinct steps with distinct authority.
 
 A synthetic draft test does not qualify a customer document, a French postal

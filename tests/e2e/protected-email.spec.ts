@@ -1170,9 +1170,16 @@ for (const mode of ["message", "attachment", "protected_link"] as const) {
     });
     await expect(send).toContainText("€");
     await expect(send).toBeDisabled();
-    await page
-      .getByRole("checkbox", { name: /J’ai vérifié le contenu/ })
-      .check();
+    if (mode !== "message") {
+      await expect(
+        page.locator('.pdf-canvas-wrap[aria-busy="false"]'),
+      ).toBeVisible();
+    }
+    const contentConsent = page.getByRole("checkbox", {
+      name: /J’ai vérifié le contenu/,
+    });
+    await contentConsent.scrollIntoViewIfNeeded();
+    await contentConsent.check();
     await expect(send).toBeDisabled();
     await page
       .getByRole("checkbox", { name: /ce destinataire a demandé/ })

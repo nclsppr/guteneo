@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**29 domains · 528 features · 58 journeys · 97 documented REST operations · 92 MCP tools**
+**29 domains · 519 features · 58 journeys · 97 documented REST operations · 92 MCP tools**
 Updated 2026-11-28.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -23,7 +23,7 @@ mindmap
       Data and mappings (12)
       PDF generation and distribution (17)
     Deliver
-      Fax (10)
+      Fax (9)
       Postal mail (11)
       Email and protected links (15)
       Sensitive distribution and personal documents (38)
@@ -45,7 +45,7 @@ mindmap
       Engineering documentation (13)
       Codex Cloud development (8)
       Continuous reviewer preparation (6)
-      Automatic fax tariff maintenance (13)
+      Automatic fax tariff maintenance (5)
       Consumed provider freshness and preventive deadline actions (17)
     Web
       Gare browser experience (9)
@@ -66,7 +66,7 @@ mindmap
 
 ### Deliver
 
-- [Fax](#fax) — 10 features; capability-gated.
+- [Fax](#fax) — 9 features; capability-gated.
 - [Postal mail](#postal) — 11 features; capability-gated.
 - [Email and protected links](#email) — 15 features; capability-gated.
 - [Sensitive distribution and personal documents](#secure-distribution) — 38 features; capability-gated.
@@ -94,7 +94,7 @@ mindmap
 - [Engineering documentation](#engineering-docs) — 13 features; public.
 - [Codex Cloud development](#cloud-development) — 8 features; local-candidate.
 - [Continuous reviewer preparation](#continuous-review) — 6 features; operator-gated.
-- [Automatic fax tariff maintenance](#fax-tariff-maintenance) — 13 features; operator-gated.
+- [Automatic fax tariff maintenance](#fax-tariff-maintenance) — 5 features; operator-gated.
 - [Consumed provider freshness and preventive deadline actions](#provider-freshness) — 17 features; operator-gated.
 
 ### Web
@@ -165,7 +165,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | CI validation and identical-source promotion qualification | No product-role grant; separate repository authority | No product-role grant; separate repository authority | No product-role grant; separate repository authority | No product-role grant; separate repository authority | Product OAuth grants no GitHub/CI or publication authority; repository agents follow explicit review/merge/deploy authorization |
 | Install or revoke continuous reviewer reference access | No authority from workspace role | No authority from workspace role | No authority from workspace role | No authority from workspace role | No business REST/MCP authority; distinct explicitly authorized platform operator, exact restricted sole-member reviewer and immutable archived binding |
 | Prepare using continuous reviewer reference access | Only the exact restricted sole-member reviewer after operator setup | No authority from this role | No authority from this role | No | Current authenticated exact reviewer + preparation scope + ready synthetic original + active access and current no-send guards; never approval, provider execution or credit reservation |
-| Register automatic fax commercial-reference maintenance | No authority from workspace role | No authority from workspace role | No authority from workspace role | No authority from workspace role | No; distinct authorized platform operator registers an exact source/route once; bounded scheduler refreshes do not grant consent, route authority or sending rights |
+| Manage the worldwide fax catalogue | No authority from workspace role | No authority from workspace role | No authority from workspace role | No authority from workspace role | The scheduled Worker refreshes technical evidence for the configured account and sending profile. |
 | Search, filter, sort and page authorized browser table rows | Only rows already visible under current page authority | Only rows already visible under current page authority and independent reporting options | Only rows already visible under current page authority | Only rows already visible under current page authority | No new REST/MCP/native tool or authority; browser controls never fetch inaccessible rows or grant approval, sending, paid operations or a mandate |
 | Use loopback fictional role/volume controls | No production authority; local fixture only | No production authority; local fixture only | No production authority; local fixture only | No production authority; local fixture only | No REST/MCP/native authority or real platform capability; DEV + preview + loopback only |
 | Configure provider freshness and inspect preventive actions | No authority from workspace role; distinct explicit platform authorization | No authority from workspace role | No authority from workspace role | No authority from workspace role | No ordinary business REST/MCP/native authority. An authenticated same-account operator service binding may read the bounded aggregate prevention report; separately authorized repository/operator workflows may qualify exact sources and prepare digest-bound registrations or native monitor plans. Production migration/runtime changes and operational-email gate, envelope and caps require explicit platform authority and current validation. No workspace role or expert mandate enables operational notifications, grants credentials, extends authority/consent or authorizes a customer send. |
@@ -517,19 +517,18 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="fax"></a>
 ### Fax
 
-**Availability model:** capability-gated. Implemented fax contracts. Release 1.1.20 and migrations 0066–0067 are deployed for the exact restricted reviewer and registered Luxembourg pilot; reviewer preparation and a genuine automatic refresh were observed. Other routes, hosted assistant journeys and actual delivery retain separate qualification. Live sender, tariff, approval, credits and provider gates apply.
+**Availability model:** capability-gated. Implemented worldwide fax preparation, customer ceiling approval and bounded settlement. The carrier controls availability and delivery. The restricted marketplace review account retains its preparation-only access.
 
 **Surfaces:** Web, REST, MCP and native preparation/tracking; browser or existing delegated approval.
 
 - Exact PDF, recipient number and qualified sender
-- Dated provider quote with bounded renewal
-- Candidate scoped +3524 operator-tariff renewal preserves prices, source dates, seven-day validity and EUR2 cap; migration 0064, matching runtime and separate installation required
+- Worldwide destination-specific pricing for international fax numbers, with the latest applicable reference or EUR0.25 per page during a cold start
 - Estimated range, approved ceiling and credit balance in euros
 - Preparation, human review, approval and confirmation
 - Tracking, receipts, usage settlement and unknown outcomes
 - Unsendable reviewer mode stops before approval
 - Explicit continuous access removes periodic reviewer-reference renewal for the exact restricted single-member account; archived pricing stays labelled, quotes retain their 900-second lifetime and approval/sending remain prohibited
-- Registered live commercial references refresh from actual official sources and provider-ownership reads through the existing scheduler; bounded leases/backoff and active-quote deferral preserve immutable approved prices
+- The daily scheduled job checks Telnyx and ECB sources and keeps existing quotes immutable during catalogue replacement
 - Read-only readiness overlaps outbound-profile inspection with ordered bounded phone pagination; partial errors retain stable stage order and tariff/replay/settlement dependencies remain fenced
 
 **Contract:** [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md) · **Implementation:** [packages/domain/src/index.ts](../packages/domain/src/index.ts)
@@ -557,7 +556,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Paper, colour, simplex/duplex and delivery-service options
 - PDF preflight, address rendering and review
 - Distinct authority for PDF transfer to obtain a quote
-- Actual analyzed-draft EUR calculator quote, unchanged four pricing options and legacy hash material; no fixed country price, invented postcode or implicit address completion
+- EUR quote for the analyzed draft from its comparable Pingen observation or the Guteneo EUR2.50 continuity tariff. A due cached price refresh uses the country, paper count and exact print options
 - Version selected by frozen recipient shape, with schema-first 0072 preserving old objects while binding new block/page versions to the exact tenant, consent, PDF, recipient, profile, quote and approval
 - Confirmation, calendar cutoffs and provider tracking
 - Status projection and reconciliation of unknown outcomes
@@ -1088,7 +1087,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Dated high/critical registry advisory gate via audit:dependencies does not guarantee unknown-defect absence
 - Repository standards and automated checks require English authored sources, valid English routes and synchronized feature/developer documentation
 - Separate secure render/deposit queue work, bounded lease reconciliation and shared/personal retention cleanup; revocation, erasure, acquisition and immutable evidence remain distinct
-- Documented provider/tariff maintenance separates official price, private account observation, immutable quote and actual outcome; expiry blocks new work without rewriting approved commitments
+- Documented provider/tariff maintenance separates official price, private account observation, immutable quote and actual outcome; stale sources trigger maintenance and approved commitments retain their price
 - Live deployment completes only after anonymous exact-release verification; a post-deploy verification failure remains a failed release without automatic redeploy or rollback
 - Fixed secure-distribution and private page-render route labels plus one SECURE_PREPARATION_FAILED signal per durable preparation failure, including exhausted jobs; no content, recipients, business IDs or raw errors enter logs
 - Signed negative Resend/SES/Telnyx/Pingen receipts emit one fixed failure signal after the durable projection claim, including recovery after prior event application; receipt HTTP 200 does not hide the operational signal
@@ -1248,27 +1247,19 @@ Supervisor approval/reporting options are independent and off by default. Resour
 <a id="fax-tariff-maintenance"></a>
 ### Automatic fax tariff maintenance
 
-**Availability model:** operator-gated. Production 1.1.20 includes migration 0067 and the explicitly registered bounded local +3524 pilot. Actual server-key catalog discovery and its first genuine automatic refresh were observed; the distinct 1.1.25 FR/DE fourteen-route renewal group remains a local candidate requiring migration/runtime validation, explicit private registration and a genuine scheduled result. Actual delivery remains separately unqualified and no historical CSV fallback is allowed.
+**Availability model:** operator-gated. The worldwide contract replaces the Luxembourg pilot. Isolated tests qualify the catalogue and outage behavior.
 
 **Surfaces:** Authorized private operator CLI/service-binding qualification and registration, and existing scheduled backend maintenance; no public browser, REST or MCP registration authority.
 
-- The separate LU maintainer supports the existing local Luxembourg fixed +3524 operator-test route with canonical empty options and EUR2; refresh preserves its exact existing page limit up to ten pages and never extends its independent 3 November 2026 pilot deadline; continuous reviewer preparation remains capped at seven pages
-- Explicit registration binds an exact tenant, sender, provider account/application/profile, destination prefix and options to an authorized global-conversational public commercial catalog
-- Daily authenticated current-catalog discovery plus bounded official fax-page, selected allowlisted CSV and dated ECB reads and current provider ownership inspection create new immutable revisions with at most 168-hour validity
-- Public commercial references do not claim negotiated supplier prices or a freshly observed provider UI association; original source and association dates retain their meaning
-- Existing scheduled maintenance considers one route per execution with a lease, retry backoff and daily refresh target; active quotes defer replacement to preserve approved commitments
-- Atomic exact-predecessor replacement refuses source ambiguity, identity/registration drift or lost leases; failure never fabricates freshness, extends pilot authority or enables a channel
-- Coarse refreshed/failed/deferred results exclude content, recipients, credentials and private source bodies; a bounded same-account private RPC qualifies current catalog access without registering or writing a price
-- Registration configuration and plans are absolute private 0600 files under a 0700 directory outside Git; read-only planning and reviewed-digest application remain distinct
-- The separate 1.1.25 FR/DE candidate registers only fourteen existing live provider-verified fixed-line bindings and four immutable more-specific exclusions; it grants no new route, provider authority or sending consent
-- One complete current-catalog CSV read per group attempt validates exact EEA origin tokens and all parent/sub-prefix exceptions with current provider ownership, fax-page fee and dated rational FX; ambiguous or uncovered routes refuse the group
-- Daily bounded renewal qualifies at most seven-day immutable revisions and preserves the exact sender/account/application/profile/prefix/options, route permissions, exclusions, page limit, duration model and quote TTL; the scheduler permits one network group per invocation, giving due FR/DE work the first opportunity before LU, without claiming a global isolate lock
-- Group-wide quote/queued/submitting/unknown deferral and final lease/binding/predecessor/exclusion checks fence atomic fourteen-or-zero replacement; historical quotes, approvals, financial holds and outbox remain unchanged
-- Additive 0071 tables retain immutable group anchors, lease/backoff state, tariff membership and append-only evidence; compatible deployed runtime and schema must be verified before registration, and missing schema reports a control failure without blocking unrelated safe outbox work
+- Daily Cloudflare refresh streams the current Telnyx deck, page price, sender profile and ECB currency conversion
+- A private Cloudflare operator can initialize an empty catalogue after a missed trigger and check coverage for two fixed destinations
+- Rates apply to the sending profile and destination prefix, with exact matches, origin restrictions, per-call charges and billing intervals
+- Only complete imports replace the active catalogue. Customers can use previous prices and receive an initial commercial price for uncovered destinations.
+- An accepted quote binds the original terms and its customer ceiling through settlement
 
-**Contract:** [FAX_TARIFF_MAINTENANCE.md](FAX_TARIFF_MAINTENANCE.md) · **Implementation:** [apps/api/src/fax-tariff-refresh.ts](../apps/api/src/fax-tariff-refresh.ts)
+**Contract:** [FAX_TARIFF_MAINTENANCE.md](FAX_TARIFF_MAINTENANCE.md) · **Implementation:** [apps/api/src/worldwide-fax-catalog.ts](../apps/api/src/worldwide-fax-catalog.ts)
 
-**Tests:** [tests/integration/fax-tariff-refresh.test.ts](../tests/integration/fax-tariff-refresh.test.ts), [tests/unit/fax-tariff-sources.test.ts](../tests/unit/fax-tariff-sources.test.ts)
+**Tests:** [tests/integration/worldwide-fax-catalog.test.ts](../tests/integration/worldwide-fax-catalog.test.ts), [tests/unit/worldwide-fax-catalog-operator.test.ts](../tests/unit/worldwide-fax-catalog-operator.test.ts), [tests/integration/fax-tariff-refresh.test.ts](../tests/integration/fax-tariff-refresh.test.ts), [tests/unit/fax-tariff-sources.test.ts](../tests/unit/fax-tariff-sources.test.ts)
 
 
 
@@ -1281,12 +1272,12 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 - Current production consumer, tenant, provider, account, route, verified sender and options select the real enforced deadline, including configured first use; historical/informational dates, archived reviewer references and explicitly inactive mechanisms are excluded
 - Six durable bounded collector inventories distinguish verified inactivity from missing configuration or failed reads; unregistered manual policies retain operator warnings, while only explicitly registered exact groups may receive genuinely evidenced technical renewal
-- Pingen profile maintenance follows selected production preparation even when final sending is cut, uses genuine organisation-read evidence, preserves method dates and actual prepared-letter calculator pricing, and installs a new exact 90-day generation only under current matching guards
+- Pingen profile maintenance follows selected production preparation even when final sending is cut, uses genuine organisation-read evidence, preserves method dates and prepared-letter price evidence, and installs a new exact 90-day generation only under current matching guards
 - The exact audited migration-0036 window expansion may retain older policy start dates only with its immediate eight-policy predecessor, deterministic audit and eight unchanged opposite-window clones; canonical generations retain exact creation-clock checks and all price/source/expiry/authority guards remain intact
 - An exact verified provider route with immutable route_allowed=0 contributes an inactive price-date binding while preparation still refuses it; missing runtime proof remains unknown
-- Resend daily exact-domain, Full-access Usage API, public USD900-micro price and actual ECB reads atomically qualify 30 days; optional inspection key stays separate from the sending key, tariff and account-limit statuses are independent, and a manual replacement suppresses the unused automatic setting; the private resend-readiness setup accepts only an existing separately authorized inspection key and cannot create permissions or alter sending gates
+- Resend daily exact-domain, Full-access Usage API, current public Pro overage price and actual ECB reads renew their respective 30-day references; optional inspection key stays separate from the sending key, tariff and account-limit statuses are independent, and a manual replacement suppresses the unused automatic setting; the private resend-readiness setup accepts only an existing separately authorized inspection key and cannot create permissions or alter sending gates
 - Leases, exact predecessor comparisons and final quote/binding rechecks preserve immutable historical rows and approved commitments; active prepared or queued/submitting/unknown fax and postal work defers replacement, while Resend caps, holds, reservations and unknown outcomes never reset
-- Confirmed Resend contradictions block their real consumer: domain/binding affect both, capacity affects acceptance and price affects automatic pricing; exact qualified manual overrides retain their own price/expiry. Required-source failure grants no extension, and no maintenance renews consent, expert delegation, quote TTL, session or independent route authority
+- Confirmed Resend contradictions block their real consumer: domain/binding affect both, capacity affects acceptance. A price or FX outage preserves the prior commercial rate and independently verified account capacity. First-use email transport has a published EUR1.56 per thousand reference. Required-source failure grants no extension, and no maintenance renews consent, expert delegation, quote TTL, session or independent route authority
 - J-1 starts exactly 86400 seconds before the consumed UTC deadline; tenant/binding/revision/deadline incidents are idempotent and stale or unknown evaluations cannot resolve current risk
 - Separate freshness observations preserve normal Cron heartbeat meaning; server-derived alertClass 0/1/2/3 and alertFailure 0/1 follow closed projection and cannot be supplied by callers. The established combined native query uses a 300-second Automatic execution range, one-minute average and strict healthy freshness before recovery; missing coverage alarms. The 7 November native separation keeps original application/delivery failures plus collector/refresher technical failures on an independent hourly-reminder monitor, while operational deadlines use an alertClass>=2 monitor with 168-hour reminders. Both retain five-minute lookback, exact existing destination and separate unchanged minute heartbeat. A persistent deadline need not retrigger for another deadline while its aggregate is active; weekly reminders are not disabled notifications or per-incident deduplication. No runtime, business authority or sending-gate change.
 - Scanner watchdog warns at 42 hours of actually loaded signatures with existing daily refresh and six-hour checks, preserving shared 48-hour qualification and 72-hour runtime refusal; GitHub and native notification receipt remain independent
@@ -1398,7 +1389,7 @@ Open members → invite individually or preview CSV → select role and supervis
 
 Import/reuse the exact ready PDF → collect E.164 recipient/sender/ceiling → obtain the actual quote → show estimate and separate ceiling → human browser approval or existing expert review → confirm → track delivery and usage settlement separately.
 
-**Failure/recovery:** Registered sendable references refresh automatically only after genuine source/ownership reads; source failure keeps expired pricing closed and does not extend route authority. Continuous reviewer access uses its exact restricted account and labelled archived reference, never sending. Renew only an eligible prepared unattempted quote with exact original parameters and stable key, then obtain fresh approval where sending is permitted. Unknown submissions require reconciliation, never resend.
+**Failure/recovery:** Use the last applicable world tariff or a commercial fallback. Renew expired customer quotes with their original parameters and obtain approval for the new amount. Reconcile unknown submissions. The restricted reviewer can prepare only.
 
 [Detailed contract](LIVE_FAX_QUOTES.md).
 
@@ -1774,11 +1765,11 @@ Inspect the existing archived review tariff, original authority and exact restri
 
 ### J41 · Maintain live fax references automatically
 
-**Actor:** Explicitly authorized platform operator for registration; scheduled backend for bounded refresh. **Branch:** Operations.
+**Actor:** Scheduled Cloudflare Worker. **Branch:** Operations.
 
-Review the supported local Luxembourg fixed +3524 operator-test route, empty options, unchanged live page limit up to ten pages, EUR2 ceiling and independent pilot deadline → fully roll out the compatible reader and drain prior work before schema installation → qualify actual server-key catalog access through the bounded private service binding → register its exact global-conversational public commercial catalog binding once using private files → scheduler claims one due route → resolve the current CSV link with the fixed Telnyx API endpoint → reread genuine official source bytes and current provider ownership → validate route/FX and current registration → defer if a quote remains active → atomically insert a new immutable revision and retire only its exact predecessor → record coarse maintenance results.
+Read the current Telnyx catalogue, page price, private profile and exchange rate → compile destination tariffs for the sending profile → verify the complete staged deck → switch the active reference atomically.
 
-**Failure/recovery:** Reject ambiguous/stale sources, identity drift, expired independent operator authority, lost leases and concurrent predecessor changes. Preserve historical quotes and source dates. Back off on failure; existing valid pricing may continue only under its original bounds, while expired pricing fails closed. No sending, mandate, consent or paid infrastructure is created.
+**Failure/recovery:** Record the failed refresh. Keep the previous deck and use a commercial price for uncovered destinations. Preserve approved ceilings.
 
 [Detailed contract](FAX_TARIFF_MAINTENANCE.md).
 

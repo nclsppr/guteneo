@@ -80,6 +80,7 @@ describe("Resend readiness", () => {
       provider: "resend",
       accountId: "account-fixture",
       routeId: "resend:domain-fixture:guteneo.com",
+      allowPublishedEmailTariff: true,
     });
   });
 });

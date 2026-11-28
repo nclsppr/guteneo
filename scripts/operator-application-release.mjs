@@ -14,8 +14,10 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 import { createValidationReader } from "./ci/validation-proof.mjs";
 import {
-  migrateReviewedIndexes,
+  migrateReviewedSchema,
+  isReviewedPriceBatch,
   qualifyManualRelease,
+  reviewedMigrationCount,
   requireReviewedPlan,
 } from "./ci/manual-application-release.mjs";
 import {
@@ -185,14 +187,14 @@ export function createWranglerD1Client({
       demand(
         Array.isArray(batch) &&
           batch.length > 0 &&
-          batch.length <= 4 &&
           batch.every(
             (entry) =>
               Object.keys(entry).length === 1 &&
               typeof entry.sql === "string" &&
               entry.sql.length <= 100_000 &&
               !entry.sql.includes("\0"),
-          ),
+          ) &&
+          (batch.length <= 4 || isReviewedPriceBatch(batch)),
         "D1_BATCH_INVALID",
       );
     // Bind the value so leading SQL comments cannot be parsed as CLI options.
@@ -337,9 +339,9 @@ export async function releaseWithOperator({
       integrity[1]?.results?.length === 0,
     "PRE_MIGRATION_INTEGRITY_REQUIRED",
   );
-  const schema = await migrateReviewedIndexes({
+  const schema = await migrateReviewedSchema({
     plan,
-    expectedSchema: local.schema,
+    expectedSchema: local.schemaAt,
     request,
     ensureCurrent: qualify,
     record: (value) =>
@@ -351,7 +353,7 @@ export async function releaseWithOperator({
   });
   demand(
     schema.status === "schema-verified" &&
-      schema.after.applied === 82 &&
+      schema.after.applied === reviewedMigrationCount &&
       schema.quickCheck === "ok" &&
       schema.foreignKeyViolations === 0,
     "SCHEMA_PROOF_REQUIRED",

@@ -92,7 +92,7 @@ afterAll(async () => {
   await mf?.dispose();
 });
 
-async function fixture() {
+async function fixture(mode: "production" | "simulation" = "production") {
   const organizationId = uid("org"),
     userId = uid("usr"),
     documentId = uid("doc"),
@@ -109,9 +109,9 @@ async function fixture() {
   await db.batch([
     db
       .prepare(
-        "INSERT INTO organizations(id,name,mode,created_at) VALUES(?,'SYNTHETIC','production',?)",
+        "INSERT INTO organizations(id,name,mode,created_at) VALUES(?,'SYNTHETIC',?,?)",
       )
-      .bind(organizationId, stamp),
+      .bind(organizationId, mode, stamp),
     db
       .prepare(
         "INSERT INTO users(id,name,email,created_at) VALUES(?,'SYNTHETIC',?,?)",
@@ -134,9 +134,9 @@ async function fixture() {
       .bind(uid("audit"), organizationId, userId, hash, stamp),
     db
       .prepare(
-        "INSERT INTO senders(id,organization_id,channel,name,address,status,mode,created_at) VALUES(?,?,'postal','SYNTHETIC','SYNTHETIC RETURN','verified','production',?)",
+        "INSERT INTO senders(id,organization_id,channel,name,address,status,mode,created_at) VALUES(?,?,'postal','SYNTHETIC','SYNTHETIC RETURN','verified',?,?)",
       )
-      .bind(senderId, organizationId, stamp),
+      .bind(senderId, organizationId, mode, stamp),
     db
       .prepare(
         "INSERT INTO content_limits(organization_id,uploads_per_day,bytes_per_day,renders_per_day) VALUES(?,100,209715200,100)",
@@ -378,7 +378,7 @@ async function fixture() {
     const id = uid("dispatch");
     await db
       .prepare(
-        "INSERT INTO dispatches(id,organization_id,channel,recipient_json,document_id,sender_id,sender_address,options_json,status,mode,estimated_minor,ceiling_minor,currency,fingerprint,prepare_key,request_hash,created_at,updated_at) VALUES(?,?,'postal','{}',?,?,'SYNTHETIC RETURN','{}',?,'production',100,100,'EUR',?,?,?,?,?)",
+        "INSERT INTO dispatches(id,organization_id,channel,recipient_json,document_id,sender_id,sender_address,options_json,status,mode,estimated_minor,ceiling_minor,currency,fingerprint,prepare_key,request_hash,created_at,updated_at) VALUES(?,?,'postal','{}',?,?,'SYNTHETIC RETURN','{}',?,?,100,100,'EUR',?,?,?,?,?)",
       )
       .bind(
         id,
@@ -386,6 +386,7 @@ async function fixture() {
         documentId,
         senderId,
         status,
+        mode,
         hash,
         id,
         hash,
@@ -714,22 +715,37 @@ describe("database serialization of sensitive classification and legacy exposure
   ])(
     "fences historical attachment dispatch transition %s to %s",
     async (initial, next) => {
-      const f = await fixture(),
-        id = await f.legacyDispatch(initial);
-      await db
-        .prepare("DROP TRIGGER secure_source_legacy_exposure_guard")
-        .run();
-      try {
-        await f.sensitive();
-      } finally {
-        await db.prepare(sourceGuardSql).run();
+      // Production also requires a signed quote. Run the same transition in
+      // simulation to exercise the sensitive-source guard independently of
+      // SQLite's ordering among BEFORE UPDATE triggers.
+      for (const mode of ["production", "simulation"] as const) {
+        const f = await fixture(mode),
+          id = await f.legacyDispatch(initial);
+        await db
+          .prepare("DROP TRIGGER secure_source_legacy_exposure_guard")
+          .run();
+        try {
+          await f.sensitive();
+        } finally {
+          await db.prepare(sourceGuardSql).run();
+        }
+        await expect(
+          db
+            .prepare("UPDATE dispatches SET status=? WHERE id=?")
+            .bind(next, id)
+            .run(),
+        ).rejects.toThrow(
+          mode === "production"
+            ? /sensitive_source_legacy_forbidden|live_quote_invalid/
+            : "sensitive_source_legacy_forbidden",
+        );
+        expect(
+          await db
+            .prepare("SELECT status FROM dispatches WHERE id=?")
+            .bind(id)
+            .first("status"),
+        ).toBe(initial);
       }
-      await expect(
-        db
-          .prepare("UPDATE dispatches SET status=? WHERE id=?")
-          .bind(next, id)
-          .run(),
-      ).rejects.toThrow("sensitive_source_legacy_forbidden");
     },
   );
 

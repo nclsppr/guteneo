@@ -3,6 +3,9 @@ import type { Env } from "../../apps/api/src/env";
 import { DomainService } from "../../packages/domain/src/index";
 
 vi.mock("../../apps/api/src/mcp", () => ({ handleMcp: vi.fn() }));
+vi.mock("../../apps/api/src/worldwide-fax-catalog", () => ({
+  refreshWorldwideFaxCatalog: vi.fn(),
+}));
 vi.mock("../../apps/api/src/maintenance", () => ({
   maintainDocuments: vi.fn(async () => ({ purged: 0, orphans: 0 })),
 }));
@@ -23,6 +26,7 @@ vi.mock("../../apps/api/src/provider-prevention-notifications", () => ({
   processPreventionNotifications: vi.fn(),
 }));
 
+import { refreshWorldwideFaxCatalog } from "../../apps/api/src/worldwide-fax-catalog";
 import worker from "../../apps/api/src/index";
 import { collectProviderFreshness } from "../../apps/api/src/provider-freshness";
 import { reconcileFreshnessAlerts } from "../../apps/api/src/freshness-alerts";
@@ -79,13 +83,17 @@ beforeEach(() => {
   vi.clearAllMocks();
   records = [];
   for (const method of ["log", "warn", "error"] as const)
-    vi.spyOn(console, method).mockImplementation((value) => records.push(value));
+    vi.spyOn(console, method).mockImplementation((value) =>
+      records.push(value),
+    );
   vi.spyOn(DomainService.prototype, "publishOutbox").mockResolvedValue({
     published: 3,
   });
-  vi.spyOn(DomainService.prototype, "reconcileExpiredLeases").mockResolvedValue({
-    uncertain: 0,
-  });
+  vi.spyOn(DomainService.prototype, "reconcileExpiredLeases").mockResolvedValue(
+    {
+      uncertain: 0,
+    },
+  );
   collect.mockResolvedValue({ evaluations, freshnessChecksFailed: 0 });
   reconcile.mockResolvedValue({
     freshnessAtRisk: 0,
@@ -110,6 +118,42 @@ beforeEach(() => {
 afterEach(() => vi.restoreAllMocks());
 
 describe("scheduled provider prevention", () => {
+  it.each([0, 1] as const)(
+    "reports a dedicated worldwide catalog run independently of minute maintenance (failed=%i)",
+    async (failed) => {
+      const env = environment({ TELNYX_FAX_DESTINATIONS: "worldwide" });
+      vi.mocked(refreshWorldwideFaxCatalog).mockResolvedValue({
+        worldwideFaxCatalogRefreshed: failed ? 0 : 1,
+        worldwideFaxCatalogFailed: failed,
+      });
+      const run = worker.scheduled(
+        { cron: "17 2 * * *" } as ScheduledController,
+        env,
+      );
+      if (failed) await expect(run).rejects.toThrow("CRON_FAILED");
+      else await run;
+      expect(refreshWorldwideFaxCatalog).toHaveBeenCalledExactlyOnceWith(env);
+      expect(collect).not.toHaveBeenCalled();
+      expect(records.find((record) => record.event === "cron")).toMatchObject({
+        route: "fax_catalog",
+        stage: "tariffs",
+        tariffRefreshFailed: failed,
+        code: failed ? "CRON_FAILED" : "OK",
+      });
+    },
+  );
+  it("leaves the worldwide import to its own trigger", async () => {
+    await worker.scheduled(
+      { cron: "17 2 * * *" } as ScheduledController,
+      environment(),
+    );
+    await worker.scheduled(
+      { cron: "* * * * *" } as ScheduledController,
+      environment({ TELNYX_FAX_DESTINATIONS: "worldwide" }),
+    );
+    expect(refreshWorldwideFaxCatalog).not.toHaveBeenCalled();
+    expect(collect).toHaveBeenCalledTimes(1);
+  });
   it("uses one inspected clock and reconciles durable prevention before processing notifications", async () => {
     const env = environment();
     await worker.scheduled({} as ScheduledController, env);
@@ -125,7 +169,9 @@ describe("scheduled provider prevention", () => {
       notify.mock.invocationCallOrder[0],
     );
     expect(notify).toHaveBeenCalledExactlyOnceWith(env);
-    expect(records.find((record) => record.event === "freshness")).toMatchObject({
+    expect(
+      records.find((record) => record.event === "freshness"),
+    ).toMatchObject({
       code: "OK",
       freshnessChecksFailed: 0,
       preventionActive: 1,
@@ -144,7 +190,9 @@ describe("scheduled provider prevention", () => {
     prevent.mockRejectedValue(new Error(privateMarker));
     await worker.scheduled({} as ScheduledController, environment());
     expect(notify).not.toHaveBeenCalled();
-    expect(records.find((record) => record.event === "freshness")).toMatchObject({
+    expect(
+      records.find((record) => record.event === "freshness"),
+    ).toMatchObject({
       code: "FRESHNESS_CHECK_FAILED",
       freshnessChecksFailed: 1,
       preventionChecksFailed: 1,
@@ -182,7 +230,9 @@ describe("scheduled provider prevention", () => {
         });
       await worker.scheduled({} as ScheduledController, environment());
       expect(notify).not.toHaveBeenCalled();
-      expect(records.find((record) => record.event === "freshness")).toMatchObject({
+      expect(
+        records.find((record) => record.event === "freshness"),
+      ).toMatchObject({
         code: "FRESHNESS_CHECK_FAILED",
         freshnessChecksFailed: 1,
         alertClass: 3,
@@ -198,7 +248,10 @@ describe("scheduled provider prevention", () => {
   it("does not send an old pending notice after J-1 deselection commits but prevention storage fails", async () => {
     const inactive = [{ ...evaluations[0], active: false, candidates: [] }];
     let deselectionCommitted = false;
-    collect.mockResolvedValue({ evaluations: inactive, freshnessChecksFailed: 0 });
+    collect.mockResolvedValue({
+      evaluations: inactive,
+      freshnessChecksFailed: 0,
+    });
     reconcile.mockImplementation(async () => {
       deselectionCommitted = true;
       return {
@@ -217,7 +270,9 @@ describe("scheduled provider prevention", () => {
     expect(reconcile).toHaveBeenCalledOnce();
     expect(prevent).toHaveBeenCalledOnce();
     expect(notify).not.toHaveBeenCalled();
-    expect(records.find((record) => record.event === "freshness")).toMatchObject({
+    expect(
+      records.find((record) => record.event === "freshness"),
+    ).toMatchObject({
       code: "FRESHNESS_CHECK_FAILED",
       freshnessResolved: 1,
       preventionChecksFailed: 1,
@@ -239,7 +294,9 @@ describe("scheduled provider prevention", () => {
       freshnessChecksFailed: 0,
     });
     await worker.scheduled({} as ScheduledController, environment());
-    expect(records.find((record) => record.event === "freshness")).toMatchObject({
+    expect(
+      records.find((record) => record.event === "freshness"),
+    ).toMatchObject({
       code: "FRESHNESS_AT_RISK",
       freshnessExpired: 1,
       freshnessChecksFailed: 0,
@@ -251,7 +308,8 @@ describe("scheduled provider prevention", () => {
   it.each(["failed", "unknown", "throw"] as const)(
     "makes %s operational notification outcomes technical failures without retrying the process or stopping cron",
     async (outcome) => {
-      if (outcome === "throw") notify.mockRejectedValue(new Error(privateMarker));
+      if (outcome === "throw")
+        notify.mockRejectedValue(new Error(privateMarker));
       else
         notify.mockResolvedValue({
           providerPreventionNotificationsSent: 0,
@@ -260,7 +318,9 @@ describe("scheduled provider prevention", () => {
         });
       await worker.scheduled({} as ScheduledController, environment());
       expect(notify).toHaveBeenCalledOnce();
-      expect(records.find((record) => record.event === "freshness")).toMatchObject({
+      expect(
+        records.find((record) => record.event === "freshness"),
+      ).toMatchObject({
         code: "FRESHNESS_CHECK_FAILED",
         freshnessChecksFailed: 1,
         alertClass: 3,

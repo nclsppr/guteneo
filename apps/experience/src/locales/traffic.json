@@ -1,4 +1,28 @@
 {
+  "traffic.estimatedFaxCost": {
+    "fr": "Estimation du fax",
+    "en": "Estimated fax cost",
+    "de": "Geschätzte Faxkosten",
+    "lb": "Geschate Faxkäschten"
+  },
+  "traffic.faxFallback": {
+    "fr": "Le tarif de la destination étant indisponible, Guteneo estime ce fax à 0,25 € hors taxes par page.",
+    "en": "Guteneo estimated this fax at €0.25 per page excluding tax because the destination rate was unavailable.",
+    "de": "Da der Tarif für das Ziel nicht verfügbar war, schätzt Guteneo dieses Fax auf 0,25 € pro Seite ohne Steuern.",
+    "lb": "Well den Tarif fir d’Destinatioun net disponibel war, schätzt Guteneo dëse Fax op 0,25 € pro Säit ouni Steieren."
+  },
+  "traffic.faxMaximumPrice": {
+    "fr": "Cette estimation atteint le prix maximal de Guteneo de 10 000 € hors taxes par fax. Le plafond que vous avez approuvé reste applicable.",
+    "en": "This estimate reaches Guteneo’s maximum price of €10,000 excluding tax per fax. Your approved ceiling still applies.",
+    "de": "Diese Schätzung erreicht den Höchstpreis von Guteneo von 10.000 € ohne Steuern pro Fax. Ihre genehmigte Obergrenze gilt weiterhin.",
+    "lb": "Dës Schätzung erreecht de maximale Präis vu Guteneo vun 10.000 € ouni Steiere pro Fax. Den ieweschte Betrag, deen Dir guttgeheescht hutt, gëllt weider."
+  },
+  "traffic.faxLastRate": {
+    "fr": "Cette estimation utilise le dernier tarif connu pour cette destination.",
+    "en": "This estimate uses the last known rate for this destination.",
+    "de": "Diese Schätzung verwendet den letzten bekannten Tarif für dieses Ziel.",
+    "lb": "Dës Schätzung benotzt de leschte bekannten Tarif fir dës Destinatioun."
+  },
   "traffic.discard": {
     "fr": "Quitter ce brouillon et perdre les modifications non préparées ?",
     "en": "Leave this draft and lose changes that have not been prepared?",

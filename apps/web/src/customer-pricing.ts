@@ -32,12 +32,13 @@ export function getCustomerPricing(): { rates: CustomerRate[]; note: string } {
       {
         id: "fax",
         channel: msg("Fax"),
-        scope: msg("Depends on pages, duration and destination"),
+        scope: msg("Worldwide fax numbers"),
         prices: [
           {
             amount: msg("≈ €0.05–0.17"),
             unit: msg("per fax, estimate for the scenario below"),
           },
+          { amount: msg("€0.25"), unit: msg("per page, fallback estimate excluding tax") },
         ],
         supplement: msg(
           "Example: one page from our Luxembourg number to a landline in Luxembourg, with an estimated 1 to 4 billed transmission minutes. Cost varies with actual duration and route; this range is not a guaranteed cap. The quote shows the cap before confirmation. Other destinations and durations require a quote.",

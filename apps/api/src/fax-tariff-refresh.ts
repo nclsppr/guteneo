@@ -92,12 +92,8 @@ function integerRate(value: string, places = 9): number {
   return Number(result);
 }
 
-/** Incremental CSV parsing retains one bounded row and the one exact registered route. */
-export async function parseFaxRateDeck(
-  chunks: AsyncIterable<Uint8Array>,
-  prefix: string,
-) {
-  if (prefix !== "+3524") fail("SOURCE_INVALID");
+/** Incrementally validate the published CSV without buffering the source file. */
+export async function readFaxRateDeckRows(chunks: AsyncIterable<Uint8Array>, onRow: (columns: string[]) => void) {
   const hash = createHash("sha256"),
     decoder = new TextDecoder("utf-8", { fatal: true });
   let bytes = 0,
@@ -107,9 +103,6 @@ export async function parseFaxRateDeck(
     header = false,
     skipLf = false;
   let mode: "start" | "plain" | "quoted" | "closed" = "start";
-  let match:
-    | { minuteNanoUsd: number; initialSeconds: 60; incrementSeconds: 60 }
-    | undefined;
   const finishField = () => {
     row.push(field);
     field = "";
@@ -128,30 +121,7 @@ export async function parseFaxRateDeck(
       return;
     }
     if (fields.length !== COLUMNS.length) fail("SOURCE_INVALID");
-    if (fields[0] !== "LU" || fields[2].trim().toLowerCase() !== "local")
-      return;
-    const numberPrefix = fields[3].trim();
-    if (!/^352\d*$/.test(numberPrefix)) fail("SOURCE_INVALID");
-    if (
-      numberPrefix.startsWith(prefix.slice(1)) &&
-      numberPrefix.length > prefix.length - 1
-    )
-      fail("SOURCE_INVALID");
-    if (`+${numberPrefix}` !== prefix) return;
-    if (
-      match ||
-      fields[4] !== "Trunking Outbound Minute - Luxembourg - Fixed - Local" ||
-      fields[5].trim() !== "60" ||
-      fields[6].trim() !== "60" ||
-      fields[8].trim() !== "" ||
-      fields[9].trim() !== ""
-    )
-      fail("SOURCE_INVALID");
-    match = {
-      minuteNanoUsd: integerRate(fields[7].trim()),
-      initialSeconds: 60,
-      incrementSeconds: 60,
-    };
+    onRow(fields);
   };
   const consume = (text: string) => {
     for (const character of text) {
@@ -213,11 +183,46 @@ export async function parseFaxRateDeck(
   const finalMode = mode as string;
   if (finalMode === "quoted") fail("SOURCE_INVALID");
   if (field || row.length || finalMode === "closed") finishRow();
+  if (!header) fail("SOURCE_INVALID");
+  return { sha256: hash.digest("hex"), bytes };
+}
+
+export async function parseFaxRateDeck(chunks: AsyncIterable<Uint8Array>, prefix: string) {
+  if (prefix !== "+3524") fail("SOURCE_INVALID");
+  let match:
+    | { minuteNanoUsd: number; initialSeconds: 60; incrementSeconds: 60 }
+    | undefined;
+  const deck = await readFaxRateDeckRows(chunks, (fields) => {
+    if (fields[0] !== "LU" || fields[2].trim().toLowerCase() !== "local")
+      return;
+    const numberPrefix = fields[3].trim();
+    if (!/^352\d*$/.test(numberPrefix)) fail("SOURCE_INVALID");
+    if (
+      numberPrefix.startsWith(prefix.slice(1)) &&
+      numberPrefix.length > prefix.length - 1
+    )
+      fail("SOURCE_INVALID");
+    if (`+${numberPrefix}` !== prefix) return;
+    if (
+      match ||
+      fields[4] !== "Trunking Outbound Minute - Luxembourg - Fixed - Local" ||
+      fields[5].trim() !== "60" ||
+      fields[6].trim() !== "60" ||
+      fields[8].trim() !== "" ||
+      fields[9].trim() !== ""
+    )
+      fail("SOURCE_INVALID");
+    match = {
+      minuteNanoUsd: integerRate(fields[7].trim()),
+      initialSeconds: 60,
+      incrementSeconds: 60,
+    };
+  });
   const found = match as
     | { minuteNanoUsd: number; initialSeconds: 60; incrementSeconds: 60 }
     | undefined;
-  if (!header || !found) fail("SOURCE_INVALID");
-  return { ...found, sha256: hash.digest("hex"), bytes };
+  if (!found) fail("SOURCE_INVALID");
+  return { ...found, ...deck };
 }
 
 export function parseFaxPagePrice(html: string): number {
@@ -343,7 +348,7 @@ function quoteGuard(source: Source, now: string) {
     values: [...route.values, now],
   };
 }
-async function* bodyChunks(
+export async function* bodyChunks(
   response: Response,
   maximum: number,
   signal: AbortSignal,
@@ -375,7 +380,7 @@ async function* bodyChunks(
     await reader.cancel().catch(() => {});
   }
 }
-async function collectText(
+export async function collectText(
   response: Response,
   maximum: number,
   signal: AbortSignal,

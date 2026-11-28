@@ -542,8 +542,7 @@ describe("self-service postal activation", () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(future);
     expect(await response(route)).toMatchObject({
-      configured: false,
-      reason: "pricing_expired",
+      configured: true,
     });
     expect(await count("trusted_delivery_costs")).toBe(16);
     const result = (await (await setup())!.json()) as PostalSetup;

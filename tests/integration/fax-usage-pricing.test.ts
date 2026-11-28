@@ -1,3 +1,4 @@
+import { worldwideFaxScope } from "../../packages/domain/src/worldwide-fax-catalog";
 import { Client } from "@modelcontextprotocol/client";
 import { InMemoryTransport } from "@modelcontextprotocol/server";
 import { createGuteneoMcpServer } from "../../apps/api/src/mcp";
@@ -172,6 +173,257 @@ async function readyToSettle(ceilingMinor = 100) {
 }
 
 describe("fax v3 — real local D1, synthetic provider and operator evidence", () => {
+  it("quotes a previously unseen worldwide number, approves the same cap and settles verified usage", async () => {
+    const world = { ...f.identity, worldwide: true };
+    f.domain = new DomainService(db, {
+      mode: "production",
+      now: () => clock,
+      liveFaxIdentity: world,
+    });
+    f.input.recipient.phone = "+81312345678";
+    const [first, second] = await Promise.all([prepare(), prepare()]);
+    expect(first.faxPricing).toMatchObject({
+      referenceBasis: "guteneo_continuity_v1",
+      estimatedLowNanoeur: 500_000_000,
+      estimatedHighNanoeur: 500_000_000,
+      ceilingMinor: 100,
+    });
+    const original = await db
+      .prepare("SELECT tariff_id FROM live_fax_quotes_v3 WHERE dispatch_id=?")
+      .bind(first.id)
+      .first("tariff_id");
+    expect(
+      await db
+        .prepare("SELECT tariff_id FROM live_fax_quotes_v3 WHERE dispatch_id=?")
+        .bind(second.id)
+        .first("tariff_id"),
+    ).toBe(original);
+    const qualified = await f.domain.getDispatch(f.ctx, first.id);
+    await expect(
+      validateLiveFaxQuote(db, qualified.dispatch, f.identity, stamp()),
+    ).rejects.toMatchObject({ code: "LIVE_QUOTE_INVALID" });
+    expect(
+      await f.domain.approveDispatch(f.ctx, first.id, first.fingerprint),
+    ).toBeTruthy();
+    const queued = await f.domain.confirmDispatch(f.ctx, first.id, "worldwide");
+    f.identity = world;
+    const { hook } = await submit(queued);
+    expect(hook).toHaveBeenCalledOnce();
+    await event(queued, "delivered");
+    expect(
+      (
+        await settleFaxUsage(
+          db,
+          await proof(queued, 2_500_000_000_001),
+          stamp(),
+        )
+      ).customer_nanoeur,
+    ).toBe(1_000_000_000);
+  });
+
+  it.each([undefined, "+35229999999"])(
+    "requires the currently configured provider sender at prepare and acceptance (%s)",
+    async (senderAddress) => {
+      const world = { ...f.identity, worldwide: true };
+      const worldDomain = (configured?: string) =>
+        new DomainService(db, {
+          mode: "production",
+          now: () => clock,
+          liveFaxIdentity: { ...world, senderAddress: configured },
+        });
+      f.domain = worldDomain(senderAddress);
+      await expect(prepare()).rejects.toMatchObject({
+        code: "SENDER_REQUIRED",
+      });
+      f.domain = worldDomain(world.senderAddress);
+      const draft = await prepare();
+      await f.domain.approveDispatch(f.ctx, draft.id, draft.fingerprint);
+      f.domain = worldDomain(senderAddress);
+      await expect(
+        f.domain.confirmDispatch(f.ctx, draft.id, "sender-change"),
+      ).rejects.toMatchObject({ code: "LIVE_QUOTE_INVALID" });
+    },
+  );
+
+  it("can quote the first worldwide fax as the preparation clock advances", async () => {
+    f.domain = new DomainService(db, {
+      mode: "production",
+      now: () => ++clock,
+      liveFaxIdentity: { ...f.identity, worldwide: true },
+    });
+    f.input.recipient.phone = "+27821234567";
+    expect((await prepare()).faxPricing?.referenceBasis).toBe(
+      "guteneo_continuity_v1",
+    );
+  });
+
+  it("quotes an expensive one-second international route and honors the same ceiling across a failed refresh", async () => {
+    const identity = {
+      ...f.identity,
+      outboundProfileId: "world-catalog-profile",
+      worldwide: true,
+    };
+    f.domain = new DomainService(db, {
+      mode: "production",
+      now: () => clock,
+      liveFaxIdentity: identity,
+    });
+    const scope = worldwideFaxScope({
+      ...identity,
+      senderNumber: "+35220000000",
+    });
+    await insertRecord(db, "worldwide_fax_catalog_state", {
+      scope,
+      next_due_at: stamp(),
+      revision: "us-east-ref",
+    });
+    await insertRecord(db, "worldwide_fax_catalog_decks", {
+      id: "us-east-deck",
+      scope,
+      deck_sha256: "c".repeat(64),
+      created_at: stamp(),
+      complete: 1,
+    });
+    await insertRecord(db, "worldwide_fax_catalog_revisions", {
+      id: "us-east-ref",
+      deck_id: "us-east-deck",
+      scope,
+      created_at: stamp(),
+      evidence_json: JSON.stringify({
+        senderCountry: "LU",
+        pageNanoUsd: 7_000_000,
+        fxNumerator: 9,
+        fxDenominator: 10,
+        fxDate: stamp().slice(0, 10),
+        fxSource: "SYNTHETIC FX",
+        sourceSha256: "d".repeat(64),
+        sourceReference: "SYNTHETIC CATALOG",
+      }),
+    });
+    await insertRecord(db, "worldwide_fax_catalog_buckets", {
+      deck_id: "us-east-deck",
+      bucket: "1212",
+      routes:
+        "12125550111|US|0|1|2000000000|1500000000|1|1\n12125550999|US|0|1|100000000000|0|1|1",
+    });
+    f.input.recipient.phone = "+12125550111";
+    const manyPages = await createFaxUsageFixture(db, () => clock, {}, 100);
+    const premium = await f.domain.prepareDispatch(
+      manyPages.ctx,
+      {
+        ...manyPages.input,
+        recipient: { phone: "+12125550999" },
+        ceilingMinor: 1_000_000,
+      },
+      "premium-customer-maximum",
+    );
+    expect(premium.faxPricing).toMatchObject({
+      referenceBasis: "worldwide_catalog",
+      estimatedLowNanoeur: 10_000_000_000_000,
+      estimatedHighNanoeur: 10_000_000_000_000,
+      ceilingMinor: 1_000_000,
+    });
+    const fresh = await prepare(4000);
+    expect(fresh.faxPricing).toMatchObject({
+      referenceBasis: "worldwide_catalog",
+      estimatedLowNanoeur: 11_725_200_000,
+      estimatedHighNanoeur: 26_125_200_000,
+      ceilingMinor: 4000,
+    });
+    await db
+      .prepare(
+        "UPDATE worldwide_fax_catalog_state SET last_failure_at=? WHERE scope=?",
+      )
+      .bind(stamp(), scope)
+      .run();
+    const archived = await prepare(4000);
+    expect(archived.faxPricing).toMatchObject({
+      referenceBasis: "last_known_reference",
+      estimatedHighNanoeur: 26_125_200_000,
+    });
+    const interruptedRead = new Proxy(db, {
+      get(target, property) {
+        if (property === "prepare")
+          return (query: string) =>
+            target.prepare(
+              query.includes("JOIN worldwide_fax_catalog_buckets")
+                ? "SELECT * FROM missing_fixture_catalog"
+                : query,
+            );
+        const value = Reflect.get(target, property);
+        return typeof value === "function" ? value.bind(target) : value;
+      },
+    });
+    const interrupted = new DomainService(interruptedRead, {
+      mode: "production",
+      now: () => clock,
+      liveFaxIdentity: identity,
+    });
+    expect(
+      (
+        await interrupted.prepareDispatch(
+          f.ctx,
+          { ...f.input, ceilingMinor: 4000 },
+          "catalog-read-interruption",
+        )
+      ).faxPricing,
+    ).toMatchObject({
+      referenceBasis: "last_known_reference",
+      estimatedHighNanoeur: 26_125_200_000,
+    });
+    const longer = { ...f.input, recipient: { phone: "+121255501110" } };
+    expect(
+      (await interrupted.prepareDispatch(f.ctx, longer, "exact-history"))
+        .faxPricing?.referenceBasis,
+    ).toBe("guteneo_continuity_v1");
+    expect(
+      (await f.domain.prepareDispatch(f.ctx, longer, "exact-catalog"))
+        .faxPricing?.referenceBasis,
+    ).toBe("guteneo_continuity_v1");
+    await f.domain.approveDispatch(f.ctx, fresh.id, fresh.fingerprint);
+    expect(
+      (await f.domain.confirmDispatch(f.ctx, fresh.id, "first-quote")).status,
+    ).toBe("queued");
+  });
+
+  it("uses historical scoped prices for a fax above the legacy ten-page cap", async () => {
+    f = await createFaxUsageFixture(db, () => clock, {}, 11);
+    f.domain = new DomainService(db, {
+      mode: "production",
+      now: () => clock,
+      liveFaxIdentity: { ...f.identity, worldwide: true },
+    });
+    clock += 4_000_000;
+    const result = await prepare(900);
+    expect(result.faxPricing).toMatchObject({
+      referenceBasis: "last_known_reference",
+      ceilingMinor: 900,
+    });
+    expect(result.faxPricing?.routeQualification).toBeUndefined();
+  });
+
+  it("uses the same scoped tariff across source expiry, acceptance and final preflight", async () => {
+    clock = Date.parse(f.tariff.expires_at) - 30_000;
+    const before = await prepare();
+    expect(before.quote_expires_at).toBe(
+      new Date(clock + 300_000).toISOString(),
+    );
+    clock += 60_000;
+    await f.domain.approveDispatch(f.ctx, before.id, before.fingerprint);
+    const queued = await f.domain.confirmDispatch(
+      f.ctx,
+      before.id,
+      "crossed-source-deadline",
+    );
+    expect((await submit(queued)).hook).toHaveBeenCalledOnce();
+    const after = await queue();
+    expect(after.estimated_minor).toBe(before.estimated_minor);
+    expect(after.faxPricing?.estimatedHighNanoeur).toBe(
+      before.faxPricing?.estimatedHighNanoeur,
+    );
+    expect((await submit(after)).hook).toHaveBeenCalledOnce();
+  });
+
   it("projects a full 100-id page with two bound parameters and keeps tenant isolation", async () => {
     const d = await prepare();
     const ids = [
@@ -1311,9 +1563,7 @@ describe("Luxembourg local rate coverage — isolated D1, no provider calls", ()
     ]) {
       f.input.recipient.phone = phone;
       await expect(prepare(200)).rejects.toMatchObject({
-        code: phone.startsWith("+353")
-          ? "INVALID_PHONE"
-          : "LIVE_PRICING_REQUIRED",
+        code: "LIVE_PRICING_REQUIRED",
       });
     }
   });

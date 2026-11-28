@@ -1,0 +1,47 @@
+{
+  "Numéros de fax du monde entier": [
+    "Worldwide fax numbers",
+    "Faxnummern weltweit",
+    "Faxnummeren op der ganzer Welt"
+  ],
+  "0,25 €": [
+    "€0.25",
+    "0,25 €",
+    "0,25 €"
+  ],
+  "par page, estimation de secours hors taxes": [
+    "per page, fallback estimate excluding tax",
+    "pro Seite, Ersatzschätzung ohne Steuern",
+    "pro Säit, Ersatzschätzung ouni Steieren"
+  ],
+  "Cette estimation utilise le dernier tarif connu pour cette destination.": [
+    "This estimate uses the last known rate for this destination.",
+    "Diese Schätzung verwendet den letzten bekannten Tarif für dieses Ziel.",
+    "Dës Schätzung benotzt de leschte bekannten Tarif fir dës Destinatioun."
+  ],
+  "Le tarif de la destination étant indisponible, Guteneo estime ce fax à 0,25 € hors taxes par page.": [
+    "Guteneo estimated this fax at €0.25 per page excluding tax because the destination rate was unavailable.",
+    "Da der Tarif für das Ziel nicht verfügbar war, schätzt Guteneo dieses Fax auf 0,25 € pro Seite ohne Steuern.",
+    "Well den Tarif fir d’Destinatioun net disponibel war, schätzt Guteneo dëse Fax op 0,25 € pro Säit ouni Steieren."
+  ],
+  "Cette estimation atteint le prix maximal de Guteneo de 10 000 € hors taxes par fax. Le plafond que vous avez approuvé reste applicable.": [
+    "This estimate reaches Guteneo’s maximum price of €10,000 excluding tax per fax. Your approved ceiling still applies.",
+    "Diese Schätzung erreicht den Höchstpreis von Guteneo von 10.000 € ohne Steuern pro Fax. Ihre genehmigte Obergrenze gilt weiterhin.",
+    "Dës Schätzung erreecht de maximale Präis vu Guteneo vun 10.000 € ouni Steiere pro Fax. Den ieweschte Betrag, deen Dir guttgeheescht hutt, gëllt weider."
+  ],
+  "Le numéro de fax, le profil d’envoi ou les options sont invalides.": [
+    "The fax number, sending profile or options are invalid.",
+    "Die Faxnummer, das Sendeprofil oder die Optionen sind ungültig.",
+    "D’Faxnummer, de Sendeprofil oder d’Optioune sinn ongëlteg."
+  ],
+  "Un expéditeur de fax vérifié est requis.": [
+    "A verified fax sender is required.",
+    "Ein verifizierter Faxabsender ist erforderlich.",
+    "Et gëtt e verifizéierte Faxofsender gebraucht."
+  ],
+  "Cette route de fax est indisponible.": [
+    "This fax route is unavailable.",
+    "Diese Faxroute ist nicht verfügbar.",
+    "Dës Faxroute ass net disponibel."
+  ]
+}

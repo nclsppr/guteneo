@@ -6,7 +6,7 @@ import { migrationPlan } from "../../scripts/migrate-remote.mjs";
 import {
   createD1Client,
   manualContext,
-  migrateReviewedIndexes,
+  migrateReviewedSchema,
   qualifyManualRelease,
   requireLedger,
   requireReviewedPlan,
@@ -106,21 +106,25 @@ test("manual input cannot select a foreign workflow event, checkout or injected 
 });
 
 const plan = await migrationPlan();
-const schema = [
-  { type: "table", name: "audit_log", sql: "CREATE TABLE audit_log(id TEXT)" },
-  {
-    type: "table",
-    name: "pdf_validations",
-    sql: "CREATE TABLE pdf_validations(id TEXT)",
-  },
-  ...plan.slice(80).map((entry) => ({
-    type: "index",
-    name: entry.name.startsWith("0081")
-      ? "approval_request_receipts"
-      : "pdf_validation_history",
-    sql: entry.batch[0].sql.replace(/^\s*--[^\n]*(?:\n|$)/gm, "").trim(),
-  })),
-];
+// Give each ledger prefix its own synthetic object set. A final schema alone
+// cannot establish which revisions of a replaced view exist partway through.
+const schema = Object.fromEntries(
+  plan.slice(79).map((_, offset) => [
+    80 + offset,
+    [
+      {
+        type: "table",
+        name: "audit_log",
+        sql: "CREATE TABLE audit_log(id TEXT)",
+      },
+      {
+        type: "view",
+        name: "dispatch_price",
+        sql: `CREATE VIEW dispatch_price AS SELECT ${offset}`,
+      },
+    ],
+  ]),
+);
 function d1Fixture({
   applied = 80,
   drift = false,
@@ -132,12 +136,8 @@ function d1Fixture({
   const request = async (operation, batch) => {
     calls.push({ operation, batch });
     if (operation === "bookmark") return "00000001-00000002-bookmark";
-    if (
-      batch[0].sql.startsWith("CREATE") ||
-      batch[0].sql.includes("CREATE INDEX")
-    ) {
-      assert.equal(batch.length, 2);
-      assert.equal(batch[1].sql, plan[count].batch[1].sql);
+    if (batch.at(-1)?.sql.startsWith("INSERT INTO d1_migrations(")) {
+      assert.deepEqual(batch, plan[count].batch);
       count++;
       if (loseResponse) throw new Error("MANUAL_RELEASE_D1_RESPONSE_UNKNOWN");
       return batch.map(() => ({ success: true, results: [] }));
@@ -147,19 +147,11 @@ function d1Fixture({
       results: sql.startsWith("SELECT name FROM d1_migrations")
         ? plan.slice(0, count).map(({ name }) => ({ name }))
         : sql.startsWith("SELECT type,name,sql")
-          ? schema
-              .filter(
-                (row) => count === 82 || row.name !== "pdf_validation_history",
-              )
-              .filter(
-                (row) =>
-                  count >= 81 || row.name !== "approval_request_receipts",
-              )
-              .map((row) =>
-                drift && row.name === "audit_log"
-                  ? { ...row, sql: "CREATE TABLE audit_log(id INTEGER)" }
-                  : row,
-              )
+          ? schema[count].map((row) =>
+              drift && row.name === "audit_log"
+                ? { ...row, sql: "CREATE TABLE audit_log(id INTEGER)" }
+                : row,
+            )
           : sql === "PRAGMA foreign_keys"
             ? [{ foreign_keys: 1 }]
             : sql === "PRAGMA ignore_check_constraints"
@@ -173,7 +165,7 @@ function d1Fixture({
   };
   return { request, calls, count: () => count };
 }
-test("source boundary permits exactly the two additive indexes and exact ledger prefix", () => {
+test("source boundary permits exactly the reviewed migrations and exact ledger prefix", () => {
   requireReviewedPlan(plan);
   assert.equal(
     requireLedger(
@@ -184,7 +176,18 @@ test("source boundary permits exactly the two additive indexes and exact ledger 
   );
   for (const altered of [
     plan.slice(0, 81),
-    [...plan, { name: "0083_unreviewed.sql" }],
+    [...plan, { name: "0088_unreviewed.sql" }],
+    plan.map((entry, index) =>
+      index === 83
+        ? {
+            ...entry,
+            batch: [
+              { sql: "DELETE FROM organizations;" },
+              ...entry.batch.slice(1),
+            ],
+          }
+        : entry,
+    ),
     plan.map((entry, index) =>
       index === 81
         ? {
@@ -216,12 +219,12 @@ test("source boundary permits exactly the two additive indexes and exact ledger 
     /SCHEMA_MISMATCH/,
   );
 });
-test("schema first applies each missing index and ledger row in one batch then independently reads integrity", async () => {
-  for (const applied of [80, 81, 82]) {
+test("schema first applies each missing migration and ledger row in one batch then independently reads integrity", async () => {
+  for (const applied of [80, 81, 82, 84, plan.length]) {
     const fixture = d1Fixture({ applied });
     const evidence = [];
     let checks = 0;
-    const proof = await migrateReviewedIndexes({
+    const proof = await migrateReviewedSchema({
       plan,
       expectedSchema: schema,
       request: fixture.request,
@@ -231,26 +234,26 @@ test("schema first applies each missing index and ledger row in one batch then i
       record: async (value) => evidence.push(structuredClone(value)),
     });
     assert.equal(proof.status, "schema-verified");
-    assert.equal(proof.after.applied, 82);
-    assert.equal(fixture.count(), 82);
-    assert.equal(proof.migrations.length, 82 - applied);
+    assert.equal(proof.after.applied, plan.length);
+    assert.equal(fixture.count(), plan.length);
+    assert.equal(proof.migrations.length, plan.length - applied);
     assert.equal(proof.quickCheck, "ok");
     assert.equal(proof.foreignKeyViolations, 0);
-    assert.equal(checks, 2 + 82 - applied);
+    assert.equal(checks, 2 + plan.length - applied);
     assert.equal(
       evidence[0].preMigrationBookmark,
       "00000001-00000002-bookmark",
     );
     assert.equal(
       evidence.filter((entry) => entry.status === "migration-in-flight").length,
-      82 - applied,
+      plan.length - applied,
     );
   }
 });
 test("unknown mutation outcome stops without retry; schema drift and integrity failure never verify", async () => {
   const fixture = d1Fixture({ loseResponse: true });
   await assert.rejects(
-    migrateReviewedIndexes({
+    migrateReviewedSchema({
       plan,
       expectedSchema: schema,
       request: fixture.request,
@@ -268,7 +271,7 @@ test("unknown mutation outcome stops without retry; schema drift and integrity f
   for (const change of [{ drift: true }, { quick: "corrupt" }]) {
     const failed = d1Fixture(change);
     await assert.rejects(
-      migrateReviewedIndexes({
+      migrateReviewedSchema({
         plan,
         expectedSchema: schema,
         request: failed.request,
@@ -282,7 +285,7 @@ test("source advancement before a mutation stops with no schema write", async ()
   const fixture = d1Fixture();
   let checks = 0;
   await assert.rejects(
-    migrateReviewedIndexes({
+    migrateReviewedSchema({
       plan,
       expectedSchema: schema,
       request: fixture.request,
@@ -323,7 +326,7 @@ test("publication consumes only matching successful same-dispatch schema evidenc
     ...context,
     ...qualification,
     status: "schema-verified",
-    after: { applied: 82, schemaSha256: "a".repeat(64) },
+    after: { applied: plan.length, schemaSha256: "a".repeat(64) },
     quickCheck: "ok",
     foreignKeyViolations: 0,
   };

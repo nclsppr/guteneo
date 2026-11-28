@@ -29,7 +29,11 @@ import { hashSecret } from "../../apps/api/src/auth";
 import type { Env } from "../../apps/api/src/env";
 import type { Fetcher } from "../../packages/providers";
 import { PingenDestinationAvailabilityReader } from "../../packages/providers/pingen-destination-availability";
-import { destinationRestrictionsResponse } from "../helpers/pingen-destinations";
+import { refreshPostalPrice } from "../../apps/api/src/postal-price-refresh";
+import {
+  withDestinationRestrictions,
+  destinationRestrictionsResponse,
+} from "../helpers/pingen-destinations";
 const DAY = 86400000;
 let mf: Miniflare,
   db: D1Database,
@@ -971,5 +975,84 @@ describe("automatic postal policy maintenance — isolated production-shaped D1"
       postalPolicyRefreshDeferred: 0,
     });
     expect(calls).toEqual([]);
+  });
+});
+
+describe("background postal price lookup", () => {
+  it("retains the old amount after calculator failure, then refreshes only the due scoped price under concurrent ticks", async () => {
+    const key = [
+      ctx.organizationId,
+      senderId,
+      env.PINGEN_ORGANIZATION_ID!,
+      canonicalJson(print),
+    ];
+    await db
+      .prepare(
+        `INSERT INTO postal_price_references(organization_id,sender_id,account_id,options_json,environment,country,paper_count,supplier_minor,observed_at,next_due_at)
+      VALUES (?,?,?,?,'production','LU',2,318,?,?)`,
+      )
+      .bind(...key, stamp(), stamp())
+      .run();
+    const current = () =>
+      db
+        .prepare(
+          "SELECT supplier_minor,observed_at FROM postal_price_references WHERE organization_id=?",
+        )
+        .bind(ctx.organizationId)
+        .first();
+    const original = await current();
+    let offline = true;
+    const calculate = vi.fn(async () =>
+      offline
+        ? new Response(null, { status: 503 })
+        : Response.json({
+            data: {
+              type: "letter_price_calculator",
+              attributes: { price: "3.24", currency: "EUR" },
+            },
+          }),
+    );
+    const sources: Fetcher = withDestinationRestrictions(async (url, init) => {
+      const path = new URL(String(url)).pathname;
+      if (path === "/auth/access-tokens")
+        return Response.json({
+          access_token: "fixture-token",
+          expires_in: 3600,
+        });
+      if (path.endsWith("/price-calculator") && init?.method === "POST") {
+        expect(JSON.parse(String(init.body)).data.attributes).toEqual({
+          country: "LU",
+          paper_types: ["normal", "normal"],
+          delivery_product: "cheap",
+          print_mode: "duplex",
+          print_spectrum: "grayscale",
+        });
+        return calculate();
+      }
+      throw new Error("Unexpected provider request");
+    });
+    const deps = { fetcher: sources, now: () => clock };
+    expect(await refreshPostalPrice(env, deps)).toEqual({
+      postalPricesRefreshed: 0,
+      postalPriceRefreshFailed: 1,
+    });
+    expect(await current()).toEqual(original);
+    expect(calculate).toHaveBeenCalledTimes(1);
+    await refreshPostalPrice(env, deps);
+    expect(calculate).toHaveBeenCalledTimes(1);
+    clock += 3600001;
+    offline = false;
+    const concurrent = await Promise.all([
+      refreshPostalPrice(env, deps),
+      refreshPostalPrice(env, deps),
+    ]);
+    expect(
+      concurrent.map((result) => result.postalPricesRefreshed).sort(),
+    ).toEqual([0, 1]);
+    expect(calculate).toHaveBeenCalledTimes(2);
+    expect(await current()).toEqual({
+      supplier_minor: 324,
+      observed_at: stamp(),
+    });
   });
 });

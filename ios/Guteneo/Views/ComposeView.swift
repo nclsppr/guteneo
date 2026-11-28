@@ -39,8 +39,7 @@ struct ComposeView: View {
     private var valid: Bool {
         guard channels.contains(fields.channel), ceilingMinor != nil, !fields.selectedSender.isEmpty else { return false }
         if fields.channel == .fax {
-            let phone = fields.recipient.filter { !" ()-".contains($0) }
-            return !fields.selectedDocument.isEmpty && phone.range(of: "^\\+(33|352|49)[0-9]{6,12}$", options: .regularExpression) != nil
+            return !fields.selectedDocument.isEmpty && FaxAddress.isValid(fields.recipient)
         }
         return fields.recipient.contains("@") && !fields.recipient.contains(where: \.isWhitespace)
             && !fields.subject.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -102,7 +101,7 @@ struct ComposeView: View {
                             .textContentType(fields.channel == .fax ? .telephoneNumber : .emailAddress)
                             .textInputAutocapitalization(.never).autocorrectionDisabled()
                             .accessibilityIdentifier("recipient")
-                        if fields.channel == .fax { Text("France, Luxembourg or Germany, depending on available routes.").font(.footnote).foregroundStyle(.secondary) }
+                        if fields.channel == .fax { Text("Include + and the country calling code.").font(.footnote).foregroundStyle(.secondary) }
                     }.disabled(!preparation.canEdit)
                     if fields.channel == .fax {
                         Section("Original PDF") {
@@ -230,7 +229,7 @@ struct ComposeView: View {
         error = nil
         guard saveDraft() else { preparation.finish(requiresRecovery: recovering); return }
         var draft = DispatchDraft(channel: fields.channel,
-                                  recipient: [fields.channel == .fax ? "phone" : "email": fields.channel == .fax ? fields.recipient.filter { !" ()-".contains($0) } : fields.recipient.trimmingCharacters(in: .whitespacesAndNewlines)],
+                                  recipient: [fields.channel == .fax ? "phone" : "email": fields.channel == .fax ? FaxAddress.normalized(fields.recipient) : fields.recipient.trimmingCharacters(in: .whitespacesAndNewlines)],
                                   documentId: fields.channel == .fax ? fields.selectedDocument : nil,
                                   senderId: fields.selectedSender,
                                   subject: fields.channel == .email ? fields.subject : nil,

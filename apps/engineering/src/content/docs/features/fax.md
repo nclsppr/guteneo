@@ -1,6 +1,6 @@
 ---
 title: "Fax"
-description: "10 capabilities in the deliver branch of Guteneo."
+description: "9 capabilities in the deliver branch of Guteneo."
 sidebar:
   order: 7
 ---
@@ -9,7 +9,7 @@ sidebar:
 
 **Access boundary:** Current capability and authority required.
 
-Implemented fax contracts. Release 1.1.20 and migrations 0066–0067 are deployed for the exact restricted reviewer and registered Luxembourg pilot; reviewer preparation and a genuine automatic refresh were observed. Other routes, hosted assistant journeys and actual delivery retain separate qualification. Live sender, tariff, approval, credits and provider gates apply.
+Implemented worldwide fax preparation, customer ceiling approval and bounded settlement. The carrier controls availability and delivery. The restricted marketplace review account retains its preparation-only access.
 
 **Surfaces:** Web, REST, MCP and native preparation/tracking; browser or existing delegated approval.
 
@@ -19,14 +19,13 @@ Implemented fax contracts. Release 1.1.20 and migrations 0066–0067 are deploye
 
 <ol>
 <li id="feature-30bb34a6b7b9">Exact PDF, recipient number and qualified sender</li>
-<li id="feature-4bc48953d372">Dated provider quote with bounded renewal</li>
-<li id="feature-26620de430d6">Candidate scoped +3524 operator-tariff renewal preserves prices, source dates, seven-day validity and EUR2 cap; migration 0064, matching runtime and separate installation required</li>
+<li id="feature-260671e0aed6">Worldwide destination-specific pricing for international fax numbers, with the latest applicable reference or EUR0.25 per page during a cold start</li>
 <li id="feature-3636a3003e0b">Estimated range, approved ceiling and credit balance in euros</li>
 <li id="feature-32927ed70105">Preparation, human review, approval and confirmation</li>
 <li id="feature-c07652a7bf1f">Tracking, receipts, usage settlement and unknown outcomes</li>
 <li id="feature-e322e320b56e">Unsendable reviewer mode stops before approval</li>
 <li id="feature-d201405f7b7f">Explicit continuous access removes periodic reviewer-reference renewal for the exact restricted single-member account; archived pricing stays labelled, quotes retain their 900-second lifetime and approval/sending remain prohibited</li>
-<li id="feature-8a942d3218f3">Registered live commercial references refresh from actual official sources and provider-ownership reads through the existing scheduler; bounded leases/backoff and active-quote deferral preserve immutable approved prices</li>
+<li id="feature-b43a890b3454">The daily scheduled job checks Telnyx and ECB sources and keeps existing quotes immutable during catalogue replacement</li>
 <li id="feature-90bd3e8fbaf7">Read-only readiness overlaps outbound-profile inspection with ordered bounded phone pagination; partial errors retain stable stage order and tariff/replay/settlement dependencies remain fenced</li>
 </ol>
 

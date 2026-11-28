@@ -26,8 +26,28 @@ describe("content boundary", () => {
     expect(phone("+352 (26) 12 34 56")).toEqual({ phone: "+35226123456" });
     for (const kept of ["+33 01 23 45 67 89", "+330612345678", "+49030123456"])
       expect(() => phone(kept)).toThrow("Remove the 0");
-    for (const invalid of ["123", "+353 1 234 5678", "0033123456789"])
-      expect(() => phone(invalid)).toThrow("An international number is required");
+    for (const [formatted, normalized] of [
+      ["+353 1 234 5678", "+35312345678"],
+      ["+39 06 1234 5678", "+390612345678"],
+      ["+44 (0)20 7946 0000", "+442079460000"],
+      ["+1 (202) 555-0100", "+12025550100"],
+      ["+81 3 1234 5678", "+81312345678"],
+      ["+683 1234", "+6831234"],
+      ["+27 11 123 4567", "+27111234567"],
+      ["+55 11 2345 6789", "+551123456789"],
+    ])
+      expect(phone(formatted)).toEqual({ phone: normalized });
+    for (const invalid of [
+      "123",
+      "+123456",
+      "+1234567890123456",
+      "+0123456789",
+      "+12025550100 ext 2",
+      "0033123456789",
+    ])
+      expect(() => phone(invalid)).toThrow(
+        "Enter the international fax number",
+      );
   });
   it("rejects an unsupported postal address line instead of silently dropping it", () => {
     expect(() =>

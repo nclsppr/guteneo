@@ -349,16 +349,18 @@ describe("continuous unsendable reviewer access", () => {
     }
   });
 
-  it("keeps expired review and ordinary provider pricing closed without opt-in", async () => {
+  it("keeps expired review closed without opt-in and permits ordinary preparation from its last verified price", async () => {
+    const ordinary = await createFaxUsageFixture(db, () => clock);
     clock = Date.parse("2027-02-01T10:00:00.000Z");
     await expect(prepare()).rejects.toMatchObject(expired);
-    await expect(
-      fixture.domain.prepareDispatch(
-        fixture.ctx,
-        { ...fixture.input, recipient: { phone: "+33100000001" } },
-        crypto.randomUUID(),
-      ),
-    ).rejects.toMatchObject(expired);
+    expect(ordinary.tariff.expires_at < stamp()).toBe(true);
+    const draft = await ordinary.domain.prepareDispatch(
+      ordinary.ctx,
+      ordinary.input,
+      crypto.randomUUID(),
+    );
+    expect(draft.status).toBe("prepared");
+    expect(draft.faxPricing?.settlement.status).toBe("not_reserved");
     await noExecution();
   });
 

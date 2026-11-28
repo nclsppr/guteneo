@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "pluginVersion": "1.3.0",
-  "mcpSourceSha256": "e6a9fa62297951118f0c822fc288e42e0692496a811b7a2649c1bc371ec97ae9",
-  "packageSha256": "f5e38a2576ec0b3135c727c551308862a012e6b31e1a9d33753fe29f21c78060",
+  "pluginVersion": "1.3.1",
+  "mcpSourceSha256": "12c709a121ac18cbffef4a30fd4d381664c597a42334b29989c281766c219e40",
+  "packageSha256": "eee47ff615cd372888da27e627390ccd704c6f7b23839a3ff9583f5162956df9",
   "sources": {
     "apps/api/src/auth.ts": "638fdcca948ce6297c5618188b82d8f187d46981ed3cbca7921286df60a568e5",
     "apps/api/src/connection-observations.ts": "40278b9fab339e05949a04c2d2718348236e9362e944f95a4d2a3466c186fa24",
@@ -16,7 +16,7 @@
     "apps/api/src/mcp-document-upload.ts": "02522866f3802c9aebb9894110936d3e45950b664a5192e02409191a6e022373",
     "apps/api/src/mcp-skills.ts": "ba687c5016d9aa2c44fc8f1dc1aeb826ad0c58bf4761a74425ad3776188de729",
     "apps/api/src/mcp-ui-probe.ts": "ec64e9c872b38bbe10a9729a6edb7629330432f0adf54c5fd9eec1210fcaa3fa",
-    "apps/api/src/mcp.ts": "cc8d0d08e9de5cdb89bfe0b2d784853586204b87769c1e6e01d4348849d8b738",
+    "apps/api/src/mcp.ts": "784c2743fed3d3a0706d46c81c7598e26918e5c7c244ad4bfd885592b108ceee",
     "apps/api/src/postal-address-page.ts": "0136e864e9f2611932a6540c1ac093add1a107a60e5b135b25c38be6c1bfd2e6",
     "apps/api/src/postal-authority.ts": "69dc7155a56311b7927416b90acf3577417b30f0ca410e3f815530c1b29b7e98",
     "apps/api/src/saved-recipients.ts": "f9bde0f3851e684bc0b63b19ca0a7fc5584942eaa2bba460cbb0d1fb6a0339ae",
@@ -28,7 +28,8 @@
     "packages/contracts/src/dispatch-schedules.ts": "c5264ae19acaf7c94fab92186b7f83b56627a83a64f276ce5ff7459acaad45ae",
     "packages/contracts/src/dispatch-validation.ts": "64c3864fb31f3874a15ba0504ee04d2449dd02e43c2d1dac356905258d85d91c",
     "packages/contracts/src/document-analysis.ts": "5984742fa3108c2328c6d446f95d79bf86d38792a7c3dcdd0c9916f552dd16ea",
-    "packages/contracts/src/fax-pricing.ts": "345f5a03de307791a6039cf4f044d968ef1c4ae73e739938c9d591796a37f424",
+    "packages/contracts/src/fax-number.ts": "59fa73445c95438b31aaa3e4f8ec46ddff6077abc506c5c20413005ff5bb5496",
+    "packages/contracts/src/fax-pricing.ts": "c865e56d6384d03df5fb622c510845bf3c1356e7d519e639c3206fa4da764d09",
     "packages/contracts/src/mcp-app-upload.ts": "5781719e8b47d1dd9177cb8bdd78d51e2f673e7a6d919b37ff6621b33f578859",
     "packages/contracts/src/mcp-document-upload-resource.json": "bf6f3dd2361925ad0c929d2f234281eb9c94aef4cc450684c8b338e0a3e76f42",
     "packages/contracts/src/mcp-ui-probe-resource.json": "eafa886cc44f196aaff1c9be67fa010f6f8b82633c0d3189a9d8b2d71b08763a",
@@ -42,8 +43,8 @@
     "packages/contracts/src/saved-recipients.ts": "a2b17fc4caefdad82668c2bf043964d2af302336c75a3e69bef9ec58f5b741af",
     "packages/contracts/src/secure-distribution.ts": "5393fb5c0813c8346a0def96e0c0016d931d3bcb22407fac86b7d92ed5f4e64e",
     "packages/contracts/src/template-workflow.ts": "5a2c345b307bd33b583b8ccca81daac167025980fa0baf5090b1e4957d6aed7a",
-    "packages/domain/src/index.ts": "1142f94d8ddef94dd3831b29f6bbf05d3af57a31b658ec42743b65d5d1daa9f8",
-    "packages/observability/src/index.ts": "eb78d263cbe05d4f1e6a43391f43d6b1bf5fd7412466940035f97aed1cb65301",
-    "packages/contracts/src/mcp-skills.json": "9b6ee7848c66e16406064619ab362c6d0befe7f9a3131d70cb64e908f1abf050"
+    "packages/domain/src/index.ts": "50de8291161dfeed6b8d3d6306290e1c318778f69ea7e1bb553c578c0ab02e8a",
+    "packages/observability/src/index.ts": "a00745e96ef62906ebe92b8326cc97c47f7fcd1dd6696a45bb325c7a5f77249a",
+    "packages/contracts/src/mcp-skills.json": "01c7a854319610affe0d578de895ed0eada46eb40608b99f1312c35d8f70395f"
   }
 }

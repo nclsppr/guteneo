@@ -1,5 +1,60 @@
 # Telnyx rate qualification and proposed fax pricing v3
 
+## Worldwide public catalog qualification, 28 November 2026
+
+The [current commercial rules](FAX_TARIFF_MAINTENANCE.md) use the selected
+Global Conversational catalog as a public price reference. The daily task
+authenticates catalog discovery, checks the configured account/application/
+profile and active T.38 sender, then reads the returned allowlisted CSV, the
+outgoing page fee and dated EUR/USD rate. A provider-owned number supplies the
+country and origin prefixes used to select rows. Other customers' numbers are
+never supplied to the tariff feed. An account-negotiated invoice may differ.
+See the [Telnyx origination rules](https://support.telnyx.com/en/articles/6974437-updates-to-global-conversational-rate-deck)
+and [fax price card](https://telnyx.com/pricing/fax).
+
+The lookup considers destination specificity, exact-number flags, digit
+wildcards, matching origination prefixes and local origination. Equal-specificity
+conflicts, shared territory labels without a unique country, or terms outside
+the supported arithmetic range yield no supplier reference. The customer can
+still receive the platform tariff. The lookup only reads indexed D1 buckets.
+Previously approved dispatches keep their original reference and price ceiling.
+
+The importer streams the CSV with a 40 MiB ceiling and a 64 KiB row limit.
+It validates the published schema and byte length, requires a worldwide scope
+and rejects a replacement that drops previously covered countries or more than
+one quarter of the records. Such a change leaves the previous catalog usable
+while maintenance investigates. At most 250,000 applicable records and 12 MiB
+of encoded rows are held before writing. A 90-second deadline and 180-second
+lease bound each run. Compact buckets go into D1 through bounded JSON groups.
+Only the lease holder can activate a complete revision. Identical decks reuse
+the prior index when the page price or FX changes. Older staging data and
+snapshots can be reclaimed after seven days.
+
+A local workerd run loaded the application bundle and streamed the archived
+public 34,769,285-byte CSV linked below using a synthetic Luxembourg sender.
+It parsed all 263,950 rows covering 224 country/group labels. The 107,553
+applicable records occupied 2,164 D1 buckets, totalling 3,518,036 bytes.
+The largest row was 160,957 bytes. The initial publication issued 20 SQL
+statements with a largest bound value of 383,278 bytes. Wall time was 926 ms
+and the V8 profiler sampled approximately 869 ms of JavaScript CPU. Three
+inspector heap samples recorded up to 44.9 MB used, 70.7 MB allocated and
+1.54 MB backing storage; they do not measure an exact process peak. The test
+used local D1 and intercepted profile, page and FX reads. It measures a single
+import, not production concurrency or billing.
+
+The daily paid Cron limit is 15 minutes of CPU, with 128 MB isolate memory.
+D1 allows 1,000 queries per paid invocation, 100 parameters per query and
+2,000,000 bytes per value or row. No paid resource is created by migration 0083.
+[Cloudflare Worker limits](https://developers.cloudflare.com/workers/platform/limits/)
+and [D1 limits](https://developers.cloudflare.com/d1/platform/limits/).
+
+`tests/integration/worldwide-fax-catalog.test.ts` covers simultaneous refresh,
+origin/longest-prefix selection, exact and wildcard numbers, per-call fees,
+billing intervals, conflict handling, account scope, HTTP outages, truncated
+and semantically incomplete replacements, and unchanged-index reuse. These
+checks establish local commercial behavior. Current account destination
+permissions and actual transmission are independent provider evidence.
+
 **Historical implementation status — initial release on 17 September 2026:** the proposal below was implemented and published in release `118ce087c3fe5a1ad63bd4c562adb8e26aa8af21`, after migration 0023. At that release, no active v3 tariff had been installed and live sending remained disabled. Later pilot activation and current routing evidence are recorded in [TELNYX_READINESS.md](TELNYX_READINESS.md). Publication or tariff activation does not qualify successful transmission or usage-record correlation. See also [LIVE_FAX_QUOTES.md](LIVE_FAX_QUOTES.md) and [LIVE_RELEASE.md](LIVE_RELEASE.md). The dated inspection and proposal below are retained as historical evidence; their original status describes that inspection.
 
 Observed and reviewed **2026-09-17**. Status: **read-only account evidence and implementation proposal; no active v3 tariff or runtime change**. The inspection covered only the authorized Guteneo Telnyx account. No key, number, purchase, account setting, call or fax was created or changed. This note does not qualify successful transmission or authorize activation.

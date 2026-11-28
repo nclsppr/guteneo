@@ -25,6 +25,7 @@
     "MODE": "production",
     "APP_ORIGIN": "https://guteneo.com",
     "LIVE_SENDS_ENABLED": "false",
+    "TELNYX_FAX_DESTINATIONS": "worldwide",
     "EMAIL_PROVIDER": "resend",
     "RESEND_VERIFIED_DOMAIN": "guteneo.com",
     "RESEND_SENDS_ENABLED": "false",
@@ -94,7 +95,7 @@
     }
   ],
   "triggers": {
-    "crons": ["* * * * *"]
+    "crons": ["* * * * *", "17 2 * * *"]
   },
   "observability": {
     "enabled": true,

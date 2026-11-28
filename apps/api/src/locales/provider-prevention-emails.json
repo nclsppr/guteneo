@@ -24,7 +24,7 @@
         "expiredSubject": "Fax: price verification expired, action required",
         "upcomingWhat": "The price verification used for an affected fax route expires on {deadline}.",
         "expiredWhat": "The price verification for the affected fax route expired on {deadline}.",
-        "impact": "New faxes that rely on this pricing may be blocked.",
+        "impact": "Authorized routes continue to use their last recorded price until an updated price becomes available.",
         "operatorAction": "Have the current price checked with the provider, then have a new verified price approved for the affected fax route.",
         "automaticAction": "Have the automatic price check with the provider inspected and restarted."
       },
@@ -35,7 +35,7 @@
         "expiredSubject": "Sending: provider verification expired, action required",
         "upcomingWhat": "Verification of the provider conditions used for the affected sending configuration expires on {deadline}.",
         "expiredWhat": "Verification of the provider conditions for the affected sending configuration expired on {deadline}.",
-        "impact": "New sends using these conditions may be blocked.",
+        "impact": "Eligible sends keep their customer price. A change to the provider account or delivery options can still affect availability.",
         "operatorAction": "Have the current provider conditions checked, then have their update approved for the affected sending configuration.",
         "automaticAction": "Have the automatic check of the provider conditions inspected and restarted."
       },
@@ -46,7 +46,7 @@
         "expiredSubject": "Email: price verification expired, action required",
         "upcomingWhat": "The provider price verification used for the affected email configuration expires on {deadline}.",
         "expiredWhat": "The provider price verification for the affected email configuration expired on {deadline}.",
-        "impact": "New emails using this pricing may be blocked.",
+        "impact": "Email quotes continue to use the last available rate or the published Guteneo email tariff.",
         "operatorAction": "Have the current email price checked with the provider, then have the updated price approved.",
         "automaticAction": "Have the automatic email price check with the provider inspected and restarted."
       },
@@ -88,7 +88,7 @@
         "expiredSubject": "Fax : vérification du tarif expirée, action nécessaire",
         "upcomingWhat": "La vérification du tarif utilisé pour une route fax arrive à échéance le {deadline}.",
         "expiredWhat": "La vérification du tarif de la route fax concernée a expiré le {deadline}.",
-        "impact": "Les nouveaux fax qui reposent sur ce tarif peuvent être bloqués.",
+        "impact": "Les routes autorisées utilisent le dernier tarif enregistré jusqu’à la prochaine mise à jour.",
         "operatorAction": "Faites vérifier le tarif actuel auprès du fournisseur, puis faites valider un nouveau tarif pour la route fax concernée.",
         "automaticAction": "Faites vérifier et relancer le renouvellement automatique du tarif auprès du fournisseur."
       },
@@ -99,7 +99,7 @@
         "expiredSubject": "Envois : vérification du fournisseur expirée, action nécessaire",
         "upcomingWhat": "La vérification des conditions du fournisseur pour les envois concernés arrive à échéance le {deadline}.",
         "expiredWhat": "La vérification des conditions du fournisseur pour les envois concernés a expiré le {deadline}.",
-        "impact": "Les nouveaux envois qui utilisent ces conditions peuvent être bloqués.",
+        "impact": "Les envois éligibles conservent leur prix. Un changement de compte fournisseur ou d’options de livraison peut affecter leur disponibilité.",
         "operatorAction": "Faites vérifier les conditions en vigueur auprès du fournisseur, puis faites valider leur mise à jour pour les envois concernés.",
         "automaticAction": "Faites vérifier et relancer le contrôle automatique des conditions du fournisseur."
       },
@@ -110,7 +110,7 @@
         "expiredSubject": "E-mail : vérification du tarif expirée, action nécessaire",
         "upcomingWhat": "La vérification du tarif du fournisseur d’e-mail pour la configuration concernée arrive à échéance le {deadline}.",
         "expiredWhat": "La vérification du tarif du fournisseur d’e-mail pour la configuration concernée a expiré le {deadline}.",
-        "impact": "Les nouveaux e-mails qui utilisent ce tarif peuvent être bloqués.",
+        "impact": "Les devis e-mail utilisent le dernier tarif disponible ou le tarif de référence Guteneo.",
         "operatorAction": "Faites vérifier le tarif actuel auprès du fournisseur d’e-mail, puis faites valider sa mise à jour.",
         "automaticAction": "Faites vérifier et relancer le renouvellement automatique du tarif auprès du fournisseur d’e-mail."
       },

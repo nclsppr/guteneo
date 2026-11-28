@@ -30,6 +30,7 @@ import publicSite from "./locales/messages-public-site.json";
 import tables from "./locales/messages-tables.json";
 import localPreview from "./locales/messages-local-preview.json";
 import delivery from "../../../packages/contracts/src/delivery-messages.json" with { type: "json" };
+import worldwideFax from "./locales/messages-worldwide-fax.json";
 import postalWorldwide from "./locales/messages-postal-worldwide.json";
 
 function sourceMessages(
@@ -79,6 +80,7 @@ export function getMessageCatalogs(includeLocalPreview = false) {
     delivery,
     postalWorldwide,
     lifecycle,
+    worldwideFax,
   ];
   const messages: Record<string, readonly string[]> = Object.assign(
     {},

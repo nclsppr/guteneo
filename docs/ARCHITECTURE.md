@@ -1,5 +1,9 @@
 # Architecture
 
+## Commercial references and immutable approvals — November 2026
+
+Apply migrations 0083–0087 before publishing the new runtime. A dedicated 02:17 UTC Cloudflare trigger streams the worldwide Telnyx rate deck, checks the configured sending profile, reads the fax page price and exchange rate, then atomically replaces the active catalogue. Each new fax quote binds its price and ceiling. Migration 0084 preserves previously approved quotes and adds worldwide pricing and settlement. The minute scheduler maintains email capacity and supplier prices and renews due Pingen references using their exact country, paper count and print options. A failed refresh retains the previous usable reference and a new route can use the published commercial rate. See [fax quotes](LIVE_FAX_QUOTES.md) and [delivery quotes](LIVE_DELIVERY_QUOTES.md).
+
 ## Lifecycle experience boundaries — 9 November 2026 candidate
 
 Migrations 0078–0080 add reusable tenant recipients, signed customer lifecycle

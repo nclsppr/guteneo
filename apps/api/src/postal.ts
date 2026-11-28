@@ -303,7 +303,7 @@ export class PostalService {
         "Render and inspect every page at a minimum of 144 dpi; compare the expected recipient with the text and image actually visible. Text extraction and automatic checks alone do not prove this identity.",
         "The verified sender and return handling require separate review. Do not promise postal returns: returns are handled digitally.",
         "Never correct or recompose an imported original. For a new letter, generate a new PDF, then call preflight_postal_pdf with the uploaded bytes and its Guteneo identifier.",
-        "Use normal paper and simplex/duplex, grayscale/color and cheap/fast options only when the draft calculator accepts them. A provider draft and exact quote do not constitute approval or send acceptance; those follow browser approval or a prior expert mandate. This profile authorizes no sending.",
+        "Use normal paper and simplex/duplex, grayscale/color and cheap/fast options. A provider draft and exact quote do not constitute approval or send acceptance; those follow browser approval or a prior expert mandate. This profile authorizes no sending.",
       ],
       canSend: false as const,
     };

@@ -19,6 +19,7 @@ import {
   insertRecord,
 } from "../helpers/fax-usage-fixture";
 import { validateLiveFaxQuote } from "../../packages/domain/src/live-fax-quotes";
+import { DomainService } from "../../packages/domain/src/index";
 import { type FaxUsageTariff } from "../../packages/domain/src/live-fax-usage";
 import {
   createLiveProviderHook,
@@ -215,6 +216,34 @@ describe("non-sending reviewer fax quotations", () => {
     expect(
       customerFaxPricing(d.faxPricing!).display.ceiling.creditLabel,
     ).toContain("No credit is reserved");
+    await noExecution();
+  });
+  it("keeps the isolated review account restricted when worldwide sending is enabled", async () => {
+    f.domain = new DomainService(db, {
+      mode: "production",
+      now: () => clock,
+      liveFaxIdentity: { ...f.identity, worldwide: true },
+    });
+    expect((await prepare()).faxPricing?.executionScope).toBe(
+      "review_prepare_only",
+    );
+    // Even a separately stored historical live tariff must not broaden reviewer access.
+    f.input.recipient.phone = "+33100000001";
+    await expect(prepare()).rejects.toMatchObject({
+      code: "LIVE_PRICING_REQUIRED",
+    });
+    f.input.recipient.phone = "+81312345678";
+    await expect(prepare()).rejects.toMatchObject({
+      code: "LIVE_PRICING_REQUIRED",
+    });
+    expect(
+      await db
+        .prepare(
+          "SELECT count(*) AS n FROM trusted_fax_usage_tariffs WHERE organization_id=? AND route_qualification='worldwide'",
+        )
+        .bind(f.ctx.organizationId)
+        .first("n"),
+    ).toBe(0);
     await noExecution();
   });
   it("keeps preparation-only scope and guidance through the actual MCP transport", async () => {

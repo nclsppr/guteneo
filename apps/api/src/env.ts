@@ -102,6 +102,7 @@ export interface Env {
   PINGEN_WEBHOOK_SECRET?: string;
   PROVIDER_URL_SIGNING_SECRET?: string;
   TELNYX_ALLOWED_PREFIXES?: string;
+  TELNYX_FAX_DESTINATIONS?: string;
   AWS_SESSION_TOKEN?: string;
   SES_SANDBOX?: string;
   PINGEN_SANDBOX?: string;

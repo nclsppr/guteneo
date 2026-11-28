@@ -10,11 +10,14 @@ import {
 } from "./live-fax-usage";
 
 export type LiveFaxIdentity = {
+  worldwide?: boolean;
+  senderAddress?: string;
   accountId: string;
   connectionId: string;
   outboundProfileId?: string;
 };
 type SupplierCost = {
+  status: "qualified" | "revoked";
   id: string;
   account_id: string;
   connection_id: string;
@@ -150,7 +153,7 @@ export async function resolveFaxTariff(
   if (usage) return usage;
   const tariff = await db
     .prepare(
-      "SELECT * FROM trusted_fax_supplier_costs WHERE organization_id=? AND sender_id=? AND provider='telnyx' AND account_id=? AND connection_id=? AND status='qualified' AND options_json=? AND substr(?,1,length(destination_prefix))=destination_prefix ORDER BY length(destination_prefix) DESC LIMIT 1",
+      "SELECT * FROM trusted_fax_supplier_costs WHERE organization_id=? AND sender_id=? AND provider='telnyx' AND account_id=? AND connection_id=? AND options_json=? AND substr(?,1,length(destination_prefix))=destination_prefix ORDER BY length(destination_prefix) DESC,(status='qualified') DESC,created_at DESC,id DESC LIMIT 1",
     )
     .bind(
       organizationId,
@@ -164,7 +167,7 @@ export async function resolveFaxTariff(
   if (
     !tariff ||
     tariff.valid_from > now ||
-    tariff.expires_at <= now ||
+    tariff.status !== "qualified" ||
     pages > tariff.max_pages ||
     !/^[a-f0-9]{64}$/.test(tariff.source_sha256) ||
     tariff.currency !== "EUR" ||
@@ -239,10 +242,7 @@ export async function makeFaxQuote(
     source_sha256: tariff.source_sha256,
     created_at: now,
     expires_at: new Date(
-      Math.min(
-        Date.parse(now) + tariff.quote_ttl_seconds * 1000,
-        Date.parse(tariff.expires_at),
-      ),
+      Date.parse(now) + tariff.quote_ttl_seconds * 1000,
     ).toISOString(),
   };
   quote.fingerprint = await sha256(canonicalJson(quoteMaterial(quote)));
@@ -273,7 +273,8 @@ export async function validateLiveFaxQuote(
   now: string,
   purpose: "send" | "prepare" = "send",
 ): Promise<LiveFaxQuote | FaxUsageQuote> {
-  if (purpose === "send") await assertFaxDispatchSendable(db, row);
+  if (purpose === "send")
+    await assertFaxDispatchSendable(db, row, identity?.worldwide);
   if (!identityValid(identity)) throw invalid();
   const usage = await validateFaxUsageQuote(db, row, identity, now);
   if (usage) return usage;

@@ -24,7 +24,7 @@ Worldwide input is an unpublished 1.1.27 candidate; production remains 1.1.26 at
 <li id="feature-7b4510b0b4fd">Paper, colour, simplex/duplex and delivery-service options</li>
 <li id="feature-a1b8b767439b">PDF preflight, address rendering and review</li>
 <li id="feature-e815495f8665">Distinct authority for PDF transfer to obtain a quote</li>
-<li id="feature-0a8b7beb73ff">Actual analyzed-draft EUR calculator quote, unchanged four pricing options and legacy hash material; no fixed country price, invented postcode or implicit address completion</li>
+<li id="feature-3162844136c4">EUR quote for the analyzed draft from its comparable Pingen observation or the Guteneo EUR2.50 continuity tariff. A due cached price refresh uses the country, paper count and exact print options</li>
 <li id="feature-8f19495bd3af">Version selected by frozen recipient shape, with schema-first 0072 preserving old objects while binding new block/page versions to the exact tenant, consent, PDF, recipient, profile, quote and approval</li>
 <li id="feature-7524bd8c17b6">Confirmation, calendar cutoffs and provider tracking</li>
 <li id="feature-0d001fa40eb7">Status projection and reconciliation of unknown outcomes</li>

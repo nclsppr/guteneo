@@ -369,10 +369,10 @@
     "Ungültige Kopfzeile.",
     "Ongülteg Kappzeil."
   ],
-  "Numéro international requis, destination FR, LU ou DE.": [
-    "An international number is required, with a destination in FR, LU or DE.",
-    "Eine internationale Nummer mit Ziel in FR, LU oder DE ist erforderlich.",
-    "Eng international Nummer mat enger Destinatioun a FR, LU oder DE ass néideg."
+  "Saisissez le numéro de fax avec + et l’indicatif international du pays.": [
+    "Enter the international fax number with + and its country calling code.",
+    "Geben Sie die Faxnummer mit + und der Landesvorwahl ein.",
+    "Gitt d’Faxnummer mat + an der internationaler Lännervirwal an."
   ],
   "Le complément d’adresse n’est pas pris en charge dans ce parcours. Il ne sera pas supprimé silencieusement.": [
     "An additional address line is not supported in this flow. It will not be silently removed.",

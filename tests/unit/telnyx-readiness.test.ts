@@ -65,6 +65,7 @@ const profile = {
     id: profileId,
     enabled: true,
     whitelisted_destinations: ["LU", "FR"],
+    connections_count: 2,
     concurrent_call_limit: 2,
     max_destination_rate: 0.1,
     daily_spend_limit: "5.00",
@@ -326,6 +327,9 @@ describe("read-only Telnyx inspection", () => {
       id: profileId,
       enabled: true,
       whitelistedDestinations: ["LU", "FR"],
+      specialDestinations: [],
+      unrecognizedDestinationCount: 0,
+      connectionsCount: 2,
       concurrentCallLimit: 2,
       maxDestinationRate: 0.1,
       dailySpendLimitUsd: "5.00",
@@ -483,6 +487,87 @@ describe("read-only Telnyx inspection", () => {
     );
   });
 
+  it("reports country access separately from known and future special destinations", async () => {
+    const special = ["uitf", "inmarsat", "gmss", "intlnetworks", "upt"];
+    const result = await inspectTelnyxReadiness(
+      config,
+      mocked([
+        app,
+        page(),
+        {
+          data: {
+            ...profile.data,
+            whitelisted_destinations: [
+              "FR",
+              ...special,
+              "new_service",
+              "uitf",
+              "FR",
+            ],
+          },
+        },
+      ]),
+    );
+    expect(result.status).toBe("ok");
+    expect(result.outboundProfile).toMatchObject({
+      whitelistedDestinations: ["FR"],
+      specialDestinations: special,
+      unrecognizedDestinationCount: 1,
+    });
+    expect(JSON.stringify(result)).not.toContain("new_service");
+  });
+  it.each([
+    { invalid: ["LU", "invalid marker"] },
+    { invalid: "LU" },
+    { invalid: ["LU", 5] },
+  ])(
+    "returns unknown coverage on malformed destination data without losing profile scope",
+    async ({ invalid }) => {
+      const result = await inspectTelnyxReadiness(
+        config,
+        mocked([
+          app,
+          page(),
+          { data: { ...profile.data, whitelisted_destinations: invalid } },
+        ]),
+      );
+      expect(result.status).toBe("partial");
+      expect(result.outboundProfile).toMatchObject({
+        id: profileId,
+        enabled: true,
+        connectionsCount: 2,
+        whitelistedDestinations: null,
+        specialDestinations: null,
+        unrecognizedDestinationCount: null,
+      });
+      expect(result.errors).toEqual([
+        {
+          stage: "outbound_profile",
+          code: "invalid_response",
+          invalidFields: ["whitelisted_destinations"],
+        },
+      ]);
+    },
+  );
+  it("keeps an invalid association count unknown while preserving the allowed destinations", async () => {
+    const result = await inspectTelnyxReadiness(
+      config,
+      mocked([
+        app,
+        page(),
+        { data: { ...profile.data, connections_count: -1 } },
+      ]),
+    );
+    expect(result.outboundProfile).toMatchObject({
+      connectionsCount: null,
+      whitelistedDestinations: ["LU", "FR"],
+    });
+    expect(result.errors).toContainEqual({
+      stage: "outbound_profile",
+      code: "invalid_response",
+      invalidFields: ["connections_count"],
+    });
+  });
   it("preserves unknown values separately from reported false, zero and unlimited settings", async () => {
     const result = await inspectTelnyxReadiness(
       config,
@@ -493,6 +578,7 @@ describe("read-only Telnyx inspection", () => {
           data: {
             id: profileId,
             enabled: false,
+            connections_count: 0,
             concurrent_call_limit: null,
             max_destination_rate: 0,
             daily_spend_limit_enabled: false,
@@ -503,11 +589,14 @@ describe("read-only Telnyx inspection", () => {
     );
     expect(result.outboundProfile).toMatchObject({
       enabled: false,
+      connectionsCount: 0,
       concurrentCallLimit: null,
       maxDestinationRate: 0,
       dailySpendLimitUsd: null,
       dailySpendLimitEnabled: false,
       whitelistedDestinations: [],
+      specialDestinations: [],
+      unrecognizedDestinationCount: 0,
     });
     const unknown = await inspectTelnyxReadiness(
       config,
@@ -515,8 +604,11 @@ describe("read-only Telnyx inspection", () => {
     );
     expect(unknown.outboundProfile).toMatchObject({
       enabled: null,
+      connectionsCount: null,
       concurrentCallLimit: "unknown",
       whitelistedDestinations: null,
+      specialDestinations: null,
+      unrecognizedDestinationCount: null,
       maxDestinationRate: null,
       dailySpendLimitUsd: null,
     });

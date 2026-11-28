@@ -31,7 +31,7 @@ Open members → invite individually or preview CSV → select role and supervis
 
 Import/reuse the exact ready PDF → collect E.164 recipient/sender/ceiling → obtain the actual quote → show estimate and separate ceiling → human browser approval or existing expert review → confirm → track delivery and usage settlement separately.
 
-**Failure and recovery:** Registered sendable references refresh automatically only after genuine source/ownership reads; source failure keeps expired pricing closed and does not extend route authority. Continuous reviewer access uses its exact restricted account and labelled archived reference, never sending. Renew only an eligible prepared unattempted quote with exact original parameters and stable key, then obtain fresh approval where sending is permitted. Unknown submissions require reconciliation, never resend.
+**Failure and recovery:** Use the last applicable world tariff or a commercial fallback. Renew expired customer quotes with their original parameters and obtain approval for the new amount. Reconcile unknown submissions. The restricted reviewer can prepare only.
 
 ## J04: Prepare and send postal mail
 
@@ -331,11 +331,11 @@ Inspect the existing archived review tariff, original authority and exact restri
 
 ## J41: Maintain live fax references automatically
 
-**Actor:** Explicitly authorized platform operator for registration; scheduled backend for bounded refresh · **Branch:** Operations
+**Actor:** Scheduled Cloudflare Worker · **Branch:** Operations
 
-Review the supported local Luxembourg fixed +3524 operator-test route, empty options, unchanged live page limit up to ten pages, EUR2 ceiling and independent pilot deadline → fully roll out the compatible reader and drain prior work before schema installation → qualify actual server-key catalog access through the bounded private service binding → register its exact global-conversational public commercial catalog binding once using private files → scheduler claims one due route → resolve the current CSV link with the fixed Telnyx API endpoint → reread genuine official source bytes and current provider ownership → validate route/FX and current registration → defer if a quote remains active → atomically insert a new immutable revision and retire only its exact predecessor → record coarse maintenance results.
+Read the current Telnyx catalogue, page price, private profile and exchange rate → compile destination tariffs for the sending profile → verify the complete staged deck → switch the active reference atomically.
 
-**Failure and recovery:** Reject ambiguous/stale sources, identity drift, expired independent operator authority, lost leases and concurrent predecessor changes. Preserve historical quotes and source dates. Back off on failure; existing valid pricing may continue only under its original bounds, while expired pricing fails closed. No sending, mandate, consent or paid infrastructure is created.
+**Failure and recovery:** Record the failed refresh. Keep the previous deck and use a commercial price for uncovered destinations. Preserve approved ceilings.
 
 ## J42: Find and organize authorized table rows
 

@@ -58,13 +58,22 @@ const paginationSchema = z.object({
   page_number: z.number().int().positive(),
   total_pages: z.number().int().nonnegative(),
 });
+const countryCode = /^[A-Z]{2}$/;
+const specialDestinations = new Set([
+  "uitf",
+  "inmarsat",
+  "gmss",
+  "intlnetworks",
+  "upt",
+]);
+const destinationList = z
+  .array(z.string().regex(/^(?:[A-Z]{2}|[a-z][a-z0-9_-]{2,31})$/))
+  .max(300)
+  .optional();
+
 const profileSchema = z.object({
   id,
   enabled: optionalFlag,
-  whitelisted_destinations: z
-    .array(z.string().regex(/^[A-Z]{2}$/))
-    .max(300)
-    .optional(),
   concurrent_call_limit: limit,
   max_destination_rate: z
     .union([z.number().nonnegative().finite(), decimal.transform(Number)])
@@ -174,7 +183,13 @@ export type TelnyxReadiness = {
   outboundProfile: {
     id: string;
     enabled: boolean | null;
+    /** Two-letter country codes only, suitable for country-based route checks. */
     whitelistedDestinations: string[] | null;
+    /** Provider-defined, non-geographic voice destinations. */
+    specialDestinations?: string[] | null;
+    unrecognizedDestinationCount?: number | null;
+    /** Returned by Telnyx for this profile. Older inspection workers omit it. */
+    connectionsCount?: number | null;
     /** Telnyx explicitly defines null as unlimited; absent is unknown. */
     concurrentCallLimit: number | null | "unknown";
     /** Provider configuration only: no quote, currency conversion or cost computation. */
@@ -417,20 +432,42 @@ export async function inspectTelnyxReadiness(
         const spend = profileSchema.shape.daily_spend_limit.safeParse(
           raw.daily_spend_limit,
         );
-        const invalidLimits = [
+        const connections = limit.safeParse(raw.connections_count);
+        const destinations = destinationList.safeParse(
+          raw.whitelisted_destinations,
+        );
+        const codes =
+          destinations.success && destinations.data
+            ? [...new Set(destinations.data)]
+            : null;
+        const countries =
+          codes?.filter((code) => countryCode.test(code)) ?? null;
+        const special =
+          codes?.filter((code) => specialDestinations.has(code)) ?? null;
+        const invalidFields = [
+          ...(!destinations.success ? ["whitelisted_destinations"] : []),
+          ...(!connections.success ? ["connections_count"] : []),
           ...(!rate.success ? ["max_destination_rate"] : []),
           ...(!spend.success ? ["daily_spend_limit"] : []),
         ];
-        if (invalidLimits.length)
+        if (invalidFields.length)
           failed(
             "outbound_profile",
-            new InspectionFailure("invalid_response", undefined, invalidLimits),
+            new InspectionFailure("invalid_response", undefined, invalidFields),
             profileErrors,
           );
         result.outboundProfile = {
           id: profile.id,
           enabled: profile.enabled ?? null,
-          whitelistedDestinations: profile.whitelisted_destinations ?? null,
+          whitelistedDestinations: countries,
+          specialDestinations: special,
+          unrecognizedDestinationCount:
+            codes && countries && special
+              ? codes.length - countries.length - special.length
+              : null,
+          connectionsCount: connections.success
+            ? (connections.data ?? null)
+            : null,
           concurrentCallLimit:
             profile.concurrent_call_limit === undefined
               ? "unknown"

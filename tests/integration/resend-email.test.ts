@@ -29,6 +29,7 @@ import {
   type PublicEmailRateEvidence,
 } from "../../packages/domain/src/live-delivery-quotes";
 import {
+  createLiveDeliveryQuoteConfig,
   createLiveProviderHook,
   type LiveProviderEnv,
 } from "../../apps/api/src/live-providers";
@@ -38,6 +39,7 @@ import {
   revealProtectedDocumentPassword,
   revokeProtectedDocument,
 } from "../../apps/api/src/protected-documents";
+import { ensureEmailSender, RESEND_RATE } from "../../apps/api/src/email-setup";
 import { dispatchSummary } from "../../apps/api/src/mcp";
 import { PINGEN_PREFLIGHT_VERSION } from "../../packages/contracts/src/pingen-preflight";
 import type { Fetcher } from "../../packages/providers";
@@ -457,6 +459,180 @@ describe("Resend domain, live bridge and populated migrations — synthetic tran
     expect(migrationProof.validAfter40).toEqual(migrationProof.validBefore);
     expect(migrationProof.foreignKeys).toEqual([]);
     expect(migrationProof.quickCheck).toEqual({ quick_check: "ok" });
+  });
+
+  it("uses a published email tariff on cold start and submits the approved amount after price inspection fails", async () => {
+    await db
+      .prepare(
+        "DELETE FROM trusted_delivery_costs WHERE organization_id=? AND channel='email'",
+      )
+      .bind(ctx.organizationId)
+      .run();
+    await db
+      .prepare(
+        "INSERT INTO resend_policy_refresh_state(account_id,domain_id,route_id,blocked_reason,next_attempt_at) VALUES(?,?,?,'PRICE_CHANGED',?)",
+      )
+      .bind(
+        env.RESEND_ACCOUNT_ID,
+        env.RESEND_DOMAIN_ID,
+        identity.email!.routeId,
+        stamp(),
+      )
+      .run();
+    domain = new DomainService(db, {
+      ...domain.config,
+      ...createLiveDeliveryQuoteConfig(env),
+    });
+    const row = await queue(email({ documentId: id("doc") }));
+    const quote = await validateLiveDeliveryQuote(
+      db,
+      row,
+      identity.email,
+      stamp(),
+    );
+    expect(quote).toMatchObject({
+      fiscal_basis: "published_customer_tariff",
+      source_reference: "guteneo:email:2026-09-21",
+      customer_nanoeur: 1_560_000,
+      attachment_bytes: pdfBytes.length,
+      amount_minor: 1,
+    });
+    const fetcher = vi
+      .fn<Fetcher>()
+      .mockResolvedValue(Response.json({ id: crypto.randomUUID() }));
+    await domain.processDispatch(
+      row.id,
+      createLiveProviderHook(env, "email", { fetcher, now: () => clock }),
+    );
+    expect((await domain.getDispatch(ctx, row.id)).dispatch.status).toBe(
+      "accepted",
+    );
+    expect(fetcher).toHaveBeenCalledOnce();
+  });
+
+  it("makes a fresh quote against a stale scoped policy after its source deadline", async () => {
+    clock += 3_600_001;
+    const row = await domain.prepareDispatch(
+      ctx,
+      email(),
+      "after-source-expiry",
+    );
+    const quote = await validateLiveDeliveryQuote(
+      db,
+      row,
+      identity.email,
+      stamp(),
+    );
+    expect(quote.policy_id).toBe(id("policy_email"));
+    expect(quote.expires_at).toBe(new Date(clock + 300_000).toISOString());
+    await domain.approveDispatch(ctx, row.id, row.fingerprint, {
+      recipientRequested: true,
+    });
+    await domain.confirmDispatch(ctx, row.id, "accept-stale");
+    expect(await balance()).toMatchObject({ reservedMinor: row.ceiling_minor });
+  });
+
+  it("honors the first approved price when a refreshed tariff is published before queueing", async () => {
+    const configured = {
+      ...env,
+      RESEND_TARIFF_QUALIFIED_UNTIL: new Date(clock - 1).toISOString(),
+    };
+    domain = new DomainService(db, {
+      ...domain.config,
+      ...createLiveDeliveryQuoteConfig(configured),
+      ensureEmailSender: (actor, options) =>
+        ensureEmailSender(configured, actor, stamp(), options),
+    });
+    const original = await domain.prepareDispatch(
+      ctx,
+      email(),
+      "during-outage",
+    );
+    const first = await validateLiveDeliveryQuote(
+      db,
+      original,
+      identity.email,
+      stamp(),
+    );
+    await domain.approveDispatch(ctx, original.id, original.fingerprint, {
+      recipientRequested: true,
+    });
+    clock += 1000;
+    const refreshedRate = {
+      ...RESEND_RATE,
+      usdMicrosPerMessage: 1250,
+      tariffDate: stamp().slice(0, 10),
+    };
+    await db
+      .prepare(
+        `INSERT INTO resend_policy_refresh_state
+      (account_id, domain_id,route_id,last_success_at,source_sha256,qualified_until,rate_json,next_attempt_at)
+      VALUES(?,?,?,?,?,?,?,?)`,
+      )
+      .bind(
+        env.RESEND_ACCOUNT_ID,
+        env.RESEND_DOMAIN_ID,
+        identity.email!.routeId,
+        stamp(),
+        await sha256(canonicalJson(refreshedRate)),
+        new Date(clock + 30 * 86400000).toISOString(),
+        canonicalJson(refreshedRate),
+        stamp(),
+      )
+      .run();
+    const second = await domain.prepareDispatch(ctx, email(), "after-recovery");
+    const latest = await validateLiveDeliveryQuote(
+      db,
+      second,
+      identity.email,
+      stamp(),
+    );
+    expect(latest.customer_nanoeur).toBeGreaterThan(first.customer_nanoeur);
+    expect(
+      await validateLiveDeliveryQuote(db, original, identity.email, stamp()),
+    ).toEqual(first);
+    await domain.confirmDispatch(ctx, original.id, "approve-prior-price");
+    const fetcher = vi
+      .fn<Fetcher>()
+      .mockResolvedValue(Response.json({ id: crypto.randomUUID() }));
+    await domain.processDispatch(
+      original.id,
+      createLiveProviderHook(configured, "email", {
+        fetcher,
+        now: () => clock,
+      }),
+    );
+    expect((await domain.getDispatch(ctx, original.id)).dispatch.status).toBe(
+      "accepted",
+    );
+  });
+
+  it("uses the same fixed customer transport rate for SES when its supplier record only covers text", async () => {
+    await setupFixture("ses");
+    const configuredEnv = {
+      ...env,
+      EMAIL_PROVIDER: "ses",
+      AWS_REGION: "eu-west-1",
+      SES_ACCOUNT_ID: identity.email!.accountId,
+      SES_CONFIGURATION_SET: "fixture",
+      SES_SANDBOX: "false",
+    } as LiveProviderEnv;
+    domain = new DomainService(db, {
+      ...domain.config,
+      ...createLiveDeliveryQuoteConfig(configuredEnv),
+    });
+    const row = await queue(email({ documentId: id("doc") }));
+    const quote = await validateLiveDeliveryQuote(
+      db,
+      row,
+      identity.email,
+      stamp(),
+    );
+    expect(quote).toMatchObject({
+      provider: "ses",
+      fiscal_basis: "published_customer_tariff",
+      customer_nanoeur: 1_560_000,
+    });
   });
 
   it.each(["none", "attachment", "protected_link"] as const)(

@@ -54,10 +54,69 @@ export type PostalSubmission = PostalOptions & {
   onSendInvocation?: () => void;
   idempotencyKey: string;
 };
+type PreparedLetter = Pick<
+  PostalSubmission,
+  | "preparedLetterId"
+  | "expectedAddress"
+  | "addressPosition"
+  | "country"
+  | keyof PostalOptions
+>;
+export type PostalPriceReference =
+  | { source: "pingen_calculator" | "last_known_pingen"; observedAt: string }
+  | { source: "guteneo_continuity_v1" };
+export type PostalReferencePrice = {
+  amount: Money;
+  reference?: PostalPriceReference;
+};
+export type PostalPriceSelection = (
+  paperCount: number,
+  calculate: () => Promise<Money>,
+) => Promise<PostalReferencePrice>;
+
 export type PreparedPostalDocument = {
   providerId: string;
   providerStatus: string;
 };
+export async function pingenDraftPriceEvidence(
+  input: PreparedLetter,
+  paperTypes: string[],
+  amount: Money,
+) {
+  // The window is already bound by Guteneo's immutable options and is checked
+  // above on each quote/send. Retain the established evidence serialization so
+  // previously approved quotes keep their exact fingerprint.
+  const evidence = JSON.stringify({
+    providerId: input.preparedLetterId,
+    country: input.country,
+    address: normalizeAddress(input.expectedAddress),
+    paperTypes,
+    options: providerOptions(input),
+    amount,
+  });
+  const evidenceSha256 = Array.from(
+    new Uint8Array(
+      await crypto.subtle.digest("SHA-256", new TextEncoder().encode(evidence)),
+    ),
+  )
+    .map((v) => v.toString(16).padStart(2, "0"))
+    .join("");
+  return evidenceSha256;
+}
+function providerOptions(input: PostalOptions) {
+  return {
+    delivery_product: input.deliveryProduct,
+    print_mode: input.printMode,
+    print_spectrum: input.printSpectrum,
+  };
+}
+function normalizeAddress(address: string) {
+  return address
+    .normalize("NFC")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLocaleUpperCase("fr-FR");
+}
 export class PingenPostalProvider {
   readonly capabilities: ProviderCapabilities;
   private token?: { value: string; expires: number };
@@ -212,19 +271,25 @@ export class PingenPostalProvider {
     )
       throw new ProviderError("unsupported_postal_paper");
     await this.destinations.assertAvailable(input.country);
+    return this.calculate(input);
+  }
+  private async calculate(
+    input: { country: PostalCountry; paperTypes: string[] } & PostalOptions,
+  ): Promise<ProviderEstimate> {
     const response = await request(
       this.fetcher,
       `${this.letters()}/price-calculator`,
       {
         method: "POST",
         headers: await this.headers(),
+        signal: AbortSignal.timeout(3_000),
         body: JSON.stringify({
           data: {
             type: "letter_price_calculator",
             attributes: {
               country: input.country,
               paper_types: input.paperTypes,
-              ...this.options(input),
+              ...providerOptions(input),
             },
           },
         }),
@@ -234,7 +299,7 @@ export class PingenPostalProvider {
     if (response.status === 202)
       return {
         amount: null,
-        reason: "Provider calculation pending; no send allowed yet.",
+        reason: "Provider calculation pending.",
         verifiedAt: new Date().toISOString(),
       };
     const data = asObject(
@@ -247,19 +312,9 @@ export class PingenPostalProvider {
       verifiedAt: new Date().toISOString(),
     };
   }
-  /** Read and price a draft only. Neither GET nor the calculator dispatches mail. */
-  async quotePrepared(
-    input: Pick<
-      PostalSubmission,
-      | "preparedLetterId"
-      | "expectedAddress"
-      | "addressPosition"
-      | "country"
-      | "deliveryProduct"
-      | "printMode"
-      | "printSpectrum"
-    >,
-  ): Promise<{ amount: Money; evidenceSha256: string }> {
+  /** The provider must confirm the exact approved draft can be submitted,
+   * even when commercial references are unavailable. */
+  private async readPrepared(input: PreparedLetter): Promise<string[]> {
     if (!["left", "right"].includes(input.addressPosition))
       throw new ProviderError("unsupported_postal_address_position");
     await this.destinations.assertAvailable(input.country);
@@ -272,10 +327,11 @@ export class PingenPostalProvider {
     );
     const attributes = asObject(data.attributes);
     if (
+      data.id !== input.preparedLetterId ||
       attributes.country !== input.country ||
       attributes.address_position !== input.addressPosition ||
-      this.normalizeAddress(textField(attributes, "address")) !==
-        this.normalizeAddress(input.expectedAddress)
+      normalizeAddress(textField(attributes, "address")) !==
+        normalizeAddress(input.expectedAddress)
     )
       throw new ProviderError("postal_address_requires_new_approval");
     const abilities = asObject(asObject(asObject(data.meta).abilities).self);
@@ -284,34 +340,40 @@ export class PingenPostalProvider {
     const paperTypes = attributes.paper_types;
     if (
       !Array.isArray(paperTypes) ||
-      paperTypes.some((x) => typeof x !== "string")
+      paperTypes.length < 1 ||
+      paperTypes.length > 320 ||
+      paperTypes.some((paper) => paper !== "normal")
     )
-      throw new ProviderError("postal_paper_types_unknown");
-    const quote = await this.estimate({ ...input, paperTypes });
-    if (!quote.amount || quote.amount.currency !== "EUR")
-      throw new ProviderError("postal_cost_requires_new_approval");
-    // The window is already bound by Guteneo's immutable options and is checked
-    // above on each quote/send. Retain the established evidence serialization so
-    // previously approved quotes keep their exact fingerprint.
-    const evidence = JSON.stringify({
-      providerId: input.preparedLetterId,
-      country: input.country,
-      address: this.normalizeAddress(input.expectedAddress),
-      paperTypes,
-      options: this.options(input),
-      amount: quote.amount,
-    });
-    const evidenceSha256 = Array.from(
-      new Uint8Array(
-        await crypto.subtle.digest(
-          "SHA-256",
-          new TextEncoder().encode(evidence),
-        ),
+      throw new ProviderError("unsupported_postal_paper");
+    return paperTypes;
+  }
+  async quotePrepared(
+    input: PreparedLetter,
+    selectPrice?: PostalPriceSelection,
+  ) {
+    const paperTypes = await this.readPrepared(input);
+    const calculate = async () => {
+      const quote = await this.calculate({ ...input, paperTypes });
+      if (
+        !quote.amount ||
+        quote.amount.currency !== "EUR" ||
+        quote.amount.minor <= 0 ||
+        quote.amount.minor > 500_000
+      )
+        throw new ProviderError("postal_calculator_price_unavailable");
+      return quote.amount;
+    };
+    const price: PostalReferencePrice = selectPrice
+      ? await selectPrice(paperTypes.length, calculate)
+      : { amount: await calculate() };
+    return {
+      ...price,
+      evidenceSha256: await pingenDraftPriceEvidence(
+        input,
+        paperTypes,
+        price.amount,
       ),
-    )
-      .map((v) => v.toString(16).padStart(2, "0"))
-      .join("");
-    return { amount: quote.amount, evidenceSha256 };
+    };
   }
   async submit(input: PostalSubmission): Promise<ProviderResult> {
     const errors = this.validate(input);
@@ -320,7 +382,20 @@ export class PingenPostalProvider {
     // All preparatory reads can fail without a physical send. The mutation alone is ambiguous.
     let headers: Record<string, string>;
     try {
-      const quote = await this.quotePrepared(input);
+      // A signed customer commitment freezes the amount for this draft.
+      // Recheck the current provider analysis against its historical hash;
+      // the calculator's availability or subsequent prices cannot reprice it.
+      const quote =
+        input.expectedCost && input.expectedQuoteSha256
+          ? {
+              amount: input.expectedCost,
+              evidenceSha256: await pingenDraftPriceEvidence(
+                input,
+                await this.readPrepared(input),
+                input.expectedCost,
+              ),
+            }
+          : await this.quotePrepared(input);
       if (
         quote.amount.currency !== input.maxCost.currency ||
         quote.amount.minor > input.maxCost.minor ||
@@ -369,7 +444,7 @@ export class PingenPostalProvider {
             data: {
               id: input.preparedLetterId,
               type: "letters",
-              attributes: this.options(input),
+              attributes: providerOptions(input),
             },
           }),
         },
@@ -421,20 +496,6 @@ export class PingenPostalProvider {
     } catch {
       return { status: "unknown" };
     }
-  }
-  private options(input: PostalOptions) {
-    return {
-      delivery_product: input.deliveryProduct,
-      print_mode: input.printMode,
-      print_spectrum: input.printSpectrum,
-    };
-  }
-  private normalizeAddress(address: string) {
-    return address
-      .normalize("NFC")
-      .trim()
-      .replace(/\s+/g, " ")
-      .toLocaleUpperCase("fr-FR");
   }
   private lettersPath() {
     return `/organisations/${safeId(this.config.organisationId)}/deliveries/letters`;
