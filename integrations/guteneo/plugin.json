@@ -74,8 +74,8 @@
               ]
             },
             {
-              "description": "P5 — Continue after P3 in the same conversation with the ready synthetic PDF. Use the controlled E.164 destination in the secure reviewer instructions and a EUR2.00 (200 minor units) ceiling. The dedicated prepare_only account must have explicit continuous review access installed. Its archived reference is not current supplier qualification. Preparation only; never approve or send. A missing account/recipient/access or a revoked or changed account restriction blocks the case.",
-              "prompt": "Prepare a fax quote for this PDF to the controlled test number provided in the secure reviewer access instructions, with a EUR2.00 ceiling. Show the quote and do not send it.",
+              "description": "P5 — Continue after P3 in the same conversation with the ready synthetic PDF. Before sending the prompt to the model, replace [controlled test fax number] with the actual E.164 number supplied in the secure reviewer instructions. Keep the ceiling at EUR 2.00 (200 minor units). The dedicated prepare_only account must have explicit continuous review access installed. Its archived reference is not current supplier qualification. Preparation only; never approve or send. A missing account/recipient/access or a revoked or changed account restriction blocks the case.",
+              "prompt": "Prepare a fax quote for this PDF to [controlled test fax number] with a EUR 2.00 ceiling. Show me the quote and do not send the fax.",
               "tools_triggered": "prepare_fax",
               "expected_behavior": "Call prepare_fax with the ready imported PDF, explicitly supplied controlled E.164 destination and EUR2.00 ceiling. Present the returned range, separate ceiling, source date and quote expiry. Identify archived review reference pricing as historical and unsendable; it is neither a current supplier quote nor a debit. Do not approve, confirm, reserve credit or send. Explain missing authorised setup instead of guessing."
             },
@@ -89,7 +89,7 @@
           "negative": [
             {
               "description": "R1 — Run in a controlled host exposing only Guteneo reviewer tools. Explain that applying an electronic signature is unsupported. No Guteneo tool may be invoked, including import_document or dispatch preparation.",
-              "prompt": "Apply an electronic signature to this PDF contract."
+              "prompt": "Can Guteneo apply an electronic signature to a PDF contract for me?"
             },
             {
               "description": "R2 — Run in a controlled host exposing only Guteneo reviewer tools. Explain that Guteneo cannot read Gmail. No Guteneo or other connected service tool may be invoked; do not claim mailbox access.",
