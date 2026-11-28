@@ -1,5 +1,11 @@
 # Private Telnyx configuration inspection
 
+## Worldwide outbound profile — 28 November 2026
+
+The live private inspection found 54 allowed destinations. The authenticated Telnyx portal showed one active application on that profile, Guteneo Fax API. An authorized operator selected all available destinations. Telnyx confirmed the update. A fresh portal load showed all 255 destinations across 14 groups, including five special destinations. This change affected the destination list only. No paid send was performed.
+
+The account also returned its current global conversational rate-deck reference through the private read-only binding at 01:05 UTC. The [catalogue qualification](TELNYX_RATE_QUALIFICATION.md) documents how Guteneo calculates each quote and handles unavailable sources. Actual delivery depends on the carrier and receiving equipment.
+
 ## Scoped pilot renewal — 27 October 2026 candidate
 
 The operator explicitly requested renewal of the existing `+3524` pilot with
