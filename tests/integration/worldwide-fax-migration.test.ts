@@ -1,3 +1,4 @@
+import { settleFaxUsage } from "../../packages/domain/src/live-fax-usage";
 import { readFileSync, readdirSync } from "node:fs";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { unstable_splitSqlQuery } from "wrangler";
@@ -28,6 +29,53 @@ it("preserves a prepared fax, its approval, reservation, outbox and exact price 
     const d = await f.domain.prepareDispatch(f.ctx, f.input, "pre-migration");
     await f.domain.approveDispatch(f.ctx, d.id, d.fingerprint);
     await f.domain.confirmDispatch(f.ctx, d.id, "pre-migration");
+    const settled = await f.domain.prepareDispatch(
+      f.ctx,
+      f.input,
+      "historical-settlement",
+    );
+    await f.domain.approveDispatch(f.ctx, settled.id, settled.fingerprint);
+    await f.domain.confirmDispatch(f.ctx, settled.id, "historic-charge");
+    const providerId = "isolated-fax-confirmation";
+    let attemptId = "";
+    await f.domain.processDispatch(settled.id, {
+      name: "telnyx",
+      liveFaxIdentity: f.identity,
+      submit: async (dispatch) => {
+        attemptId = dispatch.active_attempt_id!;
+        await db
+          .prepare(
+            "UPDATE attempts SET bridge_claimed_at=? WHERE id=? AND bridge_claimed_at IS NULL",
+          )
+          .bind(new Date().toISOString(), attemptId)
+          .run();
+        return { status: "accepted", providerId };
+      },
+    });
+    const observedAt = new Date().toISOString();
+    await f.domain.ingestEvent({
+      provider: "telnyx",
+      eventId: "isolated-event",
+      providerId,
+      dispatchId: settled.id,
+      kind: "delivered",
+      occurredAt: observedAt,
+    });
+    await settleFaxUsage(db, {
+      source: "operator_reconciled_usage",
+      organizationId: f.ctx.organizationId,
+      dispatchId: settled.id,
+      attemptId,
+      providerId,
+      accountId: f.identity.accountId,
+      connectionId: f.identity.connectionId,
+      quoteFingerprint: settled.quote_fingerprint!,
+      supplierNanoUsd: 10_000_000,
+      reviewerId: f.ctx.userId,
+      evidenceReference: "Isolated test reconciliation",
+      evidenceSha256: "d".repeat(64),
+      observedAt,
+    });
     const historical = () =>
       db.batch(
         [
@@ -36,6 +84,10 @@ it("preserves a prepared fax, its approval, reservation, outbox and exact price 
           "approvals",
           "reservations",
           "outbox",
+          "fax_usage_settlements",
+          "welcome_credit_reservations",
+          "welcome_credit_entries",
+          "delivery_charge_entries",
         ].map((table) => db.prepare(`SELECT * FROM ${table}`)),
       );
     const before = (await historical()).map((v) => v.results);

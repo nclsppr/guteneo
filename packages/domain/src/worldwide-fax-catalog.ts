@@ -116,7 +116,7 @@ export async function resolveWorldwideFaxReference(
         Number(origin);
       const route = {
         destinationPrefix: "+" + digits.slice(0, pattern.length),
-        destinationCountry: iso,
+        destinationCountry: iso.includes("/") ? "ZZ" : iso,
         minuteNanoUsd: Number(minute),
         callNanoUsd: Number(call),
         initialSeconds: Number(initial),
@@ -124,11 +124,19 @@ export async function resolveWorldwideFaxReference(
       };
       if (!best || score > best.score)
         best = { score, route, ambiguous: false };
-      else if (
-        score === best.score &&
-        JSON.stringify(route) !== JSON.stringify(best.route)
-      )
-        best.ambiguous = true;
+      else if (score === best.score) {
+        // Countries can share numbering space and an identical published rate.
+        // Keep the price while avoiding an invented country for this recipient.
+        if (
+          route.minuteNanoUsd !== best.route.minuteNanoUsd ||
+          route.callNanoUsd !== best.route.callNanoUsd ||
+          route.initialSeconds !== best.route.initialSeconds ||
+          route.incrementSeconds !== best.route.incrementSeconds
+        )
+          best.ambiguous = true;
+        if (route.destinationCountry !== best.route.destinationCountry)
+          best.route.destinationCountry = "ZZ";
+      }
     }
   }
   if (

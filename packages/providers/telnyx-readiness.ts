@@ -175,6 +175,8 @@ export type TelnyxReadiness = {
     id: string;
     enabled: boolean | null;
     whitelistedDestinations: string[] | null;
+    /** Returned by Telnyx for this profile. Older inspection workers omit it. */
+    connectionsCount?: number | null;
     /** Telnyx explicitly defines null as unlimited; absent is unknown. */
     concurrentCallLimit: number | null | "unknown";
     /** Provider configuration only: no quote, currency conversion or cost computation. */
@@ -417,7 +419,9 @@ export async function inspectTelnyxReadiness(
         const spend = profileSchema.shape.daily_spend_limit.safeParse(
           raw.daily_spend_limit,
         );
+        const connections = limit.safeParse(raw.connections_count);
         const invalidLimits = [
+          ...(!connections.success ? ["connections_count"] : []),
           ...(!rate.success ? ["max_destination_rate"] : []),
           ...(!spend.success ? ["daily_spend_limit"] : []),
         ];
@@ -431,6 +435,7 @@ export async function inspectTelnyxReadiness(
           id: profile.id,
           enabled: profile.enabled ?? null,
           whitelistedDestinations: profile.whitelisted_destinations ?? null,
+          connectionsCount: connections.success ? (connections.data ?? null) : null,
           concurrentCallLimit:
             profile.concurrent_call_limit === undefined
               ? "unknown"

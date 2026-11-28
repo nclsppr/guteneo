@@ -18,6 +18,7 @@ import {
   normalizeFaxNumber,
   faxNumberProblem,
 } from "../../../../packages/contracts/src/fax-number";
+import { isFaxEstimateAtMaximum } from "../../../../packages/contracts/src/fax-pricing";
 import { api, ApiError, currentAuthority, intentKey } from "../api/client";
 import { useAction, usePages, useResource } from "../api/hooks";
 import type {
@@ -505,6 +506,9 @@ function DepartureContent({
               "guteneo_continuity_v1" && <p>{t("traffic.faxFallback")}</p>}
             {dispatch.faxPricing?.referenceBasis === "last_known_reference" && (
               <p>{t("traffic.faxLastRate")}</p>
+            )}
+            {isFaxEstimateAtMaximum(dispatch.faxPricing) && (
+              <p>{t("traffic.faxMaximumPrice")}</p>
             )}
             <dl className="traffic-facts">
               <div>

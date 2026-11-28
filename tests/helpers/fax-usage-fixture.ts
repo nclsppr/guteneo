@@ -100,6 +100,7 @@ export async function createFaxUsageFixture(
   };
   const tariff = { ...fixtureTariff(now, org), ...overrides };
   const identity = {
+    senderAddress: "+35220000000",
     accountId: tariff.account_id,
     connectionId: tariff.connection_id,
     outboundProfileId: tariff.outbound_profile_id,
@@ -115,7 +116,9 @@ export async function createFaxUsageFixture(
     .bind(ctx.userId, now)
     .run();
   await db
-    .prepare("INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)")
+    .prepare(
+      "INSERT INTO memberships(organization_id,user_id,role,created_at) VALUES(?,?,'admin',?)",
+    )
     .bind(org, ctx.userId, now)
     .run();
   await db

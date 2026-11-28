@@ -119,18 +119,19 @@ export async function refreshWorldwideFaxCatalog(
     worldwideFaxCatalogRefreshed: 0,
     worldwideFaxCatalogFailed: 0,
   };
+  if (env.MODE !== "production" || env.ENVIRONMENT !== "production")
+    return counts;
   if (
-    env.MODE !== "production" ||
-    env.ENVIRONMENT !== "production" ||
     !env.TELNYX_API_KEY ||
     !env.TELNYX_PUBLIC_KEY ||
     !env.TELNYX_CONNECTION_ID ||
     !env.TELNYX_OUTBOUND_VOICE_PROFILE_ID ||
-    !env.TELNYX_FROM
+    !env.TELNYX_FROM ||
+    !env.TELNYX_ACCOUNT_ID
   )
-    return counts;
+    return { ...counts, worldwideFaxCatalogFailed: 1 };
   const account = await telnyxAccountReference(env.TELNYX_PUBLIC_KEY);
-  if (!account || (env.TELNYX_ACCOUNT_ID && env.TELNYX_ACCOUNT_ID !== account))
+  if (!account || env.TELNYX_ACCOUNT_ID !== account)
     return { ...counts, worldwideFaxCatalogFailed: 1 };
   const binding = {
     accountId: account,

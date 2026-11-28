@@ -8,11 +8,13 @@ import { canonicalJson, DomainError, sha256, type Dispatch } from "./index";
 import type { LiveFaxIdentity } from "./live-fax-quotes";
 import {
   FAX_OPERATOR_TEST_NOTICE,
+  FAX_MAX_ESTIMATE_NANOEUR,
   customerFaxPricing,
   type FaxPricing,
 } from "../../contracts/src/fax-pricing";
 
 const NANO_PER_CENT = 10_000_000;
+const maximumEstimate = BigInt(FAX_MAX_ESTIMATE_NANOEUR);
 const countries: Record<string, string> = {
   AT: "+43",
   BE: "+32",
@@ -202,11 +204,12 @@ export function faxUsageEstimate(t: FaxUsageTariff, pages: number) {
       initial +
       (seconds > initial ? ceil(seconds - initial, increment) * increment : 0n);
     const supplier = page * p + call + ceil(minute * billed, 60n);
-    return 2n * ceil(supplier * numerator, denominator);
+    const estimate = 2n * ceil(supplier * numerator, denominator);
+    return worldwide && estimate > maximumEstimate ? maximumEstimate : estimate;
   };
   const lower = amount(base + p * low),
     upper = amount(base + p * high);
-  if (upper > 10_000_000_000_000n) throw unavailable();
+  if (upper > maximumEstimate) throw unavailable();
   return {
     estimated_low_nanoeur: Number(lower),
     estimated_high_nanoeur: Number(upper),
@@ -258,15 +261,15 @@ export async function resolveFaxUsageTariff(
   identity: LiveFaxIdentity,
   now: string,
 ): Promise<ResolvedFaxUsageTariff | undefined> {
-  if (
+  const restrictedReview =
     identity.worldwide &&
-    !(await db
+    (await db
       .prepare(
         "SELECT 1 FROM fax_review_preparation_authorities WHERE organization_id=? LIMIT 1",
       )
       .bind(organizationId)
-      .first())
-  ) {
+      .first());
+  if (identity.worldwide && !restrictedReview) {
     const tariff = await resolveWorldwideFaxTariff(
       db,
       organizationId,
@@ -288,6 +291,7 @@ export async function resolveFaxUsageTariff(
     )
     .bind(organizationId, senderId, identity.accountId, identity.connectionId)
     .first();
+  if (!owns && restrictedReview) throw unavailable();
   if (!owns) return undefined;
   if (!id.safeParse(identity.outboundProfileId).success) throw unavailable();
   const [t, sender] = await Promise.all([
@@ -327,6 +331,7 @@ export async function resolveFaxUsageTariff(
   const continuous = !!reviewAccess?.continuous_review_access_id;
   if (
     !t ||
+    (restrictedReview && t.execution_scope !== "review_prepare_only") ||
     (t.execution_scope === "review_prepare_only" && !reviewAccess) ||
     (continuous &&
       (!id.safeParse(reviewAccess!.continuous_review_access_id).success ||
@@ -499,7 +504,7 @@ export async function validateFaxUsageQuote(
   // Select only q columns: view-only validity metadata is not part of the hash.
   const q = await db
     .prepare(
-      "SELECT q.* FROM live_fax_quotes_v3 q JOIN valid_live_fax_quotes_v3 v ON v.organization_id=q.organization_id AND v.dispatch_id=q.dispatch_id WHERE q.organization_id=? AND q.dispatch_id=? AND q.account_id=? AND q.connection_id=? AND q.outbound_profile_id=? AND (? OR q.source_reference NOT LIKE 'worldwide-fax:%') AND q.created_at<=? AND q.expires_at>? AND v.tariff_valid_from<=? AND v.tariff_expires_at>?",
+      "SELECT q.* FROM live_fax_quotes_v3 q JOIN valid_live_fax_quotes_v3 v ON v.organization_id=q.organization_id AND v.dispatch_id=q.dispatch_id WHERE q.organization_id=? AND q.dispatch_id=? AND q.account_id=? AND q.connection_id=? AND q.outbound_profile_id=? AND (q.source_reference NOT LIKE 'worldwide-fax:%' OR (? AND json_extract(q.input_json,'$.senderAddress')=?)) AND q.created_at<=? AND q.expires_at>? AND v.tariff_valid_from<=? AND v.tariff_expires_at>?",
     )
     .bind(
       row.organization_id,
@@ -508,6 +513,7 @@ export async function validateFaxUsageQuote(
       identity.connectionId,
       identity.outboundProfileId!,
       identity.worldwide ? 1 : 0,
+      identity.senderAddress ?? null,
       now,
       now,
       now,
@@ -529,7 +535,7 @@ const proofSchema = z
     accountId: id,
     connectionId: id,
     quoteFingerprint: hash,
-    supplierNanoUsd: z.number().int().min(0).max(1_000_000_000_000),
+    supplierNanoUsd: z.number().int().min(0).max(9_000_000_000_000_000),
     reviewerId: id,
     evidenceReference: reference,
     evidenceSha256: hash,
@@ -612,6 +618,8 @@ export async function settleFaxUsage(
   if (
     !q ||
     !row ||
+    (p.supplierNanoUsd > 1_000_000_000_000 &&
+      !q.source_reference.startsWith("worldwide-fax:")) ||
     q.fingerprint !== p.quoteFingerprint ||
     q.account_id !== p.accountId ||
     q.connection_id !== p.connectionId ||
@@ -788,13 +796,20 @@ export async function readFaxPricing(
 export async function assertFaxDispatchSendable(
   db: D1Database,
   row: Pick<Dispatch, "id" | "organization_id">,
+  worldwide = false,
 ): Promise<void> {
   if (
     await db
       .prepare(
-        "SELECT 1 FROM review_only_fax_dispatches WHERE organization_id=? AND dispatch_id=?",
+        worldwide
+          ? "SELECT 1 FROM fax_review_preparation_authorities WHERE organization_id=? UNION ALL SELECT 1 FROM review_only_fax_dispatches WHERE organization_id=? AND dispatch_id=? LIMIT 1"
+          : "SELECT 1 FROM review_only_fax_dispatches WHERE organization_id=? AND dispatch_id=?",
       )
-      .bind(row.organization_id, row.id)
+      .bind(
+        ...(worldwide ? [row.organization_id] : []),
+        row.organization_id,
+        row.id,
+      )
       .first()
   )
     throw new DomainError(

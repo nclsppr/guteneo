@@ -10,6 +10,8 @@ import {
 import type { DomainService, Dispatch } from "../../packages/domain/src/index";
 import {
   customerFaxPricing,
+  FAX_MAX_ESTIMATE_NANOEUR,
+  FAX_MAX_ESTIMATE_NOTICE,
   type FaxPricing,
 } from "../../packages/contracts/src/fax-pricing";
 import { readFileSync } from "node:fs";
@@ -272,6 +274,25 @@ describe("fax display precision", () => {
         );
     },
   );
+  it("discloses the maximum only on worldwide estimates that reach it", () => {
+    const expensive = {
+      ...pricing,
+      referenceBasis: "worldwide_catalog" as const,
+      estimatedHighNanoeur: FAX_MAX_ESTIMATE_NANOEUR,
+      ceilingMinor: 200,
+    };
+    const seen = customerFaxPricing(expensive).display;
+    expect(seen.explanation).toContain(FAX_MAX_ESTIMATE_NOTICE);
+    expect(seen.ceiling.eur).toBe("2.00");
+    for (const variant of [
+      { estimatedHighNanoeur: FAX_MAX_ESTIMATE_NANOEUR - 1 },
+      { referenceBasis: undefined },
+      { executionScope: "review_prepare_only" as const },
+    ]) {
+      expect(customerFaxPricing({ ...expensive, ...variant }).display.explanation)
+        .not.toContain(FAX_MAX_ESTIMATE_NOTICE);
+    }
+  });
   it("preserves whole euros and exact zero without inventing a debit", () => {
     const result = customerFaxPricing({
       ...pricing,

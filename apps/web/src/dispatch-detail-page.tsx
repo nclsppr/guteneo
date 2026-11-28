@@ -4,7 +4,7 @@ import { useCurrentClientView } from "./client-write-recovery";
 import { useAdaptiveReadPolling } from "./client-polling";
 import { RolePermissionNotice } from "./role-guide";
 import { formatLocale } from "./locale";
-import { FAX_OPERATOR_TEST_NOTICE, faxReferenceNotice } from "../../../packages/contracts/src/fax-pricing";
+import { FAX_MAX_ESTIMATE_NOTICE, FAX_OPERATOR_TEST_NOTICE, faxReferenceNotice, isFaxEstimateAtMaximum } from "../../../packages/contracts/src/fax-pricing";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
@@ -843,6 +843,7 @@ export function DispatchDetailPage({
           {faxPricing && (
             <div className="notice info" role="status" aria-atomic="true">
               {faxReference && <p>{msg(faxReference)}</p>}
+              {isFaxEstimateAtMaximum(faxPricing) && <p>{msg(FAX_MAX_ESTIMATE_NOTICE)}</p>}
               {faxPricing.routeQualification === "operator_authorized_test" && (
                 <p>{msg(faxPricing.routeNotice ?? FAX_OPERATOR_TEST_NOTICE)}</p>
               )}

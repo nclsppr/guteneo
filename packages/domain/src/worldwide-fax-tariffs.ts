@@ -37,7 +37,7 @@ export async function resolveWorldwideFaxTariff(
     )
     .bind(organizationId, senderId)
     .first<string>("address");
-  if (!sender || !FAX_E164.test(sender))
+  if (!sender || !FAX_E164.test(sender) || sender !== identity.senderAddress)
     throw new DomainError(
       "SENDER_REQUIRED",
       "A verified fax sender is required.",
@@ -58,14 +58,18 @@ export async function resolveWorldwideFaxTariff(
     outboundProfileId: profile,
     senderNumber: sender,
   };
-  const catalog = await resolveWorldwideFaxReference(db, {
+  const { catalog, readFailed } = await resolveWorldwideFaxReference(db, {
     ...binding,
     destinationNumber,
-  }).catch(() => null);
+  }).then(
+    (catalog) => ({ catalog, readFailed: false }),
+    () => ({ catalog: null, readFailed: true }),
+  );
   // An active deck can deliberately leave this number ambiguous or unmatched.
-  // Only a positively absent deck permits reuse of the pre-catalogue policy.
+  // A catalogue read failure can still use a matching stored price.
   const activeDeck =
     !catalog &&
+    !readFailed &&
     (await db
       .prepare(
         "SELECT revision FROM worldwide_fax_catalog_state WHERE scope=? AND revision IS NOT NULL",

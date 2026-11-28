@@ -65,6 +65,7 @@ const profile = {
     id: profileId,
     enabled: true,
     whitelisted_destinations: ["LU", "FR"],
+    connections_count: 2,
     concurrent_call_limit: 2,
     max_destination_rate: 0.1,
     daily_spend_limit: "5.00",
@@ -326,6 +327,7 @@ describe("read-only Telnyx inspection", () => {
       id: profileId,
       enabled: true,
       whitelistedDestinations: ["LU", "FR"],
+      connectionsCount: 2,
       concurrentCallLimit: 2,
       maxDestinationRate: 0.1,
       dailySpendLimitUsd: "5.00",
@@ -483,6 +485,21 @@ describe("read-only Telnyx inspection", () => {
     );
   });
 
+  it("keeps an invalid association count unknown while preserving the allowed destinations", async () => {
+    const result = await inspectTelnyxReadiness(
+      config,
+      mocked([app, page(), { data: { ...profile.data, connections_count: -1 } }]),
+    );
+    expect(result.outboundProfile).toMatchObject({
+      connectionsCount: null,
+      whitelistedDestinations: ["LU", "FR"],
+    });
+    expect(result.errors).toContainEqual({
+      stage: "outbound_profile",
+      code: "invalid_response",
+      invalidFields: ["connections_count"],
+    });
+  });
   it("preserves unknown values separately from reported false, zero and unlimited settings", async () => {
     const result = await inspectTelnyxReadiness(
       config,
@@ -493,6 +510,7 @@ describe("read-only Telnyx inspection", () => {
           data: {
             id: profileId,
             enabled: false,
+            connections_count: 0,
             concurrent_call_limit: null,
             max_destination_rate: 0,
             daily_spend_limit_enabled: false,
@@ -503,6 +521,7 @@ describe("read-only Telnyx inspection", () => {
     );
     expect(result.outboundProfile).toMatchObject({
       enabled: false,
+      connectionsCount: 0,
       concurrentCallLimit: null,
       maxDestinationRate: 0,
       dailySpendLimitUsd: null,
@@ -515,6 +534,7 @@ describe("read-only Telnyx inspection", () => {
     );
     expect(unknown.outboundProfile).toMatchObject({
       enabled: null,
+      connectionsCount: null,
       concurrentCallLimit: "unknown",
       whitelistedDestinations: null,
       maxDestinationRate: null,

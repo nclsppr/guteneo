@@ -226,7 +226,7 @@ describe("automatic tenant Resend setup on local D1", () => {
     });
     expect((await rows("dispatches")).results).toHaveLength(0);
   });
-  it("fails closed before any mutation when operator configuration is absent, disabled, invalid or expired", async () => {
+  it("requires an enabled and correctly configured production transport before creating a sender", async () => {
     for (const patch of [
       { MODE: "simulation" },
       { EMAIL_PROVIDER: "ses" },
@@ -234,9 +234,6 @@ describe("automatic tenant Resend setup on local D1", () => {
       { RESEND_WEBHOOK_SECRET: undefined },
       { RESEND_VERIFIED_DOMAIN: "other.invalid" },
       { RESEND_SENDS_ENABLED: "false" },
-      { RESEND_TARIFF_QUALIFIED_UNTIL: undefined },
-      { RESEND_TARIFF_QUALIFIED_UNTIL: "invalid" },
-      { RESEND_TARIFF_QUALIFIED_UNTIL: now },
     ]) {
       expect(await setup(ctx, { ...env, ...patch } as Env)).toBeUndefined();
     }
@@ -244,6 +241,32 @@ describe("automatic tenant Resend setup on local D1", () => {
     expect((await rows("trusted_delivery_costs")).results).toHaveLength(0);
     expect(await enabled()).toBe(0);
   });
+  it.each([undefined, "invalid", now])(
+    "quotes a configured sender with supplier qualification %s",
+    async (expiresAt) => {
+      const setupResult = await setup(ctx, {
+        ...env,
+        RESEND_TARIFF_QUALIFIED_UNTIL: expiresAt,
+      });
+      expect(setupResult).toBeDefined();
+      const price = await resolveDeliveryPrice(db, {
+        organizationId: ctx.organizationId,
+        senderId: setupResult!.senderId,
+        channel: "email",
+        recipient: { email: "recipient@example.invalid" },
+        options: {},
+        identity: { ...resendIdentity(env)!, allowPublishedEmailTariff: true },
+        now,
+      });
+      expect(price.amountMinor).toBe(1);
+      expect(price.policy.source_reference).toBe(
+        expiresAt === now
+          ? RESEND_RATE.tariffSource
+          : "guteneo:email:2026-09-21",
+      );
+      expect(await enabled()).toBe(1);
+    },
+  );
   it("refuses viewer, stale role, unrelated organization and removed membership", async () => {
     for (const context of [
       { ...ctx, role: "viewer" as const },
@@ -287,7 +310,7 @@ describe("automatic tenant Resend setup on local D1", () => {
     expect(await enabled()).toBe(0);
     expect((await rows("trusted_delivery_costs")).results).toHaveLength(1);
   });
-  it("reuses the existing current policy if the operator extends the qualification window", async () => {
+  it("preserves the prior revision and installs a longer qualification window", async () => {
     await setup();
     await db
       .prepare("UPDATE channel_controls SET enabled=0 WHERE organization_id=?")
@@ -298,8 +321,13 @@ describe("automatic tenant Resend setup on local D1", () => {
       RESEND_TARIFF_QUALIFIED_UNTIL: "2026-11-21T02:00:00.000Z",
     });
     const policies = (await rows("trusted_delivery_costs")).results;
-    expect(policies).toHaveLength(1);
-    expect(policies[0].expires_at).toBe(until);
+    expect(policies).toHaveLength(2);
+    expect(policies.find((p) => p.status === "revoked")?.expires_at).toBe(
+      until,
+    );
+    expect(policies.find((p) => p.status === "qualified")?.expires_at).toBe(
+      "2026-11-21T02:00:00.000Z",
+    );
     expect(await enabled()).toBe(1);
   });
   it("renews an expired automatic policy only within the renewed operator qualification", async () => {
@@ -370,7 +398,7 @@ describe("automatic tenant Resend setup on local D1", () => {
       }),
       insertPolicy(old, { id: `already_revoked_${old.id}`, status: "revoked" }),
     ]);
-    expect(await setup(ctx, env, renewal)).toBeUndefined();
+    expect(await setup(ctx, env, renewal)).toMatchObject({ senderId });
     expect(await policy(old.id as string)).toEqual(old);
     await setup(
       ctx,
@@ -420,14 +448,25 @@ describe("automatic tenant Resend setup on local D1", () => {
       confirmed_minor: 0,
     });
   });
-  it("preserves an unexpired automatic policy from the previous tariff", async () => {
+  it("applies a newer automatic tariff before the previous one expires and records the supersession", async () => {
     const { old } = await priorTariffPolicy();
     await setup(
       ctx,
       { ...env, RESEND_TARIFF_QUALIFIED_UNTIL: "2026-11-21T02:00:00.000Z" },
       "2026-10-20T02:00:00.000Z",
     );
-    expect((await rows("trusted_delivery_costs")).results).toEqual([old]);
+    const policies = (await rows("trusted_delivery_costs")).results;
+    expect(policies).toHaveLength(2);
+    expect(await policy(old.id as string)).toEqual({
+      ...old,
+      status: "revoked",
+    });
+    expect(policies.find((p) => p.status === "qualified")?.rate_json).toBe(
+      canonicalJson(RESEND_RATE),
+    );
+    expect((await rows("superseded_email_prices")).results).toMatchObject([
+      { policy_id: old.id },
+    ]);
   });
   it("preserves an expired manual policy with the same automatic sender, route and previous tariff evidence", async () => {
     const { old } = await priorTariffPolicy(true);
@@ -460,12 +499,21 @@ describe("automatic tenant Resend setup on local D1", () => {
         .bind(ctx.organizationId),
     ]);
     await setup();
-    expect(await enabled()).toBe(0);
-    expect((await rows("trusted_delivery_costs")).results).toHaveLength(1);
-    await db
-      .prepare("UPDATE senders SET status='disabled' WHERE organization_id=?")
-      .bind(ctx.organizationId)
-      .run();
+    expect(await enabled()).toBe(1);
+    expect((await rows("trusted_delivery_costs")).results).toMatchObject([
+      { status: "revoked" },
+    ]);
+    expect((await rows("superseded_email_prices")).results).toHaveLength(0);
+    await db.batch([
+      db
+        .prepare("UPDATE senders SET status='disabled' WHERE organization_id=?")
+        .bind(ctx.organizationId),
+      db
+        .prepare(
+          "UPDATE channel_controls SET enabled=0 WHERE organization_id=? AND channel='email'",
+        )
+        .bind(ctx.organizationId),
+    ]);
     await setup(ctx, {
       ...env,
       RESEND_TARIFF_QUALIFIED_UNTIL: "2026-11-21T02:00:00.000Z",

@@ -105,7 +105,7 @@ const priceMigrations = {
   "0083_worldwide_fax_catalog.sql":
     "f13822d8861af157dc7c5d43ebb7c18daf2842659c74a2f32967a0bae0a625f7",
   "0084_fax_price_continuity.sql":
-    "5b41a1013f6d4f4d4693b1aff585b663d677444d8f0eeaf321bdc3d4e6a2fb8b",
+    "509208a37c5218c53fa3c5a4fac625670756db9991843afe27de67a56609cc60",
   "0085_delivery_price_continuity.sql":
     "9f0fe8281b71da163952338fad0119f483f70fc3e7710d327c7c3a1eba68f9da",
   "0086_postal_price_references.sql":

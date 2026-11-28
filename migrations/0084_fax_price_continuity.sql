@@ -104,8 +104,8 @@ CREATE VIEW valid_worldwide_fax_amounts AS
  AND ((source_reference='worldwide-fax:guteneo_continuity_v1'
        AND estimated_low_nanoeur=pages*250000000 AND estimated_high_nanoeur=estimated_low_nanoeur)
    OR (source_reference<>'worldwide-fax:guteneo_continuity_v1'
-       AND estimated_low_nanoeur=2*((low_nano/fx_denominator)*fx_numerator+((low_nano%fx_denominator)*fx_numerator+fx_denominator-1)/fx_denominator)
-       AND estimated_high_nanoeur=2*((high_nano/fx_denominator)*fx_numerator+((high_nano%fx_denominator)*fx_numerator+fx_denominator-1)/fx_denominator)));
+       AND estimated_low_nanoeur=min(10000000000000,2*((low_nano/fx_denominator)*fx_numerator+((low_nano%fx_denominator)*fx_numerator+fx_denominator-1)/fx_denominator))
+       AND estimated_high_nanoeur=min(10000000000000,2*((high_nano/fx_denominator)*fx_numerator+((high_nano%fx_denominator)*fx_numerator+fx_denominator-1)/fx_denominator))));
 
 -- These compatibility views are used by every atomic write guard. Their
 -- effective deadline is now the immutable quote deadline after checking route
@@ -252,3 +252,63 @@ CREATE VIEW valid_live_fax_quotes_v3 AS
  AND (json_extract(q.input_json,'$.ceilingMinor') IS d.ceiling_minor))
  AND ((json_extract(q.input_json,'$.currency') IS d.currency)
  AND (json_extract(q.input_json,'$.mode') IS d.mode)))))));
+
+-- Verified supplier usage can exceed the old USD 1,000 proof limit for international routes.
+CREATE TABLE fax_settlement_backup_0084 AS SELECT * FROM fax_usage_settlements;
+DROP TABLE fax_usage_settlements;
+CREATE TABLE fax_usage_settlements (
+ organization_id TEXT NOT NULL REFERENCES welcome_credit_grants(organization_id) ON DELETE CASCADE,
+ dispatch_id TEXT NOT NULL,
+ attempt_id TEXT NOT NULL,
+ provider TEXT NOT NULL CHECK(provider='telnyx'),
+ provider_id TEXT NOT NULL CHECK(length(provider_id) BETWEEN 1 AND 200),
+ account_id TEXT NOT NULL CHECK(length(account_id) BETWEEN 1 AND 200),
+ connection_id TEXT NOT NULL CHECK(length(connection_id) BETWEEN 1 AND 200),
+ quote_fingerprint TEXT NOT NULL CHECK(length(quote_fingerprint)=64),
+ proof_source TEXT NOT NULL CHECK(proof_source='operator_reconciled_usage'),
+ reviewer_id TEXT NOT NULL,
+ observed_at TEXT NOT NULL,
+ evidence_reference TEXT NOT NULL CHECK(length(evidence_reference) BETWEEN 1 AND 500),
+ evidence_sha256 TEXT NOT NULL CHECK(length(evidence_sha256)=64 AND evidence_sha256 NOT GLOB '*[^0-9a-f]*'),
+ proof_fingerprint TEXT NOT NULL CHECK(length(proof_fingerprint)=64 AND proof_fingerprint NOT GLOB '*[^0-9a-f]*'),
+ supplier_nano_usd INTEGER NOT NULL CHECK(typeof(supplier_nano_usd)='integer' AND supplier_nano_usd BETWEEN 0 AND 9000000000000000),
+ supplier_nanoeur INTEGER NOT NULL CHECK(typeof(supplier_nanoeur)='integer' AND supplier_nanoeur BETWEEN 0 AND 9000000000000000),
+ customer_nanoeur INTEGER NOT NULL CHECK(typeof(customer_nanoeur)='integer' AND customer_nanoeur BETWEEN 0 AND 50000000000),
+ guteneo_absorbed_nanoeur INTEGER NOT NULL CHECK(typeof(guteneo_absorbed_nanoeur)='integer' AND guteneo_absorbed_nanoeur BETWEEN 0 AND 9000000000000000),
+ created_at TEXT NOT NULL CHECK(created_at>=observed_at),
+ PRIMARY KEY(organization_id,dispatch_id),
+ UNIQUE(organization_id,provider,account_id,provider_id)
+);
+INSERT INTO fax_usage_settlements SELECT * FROM fax_settlement_backup_0084;
+DROP TABLE fax_settlement_backup_0084;
+CREATE TRIGGER immutable_fax_usage_settlement BEFORE UPDATE ON fax_usage_settlements BEGIN SELECT RAISE(ABORT,'immutable_fax_usage_settlement'); END;
+CREATE TRIGGER retained_fax_usage_settlement BEFORE DELETE ON fax_usage_settlements WHEN EXISTS(SELECT 1 FROM welcome_credit_grants WHERE organization_id=OLD.organization_id) BEGIN SELECT RAISE(ABORT,'immutable_fax_usage_settlement'); END;
+CREATE TRIGGER valid_fax_usage_settlement BEFORE INSERT ON fax_usage_settlements BEGIN
+ SELECT RAISE(ABORT,'fax_usage_settlement_invalid') WHERE NOT EXISTS(
+  SELECT 1 FROM live_fax_quotes_v3 q
+  JOIN dispatches d ON d.organization_id=q.organization_id AND d.id=q.dispatch_id
+  JOIN attempts a ON a.organization_id=d.organization_id AND a.dispatch_id=d.id AND a.id=d.active_attempt_id
+  JOIN welcome_credit_reservations r ON r.organization_id=d.organization_id AND r.dispatch_id=d.id
+  JOIN reservations monthly ON monthly.organization_id=d.organization_id AND monthly.dispatch_id=d.id
+  JOIN memberships m ON m.organization_id=d.organization_id AND m.user_id=NEW.reviewer_id AND m.role='admin'
+  WHERE q.organization_id=NEW.organization_id AND q.dispatch_id=NEW.dispatch_id
+  AND d.mode='production' AND d.channel='fax' AND d.status IN ('delivered','failed')
+  AND d.provider=NEW.provider AND d.provider_id=NEW.provider_id AND d.active_attempt_id=NEW.attempt_id
+  AND a.provider=NEW.provider AND a.provider_id=NEW.provider_id AND a.status IN ('started','accepted','unknown') AND a.bridge_claimed_at IS NOT NULL AND a.bridge_claimed_at<=NEW.observed_at
+  AND q.account_id=NEW.account_id AND q.connection_id=NEW.connection_id AND q.fingerprint=NEW.quote_fingerprint AND d.quote_fingerprint=q.fingerprint
+  AND r.status='reserved' AND r.amount_minor=q.ceiling_minor AND monthly.status='reserved' AND monthly.channel='fax' AND monthly.amount_minor=q.ceiling_minor
+  AND NEW.observed_at>=a.created_at
+  AND (NEW.supplier_nano_usd<=1000000000000 OR EXISTS(SELECT 1 FROM trusted_fax_usage_tariffs t WHERE t.organization_id=q.organization_id AND t.id=q.tariff_id AND t.route_qualification='worldwide'))
+  AND NEW.supplier_nanoeur=(NEW.supplier_nano_usd/q.fx_denominator)*q.fx_numerator+((NEW.supplier_nano_usd%q.fx_denominator)*q.fx_numerator+q.fx_denominator-1)/q.fx_denominator
+  AND NEW.customer_nanoeur=MIN(2*NEW.supplier_nanoeur,q.ceiling_minor*10000000)
+  AND NEW.guteneo_absorbed_nanoeur=MAX(0,NEW.supplier_nanoeur-NEW.customer_nanoeur)
+ );
+END;
+CREATE TRIGGER fax_usage_settle AFTER INSERT ON fax_usage_settlements BEGIN
+ UPDATE welcome_credit_reservations SET status='settled',updated_at=NEW.created_at WHERE organization_id=NEW.organization_id AND dispatch_id=NEW.dispatch_id AND status='reserved';
+END;
+CREATE TRIGGER review_fax_fax_usage_settlements_insert BEFORE INSERT ON fax_usage_settlements
+BEGIN
+ SELECT RAISE(ABORT,'fax_review_preparation_only') WHERE EXISTS(SELECT 1 FROM review_only_fax_dispatches r WHERE r.organization_id=NEW.organization_id AND r.dispatch_id=NEW.dispatch_id);
+END;
+CREATE INDEX belvedere_supplier_posted ON fax_usage_settlements(created_at,organization_id,dispatch_id);

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "pluginVersion": "1.2.10",
-  "mcpSourceSha256": "819e5b9bfd62f7b1d6d7eea34897d3f5796430326f4c26fc26d7d00bfab792ed",
+  "mcpSourceSha256": "ff92edcd52fc993ff67f7ea09a8483f2b1c0940cf929ca448fc6927249c0254f",
   "packageSha256": "d92bc2d5eb7e5bc9b865b9a3180a601786acd2ea1aabe714b2ba024f1235237a",
   "sources": {
     "apps/api/src/auth.ts": "638fdcca948ce6297c5618188b82d8f187d46981ed3cbca7921286df60a568e5",
@@ -28,7 +28,7 @@
     "packages/contracts/src/dispatch-validation.ts": "64c3864fb31f3874a15ba0504ee04d2449dd02e43c2d1dac356905258d85d91c",
     "packages/contracts/src/document-analysis.ts": "5984742fa3108c2328c6d446f95d79bf86d38792a7c3dcdd0c9916f552dd16ea",
     "packages/contracts/src/fax-number.ts": "59fa73445c95438b31aaa3e4f8ec46ddff6077abc506c5c20413005ff5bb5496",
-    "packages/contracts/src/fax-pricing.ts": "a44650083f96133538d83a3ad49aab97560c4069f5912537da4981bb7a3bfc9d",
+    "packages/contracts/src/fax-pricing.ts": "c865e56d6384d03df5fb622c510845bf3c1356e7d519e639c3206fa4da764d09",
     "packages/contracts/src/mcp-app-upload.ts": "5781719e8b47d1dd9177cb8bdd78d51e2f673e7a6d919b37ff6621b33f578859",
     "packages/contracts/src/mcp-document-upload-resource.json": "bf6f3dd2361925ad0c929d2f234281eb9c94aef4cc450684c8b338e0a3e76f42",
     "packages/contracts/src/mcp-ui-probe-resource.json": "eafa886cc44f196aaff1c9be67fa010f6f8b82633c0d3189a9d8b2d71b08763a",
@@ -42,7 +42,7 @@
     "packages/contracts/src/saved-recipients.ts": "a2b17fc4caefdad82668c2bf043964d2af302336c75a3e69bef9ec58f5b741af",
     "packages/contracts/src/secure-distribution.ts": "5393fb5c0813c8346a0def96e0c0016d931d3bcb22407fac86b7d92ed5f4e64e",
     "packages/contracts/src/template-workflow.ts": "5a2c345b307bd33b583b8ccca81daac167025980fa0baf5090b1e4957d6aed7a",
-    "packages/domain/src/index.ts": "d0f0bb575087e4a6fe3e750f802475866101235a8c52f7ab36540a5fc6897bc6",
+    "packages/domain/src/index.ts": "50de8291161dfeed6b8d3d6306290e1c318778f69ea7e1bb553c578c0ab02e8a",
     "packages/observability/src/index.ts": "a00745e96ef62906ebe92b8326cc97c47f7fcd1dd6696a45bb325c7a5f77249a"
   }
 }

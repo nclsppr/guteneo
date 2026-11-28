@@ -16,6 +16,8 @@ import {
 } from "../../apps/web/src/locale";
 import { msg, messages } from "../../apps/web/src/messages";
 import { nanoMoney, money, setSession } from "../../apps/web/src/api";
+import { FAX_MAX_ESTIMATE_NOTICE } from "../../packages/contracts/src/fax-pricing";
+import trafficMessages from "../../apps/experience/src/locales/traffic.json";
 import { getCustomerPricing } from "../../apps/web/src/customer-pricing";
 import { getPublicSocialCopy } from "../../apps/web/src/editorial/social-copy";
 import publicSite from "../../packages/contracts/src/public-site.json";
@@ -43,6 +45,15 @@ afterEach(() => {
   setLocale("fr", false);
 });
 describe("complete product language catalogs", () => {
+  it("displays the same fax maximum in both customer interfaces for each language", () => {
+    for (const locale of ["fr", "de", "lb", "en"] as const) {
+      setLocale(locale, false);
+      const notice = msg(FAX_MAX_ESTIMATE_NOTICE);
+      expect(notice).toBe(trafficMessages["traffic.faxMaximumPrice"][locale]);
+      if (locale !== "en") expect(notice).not.toBe(FAX_MAX_ESTIMATE_NOTICE);
+    }
+  });
+
   it.each(["fr", "en", "de", "lb"] as const)(
     "retains the shared original-download label after merging email copy in %s",
     (locale) => {

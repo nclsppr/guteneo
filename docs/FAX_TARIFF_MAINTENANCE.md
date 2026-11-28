@@ -2,20 +2,20 @@
 
 ## Worldwide mode — 28 November 2026 candidate
 
-With worldwide mode enabled, new faxes from a verified production sender can
+With worldwide mode enabled, new faxes from the verified production sender configured for the gateway can
 use any supported international E.164 number. Guteneo freezes the applicable
 Telnyx public catalog reference for the bound account, application, profile and
 sender at preparation. The quote uses the destination-specific page, minute and
 call rates, billed duration increments, and dated FX. An unseen or ambiguous
 number receives Guteneo’s EUR 0.25 per page estimate excluding tax. If the cron
 fails, the installed catalog remains usable. An existing matching tariff can
-supply an archived reference before the first catalog is available.
+supply an archived reference before the first catalog is available or during a catalog read failure. A previously quoted worldwide rate can be recovered for its exact recipient.
 
 An ordinary worldwide quote lasts up to fifteen minutes. It binds the document,
 recipient, options, estimate, source and firm customer ceiling. Confirmation
 reserves that ceiling. Verified usage settles within the ceiling, with excess
-supplier cost borne by Guteneo. Document admission limits and the connector’s 350-page maximum apply. The
-dedicated restricted reviewer continues to use its separate preparation-only
+supplier cost borne by Guteneo. Worldwide customer estimates and ceilings have the existing EUR 10,000 per-dispatch maximum. The ledger records the verified supplier expense separately, including larger amounts. Document admission limits and the connector’s 350-page maximum apply.
+The dedicated restricted reviewer continues to use its separate preparation-only
 workflow. Previous pilot quotes retain their original approval and limits.
 
 Migration 0083 installs the shared commercial catalog. Migration 0084 adds

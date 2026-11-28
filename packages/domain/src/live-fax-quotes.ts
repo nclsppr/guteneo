@@ -11,6 +11,7 @@ import {
 
 export type LiveFaxIdentity = {
   worldwide?: boolean;
+  senderAddress?: string;
   accountId: string;
   connectionId: string;
   outboundProfileId?: string;
@@ -272,7 +273,8 @@ export async function validateLiveFaxQuote(
   now: string,
   purpose: "send" | "prepare" = "send",
 ): Promise<LiveFaxQuote | FaxUsageQuote> {
-  if (purpose === "send") await assertFaxDispatchSendable(db, row);
+  if (purpose === "send")
+    await assertFaxDispatchSendable(db, row, identity?.worldwide);
   if (!identityValid(identity)) throw invalid();
   const usage = await validateFaxUsageQuote(db, row, identity, now);
   if (usage) return usage;

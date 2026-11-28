@@ -176,7 +176,18 @@ test("source boundary permits exactly the reviewed migrations and exact ledger p
   );
   for (const altered of [
     plan.slice(0, 81),
-    [...plan, { name: "0083_unreviewed.sql" }],
+    [...plan, { name: "0088_unreviewed.sql" }],
+    plan.map((entry, index) =>
+      index === 83
+        ? {
+            ...entry,
+            batch: [
+              { sql: "DELETE FROM organizations;" },
+              ...entry.batch.slice(1),
+            ],
+          }
+        : entry,
+    ),
     plan.map((entry, index) =>
       index === 81
         ? {

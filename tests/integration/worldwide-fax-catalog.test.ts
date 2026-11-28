@@ -67,6 +67,9 @@ const csv = [
   "US,United States,352,1XXX211,Public service,60,60,0.03,,YES",
   "LU,Luxembourg,local,352,Local,60,60,0.04,,",
   "LU,Luxembourg,,352,Default,60,60,0.09,,",
+  "BL/MF,Shared territory,,590,Shared rate,60,60,0.08,,",
+  "AG,Shared region,,1780,Same price,60,60,0.09,,",
+  "CA,Shared region,,1780,Same price,60,60,0.09,,",
   "DE,Germany,,499,Conflict,60,60,0.1,,",
   "DE,Germany,,499,Conflict,60,60,0.2,,",
   ...Array.from({ length: 100_000 }, (_, i) => {
@@ -110,6 +113,26 @@ afterAll(async () => {
   await mf?.dispose();
 });
 describe("worldwide published fax tariff", () => {
+  it("reports missing production pricing credentials and skips other environments", async () => {
+    const fetcher = vi.fn<typeof fetch>();
+    const unconfigured = { ...env, TELNYX_API_KEY: undefined };
+    await expect(
+      refreshWorldwideFaxCatalog(unconfigured, { fetcher }),
+    ).resolves.toEqual({
+      worldwideFaxCatalogRefreshed: 0,
+      worldwideFaxCatalogFailed: 1,
+    });
+    await expect(
+      refreshWorldwideFaxCatalog(
+        { ...unconfigured, ENVIRONMENT: "local" },
+        { fetcher },
+      ),
+    ).resolves.toEqual({
+      worldwideFaxCatalogRefreshed: 0,
+      worldwideFaxCatalogFailed: 0,
+    });
+    expect(fetcher).not.toHaveBeenCalled();
+  });
   it("publishes a complete catalog, keeps an old quote source through failure, and fences simultaneous or partial refreshes", async () => {
     let omitCountry = false;
     let clock = timestamp,
@@ -163,6 +186,14 @@ describe("worldwide published fax tariff", () => {
       fxNumerator: 4,
       fxDenominator: 5,
       sourceReference: url,
+    });
+    expect(await lookup("+590123456")).toMatchObject({
+      destinationCountry: "ZZ",
+      minuteNanoUsd: 80_000_000,
+    });
+    expect(await lookup("+17801234567")).toMatchObject({
+      destinationCountry: "ZZ",
+      minuteNanoUsd: 90_000_000,
     });
     expect(await lookup("+1212555")).toMatchObject({
       minuteNanoUsd: 20_000_000,

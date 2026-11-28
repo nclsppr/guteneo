@@ -45,6 +45,24 @@ export type FaxPricingDisplay = {
   legacyEstimatedMinorMeaning: "rounded_up_estimated_high_centimes";
 };
 
+export const FAX_MAX_ESTIMATE_NANOEUR = 10_000_000_000_000;
+export const FAX_MAX_ESTIMATE_NOTICE =
+  "This estimate reaches Guteneo’s maximum price of €10,000 excluding tax per fax. Your approved ceiling still applies.";
+
+export function isFaxEstimateAtMaximum(pricing?: {
+  executionScope?: string;
+  referenceBasis?: string;
+  estimatedHighNanoeur?: number;
+} | null): boolean {
+  return (
+    pricing?.executionScope !== "review_prepare_only" &&
+    (pricing?.referenceBasis === "worldwide_catalog" ||
+      pricing?.referenceBasis === "last_known_reference" ||
+      pricing?.referenceBasis === "guteneo_continuity_v1") &&
+    (pricing.estimatedHighNanoeur ?? 0) >= FAX_MAX_ESTIMATE_NANOEUR
+  );
+}
+
 export function faxReferenceNotice(
   basis?: FaxPricing["referenceBasis"],
 ): string | undefined {
@@ -101,6 +119,7 @@ function faxPricingDisplay(pricing: FaxPricing): FaxPricingDisplay {
           : FAX_REVIEW_PREPARATION_NOTICE
         : [
             faxReferenceNotice(pricing.referenceBasis),
+            isFaxEstimateAtMaximum(pricing) ? FAX_MAX_ESTIMATE_NOTICE : undefined,
             "The estimate covers this entire fax, including transmission, and varies with the actual duration, which is not guaranteed. It is neither a fixed per-page price nor a charge. The ceiling is reserved on confirmation; final consumption is determined after verified usage and remains bounded by that ceiling. Fractions of a cent accumulate before the balance is debited. The settlement status indicates whether the reservation is active, settled or released.",
           ]
             .filter(Boolean)
