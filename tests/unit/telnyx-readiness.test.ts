@@ -327,6 +327,8 @@ describe("read-only Telnyx inspection", () => {
       id: profileId,
       enabled: true,
       whitelistedDestinations: ["LU", "FR"],
+      specialDestinations: [],
+      unrecognizedDestinationCount: 0,
       connectionsCount: 2,
       concurrentCallLimit: 2,
       maxDestinationRate: 0.1,
@@ -485,10 +487,76 @@ describe("read-only Telnyx inspection", () => {
     );
   });
 
+  it("reports country access separately from known and future special destinations", async () => {
+    const special = ["uitf", "inmarsat", "gmss", "intlnetworks", "upt"];
+    const result = await inspectTelnyxReadiness(
+      config,
+      mocked([
+        app,
+        page(),
+        {
+          data: {
+            ...profile.data,
+            whitelisted_destinations: [
+              "FR",
+              ...special,
+              "new_service",
+              "uitf",
+              "FR",
+            ],
+          },
+        },
+      ]),
+    );
+    expect(result.status).toBe("ok");
+    expect(result.outboundProfile).toMatchObject({
+      whitelistedDestinations: ["FR"],
+      specialDestinations: special,
+      unrecognizedDestinationCount: 1,
+    });
+    expect(JSON.stringify(result)).not.toContain("new_service");
+  });
+  it.each([
+    { invalid: ["LU", "invalid marker"] },
+    { invalid: "LU" },
+    { invalid: ["LU", 5] },
+  ])(
+    "returns unknown coverage on malformed destination data without losing profile scope",
+    async ({ invalid }) => {
+      const result = await inspectTelnyxReadiness(
+        config,
+        mocked([
+          app,
+          page(),
+          { data: { ...profile.data, whitelisted_destinations: invalid } },
+        ]),
+      );
+      expect(result.status).toBe("partial");
+      expect(result.outboundProfile).toMatchObject({
+        id: profileId,
+        enabled: true,
+        connectionsCount: 2,
+        whitelistedDestinations: null,
+        specialDestinations: null,
+        unrecognizedDestinationCount: null,
+      });
+      expect(result.errors).toEqual([
+        {
+          stage: "outbound_profile",
+          code: "invalid_response",
+          invalidFields: ["whitelisted_destinations"],
+        },
+      ]);
+    },
+  );
   it("keeps an invalid association count unknown while preserving the allowed destinations", async () => {
     const result = await inspectTelnyxReadiness(
       config,
-      mocked([app, page(), { data: { ...profile.data, connections_count: -1 } }]),
+      mocked([
+        app,
+        page(),
+        { data: { ...profile.data, connections_count: -1 } },
+      ]),
     );
     expect(result.outboundProfile).toMatchObject({
       connectionsCount: null,
@@ -527,6 +595,8 @@ describe("read-only Telnyx inspection", () => {
       dailySpendLimitUsd: null,
       dailySpendLimitEnabled: false,
       whitelistedDestinations: [],
+      specialDestinations: [],
+      unrecognizedDestinationCount: 0,
     });
     const unknown = await inspectTelnyxReadiness(
       config,
@@ -537,6 +607,8 @@ describe("read-only Telnyx inspection", () => {
       connectionsCount: null,
       concurrentCallLimit: "unknown",
       whitelistedDestinations: null,
+      specialDestinations: null,
+      unrecognizedDestinationCount: null,
       maxDestinationRate: null,
       dailySpendLimitUsd: null,
     });
