@@ -11,7 +11,7 @@ sidebar:
 
 Individual-purchase capability enabled in the 25 October release and observed on f946 main at 26 October 01:47 UTC; private hosted corpus, scanner, application configuration and actual customer purchase remain separate evidence. No new subscription or recurring renewal. See PDF_ACCESSIBILITY.md and PDF_VERIFICATION_PRICING.md.
 
-**Surfaces:** Web browser administrator purchases; REST and MCP retain current document-scoped history reads and cannot create assistant financial consent. Workspace-wide metadata history is browser-only; existing document-scoped MCP history remains unchanged.
+**Surfaces:** Browser administrators purchase through authenticated REST. MCP lists completed reports for one accessible document with documents:read. The exact-key lookup retains documents:write. Native callers and assistants cannot purchase. Workspace-wide metadata history is browser-only.
 
 [Read the engineering guide](/workflows/pdf-diagnostics/) · [All features](/features/)
 
@@ -27,7 +27,7 @@ Individual-purchase capability enabled in the 25 October release and observed on
 <li id="feature-2acdd0b62b62">Required human review; a valid report with failed conformance checks is billable, while operational failure is not a conformity verdict</li>
 <li id="feature-31d5342b365a">One explicit activation flag, private validator and production scanner gates; activation after hosted qualification, never legal certification</li>
 <li id="feature-5fc00307842b">PDF-accessibility exclusions apply to originals and existing reports; person-redacted recovery without web bypass</li>
-<li id="feature-334428e4fc84">Same-key recovery for uncertain network responses does not purchase or execute twice; a new independent check requires a new explicit purchase</li>
+<li id="feature-689eb72fb53f">Exact request-key lookup returns a stored report for the same document, original hash and profile. New purchases require explicit browser administrator consent.</li>
 <li id="feature-8d63b3d7c00e">Browser-only workspace check history: at most50 metadata records per keyset page under current document-library visibility, existing rate budget, no-store and final browser authority; migration0082 adds a chronological tenant index. Reading never purchases or performs another check</li>
 <li id="feature-f25d62e804f8">Compact price/action offer with purchase conditions in a disclosure and one Choose a PDF action; an empty metadata history does not duplicate that action. History links return to the authorized document and keep operational errors distinct from conformance findings</li>
 </ol>
@@ -44,6 +44,6 @@ Read the [REST integration guide](/integrations/rest-api/) for authentication, e
 ## MCP tools
 
 - `get_pdf_validation`
-- `validate_pdf`
+- `get_pdf_validation_by_key`
 
 Read the [MCP integration guide](/integrations/mcp/) for scope, approval and host boundaries.

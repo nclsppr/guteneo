@@ -335,8 +335,11 @@ size, current document status and engine version; avoid retaining customer text.
    IDs, document names and reports must not appear in errors. A failed probe is
    not proof that an inaccessible document does not exist; it is proof of the
    interface's indistinguishable refusal.
-8. Use a genuine OAuth assistant connection with `documents:write` for
-   `validate_pdf` and `documents:read` for `get_pdf_validation`. Recheck membership,
+8. The 3 October 2026 protocol specified a genuine OAuth assistant connection
+   with `documents:write` for `validate_pdf` and `documents:read` for
+   `get_pdf_validation`. For current clients, see the
+   [report lookup contract](PDF_ACCESSIBILITY.md#retrieve-one-report-by-request-key).
+   The historical protocol required operators to recheck membership,
    document ownership, report hash and entitlement. No scope or expert mandate
    adds billing authority. If ChatGPT/Claude is not available, record the host
    journey as unobserved; local MCP transport tests cannot fill that row.

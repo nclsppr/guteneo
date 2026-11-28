@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "pluginVersion": "1.3.1",
-  "mcpSourceSha256": "12c709a121ac18cbffef4a30fd4d381664c597a42334b29989c281766c219e40",
-  "packageSha256": "eee47ff615cd372888da27e627390ccd704c6f7b23839a3ff9583f5162956df9",
+  "pluginVersion": "1.3.2",
+  "mcpSourceSha256": "91fa7c84882891cd1e4d5b6b86d02dd7a9648c9c536108027b0ca249f90bb6a6",
+  "packageSha256": "4c645beef5b9dc2797962ffd33ca1a65517d25e88a9f06f00819952b2ceba89a",
   "sources": {
     "apps/api/src/auth.ts": "638fdcca948ce6297c5618188b82d8f187d46981ed3cbca7921286df60a568e5",
     "apps/api/src/connection-observations.ts": "40278b9fab339e05949a04c2d2718348236e9362e944f95a4d2a3466c186fa24",
@@ -16,7 +16,7 @@
     "apps/api/src/mcp-document-upload.ts": "02522866f3802c9aebb9894110936d3e45950b664a5192e02409191a6e022373",
     "apps/api/src/mcp-skills.ts": "ba687c5016d9aa2c44fc8f1dc1aeb826ad0c58bf4761a74425ad3776188de729",
     "apps/api/src/mcp-ui-probe.ts": "ec64e9c872b38bbe10a9729a6edb7629330432f0adf54c5fd9eec1210fcaa3fa",
-    "apps/api/src/mcp.ts": "784c2743fed3d3a0706d46c81c7598e26918e5c7c244ad4bfd885592b108ceee",
+    "apps/api/src/mcp.ts": "d4652c2804befe14d9b974c4c2da9ceb51aae307eb517bc42f617327c7b424e7",
     "apps/api/src/postal-address-page.ts": "0136e864e9f2611932a6540c1ac093add1a107a60e5b135b25c38be6c1bfd2e6",
     "apps/api/src/postal-authority.ts": "69dc7155a56311b7927416b90acf3577417b30f0ca410e3f815530c1b29b7e98",
     "apps/api/src/saved-recipients.ts": "f9bde0f3851e684bc0b63b19ca0a7fc5584942eaa2bba460cbb0d1fb6a0339ae",
@@ -45,6 +45,6 @@
     "packages/contracts/src/template-workflow.ts": "5a2c345b307bd33b583b8ccca81daac167025980fa0baf5090b1e4957d6aed7a",
     "packages/domain/src/index.ts": "50de8291161dfeed6b8d3d6306290e1c318778f69ea7e1bb553c578c0ab02e8a",
     "packages/observability/src/index.ts": "a00745e96ef62906ebe92b8326cc97c47f7fcd1dd6696a45bb325c7a5f77249a",
-    "packages/contracts/src/mcp-skills.json": "01c7a854319610affe0d578de895ed0eada46eb40608b99f1312c35d8f70395f"
+    "packages/contracts/src/mcp-skills.json": "3a85ecc695877b56db8d462a4c2a05c2f3707135862bb06f802adaebb4fd5149"
   }
 }

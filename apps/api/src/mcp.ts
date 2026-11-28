@@ -617,8 +617,8 @@ export const MCP_LIMITS = Object.freeze({
 async function boundedMcpRequest(
   request: Request,
   origin: string,
-): Promise<Request | Response> {
-  if (request.method !== "POST" || !request.body) return request;
+): Promise<{ request: Request; parsedBody?: unknown } | Response> {
+  if (request.method !== "POST" || !request.body) return { request };
   const reject = (status: number, message: string) =>
     Response.json(
       { jsonrpc: "2.0", id: null, error: { code: -32000, message } },
@@ -674,7 +674,39 @@ async function boundedMcpRequest(
     request.signal.removeEventListener("abort", cancel);
     reader.releaseLock();
   }
-  return new Request(request, { body: bytes.subarray(0, size) });
+  const body = bytes.subarray(0, size);
+  const bounded = new Request(request, { body });
+  let parsedBody: unknown;
+  try {
+    parsedBody = JSON.parse(new TextDecoder().decode(body));
+  } catch {
+    // Keep the SDK's normal parse-error response and request ID handling.
+    return { request: bounded };
+  }
+  if (Array.isArray(parsedBody)) {
+    // One legacy batch can mix a catalogue read and calls under either name.
+    // Only translate the deprecated call's selector before ordinary SDK validation.
+    for (const message of parsedBody)
+      if (isLegacyPdfReportCall(message))
+        message.params.name = "get_pdf_validation_by_key";
+  }
+  return { request: bounded, parsedBody };
+}
+
+function isLegacyPdfReportCall(
+  message: unknown,
+): message is { method: "tools/call"; params: { name: string } } {
+  return (
+    typeof message === "object" &&
+    message !== null &&
+    "method" in message &&
+    message.method === "tools/call" &&
+    "params" in message &&
+    typeof message.params === "object" &&
+    message.params !== null &&
+    "name" in message.params &&
+    message.params.name === "validate_pdf"
+  );
 }
 type ExplicitToolAnnotations = ToolAnnotations &
   Record<
@@ -984,6 +1016,7 @@ export function createGuteneoMcpServer(
   identity: McpIdentity,
   env: AuthEnv,
   services: McpServices,
+  legacyPdfReportCall = false,
 ): McpServer {
   const server = new McpServer(
     {
@@ -2333,10 +2366,10 @@ export function createGuteneoMcpServer(
     );
   if (services.pdfValidation) {
     registerTool(
-      "validate_pdf",
+      legacyPdfReportCall ? "validate_pdf" : "get_pdf_validation_by_key",
       {
-        title: "Check PDF/UA or PDF/A rules",
-        description: `Returns an already purchased exact-key PDF check with veraPDF under documents:write authority. A new check requires an authenticated browser administrator’s approval of the exact PDF, selected profile and single EUR${(PDF_VALIDATION_PRICE_MINOR / 100).toFixed(2)} purchase excluding tax. Assistant authority cannot create that purchase or consent. ua1/ua2 are accessibility profiles; 1b/2b/3b/4 are archive profiles. PDF/A does not establish accessibility. The same idempotencyKey identifies the same check after a lost response. Rules and counters bind to exact original bytes; automatic findings do not replace human verification or establish certification or a legal guarantee. Changes and sends no document. No subscription or renewal is created.`,
+        title: "Get a PDF validation report by request key",
+        description: `Retrieves an existing veraPDF report for the exact original PDF, profile and previously purchased request key under documents:write authority. Use the same key after an interrupted response. This tool cannot start a check. A new check requires an authenticated browser administrator’s approval of the exact PDF, selected profile and single EUR${(PDF_VALIDATION_PRICE_MINOR / 100).toFixed(2)} purchase excluding tax. Assistant authority cannot create that purchase or consent. ua1/ua2 are accessibility profiles; 1b/2b/3b/4 are archive profiles. PDF/A does not establish accessibility. Rules and counters bind to exact original bytes; automatic findings do not replace human verification or establish certification or a legal guarantee. Changes and sends no document. No subscription or renewal is created.`,
         inputSchema: pdfValidationInput
           .extend({
             documentId: id,
@@ -3058,7 +3091,15 @@ export async function handleMcp(
   const boundedRequest = await boundedMcpRequest(request, env.APP_ORIGIN);
   if (boundedRequest instanceof Response) return boundedRequest;
   const handler = createMcpHandler(
-    () => createGuteneoMcpServer(identity, env, services),
+    // A stateless server serves one request. Only an explicit historical call
+    // selects its old spelling; discovery always registers the canonical name.
+    () =>
+      createGuteneoMcpServer(
+        identity,
+        env,
+        services,
+        isLegacyPdfReportCall(boundedRequest.parsedBody),
+      ),
     {
       route: "/mcp",
       maxRequestBodySize: MCP_LIMITS.requestBytes,
@@ -3066,7 +3107,8 @@ export async function handleMcp(
       corsOptions: { origin: env.APP_ORIGIN },
     },
   );
-  const response = await handler.fetch(boundedRequest, {
+  const response = await handler.fetch(boundedRequest.request, {
+    parsedBody: boundedRequest.parsedBody,
     authInfo: {
       token: identity.token,
       clientId: identity.clientId,

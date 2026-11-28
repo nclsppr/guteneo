@@ -175,6 +175,12 @@ build verification. A passing fingerprint check does not replace that review or
 authorize a portal update, merge or deployment. After rebasing, rerun relevant
 checks against the combined source; earlier branch evidence remains historical.
 
+When a tool is renamed, update the skill examples to use the name returned by
+`tools/list`. Test a cached direct call under the documented migration contract
+and verify that it enforces the same authority as the discoverable operation.
+The [MCP metadata guide](/integrations/mcp/#maintain-directory-compatible-tool-metadata)
+explains how names, titles and effect hints guide tool selection.
+
 Keep detailed operator evidence in the repository or its private evidence store.
 Engineering publishes curated explanations and a reviewed feature projection,
 not raw runbooks, credentials, account identities or test traces. Use one

@@ -30,7 +30,7 @@ There are four human membership roles. A connected assistant is a separate OAuth
 | Manage workshop or members | Browser only | No | No | No | No |
 | Manage billing | Current browser administrator | No | No | No | No |
 | Purchase a PDF verification | Current browser administrator + exact purchase + PDF access | No | No | No | No financial consent; history read only |
-| Read/export PDF verification history | Current PDF access | Current PDF access | Current PDF access | Current PDF access | Current PDF access + documents:read |
+| Read/export PDF verification history | Current PDF access | Current PDF access | Current PDF access | Current PDF access | Current document access, with documents:read for the list or documents:write for the exact-key lookup |
 | Edit a shared template | Resource edit right | Resource edit right | Resource edit right | No | Current member + template scope + resource right; AI also requires current transfer consent/revision |
 | Publish/archive a template | Resource publish right | Resource publish right | Resource publish right | No | Current member + templates:publish + resource right |
 | Manage template sharing | Resource share right | Resource share right | Resource share right | No | Current member + templates:share + resource right; revocation disclosed |

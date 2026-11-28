@@ -97,6 +97,7 @@ deployed server in the portal. `node scripts/build-mcp-annotation-docs.mjs
 | `get_mapping` | `true` | `false` | `false` | `true` |
 | `get_mcp_document_upload` | `false` | `true` | `false` | `false` |
 | `get_pdf_validation` | `true` | `false` | `false` | `true` |
+| `get_pdf_validation_by_key` | `true` | `false` | `false` | `true` |
 | `get_postal_preflight` | `true` | `false` | `false` | `true` |
 | `get_postal_requirements` | `true` | `false` | `true` | `true` |
 | `get_postal_setup` | `true` | `false` | `false` | `true` |
@@ -149,7 +150,6 @@ deployed server in the portal. `node scripts/build-mcp-annotation-docs.mjs
 | `update_saved_recipient` | `false` | `true` | `false` | `false` |
 | `update_template` | `false` | `true` | `false` | `false` |
 | `validate_mapping` | `false` | `false` | `false` | `false` |
-| `validate_pdf` | `true` | `false` | `false` | `true` |
 
 ## Justifications and sources
 
@@ -503,6 +503,15 @@ Evidence: [`appUploads[method]`](../../apps/api/src/mcp.ts), [`async get(`](../.
 - **`idempotentHint: true`** — Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool.
 
 Evidence: [`"get_pdf_validation"`](../../apps/api/src/mcp.ts), [`async list(`](../../apps/api/src/pdf-validation.ts), [`recordSuccessfulConnectionTool`](../../apps/api/src/connection-observations.ts).
+
+### `get_pdf_validation_by_key`
+
+- **`readOnlyHint: true`** — Reads an already purchased exact-key PDF validation report. New checks require an explicitly approved browser-administrator purchase and are rejected for assistants; this tool cannot debit credits, renew access or assert consent. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.
+- **`destructiveHint: false`** — Returns an existing diagnostic report for the exact PDF, profile and approved request key. It cannot start a new check, modify or delete the PDF, change its security status, send a communication or debit credits.
+- **`openWorldHint: false`** — Reads the authenticated organization’s existing hash-bound report in Guteneo. This assistant operation does not call the private validator, accept an arbitrary destination or publish the document.
+- **`idempotentHint: true`** — Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool.
+
+Evidence: [`"get_pdf_validation_by_key"`](../../apps/api/src/mcp.ts), [`async validate(`](../../apps/api/src/pdf-validation.ts), [`recordSuccessfulConnectionTool`](../../apps/api/src/connection-observations.ts).
 
 ### `get_postal_preflight`
 
@@ -971,12 +980,3 @@ Evidence: [`"update_template"`](../../apps/api/src/mcp.ts), [`async updateTempla
 - **`idempotentHint: false`** — Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused.
 
 Evidence: [`"validate_mapping"`](../../apps/api/src/mcp.ts), [`async validateMapping(`](../../apps/api/src/template-workflow.ts), [`recordSuccessfulConnectionTool`](../../apps/api/src/connection-observations.ts).
-
-### `validate_pdf`
-
-- **`readOnlyHint: true`** — Reads an already purchased exact-key PDF validation report. New checks require an explicitly approved browser-administrator purchase and are rejected for assistants; this tool cannot debit credits, renew access or assert consent. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.
-- **`destructiveHint: false`** — Returns an existing diagnostic report for the exact PDF, profile and approved request key. It cannot start a new check, modify or delete the PDF, change its security status, send a communication or debit credits.
-- **`openWorldHint: false`** — Reads the authenticated organization’s existing hash-bound report in Guteneo. This assistant operation does not call the private validator, accept an arbitrary destination or publish the document.
-- **`idempotentHint: true`** — Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool.
-
-Evidence: [`"validate_pdf"`](../../apps/api/src/mcp.ts), [`async validate(`](../../apps/api/src/pdf-validation.ts), [`recordSuccessfulConnectionTool`](../../apps/api/src/connection-observations.ts).

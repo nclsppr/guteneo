@@ -405,6 +405,13 @@ the four accurate effect booleans rather than changing them to obtain a less
 restrictive host prompt. Successful production calls can still record visible
 connection activity under the documented contract.
 
+Choose names that describe the operation a connected assistant can perform.
+For example, the PDF report lookup reads one stored result by request key.
+When updating a cached integration, refresh `tools/list` to discover the
+canonical name and preserve the existing scope. The
+[PDF workflow](/workflows/pdf-diagnostics/#a-bounded-immutable-report)
+documents the input and migration contract.
+
 Give dataset input metadata explicit JSON root types. In particular,
 `import_json_dataset.data` advertises an array of objects or an object of named
 arrays of objects, matching the existing dataset parser. Nested values, runtime

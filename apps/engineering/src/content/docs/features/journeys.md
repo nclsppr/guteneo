@@ -107,11 +107,11 @@ Read welcome/available/reserved/consumed balances → inspect the annual UTC con
 
 ## J13: Purchase a PDF verification
 
-**Actor:** Current browser administrator for a purchase; current PDF reader for history · **Branch:** Operate
+**Actor:** Current browser administrator for a purchase. Current PDF reader or scoped assistant for a stored report. · **Branch:** Operate
 
-Read current capability and price from the single offer action; empty history adds no duplicate selection action → select the ready immutable PDF and PDF/UA or PDF/A profile → explicitly accept this exact purchase → reserve available account credit atomically → run the private engine → settle once for a complete valid report → inspect report/history/JSON and complete human review.
+Read current capability and price from the single offer action; empty history adds no duplicate selection action → select the ready immutable PDF and PDF/UA or PDF/A profile → explicitly accept this exact purchase → reserve available account credit atomically → run the private engine → settle once for a complete valid report → inspect report/history/JSON and complete human review. For an assistant follow-up with the original document, profile and request key, retrieve the stored result with get_pdf_validation_by_key.
 
-**Failure and recovery:** Require current PDF authority, browser administrator purchase consent, available credit and scanner/private validator. Engine failure creates no settled charge; a valid failing-conformance report is billable. Recover uncertain responses with the same key. A new check needs a new purchase. Existing reports retain their document access policy without monthly subscription.
+**Failure and recovery:** Require current PDF authority, browser administrator purchase consent, available credit and scanner/private validator. Engine failure creates no settled charge; a valid failing-conformance report is billable. Recover uncertain responses with the same key. A new check needs a new purchase. Existing reports retain their document access policy without monthly subscription. An unknown key directs the assistant to the browser. Conflicting inputs produce an error.
 
 ## J14: Receive a protected PDF
 

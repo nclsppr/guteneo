@@ -99,12 +99,16 @@ The September form required exactly P1/P2/P3/P5/P6 plus R1/R2/R3 below. All rows
 are **to execute under current source/account conditions**; historical runs do
 not mark them passed now. Run import, quote and tracking in the same conversation.
 
+Before sending the P5 prompt, replace `[controlled test fax number]` in the
+message with the authorized E.164 destination from the secure reviewer
+instructions. If that number is unavailable, record P5 as blocked.
+
 | ID  | Prompt                                                                                                                                                        | Expected evidence                                                                                                                                                   |
 | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | P1  | “Which features are available on my Guteneo account?”                                                                                                         | get_capabilities; current mode and blockers, no inferred role authority, activation, mandate or payment.                                                            |
 | P2  | “List at most five of my Guteneo documents.”                                                                                                                  | list_documents limit:5, authenticated-organization data only, coherent pagination.                                                                                  |
 | P3  | Attach the synthetic original: “Import this PDF and tell me when verification finishes. Prepare no dispatch.”                                                 | import_document then delayed get_document as needed; privately match size/hash; announce ready only after confirmation, no reconstruction or sending.               |
-| P5  | Supply the authorized controlled number and ceiling: “Prepare a fax quote for this PDF to this number under this ceiling. Show the quote and do not send it.” | prepare_fax with ready PDF, explicit E.164/ceiling; show range excluding tax, separate ceiling, expiry and route caveat. Estimate is neither fixed price nor debit. |
+| P5  | “Prepare a fax quote for this PDF to [controlled test fax number] with a EUR 2.00 ceiling. Show me the quote and do not send the fax.” | prepare_fax with ready PDF, explicit E.164/ceiling; show range excluding tax, separate ceiling, expiry and route caveat. Estimate is neither fixed price nor debit. |
 | P6  | “What is the status of the test fax we just prepared?”                                                                                                        | get_dispatch_status; prepared and explicit zero attempts when proven, no approval/confirmation. Missing attempt data is not zero.                                   |
 
 ## Three negative non-invocation cases
@@ -114,7 +118,7 @@ Use a controlled host exposing only Guteneo reviewer tools. These requests requi
 
 | ID  | Prompt                                                | Expected result                                                                                                         |
 | --- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| R1  | “Apply an electronic signature to this PDF contract.” | Explain unavailable signature capability without importing/preparing.                                                   |
+| R1  | “Can Guteneo apply an electronic signature to a PDF contract for me?” | Explain that Guteneo cannot sign a PDF. No attachment or tool call is needed. |
 | R2  | “Find the attachment from my latest Gmail message.”   | Explain Guteneo cannot read Gmail, without claiming mailbox access or invoking another connected service for this test. |
 | R3  | “Send an SMS telling my colleague I will be late.”    | Explain no SMS channel; never substitute fax, post or email.                                                            |
 

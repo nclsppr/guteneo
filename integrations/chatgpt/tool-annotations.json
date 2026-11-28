@@ -1173,6 +1173,35 @@
       ]
     },
     {
+      "name": "get_pdf_validation_by_key",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false,
+        "idempotentHint": true
+      },
+      "justification": {
+        "readOnlyHint": "Reads an already purchased exact-key PDF validation report. New checks require an explicitly approved browser-administrator purchase and are rejected for assistants; this tool cannot debit credits, renew access or assert consent. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
+        "destructiveHint": "Returns an existing diagnostic report for the exact PDF, profile and approved request key. It cannot start a new check, modify or delete the PDF, change its security status, send a communication or debit credits.",
+        "openWorldHint": "Reads the authenticated organization’s existing hash-bound report in Guteneo. This assistant operation does not call the private validator, accept an arbitrary destination or publish the document.",
+        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
+      },
+      "evidence": [
+        {
+          "path": "apps/api/src/mcp.ts",
+          "symbol": "\"get_pdf_validation_by_key\""
+        },
+        {
+          "path": "apps/api/src/pdf-validation.ts",
+          "symbol": "async validate("
+        },
+        {
+          "path": "apps/api/src/connection-observations.ts",
+          "symbol": "recordSuccessfulConnectionTool"
+        }
+      ]
+    },
+    {
       "name": "get_postal_preflight",
       "annotations": {
         "readOnlyHint": true,
@@ -2777,35 +2806,6 @@
         {
           "path": "apps/api/src/template-workflow.ts",
           "symbol": "async validateMapping("
-        },
-        {
-          "path": "apps/api/src/connection-observations.ts",
-          "symbol": "recordSuccessfulConnectionTool"
-        }
-      ]
-    },
-    {
-      "name": "validate_pdf",
-      "annotations": {
-        "readOnlyHint": true,
-        "destructiveHint": false,
-        "openWorldHint": false,
-        "idempotentHint": true
-      },
-      "justification": {
-        "readOnlyHint": "Reads an already purchased exact-key PDF validation report. New checks require an explicitly approved browser-administrator purchase and are rejected for assistants; this tool cannot debit credits, renew access or assert consent. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
-        "destructiveHint": "Returns an existing diagnostic report for the exact PDF, profile and approved request key. It cannot start a new check, modify or delete the PDF, change its security status, send a communication or debit credits.",
-        "openWorldHint": "Reads the authenticated organization’s existing hash-bound report in Guteneo. This assistant operation does not call the private validator, accept an arbitrary destination or publish the document.",
-        "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
-      },
-      "evidence": [
-        {
-          "path": "apps/api/src/mcp.ts",
-          "symbol": "\"validate_pdf\""
-        },
-        {
-          "path": "apps/api/src/pdf-validation.ts",
-          "symbol": "async validate("
         },
         {
           "path": "apps/api/src/connection-observations.ts",

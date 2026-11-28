@@ -26,6 +26,18 @@ connector answered capabilities and a bounded document-list request on 28
 November; it reported Guteneo 1.2.7. Those calls qualify the earlier running
 version only.
 
+### 1.3.1 scanner result and 1.3.2 source correction
+
+On 28 November 2026 at 12:24:42 Paris time, the OpenAI portal's 1.3.1 scan
+showed 90 tools and nine skills. The eight tools from the earlier support
+response had no remaining finding. The one non-blocking finding concerned the
+name `validate_pdf`, which suggested the tool ran a verification. Its assistant
+operation only retrieved an existing report by request key.
+
+The 1.3.2 source calls this tool `get_pdf_validation_by_key`. See the
+[report lookup contract](PDF_ACCESSIBILITY.md#retrieve-one-report-by-request-key).
+This scan qualifies the 1.3.1 catalog only. The 1.3.2 deployment, scanner
+result, connected-client tests and review decision require separate evidence.
 
 For the later dated follow-up, see [23 October resubmission tasks](OPENAI_RESUBMISSION_TODO.md). Each observation below remains bounded to its date; translation does not refresh portal or provider state.
 

@@ -52,11 +52,32 @@ simulation and browser-only preview evidence remain explicitly distinct.
 
 ## Reports, privacy and failure recovery
 
-`GET /api/documents/:id/validation` and `get_pdf_validation` retain current document
-access checks for existing reports. Report reads do not require a subscription,
-make a new purchase or inherit another caller's authority. A private generated
-PDF remains private to its owner. Historical reports stay linked to their exact
-original hash and profile; changed bytes require a new immutable document.
+For a known document, `GET /api/documents/:id/validation` or the MCP tool
+`get_pdf_validation` returns up to 50 completed reports. The MCP list needs
+`documents:read` and current access to that document. A private generated PDF
+remains private to its owner.
+
+### Retrieve one report by request key
+
+Use `get_pdf_validation_by_key` (Get a PDF validation report by request key)
+when the caller has the original `documentId`, `profile` and `idempotencyKey`.
+The connected assistant needs the existing `documents:write` grant, current
+membership and access to the exact document. The workspace, document, original
+SHA-256 and profile must match the recorded request. A completed match returns
+its stored report without running the validator, reserving credit or settling a
+charge. A key is a lookup parameter and grants no document access.
+
+A key bound to different inputs returns `IDEMPOTENCY_CONFLICT`. A check still
+running returns `PDF_VALIDATION_BUSY`. Keep the same key for recovery.
+An unknown key returns `PDF_VALIDATION_BROWSER_PURCHASE_REQUIRED` with the
+document page where a current administrator can review a new purchase. A
+failed check produces no conformance verdict. The browser purchase flow above
+owns all new checks.
+
+Clients upgrading to 1.3.2 should refresh `tools/list` and select the new
+name. During migration, `/mcp` also accepts a cached direct `tools/call` for
+`validate_pdf` and routes it to the same lookup, with the same schema, scope,
+document checks and errors. Only the canonical name appears in discovery.
 
 The server checks the ready document, original hash, session or OAuth connection,
 scopes, membership and operation authority before execution and before publication.
