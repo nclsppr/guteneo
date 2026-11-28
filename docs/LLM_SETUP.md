@@ -112,7 +112,10 @@ no authority and does not activate a channel.
 2. Increase the shared application/plugin release version consistently across
    root `package.json`, its lockfile entries, the portable/Claude/Cursor manifests
    and the dedicated Claude manifest. The existing
-   [single-version contract](V1_RELEASE_CANDIDATE.md) still applies.
+   [single-version contract](V1_RELEASE_CANDIDATE.md) still applies. Write the summary for
+   users and reviewers in the first descriptive paragraph of the versioned release
+   note. The sync command copies it into `extensions.com.openai.publication.release_notes`
+   and includes the package version automatically.
 3. Run `npm run sync:integrations` to record the reviewed version, package digest
    and MCP source digests in `integrations/guteneo/mcp-contract.json`, then
    `npm run check:integrations`. Changed recorded content requires a higher

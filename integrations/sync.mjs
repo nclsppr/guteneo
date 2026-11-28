@@ -9,9 +9,10 @@ import { buildSkillCatalog, skillCatalogFile } from "./mcp-skills.mjs";
 const root = fileURLToPath(new URL("../", import.meta.url));
 export const syncFile = "integrations/guteneo/mcp-contract.json";
 const entrypoint = "apps/api/src/mcp.ts";
+const pluginFile = "integrations/guteneo/plugin.json";
 const manifests = [
   "package.json",
-  "integrations/guteneo/plugin.json",
+  pluginFile,
   "integrations/guteneo/.claude-plugin/plugin.json",
   "integrations/guteneo/.cursor-plugin/plugin.json",
   "integrations/claude/plugins/guteneo/.claude-plugin/plugin.json",
@@ -88,6 +89,30 @@ async function fingerprint(projectRoot, files) {
   );
 }
 
+async function updatedPublicationManifest(projectRoot, version) {
+  const notes = await readFile(
+    join(projectRoot, "docs/releases", `${version}.md`),
+    "utf8",
+  );
+  const paragraph = notes
+    .replace(/^#{1,6} +.*$/gm, "")
+    .split(/\r?\n\s*\r?\n/)
+    .map((block) => block.trim())
+    .find((block) => block && !/^(?:[-*]\s|!\[)/.test(block))
+    ?.replace(/\s+/g, " ");
+  if (!paragraph)
+    throw new Error(`Missing release summary in docs/releases/${version}.md`);
+  const versionMention = new RegExp(`\\b${version.replaceAll(".", "\\.")}\\b`);
+  const notesForPortal = versionMention.test(paragraph)
+    ? paragraph
+    : `Guteneo ${version}. ${paragraph}`;
+  const plugin = await json(join(projectRoot, pluginFile));
+  const publication = plugin.extensions["com.openai"].publication;
+  if (publication.release_notes === notesForPortal) return null;
+  publication.release_notes = notesForPortal;
+  return `${JSON.stringify(plugin, null, 2)}\n`;
+}
+
 async function integrationSnapshot(projectRoot) {
   const versions = await Promise.all(
     manifests.map(
@@ -109,16 +134,21 @@ async function integrationSnapshot(projectRoot) {
     .filter((file) => file !== "mcp-contract.json")
     .map((file) => `integrations/guteneo/${file}`)
     .sort();
+  const packageHashes = await fingerprint(projectRoot, files);
+  const updatedManifest = await updatedPublicationManifest(
+    projectRoot,
+    versions[0],
+  );
+  if (updatedManifest !== null)
+    packageHashes[pluginFile] = digest(updatedManifest);
   const contract = {
     schemaVersion: 1,
     pluginVersion: versions[0],
     mcpSourceSha256: digest(JSON.stringify(sources)),
-    packageSha256: digest(
-      JSON.stringify(await fingerprint(projectRoot, files)),
-    ),
+    packageSha256: digest(JSON.stringify(packageHashes)),
     sources,
   };
-  return { contract, skillCatalog };
+  return { contract, skillCatalog, updatedManifest };
 }
 
 export async function integrationState(projectRoot = root) {
@@ -126,8 +156,11 @@ export async function integrationState(projectRoot = root) {
 }
 
 export async function validateIntegrationSync(projectRoot = root) {
-  const { contract: current, skillCatalog } =
-    await integrationSnapshot(projectRoot);
+  const {
+    contract: current,
+    skillCatalog,
+    updatedManifest,
+  } = await integrationSnapshot(projectRoot);
   let saved;
   try {
     saved = await json(join(projectRoot, syncFile));
@@ -137,6 +170,10 @@ export async function validateIntegrationSync(projectRoot = root) {
       `ChatGPT plugin synchronization record is missing. ${guidance}`,
     );
   }
+  if (updatedManifest !== null)
+    throw new Error(
+      "ChatGPT publication notes are stale. Run npm run sync:integrations.",
+    );
   if (JSON.stringify(saved) !== JSON.stringify(current))
     throw new Error(
       `ChatGPT plugin is stale relative to the MCP or package files. ${guidance}`,
@@ -150,8 +187,11 @@ export async function validateIntegrationSync(projectRoot = root) {
 }
 
 export async function syncIntegrationPackage(projectRoot = root) {
-  const { contract: current, skillCatalog } =
-    await integrationSnapshot(projectRoot);
+  const {
+    contract: current,
+    skillCatalog,
+    updatedManifest,
+  } = await integrationSnapshot(projectRoot);
   let previous;
   try {
     previous = await json(join(projectRoot, syncFile));
@@ -166,6 +206,8 @@ export async function syncIntegrationPackage(projectRoot = root) {
     throw new Error(
       `Changed MCP/plugin content requires a higher plugin version. ${guidance}`,
     );
+  if (updatedManifest !== null)
+    await writeFile(join(projectRoot, pluginFile), updatedManifest);
   await writeFile(join(projectRoot, skillCatalogFile), skillCatalog);
   await writeFile(
     join(projectRoot, syncFile),

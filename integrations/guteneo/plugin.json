@@ -97,7 +97,7 @@
         }
       },
       "publication": {
-        "release_notes": "Package 1.2.0 adds tenant-scoped saved recipients and separately reviewed fixed-cap schedules for ordinary fax and message-only email. Nine tools can prepare, read or cancel these records; future spending approval and customer webhook configuration remain browser-only. It also hardens browser continuation ownership, loading and recovery, and persists scoped native drafts. Automatic release and outbound webhooks remain default-off. Local validation does not establish production activation, real delivery, hosted-client qualification or marketplace approval.",
+        "release_notes": "Guteneo 1.3.0 lets compatible assistants discover nine workflow skills over MCP and verify their instructions and reference files. Corrected tool annotations identify calls to external services and actions that can replace settings or restrict access to a document. Since the last submission, users can also save workspace recipients and prepare capped fax or message-only email schedules. Approving future spending requires a separate browser review.",
         "translations": {
           "fr-FR": {
             "subtitle": "PDF, devis et suivi des envois",
