@@ -26,8 +26,17 @@ async function put(root, file, value) {
 }
 
 async function version(root, value) {
-  for (const file of manifests)
-    await put(root, file, JSON.stringify({ version: value }));
+  for (const file of manifests) {
+    const manifest = { version: value };
+    if (file === "integrations/guteneo/plugin.json")
+      manifest.extensions = { "com.openai": { publication: {} } };
+    await put(root, file, JSON.stringify(manifest));
+  }
+  await put(
+    root,
+    `docs/releases/${value}.md`,
+    `# Guteneo ${value}\n\n## Changes\n\nSynthetic update.\n`,
+  );
 }
 
 async function fixture(t) {
@@ -77,6 +86,38 @@ test("unchanged synchronization is deterministic and does not bump versions", as
   assert.deepEqual(await validateIntegrationSync(root), first);
   assert.deepEqual(await syncIntegrationPackage(root), first);
   assert.deepEqual(await readFile(join(root, syncFile)), bytes);
+});
+
+test("synchronization projects the versioned release summary and rejects stale portal text", async (t) => {
+  const root = await fixture(t);
+  const path = "integrations/guteneo/plugin.json";
+  const readPlugin = async () =>
+    JSON.parse(await readFile(join(root, path), "utf8"));
+  const notePath = "docs/releases/0.3.4.md";
+  await put(
+    root,
+    notePath,
+    "# Guteneo 0.3.4\n\n## Workflows\n\nFirst line\nand second line.\n\nAnother paragraph.\n",
+  );
+  const state = await syncIntegrationPackage(root);
+  const plugin = await readPlugin();
+  assert.equal(
+    plugin.extensions["com.openai"].publication.release_notes,
+    "Guteneo 0.3.4. First line and second line.",
+  );
+  plugin.extensions["com.openai"].publication.release_notes =
+    "Guteneo 0.3.3. Old notes.";
+  await put(root, path, JSON.stringify(plugin));
+  await assert.rejects(
+    validateIntegrationSync(root),
+    /publication notes are stale/,
+  );
+  await syncIntegrationPackage(root);
+  assert.deepEqual(await validateIntegrationSync(root), state);
+  await put(root, notePath, "# Guteneo 0.3.4\n\nA different summary.\n");
+  const before = await readFile(join(root, path));
+  await assert.rejects(syncIntegrationPackage(root), /higher plugin version/);
+  assert.deepEqual(await readFile(join(root, path)), before);
 });
 
 test("MCP changes fail until the plugin version and archive metadata are refreshed", async (t) => {
