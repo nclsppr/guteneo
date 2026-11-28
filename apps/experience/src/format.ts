@@ -1,3 +1,4 @@
+import { quotedTotalNanoEur } from "../../../packages/contracts/src/quote-amount";
 import { APPLICATION_TIME_ZONE } from "../../../packages/contracts/src/application-time";
 import { intlLocale, type SupportedLocale } from "./i18n";
 import type { Dispatch } from "./api/types";
@@ -98,28 +99,38 @@ export function formatNanoEuro(nano: number, locale: SupportedLocale): string {
 
 /** The price a person is asked to accept for this exact dispatch. */
 export function dispatchFare(dispatch: Dispatch, locale: SupportedLocale) {
-  const nano = dispatch.quote_customer_nanoeur;
   if (
     dispatch.currency === "EUR" &&
-    typeof nano === "number" &&
-    Number.isSafeInteger(nano) &&
-    nano >= 0
+    dispatch.channel === "fax" &&
+    dispatch.faxPricing
   ) {
-    const options = parseJson(dispatch.options_json);
-    const protectedLink = options.emailDeliveryMode === "protected_link";
-    const hosting = protectedLink
-      ? (options.protectedDocument as { hostingFeeMinor?: number } | undefined)
-          ?.hostingFeeMinor
-      : 0;
-    if (!protectedLink || hosting === 0 || hosting === 100)
-      return formatNanoEuro(nano + (hosting ?? 0) * 10_000_000, locale);
+    const { estimatedLowNanoeur: low, estimatedHighNanoeur: high } =
+      dispatch.faxPricing;
+    if (
+      typeof low === "number" &&
+      typeof high === "number" &&
+      Number.isSafeInteger(low) &&
+      Number.isSafeInteger(high) &&
+      low >= 0 &&
+      high >= low
+    ) {
+      const first = formatNanoEuro(low, locale);
+      return low === high
+        ? first
+        : first + " – " + formatNanoEuro(high, locale);
+    }
   }
+  const nano = quotedTotalNanoEur(
+    dispatch.quote_customer_nanoeur,
+    dispatch.options_json,
+  );
+  if (dispatch.currency === "EUR" && nano !== null)
+    return formatNanoEuro(nano, locale);
   return formatMoney(dispatch.estimated_minor, locale, dispatch.currency);
 }
 
 export function formatBytes(size: number, locale: SupportedLocale): string {
-  const units =
-    locale === "fr" ? ["octets", "Ko", "Mo"] : ["B", "KB", "MB"];
+  const units = locale === "fr" ? ["octets", "Ko", "Mo"] : ["B", "KB", "MB"];
   const index = size < 1024 ? 0 : size < 1024 * 1024 ? 1 : 2;
   const value = new Intl.NumberFormat(intlLocale(locale), {
     minimumFractionDigits: index ? 1 : 0,
@@ -211,5 +222,8 @@ export function destinationLines(dispatch: Pick<Dispatch, "recipient_json">) {
 
 /** A short public reference: the last characters of an opaque identifier. */
 export function shortRef(id: string, length = 6): string {
-  return id.replace(/[^a-zA-Z0-9]/g, "").slice(-length).toUpperCase();
+  return id
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .slice(-length)
+    .toUpperCase();
 }

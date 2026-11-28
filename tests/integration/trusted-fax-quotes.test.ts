@@ -274,6 +274,20 @@ describe("Trusted live fax quotes — isolated D1, no provider sends", () => {
         .run(),
     ).rejects.toThrow("immutable_fax_supplier_cost");
   });
+  it("keeps the customer price when the v2 source date passes", async () => {
+    clock += 3600_001;
+    const d = await queue();
+    expect(d.estimated_minor).toBe(100);
+    const q = await validateLiveFaxQuote(
+      db,
+      d,
+      identity,
+      new Date(clock).toISOString(),
+    );
+    expect(q.tariff_id).toBe("tariff_fixture");
+    expect(q.expires_at).toBe(new Date(clock + 300_000).toISOString());
+  });
+
   it("rejects quote expiry at human approval and at confirmation", async () => {
     const a = await prepare();
     clock += 301000;

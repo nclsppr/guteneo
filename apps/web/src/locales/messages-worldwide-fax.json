@@ -1,0 +1,27 @@
+{
+  "Numéros de fax du monde entier": [
+    "Worldwide fax numbers",
+    "Faxnummern weltweit",
+    "Faxnummeren op der ganzer Welt"
+  ],
+  "0,25 €": [
+    "€0.25",
+    "0,25 €",
+    "0,25 €"
+  ],
+  "par page, estimation de secours hors taxes": [
+    "per page, fallback estimate excluding tax",
+    "pro Seite, Ersatzschätzung ohne Steuern",
+    "pro Säit, Ersatzschätzung ouni Steieren"
+  ],
+  "Cette estimation utilise le dernier tarif connu pour cette destination.": [
+    "This estimate uses the last known rate for this destination.",
+    "Diese Schätzung verwendet den letzten bekannten Tarif für dieses Ziel.",
+    "Dës Schätzung benotzt de leschte bekannten Tarif fir dës Destinatioun."
+  ],
+  "Le tarif de la destination étant indisponible, Guteneo estime ce fax à 0,25 € hors taxes par page.": [
+    "Guteneo estimated this fax at €0.25 per page excluding tax because the destination rate was unavailable.",
+    "Da der Tarif für das Ziel nicht verfügbar war, schätzt Guteneo dieses Fax auf 0,25 € pro Seite ohne Steuern.",
+    "Well den Tarif fir d’Destinatioun net disponibel war, schätzt Guteneo dëse Fax op 0,25 € pro Säit ouni Steieren."
+  ]
+}

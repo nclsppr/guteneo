@@ -28,6 +28,7 @@
     "LIVE_SENDS_ENABLED": "true",
     // Transport only: tenant controls, verified senders, quotes and approval still apply.
     "LIVE_SEND_CHANNELS": "fax,postal,email",
+    "TELNYX_FAX_DESTINATIONS": "worldwide",
     "EMAIL_PROVIDER": "resend",
     "RESEND_SENDS_ENABLED": "true",
     "RESEND_ACCOUNT_ID": "nclsppr",
@@ -102,7 +103,7 @@
       },
     ],
   },
-  "triggers": { "crons": ["* * * * *"] },
+  "triggers": { "crons": ["* * * * *", "17 2 * * *"] },
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,

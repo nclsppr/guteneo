@@ -1,5 +1,19 @@
 import Foundation
 
+enum FaxAddress {
+    static func normalized(_ input: String) -> String {
+        input.trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: #"^\+(33|352|44|49)[\s.-]*\(0\)"#, with: "+$1", options: .regularExpression)
+            .replacingOccurrences(of: #"[\s.()-]"#, with: "", options: .regularExpression)
+    }
+
+    static func isValid(_ input: String) -> Bool {
+        let number = normalized(input)
+        return number.range(of: #"^\+[1-9][0-9]{6,14}$"#, options: .regularExpression) != nil
+            && number.range(of: #"^\+(33|352|44|49)0"#, options: .regularExpression) == nil
+    }
+}
+
 struct DispatchPreparationSnapshot: Codable, Equatable, Sendable {
     let requestKey: String
     let preparedID: String?

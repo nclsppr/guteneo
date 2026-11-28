@@ -1,3 +1,4 @@
+import { liveFaxIdentity } from "./fax-destinations";
 import { handleEmailRecipientFeedback } from "./email-recipient-feedback";
 import {
   emailContentCapabilities,
@@ -132,6 +133,8 @@ import { getExpertStatus } from "./expert-status";
 import { postalReviewInputSchema } from "../../../packages/contracts/src/postal-review";
 import { refreshFaxTariffs } from "./fax-tariff-refresh";
 import { refreshVerifiedFaxReferences } from "./verified-fax-reference-refresh";
+import { refreshWorldwideFaxCatalog } from "./worldwide-fax-catalog";
+import { refreshPostalPrice } from "./postal-price-refresh";
 import { refreshPostalPolicies } from "./postal-policy-refresh";
 import { refreshResendPolicies } from "./resend-policy-refresh";
 import { collectProviderFreshness } from "./provider-freshness";
@@ -803,14 +806,7 @@ const domain = (env: Env) =>
       ensureEmailSender(env, ctx, undefined, options),
     prepareProtectedDocument: (ctx, input, now) =>
       prepareProtectedDocument(env, ctx, input, now),
-    liveFaxIdentity:
-      env.TELNYX_ACCOUNT_ID && env.TELNYX_CONNECTION_ID
-        ? {
-            accountId: env.TELNYX_ACCOUNT_ID,
-            connectionId: env.TELNYX_CONNECTION_ID,
-            outboundProfileId: env.TELNYX_OUTBOUND_VOICE_PROFILE_ID,
-          }
-        : undefined,
+    liveFaxIdentity: liveFaxIdentity(env),
   });
 const idempotency = (value: string | undefined) => {
   if (!value)
@@ -1683,12 +1679,30 @@ export default {
       observation.finish(undefined, counts);
     }
   },
-  async scheduled(_event: ScheduledController, env: Env) {
-    const observation = startObservation(env, "app", "cron", "maintenance");
+  async scheduled(event: ScheduledController, env: Env) {
+    const catalogTick = event.cron === "17 2 * * *";
+    const observation = startObservation(
+      env,
+      "app",
+      "cron",
+      catalogTick ? "fax_catalog" : "maintenance",
+    );
     let stage: Stage = "configuration";
     const counts: Metrics = {};
     try {
       assertBaseConfiguration(env);
+      const worldwide = env.TELNYX_FAX_DESTINATIONS === "worldwide";
+      if (catalogTick) {
+        stage = "tariffs";
+        if (worldwide) {
+          const result = await refreshWorldwideFaxCatalog(env);
+          counts.tariffsRefreshed = result.worldwideFaxCatalogRefreshed;
+          counts.tariffRefreshFailed = result.worldwideFaxCatalogFailed;
+          if (counts.tariffRefreshFailed)
+            throw new Error("FAX_CATALOG_UNAVAILABLE");
+        }
+        return;
+      }
       const service = domain(env);
       // Already verified receipts must recover even during identity-provider setup.
       // This bounded projection does not publish an outbox or submit communications.
@@ -1708,19 +1722,21 @@ export default {
       // A single registered group may read the large rate deck in this tick.
       // Other sources remain due and can run on the next minute's invocation.
       let faxReferenceNetworkAttempted = false;
-      try {
-        const refreshed = await refreshVerifiedFaxReferences(env);
-        faxReferenceNetworkAttempted = refreshed.networkAttempted;
-        counts.tariffsRefreshed = refreshed.tariffsRefreshed;
-        counts.tariffRefreshFailed = refreshed.tariffRefreshFailed;
-        counts.tariffRefreshDeferred = refreshed.tariffRefreshDeferred;
-      } catch {
-        // An unexpected failure may follow a source request. Preserve the
-        // per-tick network bound and continue unrelated durable maintenance.
-        faxReferenceNetworkAttempted = true;
-        counts.tariffRefreshFailed = 1;
+      if (!worldwide) {
+        try {
+          const refreshed = await refreshVerifiedFaxReferences(env);
+          faxReferenceNetworkAttempted = refreshed.networkAttempted;
+          counts.tariffsRefreshed = refreshed.tariffsRefreshed;
+          counts.tariffRefreshFailed = refreshed.tariffRefreshFailed;
+          counts.tariffRefreshDeferred = refreshed.tariffRefreshDeferred;
+        } catch {
+          // An unexpected failure may follow a source request. Preserve the
+          // per-tick network bound and continue unrelated durable maintenance.
+          faxReferenceNetworkAttempted = true;
+          counts.tariffRefreshFailed = 1;
+        }
       }
-      if (!faxReferenceNetworkAttempted) {
+      if (!worldwide && !faxReferenceNetworkAttempted) {
         try {
           const refreshed = await refreshFaxTariffs(env);
           counts.tariffsRefreshed =
@@ -1742,6 +1758,11 @@ export default {
       } catch {
         counts.postalPolicyRefreshFailed =
           (counts.postalPolicyRefreshFailed ?? 0) + 1;
+      }
+      try {
+        Object.assign(counts, await refreshPostalPrice(env));
+      } catch {
+        counts.postalPriceRefreshFailed = 1;
       }
       try {
         Object.assign(counts, await refreshResendPolicies(env));

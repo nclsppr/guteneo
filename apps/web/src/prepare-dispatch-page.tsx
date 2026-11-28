@@ -745,7 +745,7 @@ export function PrepareDispatch({
             <Field
               label={t.dispatch.phone}
               hint={msg(
-                "International format: + followed by the country code and number (e.g. +352 …), without the national 0. Spaces, dots and dashes are removed during preparation.",
+                "Enter +, the country calling code and the international subscriber number. Spaces, dots and dashes are accepted.",
               )}
             >
               <input

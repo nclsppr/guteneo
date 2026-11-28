@@ -46,8 +46,8 @@ eight seconds. Both complete restriction/delay tables must parse against known,
 unambiguous country aliases; missing sections, unknown countries, contradictory
 statuses, changed structure, redirects, invalid encoding or transport failure
 close availability. The body hash records provenance, not equality with an older
-article. The observation clock follows the actual read, parsing and hash. There
-is no expired snapshot fallback or durable country-price cache.
+article. The observation clock follows the actual read, parsing and hash. A fresh restriction
+snapshot is required independently of any cached commercial reference.
 
 Availability is checked for new postal requirements/preflight, before claiming
 transfer state, when quoting, centrally before production acceptance reserves
@@ -122,16 +122,12 @@ remain intact. Mapping paths such as `customer.country` are not country codes.
 
 ## Exact calculator price and preserved authority
 
-Each analyzed, separately consented `auto_send:false` draft is priced through
-Pingen's authenticated
-[`letter_price_calculator`](https://api.pingen.com/documentation/swagger-docs)
-with its actual country, detected paper and approved print/delivery options.
-Only a calculable EUR result supplies the price; 202/missing/unsupported results
-remain closed or pending. Guteneo retains integer minor units, the existing
-twice-supplier customer calculation and the short **300-second** postal quote.
-The exact quote and current policy are rechecked before the send PATCH. There
-is no fixed country tariff, public-calculator eligibility shortcut or extension
-of historical prices/approvals.
+Each analyzed, separately consented `auto_send:false` draft receives an exact
+customer quote for its actual destination, paper and print/delivery options.
+The [postal pricing rules](LIVE_DELIVERY_QUOTES.md#postal-analyzed-draft-and-calculator)
+define how an older Pingen observation or the fixed customer rate keeps pricing
+available during an outage. Reference maintenance does not extend an individual
+quote or its approval.
 
 The four persisted pricing options remain `addressPosition`, `deliveryProduct`,
 `printMode` and `printSpectrum`. Current tenant membership, verified sender,

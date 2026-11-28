@@ -141,6 +141,20 @@ async function fixture(
   };
 }
 
+test("offers the exact Guteneo continuity price with its tax basis", async ({
+  page,
+}) => {
+  const f = await fixture(page);
+  f.dispatch.quote_pricing_basis = "published_customer_tariff";
+  f.dispatch.quote_customer_nanoeur = 2_500_000_000;
+  f.dispatch.estimated_minor = 250;
+  await f.open();
+  await expect(
+    page.getByRole("button", { name: "Envoyer pour 2,50 € HT", exact: true }),
+  ).toBeEnabled();
+  expect(f.writes).toHaveLength(0);
+});
+
 test("one explicit postal click approves the immutable version and sends at its exact price", async ({
   page,
 }, testInfo) => {

@@ -56,7 +56,7 @@ jobs:
         run: |
           test -n "$APPLICATION_TOKEN" || { echo 'MANUAL_RELEASE_APPLICATION_CREDENTIAL_REQUIRED'; exit 1; }
           test -n "$MIGRATION_TOKEN" || { echo 'MANUAL_RELEASE_D1_CREDENTIAL_REQUIRED: no permission expansion or external-proof bypass is automatic.'; exit 1; }
-      - name: Qualify and apply only reviewed missing index migrations before runtime
+      - name: Qualify and apply only reviewed missing migrations before runtime
         run: node scripts/ci/manual-application-release.mjs schema
         env:
           GH_TOKEN: ${{ github.token }}

@@ -1,5 +1,29 @@
 # Live email and postal quotes
 
+## Email transport and source deadlines — 28 November 2026 candidate
+
+A verified sender on the configured SES or Resend account uses the applicable
+supplier schedule for a new quote. The latest scoped schedule continues to work
+after its observation deadline. If that schedule is missing, unreadable or does
+not cover the selected PDF, Guteneo offers **€1.56 per 1,000 emails** for
+transport, including PDF attachments. Each recipient costs 1,560,000 nano-EUR.
+The credit ledger continues to accumulate fractions across sends. Secure sharing
+and optional hosting retain their separately displayed fees.
+
+The signed fallback has `pricingBasis=published_customer_tariff`. Its source
+identifies Guteneo's published schedule. The historical SQL cost-base field
+holds half of the customer amount for the cumulative settlement calculation.
+Belvédère reports verified supplier spend from settled provider evidence.
+
+Source age governs refresh. Each email or postal quote keeps its own 30–900
+second deadline. Its content, recipient, provider, price and ceiling are
+immutable. For Resend, an automatic replacement is recorded in the same D1
+transaction that changes the selected tariff. A quote issued under the previous
+reference remains usable until its signed deadline. An explicit revocation
+still invalidates the affected quote.
+
+## Implementation history
+
 17 September 2026: production paths implemented/tested locally on D1 with
 intercepted transports. This qualifies no actual tariff, changes no provider
 account and sends nothing. Additive `0016_live_delivery_quotes.sql` preserves fax
@@ -98,27 +122,43 @@ moving/adding addresses. `PINGEN_DEFAULT_COUNTRY` supplies qualified account pro
 international addresses keep a final country line. Upload max: 8,000,000 bytes.
 [Pingen preflight](PINGEN_PREFLIGHT.md) owns geometry/limitations.
 
-The worldwide candidate accepts 250 recognized country codes, independently
-rechecking fresh restrictions/delays. Recognition and a calculator response alone
-do not establish service availability. New complete-block recipients preserve
-their arrays in hash material; legacy FR/LU/DE recipients remain unchanged. The
-four persisted print/delivery options remain exactly the qualified policy options,
-with no country-price constant or persisted `addressFormat` default. Each actual
-analyzed draft still obtains its own EUR calculator result and short quote.
+Postal preparation checks the official destination restrictions and rereads the
+exact consented draft. Its provider ID, address, country, envelope window,
+submission ability, normal paper composition and print options must match.
 
-Quote preparation reads the exact provider draft, checks address/country,
-`meta.abilities.self.submit === "ok"` and analyzed `paper_types`, then calls
-`POST /organisations/{id}/deliveries/letters/price-calculator`, JSON:API type
-`letter_price_calculator`, with approved country/paper/print mode/spectrum/product.
-Only calculable EUR 200 is final here; 202 remains pending. Unsupported special
-paper is refused. Customer cost is twice provider EUR cost with qualified tax/fees.
-[OpenAPI](https://api.pingen.com/documentation/swagger-docs).
+The customer price follows these rules for every eligible destination.
 
-Evidence binds provider ID, country, normalized address, analyzed paper, options
-and amount. Immediately before `PATCH .../send`, reread/recalculate both amount
-and evidence; both must equal approval even if a changed price stays below ceiling.
-Then revalidate current local state. Drafts bind one organization/document/sender/
-recipient and cannot be claimed by two commands. Unknown results need reconciliation.
+1. Use the most recent Pingen EUR observation for the same workspace, sender,
+   provider account, production/sandbox environment, destination, paper count
+   and four print options. Age schedules a refresh. The customer pays twice the
+   observed amount, in integer cents.
+2. On first use, ask the authenticated calculator for those inputs. The price
+   request has a three-second timeout. If it fails, the server can recover a
+   comparable historical observation by verifying its original evidence hash
+   against the paper composition and options.
+3. If no comparable price is available, offer Guteneo's fixed **€2.50 per
+   letter excluding tax**. The signed quote records
+   `pricingBasis=published_customer_tariff` and
+   `postalPriceReference.source=guteneo_continuity_v1`. The customer sees the
+   full price before approval. Guteneo bears any difference in provider cost.
+
+Migration 0086 stores only the lookup dimensions, integer EUR-cent observation,
+observation time and refresh state. A calculator outage on first use registers
+that combination for maintenance with an empty supplier amount. An outage
+during renewal keeps the last successful observation. Genuine Pingen prices and
+their dates stay separate from the fixed customer rate. In historical quote
+storage, `supplier_nanoeur` is the arithmetic reference for the ×2 billing
+rule. For a fixed Guteneo rate it represents half the customer price and supplies
+no verified supplier spend. Belvédère uses separately reconciled costs.
+
+Each quote signs the review, precise customer amount, provenance, options,
+ceiling and its own expiry. At final submission the Worker rereads the draft and
+checks that its current provider evidence matches the approved fingerprint using
+the frozen amount. It also rechecks eligibility, consent and authority before
+the single PATCH. Subsequent calculator outages or supplier price changes affect
+future commercial references. Unknown submission results require reconciliation.
+The provider [calculator contract](https://api.pingen.com/documentation/swagger-docs)
+describes the input to the price lookup.
 
 ## NanoEUR, reservation and debit
 

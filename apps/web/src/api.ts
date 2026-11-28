@@ -1,3 +1,4 @@
+import { quotedTotalNanoEur } from "../../../packages/contracts/src/quote-amount";
 import { formatApplicationTimestamp } from "./application-time";
 import { msg } from "./messages";
 import { invalidateClientLists } from "./client-resources";
@@ -90,7 +91,7 @@ export type Dispatch = {
   quote_customer_nanoeur?: number | null;
   faxPricing?: FaxPricing | null;
   quote_pricing_basis?:
-    "qualified_final_variable_cost" | "public_list_price_ex_tax" | null;
+    "qualified_final_variable_cost" | "public_list_price_ex_tax" | "published_customer_tariff" | null;
   quote_fx?: {
     numerator: number;
     denominator: number;
@@ -529,33 +530,10 @@ export function quotedMoney(
     "quote_customer_nanoeur" | "estimated_minor" | "currency" | "options_json"
   >,
 ): string {
-  const nano = dispatch.quote_customer_nanoeur;
-  if (
-    dispatch.currency !== "EUR" ||
-    nano == null ||
-    !Number.isSafeInteger(nano) ||
-    nano < 0
-  )
-    return money(dispatch.estimated_minor, dispatch.currency);
-  try {
-    const options =
-      typeof dispatch.options_json === "string"
-        ? JSON.parse(dispatch.options_json)
-        : dispatch.options_json;
-    const hostingFee =
-      options?.emailDeliveryMode === "protected_link"
-        ? options.protectedDocument?.hostingFeeMinor
-        : 0;
-    if (
-      options?.emailDeliveryMode === "protected_link" &&
-      hostingFee !== 0 &&
-      hostingFee !== 100
-    )
-      return money(dispatch.estimated_minor, dispatch.currency);
-    return nanoMoney(nano + (hostingFee ?? 0) * 10_000_000);
-  } catch {
-    return money(dispatch.estimated_minor, dispatch.currency);
-  }
+  const nano = quotedTotalNanoEur(dispatch.quote_customer_nanoeur, dispatch.options_json);
+  return dispatch.currency === "EUR" && nano !== null
+    ? nanoMoney(nano)
+    : money(dispatch.estimated_minor, dispatch.currency);
 }
 
 /** Preserve the same precision as the shared fractional credit ledger. */

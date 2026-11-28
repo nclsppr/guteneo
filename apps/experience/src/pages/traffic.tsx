@@ -14,6 +14,10 @@ import {
   dispatchGroupOf,
   isDispatchGroup,
 } from "../../../../packages/contracts/src/dispatch-groups";
+import {
+  normalizeFaxNumber,
+  faxNumberProblem,
+} from "../../../../packages/contracts/src/fax-number";
 import { api, ApiError, currentAuthority, intentKey } from "../api/client";
 import { useAction, usePages, useResource } from "../api/hooks";
 import type {
@@ -497,13 +501,27 @@ function DepartureContent({
                 {t("traffic.simulation.notice")}
               </p>
             )}
+            {dispatch.faxPricing?.referenceBasis ===
+              "guteneo_continuity_v1" && <p>{t("traffic.faxFallback")}</p>}
+            {dispatch.faxPricing?.referenceBasis === "last_known_reference" && (
+              <p>{t("traffic.faxLastRate")}</p>
+            )}
             <dl className="traffic-facts">
               <div>
-                <dt>{t("traffic.fare")}</dt>
+                <dt>
+                  {t(
+                    dispatch.faxPricing
+                      ? "traffic.estimatedFaxCost"
+                      : "traffic.fare",
+                  )}
+                </dt>
                 <dd>
                   {dispatchFare(dispatch, locale)}
-                  {dispatch.quote_pricing_basis ===
-                    "public_list_price_ex_tax" && (
+                  {(dispatch.faxPricing ||
+                    dispatch.quote_pricing_basis ===
+                      "published_customer_tariff" ||
+                    dispatch.quote_pricing_basis ===
+                      "public_list_price_ex_tax") && (
                     <small>{t("traffic.exTax")}</small>
                   )}
                 </dd>
@@ -516,6 +534,7 @@ function DepartureContent({
                     locale,
                     dispatch.currency,
                   )}
+                  {dispatch.faxPricing && <small>{t("traffic.exTax")}</small>}
                 </dd>
               </div>
               <div>
@@ -1023,8 +1042,8 @@ function CounterForm({ route }: { route: Route }) {
       setValidation(new Error(t("traffic.invalidDocument")));
       return;
     }
-    const phone = recipient.replace(/[\s().-]/g, "");
-    if (channel === "fax" && !/^\+[1-9]\d{7,14}$/.test(phone)) {
+    const phone = normalizeFaxNumber(recipient);
+    if (channel === "fax" && faxNumberProblem(phone)) {
       setValidation(new Error(t("traffic.invalidPhone")));
       return;
     }

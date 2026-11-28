@@ -1,3 +1,4 @@
+import { selectPostalPrice } from "../../apps/api/src/postal-price";
 import { createHmac } from "node:crypto";
 import {
   handleWebhook,
@@ -859,6 +860,7 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
       ).toEqual({
         accountId: "123456789012",
         routeId: "eu-west-1:fixture:true",
+        allowPublishedEmailTariff: true,
       });
       const row = await queueFixture("email");
       const fetcher = vi.fn<Fetcher>();
@@ -1010,13 +1012,13 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
           createLiveProviderHook(env, "postal", { fetcher }),
         ),
       ).toMatchObject({ status: "accepted" });
-      expect(fetcher).toHaveBeenCalledTimes(9);
+      expect(fetcher).toHaveBeenCalledTimes(8);
       expect(
         fetcher.mock.calls.filter(([url]) =>
           String(url).endsWith("/file-upload"),
         ),
       ).toHaveLength(1);
-      const [, sent] = fetcher.mock.calls[8];
+      const [, sent] = fetcher.mock.calls[7];
       expect(sent?.method).toBe("PATCH");
       expect(new Headers(sent?.headers).get("Idempotency-Key")).toBe(row.id);
       expect(JSON.parse(String(sent?.body)).data.attributes).toEqual({
@@ -1032,7 +1034,7 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
           expectedAddress,
         }),
       ).rejects.toMatchObject({ code: "POSTAL_DRAFT_APPROVAL_MISMATCH" });
-      expect(fetcher).toHaveBeenCalledTimes(9);
+      expect(fetcher).toHaveBeenCalledTimes(8);
     },
   );
 
@@ -1099,8 +1101,155 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
     ).toBe(false);
   });
 
-  it.each(["price_changed", "policy_revoked", "window_changed"] as const)(
-    "rechecks a Pingen quote after asynchronous calculation: %s",
+  it.each(["cold", "cached"] as const)(
+    "approves and submits a %s postal reference with no current supplier price",
+    async (variant) => {
+      const base = pingenFixtureFetch();
+      const fetcher = vi.fn<Fetcher>(async (url, init) =>
+        String(url).endsWith("/price-calculator")
+          ? new Response("", { status: 503 })
+          : base(url, init),
+      );
+      const prepared = await prepareFixtureDraft(fetcher, {
+        ...draftInput(),
+        ceilingMinor: 300,
+      });
+      const identity =
+        createLiveDeliveryQuoteConfig(env).liveDeliveryIdentity.postal!;
+      const old = "2026-09-22T00:00:00.000Z";
+      if (variant === "cached") {
+        await db
+          .prepare(
+            `INSERT INTO postal_price_references
+          (organization_id,sender_id,account_id,environment,country,paper_count,options_json,supplier_minor,observed_at,next_due_at)
+          VALUES(?,'sender_postal',?,'sandbox','FR',1,?,73,?,?)`,
+          )
+          .bind(
+            ctx.organizationId,
+            identity.accountId,
+            canonicalJson(postalOptions),
+            old,
+            old,
+          )
+          .run();
+      }
+      const service = new DomainService(db, {
+        mode: "production",
+        ...createLiveDeliveryQuoteConfig(env, { fetcher }),
+      });
+      const row = await service.prepareDispatch(
+        ctx,
+        {
+          channel: "postal",
+          senderId: "sender_postal",
+          documentId: "doc_fixture",
+          recipient: postalRecipient,
+          ceilingMinor: 300,
+          options: {
+            ...postalOptions,
+            providerDraftId: prepared.providerDraftId,
+            preparedLetterId: prepared.preparedLetterId,
+            expectedAddress,
+          },
+        },
+        crypto.randomUUID(),
+      );
+      expect(row.estimated_minor).toBe(variant === "cold" ? 250 : 146);
+      const signed = JSON.parse(
+        (await db
+          .prepare(
+            "SELECT input_json FROM live_delivery_quotes WHERE organization_id=? AND dispatch_id=?",
+          )
+          .bind(ctx.organizationId, row.id)
+          .first<string>("input_json"))!,
+      );
+      expect(signed.postalPriceReference).toEqual(
+        variant === "cold"
+          ? { source: "guteneo_continuity_v1" }
+          : { source: "last_known_pingen", observedAt: old },
+      );
+      expect(signed.pricingBasis).toBe(
+        variant === "cold"
+          ? "published_customer_tariff"
+          : "public_list_price_ex_tax",
+      );
+      await service.approveDispatch(ctx, row.id, row.fingerprint);
+      await service.confirmDispatch(ctx, row.id, crypto.randomUUID());
+      expect(
+        await service.processDispatch(
+          row.id,
+          createLiveProviderHook(env, "postal", { fetcher }),
+        ),
+      ).toMatchObject({ status: "accepted" });
+      expect((await service.usage(ctx)).welcomeCredit).toMatchObject({
+        reservedMinor: 0,
+        spentMinor: row.estimated_minor,
+      });
+      expect(
+        fetcher.mock.calls.filter(([url]) =>
+          String(url).endsWith("/price-calculator"),
+        ),
+      ).toHaveLength(variant === "cold" ? 1 : 0);
+      expect(
+        fetcher.mock.calls.filter(([, init]) => init?.method === "PATCH"),
+      ).toHaveLength(1);
+    },
+  );
+
+  it("recovers a pre-upgrade observation only for its exact analyzed paper and environment", async () => {
+    const fetcher = pingenFixtureFetch();
+    const prepared = await prepareFixtureDraft(fetcher);
+    const config = createLiveDeliveryQuoteConfig(env, { fetcher });
+    // Preserve the exact pre-migration signed material, which had no source tag.
+    domain = new DomainService(db, {
+      mode: "production",
+      ...config,
+      postalQuote: async (request) => {
+        const { reference: _reference, ...historical } =
+          await config.postalQuote(request);
+        return historical;
+      },
+    });
+    await queueFixture("postal", {
+      ...postalOptions,
+      providerDraftId: prepared.providerDraftId,
+      preparedLetterId: prepared.preparedLetterId,
+      expectedAddress,
+    });
+    await db
+      .prepare("DELETE FROM postal_price_references WHERE organization_id=?")
+      .bind(ctx.organizationId)
+      .run();
+    const input = {
+      organizationId: ctx.organizationId,
+      senderId: "sender_postal",
+      accountId: config.liveDeliveryIdentity.postal!.accountId,
+      environment: "sandbox" as const,
+      country: "FR" as const,
+      options: postalOptions,
+    };
+    const unavailable = vi.fn(async () => {
+      throw new Error("Calculator unavailable");
+    });
+    const select = selectPostalPrice(db, input, Date.now);
+    expect(await select(1, unavailable)).toMatchObject({
+      amount: { currency: "EUR", minor: 73 },
+      reference: { source: "last_known_pingen" },
+    });
+    expect(await select(2, unavailable)).toMatchObject({
+      reference: { source: "guteneo_continuity_v1" },
+    });
+    expect(
+      await selectPostalPrice(
+        db,
+        { ...input, environment: "production" },
+        Date.now,
+      )(1, unavailable),
+    ).toMatchObject({ reference: { source: "guteneo_continuity_v1" } });
+  });
+
+  it.each(["policy_revoked", "window_changed", "paper_changed"] as const)(
+    "rechecks Pingen draft and authorization before submission: %s",
     async (change) => {
       const draftFetch = pingenFixtureFetch();
       const prepared = await prepareFixtureDraft(draftFetch);
@@ -1112,31 +1261,29 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
       });
       const base = pingenFixtureFetch();
       const fetcher = vi.fn<Fetcher>(async (input, init) => {
-        if (String(input).endsWith("/price-calculator")) {
-          if (change === "policy_revoked")
-            await db
-              .prepare(
-                "UPDATE trusted_delivery_costs SET status='revoked' WHERE id='policy_postal'",
-              )
-              .run();
-          return json({
-            data: {
-              attributes: {
-                currency: "EUR",
-                price: change === "price_changed" ? "1.20" : "0.73",
-              },
-            },
-          });
+        if (
+          change === "policy_revoked" &&
+          String(input).endsWith("/letters/letter-fixture")
+        ) {
+          await db
+            .prepare(
+              "UPDATE trusted_delivery_costs SET status='revoked' WHERE id='policy_postal'",
+            )
+            .run();
         }
         const response = await base(input, init);
         if (
-          change === "window_changed" &&
+          (change === "window_changed" || change === "paper_changed") &&
           String(input).endsWith("/letters/letter-fixture")
         ) {
           const body = (await response.json()) as {
-            data: { attributes: { address_position: string } };
+            data: {
+              attributes: { address_position: string; paper_types: string[] };
+            };
           };
-          body.data.attributes.address_position = "right";
+          if (change === "window_changed")
+            body.data.attributes.address_position = "right";
+          else body.data.attributes.paper_types = ["normal", "normal"];
           return json(body);
         }
         return response;
@@ -1185,8 +1332,8 @@ describe("Live provider bridge — real D1/R2, intercepted external fetch only",
           return destinationRestrictionsResponse();
         }
         const response = await base(input, init);
-        // Expire the first five-minute observation during the actual calculator read.
-        if (String(input).endsWith("/price-calculator")) clock += 300_000;
+        // Expire the first five-minute observation during the actual draft read.
+        if (String(input).endsWith("/letters/letter-fixture")) clock += 300_000;
         return response;
       });
       expect(

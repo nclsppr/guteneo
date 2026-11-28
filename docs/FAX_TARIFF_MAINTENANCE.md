@@ -1,6 +1,29 @@
 # Automatic fax tariff maintenance
 
-## Contract — 30 October 2026 candidate
+## Worldwide mode — 28 November 2026 candidate
+
+With worldwide mode enabled, new faxes from a verified production sender can
+use any supported international E.164 number. Guteneo freezes the applicable
+Telnyx public catalog reference for the bound account, application, profile and
+sender at preparation. The quote uses the destination-specific page, minute and
+call rates, billed duration increments, and dated FX. An unseen or ambiguous
+number receives Guteneo’s EUR 0.25 per page estimate excluding tax. If the cron
+fails, the installed catalog remains usable. An existing matching tariff can
+supply an archived reference before the first catalog is available.
+
+An ordinary worldwide quote lasts up to fifteen minutes. It binds the document,
+recipient, options, estimate, source and firm customer ceiling. Confirmation
+reserves that ceiling. Verified usage settles within the ceiling, with excess
+supplier cost borne by Guteneo. Document admission limits and the connector’s 350-page maximum apply. The
+dedicated restricted reviewer continues to use its separate preparation-only
+workflow. Previous pilot quotes retain their original approval and limits.
+
+Migration 0083 installs the shared commercial catalog. Migration 0084 adds
+worldwide terms to the tenant-scoped immutable fax ledger. Apply both before
+enabling worldwide mode in the runtime. Provider acceptance depends on the
+actual account, number and receiving equipment.
+
+## Historical scoped contract — 30 October 2026 candidate
 
 An explicitly registered fax route can refresh its dated commercial reference
 without a recurring manual revalidation task. The existing scheduler runs a

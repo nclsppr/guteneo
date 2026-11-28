@@ -2785,31 +2785,31 @@
         }
       }
     },
-    "France, Luxembourg or Germany, depending on available routes.": {
+    "Include + and the country calling code.": {
       "extractionState": "manual",
       "localizations": {
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "France, Luxembourg ou Allemagne, selon les routes disponibles."
+            "value": "Saisissez + et l’indicatif international du pays."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "France, Luxembourg or Germany, depending on available routes."
+            "value": "Include + and the country calling code."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Frankreich, Luxemburg oder Deutschland, je nach verfügbaren Versandwegen."
+            "value": "Geben Sie + und die Landesvorwahl ein."
           }
         },
         "lb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Frankräich, Lëtzebuerg oder Däitschland, jee no de verfügbare Versandweeër."
+            "value": "Gitt + an déi international Lännervirwal an."
           }
         }
       }

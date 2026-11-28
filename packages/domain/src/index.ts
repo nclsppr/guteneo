@@ -1330,14 +1330,14 @@ export class DomainService {
       ...deliveryPriceDisclosure(deliveryPrice),
     };
     const quote = tariff
-      ? await makeFaxQuote(id, ctx.organizationId, frozen, tariff, now)
+      ? await makeFaxQuote(id, ctx.organizationId, frozen, tariff, this.time())
       : deliveryPrice
         ? await makeDeliveryQuote(
             id,
             ctx.organizationId,
             frozen,
             deliveryPrice,
-            now,
+            this.time(),
           )
         : undefined;
     const fingerprint = await sha256(
@@ -2150,14 +2150,12 @@ export class DomainService {
       ),
       this.db
         .prepare(
-          "SELECT d.id,COALESCE(q.expires_at,(SELECT f.expires_at FROM live_fax_quotes_v3 f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id),(SELECT f.expires_at FROM live_fax_quotes_v2 f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id),(SELECT f.expires_at FROM live_fax_quotes f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id)) AS quote_expires_at FROM dispatches d LEFT JOIN live_delivery_quotes q ON q.organization_id=d.organization_id AND q.dispatch_id=d.id WHERE d.organization_id=? AND d.id IN (SELECT value FROM json_each(?))",
+          "SELECT d.id,COALESCE(q.expires_at,(SELECT f.expires_at FROM live_fax_quotes_v3 f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id),(SELECT f.expires_at FROM live_fax_quotes_v2 f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id),(SELECT f.expires_at FROM live_fax_quotes f WHERE f.organization_id=d.organization_id AND f.dispatch_id=d.id)) AS quote_expires_at,q.customer_nanoeur AS quote_customer_nanoeur,q.fiscal_basis AS quote_pricing_basis FROM dispatches d LEFT JOIN live_delivery_quotes q ON q.organization_id=d.organization_id AND q.dispatch_id=d.id WHERE d.organization_id=? AND d.id IN (SELECT value FROM json_each(?))",
         )
         .bind(ctx.organizationId, JSON.stringify(page.items.map((d) => d.id)))
-        .all<{ id: string; quote_expires_at: string | null }>(),
+        .all<Pick<Dispatch, "id" | "quote_expires_at" | "quote_customer_nanoeur" | "quote_pricing_basis">>(),
     ]);
-    const expiries = new Map(
-      quotes.results.map((quote) => [quote.id, quote.quote_expires_at]),
-    );
+    const quotesById = new Map(quotes.results.map((quote) => [quote.id, quote]));
     for (const row of page.items) {
       const projected = row as Dispatch & {
         active_schedule_json?: string | null;
@@ -2165,7 +2163,12 @@ export class DomainService {
       if (projected.active_schedule_json)
         row.activeSchedule = JSON.parse(projected.active_schedule_json);
       delete projected.active_schedule_json;
-      row.quote_expires_at = expiries.get(row.id) ?? null;
+      const quote = quotesById.get(row.id);
+      row.quote_expires_at = quote?.quote_expires_at ?? null;
+      if (quote?.quote_customer_nanoeur != null) {
+        row.quote_customer_nanoeur = quote.quote_customer_nanoeur;
+        row.quote_pricing_basis = quote.quote_pricing_basis;
+      }
       const faxPricing = pricing.get(row.id);
       if (faxPricing) row.faxPricing = faxPricing;
     }

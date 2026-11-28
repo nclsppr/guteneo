@@ -4,8 +4,11 @@ export type FaxPricing = {
   currency: "EUR";
   basis: "qualified_usage_ex_tax";
   executionScope?: "review_prepare_only";
-  /** Historical review reference; never a claim about current provider prices. */
-  referenceBasis?: "archived_review_reference";
+  referenceBasis?:
+    | "archived_review_reference"
+    | "worldwide_catalog"
+    | "last_known_reference"
+    | "guteneo_continuity_v1";
   /** Explicit test authorization, not Telnyx Local Calling qualification. */
   routeQualification?: "operator_authorized_test";
   routeNotice?: string;
@@ -42,6 +45,14 @@ export type FaxPricingDisplay = {
   legacyEstimatedMinorMeaning: "rounded_up_estimated_high_centimes";
 };
 
+export function faxReferenceNotice(
+  basis?: FaxPricing["referenceBasis"],
+): string | undefined {
+  if (basis === "last_known_reference")
+    return "This estimate uses the last known rate for this destination.";
+  if (basis === "guteneo_continuity_v1")
+    return "Guteneo estimated this fax at €0.25 per page excluding tax because the destination rate was unavailable.";
+}
 /** Integer-only decimal formatting preserves nanoEUR; display never changes the quote. */
 function decimal(value: bigint, places: number): string {
   const scale = 10n ** BigInt(places);
@@ -61,7 +72,10 @@ function euroLabel(nanoeur: number): string {
 }
 
 function faxPricingDisplay(pricing: FaxPricing): FaxPricingDisplay {
-  const range = `${euroLabel(pricing.estimatedLowNanoeur)} to ${euroLabel(pricing.estimatedHighNanoeur)}`;
+  const range =
+    pricing.estimatedLowNanoeur === pricing.estimatedHighNanoeur
+      ? euroLabel(pricing.estimatedHighNanoeur)
+      : `${euroLabel(pricing.estimatedLowNanoeur)} to ${euroLabel(pricing.estimatedHighNanoeur)}`;
   const ceiling = decimal(BigInt(pricing.ceilingMinor), 2);
   return {
     locale: "en-GB",
@@ -85,7 +99,12 @@ function faxPricingDisplay(pricing: FaxPricing): FaxPricingDisplay {
         ? pricing.referenceBasis === "archived_review_reference"
           ? FAX_CONTINUOUS_REVIEW_NOTICE
           : FAX_REVIEW_PREPARATION_NOTICE
-        : "The estimate covers this entire fax, including transmission, and varies with the actual duration, which is not guaranteed. It is neither a fixed per-page price nor a charge. The ceiling is reserved on confirmation; final consumption is determined after verified usage and remains bounded by that ceiling. Fractions of a cent accumulate before the balance is debited. The settlement status indicates whether the reservation is active, settled or released.",
+        : [
+            faxReferenceNotice(pricing.referenceBasis),
+            "The estimate covers this entire fax, including transmission, and varies with the actual duration, which is not guaranteed. It is neither a fixed per-page price nor a charge. The ceiling is reserved on confirmation; final consumption is determined after verified usage and remains bounded by that ceiling. Fractions of a cent accumulate before the balance is debited. The settlement status indicates whether the reservation is active, settled or released.",
+          ]
+            .filter(Boolean)
+            .join(" "),
     legacyEstimatedMinorMeaning: "rounded_up_estimated_high_centimes",
   };
 }
@@ -114,6 +133,12 @@ export function customerFaxPricing(
             ? { referenceBasis: "archived_review_reference" as const }
             : {}),
         }
+      : {}),
+    ...(pricing.executionScope !== "review_prepare_only" &&
+    (pricing.referenceBasis === "worldwide_catalog" ||
+      pricing.referenceBasis === "last_known_reference" ||
+      pricing.referenceBasis === "guteneo_continuity_v1")
+      ? { referenceBasis: pricing.referenceBasis }
       : {}),
     ...(pricing.routeQualification === "operator_authorized_test"
       ? {

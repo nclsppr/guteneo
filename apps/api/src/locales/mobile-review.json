@@ -1,4 +1,14 @@
 {
+  "This estimate uses the last known rate for this destination.": [
+    "Cette estimation utilise le dernier tarif connu pour cette destination.",
+    "Diese Schätzung verwendet den letzten bekannten Tarif für dieses Ziel.",
+    "Dës Schätzung benotzt de leschte bekannten Tarif fir dës Destinatioun."
+  ],
+  "Guteneo estimated this fax at €0.25 per page excluding tax because the destination rate was unavailable.": [
+    "Le tarif de la destination étant indisponible, Guteneo estime ce fax à 0,25 € hors taxes par page.",
+    "Da der Tarif für das Ziel nicht verfügbar war, schätzt Guteneo dieses Fax auf 0,25 € pro Seite ohne Steuern.",
+    "Well den Tarif fir d’Destinatioun net disponibel war, schätzt Guteneo dëse Fax op 0,25 € pro Säit ouni Steieren."
+  ],
   "This quote is for viewing only. It cannot be approved or sent. No amount is reserved or charged.": [
     "Ce devis est réservé à la consultation. Il ne peut être ni approuvé ni envoyé. Aucun montant n’est réservé ou débité.",
     "Dieses Angebot dient nur zur Ansicht. Es kann weder freigegeben noch versandt werden. Es wird kein Betrag reserviert oder abgebucht.",

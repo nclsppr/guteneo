@@ -122,7 +122,7 @@ struct DispatchDetailView: View {
                     }
                 }
                 Section("Cost limit") {
-                    LabeledContent("Limit", value: amount(detail.dispatch.ceilingMinor, currency: detail.dispatch.currency, locale: locale))
+                    LabeledContent(LocalizedStringKey(detail.dispatch.faxPricing != nil && detail.dispatch.mode == "production" ? "Maximum cost · EUR excl. tax" : "Limit"), value: amount(detail.dispatch.ceilingMinor, currency: detail.dispatch.currency, locale: locale))
                     Notice(text: "This limit is not an amount charged. View the detailed quote and its terms in your secure space.")
                     if let expires = detail.dispatch.quoteExpiresAt { LabeledContent("Quote valid until", value: GuteneoDate.label(expires, locale: locale)) }
                 }

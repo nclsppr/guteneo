@@ -1,3 +1,5 @@
+import { quotedTotalNanoEur } from "../../../packages/contracts/src/quote-amount";
+import { faxReferenceNotice } from "../../../packages/contracts/src/fax-pricing";
 import {
   standaloneThemeAttributes,
   standaloneThemeMetadata,
@@ -290,12 +292,15 @@ export async function handleMobileReview(
         `<dt>${escape(optionNames[name] ? t(optionNames[name]) : name.replace(/([a-z])([A-Z])/g, "$1 $2").replaceAll("_", " "))}</dt><dd>${escape(describe(value))}</dd>`,
     )
     .join("");
+  const faxReference = faxReferenceNotice(d.faxPricing?.referenceBasis);
+  const totalNanoEur = quotedTotalNanoEur(d.quote_customer_nanoeur, options);
   const estimate = d.faxPricing
-    ? t("{low} to {high}")
+    ? d.faxPricing.estimatedLowNanoeur === d.faxPricing.estimatedHighNanoeur
+      ? nanoMoney(d.faxPricing.estimatedHighNanoeur) : t("{low} to {high}")
         .replace("{low}", nanoMoney(d.faxPricing.estimatedLowNanoeur))
         .replace("{high}", nanoMoney(d.faxPricing.estimatedHighNanoeur))
-    : d.quote_customer_nanoeur != null
-      ? nanoMoney(d.quote_customer_nanoeur)
+    : totalNanoEur !== null
+      ? nanoMoney(totalNanoEur)
       : money(d.estimated_minor);
   const emailPreview = d.html
     ? `<iframe class="message" title="${t("Final email content")}" sandbox srcdoc="${escape(`<!doctype html><meta charset=utf-8><meta http-equiv=Content-Security-Policy content="default-src 'none'"><body>${d.html}</body>`)}"></iframe>`
@@ -319,6 +324,7 @@ export async function handleMobileReview(
   return render(
     `<h1>${t("Review dispatch")}</h1><p>${escape(t(statusLabels[d.status] ?? "Tracking in progress"))}</p>${d.mode === "simulation" ? `<p class="notice">${t("Simulation: no real communication.")}</p>` : ""}${notice ? `<p class="notice" role="alert">${escape(notice)}</p>` : ""}
     <section><h2>${t("Recipient and cost")}</h2><dl><dt>${t("Channel")}</dt><dd>${escape(t({ fax: "Fax", email: "Email", postal: "Postal letter" }[d.channel]))}</dd><dt>${t("Recipient")}</dt><dd>${Object.values(recipient).map(escape).join("<br>")}</dd><dt>${t("Sender")}</dt><dd>${escape(d.sender_address)}</dd>${d.subject ? `<dt>${t("Subject")}</dt><dd>${escape(d.subject)}</dd>` : ""}<dt>${t("Estimate")}${d.mode === "production" ? t(" excl. tax") : ""}</dt><dd>${escape(estimate)}</dd><dt>${t("Firm limit")}${d.mode === "production" ? t(" excl. tax") : ""}</dt><dd>${escape(money(d.ceiling_minor))}</dd>${d.quote_expires_at ? `<dt>${t("Quote valid until")}</dt><dd>${escape(date(d.quote_expires_at))}</dd>` : ""}${optionDetails}</dl>
+    ${faxReference ? `<p>${escape(t(faxReference))}</p>` : ""}
     ${reviewPreparationOnly ? `<p class="notice">${t("For review preparation only. This reference range excluding tax uses real rates and duration assumptions; it excludes unqualified conditional adjustments. This fax cannot be approved or sent, including in expert mode. No amount is reserved or charged. Local Calling capability remains unconfirmed.")}</p>` : d.faxPricing ? `<p>${t("The cost of this entire fax depends on transmission duration. The limit is reserved when you confirm. The final cost is determined after usage verification and cannot exceed the limit. Fractions of a cent are accumulated across dispatches.")}</p>${d.faxPricing.routeQualification === "operator_authorized_test" ? `<p class="notice">${t("Luxembourg test authorised by the operator. Local Calling capability is unconfirmed; the provider may reject transmission.")}</p>` : ""}` : ""}
     ${!reviewPreparationOnly && d.quote_customer_nanoeur != null ? `<p>${t("Fractions of a cent are accumulated across dispatches before rounding. The limit remains reserved until the outcome is known.")}</p>` : ""}</section>
     <section><h2>${t("Exact content")}</h2>${doc ? `<p>${escape(doc.name)} · ${doc.pages} ${t(doc.pages > 1 ? "pages" : "page")}</p>${documentReady ? `<iframe title="${t("Exact original PDF")}" src="/api/documents/${encodeURIComponent(doc.id)}/content?dispatchId=${encodeURIComponent(d.id)}"></iframe><p><a href="/api/documents/${encodeURIComponent(doc.id)}/content?dispatchId=${encodeURIComponent(d.id)}" target="_blank" rel="noopener">${t("Open original PDF")}</a></p>` : `<p class="notice">${t("PDF verification must finish before approval.")}</p>`}<p>${t("SHA-256 fingerprint")} : <code>${escape(doc.sha256)}</code></p>` : ""}${d.channel === "email" ? emailPreview : ""}</section>

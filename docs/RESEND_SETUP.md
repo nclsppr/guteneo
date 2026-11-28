@@ -1,5 +1,19 @@
 # Resend for Guteneo
 
+## Sending during a price-source outage — 28 November 2026 candidate
+
+A valid configured domain and sender can prepare a quote even when the public
+price or ECB exchange rate is unavailable. The service uses the last scoped
+tariff and can use the published EUR email schedule on first use. Domain or
+account-binding contradictions still suspend the affected sender. Sending also
+requires the current capacity policy, quota reservation and an approved quote.
+
+The scheduled inspection can update the public Pro additional-email amount and
+commercial FX. Domain and Usage evidence can renew existing account limits while
+price inspection fails. After recovery, the next preparation adopts the refreshed
+commercial schedule. Quotes already shown to customers retain their approved
+price and deadline. [Email quote rules](LIVE_DELIVERY_QUOTES.md).
+
 ## Inspection evidence — 1 November 2026
 
 Production 1.1.26 contains the alert/reference corrections. After separate user
@@ -11,7 +25,7 @@ this handoff. Private inspection, genuine maintenance, notification receipt and
 business-email delivery are separate proof. Earlier refused-read observations
 below retain their historical meaning.
 
-## Automatic maintenance candidate, 30 October 2026
+## Historical maintenance policy, 30 October 2026
 
 Tariff preparation and acceptance limits have separate consumers. Preparation
 can still use pricing with final sending disabled, an allowlist excluding email

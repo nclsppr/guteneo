@@ -87,6 +87,19 @@ export async function verifyTransport(includeSchema = false) {
           "CREATE TABLE d1_migrations(id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT UNIQUE,applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL)",
         )
         .run();
+    const rawSchema = async (database) => {
+      const result = await database
+        .prepare(
+          "SELECT type,name,sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND name NOT GLOB '_cf_*' ORDER BY type,name",
+        )
+        .all();
+      return result.results.map((row) => ({
+        type: row.type,
+        name: row.name,
+        sql: row.sql,
+      }));
+    };
+    const schemaAt = {};
     for (const migration of plan) {
       const source = await readFile(
         new URL(`../migrations/${migration.name}`, import.meta.url),
@@ -108,19 +121,10 @@ export async function verifyTransport(includeSchema = false) {
           cause: error,
         });
       }
+      const applied = Number(migration.name.slice(0, 4));
+      if (includeSchema && applied >= 80)
+        schemaAt[applied] = await rawSchema(transport);
     }
-    const rawSchema = async (database) => {
-      const result = await database
-        .prepare(
-          "SELECT type,name,sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND name NOT GLOB '_cf_*' ORDER BY type,name",
-        )
-        .all();
-      return result.results.map((row) => ({
-        type: row.type,
-        name: row.name,
-        sql: row.sql,
-      }));
-    };
     const schemas = [await rawSchema(original), await rawSchema(transport)];
     const normalizedSchema = (schema) =>
       schema.map((row) => ({
@@ -314,7 +318,7 @@ export async function verifyTransport(includeSchema = false) {
       migrations: plan.length,
       normalizedGuards: plan.reduce((n, m) => n + m.replacements, 0),
       schemaObjects: first.length,
-      ...(includeSchema ? { schema: first } : {}),
+      ...(includeSchema ? { schema: first, schemaAt } : {}),
       schemaEquivalent: true,
       guardOutcomes: outcomes[0],
       quickCheck: "ok",

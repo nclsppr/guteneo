@@ -1,4 +1,8 @@
 import { z } from "zod";
+import {
+  FAX_CONTINUITY_REFERENCE,
+  resolveWorldwideFaxTariff,
+} from "./worldwide-fax-tariffs";
 import { luxembourgOperatorRoute } from "./luxembourg-fax-routes";
 import { canonicalJson, DomainError, sha256, type Dispatch } from "./index";
 import type { LiveFaxIdentity } from "./live-fax-quotes";
@@ -74,11 +78,12 @@ export type FaxUsageTariff = {
   destination_prefix: string;
   sender_country_code: string;
   destination_country_code: string;
-  origin_class: "local" | "eea";
-  destination_category: "fixed" | "special" | "mobile" | "ngn" | "freephone";
+  origin_class: "local" | "eea" | "worldwide";
+  destination_category:
+    "fixed" | "special" | "mobile" | "ngn" | "freephone" | "worldwide";
   route_allowed: number;
   local_calling_verified: number;
-  route_qualification?: "provider_verified" | "operator_test";
+  route_qualification?: "provider_verified" | "operator_test" | "worldwide";
   execution_scope?: "live" | "review_prepare_only";
   review_authority_id?: string | null;
   /** Only populated from the current, restricted reviewer access view. */
@@ -156,23 +161,49 @@ const ceil = (value: bigint, denominator: bigint) =>
 
 /** Exact integer inputs; only the final rational conversion rounds up to one nano-EUR. */
 export function faxUsageEstimate(t: FaxUsageTariff, pages: number) {
-  const p = integer(pages, 1, 10);
+  const worldwide = t.route_qualification === "worldwide";
+  const p = integer(pages, 1, worldwide ? 350 : 10);
+  if (worldwide && t.source_reference === FAX_CONTINUITY_REFERENCE) {
+    const estimate = pages * 250_000_000;
+    return {
+      estimated_low_nanoeur: estimate,
+      estimated_high_nanoeur: estimate,
+      customer_minor: pages * 25,
+    };
+  }
   const page = integer(t.page_nano_usd, 0, 1_000_000_000);
-  const minute = integer(t.minute_nano_usd, 0, 1_000_000_000);
-  const call = integer(t.call_nano_usd, 0, 1_000_000_000);
+  const minute = integer(
+    t.minute_nano_usd,
+    0,
+    worldwide ? 100_000_000_000 : 1_000_000_000,
+  );
+  const call = integer(
+    t.call_nano_usd,
+    0,
+    worldwide ? 100_000_000_000 : 1_000_000_000,
+  );
   const base = integer(t.duration_base_seconds, 0, 600);
   const low = integer(t.duration_low_per_page_seconds, 1, 600);
   const high = integer(t.duration_high_per_page_seconds, Number(low), 600);
   const numerator = integer(t.fx_numerator, 1, 1_000_000);
   const denominator = integer(t.fx_denominator, 1, 1_000_000);
-  if (t.initial_seconds !== 60 || t.increment_seconds !== 60)
-    throw unavailable();
-  const amount = (seconds: bigint) =>
-    2n *
-    ceil(
-      (page * p + minute * ceil(seconds, 60n) + call) * numerator,
-      denominator,
-    );
+  const initial = integer(
+    t.initial_seconds,
+    worldwide ? 1 : 60,
+    worldwide ? 600 : 60,
+  );
+  const increment = integer(
+    t.increment_seconds,
+    worldwide ? 1 : 60,
+    worldwide ? 600 : 60,
+  );
+  const amount = (seconds: bigint) => {
+    const billed =
+      initial +
+      (seconds > initial ? ceil(seconds - initial, increment) * increment : 0n);
+    const supplier = page * p + call + ceil(minute * billed, 60n);
+    return 2n * ceil(supplier * numerator, denominator);
+  };
   const lower = amount(base + p * low),
     upper = amount(base + p * high);
   if (upper > 10_000_000_000_000n) throw unavailable();
@@ -227,9 +258,33 @@ export async function resolveFaxUsageTariff(
   identity: LiveFaxIdentity,
   now: string,
 ): Promise<ResolvedFaxUsageTariff | undefined> {
+  if (
+    identity.worldwide &&
+    !(await db
+      .prepare(
+        "SELECT 1 FROM fax_review_preparation_authorities WHERE organization_id=? LIMIT 1",
+      )
+      .bind(organizationId)
+      .first())
+  ) {
+    const tariff = await resolveWorldwideFaxTariff(
+      db,
+      organizationId,
+      senderId,
+      number,
+      options,
+      identity,
+      now,
+    );
+    return {
+      ...tariff,
+      pricing_version: 3,
+      ...faxUsageEstimate(tariff, pages),
+    };
+  }
   const owns = await db
     .prepare(
-      "SELECT 1 FROM trusted_fax_usage_tariffs WHERE organization_id=? AND sender_id=? AND account_id=? AND connection_id=? LIMIT 1",
+      "SELECT 1 FROM trusted_fax_usage_tariffs WHERE organization_id=? AND sender_id=? AND account_id=? AND connection_id=? AND source_reference NOT LIKE 'worldwide-fax:%' LIMIT 1",
     )
     .bind(organizationId, senderId, identity.accountId, identity.connectionId)
     .first();
@@ -238,7 +293,7 @@ export async function resolveFaxUsageTariff(
   const [t, sender] = await Promise.all([
     db
       .prepare(
-        "SELECT * FROM trusted_fax_usage_tariffs WHERE organization_id=? AND sender_id=? AND account_id=? AND connection_id=? AND outbound_profile_id=? AND options_json=? AND substr(?,1,length(destination_prefix))=destination_prefix ORDER BY length(destination_prefix) DESC,(status='qualified') DESC,created_at DESC,id DESC LIMIT 1",
+        "SELECT * FROM trusted_fax_usage_tariffs WHERE organization_id=? AND sender_id=? AND account_id=? AND connection_id=? AND outbound_profile_id=? AND options_json=? AND source_reference NOT LIKE 'worldwide-fax:%' AND substr(?,1,length(destination_prefix))=destination_prefix ORDER BY length(destination_prefix) DESC,(status='qualified') DESC,created_at DESC,id DESC LIMIT 1",
       )
       .bind(
         organizationId,
@@ -281,7 +336,9 @@ export async function resolveFaxUsageTariff(
     t.status !== "qualified" ||
     !sender ||
     t.valid_from > now ||
-    (!continuous && t.expires_at <= now) ||
+    (t.route_qualification === "operator_test" &&
+      !continuous &&
+      t.expires_at <= now) ||
     t.route_allowed !== 1 ||
     (t.destination_category !== "fixed" && !operatorRouteTest(t)) ||
     t.currency !== "USD" ||
@@ -356,6 +413,12 @@ export async function makeFaxUsageQuote(
       "The Luxembourg fax test is limited to a EUR2 ceiling per dispatch.",
       409,
     );
+  const quoteDeadline =
+    Date.parse(now) + Math.min(t.quote_ttl_seconds, 900) * 1000;
+  const expiresAt =
+    t.route_qualification === "operator_test" && !t.continuous_review_access_id
+      ? Math.min(quoteDeadline, Date.parse(t.expires_at))
+      : quoteDeadline;
   const input = canonicalJson(frozen);
   const q: FaxUsageQuote = {
     dispatch_id: dispatchId,
@@ -386,12 +449,7 @@ export async function makeFaxUsageQuote(
     source_reference: t.source_reference,
     source_sha256: t.source_sha256,
     created_at: now,
-    expires_at: new Date(
-      Math.min(
-        t.continuous_review_access_id ? Infinity : Date.parse(t.expires_at),
-        Date.parse(now) + Math.min(t.quote_ttl_seconds, 900) * 1000,
-      ),
-    ).toISOString(),
+    expires_at: new Date(expiresAt).toISOString(),
   };
   q.fingerprint = await sha256(canonicalJson(material(q)));
   return q;
@@ -441,7 +499,7 @@ export async function validateFaxUsageQuote(
   // Select only q columns: view-only validity metadata is not part of the hash.
   const q = await db
     .prepare(
-      "SELECT q.* FROM live_fax_quotes_v3 q JOIN valid_live_fax_quotes_v3 v ON v.organization_id=q.organization_id AND v.dispatch_id=q.dispatch_id WHERE q.organization_id=? AND q.dispatch_id=? AND q.account_id=? AND q.connection_id=? AND q.outbound_profile_id=? AND q.created_at<=? AND q.expires_at>? AND v.tariff_valid_from<=? AND v.tariff_expires_at>?",
+      "SELECT q.* FROM live_fax_quotes_v3 q JOIN valid_live_fax_quotes_v3 v ON v.organization_id=q.organization_id AND v.dispatch_id=q.dispatch_id WHERE q.organization_id=? AND q.dispatch_id=? AND q.account_id=? AND q.connection_id=? AND q.outbound_profile_id=? AND (? OR q.source_reference NOT LIKE 'worldwide-fax:%') AND q.created_at<=? AND q.expires_at>? AND v.tariff_valid_from<=? AND v.tariff_expires_at>?",
     )
     .bind(
       row.organization_id,
@@ -449,6 +507,7 @@ export async function validateFaxUsageQuote(
       identity.accountId,
       identity.connectionId,
       identity.outboundProfileId!,
+      identity.worldwide ? 1 : 0,
       now,
       now,
       now,
@@ -654,7 +713,8 @@ export async function readFaxPricingBatch(
     .bind(organizationId, JSON.stringify(ids))
     .all<
       FaxUsageQuote & {
-        route_qualification: "provider_verified" | "operator_test";
+        route_qualification:
+          "provider_verified" | "operator_test" | "worldwide";
         execution_scope: "live" | "review_prepare_only";
         reservation_status: "reserved" | "settled" | "released" | null;
         customer_nanoeur: number | null;
@@ -669,6 +729,18 @@ export async function readFaxPricingBatch(
         version: 3,
         currency: "EUR",
         basis: "qualified_usage_ex_tax",
+        ...(q.route_qualification === "worldwide"
+          ? {
+              referenceBasis:
+                q.source_reference === FAX_CONTINUITY_REFERENCE
+                  ? ("guteneo_continuity_v1" as const)
+                  : q.source_reference.startsWith(
+                        "worldwide-fax:last_known_reference:",
+                      )
+                    ? ("last_known_reference" as const)
+                    : ("worldwide_catalog" as const),
+            }
+          : {}),
         ...(q.execution_scope === "review_prepare_only"
           ? {
               executionScope: "review_prepare_only" as const,

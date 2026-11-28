@@ -1675,10 +1675,10 @@
     "D’Sessiounen an d’Assistente vu {0} trennen? D’Persoun bleift Member a kann sech erëm umellen."
   ],
   "Oui, déconnecter": ["Yes, disconnect", "Ja, abmelden", "Jo, trennen"],
-  "Format international : + suivi de l’indicatif du pays et du numéro (ex. +352 …), sans le 0 national. Les espaces, points et tirets sont retirés à la préparation.": [
-    "International format: + followed by the country code and number (e.g. +352 …), without the national 0. Spaces, dots and dashes are removed during preparation.",
-    "Internationales Format: + gefolgt von Landesvorwahl und Nummer (z. B. +352 …), ohne die nationale 0. Leerzeichen, Punkte und Bindestriche werden bei der Vorbereitung entfernt.",
-    "Internationaalt Format: + gefollegt vum Lännercode an der Nummer (z. B. +352 …), ouni déi national 0. Espace, Punkten a Bindestrécher gi bei der Virbereedung ewechgeholl."
+  "Saisissez +, l’indicatif du pays et le numéro au format international. Les espaces, points et tirets sont acceptés.": [
+    "Enter +, the country calling code and the international subscriber number. Spaces, dots and dashes are accepted.",
+    "Geben Sie +, die Landesvorwahl und die Rufnummer im internationalen Format ein. Leerzeichen, Punkte und Bindestriche sind zulässig.",
+    "Gitt +, d’Lännervirwal an d’Nummer am internationale Format an. Espacen, Punkten a Bindestrécher sinn erlaabt."
   ],
   "à préciser": ["to be specified", "noch anzugeben", "nach unzeginn"],
   "Indiquez un plafond par envoi de 0,01 € à 100 €.": [

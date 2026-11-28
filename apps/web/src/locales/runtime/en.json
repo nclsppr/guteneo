@@ -1785,7 +1785,7 @@
     "Unknown delivery channel.",
     "Invalid row.",
     "Invalid header.",
-    "An international number is required, with a destination in FR, LU or DE.",
+    "Enter the international fax number with + and its country calling code.",
     "An additional address line is not supported in this flow. It will not be silently removed.",
     "This country is not supported.",
     "The address is too long.",
@@ -3071,7 +3071,7 @@
     "Disconnect your own sessions and assistants? You will need to sign in again.",
     "Disconnect {0}’s sessions and assistants? They remain a member and can sign in again.",
     "Yes, disconnect",
-    "International format: + followed by the country code and number (e.g. +352 …), without the national 0. Spaces, dots and dashes are removed during preparation.",
+    "Enter +, the country calling code and the international subscriber number. Spaces, dots and dashes are accepted.",
     "to be specified",
     "Enter a per-dispatch limit from €0.01 to €100.",
     "Enter a daily limit from €0.01 to €500.",
@@ -4368,7 +4368,12 @@
     "Open schedule",
     "Waiting for scheduled spending approval",
     "Reload",
-    "This type of dispatch cannot be scheduled."
+    "This type of dispatch cannot be scheduled.",
+    "Worldwide fax numbers",
+    "€0.25",
+    "per page, fallback estimate excluding tax",
+    "This estimate uses the last known rate for this destination.",
+    "Guteneo estimated this fax at €0.25 per page excluding tax because the destination rate was unavailable."
   ],
   "messages": {
     "AI is unavailable until the provider, transfer permission and workshop quota are ready. You can create and edit your template manually.": 0,
@@ -5636,7 +5641,7 @@
     "Canal inconnu.": 1255,
     "Ligne invalide.": 1256,
     "En-tête invalide.": 1257,
-    "Numéro international requis, destination FR, LU ou DE.": 1258,
+    "Saisissez le numéro de fax avec + et l’indicatif international du pays.": 1258,
     "Le complément d’adresse n’est pas pris en charge dans ce parcours. Il ne sera pas supprimé silencieusement.": 1259,
     "Pays non autorisé.": 1260,
     "Adresse trop longue.": 1261,
@@ -6940,7 +6945,7 @@
     "Déconnecter vos propres sessions et assistants ? Vous devrez vous reconnecter.": 2541,
     "Déconnecter les sessions et assistants de {0} ? La personne reste membre et pourra se reconnecter.": 2542,
     "Oui, déconnecter": 2543,
-    "Format international : + suivi de l’indicatif du pays et du numéro (ex. +352 …), sans le 0 national. Les espaces, points et tirets sont retirés à la préparation.": 2544,
+    "Saisissez +, l’indicatif du pays et le numéro au format international. Les espaces, points et tirets sont acceptés.": 2544,
     "à préciser": 2545,
     "Indiquez un plafond par envoi de 0,01 € à 100 €.": 2546,
     "Indiquez un plafond par jour de 0,01 € à 500 €.": 2547,
@@ -8250,7 +8255,12 @@
     "Ouvrir la programmation": 3838,
     "Approbation de la dépense programmée en attente": 3839,
     "Recharger": 3840,
-    "Ce type d’envoi ne peut pas être planifié.": 3841
+    "Ce type d’envoi ne peut pas être planifié.": 3841,
+    "Numéros de fax du monde entier": 3842,
+    "0,25 €": 3843,
+    "par page, estimation de secours hors taxes": 3844,
+    "Cette estimation utilise le dernier tarif connu pour cette destination.": 3845,
+    "Le tarif de la destination étant indisponible, Guteneo estime ce fax à 0,25 € hors taxes par page.": 3846
   },
   "contexts": {
     "sender-setup\u0004Enable postal mail": "Enable postal mail",

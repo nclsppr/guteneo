@@ -7285,9 +7285,10 @@
             "nullable": true,
             "enum": [
               "qualified_final_variable_cost",
-              "public_list_price_ex_tax"
+              "public_list_price_ex_tax",
+              "published_customer_tariff"
             ],
-            "description": "Frozen quote basis. public_list_price_ex_tax is public SES pricing excluding tax with a frozen commercial conversion, not the exact net AWS invoice cost."
+            "description": "Basis of the frozen customer quote. Public list prices use the dated provider reference. A published customer tariff uses Guteneo's EUR schedule when a supplier reference is unavailable."
           },
           "quote_fx": {
             "type": "object",
@@ -7804,7 +7805,7 @@
               },
               "phone": {
                 "type": "string",
-                "description": "Normalized international format; +33, +352 or +49 prefixes. Spaces, parentheses and hyphens are removed. Syntax validation is not deliverability evidence."
+                "description": "International fax number with + and its country calling code. Numbers from any country are accepted. Spaces, parentheses, periods and hyphens are normalized. Final delivery depends on the receiving line and provider."
               },
               "name": {
                 "type": "string",
@@ -9093,8 +9094,8 @@
           },
           "referenceBasis": {
             "type": "string",
-            "enum": ["archived_review_reference"],
-            "description": "Historical rate and FX reference for continuous unsendable reviewer preparation; never a current supplier price. Quote expiry remains separate from reference access."
+            "enum": ["archived_review_reference", "worldwide_catalog", "last_known_reference", "guteneo_continuity_v1"],
+            "description": "Identifies the worldwide catalogue, a retained reference, the Guteneo fallback estimate, or a historical reference reserved for review-only preparations. Each quote has its own deadline."
           },
           "routeQualification": {
             "type": "string",

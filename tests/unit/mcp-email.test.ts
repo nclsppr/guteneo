@@ -47,6 +47,8 @@ function emailDispatch(
     estimated_minor: mode === "protected_link" ? 101 : 1,
     ceiling_minor: 200,
     known_minor: null,
+    quote_customer_nanoeur: 10_000_000,
+    quote_pricing_basis: "published_customer_tariff",
     currency: "EUR",
     updated_at: "2026-09-21T10:00:00.000Z",
     options_json: JSON.stringify(
@@ -145,6 +147,12 @@ describe("email assistant contract", () => {
             };
           };
           expect(body.ok).toBe(true);
+          const quote =
+            name === "list_dispatches" ? body.data.items?.[0] : body.data;
+          expect(quote).toMatchObject({
+            quotedTransportNanoeur: 10_000_000,
+            quotePricingBasis: "published_customer_tariff",
+          });
           const delivery =
             name === "list_dispatches"
               ? body.data.items?.[0].emailDelivery

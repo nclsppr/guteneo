@@ -4,7 +4,7 @@ import { useCurrentClientView } from "./client-write-recovery";
 import { useAdaptiveReadPolling } from "./client-polling";
 import { RolePermissionNotice } from "./role-guide";
 import { formatLocale } from "./locale";
-import { FAX_OPERATOR_TEST_NOTICE } from "../../../packages/contracts/src/fax-pricing";
+import { FAX_OPERATOR_TEST_NOTICE, faxReferenceNotice } from "../../../packages/contracts/src/fax-pricing";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
@@ -199,6 +199,7 @@ export function DispatchDetailPage({
     d.faxPricing?.version === 3
       ? d.faxPricing
       : null;
+  const faxReference = faxReferenceNotice(faxPricing?.referenceBasis);
   const reviewPreparationOnly =
     faxPricing?.executionScope === "review_prepare_only";
   const activeSchedule = resource.data?.activeSchedule;
@@ -247,7 +248,10 @@ export function DispatchDetailPage({
       !Number.isSafeInteger(d.quote_customer_nanoeur) ||
       (d.quote_customer_nanoeur ?? -1) < 0 ||
       !Number.isFinite(Date.parse(d.quote_expires_at ?? "")));
-  const postalSendLabel = `${d.mode === "simulation" ? msg("Simulate sending for") : msg("Send for")} ${quotedMoney(d)}${d.quote_pricing_basis === "public_list_price_ex_tax" ? msg(" excl. tax") : ""}`;
+  const quoteExcludesTax =
+    d.quote_pricing_basis === "public_list_price_ex_tax" ||
+    d.quote_pricing_basis === "published_customer_tariff";
+  const postalSendLabel = `${d.mode === "simulation" ? msg("Simulate sending for") : msg("Send for")} ${quotedMoney(d)}${quoteExcludesTax ? msg(" excl. tax") : ""}`;
   async function readPostalOutcome(revision: number) {
     const isCurrent = currentView();
     const current = await api<DispatchDetail>(
@@ -774,8 +778,7 @@ export function DispatchDetailPage({
               label={
                 faxPricing
                   ? msg("Estimated range excl. tax")
-                  : d.channel === "postal" &&
-                      d.quote_pricing_basis === "public_list_price_ex_tax"
+                  : d.channel === "postal" && quoteExcludesTax
                     ? t.postalSetup.quote
                     : protectedDelivery(d)
                       ? msg("Estimated total, email and hosting")
@@ -784,11 +787,16 @@ export function DispatchDetailPage({
             >
               {faxPricing ? (
                 <>
-                  {nanoMoney(faxPricing.estimatedLowNanoeur)} {msg(" to")}{" "}
-                  {nanoMoney(faxPricing.estimatedHighNanoeur)}
+                  {nanoMoney(faxPricing.estimatedLowNanoeur)}
+                  {faxPricing.estimatedHighNanoeur !== faxPricing.estimatedLowNanoeur && <> {msg(" to")} {nanoMoney(faxPricing.estimatedHighNanoeur)}</>}
                 </>
               ) : (
-                quotedMoney(d)
+                <>
+                  {quotedMoney(d)}
+                  {d.channel === "email" && quoteExcludesTax
+                    ? msg(" excl. tax")
+                    : ""}
+                </>
               )}
             </Definition>
             <Definition label={t.dispatch.ceilingLabel}>
@@ -834,6 +842,7 @@ export function DispatchDetailPage({
           )}
           {faxPricing && (
             <div className="notice info" role="status" aria-atomic="true">
+              {faxReference && <p>{msg(faxReference)}</p>}
               {faxPricing.routeQualification === "operator_authorized_test" && (
                 <p>{msg(faxPricing.routeNotice ?? FAX_OPERATOR_TEST_NOTICE)}</p>
               )}
@@ -871,7 +880,8 @@ export function DispatchDetailPage({
               )}
             </p>
           )}
-          {d.quote_pricing_basis === "public_list_price_ex_tax" && (
+          {(d.quote_pricing_basis === "public_list_price_ex_tax" ||
+            (d.channel === "postal" && quoteExcludesTax)) && (
             <p className="field-hint">
               {d.channel === "postal"
                 ? t.postalSetup.quoteNote

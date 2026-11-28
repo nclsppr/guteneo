@@ -127,7 +127,7 @@ describe("fax pricing through the official MCP transport", () => {
             "prepare_fax",
             {
               documentId: "document_fixture",
-              phone: "+33123456789",
+              phone: "+6831234",
               ceilingMinor: 200,
               idempotencyKey: "fixture",
             },
@@ -245,6 +245,33 @@ describe("fax display precision", () => {
     });
     expect(result.settlement).toEqual(pricing.settlement);
   });
+  it.each([
+    "worldwide_catalog",
+    "last_known_reference",
+    "guteneo_continuity_v1",
+  ] as const)(
+    "publishes the worldwide quote basis %s and its separate firm ceiling",
+    (referenceBasis) => {
+      const quote = customerFaxPricing({
+        ...pricing,
+        referenceBasis,
+        estimatedLowNanoeur: 250_000_000,
+        estimatedHighNanoeur: 250_000_000,
+        ceilingMinor: 200,
+      });
+      expect(quote.referenceBasis).toBe(referenceBasis);
+      expect(quote.executionScope).toBeUndefined();
+      expect(quote.display.estimate.label).toBe("About EUR0.25 excl. tax");
+      expect(quote.display.ceiling.label).toBe(
+        "Firm ceiling: EUR2.00 excl. tax",
+      );
+      expect(validatePricing(quote).valid).toBe(true);
+      if (referenceBasis === "guteneo_continuity_v1")
+        expect(quote.display.explanation).toContain(
+          "€0.25 per page excluding tax",
+        );
+    },
+  );
   it("preserves whole euros and exact zero without inventing a debit", () => {
     const result = customerFaxPricing({
       ...pricing,

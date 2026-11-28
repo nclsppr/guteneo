@@ -1,6 +1,10 @@
 # Provider freshness and consumed deadlines
 
-## Current implementation and evidence — 7 November 2026
+## Worldwide price maintenance — November 2026
+
+Cloudflare records the dedicated daily catalogue refresh under the `fax_catalog` route. A failed refresh preserves the previous published deck. A new destination can use the commercial fallback. The worldwide runtime retires alerts tied to the old manual or registered fax prices. The regular maintenance heartbeat continues to report operational work independently.
+
+## Historical implementation and evidence — 7 November 2026
 
 Production 1.1.31 and the existing collector were freshly observed with one
 expired Luxembourg operator authority, healthy technical refresh state and no

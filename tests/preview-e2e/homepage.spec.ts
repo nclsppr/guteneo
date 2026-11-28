@@ -117,6 +117,8 @@ test("pricing and PDF pages preserve exact rates, credit and purchase conditions
   );
   await expect(page.locator(".pricing-table")).toContainText("≈ 1,56 €");
   await expect(page.locator(".pricing-table")).toContainText("≈ 0,05–0,17 €");
+  await expect(page.locator(".pricing-table")).toContainText("Numéros de fax du monde entier");
+  await expect(page.locator(".pricing-table")).toContainText("0,25 €");
   await expect(page.locator(".pricing-table")).toContainText(
     "depuis notre numéro luxembourgeois",
   );

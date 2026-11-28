@@ -179,17 +179,10 @@ separate explicitly authorized operator action. A read-only D1 credential can
 qualify an already-current schema; a pending migration also needs the provider's
 actual write authorization.
 
-The manual schema runner is deliberately bounded to the reviewed additive indexes
-`0081_approval_request_lookup.sql` and `0082_pdf_validation_history.sql`. It accepts
-only the exact source-prefix ledger through migration 0080, 0081 or 0082, compares
-the complete application schema with the locally qualified source/transport
-schema, and requires enabled foreign-key/CHECK constraints. It will not replay
-older migrations, accept a future migration, change runtime configuration or
-seed data. An older, divergent or unreadable production schema needs its own
-reviewed reconciliation instead of a relaxed release gate.
+The manual schema runner accepts an exact source-prefix ledger from 0080 through 0087. It verifies the two index definitions and the complete pinned SQL batches for the five price migrations. Before and after each batch it compares the remote schema with the locally qualified schema for that exact prefix. Foreign-key and CHECK constraints must be enabled. Divergent schemas require reconciliation.
 
 Before any write, it retains a Time Travel bookmark and rechecks current source,
-CI and tag. Each missing index and its ledger row use one atomic D1 API batch;
+CI and tag. Each reviewed migration and its ledger row use one atomic D1 API batch;
 an in-flight marker is retained before invocation. There is no automatic retry
 of an unknown response. Afterward the exact ledger and complete schema must match,
 with global `quick_check=ok`, no foreign-key violations and enabled constraints.
@@ -255,10 +248,10 @@ before the next mutation. The 12 November 2026 local qualification exposed this
 boundary: sequential authenticated reads behind the session proxy exhausted a
 shared deadline even though each phase completed within its own budget.
 
-It reuses the reviewed two-index migration guard and complete local transport
+It reuses the reviewed migration guard and complete local transport
 proof, checks hosted global integrity before any migration and again afterward,
 retains Time Travel bookmarks, and independently reads the exact schema, ledger,
-constraints and foreign keys. Resource refusal remains failure. Each index and
+constraints and foreign keys. Resource refusal remains failure. Each migration and
 its ledger row are one `wrangler d1 execute --command=<SQL>` operation. The SQL
 value is attached to `--command=` in a single argument, preserving leading SQL
 comments and the reviewed statements. Passing a separate value beginning with

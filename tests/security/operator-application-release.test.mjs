@@ -57,14 +57,23 @@ test("operator requires the exact reviewed installed Wrangler version", async ()
     );
 });
 
-const schema = [
-  { type: "table", name: "audit_log", sql: "CREATE TABLE audit_log(id TEXT)" },
-  ...plan.slice(80).map((entry, index) => ({
-    type: "index",
-    name: index ? "pdf_validation_history" : "approval_request_receipts",
-    sql: entry.batch[0].sql,
-  })),
-];
+const schemaAt = Object.fromEntries(
+  plan.slice(79).map((_, offset) => [
+    80 + offset,
+    [
+      {
+        type: "table",
+        name: "audit_log",
+        sql: "CREATE TABLE audit_log(id TEXT)",
+      },
+      {
+        type: "view",
+        name: "dispatch_price",
+        sql: `CREATE VIEW dispatch_price AS SELECT ${offset}`,
+      },
+    ],
+  ]),
+);
 function fixture(changes = {}) {
   const evidence = [];
   const writes = [];
@@ -107,7 +116,7 @@ function fixture(changes = {}) {
   };
   const request = async (operation, batch) => {
     if (operation === "bookmark") return "00000001-00000002-bookmark";
-    if (batch[0].sql.includes("CREATE INDEX")) {
+    if (batch.at(-1)?.sql.startsWith("INSERT INTO d1_migrations(")) {
       writes.push(batch);
       applied++;
       if (changes.lostResponse)
@@ -119,13 +128,7 @@ function fixture(changes = {}) {
       results: sql.startsWith("SELECT name")
         ? plan.slice(0, applied).map(({ name }) => ({ name }))
         : sql.startsWith("SELECT type")
-          ? schema.filter(
-              (row) =>
-                row.type === "table" ||
-                (row.name === "approval_request_receipts"
-                  ? applied >= 81
-                  : applied === 82),
-            )
+          ? schemaAt[applied]
           : sql === "PRAGMA foreign_keys"
             ? [{ foreign_keys: 1 }]
             : sql === "PRAGMA ignore_check_constraints"
@@ -162,7 +165,8 @@ function fixture(changes = {}) {
         schemaEquivalent: !changes.badTransport,
         quickCheck: "ok",
         foreignKeyViolations: 0,
-        schema,
+        schema: schemaAt[plan.length],
+        schemaAt,
       }),
       record: async (name, value) =>
         evidence.push({ name, value: structuredClone(value) }),
@@ -270,7 +274,13 @@ test("Wrangler parses the actual migration comment as SQL on a local read-only p
         .map((arg) => (arg === "--remote" ? "--local" : arg));
       return execFileSync(
         command,
-        [...localArgs, "--config", config, "--persist-to", join(directory, "state")],
+        [
+          ...localArgs,
+          "--config",
+          config,
+          "--persist-to",
+          join(directory, "state"),
+        ],
         {
           cwd: directory,
           encoding: "utf8",
@@ -287,7 +297,9 @@ test("Wrangler parses the actual migration comment as SQL on a local read-only p
       );
     },
   });
-  const result = await client("query", [{ sql: `${comment}SELECT 1 AS proof;` }]);
+  const result = await client("query", [
+    { sql: `${comment}SELECT 1 AS proof;` },
+  ]);
   assert.deepEqual(result[0].results, [{ proof: 1 }]);
 });
 test("implicit environment files, endpoint aliases and plaintext/log overrides fail closed", async () => {
@@ -378,7 +390,7 @@ test("active production publishers and incomplete inventories stop the operator"
 test("operator retains source-bound proofs, checks integrity before and after, and rechecks before publication", async () => {
   const f = fixture();
   await releaseWithOperator(f.options);
-  assert.equal(f.writes.length, 2);
+  assert.equal(f.writes.length, plan.length - 80);
   assert.deepEqual(
     f.writes,
     plan.slice(80).map(({ batch }) => batch),
@@ -416,7 +428,7 @@ test("slow valid qualification and publisher reads keep separate bounded deadlin
       });
     if (delays.succeeds) {
       await releaseWithOperator(f.options);
-      assert.equal(f.writes.length, 2);
+      assert.equal(f.writes.length, plan.length - 80);
       assert.equal(f.published(), 1);
     } else {
       await assert.rejects(

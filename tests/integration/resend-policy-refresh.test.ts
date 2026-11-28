@@ -62,16 +62,12 @@ beforeAll(async () => {
   legacyDb = (await mf.getD1Database("LEGACY")) as unknown as D1Database;
   const dir = new URL("../../migrations/", import.meta.url);
   for (const name of readdirSync(dir)
-    .filter((n) => /^\d{4}_.*\.sql$/.test(n) && Number(n.slice(0, 4)) <= 67)
+    .filter((n) => /^\d{4}_.*\.sql$/.test(n))
     .sort()) {
     const sql = readFileSync(new URL(name, dir), "utf8");
     await apply(db, sql);
-    await apply(legacyDb, sql);
+    if (Number(name.slice(0, 4)) <= 67) await apply(legacyDb, sql);
   }
-  await apply(
-    db,
-    readFileSync(new URL("0070_resend_policy_maintenance.sql", dir), "utf8"),
-  );
 });
 afterAll(async () => {
   await mf?.dispose();
@@ -282,7 +278,6 @@ describe("genuine Resend maintenance", () => {
     },
   );
   it.each([
-    ["price", PRICE.replace("0.90", "1.00"), "PRICE_CHANGED"],
     [
       "domain",
       JSON.stringify({ id: "other", name: "guteneo.com", status: "verified" }),
@@ -362,7 +357,54 @@ describe("genuine Resend maintenance", () => {
     });
     expect(() =>
       parseResendPublicPrice(PRICE + PRICE.replace("0.90", "1.00")),
-    ).toThrow("PRICE_CHANGED");
+    ).toThrow("SOURCE_INVALID");
+  });
+  it("installs a changed public price, keeps it during an FX outage and independently renews verified capacity", async () => {
+    await member();
+    await refreshResendPolicies(env, {
+      fetcher: sources({ price: PRICE.replace("0.90", "1.125") }).fetcher,
+      now: () => NOW,
+    });
+    await ensureEmailSender(env, ctx, new Date(NOW).toISOString());
+    const current = await state();
+    expect(JSON.parse(String(current?.rate_json)).usdMicrosPerMessage).toBe(
+      1125,
+    );
+    const installed = await db
+      .prepare(
+        "SELECT rate_json FROM trusted_delivery_costs WHERE organization_id=? AND status='qualified'",
+      )
+      .bind(ctx.organizationId)
+      .first<{ rate_json: string }>();
+    expect(JSON.parse(installed!.rate_json).usdMicrosPerMessage).toBe(1125);
+
+    const later = NOW + 31 * 86400000;
+    const counts = await refreshResendPolicies(env, {
+      fetcher: sources({ fx: 503 }).fetcher,
+      now: () => later,
+    });
+    expect(counts).toMatchObject({
+      resendPoliciesRefreshed: 1,
+      resendPolicyRefreshFailed: 1,
+    });
+    expect(await state()).toMatchObject({
+      rate_json: current!.rate_json,
+      source_sha256: current!.source_sha256,
+      last_success_at: current!.last_success_at,
+      last_error_code: "SOURCE_UNAVAILABLE",
+    });
+    expect(await policy()).toMatchObject({
+      qualified_at_ms: later,
+      expires_at_ms: later + 30 * 86400000,
+    });
+    expect(
+      await db
+        .prepare(
+          "SELECT COUNT(*) n FROM resend_capacity_refresh_evidence WHERE account_id=?",
+        )
+        .bind(env.RESEND_ACCOUNT_ID)
+        .first(),
+    ).toEqual({ n: 1 });
   });
   it("uses a lease and exact policy compare to prevent concurrent cap changes being overwritten", async () => {
     const source = sources();
@@ -476,9 +518,9 @@ describe("genuine Resend maintenance", () => {
     });
     expect(await policy()).toEqual(original);
     const saved = await state();
-    expect(JSON.parse(saved!.blocked_reasons_json as string)).toEqual(
-      expect.arrayContaining(["DOMAIN_CHANGED", "PRICE_CHANGED"]),
-    );
+    expect(JSON.parse(saved!.blocked_reasons_json as string)).toEqual([
+      "DOMAIN_CHANGED",
+    ]);
     expect(saved!.qualified_until).toBeNull();
     expect(await readResendPolicyFreshness(env, NOW)).toMatchObject({
       universalBlocked: true,
@@ -534,7 +576,7 @@ describe("genuine Resend maintenance", () => {
       vi.useRealTimers();
     }
   });
-  it("does not let an unused automatic price contradiction block a selected manual policy, including explicit sender", async () => {
+  it("preserves a selected manual policy when the automatic price changes, including explicit sender", async () => {
     await member();
     await ensureEmailSender(env, ctx, new Date(NOW).toISOString());
     const old = await db
@@ -597,7 +639,7 @@ describe("genuine Resend maintenance", () => {
       ).results,
     ).toEqual(before.results);
     expect(await readResendPolicyFreshness(env, NOW)).toMatchObject({
-      automaticPriceBlocked: true,
+      automaticPriceBlocked: false,
       universalBlocked: false,
       limitsBlocked: false,
     });
@@ -776,7 +818,7 @@ describe("selection and deployment compatibility", () => {
       lastErrorCode: "POLICY_INVALID",
     });
   });
-  it("keeps strict legacy qualification before migration 0070, including an expired refusal", async () => {
+  it("keeps an existing legacy sender available after its commercial date passes", async () => {
     await member(legacyDb);
     const legacyEnv = { ...env, DB: legacyDb };
     expect(
@@ -791,7 +833,7 @@ describe("selection and deployment compatibility", () => {
         ctx,
         new Date(NOW).toISOString(),
       ),
-    ).toBeUndefined();
+    ).toBeDefined();
     await expect(
       ensureEmailSender(
         {

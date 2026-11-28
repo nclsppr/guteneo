@@ -2,7 +2,6 @@ import type { ProviderResult } from "../../../packages/providers";
 import {
   readResendPolicyState,
   resendPolicyContradictions,
-  isAutomaticResendPolicy,
 } from "./resend-policy-state";
 
 type Scope = {
@@ -39,22 +38,10 @@ export async function submitResendWithLimits(
   try {
     const qualification = await readResendPolicyState(db, scope.accountId);
     const contradictions = resendPolicyContradictions(qualification.state);
-    let independentPrice = false;
-    const manualPrice = async () => {
-      const policy = await db
-        .prepare(
-          "SELECT p.* FROM live_delivery_quotes q JOIN trusted_delivery_costs p ON p.organization_id=q.organization_id AND p.id=q.policy_id WHERE q.organization_id=? AND q.dispatch_id=? AND q.account_id=? AND q.provider='resend'",
-        )
-        .bind(scope.organizationId, scope.dispatchId, scope.accountId)
-        .first<Parameters<typeof isAutomaticResendPolicy>[0]>();
-      return !!policy && !(await isAutomaticResendPolicy(policy));
-    };
-    independentPrice = await manualPrice();
     const blockedCodes = [
       "DOMAIN_CHANGED",
       "BINDING_CHANGED",
       "CAPACITY_CHANGED",
-      ...(independentPrice ? [] : ["PRICE_CHANGED"]),
     ];
     if (contradictions.some((code) => blockedCodes.includes(code)))
       return denied("RESEND_QUALIFICATION_CHANGED");
@@ -102,9 +89,7 @@ export async function submitResendWithLimits(
     const latest = resendPolicyContradictions(
       (await readResendPolicyState(db, scope.accountId)).state,
     );
-    if (latest.includes("PRICE_CHANGED") && !independentPrice)
-      independentPrice = await manualPrice();
-    if (latest.some((code) => code !== "PRICE_CHANGED" || !independentPrice)) {
+    if (latest.some((code) => blockedCodes.includes(code))) {
       await db
         .prepare(
           "UPDATE resend_send_reservations SET status='rejected',completed_at_ms=? WHERE attempt_id=? AND organization_id=? AND dispatch_id=? AND account_id=? AND status='reserved'",

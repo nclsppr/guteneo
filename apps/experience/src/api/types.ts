@@ -122,8 +122,9 @@ export type Dispatch = {
   recipient_feedback?: "unsubscribed" | "reported" | null;
   faxPricing?: {
     ceilingMinor: number;
-    estimateMinMinor?: number;
-    estimateMaxMinor?: number;
+    estimatedLowNanoeur?: number;
+    estimatedHighNanoeur?: number;
+    referenceBasis?: string;
     executionScope?: string;
   } | null;
   activeSchedule?: {

@@ -2,14 +2,10 @@
 
 ## Automatic consumed-profile maintenance — 30 October 2026 candidate
 
-The ninety-day deadline qualifies the configured Pingen account/profile and the
-local price-calculator method policies. It is not the lifetime of a cached price:
-each letter still reads the exact analyzed provider draft and asks Pingen's live
-calculator for its current EUR amount. Its immutable quote lasts at most five
-minutes, bounded by the enclosing policy. No currency conversion or ECB reference
-is consumed in this postal calculation. The historical method/tax-source date
-therefore remains historical; an automatic profile inspection never relabels it
-as a newly observed supplier price.
+The ninety-day reference deadline schedules verification of the configured Pingen
+account/profile. Customers can prepare letters using an otherwise active
+configuration after that date. A prepared letter gets an independent, short
+customer quote under the [postal pricing rules](LIVE_DELIVERY_QUOTES.md#postal-analyzed-draft-and-calculator).
 
 Migration `0069_postal_policy_refresh.sql` adds bounded scheduling state only.
 `refreshPostalPolicies` considers one existing production organization per cron
@@ -29,8 +25,8 @@ wait, one atomic transaction rechecks the exact sender/declaration/generation an
 all old policy fields, preparation selection, lease and absence of affected active
 quotes. It retires only that exact predecessor policy set and inserts its new
 immutable generation. Old quote amounts, hashes and receipts are not rewritten.
-An expiry that prevents safe replacement remains closed rather than bypassing a
-commitment or retrying an uncertain communication.
+When a commitment defers replacement, the last usable price continues to serve
+new quotes until a fresh observation succeeds.
 
 The read-only `inspectPostalPolicyDeadline` reports the revision/deadline only
 for an exact active configuration actually consumed by postal preparation.
@@ -75,22 +71,22 @@ Pingen verification. Evidence retains `physical_address_verified=0`; UI says
 Declared by administrator. Other channels retain their checks.
 
 Identical repetition reuses sender. Revoked sender/policy and explicit channel
-shutdown are never reactivated. Policies expire after 90 days; the automatic
-consumed-profile path above maintains an unchanged active setup. Existing explicit
+shutdown are never reactivated. The automatic consumed-profile path above renews the 90-day commercial
+reference. A failed refresh leaves the declared sender available. Existing explicit
 renewal remains available for recovery, preserves the declaration and extends no
 approved quote. Then: exact PDF import → scan
 → postal check → review/transfer consent → `auto_send:false` draft → quote → send
 approval/confirmation. The legacy form supports FR/LU/DE. The unpublished 1.1.27
 [worldwide branch](POSTAL_WORLDWIDE.md) accepts complete printed blocks for all
 250 Pingen-recognized codes, independently checking fresh restrictions and the
-exact draft's actual price. Account default country governs profile/line layout,
+exact draft. Account default country governs profile/line layout,
 not a three-country destination allowlist. Physical returns are not promised.
 
 ## Price and provider proof
 
-The calculator prices the exact analyzed draft/paper/country/print mode/spectrum/
-speed. Customer price is twice returned EUR, integer cents, with eight separate
-combination policies. No fixture price or fixed historical LU test amount is installed.
+The [postal pricing rules](LIVE_DELIVERY_QUOTES.md#postal-analyzed-draft-and-calculator)
+cover the Pingen observation, customer fallback and commercial cache. Every amount
+is bound to a reviewed draft and selected print options.
 
 Basis `public_list_price_ex_tax`, method `pingen_price_calculator`, no FX. Pingen
 states delivery prices exclude VAT, handled at credit purchase. Sources reread
@@ -102,8 +98,8 @@ Ex-tax pricing establishes no Guteneo tax treatment/final invoice. Paid top-up s
 `0030_postal_public_pricing.sql` extends SQL ex-tax checks to EUR postal while
 preserving SES/history; `0031_postal_sender_declarations.sql` retains tenant-bound
 declarations. Approved fingerprint includes ex-tax basis. Connector reconstructs
-from validated quote, then rereads price/evidence before final PATCH. Changes,
-expiry or revocation block sending.
+from the validated quote and checks the current draft against that commitment
+before final PATCH. Changed draft/authority, quote expiry and revocation block sending.
 
 ## Publication and evidence
 

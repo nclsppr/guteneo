@@ -1,3 +1,4 @@
+import { faxDestinationPrefixes } from "./fax-destinations";
 import { canonicalJson, sha256 } from "../../../packages/domain/src/index";
 import { telnyxAccountReference } from "../../../packages/providers/telnyx-readiness";
 import { PingenPostalProvider } from "../../../packages/providers";
@@ -364,14 +365,8 @@ async function faxRuntime(
     return "unknown";
   const account = await telnyxAccountReference(env.TELNYX_PUBLIC_KEY);
   if (!account || account !== env.TELNYX_ACCOUNT_ID) return "unknown";
-  const prefixes = env.TELNYX_ALLOWED_PREFIXES?.split(",").map((value) =>
-    value.trim(),
-  );
-  if (
-    !prefixes?.length ||
-    prefixes.some((value) => !["+33", "+352", "+49"].includes(value))
-  )
-    return "unknown";
+  const prefixes = faxDestinationPrefixes(env);
+  if (!prefixes) return "unknown";
   return row.account_id === account &&
     row.connection_id === env.TELNYX_CONNECTION_ID &&
     (!usesProfile ||
@@ -411,6 +406,7 @@ async function faxRegistered(
     "fax_authority",
     "registered_fax:" + target.target_id,
   );
+  if (env.TELNYX_FAX_DESTINATIONS === "worldwide") return [tariff, authority];
   const source = await env.DB.prepare(
     "SELECT source.*,o.mode AS organization_mode,s.address AS sender_address,s.status AS sender_status,s.mode AS sender_mode,c.enabled AS channel_enabled,EXISTS(SELECT 1 FROM valid_fax_tariff_refresh_sources valid WHERE valid.organization_id=source.organization_id AND valid.id=source.id) AS valid_source FROM fax_tariff_refresh_sources source JOIN organizations o ON o.id=source.organization_id LEFT JOIN senders s ON s.organization_id=source.organization_id AND s.id=source.sender_id AND s.channel='fax' LEFT JOIN channel_controls c ON c.organization_id=source.organization_id AND c.channel='fax' WHERE source.organization_id=? AND source.id=?",
   )
@@ -494,6 +490,7 @@ async function faxManual(
     "fax_tariff",
     "manual_fax:" + target.target_id,
   );
+  if (env.TELNYX_FAX_DESTINATIONS === "worldwide") return [value];
   const row = await env.DB.prepare(
     "SELECT t.*,o.mode AS organization_mode,s.address AS sender_address,s.status AS sender_status,s.mode AS sender_mode,c.enabled AS channel_enabled FROM trusted_fax_usage_tariffs t JOIN organizations o ON o.id=t.organization_id LEFT JOIN senders s ON s.organization_id=t.organization_id AND s.id=t.sender_id AND s.channel='fax' LEFT JOIN channel_controls c ON c.organization_id=t.organization_id AND c.channel='fax' WHERE t.organization_id=? AND t.id=?",
   )
@@ -545,6 +542,7 @@ async function faxLegacy(
     "fax_tariff",
     "manual_legacy_fax:" + target.target_id,
   );
+  if (env.TELNYX_FAX_DESTINATIONS === "worldwide") return [value];
   const row = await env.DB.prepare(
     "SELECT t.*,o.mode AS organization_mode,s.address AS sender_address,s.status AS sender_status,s.mode AS sender_mode,c.enabled AS channel_enabled,EXISTS(SELECT 1 FROM trusted_fax_usage_tariffs v WHERE v.organization_id=t.organization_id AND v.sender_id=t.sender_id AND v.account_id=t.account_id AND v.connection_id=t.connection_id) AS v3_owned FROM trusted_fax_supplier_costs t JOIN organizations o ON o.id=t.organization_id LEFT JOIN senders s ON s.organization_id=t.organization_id AND s.id=t.sender_id AND s.channel='fax' LEFT JOIN channel_controls c ON c.organization_id=t.organization_id AND c.channel='fax' WHERE t.organization_id=? AND t.id=?",
   )
@@ -615,6 +613,12 @@ async function manualDelivery(
     .bind(target.organization_id, target.target_id)
     .first<Row>();
   if (!row) return null;
+  // This published customer tariff has no supplier freshness deadline.
+  if (
+    row.channel === "email" &&
+    row.source_reference === "guteneo:email:2026-09-21"
+  )
+    return [value];
   if (
     (await isAutomaticResend(row)) &&
     env.RESEND_SENDS_ENABLED === "true" &&

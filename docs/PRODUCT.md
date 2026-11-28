@@ -1,5 +1,11 @@
 # Guteneo product contract
 
+## Sending prices — November 2026
+
+Customers can prepare a fax to any international fax number. Guteneo estimates the price for the destination and sending profile from the Telnyx catalogue. It uses the last applicable reference during an outage. A destination without a reference can use the published EUR0.25 per page transport price. Every quote shows the maximum amount the customer can be charged. Delivery depends on the destination device and the carrier.
+
+For email, the first-use transport price is EUR1.56 per thousand recipients. For postal mail, Guteneo uses a recent calculator price or a stored price for the same letter configuration. When neither is available, Guteneo offers EUR2.50 per letter. These prices exclude tax. The customer reviews all applicable fees and the final quote. Guteneo absorbs any provider charge above the approved amount.
+
 ## Dedicated source copy for secure sharing — 5 November 2026 candidate
 
 The browser offers **Create a copy for this secure share** when a document's

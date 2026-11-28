@@ -1085,8 +1085,7 @@ describe("postal sender setup through current OAuth administrator authority", ()
     await refresh(p);
     const before = calls.length;
     expect(await getPostalSetupForMcp(p.identity, env)).toMatchObject({
-      configured: false,
-      reason: "pricing_expired",
+      configured: true,
       senderVerification: "administrator_declaration",
     });
     expect(await count("trusted_delivery_costs")).toBe(16);

@@ -100,6 +100,26 @@ export async function qualifyManualRelease(context, request) {
   };
 }
 
+// Pin the reviewed D1 batch bytes, including the final ledger INSERT.
+const priceMigrations = {
+  "0083_worldwide_fax_catalog.sql":
+    "f13822d8861af157dc7c5d43ebb7c18daf2842659c74a2f32967a0bae0a625f7",
+  "0084_fax_price_continuity.sql":
+    "5b41a1013f6d4f4d4693b1aff585b663d677444d8f0eeaf321bdc3d4e6a2fb8b",
+  "0085_delivery_price_continuity.sql":
+    "9f0fe8281b71da163952338fad0119f483f70fc3e7710d327c7c3a1eba68f9da",
+  "0086_postal_price_references.sql":
+    "a223760476549ff4e1f52c6b971353304786a1bce0d9d5c9da85e3b7b43ceb86",
+  "0087_resend_price_refresh.sql":
+    "f7644e457f1b5b86678edd13962d29456734cee7a85137ef711a0be2538c5773",
+};
+export function isReviewedPriceBatch(batch) {
+  const actual = createHash("sha256")
+    .update(batch.map(({ sql }) => sql).join("\n"))
+    .digest("hex");
+  return Object.values(priceMigrations).includes(actual);
+}
+export const reviewedMigrationCount = 82 + Object.keys(priceMigrations).length;
 const reviewedIndexes = [
   {
     name: "0081_approval_request_lookup.sql",
@@ -117,7 +137,7 @@ const normalizeSql = (sql) => sql.replace(/\s+/g, " ").trim().replace(/;$/, "");
 export function requireReviewedPlan(plan) {
   demand(
     Array.isArray(plan) &&
-      plan.length === 82 &&
+      plan.length === reviewedMigrationCount &&
       plan.every((entry, index) =>
         entry.name.startsWith(`${String(index + 1).padStart(4, "0")}_`),
       ),
@@ -138,12 +158,26 @@ export function requireReviewedPlan(plan) {
       "ONLY_REVIEWED_INDEX_MIGRATIONS_ALLOWED",
     );
   }
+  for (const entry of plan.slice(82)) {
+    const expected = priceMigrations[entry.name];
+    const actual = createHash("sha256")
+      .update(entry.batch.map(({ sql }) => sql).join("\n"))
+      .digest("hex");
+    demand(
+      expected &&
+        actual === expected &&
+        entry.transportSha256 === expected &&
+        entry.batch.at(-1)?.sql ===
+          `INSERT INTO d1_migrations(name) VALUES('${entry.name}');`,
+      "UNREVIEWED_PRICE_MIGRATION",
+    );
+  }
 }
 export function requireLedger(rows, plan) {
   demand(
     Array.isArray(rows) &&
       rows.length >= 80 &&
-      rows.length <= 82 &&
+      rows.length <= plan.length &&
       rows.every((row, index) => row.name === plan[index]?.name),
     "EXACT_MIGRATION_PREFIX_REQUIRED",
   );
@@ -174,12 +208,8 @@ function comparableSchema(rows) {
     );
 }
 export function requireSchema(rows, expected, applied) {
-  const absent = new Set(
-    reviewedIndexes.slice(applied - 80).map((entry) => entry.index),
-  );
-  const wanted = comparableSchema(expected).filter(
-    (row) => !absent.has(row.name),
-  );
+  demand(Array.isArray(expected?.[applied]), "SCHEMA_MISMATCH");
+  const wanted = comparableSchema(expected[applied]);
   const actual = comparableSchema(rows);
   demand(JSON.stringify(actual) === JSON.stringify(wanted), "SCHEMA_MISMATCH");
   return digest(actual);
@@ -264,7 +294,7 @@ const ledgerSql = "SELECT name FROM d1_migrations ORDER BY id";
 const schemaSql =
   "SELECT type,name,sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND name NOT GLOB '_cf_*' ORDER BY type,name";
 /** Schema first. A lost mutation response stops; inspect the ledger before rerun. */
-export async function migrateReviewedIndexes({
+export async function migrateReviewedSchema({
   plan,
   expectedSchema,
   request,
@@ -327,7 +357,7 @@ export async function migrateReviewedIndexes({
     await record(evidence);
   }
   const after = await inspect();
-  demand(after.applied === 82, "MIGRATION_READBACK_FAILED");
+  demand(after.applied === reviewedMigrationCount, "MIGRATION_READBACK_FAILED");
   const quick = await query("PRAGMA quick_check");
   demand(
     quick.length === 1 && quick[0].quick_check === "ok",
@@ -360,7 +390,7 @@ export function requireSchemaReceipt(schema, context, qualification) {
       schema.workflowRunId === qualification.workflowRunId &&
       schema.workflowRunAttempt === qualification.workflowRunAttempt &&
       schema.version === qualification.version &&
-      schema.after?.applied === 82 &&
+      schema.after?.applied === reviewedMigrationCount &&
       /^[a-f0-9]{64}$/.test(schema.after?.schemaSha256 ?? "") &&
       schema.quickCheck === "ok" &&
       schema.foreignKeyViolations === 0,
@@ -422,9 +452,9 @@ async function main(env) {
         Array.isArray(proof.schema),
       "LOCAL_MIGRATION_PROOF_REQUIRED",
     );
-    await migrateReviewedIndexes({
+    await migrateReviewedSchema({
       plan,
-      expectedSchema: proof.schema,
+      expectedSchema: proof.schemaAt,
       request: createD1Client(env.CLOUDFLARE_D1_MIGRATION_API_TOKEN),
       ensureCurrent: qualify,
       record: (evidence) =>
