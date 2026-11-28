@@ -1,5 +1,28 @@
 # Frontend loading and table controls
 
+## Customer prices and fax preparation — 28 November 2026
+
+Cold desktop Chromium 156 on macOS, 1440 × 900, French, local production builds
+with gzip and synthetic APIs. Each row is three fresh browser contexts with no
+network or CPU throttling. Requests include the document and API reads up to
+network idle. JavaScript bytes are compressed response bodies from Resource
+Timing. The last column is median time from navigation until the named element
+has a layout box, sampled on animation frames. Content lower on the page can
+require scrolling.
+
+| Route and first useful content | Requests | API reads | JS bytes | Median (range) |
+| --- | ---: | ---: | ---: | ---: |
+| Public `/pricing/` · fallback price rendered in the server-produced rate table | 61 | 1 | 469,635 | 63 ms (61–85) |
+| Correspondence fax preparation · international number input | 75 | 4 | 533,589 | 164 ms (164–170) |
+| Correspondence approval · fallback estimate and approval control | 68 | 3 | 481,567 | 150 ms (139–161) |
+| Gare `/counter?channel=fax` · international number input | 22 | 5 | 115,999 | 381 ms (367–457) |
+| Gare departure detail · quoted fax estimate on the ticket | 21 | 4 | 115,999 | 381 ms (380–386) |
+
+Gare used its intercepted station session fixture. The canonical frontend used
+local JSON session, list and immutable quote responses. The measurements end
+before approval or submission. Rate refresh runs on the Worker schedule, so
+these browser entries have no supplier-price HTTP dependency.
+
 ## Resumable dirty-navigation confirmation — 10 November 2026 candidate
 
 The shared dialog and pure confirmation controller add no third-party dependency,
