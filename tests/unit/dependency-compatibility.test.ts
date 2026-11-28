@@ -32,9 +32,13 @@ describe("Dependency compatibility across automatic updates", () => {
 
   it("refuses the SDK update while agents requires the earlier exact peer", async () => {
     const { manifest, lockfile } = await actualDependencies();
-    manifest.dependencies["@modelcontextprotocol/client"] = "2.4.0";
-    lockfile.packages["node_modules/@modelcontextprotocol/client"].version =
-      "2.4.0";
+    const dependency = "@modelcontextprotocol/client";
+    const peer =
+      lockfile.packages["node_modules/agents"].peerDependencies[dependency];
+    const [major, minor, patch] = peer.split(".").map(Number);
+    const updatedClient = `${major}.${minor}.${patch + 1}`;
+    manifest.dependencies[dependency] = updatedClient;
+    lockfile.packages[`node_modules/${dependency}`].version = updatedClient;
     expect(() => requireDependencyCompatibility(manifest, lockfile)).toThrow(
       "peer required by agents",
     );
