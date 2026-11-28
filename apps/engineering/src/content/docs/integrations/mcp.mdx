@@ -42,6 +42,24 @@ scopes, role, resource access and relevant authority revision. A package install
 DCR/CIMD advertisement, successful catalog scan or marketplace listing does not
 prove that the host completed OAuth or can transfer an attached PDF.
 
+## Maintain and test remote workflow skills
+
+The stateless MCP endpoint uses the 2026-07-28 protocol. In the 1.3.0 candidate
+the official SDK 2.4.0 advertises the Skills extension alongside tools and
+prompts. Skills list and read access uses the existing connection. The catalog
+contains packaged workflow documentation and its supporting Markdown.
+A reader can browse instructions for an operation even when their role cannot
+perform it. Each operation still checks current authority at execution.
+
+Edit the English workflows under `integrations/guteneo/skills`, register new
+files in the package allowlist and run `npm run sync:integrations`. The build
+produces one manifest per skill with byte lengths and SHA-256 digests. References
+must resolve inside that manifest. The SDK client contract test verifies each
+file over MCP. If a check fails, regenerate the catalog from its source and
+check the package with `npm run check:integrations`. A host handles skill
+approval and revalidation when a manifest changes. Qualify hosted skill
+discovery and loading separately from the local SDK tests.
+
 ## Build the journey from actual capabilities
 
 | Stage                     | Representative tools                                                                                 | Required distinction                                                       |

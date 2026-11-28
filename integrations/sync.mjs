@@ -4,6 +4,7 @@ import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 import { packageFiles } from "./package-files.mjs";
+import { buildSkillCatalog, skillCatalogFile } from "./mcp-skills.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 export const syncFile = "integrations/guteneo/mcp-contract.json";
@@ -87,7 +88,7 @@ async function fingerprint(projectRoot, files) {
   );
 }
 
-export async function integrationState(projectRoot = root) {
+async function integrationSnapshot(projectRoot) {
   const versions = await Promise.all(
     manifests.map(
       async (file) => (await json(join(projectRoot, file))).version,
@@ -102,11 +103,13 @@ export async function integrationState(projectRoot = root) {
     projectRoot,
     await sourceFiles(projectRoot),
   );
+  const skillCatalog = `${JSON.stringify(await buildSkillCatalog(projectRoot), null, 2)}\n`;
+  sources[skillCatalogFile] = digest(skillCatalog);
   const files = packageFiles
     .filter((file) => file !== "mcp-contract.json")
     .map((file) => `integrations/guteneo/${file}`)
     .sort();
-  return {
+  const contract = {
     schemaVersion: 1,
     pluginVersion: versions[0],
     mcpSourceSha256: digest(JSON.stringify(sources)),
@@ -115,10 +118,16 @@ export async function integrationState(projectRoot = root) {
     ),
     sources,
   };
+  return { contract, skillCatalog };
+}
+
+export async function integrationState(projectRoot = root) {
+  return (await integrationSnapshot(projectRoot)).contract;
 }
 
 export async function validateIntegrationSync(projectRoot = root) {
-  const current = await integrationState(projectRoot);
+  const { contract: current, skillCatalog } =
+    await integrationSnapshot(projectRoot);
   let saved;
   try {
     saved = await json(join(projectRoot, syncFile));
@@ -132,11 +141,17 @@ export async function validateIntegrationSync(projectRoot = root) {
     throw new Error(
       `ChatGPT plugin is stale relative to the MCP or package files. ${guidance}`,
     );
+  if (
+    (await readFile(join(projectRoot, skillCatalogFile), "utf8")) !==
+    skillCatalog
+  )
+    throw new Error(`MCP skill catalog is stale. ${guidance}`);
   return current;
 }
 
 export async function syncIntegrationPackage(projectRoot = root) {
-  const current = await integrationState(projectRoot);
+  const { contract: current, skillCatalog } =
+    await integrationSnapshot(projectRoot);
   let previous;
   try {
     previous = await json(join(projectRoot, syncFile));
@@ -151,6 +166,7 @@ export async function syncIntegrationPackage(projectRoot = root) {
     throw new Error(
       `Changed MCP/plugin content requires a higher plugin version. ${guidance}`,
     );
+  await writeFile(join(projectRoot, skillCatalogFile), skillCatalog);
   await writeFile(
     join(projectRoot, syncFile),
     `${JSON.stringify(current, null, 2)}\n`,

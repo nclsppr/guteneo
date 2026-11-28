@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { packageFiles } from "../../integrations/package-files.mjs";
+import { skillCatalogFile } from "../../integrations/mcp-skills.mjs";
 import {
   syncFile,
   syncIntegrationPackage,
@@ -45,7 +46,13 @@ async function fixture(t) {
   for (const file of packageFiles.filter(
     (file) => file !== "mcp-contract.json",
   ))
-    await put(root, `integrations/guteneo/${file}`, `fixture ${file}\n`);
+    await put(
+      root,
+      `integrations/guteneo/${file}`,
+      file.endsWith("/SKILL.md")
+        ? `---\nname: ${file.split("/")[1]}\ndescription: Fixture skill.\n---\n\nFixture instructions.\n`
+        : `fixture ${file}\n`,
+    );
   await version(root, "0.3.4");
   return root;
 }
@@ -125,7 +132,7 @@ test("changed skill content, mismatched versions and version downgrades are reje
   await put(
     root,
     "integrations/guteneo/skills/get-started/SKILL.md",
-    "changed instructions\n",
+    "---\nname: get-started\ndescription: Fixture skill.\n---\n\nChanged instructions.\n",
   );
   await assert.rejects(validateIntegrationSync(root), /plugin is stale/);
   await assert.rejects(syncIntegrationPackage(root), /higher plugin version/);
@@ -172,4 +179,67 @@ test("pinned App resource metadata changes require a synchronized newer package"
   const after = await syncIntegrationPackage(root);
   assert.notEqual(after.mcpSourceSha256, before.mcpSourceSha256);
   assert.deepEqual(await validateIntegrationSync(root), after);
+});
+
+test("MCP skill references travel with each skill and share content by digest", async (t) => {
+  const root = await fixture(t);
+  const entry = "integrations/guteneo/skills/email/SKILL.md";
+  const source = await readFile(join(root, entry), "utf8");
+  await put(
+    root,
+    entry,
+    source + "[Transfer](../get-started/references/original-pdf-transfer.md)\n",
+  );
+  const current = await syncIntegrationPackage(root);
+  assert.ok(current.sources[skillCatalogFile]);
+  const catalog = JSON.parse(
+    await readFile(join(root, skillCatalogFile), "utf8"),
+  );
+  const email = catalog.skills.find(
+    (skill) => skill.frontmatter.name === "email",
+  );
+  const gettingStarted = catalog.skills.find(
+    (skill) => skill.frontmatter.name === "get-started",
+  );
+  const localUri = new URL("references/original-pdf-transfer.md", email.uri)
+    .href;
+  const localReference = email.resources.find(
+    (resource) => resource.uri === localUri,
+  );
+  const canonicalReference = gettingStarted.resources.find((resource) =>
+    resource.uri.endsWith("/original-pdf-transfer.md"),
+  );
+  assert.equal(localReference.digest, canonicalReference.digest);
+  const instructions =
+    catalog.texts[
+      email.resources.find((resource) => resource.uri === email.uri).digest
+    ];
+  assert.match(
+    instructions,
+    /\[Transfer\]\(references\/original-pdf-transfer\.md\)/,
+  );
+  assert.equal(
+    catalog.texts[localReference.digest],
+    "fixture skills/get-started/references/original-pdf-transfer.md\n",
+  );
+
+  await put(root, skillCatalogFile, "{}");
+  await assert.rejects(validateIntegrationSync(root), /skill catalog is stale/);
+  await syncIntegrationPackage(root);
+  assert.deepEqual(await validateIntegrationSync(root), current);
+});
+
+test("MCP skills reject relative links to unbundled files", async (t) => {
+  const root = await fixture(t);
+  const entry = "integrations/guteneo/skills/email/SKILL.md";
+  const source = await readFile(join(root, entry), "utf8");
+  await put(
+    root,
+    entry,
+    source + "[Helper](../../scripts/upload-private-pdf.py)\n",
+  );
+  await assert.rejects(
+    syncIntegrationPackage(root),
+    /Unbundled link in MCP skill email/,
+  );
 });

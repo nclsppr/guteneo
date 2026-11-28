@@ -8,7 +8,7 @@ connector picker displays these fields; if a manual logo field is available,
 use [this canonical PNG](https://guteneo.com/brand/guteneo-mark.png). Installing a
 logo or package grants no account access or approval.
 
-This directory prepares candidate **1.1.33**. Package version, application
+This directory prepares candidate **1.3.0**. Package version, application
 capabilities and MCP server identity follow the same source version; the release
 fingerprint identifies actually served code. Building an archive updates neither
 the server nor a directory. The builder also emits the dedicated
@@ -25,6 +25,11 @@ end-to-end qualification, OpenAI approval nor directory publication. Installatio
 runs no code or local hook, and the package contains no credentials. Its optional
 exact-file helper runs only with explicit host and file permission; installation
 grants no filesystem access or network authority.
+
+Hosts that support remote skills can discover the same nine workflows on an
+authenticated MCP connection. Select the skill in the host and allow it to
+verify the Markdown and references it loads. Other hosts can use the workflows
+in this package. Check the permissions required by each tool before use.
 
 This candidate tightens state and recovery guards across private uploads, secure
 preparation, Studio and dispatch workflows. A lost response is not evidence that

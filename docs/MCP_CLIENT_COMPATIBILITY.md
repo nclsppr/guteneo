@@ -9,6 +9,29 @@ current qualification plan, not a claim that every client has passed. The dated
 Installation instructions live in [assistant setup](LLM_SETUP.md); the binary
 contract lives in [private PDF transport](PRIVATE_DOCUMENT_UPLOAD.md).
 
+## Remote workflow skills
+
+Guteneo 1.3.0 targets the stable MCP revision `2026-07-28` and uses the
+TypeScript SDK 2.4.0 Skills extension. Anthropic announced public beta support
+in Claude and Claude Code on 24 November 2026.
+[Protocol versioning](https://modelcontextprotocol.io/specification/versioning) ·
+[Anthropic host announcement](https://claude.com/resources/articles/skills-over-mcp-tasks-and-more)
+
+After OAuth, inspect `server/discover` for `io.modelcontextprotocol/skills`.
+A compatible host can list nine workflows with `skills/list`, get one manifest
+with `skills/get`, and read its files with `resources/read`. Each manifest covers
+the root Markdown file and every supporting reference, with byte sizes and
+SHA-256 digests. Hosts verify those bytes and apply their own skill approvals.
+A changed digest requires fresh verification. Hosts without remote skill support
+can use the existing package or MCP prompts.
+
+On 28 November 2026 the local Wrangler Worker, with simulated account services,
+returned nine skills and fourteen verified Markdown resources through authenticated
+HTTP. The same Worker negotiated `2025-11-25` and listed 84 ordinary tools.
+An anonymous request received the OAuth challenge. Hosted discovery and loading
+in the actual Claude or ChatGPT client require separate qualification.
+[Skills specification](https://github.com/modelcontextprotocol/ext-skills/blob/v0.1.0/specification/beta/skills.mdx)
+
 ## One service, independent client capabilities
 
 Use `https://guteneo.com/mcp` with Streamable HTTP and the authorization server

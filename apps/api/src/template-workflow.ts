@@ -2574,7 +2574,7 @@ export class TemplateWorkflowService {
     await this.authorize(ctx, true);
     const plan = await this.getDistribution(ctx, id);
     const authority = this.authorizationFence(ctx);
-    // Existing preparation alone: no approval, reservation, postal transfer, outbox or provider call.
+    // A postal preparation may read live Pingen pricing for an existing draft.
     for (const entry of plan.entries
       .filter(
         (entry) => distributionEntryDecision(entry, retryFailed) === "prepare",

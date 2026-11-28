@@ -136,15 +136,33 @@ async function login(organization) {
     organizationId: response.data.organization.id,
   };
 }
+const mcpProtocolVersion = "2026-07-28";
 async function mcp(token, method, params = {}) {
   return http("/mcp", {
     method: "POST",
     bearer: token,
     headers: {
       Accept: "application/json, text/event-stream",
-      "MCP-Protocol-Version": "2025-11-25",
+      "MCP-Protocol-Version": mcpProtocolVersion,
+      "Mcp-Method": method,
+      ...(method === "tools/call" ? { "Mcp-Name": params.name } : {}),
     },
-    body: { jsonrpc: "2.0", id: randomUUID(), method, params },
+    body: {
+      jsonrpc: "2.0",
+      id: randomUUID(),
+      method,
+      params: {
+        ...params,
+        _meta: {
+          "io.modelcontextprotocol/protocolVersion": mcpProtocolVersion,
+          "io.modelcontextprotocol/clientInfo": {
+            name: "guteneo-smoke",
+            version: "1",
+          },
+          "io.modelcontextprotocol/clientCapabilities": {},
+        },
+      },
+    },
   });
 }
 const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
@@ -306,6 +324,14 @@ try {
     tokenResponse.status === 200 && tokenResponse.data?.simulation === true,
   );
   const token = tokenResponse.data.token;
+  const discovery = await mcp(token, "server/discover");
+  check(
+    "mcp_protocol_discovery",
+    discovery.status === 200 &&
+      discovery.data?.result?.supportedVersions?.includes(mcpProtocolVersion) &&
+      discovery.data.result._meta?.["io.modelcontextprotocol/serverInfo"]
+        ?.name === "guteneo",
+  );
   const listed = await mcp(token, "tools/list");
   check(
     "actual_stateless_http_mcp_tools_list",

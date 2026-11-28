@@ -34,7 +34,7 @@ Contracts/packages and 1.1.6 publication have bounded actual Claude Desktop sele
 <li id="feature-aab059f7399a">Optional bounded expert delegation for one OAuth client; browser deep links use committed route selection and focus unavailable notices after navigation without disclosing foreign records or mutating authority</li>
 <li id="feature-53a874c4c708">Complete review replaces the previous token for this dispatch/connection; review_dispatch declares destructiveHint true</li>
 <li id="feature-d4b14eec2b6d">Only a browser administrator grants/revokes a mandate</li>
-<li id="feature-ea5265e7fea1">Six portable package workflows with English metadata, deterministic archives and inventory checks; portal review/publication remains separately evidenced</li>
+<li id="feature-3111470fac41">Nine portable workflows with English metadata and deterministic archives. Authenticated MCP clients can also discover the same journeys through the Skills extension, fetch a static file manifest and verify the Markdown resources against its SHA-256 digests</li>
 <li id="feature-a829c79594e7">Manual host-specific installation packages; downloading grants no OAuth consent</li>
 <li id="feature-bfb7c51de350">ChatGPT guide defaults to a generated plugin ZIP with a manual MCP alternative, shared across public/account views in four languages; native download links need no business API request or new authority</li>
 <li id="feature-f91330f47999">ChatGPT archive preconfigures its registered public OAuth client with no secret, custom-domain endpoints and existing scopes; the manual guide reads the same ID; stable callback requires exact issuer identification, while DCR/CIMD and actual host consent remain separately qualified</li>

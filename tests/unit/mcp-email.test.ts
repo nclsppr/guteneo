@@ -279,8 +279,8 @@ describe("email assistant contract", () => {
         const tool = tools.find((item) => item.name === "prepare_dispatch")!;
         expect(tool.annotations).toMatchObject({
           readOnlyHint: false,
-          destructiveHint: false,
-          openWorldHint: false,
+          destructiveHint: true,
+          openWorldHint: true,
           idempotentHint: false,
         });
         expect(

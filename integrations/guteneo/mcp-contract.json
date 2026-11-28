@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "pluginVersion": "1.2.8",
-  "mcpSourceSha256": "ee8271b548f9d90be06dfe2cc78a8e1bab171bdb44b7a4bdd8f7a90a8fa687e6",
-  "packageSha256": "31ea22b144f8562ff419f4a2424d301f759720b4717e0be630a64365bf91c36a",
+  "pluginVersion": "1.3.0",
+  "mcpSourceSha256": "e6a9fa62297951118f0c822fc288e42e0692496a811b7a2649c1bc371ec97ae9",
+  "packageSha256": "264ed21ced1246ca6269c947d760282d2a8dac7a801ca2cfb3a179243b58592c",
   "sources": {
     "apps/api/src/auth.ts": "638fdcca948ce6297c5618188b82d8f187d46981ed3cbca7921286df60a568e5",
     "apps/api/src/connection-observations.ts": "40278b9fab339e05949a04c2d2718348236e9362e944f95a4d2a3466c186fa24",
@@ -14,12 +14,13 @@
     "apps/api/src/expert-review-pages.ts": "7c25d31d26835a559d9c11f27dcc171f87a9be3a8601bbed2d2c786e8374bd75",
     "apps/api/src/expert-status.ts": "eb3a32798ac614e7a91839ca18ff752700408146323945da9089f81db74d3f7f",
     "apps/api/src/mcp-document-upload.ts": "02522866f3802c9aebb9894110936d3e45950b664a5192e02409191a6e022373",
+    "apps/api/src/mcp-skills.ts": "ba687c5016d9aa2c44fc8f1dc1aeb826ad0c58bf4761a74425ad3776188de729",
     "apps/api/src/mcp-ui-probe.ts": "ec64e9c872b38bbe10a9729a6edb7629330432f0adf54c5fd9eec1210fcaa3fa",
-    "apps/api/src/mcp.ts": "fc0ebf1e1c08f4b048b60b379d72d16aeac13db28548e0c3a70ba3f3a6f923a9",
+    "apps/api/src/mcp.ts": "cc8d0d08e9de5cdb89bfe0b2d784853586204b87769c1e6e01d4348849d8b738",
     "apps/api/src/postal-address-page.ts": "0136e864e9f2611932a6540c1ac093add1a107a60e5b135b25c38be6c1bfd2e6",
     "apps/api/src/postal-authority.ts": "69dc7155a56311b7927416b90acf3577417b30f0ca410e3f815530c1b29b7e98",
     "apps/api/src/saved-recipients.ts": "f9bde0f3851e684bc0b63b19ca0a7fc5584942eaa2bba460cbb0d1fb6a0339ae",
-    "apps/api/src/template-workflow.ts": "322b14d9ae2d94f2bba458633134a511496b3e04a1e76e9c3a8a9e3c116765f3",
+    "apps/api/src/template-workflow.ts": "b5c8148547c75a5b2c370f9ae91a523ccfa578e37778021cab8a2e4031b852ec",
     "packages/contracts/src/assistant-recovery.ts": "cd0762f569d232597e58426240a2e9316eccac70d08f4c3e753e31ff6ec69f09",
     "packages/contracts/src/content.ts": "ac570f2a20af9881de4b3c90dd3abe5fecc8c2db6b34d093bbc04543c7bb8433",
     "packages/contracts/src/datasets.ts": "7344834c6109d99a663fb32ce90e597a4f7841183d178bde1f8712250b16c34f",
@@ -42,6 +43,7 @@
     "packages/contracts/src/secure-distribution.ts": "5393fb5c0813c8346a0def96e0c0016d931d3bcb22407fac86b7d92ed5f4e64e",
     "packages/contracts/src/template-workflow.ts": "5a2c345b307bd33b583b8ccca81daac167025980fa0baf5090b1e4957d6aed7a",
     "packages/domain/src/index.ts": "1142f94d8ddef94dd3831b29f6bbf05d3af57a31b658ec42743b65d5d1daa9f8",
-    "packages/observability/src/index.ts": "eb78d263cbe05d4f1e6a43391f43d6b1bf5fd7412466940035f97aed1cb65301"
+    "packages/observability/src/index.ts": "eb78d263cbe05d4f1e6a43391f43d6b1bf5fd7412466940035f97aed1cb65301",
+    "packages/contracts/src/mcp-skills.json": "9b6ee7848c66e16406064619ab362c6d0befe7f9a3131d70cb64e908f1abf050"
   }
 }
