@@ -35,6 +35,13 @@ The response must match the expected hash/profile, pinned validator and complete
 rule totals. Time, stream/chunk size and retained findings are bounded. Replaying
 an already handled idempotent request does not start a second engine run.
 
+In MCP, `get_pdf_validation` lists a visible document's completed reports
+under `documents:read`. To retrieve a particular report, supply its original
+document ID, profile and request key to `get_pdf_validation_by_key`. This lookup
+retains `documents:write`. A missing request directs the caller to the browser
+purchase flow. For existing client configurations, see the
+[lookup and migration contract](https://github.com/nclsppr/guteneo/blob/main/docs/PDF_ACCESSIBILITY.md#retrieve-one-report-by-request-key).
+
 The private validator operates on a temporary exact original without runtime
 network access. Reports keep allowed rule identifiers and counters, not arbitrary
 PDF text, snippets, raw engine output or customer content in logs.

@@ -11,11 +11,7 @@ import {
   sha256,
   type ActorContext,
 } from "../../packages/domain/src/index";
-import {
-  hashSecret,
-  authenticateMcp,
-  type McpIdentity,
-} from "../../apps/api/src/auth";
+import { hashSecret, authenticateMcp } from "../../apps/api/src/auth";
 import {
   getPdfValidationPricing,
   expirePdfValidations,
@@ -249,10 +245,7 @@ async function tenantPeer(
   return { userId, authority };
 }
 
-async function diagnosticClient(
-  f: Awaited<ReturnType<typeof fixture>>,
-  userId: string,
-) {
+async function diagnosticToken(organizationId: string, userId: string) {
   const token = `gtn_dev_${key()}`;
   await DB.prepare(
     "INSERT INTO development_mcp_tokens(token_hash,user_id,organization_id,expires_at) VALUES(?,?,?,?)",
@@ -260,10 +253,18 @@ async function diagnosticClient(
     .bind(
       await hashSecret(token),
       userId,
-      f.actor.organizationId,
+      organizationId,
       new Date(Date.now() + 3600_000).toISOString(),
     )
     .run();
+  return token;
+}
+
+async function diagnosticClient(
+  f: Awaited<ReturnType<typeof fixture>>,
+  userId: string,
+) {
+  const token = await diagnosticToken(f.actor.organizationId, userId);
   const identity = await authenticateMcp(
     new Request(`${origin}/mcp`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -290,7 +291,7 @@ async function diagnosticClient(
   const client = new Client({ name: "private-diagnostic-test", version: "1" });
   await server.connect(serverTransport);
   await client.connect(clientTransport);
-  return { client, server };
+  return { client, server, identity };
 }
 
 describe("immutable PDF diagnostics and explicit per-check purchases", () => {
@@ -724,7 +725,7 @@ describe("immutable PDF diagnostics and explicit per-check purchases", () => {
     try {
       expect(
         await own.client.callTool({
-          name: "validate_pdf",
+          name: "get_pdf_validation_by_key",
           arguments: {
             documentId: f.document.id,
             profile: "ua2",
@@ -754,7 +755,7 @@ describe("immutable PDF diagnostics and explicit per-check purchases", () => {
         try {
           for (const operation of [
             {
-              name: "validate_pdf",
+              name: "get_pdf_validation_by_key",
               arguments: {
                 documentId: f.document.id,
                 profile: "ua2",
@@ -1131,50 +1132,17 @@ describe("immutable PDF diagnostics and explicit per-check purchases", () => {
       purchase("ua1"),
       purchasedKey,
     );
-    const developmentToken = `gtn_dev_${crypto.randomUUID()}`;
-    await DB.prepare(
-      "INSERT INTO development_mcp_tokens(token_hash,user_id,organization_id,expires_at) VALUES(?,?,?,?)",
-    )
-      .bind(
-        await hashSecret(developmentToken),
-        f.actor.userId,
-        f.actor.organizationId,
-        new Date(Date.now() + 3600_000).toISOString(),
-      )
-      .run();
-    const identity: McpIdentity = await authenticateMcp(
-      new Request(`${origin}/mcp`, {
-        headers: { Authorization: `Bearer ${developmentToken}` },
-      }),
-      f.env,
+    const { client, server, identity } = await diagnosticClient(
+      f,
+      f.actor.userId,
     );
-    const server = createGuteneoMcpServer(identity, f.env, {
-      domain: f.domain,
-      documents: {} as never,
-      capabilities: () => ({}),
-      pdfValidation: {
-        validate: async (id, documentId, input, requestKey) =>
-          f.service.validate(
-            await postalMcpAuthority(id, f.env, "documents:write"),
-            documentId,
-            input,
-            requestKey,
-          ),
-        list: (id, documentId) => f.service.list(id.context, documentId),
-      },
-    });
-    const [clientTransport, serverTransport] =
-      InMemoryTransport.createLinkedPair();
-    const client = new Client({ name: "diagnostic-test", version: "1" });
-    await server.connect(serverTransport);
-    await client.connect(clientTransport);
     try {
       const { tools } = await client.listTools();
       const names = tools.map((tool) => tool.name);
       // An assistant can only replay an existing report, so the tool reads.
       // The connection's last-used time is connection metadata, not its effect.
       const validationTool = tools.find(
-        (tool) => tool.name === "validate_pdf",
+        (tool) => tool.name === "get_pdf_validation_by_key",
       )!;
       expect(validationTool.annotations).toEqual({
         title: validationTool.title,
@@ -1183,13 +1151,16 @@ describe("immutable PDF diagnostics and explicit per-check purchases", () => {
         idempotentHint: true,
         openWorldHint: false,
       });
-      expect(names).toContain("validate_pdf");
+      expect(validationTool.title).toBe(
+        "Get a PDF validation report by request key",
+      );
+      expect(names).not.toContain("validate_pdf");
       expect(names).toContain("get_pdf_validation");
       expect(names.some((name) => /billing|subscribe|plan/.test(name))).toBe(
         false,
       );
       const report = await client.callTool({
-        name: "validate_pdf",
+        name: "get_pdf_validation_by_key",
         arguments: {
           documentId: f.document.id,
           profile: "ua1",
@@ -1202,7 +1173,7 @@ describe("immutable PDF diagnostics and explicit per-check purchases", () => {
         data: { certification: false, manualReviewRequired: true },
       });
       const newPurchase = await client.callTool({
-        name: "validate_pdf",
+        name: "get_pdf_validation_by_key",
         arguments: {
           documentId: f.document.id,
           profile: "ua1",
@@ -1221,7 +1192,7 @@ describe("immutable PDF diagnostics and explicit per-check purchases", () => {
       );
       identity.scopes = ["documents:read"];
       const denied = await client.callTool({
-        name: "validate_pdf",
+        name: "get_pdf_validation_by_key",
         arguments: {
           documentId: f.document.id,
           profile: "ua1",
@@ -1235,6 +1206,129 @@ describe("immutable PDF diagnostics and explicit per-check purchases", () => {
       await server.close();
     }
   });
+  it.each(["2025-11-25", "2026-07-28"])(
+    "resolves the historical report lookup at the authenticated Worker on %s",
+    async (version) => {
+      const f = await fixture();
+      const purchasedKey = key();
+      const report = await f.service.validate(
+        f.authority,
+        f.document.id,
+        purchase("ua1"),
+        purchasedKey,
+      );
+      const token = await diagnosticToken(
+        f.actor.organizationId,
+        f.actor.userId,
+      );
+      const modern = version === "2026-07-28";
+      const post = (message: unknown, headers: Record<string, string> = {}) =>
+        worker.fetch(
+          new Request(`${origin}/mcp`, {
+            method: "POST",
+            headers: {
+              Host: "localhost:8787",
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json, text/event-stream",
+              "Content-Type": "application/json",
+              "MCP-Protocol-Version": version,
+              ...headers,
+            },
+            body: JSON.stringify(message),
+          }),
+          f.env,
+        );
+      const reportCall = (name: string, idempotencyKey: string) => ({
+        jsonrpc: "2.0",
+        id: name,
+        method: "tools/call",
+        params: {
+          name,
+          arguments: {
+            documentId: f.document.id,
+            profile: "ua1",
+            idempotencyKey,
+          },
+          ...(modern
+            ? {
+                _meta: {
+                  "io.modelcontextprotocol/protocolVersion": version,
+                  "io.modelcontextprotocol/clientCapabilities": {},
+                },
+              }
+            : {}),
+        },
+      });
+      const call = async (
+        name: string,
+        idempotencyKey: string,
+        headerName = name,
+      ) => {
+        const response = await post(
+          reportCall(name, idempotencyKey),
+          modern
+            ? {
+                "Mcp-Method": "tools/call",
+                "Mcp-Name": headerName,
+              }
+            : {},
+        );
+        const raw = await response.text();
+        const data = raw.split("\n").find((line) => line.startsWith("data:"));
+        return {
+          status: response.status,
+          ...JSON.parse(data ? data.slice(5) : raw),
+        };
+      };
+      for (const name of ["get_pdf_validation_by_key", "validate_pdf"]) {
+        expect(await call(name, purchasedKey)).toMatchObject({
+          status: 200,
+          result: { structuredContent: { ok: true, data: { id: report.id } } },
+        });
+        expect(await call(name, key())).toMatchObject({
+          status: 200,
+          result: {
+            isError: true,
+            structuredContent: {
+              error: {
+                code: "PDF_VALIDATION_BROWSER_PURCHASE_REQUIRED",
+              },
+            },
+          },
+        });
+      }
+      if (modern) {
+        expect(
+          await call("validate_pdf", purchasedKey, "get_pdf_validation_by_key"),
+        ).toMatchObject({ status: 400, error: expect.anything() });
+      } else {
+        const batch = await post([
+          { jsonrpc: "2.0", id: "catalogue", method: "tools/list", params: {} },
+          reportCall("validate_pdf", purchasedKey),
+          reportCall("get_pdf_validation_by_key", purchasedKey),
+        ]);
+        const raw = await batch.text();
+        expect(batch.status).toBe(200);
+        const messages = raw
+          .split("\n")
+          .filter((line) => line.startsWith("data:"))
+          .flatMap((line) => JSON.parse(line.slice(5)));
+        for (const name of ["validate_pdf", "get_pdf_validation_by_key"]) {
+          expect(messages.find((item) => item.id === name)).toMatchObject({
+            result: {
+              structuredContent: { ok: true, data: { id: report.id } },
+            },
+          });
+        }
+        const names = messages
+          .find((item) => item.id === "catalogue")
+          .result.tools.map((tool: { name: string }) => tool.name);
+        expect(names).toContain("get_pdf_validation_by_key");
+        expect(names).not.toContain("validate_pdf");
+      }
+      expect(f.fetch).toHaveBeenCalledTimes(1);
+    },
+  );
   it("never accepts zero-check conformance or leaked rule descriptions", () => {
     expect(
       privatePdfValidationResult.safeParse(

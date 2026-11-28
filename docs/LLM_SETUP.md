@@ -633,16 +633,13 @@ parallel copies. Start with `get_capabilities`; simulation never becomes a
 real send. Preserve immutable original bytes, exact recipient/options/price,
 current authority and stable idempotency.
 
-- **PDF/UA and PDF/A, current individual-purchase candidate:**
-  `validate_pdf`/`get_pdf_validation` inspect an imported `ready` original using
-  explicit PDF/UA-1, PDF/UA-2, PDF/A-1b, PDF/A-2b, PDF/A-3b
-  or PDF/A-4. Reports bind SHA-256 and reread without rerunning analysis.
-  New paid checks require the browser administrator’s explicit exact-PDF/profile
-  purchase. Assistants cannot create financial consent, make that purchase or
-  manage billing; current document-scoped history remains readable. veraPDF automated checks
-  still require human review and certify neither full accessibility nor legal
-  compliance. Candidate is production disabled, not host-qualified by package
-  presence. [Contract](PDF_ACCESSIBILITY.md), [current price and release contract](PDF_VERIFICATION_PRICING.md).
+- **PDF/UA and PDF/A reports:** `get_pdf_validation` lists completed reports
+  for one accessible document. With the original request key, use
+  `get_pdf_validation_by_key` to retrieve that report. A new verification
+  requires a browser administrator to accept the exact PDF, profile and price.
+  Automated findings still need human review. See the
+  [report lookup contract](PDF_ACCESSIBILITY.md#retrieve-one-report-by-request-key)
+  and the [pricing and release contract](PDF_VERIFICATION_PRICING.md).
 - **Email, candidate 0.3.0, 21 September 2026:** `email` prompt/skill use
   `prepare_dispatch` with `channel="email"`. Omit `documentId` for no file;
   otherwise use exact ready PDF. Protected links add

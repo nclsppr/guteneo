@@ -132,7 +132,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Manage workshop or members | Browser only | No | No | No | No |
 | Manage billing | Current browser administrator | No | No | No | No |
 | Purchase a PDF verification | Current browser administrator + exact purchase + PDF access | No | No | No | No financial consent; history read only |
-| Read/export PDF verification history | Current PDF access | Current PDF access | Current PDF access | Current PDF access | Current PDF access + documents:read |
+| Read/export PDF verification history | Current PDF access | Current PDF access | Current PDF access | Current PDF access | Current document access, with documents:read for the list or documents:write for the exact-key lookup |
 | Edit a shared template | Resource edit right | Resource edit right | Resource edit right | No | Current member + template scope + resource right; AI also requires current transfer consent/revision |
 | Publish/archive a template | Resource publish right | Resource publish right | Resource publish right | No | Current member + templates:publish + resource right |
 | Manage template sharing | Resource share right | Resource share right | Resource share right | No | Current member + templates:share + resource right; revocation disclosed |
@@ -1031,7 +1031,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 
 **Availability model:** capability-gated. Individual-purchase capability enabled in the 25 October release and observed on f946 main at 26 October 01:47 UTC; private hosted corpus, scanner, application configuration and actual customer purchase remain separate evidence. No new subscription or recurring renewal. See PDF_ACCESSIBILITY.md and PDF_VERIFICATION_PRICING.md.
 
-**Surfaces:** Web browser administrator purchases; REST and MCP retain current document-scoped history reads and cannot create assistant financial consent. Workspace-wide metadata history is browser-only; existing document-scoped MCP history remains unchanged.
+**Surfaces:** Browser administrators purchase through authenticated REST. MCP lists completed reports for one accessible document with documents:read. The exact-key lookup retains documents:write. Native callers and assistants cannot purchase. Workspace-wide metadata history is browser-only.
 
 - Individual exact-PDF/profile purchase from available account credits; current integer EUR price and excluding-tax terms come from the authenticated pricing endpoint
 - Current browser administrator alone accepts the immutable purchase; assistants, native callers and other members cannot create financial consent; the document preview reserves its frame through loading/rendering so price consent remains stationary, with no purchase from viewing or scrolling
@@ -1042,7 +1042,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Required human review; a valid report with failed conformance checks is billable, while operational failure is not a conformity verdict
 - One explicit activation flag, private validator and production scanner gates; activation after hosted qualification, never legal certification
 - PDF-accessibility exclusions apply to originals and existing reports; person-redacted recovery without web bypass
-- Same-key recovery for uncertain network responses does not purchase or execute twice; a new independent check requires a new explicit purchase
+- Exact request-key lookup returns a stored report for the same document, original hash and profile. New purchases require explicit browser administrator consent.
 - Browser-only workspace check history: at most50 metadata records per keyset page under current document-library visibility, existing rate budget, no-store and final browser authority; migration0082 adds a chronological tenant index. Reading never purchases or performs another check
 - Compact price/action offer with purchase conditions in a disclosure and one Choose a PDF action; an empty metadata history does not duplicate that action. History links return to the authorized document and keep operational errors distinct from conformance findings
 
@@ -1060,7 +1060,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 **MCP tools**
 
 - `get_pdf_validation`
-- `validate_pdf`
+- `get_pdf_validation_by_key`
 
 <a id="operations"></a>
 ### Operations and reliability
@@ -1485,11 +1485,11 @@ Read welcome/available/reserved/consumed balances → inspect the annual UTC con
 
 ### J13 · Purchase a PDF verification
 
-**Actor:** Current browser administrator for a purchase; current PDF reader for history. **Branch:** Operate.
+**Actor:** Current browser administrator for a purchase. Current PDF reader or scoped assistant for a stored report.. **Branch:** Operate.
 
-Read current capability and price from the single offer action; empty history adds no duplicate selection action → select the ready immutable PDF and PDF/UA or PDF/A profile → explicitly accept this exact purchase → reserve available account credit atomically → run the private engine → settle once for a complete valid report → inspect report/history/JSON and complete human review.
+Read current capability and price from the single offer action; empty history adds no duplicate selection action → select the ready immutable PDF and PDF/UA or PDF/A profile → explicitly accept this exact purchase → reserve available account credit atomically → run the private engine → settle once for a complete valid report → inspect report/history/JSON and complete human review. For an assistant follow-up with the original document, profile and request key, retrieve the stored result with get_pdf_validation_by_key.
 
-**Failure/recovery:** Require current PDF authority, browser administrator purchase consent, available credit and scanner/private validator. Engine failure creates no settled charge; a valid failing-conformance report is billable. Recover uncertain responses with the same key. A new check needs a new purchase. Existing reports retain their document access policy without monthly subscription.
+**Failure/recovery:** Require current PDF authority, browser administrator purchase consent, available credit and scanner/private validator. Engine failure creates no settled charge; a valid failing-conformance report is billable. Recover uncertain responses with the same key. A new check needs a new purchase. Existing reports retain their document access policy without monthly subscription. An unknown key directs the assistant to the browser. Conflicting inputs produce an error.
 
 [Detailed contract](PDF_ACCESSIBILITY.md).
 

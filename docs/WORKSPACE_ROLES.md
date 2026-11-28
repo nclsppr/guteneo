@@ -44,6 +44,11 @@ library ACL; another member's private sources remain hidden, including from an
 administrator. Processing and failed checks are distinct from completed reports.
 Reading history purchases no check and grants no certification; see
 [the validator contract](PDF_VALIDATOR.md#browser-workspace-history--10-november-2026-candidate).
+For an individual document, a connected assistant can list completed reports
+with `documents:read`. Retrieving one by its original request key retains
+`documents:write` and current document access. A new check requires the
+current browser administrator's exact purchase.
+[PDF report permissions and recovery](PDF_ACCESSIBILITY.md#retrieve-one-report-by-request-key)
 
 A schedule draft holds immediate approval and acceptance of its original. Source
 detail can project that hold's identifier, status, time and cap after the existing

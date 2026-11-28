@@ -377,8 +377,9 @@ clean/ready analysis. Qualify a requested prepare-only email independently and
 verify zero approval, outbox, provider-attempt, sending-quota/credit-reservation
 and charge effects. The upload's own reservation/receipt ledger is expected.
 Qualify that surface's 10 MiB boundary, cancellation/backgrounding, revocation and
-same-ID lost-response recovery on that surface. Neither step authorizes sending,
-a paid `validate_pdf`, a mandate, new consent or directory publication.
+same-ID lost-response recovery on that surface. Sending, a
+[paid PDF verification](PDF_ACCESSIBILITY.md#purchase-and-authority), a mandate,
+new consent and directory publication each require separate authority.
 
 ### Resource and cost maintenance
 

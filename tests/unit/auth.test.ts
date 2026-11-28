@@ -2514,11 +2514,13 @@ describe("actual stateless MCP transport with shared D1 domain", () => {
       const response = await mcpWorker(stream.req);
       const payload = await mcpPayload(response);
       expect(response.status, JSON.stringify(payload)).toBe(200);
-      expect(
-        payload.result.tools.some(
-          (tool: { name: string }) => tool.name === "render_pdf",
-        ),
-      ).toBe(true);
+      const names = payload.result.tools.map(
+        (tool: { name: string }) => tool.name,
+      );
+      expect(names).toEqual(
+        expect.arrayContaining(["render_pdf", "get_pdf_validation_by_key"]),
+      );
+      expect(names).not.toContain("validate_pdf");
       expect(response.headers.get("Cache-Control")).toBe("no-store");
       expect(response.headers.get("Access-Control-Allow-Origin")).toBe(origin);
       expect(stream.cancel).not.toHaveBeenCalled();

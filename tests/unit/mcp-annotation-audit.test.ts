@@ -226,7 +226,7 @@ describe("MCP annotation audit", () => {
         "create_postal_address_page",
         "transfer_postal_draft",
         "rescan_document",
-        "validate_pdf",
+        "get_pdf_validation_by_key",
         "get_pdf_validation",
         "delete_template",
         "get_template_authoring_guide",

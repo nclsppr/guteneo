@@ -30,9 +30,9 @@ and available controls.
    authenticated browser administrator to review the exact PDF, selected profile,
    current unit price and purchase terms in Guteneo, then approve that single
    purchase. Never approve, start or assert that purchase through assistant tools.
-   `validate_pdf` may only recover the same previously purchased request using
-   its original documentId, profile and idempotencyKey; a new key cannot inherit
-   consent. After an interrupted response, preserve that same key. When busy,
+   To retrieve one purchased report, call `get_pdf_validation_by_key` with the
+   original `documentId`, `profile` and `idempotencyKey`. Reuse that key after
+   an interrupted response. When busy,
    consult `get_pdf_validation` once; do not loop, reimport or start another
    check automatically. A service error is not a negative PDF verdict.
 4. Present the automated pass/fail, engine version, profile and failed-rule counts.
