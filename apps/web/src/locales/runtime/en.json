@@ -4374,7 +4374,10 @@
     "per page, fallback estimate excluding tax",
     "This estimate uses the last known rate for this destination.",
     "Guteneo estimated this fax at €0.25 per page excluding tax because the destination rate was unavailable.",
-    "This estimate reaches Guteneo’s maximum price of €10,000 excluding tax per fax. Your approved ceiling still applies."
+    "This estimate reaches Guteneo’s maximum price of €10,000 excluding tax per fax. Your approved ceiling still applies.",
+    "The fax number, sending profile or options are invalid.",
+    "A verified fax sender is required.",
+    "This fax route is unavailable."
   ],
   "messages": {
     "AI is unavailable until the provider, transfer permission and workshop quota are ready. You can create and edit your template manually.": 0,
@@ -8262,7 +8265,10 @@
     "par page, estimation de secours hors taxes": 3844,
     "Cette estimation utilise le dernier tarif connu pour cette destination.": 3845,
     "Le tarif de la destination étant indisponible, Guteneo estime ce fax à 0,25 € hors taxes par page.": 3846,
-    "Cette estimation atteint le prix maximal de Guteneo de 10 000 € hors taxes par fax. Le plafond que vous avez approuvé reste applicable.": 3847
+    "Cette estimation atteint le prix maximal de Guteneo de 10 000 € hors taxes par fax. Le plafond que vous avez approuvé reste applicable.": 3847,
+    "Le numéro de fax, le profil d’envoi ou les options sont invalides.": 3848,
+    "Un expéditeur de fax vérifié est requis.": 3849,
+    "Cette route de fax est indisponible.": 3850
   },
   "contexts": {
     "sender-setup\u0004Enable postal mail": "Enable postal mail",

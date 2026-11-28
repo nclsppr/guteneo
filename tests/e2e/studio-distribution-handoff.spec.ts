@@ -665,10 +665,12 @@ test("an old response stays obsolete after leaving and returning to the same pre
 }) => {
   const { state, releasePost } = await fixture(page, { holdPost: true });
   let releaseStudio!: () => void;
+  let studioRequested = false;
   const held = new Promise<void>((resolve) => {
     releaseStudio = resolve;
   });
   await page.route(/\/assets\/document-studio-[^/]+\.js$/, async (route) => {
+    studioRequested = true;
     await held;
     await route.continue().catch(() => undefined);
   });
@@ -687,6 +689,8 @@ test("an old response stays obsolete after leaving and returning to the same pre
     await page.getByRole("button", { name: "Fermer", exact: true }).click();
     await discardChanges(page);
     await expect(page).toHaveURL(/#\/app\/studio\/generation\//);
+    await expect.poll(() => studioRequested).toBe(true);
+    await expect(page.locator("#main-content")).toHaveAttribute("inert", "");
     await page.evaluate(
       (url) => {
         window.location.hash = url.split("#")[1];

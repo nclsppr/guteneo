@@ -4373,7 +4373,10 @@
     "par page, estimation de secours hors taxes",
     "Cette estimation utilise le dernier tarif connu pour cette destination.",
     "Le tarif de la destination étant indisponible, Guteneo estime ce fax à 0,25 € hors taxes par page.",
-    "Cette estimation atteint le prix maximal de Guteneo de 10 000 € hors taxes par fax. Le plafond que vous avez approuvé reste applicable."
+    "Cette estimation atteint le prix maximal de Guteneo de 10 000 € hors taxes par fax. Le plafond que vous avez approuvé reste applicable.",
+    "Le numéro de fax, le profil d’envoi ou les options sont invalides.",
+    "Un expéditeur de fax vérifié est requis.",
+    "Cette route de fax est indisponible."
   ],
   "messages": {
     "Skip to content": 0,
@@ -8242,6 +8245,9 @@
     "This estimate uses the last known rate for this destination.": 3844,
     "Guteneo estimated this fax at €0.25 per page excluding tax because the destination rate was unavailable.": 3845,
     "This estimate reaches Guteneo’s maximum price of €10,000 excluding tax per fax. Your approved ceiling still applies.": 3846,
+    "The fax number, sending profile or options are invalid.": 3847,
+    "A verified fax sender is required.": 3848,
+    "This fax route is unavailable.": 3849,
     "Changer d’espace": 120,
     "Ce modèle partagé sera retiré pour tous les membres de l’atelier.": 613,
     "L’IA est indisponible tant que le fournisseur, l’autorisation de transfert et le quota de l’atelier ne sont pas prêts. Vous pouvez créer et modifier votre modèle manuellement.": 835,

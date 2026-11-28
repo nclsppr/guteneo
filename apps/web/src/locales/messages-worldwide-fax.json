@@ -28,5 +28,20 @@
     "This estimate reaches Guteneo’s maximum price of €10,000 excluding tax per fax. Your approved ceiling still applies.",
     "Diese Schätzung erreicht den Höchstpreis von Guteneo von 10.000 € ohne Steuern pro Fax. Ihre genehmigte Obergrenze gilt weiterhin.",
     "Dës Schätzung erreecht de maximale Präis vu Guteneo vun 10.000 € ouni Steiere pro Fax. Den ieweschte Betrag, deen Dir guttgeheescht hutt, gëllt weider."
+  ],
+  "Le numéro de fax, le profil d’envoi ou les options sont invalides.": [
+    "The fax number, sending profile or options are invalid.",
+    "Die Faxnummer, das Sendeprofil oder die Optionen sind ungültig.",
+    "D’Faxnummer, de Sendeprofil oder d’Optioune sinn ongëlteg."
+  ],
+  "Un expéditeur de fax vérifié est requis.": [
+    "A verified fax sender is required.",
+    "Ein verifizierter Faxabsender ist erforderlich.",
+    "Et gëtt e verifizéierte Faxofsender gebraucht."
+  ],
+  "Cette route de fax est indisponible.": [
+    "This fax route is unavailable.",
+    "Diese Faxroute ist nicht verfügbar.",
+    "Dës Faxroute ass net disponibel."
   ]
 }
