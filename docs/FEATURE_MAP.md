@@ -2,7 +2,7 @@
 # Guteneo feature tree and developer atlas
 
 **29 domains · 528 features · 58 journeys · 97 documented REST operations · 92 MCP tools**
-Updated 2026-11-12.
+Updated 2026-11-28.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
 
@@ -114,6 +114,7 @@ Four human workshop roles are defined by packages/contracts/src/roles.ts. The as
 | Capability | Administrator | Supervisor | Operator | Observer | Connected assistant |
 | --- | --- | --- | --- | --- | --- |
 | Download an assistant installation archive | Public access; no membership required | Public access; no membership required | Public access; no membership required | Public access; no membership required | No OAuth consent, membership, mandate or sending authority from a download, displayed tool title, schema compatibility or directory listing |
+| Read a workflow skill over MCP | Through own authenticated connection | Through own authenticated connection | Through own authenticated connection | Through own authenticated connection | Read static workflow documentation with the current OAuth connection. Host approval governs loading. Tool calls still require their applicable scope, role and business authority. |
 | Use the gated MCP Apps diagnostic | Own eligible OAuth connection only | Own eligible OAuth connection only | Own eligible OAuth connection only | Own eligible OAuth connection only | Current production OAuth + documents:read + exact server-selected connection/revision/window; no content or business authority, with normal authentication/rate/activity accounting |
 | Activate the MCP Apps diagnostic | No authority from workshop role | No authority from workshop role | No authority from workshop role | No authority from workshop role | No; distinct authorized operator controls a bounded server setting, never an assistant tool or mandate |
 | Read accessible workshop content | Yes | Yes | Yes | Yes | Current member + consented scopes + document access |
@@ -832,7 +833,7 @@ Supervisor approval/reporting options are independent and off by default. Resour
 - Optional bounded expert delegation for one OAuth client; browser deep links use committed route selection and focus unavailable notices after navigation without disclosing foreign records or mutating authority
 - Complete review replaces the previous token for this dispatch/connection; review_dispatch declares destructiveHint true
 - Only a browser administrator grants/revokes a mandate
-- Six portable package workflows with English metadata, deterministic archives and inventory checks; portal review/publication remains separately evidenced
+- Nine portable workflows with English metadata and deterministic archives. Authenticated MCP clients can also discover the same journeys through the Skills extension, fetch a static file manifest and verify the Markdown resources against its SHA-256 digests
 - Manual host-specific installation packages; downloading grants no OAuth consent
 - ChatGPT guide defaults to a generated plugin ZIP with a manual MCP alternative, shared across public/account views in four languages; native download links need no business API request or new authority
 - ChatGPT archive preconfigures its registered public OAuth client with no secret, custom-domain endpoints and existing scopes; the manual guide reads the same ID; stable callback requires exact issuer identification, while DCR/CIMD and actual host consent remain separately qualified
@@ -1465,7 +1466,7 @@ Read accessible documents/dispatches → inspect tracking → use aggregate repo
 
 **Actor:** Existing Guteneo member and a host-supported OAuth client. **Branch:** Interfaces.
 
-Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or choose manual MCP with the supplied public client ID and empty secret when unavailable → compare package version/hash and actual tool titles/schemas/descriptions → follow the maintained workflow skills/prompts under actual host rules and consent OAuth → verify read-only account capabilities/current mandate → use only available file transport/tools → prepare → review through browser or pre-existing bounded delegation → track.
+Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or choose manual MCP with the supplied public client ID and empty secret when unavailable → compare package version/hash and actual tool titles/schemas/descriptions → consent to OAuth and discover supported MCP capabilities → select a workflow through the host, verify its files if served over MCP, or use the packaged skills and prompts → verify read-only account capabilities/current mandate → use only available file transport/tools → prepare → review through browser or pre-existing bounded delegation → track.
 
 **Failure/recovery:** Archive download/import, directory metadata or a portal scan creates no connection proof, extra role, scope or mandate. Directory publication and every-tool test attestation need separate evidence. Missing host upload support uses the manual guide; OAuth failures require the actual registered client/callback and exact issuer response; update stale imports and preserve reviewer identity, never use a shared token or advertise unavailable DCR. Announce excluded-content rules before collection and stop known excluded content. Respect host confirmations and no automatic unknown-outcome retries.
 

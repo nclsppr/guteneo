@@ -30,12 +30,10 @@ export async function synchronizeClaudeWorkflows({
       join(root, "guteneo/skills", name, "SKILL.md"),
       "utf8",
     );
-    let adapted = source
-      .replace(/^(---\n[\s\S]*?\n---\n)/, `$1\n${hostNotice}\n`)
-      .replaceAll(
-        "In ChatGPT and Codex workflows, before requesting content, explain",
-        "Before requesting content, explain",
-      );
+    let adapted = source.replace(
+      /^(---\n[\s\S]*?\n---\n)/,
+      `$1\n${hostNotice}\n`,
+    );
     if (name === "fax-pdf")
       adapted = adapted.replace(
         /In ChatGPT, use the exact host-provided file contract[\s\S]*?A local path or extracted text is not a remote download URL\./,

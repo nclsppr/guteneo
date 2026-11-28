@@ -64,7 +64,7 @@ No platform-content operator role is exposed through this identity module. Organ
 
 ## MCP interface
 
-The installed transport uses `agents/mcp/server.createMcpHandler` and `@modelcontextprotocol/server` 2.0.0. A new SDK server factory is used per request; business state lives in D1/R2. Origin and Host are restricted. Verified auth context is supplied using `handler.fetch(request,{authInfo})`; the handler itself does not verify tokens. No McpAgent, Durable Object or custom OAuth authorization server is introduced. [Cloudflare transport](https://developers.cloudflare.com/agents/model-context-protocol/protocol/transport/), [handler API](https://developers.cloudflare.com/agents/model-context-protocol/apis/handler-api/).
+The installed transport uses `createMcpHandler` from `agents/mcp/server` and `@modelcontextprotocol/server` 2.4.0. A new SDK server factory is used per request; business state lives in D1/R2. Origin and Host are restricted. Verified auth context is supplied using `handler.fetch(request,{authInfo})`; the handler itself does not verify tokens. No McpAgent, Durable Object or custom OAuth authorization server is introduced. [Cloudflare transport](https://developers.cloudflare.com/agents/model-context-protocol/protocol/transport/), [handler API](https://developers.cloudflare.com/agents/model-context-protocol/apis/handler-api/).
 
 Discovery: `/.well-known/oauth-protected-resource` and `/.well-known/oauth-protected-resource/mcp`; the authorization server is the configured Auth0 issuer. Missing bearer access returns a `WWW-Authenticate` discovery challenge. Tools use structured result/error envelopes and bounded pagination:
 

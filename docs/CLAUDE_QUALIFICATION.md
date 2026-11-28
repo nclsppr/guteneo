@@ -1,5 +1,15 @@
 # Claude client qualification
 
+## 28 November 2026 directory status
+
+The publisher's authenticated developer portal shows the Guteneo MCP connector
+**In review**. The review tab says the reviewer acts next. The listing was
+created on 26 October, and the Tools tab shows the 76 tools captured on that
+date. Those tools describe the submitted snapshot. The portal currently shows
+no request for changes. A later publication or actual host skill-loading test
+requires separate evidence.
+[Directory status definitions](https://claude.com/docs/directory/submission-status)
+
 ## Claude Desktop selected-original App — 26 October 2026
 
 Release **1.1.6**, source

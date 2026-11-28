@@ -1,6 +1,6 @@
 {
   "title": "Guteneo feature tree and developer atlas",
-  "updated": "2026-11-12",
+  "updated": "2026-11-28",
   "scope": "Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.",
   "roleNote": "Four human workshop roles are defined by packages/contracts/src/roles.ts. The assistant column describes a connected OAuth actor, never a fifth membership role. Effective membership, independent supervisor permissions, consented scopes and any bounded expert mandate are rechecked by the server. Installing a package or renewing tokens grants no additional authority. Browser-only account/platform controls remain distinct. Assistant content-exclusion instructions are workflow restrictions, not automatic classification or new server guards. Personal account authority is separate from workspace membership. Template/default email copy and link placeholders grant no approval or recipient consent. Sensitive approval and recipient association always require the browser under the active document policy; an expert mandate cannot replace them. Future_browser spending approval is separate from ordinary approval and expert delegation and has no assistant/native grant surface. Saved recipients require current preparation rights; webhook configuration/secrets require an actual current administrator browser session. Browser presentation and device-local drafts grant no authority.",
   "groups": [
@@ -800,7 +800,7 @@
         "Optional bounded expert delegation for one OAuth client; browser deep links use committed route selection and focus unavailable notices after navigation without disclosing foreign records or mutating authority",
         "Complete review replaces the previous token for this dispatch/connection; review_dispatch declares destructiveHint true",
         "Only a browser administrator grants/revokes a mandate",
-        "Six portable package workflows with English metadata, deterministic archives and inventory checks; portal review/publication remains separately evidenced",
+        "Nine portable workflows with English metadata and deterministic archives. Authenticated MCP clients can also discover the same journeys through the Skills extension, fetch a static file manifest and verify the Markdown resources against its SHA-256 digests",
         "Manual host-specific installation packages; downloading grants no OAuth consent",
         "ChatGPT guide defaults to a generated plugin ZIP with a manual MCP alternative, shared across public/account views in four languages; native download links need no business API request or new authority",
         "ChatGPT archive preconfigures its registered public OAuth client with no secret, custom-domain endpoints and existing scopes; the manual guide reads the same ID; stable callback requires exact issuer identification, while DCR/CIMD and actual host consent remain separately qualified",
@@ -1655,7 +1655,7 @@
       "id": "J10",
       "title": "Work with an assistant",
       "actor": "Existing Guteneo member and a host-supported OAuth client",
-      "steps": "Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or choose manual MCP with the supplied public client ID and empty secret when unavailable → compare package version/hash and actual tool titles/schemas/descriptions → follow the maintained workflow skills/prompts under actual host rules and consent OAuth → verify read-only account capabilities/current mandate → use only available file transport/tools → prepare → review through browser or pre-existing bounded delegation → track.",
+      "steps": "Choose the host-specific guide → for ChatGPT download/import the plugin ZIP or choose manual MCP with the supplied public client ID and empty secret when unavailable → compare package version/hash and actual tool titles/schemas/descriptions → consent to OAuth and discover supported MCP capabilities → select a workflow through the host, verify its files if served over MCP, or use the packaged skills and prompts → verify read-only account capabilities/current mandate → use only available file transport/tools → prepare → review through browser or pre-existing bounded delegation → track.",
       "branch": "Interfaces",
       "doc": "LLM_SETUP.md",
       "failure": "Archive download/import, directory metadata or a portal scan creates no connection proof, extra role, scope or mandate. Directory publication and every-tool test attestation need separate evidence. Missing host upload support uses the manual guide; OAuth failures require the actual registered client/callback and exact issuer response; update stale imports and preserve reviewer identity, never use a shared token or advertise unavailable DCR. Announce excluded-content rules before collection and stop known excluded content. Respect host confirmations and no automatic unknown-outcome retries."
@@ -2108,6 +2108,14 @@
       "Public access; no membership required",
       "Public access; no membership required",
       "No OAuth consent, membership, mandate or sending authority from a download, displayed tool title, schema compatibility or directory listing"
+    ],
+    [
+      "Read a workflow skill over MCP",
+      "Through own authenticated connection",
+      "Through own authenticated connection",
+      "Through own authenticated connection",
+      "Through own authenticated connection",
+      "Read static workflow documentation with the current OAuth connection. Host approval governs loading. Tool calls still require their applicable scope, role and business authority."
     ],
     [
       "Use the gated MCP Apps diagnostic",

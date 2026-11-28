@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewedOn": "2026-11-10",
+  "reviewedOn": "2026-11-28",
   "sourceScope": "local_candidate",
   "policySources": [
     {
@@ -26,13 +26,13 @@
       "annotations": {
         "readOnlyHint": false,
         "destructiveHint": false,
-        "openWorldHint": false,
+        "openWorldHint": true,
         "idempotentHint": false
       },
       "justification": {
         "readOnlyHint": "Persists an organization AI usage reservation and sends bounded profile samples for an explicitly requested proposal. A reserved call is not refunded if the provider fails. The proposal is not implicitly adopted. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
         "destructiveHint": "Returns a needs_review proposal without creating or replacing a template, mapping, or dataset; it increments the AI usage counter.",
-        "openWorldHint": "Uses the fixed OpenAI Responses API endpoint after organization configuration and browser-admin transfer approval; no arbitrary destination is accepted.",
+        "openWorldHint": "Sends bounded dataset samples to the independently operated OpenAI Responses API under the configured workspace transfer consent. The user cannot change the destination.",
         "idempotentHint": "A repeated proposal request reserves another AI call and may return a different proposal. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
       },
       "evidence": [
@@ -336,14 +336,14 @@
       "name": "configure_postal_sender",
       "annotations": {
         "readOnlyHint": false,
-        "destructiveHint": false,
-        "openWorldHint": false,
+        "destructiveHint": true,
+        "openWorldHint": true,
         "idempotentHint": false
       },
       "justification": {
         "readOnlyHint": "Records an authorized OAuth administrator's sender submission, account pricing policies and initial postal channel setup. An explicit repeat with the same sender may renew expired policies; it records old, already expired policies as revoked. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
-        "destructiveHint": "Does not replace an existing sender, revoke a currently usable quote, bypass an operator suspension, transfer a PDF or send mail. Renewal is restricted to an entirely expired policy set; quotes cannot outlive those policies and historical policy evidence remains stored. Initial setup adds the sender and policies under authorization fences.",
-        "openWorldHint": "Uses Guteneo state and reads only the fixed private Pingen account profile. It does not send a document or recipient address to an arbitrary destination.",
+        "destructiveHint": "Explicit renewal revokes the preceding expired set of pricing policies and installs replacement policies. The sender and previously issued valid quotes are preserved.",
+        "openWorldHint": "Inspects the authenticated account through the Pingen API to verify the postal profile used to configure or renew the sender.",
         "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
       },
       "evidence": [
@@ -431,14 +431,14 @@
       "name": "create_distribution_postal_preflight",
       "annotations": {
         "readOnlyHint": false,
-        "destructiveHint": false,
-        "openWorldHint": false,
+        "destructiveHint": true,
+        "openWorldHint": true,
         "idempotentHint": false
       },
       "justification": {
         "readOnlyHint": "Creates a private postal analysis for the exact manifest PDF, consumes analysis quota, and associates the review with the entry. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
-        "destructiveHint": "Adds a postal review and association while preserving the PDF and manifest; it does not approve, transfer, or send the document.",
-        "openWorldHint": "Uses Guteneo's existing private postal-analysis service for the fixed PDF; it performs no print-provider transfer or recipient communication.",
+        "destructiveHint": "Creates a durable postal preflight against the source document. The resulting legacy record permanently excludes this exact source document ID from a first secure distribution. A separate private copy is required to use secure delivery.",
+        "openWorldHint": "Invokes the postal PDF preflight for the selected batch entry, including the Pingen account-profile and destination-restriction reads.",
         "idempotentHint": "The supplied key and exact request reuse the postal preflight. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
       },
       "evidence": [
@@ -453,6 +453,18 @@
         {
           "path": "apps/api/src/connection-observations.ts",
           "symbol": "recordSuccessfulConnectionTool"
+        },
+        {
+          "path": "apps/api/src/secure-distributions.ts",
+          "symbol": "async assertSourceCanBecomeSensitive("
+        },
+        {
+          "path": "apps/api/src/postal.ts",
+          "symbol": "async qualifiedProfile("
+        },
+        {
+          "path": "apps/api/src/live-providers.ts",
+          "symbol": "async function assertPostalDestinationAvailable("
         }
       ]
     },
@@ -489,14 +501,14 @@
       "name": "create_postal_address_page",
       "annotations": {
         "readOnlyHint": false,
-        "destructiveHint": false,
-        "openWorldHint": false,
+        "destructiveHint": true,
+        "openWorldHint": true,
         "idempotentHint": false
       },
       "justification": {
         "readOnlyHint": "Persists an address-page generation, consumes rendering allowance and stores a separate PDF with its own document analysis. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
-        "destructiveHint": "Preserves the original and adds a separate PDF. Cleanup deletes only this generation's temporary render artifact after the final PDF has been registered, not a retained user document. It does not create approval, transfer a provider draft or send mail.",
-        "openWorldHint": "Uses the authorized private original, fixed internal renderer and configured private Pingen profile; it does not upload to the print provider or fetch an arbitrary domain.",
+        "destructiveHint": "Records a permanent derivation and preserves the original bytes. The resulting legacy record permanently excludes this exact source document ID from a first secure distribution. A separate private copy is required to use secure delivery.",
+        "openWorldHint": "Reads the authenticated Pingen account profile to lay out the address page. Guteneo renders and stores the derived PDF.",
         "idempotentHint": "The same key and exact generation parameters reuse the existing address-page generation. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
       },
       "evidence": [
@@ -511,6 +523,14 @@
         {
           "path": "apps/api/src/connection-observations.ts",
           "symbol": "recordSuccessfulConnectionTool"
+        },
+        {
+          "path": "apps/api/src/secure-distributions.ts",
+          "symbol": "async assertSourceCanBecomeSensitive("
+        },
+        {
+          "path": "apps/api/src/postal.ts",
+          "symbol": "async qualifiedProfile("
         }
       ]
     },
@@ -1192,7 +1212,7 @@
       "justification": {
         "readOnlyHint": "Reads the configured postal profile and fixed official public destination restrictions; creates no draft, uploads no PDF and changes no business data. Connection activity is separate access metadata.",
         "destructiveHint": "Does not modify provider account settings, layout rules or any PDF.",
-        "openWorldHint": "Reads the configured private Pingen account profile and the fixed official public Pingen delivery-restrictions article to verify current destination availability; no PDF is uploaded and no arbitrary URL or recipient is contacted.",
+        "openWorldHint": "Reads the authenticated Pingen account profile and its public restrictions bulletin to determine the current layout and delivery availability.",
         "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
@@ -1207,6 +1227,14 @@
         {
           "path": "apps/api/src/connection-observations.ts",
           "symbol": "recordSuccessfulConnectionTool"
+        },
+        {
+          "path": "apps/api/src/postal.ts",
+          "symbol": "async qualifiedProfile("
+        },
+        {
+          "path": "apps/api/src/live-providers.ts",
+          "symbol": "async function assertPostalDestinationAvailable("
         }
       ]
     },
@@ -1221,7 +1249,7 @@
       "justification": {
         "readOnlyHint": "Reads the existing account sender, configuration gates and the caller's configuration rights without renewing expired pricing or enabling a channel. The connection’s last-used time, which the MCP adapter refreshes after any successful call, is connection metadata rather than an effect of this tool.",
         "destructiveHint": "Does not change the sender, account setup, pricing policies, suspensions or transfer approval.",
-        "openWorldHint": "Limited to the authenticated organization's Guteneo postal setup and fixed configured provider context.",
+        "openWorldHint": "Reads the workspace sender, saved policy generations and channel controls from Guteneo storage. The Pingen profile stored at setup is not refreshed by this read.",
         "idempotentHint": "Repeating the call with the same arguments reads the current state again and changes nothing; the connection’s last-used time is connection metadata, not an effect of this tool."
       },
       "evidence": [
@@ -1939,14 +1967,14 @@
       "name": "preflight_postal_pdf",
       "annotations": {
         "readOnlyHint": false,
-        "destructiveHint": false,
-        "openWorldHint": false,
+        "destructiveHint": true,
+        "openWorldHint": true,
         "idempotentHint": false
       },
       "justification": {
         "readOnlyHint": "Creates a persistent postal review and consumes a PDF-analysis allowance while checking the exact original, address and qualified postal profile. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
-        "destructiveHint": "Adds analysis and review evidence without altering the original PDF, approving a provider transfer or sending mail.",
-        "openWorldHint": "Uses a private PDF, internal rendering and the fixed configured Pingen profile; it does not deposit a PDF at Pingen or contact the recipient.",
+        "destructiveHint": "Creates a durable postal preflight against the source document. The resulting legacy record permanently excludes this exact source document ID from a first secure distribution. A separate private copy is required to use secure delivery.",
+        "openWorldHint": "Reads the authenticated Pingen profile and its public destination restrictions while preparing the postal check for this PDF.",
         "idempotentHint": "The same key and exact request reuse the postal review. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
       },
       "evidence": [
@@ -1961,6 +1989,18 @@
         {
           "path": "apps/api/src/connection-observations.ts",
           "symbol": "recordSuccessfulConnectionTool"
+        },
+        {
+          "path": "apps/api/src/secure-distributions.ts",
+          "symbol": "async assertSourceCanBecomeSensitive("
+        },
+        {
+          "path": "apps/api/src/postal.ts",
+          "symbol": "async qualifiedProfile("
+        },
+        {
+          "path": "apps/api/src/live-providers.ts",
+          "symbol": "async function assertPostalDestinationAvailable("
         }
       ]
     },
@@ -1968,14 +2008,14 @@
       "name": "prepare_dispatch",
       "annotations": {
         "readOnlyHint": false,
-        "destructiveHint": false,
-        "openWorldHint": false,
+        "destructiveHint": true,
+        "openWorldHint": true,
         "idempotentHint": false
       },
       "justification": {
         "readOnlyHint": "Persists a prepared dispatch and quote and may create draft protected-document hosting. Qualified production email preparation may provision the sender and pricing, enable the account email control under existing gates, revoke already expired automatic policies, and clear already expired protected-hosting secrets. It does not accept or send the dispatch. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
-        "destructiveHint": "Adds a preparation and optional draft hosting without replacing a live dispatch or original PDF. Housekeeping affects only already expired automatic policies and hosting secrets, which cannot authorize current access. It does not revoke valid access, approve or send the dispatch.",
-        "openWorldHint": "Limited to Guteneo records and bounded reads from the configured private delivery-provider account when needed for a quote. A recipient is stored as preparation data but is not contacted.",
+        "destructiveHint": "Preparing a secure invitation restricts the existing source PDF to its creator and eligible approvers and prevents its subsequent use in ordinary postal, fax and email delivery, including after failure or revocation. On legacy paths, a prepared dispatch can instead exclude the same document ID from secure distribution. Email setup may also revoke expired policies or clear expired hosting secrets.",
+        "openWorldHint": "For a qualified postal draft, requests live pricing from the Pingen calculator. The fax path uses stored tariff evidence, and email preparation does not contact the recipient.",
         "idempotentHint": "The same idempotency key deduplicates dispatch preparation. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
       },
       "evidence": [
@@ -1998,6 +2038,14 @@
         {
           "path": "apps/api/src/connection-observations.ts",
           "symbol": "recordSuccessfulConnectionTool"
+        },
+        {
+          "path": "apps/api/src/secure-distributions.ts",
+          "symbol": "async assertSourceCanBecomeSensitive("
+        },
+        {
+          "path": "apps/api/src/live-providers.ts",
+          "symbol": "quotePrepared("
         }
       ]
     },
@@ -2035,13 +2083,13 @@
       "annotations": {
         "readOnlyHint": false,
         "destructiveHint": true,
-        "openWorldHint": false,
+        "openWorldHint": true,
         "idempotentHint": false
       },
       "justification": {
         "readOnlyHint": "Persists an immutable PDF-hash, channel and recipient manifest, freezes the source generation job against further retries, and prepares individual dispatch records. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
-        "destructiveHint": "Creating the persistent distribution plan permanently prevents retryGeneration for the source job, including failed records excluded from this plan. The tool therefore removes an existing recovery path even though it retains original PDFs and inputs and does not approve or send any dispatch.",
-        "openWorldHint": "Creates records within Guteneo's configured delivery workflow; it does not submit a delivery request to a provider or send a message to the supplied recipients.",
+        "destructiveHint": "Creating the persistent distribution plan permanently prevents retryGeneration for the source job, including failed records excluded from this plan. The tool therefore removes an existing recovery path even though it retains original PDFs and inputs and does not approve or send any dispatch. The resulting legacy record permanently excludes this exact source document ID from a first secure distribution. A separate private copy is required to use secure delivery.",
+        "openWorldHint": "Prepares eligible entries using their frozen channel and options. An eligible postal entry can request an exact price from the Pingen calculator for its existing draft.",
         "idempotentHint": "The same key and exact request reuse the immutable distribution plan, but a replay calls resumeDistribution with retryFailed=true and may advance unfinished preparation entries. It is therefore not idempotent even before the common production connection-activity update."
       },
       "evidence": [
@@ -2064,6 +2112,14 @@
         {
           "path": "apps/api/src/template-workflow.ts",
           "symbol": "return this.resumeDistribution(ctx, prior.id, true)"
+        },
+        {
+          "path": "apps/api/src/live-providers.ts",
+          "symbol": "quotePrepared("
+        },
+        {
+          "path": "apps/api/src/secure-distributions.ts",
+          "symbol": "async assertSourceCanBecomeSensitive("
         }
       ]
     },
@@ -2077,8 +2133,8 @@
       },
       "justification": {
         "readOnlyHint": "Persists a fax preparation and quote. With renewalOf it creates a replacement linked to an eligible obsolete preparation and cancels that earlier preparation. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
-        "destructiveHint": "The optional renewalOf path permanently cancels the prior prepared dispatch. The new quote is a separate preparation and any sendable quote requires a new approval; these guards do not remove the cancellation effect.",
-        "openWorldHint": "Prepares records inside Guteneo and uses configured pricing; it does not submit the PDF to the recipient or delivery provider.",
+        "destructiveHint": "The optional renewalOf path permanently cancels the prior prepared dispatch. The new quote is a separate preparation and any sendable quote requires a new approval; these guards do not remove the cancellation effect. The resulting legacy record permanently excludes this exact source document ID from a first secure distribution. A separate private copy is required to use secure delivery.",
+        "openWorldHint": "Reads qualified Telnyx rate evidence from the Guteneo database. Preparing or renewing the fax quote performs no Telnyx API request or fax transfer.",
         "idempotentHint": "The supplied key deduplicates preparation; renewal also has a stable key derived from the obsolete quote. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
       },
       "evidence": [
@@ -2097,6 +2153,14 @@
         {
           "path": "apps/api/src/connection-observations.ts",
           "symbol": "recordSuccessfulConnectionTool"
+        },
+        {
+          "path": "apps/api/src/secure-distributions.ts",
+          "symbol": "async assertSourceCanBecomeSensitive("
+        },
+        {
+          "path": "packages/domain/src/live-fax-quotes.ts",
+          "symbol": "async function resolveFaxTariff("
         }
       ]
     },
@@ -2104,13 +2168,13 @@
       "name": "prepare_secure_distribution",
       "annotations": {
         "readOnlyHint": false,
-        "destructiveHint": false,
+        "destructiveHint": true,
         "openWorldHint": false,
         "idempotentHint": false
       },
       "justification": {
         "readOnlyHint": "Persists an immutable preparation, bounded rendering work and the retention quote; it does not activate access, reserve a final charge or contact the recipient. A validated successful production result may also advance the connection last-successful-use timestamp.",
-        "destructiveHint": "Adds a preparation without replacing source bytes, approving or sending.",
+        "destructiveHint": "Preparing a secure invitation restricts the existing source PDF to its creator and eligible approvers and prevents its subsequent use in ordinary postal, fax and email delivery, including after failure or revocation.",
         "openWorldHint": "Uses the authorized workshop PDF and private rendering/storage services; no arbitrary destination or recipient contact.",
         "idempotentHint": "A stable business key reuses the preparation; retries do not make the complete observed operation effect-free. A validated successful production result may also advance the connection last-successful-use timestamp."
       },
@@ -2126,6 +2190,10 @@
         {
           "path": "apps/api/src/connection-observations.ts",
           "symbol": "recordSuccessfulConnectionTool"
+        },
+        {
+          "path": "apps/api/src/secure-distributions.ts",
+          "symbol": "async assertSourceCanBecomeSensitive("
         }
       ]
     },
@@ -2191,13 +2259,13 @@
       "name": "publish_template",
       "annotations": {
         "readOnlyHint": false,
-        "destructiveHint": false,
+        "destructiveHint": true,
         "openWorldHint": false,
         "idempotentHint": false
       },
       "justification": {
         "readOnlyHint": "Adds an immutable published template version and updates the current-version pointer and revision. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
-        "destructiveHint": "Adds a new immutable version while retaining all earlier published versions and generated PDFs.",
+        "destructiveHint": "Publishing replaces the template’s current default version for future jobs that omit a version. The previous immutable versions and already bound jobs remain readable.",
         "openWorldHint": "Publishes only within the existing Guteneo template and its organization permissions, not to a public website or arbitrary recipient.",
         "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
       },
@@ -2221,13 +2289,13 @@
       "annotations": {
         "readOnlyHint": false,
         "destructiveHint": false,
-        "openWorldHint": false,
+        "openWorldHint": true,
         "idempotentHint": false
       },
       "justification": {
         "readOnlyHint": "Reads the existing provider draft and records a prepared dispatch with its exact quote, bounded by the previously reviewed document and options. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
         "destructiveHint": "Adds a dispatch preparation and quote without deleting the provider draft, creating send approval or dispatching postal mail.",
-        "openWorldHint": "Uses only the configured private provider account and existing draft, without a new arbitrary upload or recipient communication.",
+        "openWorldHint": "Rechecks the Pingen profile and live destination restrictions, then requests an exact price from the Pingen calculator for the existing draft.",
         "idempotentHint": "The supplied key deduplicates the resulting dispatch preparation. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
       },
       "evidence": [
@@ -2242,6 +2310,14 @@
         {
           "path": "apps/api/src/connection-observations.ts",
           "symbol": "recordSuccessfulConnectionTool"
+        },
+        {
+          "path": "apps/api/src/live-providers.ts",
+          "symbol": "quotePrepared("
+        },
+        {
+          "path": "apps/api/src/live-providers.ts",
+          "symbol": "async function assertPostalDestinationAvailable("
         }
       ]
     },
@@ -2336,14 +2412,14 @@
       "name": "resume_distribution",
       "annotations": {
         "readOnlyHint": false,
-        "destructiveHint": false,
-        "openWorldHint": false,
+        "destructiveHint": true,
+        "openWorldHint": true,
         "idempotentHint": false
       },
       "justification": {
         "readOnlyHint": "Prepares up to three remaining distribution entries and persists their dispatch identifiers or error status. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
-        "destructiveHint": "Adds missing preparations or retries explicitly selected failed preparations without replacing the immutable manifest or sending documents.",
-        "openWorldHint": "Runs Guteneo dispatch preparation against an existing private manifest and configured delivery workflow; it does not submit a delivery request, transfer a postal draft, or contact recipients.",
+        "destructiveHint": "A new prepared dispatch binds the source document to legacy delivery. The resulting legacy record permanently excludes this exact source document ID from a first secure distribution. A separate private copy is required to use secure delivery.",
+        "openWorldHint": "Prepares eligible entries using their frozen channel and options. An eligible postal entry can request an exact price from the Pingen calculator for its existing draft.",
         "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
       },
       "evidence": [
@@ -2358,6 +2434,14 @@
         {
           "path": "apps/api/src/connection-observations.ts",
           "symbol": "recordSuccessfulConnectionTool"
+        },
+        {
+          "path": "apps/api/src/live-providers.ts",
+          "symbol": "quotePrepared("
+        },
+        {
+          "path": "apps/api/src/secure-distributions.ts",
+          "symbol": "async assertSourceCanBecomeSensitive("
         }
       ]
     },
@@ -2548,13 +2632,13 @@
       "annotations": {
         "readOnlyHint": false,
         "destructiveHint": false,
-        "openWorldHint": false,
+        "openWorldHint": true,
         "idempotentHint": false
       },
       "justification": {
         "readOnlyHint": "Persists an organization AI usage reservation and requests a bounded proposal from the configured provider. A reserved call is not refunded if the provider fails. It does not save the proposed template changes. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
         "destructiveHint": "Returns a proposal for review without overwriting, publishing, or deleting the template; it increments the AI usage counter.",
-        "openWorldHint": "Uses the fixed OpenAI Responses API endpoint only after organization configuration and browser-admin transfer approval; it cannot select an arbitrary destination.",
+        "openWorldHint": "Sends the template proposal request to the independently operated OpenAI Responses API under the configured workspace transfer consent. The user cannot change the destination.",
         "idempotentHint": "A repeated proposal request reserves another AI call and may return a different proposal. Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
       },
       "evidence": [
@@ -2577,13 +2661,13 @@
       "annotations": {
         "readOnlyHint": false,
         "destructiveHint": true,
-        "openWorldHint": false,
+        "openWorldHint": true,
         "idempotentHint": false
       },
       "justification": {
         "readOnlyHint": "Records current delegated transfer authority and uploads the checked PDF and address to the configured private Pingen account as a draft with automatic sending disabled. When the production connection has current observation authority, a validated successful result also attempts to persist its last-successful-use timestamp, which is visible in connection verification.",
         "destructiveHint": "Starting a transfer irreversibly consumes this existing preflight's one-shot transfer attempt: the allowed state transitions never return to not_started, and even an unknown outcome cannot be retried. The operation also uploads the PDF and creates a durable draft in the configured private provider account with auto_send disabled. A bounded mandate, exact fingerprint and transfer gates are required; no letter is sent by this tool. This classification rests on permanent workflow closure, not merely on network access or an assumption about provider data retention.",
-        "openWorldHint": "Uploads only to the fixed authorized origins and private Pingen account configured for Guteneo. It does not accept an arbitrary destination or contact the postal recipient.",
+        "openWorldHint": "Transfers the checked PDF and address to the independently operated Pingen account and creates a provider draft with automatic mailing disabled.",
         "idempotentHint": "Repeated successful production calls can advance the persisted connection-activity timestamp, so the complete operation is not guaranteed to have no additional effect, even when its business result is reused."
       },
       "evidence": [
@@ -2606,6 +2690,10 @@
         {
           "path": "apps/api/src/connection-observations.ts",
           "symbol": "recordSuccessfulConnectionTool"
+        },
+        {
+          "path": "apps/api/src/live-providers.ts",
+          "symbol": "async function assertPostalDestinationAvailable("
         }
       ]
     },

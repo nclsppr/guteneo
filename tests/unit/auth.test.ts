@@ -2400,6 +2400,42 @@ describe("actual stateless MCP transport with shared D1 domain", () => {
     const data = text.split("\n").find((line) => line.startsWith("data:"));
     return JSON.parse(data ? data.slice(5) : text);
   }
+  it("discovers the stable MCP revision without a handshake at the authenticated Worker entry", async () => {
+    const version = "2026-07-28";
+    const auth = await credential();
+    const message = mcpMessage("server/discover", {
+      _meta: {
+        "io.modelcontextprotocol/protocolVersion": version,
+        "io.modelcontextprotocol/clientInfo": {
+          name: "guteneo-test",
+          version: "1",
+        },
+        "io.modelcontextprotocol/clientCapabilities": {},
+      },
+    });
+    const stream = streamedMcpRequest(
+      auth.token,
+      [new TextEncoder().encode(message)],
+      {
+        version,
+        headers: { "Mcp-Method": "server/discover" },
+      },
+    );
+    const response = await mcpWorker(stream.req);
+    expect(response.status).toBe(200);
+    expect(await mcpPayload(response)).toMatchObject({
+      id: "bounded-request",
+      result: {
+        supportedVersions: expect.arrayContaining([version]),
+        capabilities: {
+          tools: {},
+          resources: {},
+          extensions: { "io.modelcontextprotocol/skills": {} },
+        },
+        _meta: { "io.modelcontextprotocol/serverInfo": { name: "guteneo" } },
+      },
+    });
+  });
   it.each([
     ["2025-11-25", "missing"],
     ["2025-11-25", "underdeclared"],

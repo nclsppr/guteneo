@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { Client } from "@modelcontextprotocol/client";
+import { SkillsClient } from "@modelcontextprotocol/client/ext/skills";
 import { InMemoryTransport } from "@modelcontextprotocol/server";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import {
@@ -171,6 +172,50 @@ async function call(
 }
 
 describe("distributable LLM integrations", () => {
+  it("discovers and verifies the remote workflows and each supporting file through MCP", async () => {
+    await connected(
+      async (client) => {
+        const remote = new SkillsClient(client);
+        expect(remote.supported).toBe(true);
+        const { skills } = await remote.list();
+        expect(skills.map((skill) => skill.frontmatter.name).sort()).toEqual([
+          "document-studio",
+          "email",
+          "fax-pdf",
+          "get-started",
+          "pdf-accessibility",
+          "postal-pdf",
+          "saved-recipients",
+          "scheduled-dispatch",
+          "secure-distribution",
+        ]);
+        for (const skill of skills) {
+          expect((await remote.get(skill.uri)).skill).toEqual(skill);
+          expect(skill.uri).toBe(
+            `skill://guteneo/${skill.frontmatter.name}/SKILL.md`,
+          );
+          if (skill.resources === "dynamic")
+            throw new Error("Expected a static manifest");
+          for (const file of skill.resources) {
+            const contents = await remote.read(skill, file.uri);
+            expect(contents.verified).toBe(true);
+            expect(contents.mimeType).toBe("text/markdown");
+            if (file.uri === skill.uri)
+              expect(contents.frontmatter).toEqual(skill.frontmatter);
+          }
+        }
+        const missing = "skill://guteneo/unknown/SKILL.md";
+        await expect(remote.get(missing)).rejects.toThrow();
+        await expect(client.readResource({ uri: missing })).rejects.toThrow();
+      },
+      {
+        ...identity,
+        scopes: [],
+        context: { ...identity.context, role: "viewer" },
+      },
+    );
+  });
+
   it("describes both existing JSON dataset root shapes without rewriting their original data", async () => {
     const importDataset = vi.fn(async () => {
       throw new DomainError(
@@ -948,19 +993,19 @@ describe("distributable LLM integrations", () => {
           cancel_dispatch_schedule: [false, true, false, false],
           get_postal_requirements: [true, false, true, true],
           get_postal_setup: [true, false, true, false],
-          configure_postal_sender: [false, false, false, false],
+          configure_postal_sender: [false, true, false, true],
           get_postal_preflight: [true, false, true, false],
           // Quote renewal cancels the superseded prepared dispatch.
           prepare_fax: [false, true, false, false],
-          prepare_dispatch: [false, false, false, false],
-          create_postal_address_page: [false, false, false, false],
-          preflight_postal_pdf: [false, false, false, false],
-          quote_postal_draft: [false, false, false, false],
+          prepare_dispatch: [false, true, false, true],
+          create_postal_address_page: [false, true, false, true],
+          preflight_postal_pdf: [false, true, false, true],
+          quote_postal_draft: [false, false, false, true],
           import_document: [false, false, false, true],
           render_pdf: [false, false, false, false],
           rescan_document: [false, false, false, false],
           review_dispatch: [false, true, false, false],
-          transfer_postal_draft: [false, true, false, false],
+          transfer_postal_draft: [false, true, false, true],
           approve_and_send_dispatch: [false, true, false, true],
           confirm_dispatch: [false, true, false, true],
           cancel_dispatch: [false, true, false, false],

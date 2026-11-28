@@ -320,79 +320,106 @@ describe("Cursor project-scoped local upload", () => {
     }
   });
 
-  it("serves initialize, tools/list and a rejected tools/call over real stdio without network", async () => {
-    const processChild = spawn(
-      process.execPath,
-      ["--import", "tsx", "scripts/cursor-upload.ts"],
-      {
-        cwd: process.cwd(),
-        env: { ...process.env, ...envFor() },
-        stdio: ["pipe", "pipe", "pipe"],
-      },
-    );
-    let buffered = "";
-    let diagnostic = "";
-    const pending = new Map<
-      number,
-      (message: Record<string, unknown>) => void
-    >();
-    processChild.stdout.on("data", (chunk: Buffer) => {
-      buffered += chunk.toString();
-      let newline;
-      while ((newline = buffered.indexOf("\n")) >= 0) {
-        const line = buffered.slice(0, newline);
-        buffered = buffered.slice(newline + 1);
-        if (line.trim()) {
-          const message = JSON.parse(line) as Record<string, unknown>;
-          if (typeof message.id === "number") {
-            pending.get(message.id)?.(message);
-            pending.delete(message.id);
+  it.each(["2026-07-28", "2025-11-25"])(
+    "serves %s discovery, tool listing and path validation over real stdio",
+    async (protocolVersion) => {
+      const modern = protocolVersion === "2026-07-28";
+      const clientInfo = { name: "guteneo-test", version: "1" };
+      const meta = {
+        "io.modelcontextprotocol/protocolVersion": protocolVersion,
+        "io.modelcontextprotocol/clientInfo": clientInfo,
+        "io.modelcontextprotocol/clientCapabilities": {},
+      };
+      const processChild = spawn(
+        process.execPath,
+        ["--import", "tsx", "scripts/cursor-upload.ts"],
+        {
+          cwd: process.cwd(),
+          env: { ...process.env, ...envFor() },
+          stdio: ["pipe", "pipe", "pipe"],
+        },
+      );
+      let buffered = "";
+      let diagnostic = "";
+      const pending = new Map<
+        number,
+        (message: Record<string, unknown>) => void
+      >();
+      processChild.stdout.on("data", (chunk: Buffer) => {
+        buffered += chunk.toString();
+        let newline;
+        while ((newline = buffered.indexOf("\n")) >= 0) {
+          const line = buffered.slice(0, newline);
+          buffered = buffered.slice(newline + 1);
+          if (line.trim()) {
+            const message = JSON.parse(line) as Record<string, unknown>;
+            if (typeof message.id === "number") {
+              pending.get(message.id)?.(message);
+              pending.delete(message.id);
+            }
           }
         }
-      }
-    });
-    processChild.stderr.on("data", (chunk: Buffer) => {
-      diagnostic += chunk.toString();
-    });
-    const request = (id: number, method: string, params: unknown) =>
-      new Promise<Record<string, unknown>>((resolve) => {
-        pending.set(id, resolve);
-        processChild.stdin.write(
-          `${JSON.stringify({ jsonrpc: "2.0", id, method, params })}\n`,
+      });
+      processChild.stderr.on("data", (chunk: Buffer) => {
+        diagnostic += chunk.toString();
+      });
+      const request = (id: number, method: string, params: unknown) =>
+        new Promise<Record<string, unknown>>((resolve) => {
+          pending.set(id, resolve);
+          processChild.stdin.write(
+            `${JSON.stringify({ jsonrpc: "2.0", id, method, params })}\n`,
+          );
+        });
+      try {
+        if (modern) {
+          const discovered = await request(1, "server/discover", {
+            _meta: meta,
+          });
+          expect(discovered.result).toMatchObject({
+            supportedVersions: expect.arrayContaining([protocolVersion]),
+            _meta: {
+              "io.modelcontextprotocol/serverInfo": {
+                name: "guteneo-local-documents",
+              },
+            },
+          });
+        } else {
+          const initialized = await request(1, "initialize", {
+            protocolVersion,
+            capabilities: {},
+            clientInfo,
+          });
+          expect(initialized.result).toMatchObject({ protocolVersion });
+          processChild.stdin.write(
+            `${JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" })}\n`,
+          );
+        }
+        const requestMeta = modern ? { _meta: meta } : {};
+        const listed = await request(2, "tools/list", requestMeta);
+        const listing = listed.result as {
+          tools: {
+            name: string;
+            inputSchema: { additionalProperties?: boolean };
+          }[];
+        };
+        expect(listing.tools.map((tool) => tool.name)).toEqual([
+          "upload_local_pdf",
+        ]);
+        expect(listing.tools[0].inputSchema.additionalProperties).toBe(false);
+        const called = await request(3, "tools/call", {
+          ...requestMeta,
+          name: "upload_local_pdf",
+          arguments: { path: "../outside.pdf" },
+        });
+        expect(called.result).toMatchObject({ isError: true });
+        expect(JSON.stringify(called.result)).toContain("PATH_DENIED");
+        expect(`${JSON.stringify(called)}${diagnostic}`).not.toContain(
+          config.accessToken,
         );
-      });
-    try {
-      const initialized = await request(1, "initialize", {
-        protocolVersion: "2025-11-25",
-        capabilities: {},
-        clientInfo: { name: "guteneo-test", version: "1" },
-      });
-      expect(initialized.error).toBeUndefined();
-      processChild.stdin.write(
-        `${JSON.stringify({ jsonrpc: "2.0", method: "notifications/initialized" })}\n`,
-      );
-      const listed = await request(2, "tools/list", {});
-      const listing = listed.result as {
-        tools: {
-          name: string;
-          inputSchema: { additionalProperties?: boolean };
-        }[];
-      };
-      expect(listing.tools.map((tool) => tool.name)).toEqual([
-        "upload_local_pdf",
-      ]);
-      expect(listing.tools[0].inputSchema.additionalProperties).toBe(false);
-      const called = await request(3, "tools/call", {
-        name: "upload_local_pdf",
-        arguments: { path: "../outside.pdf" },
-      });
-      expect(called.result).toMatchObject({ isError: true });
-      expect(JSON.stringify(called.result)).toContain("PATH_DENIED");
-      expect(`${JSON.stringify(called)}${diagnostic}`).not.toContain(
-        config.accessToken,
-      );
-    } finally {
-      processChild.kill();
-    }
-  }, 15000);
+      } finally {
+        processChild.kill();
+      }
+    },
+    15000,
+  );
 });

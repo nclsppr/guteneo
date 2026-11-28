@@ -122,9 +122,9 @@ describe("explicit postal address-page generation over MCP", () => {
         title: "Create a postal address page",
         annotations: {
           readOnlyHint: false,
-          destructiveHint: false,
+          destructiveHint: true,
           idempotentHint: false,
-          openWorldHint: false,
+          openWorldHint: true,
         },
         _meta: {
           securitySchemes: [{ type: "oauth2", scopes: ["documents:write"] }],

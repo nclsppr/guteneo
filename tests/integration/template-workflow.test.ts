@@ -3349,7 +3349,9 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
         "archive_template",
         "share_template",
         "cancel_generation_job",
+        "publish_template",
         "prepare_distribution",
+        "resume_distribution",
       ]) {
         expect(
           discovery.tools.find((tool) => tool.name === name)?.annotations,
@@ -3358,12 +3360,15 @@ describe("Persistent template workflow — local D1/R2 with explicitly synthetic
           readOnlyHint: false,
           destructiveHint: true,
           idempotentHint: false,
-          openWorldHint: false,
+          openWorldHint: ["prepare_distribution", "resume_distribution"].includes(name),
         });
+      }
+      for (const name of ["analyze_dataset", "suggest_template"]) {
+        expect(discovery.tools.find((tool) => tool.name === name)?.annotations, name)
+          .toMatchObject({ readOnlyHint: false, destructiveHint: false, openWorldHint: true });
       }
       for (const name of [
         "create_template",
-        "publish_template",
         "duplicate_template",
       ]) {
         expect(
