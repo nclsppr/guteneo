@@ -1,7 +1,7 @@
 <!-- Generated from feature-map.json by node docs/build-feature-map.mjs -->
 # Guteneo feature tree and developer atlas
 
-**29 domains · 518 features · 58 journeys · 97 documented REST operations · 92 MCP tools**
+**29 domains · 519 features · 58 journeys · 97 documented REST operations · 92 MCP tools**
 Updated 2026-11-28.
 
 Repository implementation inventory. Availability depends on current capabilities and authority; implementation, activation and deployed proof are distinct.
@@ -45,7 +45,7 @@ mindmap
       Engineering documentation (13)
       Codex Cloud development (8)
       Continuous reviewer preparation (6)
-      Automatic fax tariff maintenance (4)
+      Automatic fax tariff maintenance (5)
       Consumed provider freshness and preventive deadline actions (17)
     Web
       Gare browser experience (9)
@@ -94,7 +94,7 @@ mindmap
 - [Engineering documentation](#engineering-docs) — 13 features; public.
 - [Codex Cloud development](#cloud-development) — 8 features; local-candidate.
 - [Continuous reviewer preparation](#continuous-review) — 6 features; operator-gated.
-- [Automatic fax tariff maintenance](#fax-tariff-maintenance) — 4 features; operator-gated.
+- [Automatic fax tariff maintenance](#fax-tariff-maintenance) — 5 features; operator-gated.
 - [Consumed provider freshness and preventive deadline actions](#provider-freshness) — 17 features; operator-gated.
 
 ### Web
@@ -1252,13 +1252,14 @@ Supervisor approval/reporting options are independent and off by default. Resour
 **Surfaces:** Authorized private operator CLI/service-binding qualification and registration, and existing scheduled backend maintenance; no public browser, REST or MCP registration authority.
 
 - Daily Cloudflare refresh streams the current Telnyx deck, page price, sender profile and ECB currency conversion
+- A private Cloudflare operator can initialize an empty catalogue after a missed trigger and check coverage for two fixed destinations
 - Rates apply to the sending profile and destination prefix, with exact matches, origin restrictions, per-call charges and billing intervals
 - Only complete imports replace the active catalogue. Customers can use previous prices and receive an initial commercial price for uncovered destinations.
 - An accepted quote binds the original terms and its customer ceiling through settlement
 
 **Contract:** [FAX_TARIFF_MAINTENANCE.md](FAX_TARIFF_MAINTENANCE.md) · **Implementation:** [apps/api/src/worldwide-fax-catalog.ts](../apps/api/src/worldwide-fax-catalog.ts)
 
-**Tests:** [tests/integration/worldwide-fax-catalog.test.ts](../tests/integration/worldwide-fax-catalog.test.ts), [tests/integration/fax-tariff-refresh.test.ts](../tests/integration/fax-tariff-refresh.test.ts), [tests/unit/fax-tariff-sources.test.ts](../tests/unit/fax-tariff-sources.test.ts)
+**Tests:** [tests/integration/worldwide-fax-catalog.test.ts](../tests/integration/worldwide-fax-catalog.test.ts), [tests/unit/worldwide-fax-catalog-operator.test.ts](../tests/unit/worldwide-fax-catalog-operator.test.ts), [tests/integration/fax-tariff-refresh.test.ts](../tests/integration/fax-tariff-refresh.test.ts), [tests/unit/fax-tariff-sources.test.ts](../tests/unit/fax-tariff-sources.test.ts)
 
 
 

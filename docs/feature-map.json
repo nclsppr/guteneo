@@ -1423,6 +1423,7 @@
       "source": "apps/api/src/worldwide-fax-catalog.ts",
       "features": [
         "Daily Cloudflare refresh streams the current Telnyx deck, page price, sender profile and ECB currency conversion",
+        "A private Cloudflare operator can initialize an empty catalogue after a missed trigger and check coverage for two fixed destinations",
         "Rates apply to the sending profile and destination prefix, with exact matches, origin restrictions, per-call charges and billing intervals",
         "Only complete imports replace the active catalogue. Customers can use previous prices and receive an initial commercial price for uncovered destinations.",
         "An accepted quote binds the original terms and its customer ceiling through settlement"
@@ -1430,6 +1431,7 @@
       "status": "The worldwide contract replaces the Luxembourg pilot. Isolated tests qualify the catalogue and outage behavior.",
       "tests": [
         "tests/integration/worldwide-fax-catalog.test.ts",
+        "tests/unit/worldwide-fax-catalog-operator.test.ts",
         "tests/integration/fax-tariff-refresh.test.ts",
         "tests/unit/fax-tariff-sources.test.ts"
       ],

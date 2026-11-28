@@ -1,6 +1,6 @@
 ---
 title: "Automatic fax tariff maintenance"
-description: "4 capabilities in the operations branch of Guteneo."
+description: "5 capabilities in the operations branch of Guteneo."
 sidebar:
   order: 26
 ---
@@ -19,6 +19,7 @@ The worldwide contract replaces the Luxembourg pilot. Isolated tests qualify the
 
 <ol>
 <li id="feature-c6acae3543ee">Daily Cloudflare refresh streams the current Telnyx deck, page price, sender profile and ECB currency conversion</li>
+<li id="feature-b2283716efdd">A private Cloudflare operator can initialize an empty catalogue after a missed trigger and check coverage for two fixed destinations</li>
 <li id="feature-ea8aadb9567f">Rates apply to the sending profile and destination prefix, with exact matches, origin restrictions, per-call charges and billing intervals</li>
 <li id="feature-79f85c701385">Only complete imports replace the active catalogue. Customers can use previous prices and receive an initial commercial price for uncovered destinations.</li>
 <li id="feature-9905fa25f84b">An accepted quote binds the original terms and its customer ceiling through settlement</li>

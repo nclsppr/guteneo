@@ -23,6 +23,24 @@ worldwide terms to the tenant-scoped immutable fax ledger. Apply both before
 enabling worldwide mode in the runtime. Provider acceptance depends on the
 actual account, number and receiving equipment.
 
+### Initialize the first catalogue after a release
+
+The 02:17 UTC trigger populates the catalogue automatically. If a release misses that run, a Cloudflare operator authorized to initialize pricing may populate the first revision for the deployed provider account, application, profile and sender. Use the clean checkout of the exact published application after its schema and 100% rollout have been verified. The local helper binds privately to `WorldwideFaxCatalogOperator` in the existing application Worker. Keep that capability exclusive to the operator. The helper config has no public route, preview URL, D1 binding or provider secret.
+
+```sh
+node scripts/worldwide-fax-catalog-operator.mjs --status
+node scripts/worldwide-fax-catalog-operator.mjs --initialize-production WORKER_VERSION_UUID
+node scripts/worldwide-fax-catalog-operator.mjs --status
+```
+
+For the second command, use the Cloudflare version UUID verified by the release operator and returned by the first command. The CLI checks the clean local commit against the published release manifest. Both RPC methods take zero arguments. The Worker derives the scope from its installed configuration, reads the real supplier and ECB sources and uses the daily importer's bounded lease, completeness checks and atomic activation. The initialization claim also requires an empty active pointer, even when a scheduled refresh is due. An active catalogue returns immediately.
+
+Read `active`, `observedAt`, `sourceRows`, `destinationGroups` and `buckets` together. The two named lookups report whether the pricing resolver found an unambiguous reference for a fixed North American and British example. They do not contact either number. A lookup can lack a match for one example while the catalogue is active. Status has no writes or supplier requests.
+
+If a connection closes before a result arrives or the reported Worker version changes, read status again before any further action. `deferred` indicates the due date or a competing lease; `source_unavailable` retains the existing backoff. Inspect `nextDueAt` and `leaseUntil` before retrying. The next regular trigger can recover. Customer price fallback and every original approval remain available during recovery. Full qualification includes a live complete revision, matching deployed version and observed lookup results. Local fixtures establish the concurrency and existing-revision guards.
+
+On 28 November 2026 a read-only inspection of the installed Telnyx account discovered the official deck. It contained 263,351 rows, 34,715,134 bytes and 224 destination groups, compiling to 2,157 buckets for the provider-owned fax number. The public page fee and the ECB reference dated 27 November parsed successfully. The earlier Worker reported an invalid `whitelisted_destinations` field on its profile read. This source observation did not initialize D1 or qualify the updated Worker’s profile or live delivery.
+
 ## Historical scoped contract — 30 October 2026 candidate
 
 An explicitly registered fax route can refresh its dated commercial reference

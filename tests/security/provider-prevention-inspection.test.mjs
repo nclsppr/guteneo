@@ -142,6 +142,8 @@ test("prevention inspection is a private read-only RPC and its entrypoint has no
                       export const publicHttpError = () => {};
                       export const startObservation = () => {};
                       export const inspectTelnyxFaxTariffCatalog = () => {};
+                      export function inspectWorldwideFaxCatalog(env) { return env.DB.inspections; }
+                      export function initializeWorldwideFaxCatalog(env) { return ++env.DB.initializations; }
                       export const inspectResendPolicySources = () => {};`,
               loader: "js",
             }),
@@ -155,10 +157,17 @@ test("prevention inspection is a private read-only RPC and its entrypoint has no
     module,
     module.exports,
   );
-  const db = { inspections: 0 };
+  const db = { inspections: 0, initializations: 0 };
   const entrypoint = Object.create(module.exports.ProviderInspection.prototype);
   entrypoint.env = { DB: db };
-  for (const operation of ["plan", "begin", "advance", "notice", "complete"])
+  for (const operation of [
+    "plan",
+    "begin",
+    "advance",
+    "notice",
+    "complete",
+    "initialize",
+  ])
     assert.equal(entrypoint[operation], undefined);
   for (const method of ["GET", "POST"])
     assert.equal(
@@ -172,4 +181,23 @@ test("prevention inspection is a private read-only RPC and its entrypoint has no
   assert.equal(db.inspections, 0);
   assert.deepEqual(await entrypoint.inspectProviderPrevention(), report);
   assert.equal(db.inspections, 1);
+  const catalog = Object.create(
+    module.exports.WorldwideFaxCatalogOperator.prototype,
+  );
+  catalog.env = { DB: db };
+  assert.equal(
+    catalog.fetch(
+      new Request("https://guteneo.invalid/initialize", { method: "POST" }),
+    ).status,
+    404,
+  );
+  assert.equal(catalog.status(), 1);
+  assert.throws(
+    () => catalog.initialize({ sender: "arbitrary" }),
+    /UNEXPECTED_ARGUMENTS/,
+  );
+  assert.throws(() => catalog.status("arbitrary"), /UNEXPECTED_ARGUMENTS/);
+  assert.equal(db.initializations, 0);
+  assert.equal(catalog.initialize(), 1);
+  assert.equal(catalog.inspectTelnyx, undefined);
 });

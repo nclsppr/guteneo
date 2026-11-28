@@ -2,7 +2,11 @@ import { readFileSync } from "node:fs";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import { unstable_splitSqlQuery } from "wrangler";
 import { afterAll, beforeAll, describe, it, expect, vi } from "vitest";
-import { refreshWorldwideFaxCatalog } from "../../apps/api/src/worldwide-fax-catalog";
+import {
+  initializeWorldwideFaxCatalog,
+  inspectWorldwideFaxCatalog,
+  refreshWorldwideFaxCatalog,
+} from "../../apps/api/src/worldwide-fax-catalog";
 import { resolveWorldwideFaxReference } from "../../packages/domain/src/worldwide-fax-catalog";
 import {
   telnyxAccountReference,
@@ -101,6 +105,7 @@ beforeAll(async () => {
     DB: db,
     MODE: "production",
     ENVIRONMENT: "production",
+    TELNYX_FAX_DESTINATIONS: "worldwide",
     TELNYX_API_KEY: "fixture-read",
     TELNYX_PUBLIC_KEY: key,
     TELNYX_ACCOUNT_ID: (await telnyxAccountReference(key))!,
@@ -170,10 +175,38 @@ describe("worldwide published fax tariff", () => {
         outboundProfileId,
         destinationNumber,
       });
-    const pair = await Promise.all([run(), run()]);
-    expect(pair.reduce((n, v) => n + v.worldwideFaxCatalogRefreshed, 0)).toBe(
-      1,
-    );
+    expect(await inspectWorldwideFaxCatalog(env)).toMatchObject({
+      active: false,
+      sourceRows: 0,
+      lookups: [],
+    });
+    expect(
+      await db
+        .prepare("SELECT count(*) n FROM worldwide_fax_catalog_state")
+        .first("n"),
+    ).toBe(0);
+    await expect(
+      initializeWorldwideFaxCatalog({
+        ...env,
+        TELNYX_FAX_DESTINATIONS: undefined,
+      }),
+    ).rejects.toThrow("WORLDWIDE_FAX_CONFIGURATION_REQUIRED");
+    const firstUse = () =>
+      refreshWorldwideFaxCatalog(env, {
+        fetcher,
+        inspect,
+        now: () => clock,
+        initialOnly: true,
+      });
+    const initialize = () =>
+      initializeWorldwideFaxCatalog(env, {
+        fetcher,
+        inspect,
+        now: () => clock,
+      });
+    const results = await Promise.all([initialize(), initialize()]);
+    expect(results.filter((r) => r.result === "initialized")).toHaveLength(1);
+    expect(await run()).toMatchObject({ worldwideFaxCatalogRefreshed: 0 });
     expect(inspect).toHaveBeenCalledTimes(1);
     const ref = await lookup("+12127770000");
     expect(ref).toMatchObject({
@@ -213,6 +246,26 @@ describe("worldwide published fax tariff", () => {
       .prepare("SELECT revision FROM worldwide_fax_catalog_state")
       .first<string>("revision");
     clock += 86_400_000;
+    const active = await initializeWorldwideFaxCatalog(env);
+    expect(active).toMatchObject({
+      result: "already_active",
+      catalog: {
+        active: true,
+        sourceRows: csv.split("\n").length - 1,
+        lookups: [
+          { sample: "North American numbering plan", matched: true },
+          { sample: "United Kingdom", matched: false },
+        ],
+      },
+    });
+    expect(JSON.stringify(active)).not.toContain(senderNumber);
+    expect(JSON.stringify(active)).not.toContain(url);
+    // Even when daily refresh is due, initialization may never supersede the first active revision.
+    expect(await firstUse()).toEqual({
+      worldwideFaxCatalogRefreshed: 0,
+      worldwideFaxCatalogFailed: 0,
+    });
+    expect(inspect).toHaveBeenCalledTimes(1);
     truncated = true;
     expect(await run()).toMatchObject({ worldwideFaxCatalogFailed: 1 });
     expect(

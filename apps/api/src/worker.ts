@@ -22,6 +22,10 @@ import { startObservation } from "../../../packages/observability/src/index";
 import { inspectTelnyxFaxTariffCatalog } from "./fax-tariff-refresh";
 import { inspectResendPolicySources } from "./resend-policy-refresh";
 import { readPrivatePreventionReport } from "./freshness-prevention";
+import {
+  initializeWorldwideFaxCatalog,
+  inspectWorldwideFaxCatalog,
+} from "./worldwide-fax-catalog";
 import { AccountDeletionService } from "./account-deletion";
 
 export default {
@@ -76,6 +80,21 @@ export class AccountDeletionOperator extends WorkerEntrypoint<Env> {
   }
   async complete(input: unknown) {
     return new AccountDeletionService(this.env).complete(input);
+  }
+  fetch() {
+    return new Response("Not found", { status: 404 });
+  }
+}
+
+/** Same-account maintenance binding. Both operations derive all inputs from the deployed Worker. */
+export class WorldwideFaxCatalogOperator extends WorkerEntrypoint<Env> {
+  status(...args: never[]) {
+    if (args.length) throw new Error("UNEXPECTED_ARGUMENTS");
+    return inspectWorldwideFaxCatalog(this.env);
+  }
+  initialize(...args: never[]) {
+    if (args.length) throw new Error("UNEXPECTED_ARGUMENTS");
+    return initializeWorldwideFaxCatalog(this.env);
   }
   fetch() {
     return new Response("Not found", { status: 404 });

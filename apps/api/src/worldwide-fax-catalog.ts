@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import {
   faxCatalogBucket,
   worldwideFaxScope,
+  resolveWorldwideFaxReference,
   type CatalogEvidence,
 } from "../../../packages/domain/src/worldwide-fax-catalog";
 import {
@@ -110,7 +111,116 @@ type Dependencies = {
   now?: () => number;
   fetcher?: typeof fetch;
   inspect?: typeof inspectTelnyxReadiness;
+  initialOnly?: true;
 };
+async function configuredBinding(env: Env) {
+  if (
+    !env.TELNYX_API_KEY ||
+    !env.TELNYX_PUBLIC_KEY ||
+    !env.TELNYX_CONNECTION_ID ||
+    !env.TELNYX_OUTBOUND_VOICE_PROFILE_ID ||
+    !env.TELNYX_FROM ||
+    !env.TELNYX_ACCOUNT_ID
+  )
+    return null;
+  const account = await telnyxAccountReference(env.TELNYX_PUBLIC_KEY);
+  if (!account || env.TELNYX_ACCOUNT_ID !== account) return null;
+  return {
+    accountId: account,
+    connectionId: env.TELNYX_CONNECTION_ID,
+    outboundProfileId: env.TELNYX_OUTBOUND_VOICE_PROFILE_ID,
+    senderNumber: env.TELNYX_FROM,
+  };
+}
+
+/** Read the deployed sender scope without disclosing provider or customer identifiers. */
+export async function inspectWorldwideFaxCatalog(env: Env) {
+  if (
+    env.MODE !== "production" ||
+    env.ENVIRONMENT !== "production" ||
+    env.TELNYX_FAX_DESTINATIONS !== "worldwide"
+  )
+    throw new Error("WORLDWIDE_FAX_CONFIGURATION_REQUIRED");
+  const binding = await configuredBinding(env);
+  if (!binding) throw new Error("WORLDWIDE_FAX_CONFIGURATION_REQUIRED");
+  const row = await env.DB.prepare(
+    `SELECT s.revision, s.next_due_at AS nextDueAt, s.lease_until AS leaseUntil, r.created_at AS observedAt, d.complete,
+      json_extract(r.evidence_json,'$.rows') AS sourceRows,
+      json_array_length(r.evidence_json,'$.countries') AS destinationGroups,
+      (SELECT count(*) FROM worldwide_fax_catalog_buckets b WHERE b.deck_id=d.id) AS buckets
+      FROM worldwide_fax_catalog_state s LEFT JOIN worldwide_fax_catalog_revisions r ON r.scope=s.scope AND r.id=s.revision
+      LEFT JOIN worldwide_fax_catalog_decks d ON d.scope=s.scope AND d.id=r.deck_id WHERE s.scope=?`,
+  )
+    .bind(worldwideFaxScope(binding))
+    .first<{
+      revision: string | null;
+      nextDueAt: string;
+      leaseUntil: string | null;
+      observedAt: string;
+      complete: number;
+      sourceRows: number;
+      destinationGroups: number;
+      buckets: number;
+    }>();
+  if (
+    row?.revision &&
+    (row.complete !== 1 ||
+      row.sourceRows < 100000 ||
+      row.destinationGroups < 190 ||
+      !row.buckets)
+  )
+    throw new Error("FAX_CATALOG_INCONSISTENT");
+  const active = Boolean(row?.revision);
+  const lookups = active
+    ? await Promise.all(
+        [
+          ["North American numbering plan", "+12025550100"],
+          ["United Kingdom", "+442079460000"],
+        ].map(async ([sample, destinationNumber]) => ({
+          sample,
+          matched: Boolean(
+            await resolveWorldwideFaxReference(env.DB, {
+              ...binding,
+              destinationNumber,
+            }),
+          ),
+        })),
+      )
+    : [];
+  return {
+    active,
+    observedAt: row?.observedAt ?? null,
+    nextDueAt: row?.nextDueAt ?? null,
+    leaseUntil: row?.leaseUntil ?? null,
+    sourceRows: row?.sourceRows ?? 0,
+    destinationGroups: row?.destinationGroups ?? 0,
+    buckets: row?.buckets ?? 0,
+    lookups,
+    workerVersionId: env.WRANGLER_VERSION_METADATA?.id ?? null,
+  };
+}
+
+export async function initializeWorldwideFaxCatalog(
+  env: Env,
+  dependencies: Omit<Dependencies, "initialOnly"> = {},
+) {
+  const current = await inspectWorldwideFaxCatalog(env);
+  if (current.active) return { result: "already_active", catalog: current };
+  const counts = await refreshWorldwideFaxCatalog(env, {
+    ...dependencies,
+    initialOnly: true,
+  });
+  const catalog = await inspectWorldwideFaxCatalog(env);
+  const result = counts.worldwideFaxCatalogRefreshed
+    ? "initialized"
+    : catalog.active
+      ? "already_active"
+      : counts.worldwideFaxCatalogFailed
+        ? "source_unavailable"
+        : "deferred";
+  return { result, catalog };
+}
+
 export async function refreshWorldwideFaxCatalog(
   env: Env,
   dependencies: Dependencies = {},
@@ -121,25 +231,9 @@ export async function refreshWorldwideFaxCatalog(
   };
   if (env.MODE !== "production" || env.ENVIRONMENT !== "production")
     return counts;
-  if (
-    !env.TELNYX_API_KEY ||
-    !env.TELNYX_PUBLIC_KEY ||
-    !env.TELNYX_CONNECTION_ID ||
-    !env.TELNYX_OUTBOUND_VOICE_PROFILE_ID ||
-    !env.TELNYX_FROM ||
-    !env.TELNYX_ACCOUNT_ID
-  )
-    return { ...counts, worldwideFaxCatalogFailed: 1 };
-  const account = await telnyxAccountReference(env.TELNYX_PUBLIC_KEY);
-  if (!account || env.TELNYX_ACCOUNT_ID !== account)
-    return { ...counts, worldwideFaxCatalogFailed: 1 };
-  const binding = {
-    accountId: account,
-    connectionId: env.TELNYX_CONNECTION_ID,
-    outboundProfileId: env.TELNYX_OUTBOUND_VOICE_PROFILE_ID,
-    senderNumber: env.TELNYX_FROM,
-  };
-  const key = env.TELNYX_API_KEY;
+  const binding = await configuredBinding(env);
+  if (!binding) return { ...counts, worldwideFaxCatalogFailed: 1 };
+  const key = env.TELNYX_API_KEY!;
   const scope = worldwideFaxScope(binding),
     lease = crypto.randomUUID();
   const now = dependencies.now ?? Date.now;
@@ -154,9 +248,16 @@ export async function refreshWorldwideFaxCatalog(
     .run();
   const acquired = await db
     .prepare(
-      `UPDATE worldwide_fax_catalog_state SET lease_token=?,lease_until=? WHERE scope=? AND next_due_at<=? AND (lease_until IS NULL OR lease_until<=?)`,
+      `UPDATE worldwide_fax_catalog_state SET lease_token=?,lease_until=? WHERE scope=? AND next_due_at<=? AND (lease_until IS NULL OR lease_until<=?) AND (?=0 OR revision IS NULL)`,
     )
-    .bind(lease, later(180_000), scope, stamp(), stamp())
+    .bind(
+      lease,
+      later(180_000),
+      scope,
+      stamp(),
+      stamp(),
+      dependencies.initialOnly ? 1 : 0,
+    )
     .run();
   if (!acquired.meta.changes) return counts;
   const abort = new AbortController();
