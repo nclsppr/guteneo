@@ -9,6 +9,7 @@ import {
   vi,
 } from "vitest";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
+import { unstable_splitSqlQuery } from "wrangler";
 import { exportJWK, generateKeyPair, SignJWT } from "jose";
 import {
   authenticateBrowser,
@@ -151,20 +152,9 @@ beforeAll(async () => {
       new URL(`../../migrations/${name}`, import.meta.url),
       "utf8",
     );
-    let statement = "";
-    let trigger = false;
-    for (const raw of sql.split("\n")) {
-      const line = raw.trim();
-      if (!line || line.startsWith("--")) continue;
-      if (line.startsWith("CREATE TRIGGER") && !line.endsWith("END;"))
-        trigger = true;
-      statement += `${line}\n`;
-      if ((trigger && line === "END;") || (!trigger && line.endsWith(";"))) {
-        await db.prepare(statement).run();
-        statement = "";
-        trigger = false;
-      }
-    }
+    await db.batch(
+      unstable_splitSqlQuery(sql).map((statement) => db.prepare(statement)),
+    );
   }
 });
 afterEach(async () => {
